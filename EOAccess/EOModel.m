@@ -53,6 +53,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSCategories.h>
 #endif
 
 #include <GNUstepBase/GSObjCRuntime.h>
@@ -74,6 +75,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAttribute.h>
 
+#define DEFAULT_MODEL_VERSION 2
 
 NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
@@ -201,7 +203,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   if ((self = [super init]))
     {
       // Turbocat
-      _version = 2;
+      _version = DEFAULT_MODEL_VERSION;
       _flags.createsMutableObjects = YES;
       
       _entitiesByName = [GCMutableDictionary new];
@@ -317,11 +319,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 - (NSString*) adaptorClassName
 {
   return _adaptorClassName;
-}
-
-- (float) version
-{
-  return _version;
 }
 
 - (EOEntity*) entityNamed: (NSString *)name
@@ -484,11 +481,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 - (EOModelGroup*) modelGroup
 {
   return _group;
-}
-
-+ (float) version
-{
-  return 2;
 }
 
 - (EOAttribute *)prototypeAttributeNamed: (NSString *)attributeName
@@ -759,7 +751,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSMutableArray *entitiesArray;
 
   [propertyList setObject:
-    [[NSNumber numberWithFloat: [isa version]] stringValue]
+    [[NSNumber numberWithFloat: DEFAULT_MODEL_VERSION] stringValue]
 		forKey: @"EOModelVersion"];
 
   if (_adaptorName)
@@ -947,7 +939,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 {
   int i, count;
 
-  [propertyList setObject: [[NSNumber numberWithFloat: [isa version]]
+  [propertyList setObject: 
+		  [[NSNumber numberWithFloat: DEFAULT_MODEL_VERSION]
 			     stringValue]
 		forKey: @"EOModelVersion"];
 

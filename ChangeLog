@@ -5,6 +5,47 @@
 	* EOControl/GNUmakefile: Ditto.
 	* EOModeler/GNUmakefile: Ditto.
 	* Tools/GNUmakefile: Ditto.  Update title.
+	
+	* EOAccess/EOAdaptor.m: Include GNUstep-specific headers for
+	non-GNUstep systems.
+	* EOAccess/EOAdaptorChannel.m: Ditto.
+	* EOAccess/EOAdaptorContext.m: Ditto.
+	* EOAccess/EOAttribute.m: Ditto.
+	* EOAccess/EODatabaseChannel.m: Ditto.
+	* EOAccess/EODatabaseDataSource.m: Ditto.
+	* EOAccess/EOEntity.m: Ditto.
+	* EOAccess/EOModel.m: Ditto.
+	* EOAccess/EOModelGroup.m: Ditto.
+	* EOAccess/EORelationship.m: Ditto.
+	* EOAccess/EOSQLQualifier.m: Ditto.
+	* EOAccess/EOUtilities.m: Ditto.
+	* EOControl/EOAndQualifier.m: Ditto.
+	* EOControl/EOClassDescription.m: Ditto.
+	* EOControl/EODataSource.m: Ditto.
+	* EOControl/EOEditingContext.m: Ditto.
+	* EOControl/EOFault.m: Ditto.
+	* EOControl/EOFaultHandler.m: Ditto.
+	* EOControl/EOFetchSpecification.m: Ditto.
+	* EOControl/EOKeyValueArchiver.m: Ditto.
+	* EOControl/EOKeyValueQualifier.m: Ditto.
+	* EOControl/EOMutableKnownKeyDictionary.m: Ditto.
+	* EOControl/EONSAddOns.m: Ditto.
+	* EOControl/EOObjectStore.m: Ditto.
+	* EOControl/EOObjectStoreCoordinator.m: Ditto.
+	* EOControl/EOObserver.m: Ditto.
+	* EOControl/EOOrQualifier.m: Ditto.
+	* EOControl/EOQualifier.m: Ditto.
+	* EOControl/EOUndoManager.m: Ditto.
+	* EOModeler/EOModelExtensions.m: Ditto.
+	
+	* EOAccess/EOModel.h/m (+/-[EOModel version]) Remove.
+	([EOModel init]): Handle version internally.
+	([EOModel encodeTableOfContentsIntoPropertyList:]): Ditto.
+	([EOModel encodeIntoPropertyList:]): Ditto.
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext dealloc]):
+	Use NSCountHashTable instead of NSCountMapTable on hash table.
+	* EOAccess/EOAttribute.m ([EOAttribute newValueForBytes:length:]):
+	Added casts to avoid warnings.
 
 2003-11-28  Manuel Guesdon  <mguesdon@orange-concept.com>
 	

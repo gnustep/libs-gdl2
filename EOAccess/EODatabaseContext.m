@@ -57,6 +57,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSCategories.h>
 #endif
 
 #include <GNUstepBase/GSObjCRuntime.h>
@@ -312,7 +313,7 @@ static Class _contextClass = Nil;
   if (_nonPrimaryKeyGenerators)
     {
       NSDebugMLog(@"MEMORY: nonPrimaryKeyGnerators count=%u",
-		  NSCountMapTable(_nonPrimaryKeyGenerators));
+		  NSCountHashTable(_nonPrimaryKeyGenerators));
 
       NSFreeHashTable(_nonPrimaryKeyGenerators);
       _nonPrimaryKeyGenerators = NULL;

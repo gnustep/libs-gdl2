@@ -59,6 +59,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSCategories.h>
 #endif
 
 #include <EOControl/EONull.h>
@@ -1040,8 +1041,8 @@ return nexexp
 	  value = [[NSData alloc] initWithBytes:bytes length: length]; //For efficiency reasons, the returned value is NOT autoreleased !
 
 	  if(_valueFactoryMethod != NULL)
-	    value = [valueClass performSelector: _valueFactoryMethod
-				 withObject: [value autorelease]];
+	    value = [(id)valueClass performSelector: _valueFactoryMethod
+			            withObject: [value autorelease]];
 	  break;
 
 	case EOFactoryMethodArgumentIsBytes:
@@ -1097,8 +1098,8 @@ return nexexp
 							  length: length]
 				    encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
 	  
-	  value = [valueClass performSelector: _valueFactoryMethod
-			       withObject: [value autorelease]];
+	  value = [(id)valueClass performSelector: _valueFactoryMethod
+			          withObject: [value autorelease]];
 	  break;
 
 	case EOFactoryMethodArgumentIsBytes:

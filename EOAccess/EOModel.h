@@ -86,9 +86,6 @@
 - (NSString *)adaptorName;
 - (NSString *)adaptorClassName;
 
-- (float)version;
-+ (float)version;
-
 /** Using entities **/
 - (EOEntity *)entityNamed: (NSString*)name;
 - (NSArray *)entities;

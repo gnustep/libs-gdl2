@@ -28,6 +28,7 @@
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSCategories.h>
 #endif
 
 #include <EOModeler/EOModelExtensions.h>
