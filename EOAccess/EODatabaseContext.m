@@ -3451,9 +3451,9 @@ Raises an exception is the adaptor is unable to perform the operations.
   EOFLOGObjectFnStop();
 }
 
--(void)relayAttributesInRelationship: (EORelationship*)relationship
-                        sourceObject: (id)sourceObject
-                  destinationObjects: (NSArray*)destinationObjects
+- (void)relayAttributesInRelationship: (EORelationship*)relationship
+			 sourceObject: (id)sourceObject
+		   destinationObjects: (NSArray*)destinationObjects
 {
   int destinationObjectsCount = 0;
 
@@ -3526,7 +3526,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 				   objectForKey: @"destinationKeys"];//(customerCode) 
       NSArray *sourceKeys = [sourceToDestinationKeyMap
 			      objectForKey: @"sourceKeys"];//(code)
-      NSMutableDictionary* sourceNewRow = [sourceDBOpe newRow];//OK in foreignKeyInDestination
+      NSMutableDictionary *sourceNewRow = [sourceDBOpe newRow];//OK in foreignKeyInDestination
       BOOL foreignKeyInDestination = [relationship foreignKeyInDestination];
       int i, count;
 
@@ -3548,7 +3548,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       NSAssert([destinationKeys count] == [sourceKeys count],
                @"destination keys count!=source keys count");
 
-      if (foreignKeyInDestination)
+      if (foreignKeyInDestination || [relationship propagatesPrimaryKey])
         {
           relayedValues = [[[sourceNewRow valuesForKeys: sourceKeys]
 			     mutableCopy] autorelease];// {code = 0; }
@@ -3559,20 +3559,20 @@ Raises an exception is the adaptor is unable to perform the operations.
 
           for (i = 0; i < count; i++)
             {
-              id sourceKey = [sourceKeys objectAtIndex: i];
-              id destKey = [destinationKeys objectAtIndex: i];//customerCode
+              NSString *sourceKey = [sourceKeys objectAtIndex: i];
+              NSString *destKey = [destinationKeys objectAtIndex: i];
               id sourceValue = [relayedValues objectForKey: sourceKey];
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceKey=%@",
+	      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceKey=%@",
 				    sourceKey);
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destKey=%@",
+	      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destKey=%@",
 				    destKey);
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceValue=%@",
+	      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceValue=%@",
 				    sourceValue);
 
-              [relayedValues removeObjectForKey: sourceKey];
-              [relayedValues setObject: sourceValue
-                             forKey: destKey];
+	      [relayedValues removeObjectForKey: sourceKey];
+	      [relayedValues setObject: sourceValue
+			     forKey: destKey];
             }
 
           EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relayedValues=%@",
@@ -3856,9 +3856,6 @@ Raises an exception is the adaptor is unable to perform the operations.
 			   entity: entity]; //OK
 
            EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				 @"CREATED databaseOpe=%@\nfor object %p",
-				 databaseOpe, object);
-           EOFLOGObjectLevelArgs(@"EODatabaseContext",
 				 @"CREATED databaseOpe=%@\nfor object %p %@",
 				 databaseOpe, object, object);
 
@@ -3968,6 +3965,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   return databaseOpe;
 }
+
 - (void)relayPrimaryKey: (NSDictionary*)pk
            sourceObject: (id)sourceObject
 	     destObject: (id)destObject
@@ -4005,7 +4003,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   count = [values count];
 
   for (i = 0; nullPKValues && i < count; i++)
-    nullPKValues = ([values objectAtIndex:i] == [EONull null]);
+    nullPKValues = isNilOrEONull([values objectAtIndex:i]);
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"nullPKValues=%s",
 			(nullPKValues ? "YES" : "NO"));
@@ -4026,9 +4024,9 @@ Raises an exception is the adaptor is unable to perform the operations.
   EOFLOGObjectFnStop();
 }
 
--(void)relayPrimaryKey: (NSDictionary*)pk
-                object: (id)object
-                entity: (EOEntity*)entity
+- (void)relayPrimaryKey: (NSDictionary*)pk
+		 object: (id)object
+		 entity: (EOEntity*)entity
 {
   //TODO finish
   NSArray *relationships = nil;
@@ -6692,16 +6690,35 @@ _numLocked = 0;
 
                   if (destinationEntity)
                     {
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"destination entity: %@ No PrimaryKey Generation [Relatiuonship = %@]",
-                                            [destinationEntity name],
-                                            [relationship name]);
+		      NSArray *destAttrs;
+		      NSArray *pkAttrs;
+		      int i, count;
+		      BOOL destPK = NO;
 
-                      if (!_nonPrimaryKeyGenerators)
-                        _nonPrimaryKeyGenerators = NSCreateHashTable(NSObjectHashCallBacks, 32);
+		      destAttrs = [relationship destinationAttributes];
+		      pkAttrs = [destinationEntity primaryKeyAttributes];
+		      count = [destAttrs count];
 
-                      NSHashInsertIfAbsent(_nonPrimaryKeyGenerators, [destinationEntity name]);
-                      [entityToProcess addObject: destinationEntity];
+		      for (i = 0; i < count; i++)
+			{
+			  if ([pkAttrs containsObject: [destAttrs
+							 objectAtIndex: i]])
+			    destPK = YES;
+			}
+
+		      if (destPK)
+			{
+			  EOFLOGObjectLevelArgs(@"EODatabaseContext",
+						@"destination entity: %@ No PrimaryKey Generation [Relationship = %@]",
+						[destinationEntity name],
+						[relationship name]);
+
+			  if (!_nonPrimaryKeyGenerators)
+			    _nonPrimaryKeyGenerators = NSCreateHashTable(NSObjectHashCallBacks, 32);
+
+			  NSHashInsertIfAbsent(_nonPrimaryKeyGenerators, [destinationEntity name]);
+			  [entityToProcess addObject: destinationEntity];
+			}
                     }
                 }
             }

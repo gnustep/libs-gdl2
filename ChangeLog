@@ -1,3 +1,15 @@
+2002-12-14  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EORelationship.m ([EORelationship
+	-foreignKeyInDestination]): use destinationEntity to search for pk.
+
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-_buildPrimaryKeyGeneratorListForEditingContext:]): check if the
+	relationship propagates the pk to an entity pk.
+	([EODatabaseContext -relayAttributesInRelationship:sourceObject:
+	destinationObject:]): record updates for relationship with fk and the
+	ones that propatates pk.
+
 2002-12-08  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOAccess/EOEntity.m ([EOEntity -classDescriptionForInstances]):

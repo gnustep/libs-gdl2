@@ -1978,47 +1978,47 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
   return _sourceToDestinationKeyMap;
 }
 
--(BOOL)foreignKeyInDestination
+- (BOOL)foreignKeyInDestination
 {
+  NSArray *destAttributes;
+  NSArray *primaryKeyAttributes;
+  int destAttributesCount;
+  int primaryKeyAttributesCount;
   BOOL foreignKeyInDestination = NO;
 
   EOFLOGObjectFnStart();
 
-  if ([self isToMany])
+  destAttributes = [self destinationAttributes];
+  primaryKeyAttributes = [[self destinationEntity] primaryKeyAttributes];
+
+  destAttributesCount = [destAttributes count];
+  primaryKeyAttributesCount = [primaryKeyAttributes count];
+
+  EOFLOGObjectLevelArgs(@"EORelationship", @"destAttributes=%@",
+			destAttributes);
+  EOFLOGObjectLevelArgs(@"EORelationship", @"primaryKeyAttributes=%@",
+			primaryKeyAttributes);
+
+  if (destAttributesCount > 0 && primaryKeyAttributesCount > 0)
     {
-      foreignKeyInDestination = YES;
-    }
-  else
-    {
-      NSArray *sourceAttributes = [self sourceAttributes];
-      NSArray *primaryKeyAttributes = [_entity primaryKeyAttributes];
-      int sourceAttributesCount = [sourceAttributes count];
-      int primaryKeyAttributesCount = [primaryKeyAttributes count];
+      int i;
 
-      EOFLOGObjectLevelArgs(@"EORelationship", @"sourceAttributes=%@", sourceAttributes);
-      EOFLOGObjectLevelArgs(@"EORelationship", @"primaryKeyAttributes=%@", primaryKeyAttributes);
+      for (i = 0;
+	   !foreignKeyInDestination && i < destAttributesCount;
+	   i++)
+	{
+	  EOAttribute *attribute = [destAttributes objectAtIndex: i];
+	  int pkAttrIndex = [primaryKeyAttributes
+			      indexOfObjectIdenticalTo: attribute];
 
-      if (sourceAttributesCount > 0 && primaryKeyAttributesCount > 0)
-        {
-          int i;
-
-          for (i = 0;
-	       !foreignKeyInDestination && i < sourceAttributesCount;
-	       i++) //TODO-VERIFY
-            {
-              EOAttribute *attribute = [sourceAttributes objectAtIndex: i];
-              int pkAttrIndex = [primaryKeyAttributes
-				  indexOfObjectIdenticalTo: attribute];
-
-              foreignKeyInDestination = (pkAttrIndex != NSNotFound);
-            }
-        }
+	  foreignKeyInDestination = (pkAttrIndex == NSNotFound);
+	}
     }
 
   EOFLOGObjectFnStop();
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"foreignKeyInDestination=%s",
-	       (foreignKeyInDestination ? "YES" : "NO"));
+			(foreignKeyInDestination ? "YES" : "NO"));
 
   return foreignKeyInDestination;
 }
@@ -2325,7 +2325,7 @@ dst entity primaryKeyAttributeNames
       //NSEmitTODO();  //TODO
     }
 
-    return self;
+  return self;
 }
 
 - (void) _joinsChanged
