@@ -1742,6 +1742,11 @@ validateTable:(NSHashTable*)table
   _flags.registeredUndoTransactionID = NO;
 }
 
+-(void)setLevelsOfUndo:(int)levels
+{
+  //TODO
+};
+
 - (void) _registerClearStateWithUndoManager
 {
 //pas appellé dans le cas d'un delete ?

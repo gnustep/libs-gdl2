@@ -91,6 +91,12 @@
 		  instead of building itself it's dictionary so we can
 		  always use the same EOMKKDInitializer to save	(lots of)
 		  memory.
+	* EOControl/EOEditingContext.m/.h:
+		o added -setLevelsOfUndo: (for GNustepWeb)
+	* EOControl/EOFetchSpecification.m/.h:
+		o implemented -encodeWithKeyValueArchiver:
+	* EOControl/EOKeyValueArchiver.m:
+		o cleaned
 	
 2003-10-24  David Ayers  <d.ayers@inode.at>
 

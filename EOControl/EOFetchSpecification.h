@@ -101,7 +101,7 @@
 - copyWithZone:(NSZone *)zone;
 
 - (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver*)unarchiver;
-- (void) encodeWithKeyValueArchiver: (EOKeyValueUnarchiver*)archiver;
+- (void) encodeWithKeyValueArchiver: (EOKeyValueArchiver*)archiver;
 
 - (void)setEntityName: (NSString *)entityName;
 - (NSString *)entityName;

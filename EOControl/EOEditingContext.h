@@ -102,8 +102,6 @@
 
 - initWithParentObjectStore:(EOObjectStore *)parentObjectStore;
 
-- init;
-
 - (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification;
 
 - (void)insertObject: (id)object;
@@ -111,6 +109,8 @@
         withGlobalID: (EOGlobalID *)gid;
 - (void)_insertObject: (id)object
          withGlobalID: (EOGlobalID *)gid;
+
+-(void)setLevelsOfUndo:(int)levels;
 
 - (void)deleteObject: (id)object;
 

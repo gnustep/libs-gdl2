@@ -283,9 +283,38 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
   return self;
 }
 
-- (void) encodeWithKeyValueArchiver: (EOKeyValueUnarchiver*)archiver
+- (void) encodeWithKeyValueArchiver: (EOKeyValueArchiver*)archiver
 {
-  [self notImplemented: _cmd];
+  [archiver encodeObject:_hints
+            forKey:@"hints"];
+  [archiver encodeObject:_qualifier
+            forKey:@"qualifier"];
+  [archiver encodeObject:_sortOrderings
+            forKey:@"sortOrderings"];
+  [archiver encodeObject:_entityName
+            forKey:@"entityName"];
+  [archiver encodeObject:_sortOrderings
+            forKey:@"sortOrderings"];
+  [archiver encodeObject:_prefetchingRelationshipKeys
+            forKey:@"prefetchingRelationshipKeyPaths"];
+  [archiver encodeInt:_fetchLimit
+            forKey:@"fetchLimit"];
+  [archiver encodeBool:_flags.usesDistinct
+            forKey:@"usesDistinct"];
+  [archiver encodeBool:_flags.isDeep
+            forKey:@"isDeep"];
+  [archiver encodeBool:_flags.locksObjects
+            forKey:@"locksObjects"];
+  [archiver encodeBool:_flags.refreshesRefetchedObjects
+            forKey:@"refreshesRefetchedObjects"];
+  [archiver encodeBool:_flags.promptsAfterFetchLimit
+            forKey:@"promptsAfterFetchLimit"];
+  [archiver encodeBool:_flags.refreshesRefetchedObjects
+            forKey:@"refreshesRefetchedObjects"];
+  [archiver encodeBool:_flags.promptsAfterFetchLimit
+            forKey:@"promptsAfterFetchLimit"];
+  [archiver encodeBool:_flags.allVariablesRequiredFromBindings
+            forKey:@"requiresAllQualifierBindingVariables"];
 }
 
 - (NSString*)description
