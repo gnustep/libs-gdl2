@@ -6,6 +6,8 @@
 
 	* EOAccess/EODatabaseContext.m:
 	(-_currentCommittedSnapshotForObject:): Fix crash in logging.
+	(recordChangesInEditingContext): Remove shadowing of local
+	variable.
 	
 2005-02-16  David Ayers  <d.ayers@inode.at>
 

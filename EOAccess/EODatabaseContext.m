@@ -2565,7 +2565,6 @@ forDatabaseOperation:(EODatabaseOperation *)op
                   //En update: dbsnapshot
                   //en insert : snapshot ? en insert:dbsnap aussi
                   int iRelationship = 0;
-                  int relationshipsCount = 0;
                   NSDictionary *snapshot = nil;
                       
                   if (which == 0) //Insert //see wotRelSaveChanes.1.log seems to use dbSna for insert !
