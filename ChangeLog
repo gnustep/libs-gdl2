@@ -1,3 +1,9 @@
+2005-01-26  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOUtilities.m (NSObjectNotAvailableException): 
+	Reactivate correct exception name.  Correct a few whitespace
+	issues.
+	
 2005-01-26  Juergen Lorenz Simon  <juergen_simon@mac.com>
 	    David Ayers  <d.ayers@inode.at>
 

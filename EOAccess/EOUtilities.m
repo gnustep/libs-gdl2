@@ -75,12 +75,12 @@ RCS_ID("$Id$")
 
 
 static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
-//static NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
+static NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
 
 
 @implementation EOEditingContext (EOUtilities)
 
-- (NSArray*)objectsForEntityNamed: (NSString*)entityName
+- (NSArray *)objectsForEntityNamed: (NSString *)entityName
 {
   NSArray *objects;
   EOFetchSpecification *fetchSpecif;
@@ -96,7 +96,7 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return objects;
 }
 
-- (NSArray*)objectsOfClass: (Class)classObject
+- (NSArray *)objectsOfClass: (Class)classObject
 {
   EOEntity *entity;
   NSArray *objects;
@@ -111,9 +111,9 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return objects;
 }
 
-- (NSArray*)objectsWithFetchSpecificationNamed: (NSString*)fetchSpecName
-				   entityNamed: (NSString*)entityName
-				      bindings: (NSDictionary*)bindings
+- (NSArray *)objectsWithFetchSpecificationNamed: (NSString *)fetchSpecName
+				    entityNamed: (NSString *)entityName
+				       bindings: (NSDictionary *)bindings
 {
   EOModelGroup *modelGroup;
   EOFetchSpecification *unboundFetchSpec;
@@ -126,7 +126,7 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 
   if ( !unboundFetchSpec ) 
     {
-      [NSException raise: /*NSObjectNotAvailableException*/NSInvalidArgumentException 
+      [NSException raise: NSObjectNotAvailableException
                    format: @"%@: Fetch specification '%@' not found in entity named '%@'", 
                    NSStringFromSelector(_cmd), fetchSpecName, entityName];
     }
@@ -138,8 +138,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return results;
 }
 
-- (NSArray*)objectsForEntityNamed: (NSString*)entityName
-		  qualifierFormat: (NSString*)format,...
+- (NSArray *)objectsForEntityNamed: (NSString *)entityName
+		   qualifierFormat: (NSString *)format,...
 {
   EOQualifier *qualifier;
   EOFetchSpecification *fetchSpec;
@@ -160,9 +160,9 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return results;
 }
 
-- (NSArray*)objectsMatchingValue: (id)value
-			  forKey: (NSString*)key
-		     entityNamed: (NSString*)entityName
+- (NSArray *)objectsMatchingValue: (id)value
+			   forKey: (NSString *)key
+		      entityNamed: (NSString *)entityName
 {
   //OK
   NSArray *objects;
@@ -211,8 +211,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 */
 }
 
-- (NSArray*)objectsMatchingValues: (NSDictionary*)values
-		      entityNamed: (NSString*)entityName
+- (NSArray *)objectsMatchingValues: (NSDictionary *)values
+		       entityNamed: (NSString *)entityName
 {
   //OK
   NSArray *objects = nil;
@@ -285,9 +285,9 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 */
 }
 
-- (id)objectWithFetchSpecificationNamed: (NSString*)fetchSpecName
-			    entityNamed: (NSString*)entityName
-			       bindings: (NSDictionary*)bindings
+- (id)objectWithFetchSpecificationNamed: (NSString *)fetchSpecName
+			    entityNamed: (NSString *)entityName
+			       bindings: (NSDictionary *)bindings
 {  
   id object = nil;
   int count;
@@ -326,8 +326,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return object;
 }
 
-- (id)objectForEntityNamed: (NSString*)entityName
-	   qualifierFormat: (NSString*)format,...
+- (id)objectForEntityNamed: (NSString *)entityName
+	   qualifierFormat: (NSString *)format,...
 {
   id object = nil;
   int count;
@@ -373,8 +373,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 }
 
 - (id)objectMatchingValue: (id)value
-		   forKey: (NSString*)key
-	      entityNamed: (NSString*)entityName
+		   forKey: (NSString *)key
+	      entityNamed: (NSString *)entityName
 {
   //OK
   id object = nil;
@@ -402,7 +402,7 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
       switch (count)
         {
         case 0:
-          [NSException raise: NSInvalidArgumentException
+          [NSException raise: NSObjectNotAvailableException
 		       format: @"%@: No %@ found with key %@ matching %@",
                        NSStringFromSelector(_cmd),
                        entityName,
@@ -441,8 +441,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return object;
 }
 
-- (id)objectMatchingValues: (NSDictionary*)values
-	       entityNamed: (NSString*)entityName
+- (id)objectMatchingValues: (NSDictionary *)values
+	       entityNamed: (NSString *)entityName
 {
   id object = nil;
   int count;
@@ -483,7 +483,7 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 }
 
 - (id)objectWithPrimaryKeyValue: (id)value
-		    entityNamed: (NSString*)entityName
+		    entityNamed: (NSString *)entityName
 {
   //OK
   id object = nil;
@@ -528,8 +528,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return object;
 }
 
-- (id)objectWithPrimaryKey: (NSDictionary*)pkDict
-	       entityNamed: (NSString*)entityName
+- (id)objectWithPrimaryKey: (NSDictionary *)pkDict
+	       entityNamed: (NSString *)entityName
 {
   //OK
   id object = nil;
@@ -556,8 +556,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return object;
 }
 
-- (id)rawRowsForEntityNamed: (NSString*)entityName
-	    qualifierFormat: (NSString*)format,...
+- (id)rawRowsForEntityNamed: (NSString *)entityName
+	    qualifierFormat: (NSString *)format,...
 {
   EOQualifier *qualifier;
   EOFetchSpecification *fetchSpec;
@@ -583,8 +583,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 }
 
 - (id)rawRowsMatchingValue: (id)value
-		    forKey: (NSString*)key
-	       entityNamed: (NSString*)entityName
+		    forKey: (NSString *)key
+	       entityNamed: (NSString *)entityName
 {
   NSDictionary *valueDict;
   NSArray *results;
@@ -602,8 +602,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return results;
 }
 
-- (id)rawRowsMatchingValues: (NSDictionary*)values
-		entityNamed: (NSString*)entityName
+- (id)rawRowsMatchingValues: (NSDictionary *)values
+		entityNamed: (NSString *)entityName
 {
   EOQualifier *qualifier;
   EOFetchSpecification *fetchSpec;
@@ -623,8 +623,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return results;
 }
 
-- (id)rawRowsWithSQL: (NSString*)sqlString
-	  modelNamed: (NSString*)name
+- (id)rawRowsWithSQL: (NSString *)sqlString
+	  modelNamed: (NSString *)name
 {
   EODatabaseContext *databaseContext;
   EODatabaseChannel *databaseChannel;
@@ -665,8 +665,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return results;
 }
 
-- (id)rawRowsWithStoredProcedureNamed: (NSString*)name
-			    arguments: (NSDictionary*)args
+- (id)rawRowsWithStoredProcedureNamed: (NSString *)name
+			    arguments: (NSDictionary *)args
 {
   EODatabaseContext *databaseContext;
   EODatabaseChannel *databaseChannel;
@@ -709,8 +709,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return results;
 }
 
-- (id)executeStoredProcedureNamed: (NSString*)name
-			arguments: (NSDictionary*)args
+- (id)executeStoredProcedureNamed: (NSString *)name
+			arguments: (NSDictionary *)args
 {
   EODatabaseContext *databaseContext;
   EODatabaseChannel *databaseChannel;
@@ -748,8 +748,8 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   return returnValues;
 }
 
-- (id)objectFromRawRow: (NSDictionary*)row
-	   entityNamed: (NSString*)entityName
+- (id)objectFromRawRow: (NSDictionary *)row
+	   entityNamed: (NSString *)entityName
 {
   NSAssert([entityName length] > 0, @"No entity name");
 
@@ -910,7 +910,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   return newInstance;
 }
 
-- (NSArray*)localInstancesOfObjects: (NSArray*)objects
+- (NSArray *)localInstancesOfObjects: (NSArray *)objects
 {
   NSMutableArray *array;
   int i, count = [objects count];
@@ -931,7 +931,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   return array;
 }
 
-- (EOModelGroup*)modelGroup
+- (EOModelGroup *)modelGroup
 {
   EOObjectStore *rootObjectStore;
   EOObjectStoreCoordinator *objectStoreCoordinator;
@@ -954,7 +954,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   return modelGroup;
 }
 
-- (EOEntity*)entityNamed: (NSString*)entityName
+- (EOEntity *)entityNamed: (NSString *)entityName
 {
   EOEntity *entity;
   EOModelGroup *modelGroup;
@@ -979,7 +979,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   return entity;
 }
 
-- (EOEntity*)entityForClass: (Class)classObject
+- (EOEntity *)entityForClass: (Class)classObject
 {
   EOModelGroup *modelGroup;
   NSArray *models;
@@ -1036,7 +1036,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
     }
 
   if (!result)
-    [NSException raise: /*NSObjectNotAvailableException*/NSInvalidArgumentException
+    [NSException raise: NSObjectNotAvailableException
                  format: @"%@ could not find entity for class named %@",
                  NSStringFromSelector(_cmd), className];
 
@@ -1045,7 +1045,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   return result;
 }
 
-- (EOEntity*)entityForObject: (id)object
+- (EOEntity *)entityForObject: (id)object
 {
   EOClassDescription *classDesc;
   EOEntity *newEntity;
@@ -1096,7 +1096,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
 
 @implementation EOObjectStoreCoordinator (EOModelGroup)
 
-- (id) modelGroup
+- (id)modelGroup
 {
   //Seems OK
   EOModelGroup *modelGroup;
@@ -1118,7 +1118,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   return modelGroup;
 }
 
-- (void) setModelGroup: (EOModelGroup*)modelGroup
+- (void)setModelGroup: (EOModelGroup *)modelGroup
 {
   NSMutableDictionary *userInfo;
 
