@@ -46,7 +46,7 @@ RCS_ID("$Id$")
 #endif /* !__WIN32__ */
 #endif
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSArray.h>
 #include <Foundation/NSString.h>
 #include <Foundation/NSPathUtilities.h>

@@ -24,7 +24,7 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>
 #include <Foundation/NSDictionary.h>

@@ -27,7 +27,7 @@
 #ifndef __Postgres95Values_h__
 #define __Postgres95Values_h__
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSString.h>
 #include <Foundation/NSValue.h>
 #include <Foundation/NSData.h>

@@ -27,7 +27,7 @@
 #ifndef __EOAdaptorChannel_h__
 #define __EOAdaptorChannel_h__
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSObject.h>
 #include <Foundation/NSZone.h>
 #else

@@ -40,7 +40,7 @@ RCS_ID("$Id$")
 
 #include <string.h>
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSString.h>
 #include <Foundation/NSSet.h>
 #include <Foundation/NSUtilities.h>

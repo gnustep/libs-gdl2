@@ -1,3 +1,8 @@
+2003-03-19  David Ayers  <d.ayers@inode.at>
+
+	* *.[hm] Use GNUSTEP in favor of NeXT_Foundation_LIBRARY
+	as requested by Marcus Mueller <znek@mulle-kybernetik.com>.
+	
 2003-03-10  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble:

@@ -28,7 +28,7 @@
 #define __EOKeyValueArchiving_h__
 
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSObject.h>
 #include <Foundation/NSHashTable.h>
 #else

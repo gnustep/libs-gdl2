@@ -41,7 +41,7 @@ RCS_ID("$Id$")
 #include <ctype.h>
 #include <string.h>
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSUtilities.h>
 #include <Foundation/NSArchiver.h>
 #include <Foundation/NSObjCRuntime.h>

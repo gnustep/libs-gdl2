@@ -30,7 +30,7 @@
 
 #ifdef DEBUG
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSDebug.h>
 #include <Foundation/NSAutoreleasePool.h>
 #else

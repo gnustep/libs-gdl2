@@ -35,7 +35,7 @@
 
 RCS_ID("$Id$")
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSAutoreleasePool.h>
 #else
 #include <Foundation/Foundation.h>

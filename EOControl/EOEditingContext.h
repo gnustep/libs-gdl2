@@ -26,7 +26,7 @@
 #ifndef	__EOEditingContext_h__
 #define	__EOEditingContext_h__
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSHashTable.h>
 #include <Foundation/NSMapTable.h>
 #include <Foundation/NSLock.h>

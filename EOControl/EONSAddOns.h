@@ -27,7 +27,7 @@
 #ifndef __EONSAddOns_h__
 #define __EONSAddOns_h__
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSArray.h>
 #include <Foundation/NSString.h>
 #else

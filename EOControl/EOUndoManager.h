@@ -27,7 +27,7 @@
 #ifndef __EOUndoManager_h__
 #define __EOUndoManager_h__
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSUndoManager.h>
 #else
 #include <Foundation/Foundation.h>

@@ -35,7 +35,7 @@
 
 RCS_ID("$Id$")
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSObject.h>
 #include <Foundation/NSMapTable.h>
 #include <Foundation/NSNotification.h>

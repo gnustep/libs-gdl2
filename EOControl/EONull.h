@@ -27,7 +27,7 @@
 #ifndef __EONull_h__
 #define __EONull_h__
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSNull.h>
 #else
 #include <Foundation/Foundation.h>

@@ -27,7 +27,7 @@
 #ifndef __EOCheapArray_h__
 #define __EOCheapArray_h__
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSArray.h>
 #include <Foundation/NSZone.h>
 #else

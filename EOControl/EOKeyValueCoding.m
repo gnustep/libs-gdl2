@@ -42,7 +42,7 @@
 
 RCS_ID("$Id$")
 
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 #include <Foundation/NSObject.h>
 #include <Foundation/NSArray.h>
 #include <Foundation/NSDictionary.h>
@@ -508,7 +508,7 @@ initialize(void)
     {
       if ([key isEqualToString: @"allValues"])
 	{
-#ifdef NeXT_Foundation_LIBRARY
+#ifndef GNUSTEP
           static BOOL warnedValuesKeys = NO;
           if (warnedValuesKeys == NO)
             {
@@ -520,7 +520,7 @@ initialize(void)
 	}
       else if ([key isEqualToString: @"allKeys"])
 	{
-#ifdef NeXT_Foundation_LIBRARY
+#ifndef GNUSTEP
           static BOOL warnedAllKeys = NO;
           if (warnedAllKeys == NO)
             {
@@ -532,7 +532,7 @@ initialize(void)
 	}
       else if ([key isEqualToString: @"count"])
 	{
-#ifdef NeXT_Foundation_LIBRARY
+#ifndef GNUSTEP
           static BOOL warnedCount = NO;
           if (warnedCount == NO)
             {
