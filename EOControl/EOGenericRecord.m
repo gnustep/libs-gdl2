@@ -71,6 +71,7 @@ RCS_ID("$Id$")
 #include <objc/objc-class.h>
 #endif
 
+#include <limits.h>
 
 @interface NSObject (EOCalculateSize)
 - (unsigned int)eoGetSize;

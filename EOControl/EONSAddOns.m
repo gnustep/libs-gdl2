@@ -60,6 +60,8 @@ RCS_ID("$Id$")
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 
+#include <limits.h>
+
 static NSRecursiveLock *local_lock = nil;
 static BOOL GSStrictWO451Flag = NO;
 

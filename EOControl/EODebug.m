@@ -278,8 +278,10 @@ TypeToNSString(const char* _type)
 	case _C_UINT:     return @"unsigned int";
 	case _C_LNG:      return @"long";
 	case _C_ULNG:     return @"unsigned long";
-//	case _C_LNG_LNG:  return @"long long";
-//	case _C_ULNG_LNG: return @"unsigned long long";
+#ifdef _C_LNG_LNG
+	case _C_LNG_LNG:  return @"long long";
+	case _C_ULNG_LNG: return @"unsigned long long";
+#endif
 	case _C_FLT:      return @"float";
 	case _C_DBL:      return @"double";
 	case _C_VOID:     return @"void";

@@ -67,6 +67,8 @@ RCS_ID("$Id$")
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EODebug.h>
 
+#include <limits.h>
+
 /*
  * EOFault class
  */

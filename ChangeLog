@@ -9,6 +9,12 @@
 	([EOObserverCenter observerForObject:ofClass:]): Revert to using
 	internal map.  Avoid allocating spurious enumerator.  Update
 	documentation.
+
+	* EOControl/EODebug.m (TypeToNSString): Use #ifdef to test for
+	_C_LNG_LNG handling.
+	* EOControl/EOFault.m: Include limits.h for UINT_MAX.
+	* EOControl/EOGenericRecord.m: Ditto.
+	* EOControl/EONSAddOns.m: Ditto.
 	
 2004-09-26  David Ayers  <d.ayers@inode.at>
 
