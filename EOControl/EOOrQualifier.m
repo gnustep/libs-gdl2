@@ -192,9 +192,13 @@ RCS_ID("$Id$")
   return resultQualifier;
 }
 
-- (id) initWithKeyValueUnarchiver: (id)param0
+- (id) initWithKeyValueUnarchiver: (id) archiver
 {
-  return [self notImplemented: _cmd]; //TODO
+  if ((self = [super init])) {
+    id qualifierArray = [archiver decodeObjectForKey:@"qualifiers"];
+    ASSIGN (_qualifiers, qualifierArray);
+  }
+  return self;
 }
 
 - (void) encodeWithKeyValueArchiver: (id)param0

@@ -1,3 +1,10 @@
+2004-06-04  Simon Stapelton  <simon@tufty.co.uk>
+
+	* EOControl/EOAndQualifier.m, 
+	* EOControl/EOKeyComparisonQualifier.m,
+	* EOControl/EOOrQualifier.m:
+	([-initWithKeyValueUnarchiver]): Implement.
+
 2004-05-16  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EODatabaseContext.m: Replace EOFLOGObjectLevel and

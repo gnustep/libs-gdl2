@@ -255,5 +255,26 @@ RCS_ID("$Id$")
 {
   [keys addObject: _leftKey];
 }
+
+- (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver*)unarchiver
+{
+  EOFLOGObjectFnStartOrCond(@"EOQualifier");
+  
+  if ((self = [self init]))
+  {
+    NSString *selectorName = [unarchiver decodeObjectForKey: @"selectorName"];
+    
+    if (selectorName) 
+      _selector = NSSelectorFromString(selectorName);
+    
+    ASSIGN(_leftKey, [unarchiver decodeObjectForKey: @"leftKey"]);
+    ASSIGN(_rightKey, [unarchiver decodeObjectForKey: @"rightKey"]);
+  }
+  
+  EOFLOGObjectFnStopOrCond(@"EOQualifier");
+  
+  return self;
+}
+
 @end
 
