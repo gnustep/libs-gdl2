@@ -1,3 +1,13 @@
+2004-04-16  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOModel.m ([EOModel writeToFile:]) Set path (and
+	name implicitly) of the receiver.  Create backup file when
+	necessary after removing the potentially existing backup file.
+	Raise NSInvalidArgumentExceptions upon failures.  Add support
+	for .eomodel files.  Document.
+	([EOModel _verifyBuiltEntityObject:named:]): Add support for
+	.eomodel files.
+	
 2004-04-15  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/Makefile.preamble: Add link flags

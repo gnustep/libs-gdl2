@@ -598,6 +598,20 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return self;
 }
 
+/**
+ * Writes the receivers plist representation into an
+ * .eomodeld file wrapper located at path.  
+ * Depending on the the path extension .eomodeld or .eomodel
+ * the corresponding format will be used.
+ * If the path has neither .eomodeld nor .eomodel path
+ * extension, .eomodeld will be used.
+ * If the file located at path already exists, a back is created
+ * by appending a '~' character to file name.
+ * If a backup file already exists, when trying to create a backup,
+ * the old backup will be deleted.
+ * If any of the file operations fail, an NSInvalidArgumentException
+ * will be raised.
+ */
 - (void) writeToFile: (NSString *)path
 {
   NSFileManager		*mgr = [NSFileManager defaultManager];
@@ -605,10 +619,50 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSDictionary		*attributes;
   NSDictionary		*entityPList;
   NSEnumerator		*entityEnum;
+  NSString              *fileName;
+  NSString              *extension;
+  BOOL writeSingleFile;
 
   path = [path stringByStandardizingPath];
-  path = [[path stringByDeletingPathExtension]
-    stringByAppendingPathExtension: @"eomodeld"];
+  extension = [path pathExtension];
+
+  if ([extension isEqualToString: @"eomodeld"] == NO
+      && [extension isEqualToString: @"eomodel"] == NO)
+    {
+      path = [path stringByAppendingPathExtension: @"eomodeld"];
+      extension = [path pathExtension];
+    }
+  
+  writeSingleFile = [extension isEqualToString: @"eomodel"] ? YES : NO;
+
+  [self _setPath: path];
+
+  if ([mgr fileExistsAtPath: path])
+    {
+      NSString *backupPath;
+      backupPath = [path stringByAppendingString: @"~"];
+
+      if ([mgr fileExistsAtPath: backupPath])
+	{
+	  if ([mgr removeFileAtPath: backupPath handler: nil] == NO)
+	    {
+	      NSString *fmt;
+	      fmt = [NSString stringWithFormat: @"Could not remove %@",
+			      backupPath];
+	      [NSException raise: NSInvalidArgumentException
+			   format: fmt];
+	    }
+	}
+
+      if ([mgr movePath: path toPath: backupPath handler: nil] == NO)
+	{
+	  NSString *fmt;
+	  fmt = [NSString stringWithFormat: @"Could not move %@ to %@",
+			  path, backupPath];
+	  [NSException raise: NSInvalidArgumentException
+		       format: fmt];
+	}
+    }
 
   pList = [NSMutableDictionary dictionaryWithCapacity: 10];
 
@@ -617,28 +671,55 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   attributes = [NSDictionary dictionaryWithObjectsAndKeys:
     [NSNumber numberWithUnsignedLong: 0777], NSFilePosixPermissions,
     nil];
-  [mgr createDirectoryAtPath: path attributes: attributes];
+
+  if (writeSingleFile == NO
+      && [mgr createDirectoryAtPath: path attributes: attributes] == NO)
+    {
+      NSString *fmt;
+      fmt = [NSString stringWithFormat: @"Could not create directory: %@",
+		      path];
+      [NSException raise: NSInvalidArgumentException
+		   format: fmt];
+    }
 
   entityEnum = [[pList objectForKey: @"entities"] objectEnumerator];
-  while ((entityPList = [entityEnum nextObject]))
+  while (writeSingleFile == NO
+	 && (entityPList = [entityEnum nextObject]))
     {
       NSString *fileName;
 
       fileName = [path stringByAppendingPathComponent:
 			 [NSString stringWithFormat: @"%@.plist",
 				   [entityPList objectForKey: @"name"]]];
-      [entityPList writeToFile: fileName atomically: YES];
+      if ([entityPList writeToFile: fileName atomically: YES] == NO)
+	{
+	  NSString *fmt;
+	  fmt = [NSString stringWithFormat: @"Could not create file: %@",
+			  fileName];
+	  [NSException raise: NSInvalidArgumentException
+		       format: fmt];
+	}
     }
 
-  {
-    NSString *fileName;
+  if (writeSingleFile == NO)
+    {
+      fileName = [path stringByAppendingPathComponent: @"index.eomodeld"];
+      [pList removeAllObjects];
+      [self encodeTableOfContentsIntoPropertyList: pList];
+    }
+  else
+    {
+      fileName = path;
+    }
 
-    fileName = [path stringByAppendingPathComponent: @"index.eomodeld"];
-
-    [pList removeAllObjects];
-    [self encodeTableOfContentsIntoPropertyList: pList];
-    [pList writeToFile: fileName atomically: YES];
-  }
+  if ([pList writeToFile: fileName atomically: YES] == NO)
+    {
+      NSString *fmt;
+      fmt = [NSString stringWithFormat: @"Could not create file: %@",
+		      fileName];
+      [NSException raise: NSInvalidArgumentException
+		   format: fmt];
+    }
 }
 
 @end
@@ -1665,30 +1746,39 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
           EOFLOGObjectLevelArgs(@"gsdb", @"basePath =%@", basePath);
 
-          plistPathName = [[basePath stringByAppendingPathComponent: name]
-			    stringByAppendingPathExtension: @"plist"];
+	  if ([basePath hasSuffix: @"eomodel"])
+	    {
+	      propList = entity;
+	    }
+	  else
+	    {
+	      plistPathName = [[basePath stringByAppendingPathComponent: name]
+				stringByAppendingPathExtension: @"plist"];
 
-          EOFLOGObjectLevelArgs(@"gsdb", @"entity plistPathName =%@",
+	      EOFLOGObjectLevelArgs(@"gsdb", @"entity plistPathName =%@",
+				    plistPathName);
+
+	      propList 
+		= [NSDictionary dictionaryWithContentsOfFile: plistPathName];
+	      EOFLOGObjectLevelArgs(@"gsdb", @"entity propList=%@", propList);
+
+	      if (!propList)
+		{
+		  if ([[NSFileManager defaultManager]
+			fileExistsAtPath: plistPathName])
+		    {
+		      NSAssert1(NO,
+				@"%@ is not a dictionary or is not readable.",
 				plistPathName);
-
-          propList = [NSDictionary dictionaryWithContentsOfFile: plistPathName];
-          EOFLOGObjectLevelArgs(@"gsdb", @"entity propList=%@", propList);
-
-          if (!propList)
-            {
-              if ([[NSFileManager defaultManager]
-		    fileExistsAtPath: plistPathName])
-                {
-                  NSAssert1(NO, @"%@ is not a dictionary or is not readable.",
-			    plistPathName);
-                }
-              else
-                {
-                  propList = entity;
-                  NSWarnLog(@"%@ doesn't exists. Using %@",
-			    plistPathName, propList);
-                }
-            }
+		    }
+		  else
+		    {
+		      propList = entity;
+		      NSWarnLog(@"%@ doesn't exists. Using %@",
+				plistPathName, propList);
+		    }
+		}
+	    }
 
           [self _removeEntity: entity];
           EOFLOGObjectLevelArgs(@"gsdb", @"entity propList=%@", propList);
