@@ -101,9 +101,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           _flags.updating = YES;
           ASSIGN(_name, [propertyList objectForKey: @"name"]);
 
-//          ASSIGN(_externalName,[propertyList objectForKey: @"externalName"]);
           [self setExternalName: [propertyList objectForKey: @"externalName"]];
-//          ASSIGN(_externalQuery, [propertyList objectForKey: @"externalQuery"]);
           [self setExternalQuery:
 	    [propertyList objectForKey: @"externalQuery"]];
 
@@ -152,8 +150,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                         @"tmpString is not a NSString but a %@ tmpString:\n%@",
                         [tmpString class],
                         tmpString);*/
-              //[self setUserInfo:[tmpString propertyList]];
-//              ASSIGN(_userInfo, tmpObject);
               [self setUserInfo: tmpObject];
             }
 
@@ -162,11 +158,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           EOFLOGObjectLevelArgs(@"EOEntity", @"tmpObject=%@ [%@]",
 				tmpObject, [tmpObject class]);
 
-//          ASSIGN(_internalInfo, tmpObject);
           [self _setInternalInfo: tmpObject];
-//          ASSIGN(_docComment, [propertyList objectForKey:@"docComment"]);
           [self setDocComment:[propertyList objectForKey:@"docComment"]];
-//          [self _setClassName:[propertyList objectForKey: @"className"]];
           [self setClassName: [propertyList objectForKey: @"className"]];
           [self setIsAbstractEntity:
 		  [[propertyList objectForKey: @"isAbstractEntity"] boolValue]];
@@ -1733,7 +1726,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       NS_DURING
 	{
           value = [object valueForKey: key];
-          if (value == nil || value == [EONull null])
+          if (value == nil || value == [EONull null] || value == [NSNull null])
             isValid = NO;
 	}
       NS_HANDLER
@@ -4370,17 +4363,14 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   //Near OK
   NSString *inverseName = nil;
   EORelationship *relationship = [_entity relationshipNamed: relationshipKey];
-  NSArray *classPropertieNames = [_entity classPropertyNames];
   EOEntity *parentEntity = [_entity parentEntity];
   //TODO what if parentEntity
   EORelationship *inverseRelationship = [relationship inverseRelationship];
 
   if (inverseRelationship)
     {
-      /*      EOEntity *inverseRelationshipEntity =
-	[inverseRelationship entity];
-      NSArray *inverseRelationshipClassProperties =
-      [inverseRelationshipEntity classProperties];*/
+      EOEntity *inverseEntity = [inverseRelationship entity];
+      NSArray *classPropertieNames = [inverseEntity classPropertyNames];
 
       inverseName = [inverseRelationship name];
 

@@ -290,11 +290,11 @@ RCS_ID("$Id$")
       EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceIndex=%d", sourceIndex);
 
       NSAssert2(destinationIndex != NSNotFound,
-                @"Key %@ not found in %@",
+                @"Destination Key %@ not found in %@",
                 destinationKey,
                 self);
       NSAssert2(sourceIndex != NSNotFound,
-                @"Key %@ not found in %@",
+                @"Source Key %@ not found in %@",
                 sourceKey,
                 sourceInitializer);
 
@@ -519,6 +519,14 @@ RCS_ID("$Id$")
 
 @implementation EOMutableKnownKeyDictionary
 
++ (id)dictionaryFromDictionary: (NSDictionary *)dict
+		 subsetMapping: (EOMKKDSubsetMapping *)subsetMapping
+{
+  return [[self newDictionaryFromDictionary: dict
+                subsetMapping: subsetMapping
+                zone: NULL] autorelease];
+}
+
 + (id)newDictionaryFromDictionary: (NSDictionary*)dict
 		    subsetMapping: (EOMKKDSubsetMapping*)subsetMapping
 			     zone: (NSZone*)zone
@@ -575,14 +583,6 @@ RCS_ID("$Id$")
   EOFLOGObjectLevel(@"EOMKKD", @"END");
 
   return newDict;
-}
-
-+ (id)dictionaryFromDictionary: (NSDictionary *)dict
-                       subsetMapping: (EOMKKDSubsetMapping *)subsetMapping
-{
-  return [[self newDictionaryFromDictionary: dict
-		subsetMapping: subsetMapping
-		zone: NULL] autorelease];
 }
 
 + (id)newDictionaryWithObjects: (id*)objects

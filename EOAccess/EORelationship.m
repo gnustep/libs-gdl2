@@ -246,7 +246,7 @@ RCS_ID("$Id$")
             {
               EOFLOGObjectLevelArgs(@"EORelationship", @"Unknown joinSemanticString=%@. entityName=%@ relationshipName=%@",
 				    joinSemanticString,
-				    [owner name],
+				    [(EOEntity*)owner name],
 				    relationshipName);
               NSEmitTODO(); //TODO
               [self notImplemented: _cmd]; //TODO
@@ -257,7 +257,7 @@ RCS_ID("$Id$")
           if (destinationEntityName)
             {
               EOFLOGObjectLevelArgs(@"EORelationship", @"!joinSemanticString but destinationEntityName. entityName=%@ relationshipName=%@",
-				    [owner name],
+				    [(EOEntity*)owner name],
 				    relationshipName);
               NSEmitTODO(); //TODO
               [self notImplemented: _cmd]; //TODO
@@ -266,7 +266,7 @@ RCS_ID("$Id$")
 
       deleteRuleString = [propertyList objectForKey: @"deleteRule"];
       EOFLOGObjectLevelArgs(@"EORelationship", @"entityName=%@ relationshipName=%@ deleteRuleString=%@",
-			    [owner name],
+			    [(EOEntity*)owner name],
 			    relationshipName,
 			    deleteRuleString);
 
@@ -276,7 +276,7 @@ RCS_ID("$Id$")
 					    deleteRuleString];
           EOFLOGObjectLevelArgs(@"EORelationship",
 				@"entityName=%@ relationshipName=%@ deleteRule=%d",
-				[owner name],
+				[(EOEntity*)owner name],
 				relationshipName,
 				(int)deleteRule);
           NSAssert2(deleteRule >= 0 && deleteRule < 4,
@@ -428,68 +428,96 @@ RCS_ID("$Id$")
 
 - (void)encodeIntoPropertyList: (NSMutableDictionary *)propertyList
 {
-  //VERIFY
-  [propertyList setObject: [self name]
-                forKey: @"name"];
-
-  if ([self isFlattened])
+  NS_DURING //Just for debugging
     {
-      NSString *definition = [self definition];
-
-      [propertyList setObject: definition
-                    forKey: @"definition"];
-    }
-  else
-    {
-      [propertyList setObject: ([self isToMany] ? @"Y" : @"N")
-                    forKey: @"isToMany"];
-      [propertyList setObject: [self destinationEntity]
-                    forKey: @"destination"];  
-    }
-
-  if ([self isMandatory])
-    [propertyList setObject: @"Y"
-                  forKey: @"isMandatory"];
-
-  if ([self ownsDestination])
-    {
-      NSEmitTODO(); //TODO
-      [self notImplemented: _cmd]; //TODO
-    }
-
-  if ([self propagatesPrimaryKey])
-    {
-      NSEmitTODO(); //TODO
-      [self notImplemented: _cmd]; //TODO
-    }
-
-  {
-    int joinsCount = [_joins count];
-
-    if (joinsCount > 0)
+      //VERIFY
+      [propertyList setObject: [self name]
+                    forKey: @"name"];
+      
+      if ([self isFlattened])
+        {
+          NSString *definition = [self definition];
+          NSAssert(definition,@"No definition");
+          [propertyList setObject: definition
+                        forKey: @"definition"];
+        }
+      else
+        {
+          [propertyList setObject: ([self isToMany] ? @"Y" : @"N")
+                        forKey: @"isToMany"];
+          if ([self destinationEntity])
+            {
+              NSAssert2([[self destinationEntity] name],
+                        @"No entity name in relationship named %@ entity named %@",
+                        [self name],
+                        [[self entity]name]);
+              [propertyList setObject: [[self destinationEntity] name] // if we put entity, it loops !!
+                            forKey: @"destination"];  
+            };
+        }
+      
+      if ([self isMandatory])
+        [propertyList setObject: @"Y"
+                      forKey: @"isMandatory"];
+      
+      if ([self ownsDestination])
+        {
+          NSEmitTODO(); //TODO
+        }
+      
+      if ([self propagatesPrimaryKey])
+        {
+          NSEmitTODO(); //TODO
+        }
+      
       {
-        NSMutableArray *joinsArray = [NSMutableArray array];
-        int i;
-
-        for(i = 0; i < joinsCount; i++)
+        int joinsCount = [_joins count];
+        
+        if (joinsCount > 0)
           {
-            NSMutableDictionary *joinDict = [NSMutableDictionary dictionary];
-            EOJoin *join = [_joins objectAtIndex: i];
+            NSMutableArray *joinsArray = [NSMutableArray array];
+            int i = 0;
+            
+            for(i = 0; i < joinsCount; i++)
+              {
+                NSMutableDictionary *joinDict = [NSMutableDictionary dictionary];
+                EOJoin *join = [_joins objectAtIndex: i];
+                
+                NSAssert([[join sourceAttribute] name],
+                         @"No source attribute name");
 
-            [joinDict setObject: [[join sourceAttribute] name]
-                      forKey: @"sourceAttribute"];
-            [joinDict setObject: [[join destinationAttribute] name]
-		      forKey: @"destinationAttribute"];
-            [joinsArray addObject: joinDict];
+                [joinDict setObject: [[join sourceAttribute] name]
+                          forKey: @"sourceAttribute"];
+
+                NSAssert([[join destinationAttribute] name],
+                         @"No destination attribute name");
+                [joinDict setObject: [[join destinationAttribute] name]
+                          forKey: @"destinationAttribute"];
+
+                [joinsArray addObject: joinDict];
+              }
+            
+            [propertyList setObject: joinsArray
+                          forKey: @"joins"]; 
           }
-
-	[propertyList setObject: joinsArray
-		      forKey: @"joins"]; 
+        
+        NSAssert([self joinSemanticString],
+                 @"No joinSemanticString");
+        [propertyList setObject: [self joinSemanticString]
+                      forKey: @"joinSemantic"];
       }
-
-    [propertyList setObject: [self joinSemanticString]
-                  forKey: @"joinSemantic"];
-  }
+    }
+  NS_HANDLER
+    {
+      NSLog(@"exception in EORelationship encodeIntoPropertyList: self=%p class=%@",
+	    self, [self class]);
+      NSDebugMLog(@"exception in EORelationship encodeIntoPropertyList: self=%p class=%@",
+	    self, [self class]);
+      NSLog(@"exception=%@", localException);
+      NSDebugMLog(@"exception=%@", localException);
+      [localException raise];
+    }
+  NS_ENDHANDLER;
 }
 
 - (NSString *)description
@@ -528,9 +556,10 @@ RCS_ID("$Id$")
     {
       NSLog(@"exception in EORelationship description: self=%p class=%@",
 	    self, [self class]);
-      NSLog(@"exception in EORelationship definition: self name=%@ _definitionArray=%@",
-	    [self name], _definitionArray);
+      NSDebugMLog(@"exception in EORelationship description: self=%p class=%@",
+                  self, [self class]);
       NSLog(@"exception=%@", localException);
+      NSDebugMLog(@"exception=%@", localException);
 
       [localException raise];
     }
@@ -2076,10 +2105,11 @@ dst entity primaryKeyAttributeNames
   [self notImplemented:_cmd]; // TODO
 }
 
+/** Return dictionary of key/value for destination object of source row/object **/
 - (NSDictionary*) _foreignKeyForSourceRow: (NSDictionary*)row
 {
   NSDictionary *foreignKey = nil;
-  EOMKKDSubsetMapping *sourceRowToForeignKeyMapping;
+  EOMKKDSubsetMapping *sourceRowToForeignKeyMapping = nil;
 
   EOFLOGObjectFnStart();
 
@@ -2110,30 +2140,31 @@ dst entity primaryKeyAttributeNames
       NSArray *sourceKeys;
       NSArray *destinationKeys;
       EOEntity *destinationEntity;
-      EOMKKDInitializer *primaryKeyDictionaryInitializer;
+      EOMKKDInitializer *destinationDictionaryInitializer = nil;
       EOMKKDInitializer *adaptorDictionaryInitializer;
       EOMKKDSubsetMapping *sourceRowToForeignKeyMapping;
 
       sourceToDestinationKeyMap = [self _sourceToDestinationKeyMap];
 
-      EOFLOGObjectLevelArgs(@"EORelationship", @"sourceToDestinationKeyMap=%@",
-		   sourceToDestinationKeyMap);
+      EOFLOGObjectLevelArgs(@"EORelationship", @"rel=%@ sourceToDestinationKeyMap=%@",
+		   [self name], sourceToDestinationKeyMap);
 
       sourceKeys = [sourceToDestinationKeyMap objectForKey: @"sourceKeys"];
-      EOFLOGObjectLevelArgs(@"EORelationship", @"sourceKeys=%@", sourceKeys);
+      EOFLOGObjectLevelArgs(@"EORelationship", @"rel=%@ sourceKeys=%@",
+                            [self name], sourceKeys);
 
       destinationKeys = [sourceToDestinationKeyMap
 			  objectForKey: @"destinationKeys"];
-      EOFLOGObjectLevelArgs(@"EORelationship", @"destinationKeys=%@", destinationKeys);
-
+      EOFLOGObjectLevelArgs(@"EORelationship", @"rel=%@ destinationKeys=%@",
+                            [self name], destinationKeys);
 
       destinationEntity = [self destinationEntity];
-      primaryKeyDictionaryInitializer = [destinationEntity
-					  _primaryKeyDictionaryInitializer];
+
+      destinationDictionaryInitializer = [destinationEntity _adaptorDictionaryInitializer];
 
       EOFLOGObjectLevelArgs(@"EORelationship", @"destinationEntity named %@  primaryKeyDictionaryInitializer=%@",
 		   [destinationEntity name],
-		   primaryKeyDictionaryInitializer);
+		   destinationDictionaryInitializer);
 
       adaptorDictionaryInitializer = [_entity _adaptorDictionaryInitializer];
       EOFLOGObjectLevelArgs(@"EORelationship",@"entity named %@ adaptorDictionaryInitializer=%@",
@@ -2141,7 +2172,7 @@ dst entity primaryKeyAttributeNames
                   adaptorDictionaryInitializer);
 
       sourceRowToForeignKeyMapping = 
-	[primaryKeyDictionaryInitializer
+	[destinationDictionaryInitializer
 	  subsetMappingForSourceDictionaryInitializer:
 	    adaptorDictionaryInitializer
 	  sourceKeys: sourceKeys

@@ -95,7 +95,8 @@ EODataSource.h \
 EODetailDataSource.h \
 EOUndoManager.h \
 EODebug.h \
-EOControl.h
+EOControl.h \
+EONSAddOns.h \
 
 
 gdl2control_AUTOGSDOC_HEADERS = $(libgnustep-db2control_HEADER_FILES)

@@ -199,7 +199,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
   return classDescription;
 }
 
-#if !FOUNDATION_HAS_KVC
+//MG #if !FOUNDATION_HAS_KVC
 
 static const char _c_id[2] = { _C_ID, NULL };
 
@@ -619,7 +619,7 @@ static const char _c_id[2] = { _C_ID, NULL };
 
   EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
 }
-#endif /* !FOUNDATION_HAS_KVC */
+//#endif /* !FOUNDATION_HAS_KVC */
 
 /** if key is a bidirectional rel, use addObject:toBothSidesOfRelationship otherwise call  takeValue:forKey: **/
 - (void)smartTakeValue: (id)anObject 
@@ -658,7 +658,7 @@ static const char _c_id[2] = { _C_ID, NULL };
           forKey: aKey];
 }
 
-#if !FOUNDATION_HAS_KVC
+//MG#if !FOUNDATION_HAS_KVC
 - (void) takeValue: (id)anObject forKey: (NSString*)aKey
 {
   SEL		sel;
@@ -811,8 +811,8 @@ static const char _c_id[2] = { _C_ID, NULL };
   return value;
 }
 
-#else /* FOUNDATION_HAS_KVC */
-
+//MG#else /* FOUNDATION_HAS_KVC */
+/*
 - (id) handleQueryWithUnboundKey: (NSString *)key
 {
   id value;
@@ -856,8 +856,8 @@ static const char _c_id[2] = { _C_ID, NULL };
 
   EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
 }
-
-#endif /* FOUNDATION_HAS_KVC */
+*/
+//MG#endif /* FOUNDATION_HAS_KVC */
 
 
 /** used in -decription for self toOne or toMany objects to avoid

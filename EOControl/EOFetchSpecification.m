@@ -77,12 +77,11 @@ RCS_ID("$Id$")
   return self;
 }
 
-// Turbocat
 - (void)dealloc
 {
 #ifdef DEBUG
-  NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__, @"FNSTOP");
-  EOFLOGObjectFnStartOrCond(@"EOFetchSpecification");
+  NSDebugFLog(@"Dealloc EOFetchSpecification %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
 #endif
 
   DESTROY(_qualifier);
@@ -95,7 +94,8 @@ RCS_ID("$Id$")
   [super dealloc];
 
 #ifdef DEBUG
-  EOFLOGObjectFnStopOrCondPlain(@"EOFetchSpecification", fmt);
+  NSDebugFLog(@"Stop Dealloc EOFetchSpecification %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
 #endif
 }
 

@@ -1284,9 +1284,33 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   for (i = 0; i < count; i++)
     {
-      EOKeyValueQualifier *kvQualifier = [qualifiers objectAtIndex: i];
-      NSString *tmpSqlString = [self sqlStringForKeyValueQualifier:
-				       kvQualifier];
+      NSString *tmpSqlString=nil;
+
+      EOQualifier *qualifier = [qualifiers objectAtIndex: i];
+
+      // use of isKindOfClass is not very good. Improve it ?
+      if ([qualifier isKindOfClass:[EOKeyValueQualifier class]])
+        tmpSqlString = [self sqlStringForKeyValueQualifier:
+                               (EOKeyValueQualifier*)qualifier];
+
+      else if ([qualifier isKindOfClass:[EOAndQualifier class]])
+        tmpSqlString=[self sqlStringForConjoinedQualifiers:
+                             [(EOAndQualifier*)qualifier qualifiers]];
+
+      else if ([qualifier isKindOfClass:[EOOrQualifier class]])
+        tmpSqlString=[self sqlStringForDisjoinedQualifiers:
+                             [(EOOrQualifier*)qualifier qualifiers]];
+
+      else if ([qualifier isKindOfClass:[EONotQualifier class]])
+        tmpSqlString=[self sqlStringForNegatedQualifier:qualifier];
+
+      else if ([qualifier isKindOfClass:[EOKeyComparisonQualifier class]])
+        tmpSqlString=[self sqlStringForKeyComparisonQualifier:qualifier];
+
+      else
+        [NSException raise: NSInternalInconsistencyException
+                     format: @"EOSQLExpression: Unknown qualifier class %@",
+                     [qualifier class]];
 
       if (tmpSqlString)
         {
@@ -1373,6 +1397,11 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   EOFLOGObjectFnStart();
 
+  NSAssert2([qualifier isKindOfClass:[EOKeyValueQualifier class]],
+            @"qualifier is not a EOKeyValueQualifier but a %@: %@",
+            [qualifier class],
+            qualifier);
+
   key = [qualifier key];//OK
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"key=%@", key);
 
@@ -1397,8 +1426,13 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   valueSQLString = [self sqlStringForValue: value
 			 attributeNamed: key];//OK
-  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"valueSQLString=%@",
-			valueSQLString);
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"valueSQLString=%@ qualifier=%@ [qualifier selector]=%p %@",
+			valueSQLString,
+                        qualifier,
+                        [qualifier selector],
+                        NSStringFromSelector([qualifier selector]));
+
   selectorSQLString = [self sqlStringForSelector: [qualifier selector]
 			    value: value];//OK //value ?? 
 
@@ -1927,6 +1961,9 @@ else if([anAttribute isDerived] == YES)
                     [path lastObject]);
         }
     }
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"path=%@ sqlString=%@", 
+                        path, sqlString);
 
   return sqlString;
 }

@@ -1,3 +1,53 @@
+2003-03-21  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAccess/EODatabaseContext.m:
+		o added assert in _primaryKeyForObject:
+		o in -recordChangesInEditingContext test 
+			nil/eonull on relationshipCommitedSnapshotValue and 
+			relationshipSnapshotValue instead of only nil testing
+		o in -recordChangesInEditingContext fix for value changing 
+			testing when commitedSnapshotValue is nil/EONull
+
+	* EOAccess/EOEntity.m:
+		o logs
+		o fix in inverseRelationshipClassPropertyNames to test on 
+			destination entity property names
+	* EOControl/EOClassDescription.m:
+		o logs
+	* EOControl/GNUmakefile:
+		o added EONSAddOns.h
+	* EOCOntrol/EOKeyValueCoding.m:
+		o fixes in NSArray -computeXXForKey:
+	* EOAccess/EOSQLExpression.m:
+		o assert in -sqlStringForKeyValueQualifier:
+		o -sqlStringForArrayOfQualifiers:operation:
+			hanlde different qualifier cases using isKindOfClass: 
+			may probably be improved
+		o logs
+	* EOControl/EOEditingContext.m:
+		o fix in unprocessedInfo (invert/change swap).
+	* EOControl/EOQualifier.m
+		o -qualifierWithQualifierFormat:varargList:
+			raise exception if operator is unknwon
+	* EOControl/EOMutableKnownKeyDictionary.m:
+		o add precision in exception message
+	* EOAccess/EORelationship.m:
+		o more info in some logs
+		o fix in -_sourceRowToForeignKeyMapping for foreign keys 
+			which are not in primaryKey.
+	* EOControl/EODatabaseOperation.m:
+		o in -setDatabaseOperator: Don't Delete a not inserted object
+	* EOControl/EOAccessFault.m:
+		o logs
+		o EOAccessFaultHandler: -dealloc fix: call super dealloc
+		o implement faultWillFire: This fix a hard memory problem
+	* EOControl/EOFault.m:
+		o -dealloc: fix possible infinite loop
+		o logs
+	* EOCheapCopyArray.m:
+		o ucomment retain/release/...
+		o fix shallowCopy for memory management. 
+			This was causing hard memory trouble
+	
 2003-03-12  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOControl/EOClassDescription.m ([EOClassDescription +initialize]):

@@ -2549,17 +2549,21 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                       EOFLOGObjectLevelArgs(@"EODatabaseContext",
 					    @"relationshipCommitedSnapshotValue %p=%@",
 					    relationshipCommitedSnapshotValue,
-					    relationshipCommitedSnapshotValue);
+					    ([EOFault isFault:relationshipCommitedSnapshotValue] ? 
+                                             (NSString*)@"[Fault]" 
+                                             : (NSString*)relationshipCommitedSnapshotValue));
 
                       if (relationshipSnapshotValue
 			  == relationshipCommitedSnapshotValue)
                         valuesAreEqual = YES;
                       else if (isNilOrEONull(relationshipSnapshotValue))
                         valuesAreEqual = isNilOrEONull(relationshipCommitedSnapshotValue);
+                      else if (isNilOrEONull(relationshipCommitedSnapshotValue))
+                        valuesAreEqual = isNilOrEONull(relationshipSnapshotValue);
                       else if (isToMany)
                         valuesAreEqual = [relationshipSnapshotValue
-					   containsIdenticalObjectsWithArray:
-					     relationshipCommitedSnapshotValue];
+                                           containsIdenticalObjectsWithArray:
+                                             relationshipCommitedSnapshotValue];
                       else // ToOne bu not same object
                         valuesAreEqual = NO;
 
@@ -2666,7 +2670,7 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                             {
                               //id destinationObject=[object storedValueForKey:relationshipName];
 
-                              if (relationshipCommitedSnapshotValue) // a value was removed
+                              if (!isNilOrEONull(relationshipCommitedSnapshotValue)) // a value was removed
                                 {
                                   EOFLOGObjectLevelArgs(@"EODatabaseContext",
 							@"will call nullifyAttributes from source %p (class %@)",
@@ -2691,7 +2695,7 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
 					  relationshipCommitedSnapshotValue];
                                 }
 
-                              if (relationshipSnapshotValue) // a value was added
+                              if (!isNilOrEONull(relationshipSnapshotValue)) // a value was added
                                 {
                                   EOFLOGObjectLevelArgs(@"EODatabaseContext",
 							@"will call relay from source %p relname=%@",
@@ -6267,13 +6271,18 @@ Raises an exception is the adaptor is unable to perform the operations.
         }
       else
         {
-          EOMutableKnownKeyDictionary *foreignKeyForSourceRow =
-	    [relationship _foreignKeyForSourceRow: row];//{code = 1; }
+          EOMutableKnownKeyDictionary *foreignKeyForSourceRow = nil;
 
           EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"foreignKeyForSourceRow:%@\n=%@",
-				foreignKeyForSourceRow, row);
+				@"relationship=%@ foreignKeyInDestination:%d",
+                                [relationship name],[relationship foreignKeyInDestination]);
 
+          foreignKeyForSourceRow = [relationship _foreignKeyForSourceRow: row];
+
+          EOFLOGObjectLevelArgs(@"EODatabaseContext",
+                                @"foreignKeyForSourceRow:%@\n=%@",
+				foreignKeyForSourceRow, row);
+          
           if (![foreignKeyForSourceRow
 		 containsObjectsNotIdenticalTo: [EONull null]])
             {
@@ -6576,6 +6585,7 @@ _numLocked = 0;
   EOFLOGObjectFnStart();
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%@", object);
+  NSAssert(!isNilOrEONull(object), @"No object");
 
   entity = [_database entityForObject: object];
   shouldGeneratePrimaryKey = [self _shouldGeneratePrimaryKeyForEntityName:
@@ -6763,10 +6773,15 @@ _numLocked = 0;
 
               // get object value for the relationship
               id relationshipValue=[objectSnapshot valueForKey:relationshipName];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationshipValue=%@",
-                                    relationshipValue);
+              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity name=%@ relationship name=%@ Value=%@",
+                                    [entity name],relationshipName,relationshipValue);
 
               // get relationshipValue pk
+              NSAssert2(!isNilOrEONull(relationshipValue), 
+                        @"No relationshipValue for relationship %@ in objectSnapshot %@ ",
+                        relationshipName,
+                        objectSnapshot);
+
               relationshipValuePK = [self _primaryKeyForObject:relationshipValue];
               EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationshipValuePK=%@",
                                     relationshipValuePK);

@@ -1,20 +1,5 @@
-DB Contextex
-initializeObject:(id)object//<%EOGenericRecord[Payment](0x2f4f940)>
-                     row:(NSDictionary*)row//0x2f3dae0
-                  entity:(EOEntity*)entity
-          editingContext:(EOEditingContext*)context
+o Implement databaseFailedToFetchObject mechanism.
+        Cf Developper's guide p 121
+o Implement to-one PK to Foreign Key support
+        Not implemented by WO but it's really cool.
 
-New class ?
-EOAccessDeferredFaultHandler
-EOSQLQualifier
-
-Class _EODotPathString
-_string=NSString * object:0x4adb74 Description:testIt.count
-_prefix=NSString * object:0x19ea920 Description:testIt
-_suffix=NSString * object:0x19e1a48 Description:count
-
-
-
-http://developer.apple.com/techpubs/macosx/Cocoa/Reference/Foundation/Java/Classes/NSKeyValue.html
-
-http://developer.apple.com/techpubs/macosx/Cocoa/TasksAndConcepts/ProgrammingTopics/KeyValueCoding/Concepts/basicprinciples.html

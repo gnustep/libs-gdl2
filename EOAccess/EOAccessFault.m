@@ -51,17 +51,23 @@ RCS_ID("$Id$")
 #import <EOControl/EOKeyGlobalID.h>
 #import <EOControl/EODebug.h>
 
-
 NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAvailableException";
 
 
 @implementation EOAccessGenericFaultHandler
 
+- (id)init
+{
+  if ((self = [super init]))
+    {
+    }
+
+  return self;
+}
 - (void)linkAfter: (EOAccessGenericFaultHandler *)faultHandler
   usingGeneration: (unsigned int)gen
 {
   _generation = gen;
-
   _prev = faultHandler;
   _next = faultHandler->_next;
 
@@ -110,7 +116,14 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
 - (void)faultWillFire: (id)object
 {
-//TODO change le prev, met à 0
+  //We will be deallocated so link previous and next together...
+  if (_next)
+      _next->_prev=_prev;
+  if (_prev)
+    _prev->_next=_next;
+
+  _prev=nil;
+  _next=nil;
 }
 
 @end
@@ -132,9 +145,10 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 					 databaseContext: (EODatabaseContext *)dbcontext
 					  editingContext: (EOEditingContext *)ec
 {
-  return [[[self alloc] initWithGlobalID: globalID
+  EOAccessFaultHandler* handler= [[[self alloc] initWithGlobalID: globalID
 			databaseContext: dbcontext
 			editingContext: ec] autorelease];
+  return handler;
 }
 
 - (id) initWithGlobalID: (EOKeyGlobalID *)globalID
@@ -157,11 +171,21 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
 - (void)dealloc
 {
-  EOFLOGObjectFnStopOrCond(@"EOAccesFaultHandler");
+#ifdef DEBUG
+  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
+#endif
 
   DESTROY(gid);
   DESTROY(databaseContext);
   DESTROY(editingContext);
+
+  [super dealloc];
+
+#ifdef DEBUG
+  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
+#endif
 }
 
 - (EOKeyGlobalID *)globalID
@@ -257,6 +281,15 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 			editingContext: ec] autorelease];
 }
 
+- (id)init
+{
+  if ((self = [super init]))
+    {
+    }
+
+  return self;
+}
+
 - initWithSourceGlobalID: (EOKeyGlobalID *)sourceGID
 	relationshipName: (NSString *)relName
 	 databaseContext: (EODatabaseContext *)dbcontext
@@ -275,12 +308,21 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
 - (void)dealloc
 {
+#ifdef DEBUG
+  NSDebugFLog(@"Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
+#endif
+
   DESTROY(sgid);
   DESTROY(relationshipName);
   DESTROY(databaseContext);
   DESTROY(editingContext);
 
   [super dealloc];
+#ifdef DEBUG
+  NSDebugFLog(@"Stop Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
+#endif
 }
 
 - (EOKeyGlobalID *)sourceGlobalID

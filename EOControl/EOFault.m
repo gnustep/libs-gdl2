@@ -424,8 +424,18 @@ typedef struct {
 
 - (void)dealloc
 {
+#ifdef DEBUG
+  NSDebugFLog(@"Dealloc EOFault %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
+#endif
   [EOFault clearFault: self];
-  [self dealloc];
+  NSDebugMLog(@"EOFault dealloc self=%p",self);
+  if (![EOFault isFault:self]) // otherwise, this loop. 
+    [self dealloc];
+#ifdef DEBUG
+  NSDebugFLog(@"Stop Dealloc EOFault %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
+#endif
 }
 
 - (NSZone *)zone
@@ -461,8 +471,6 @@ typedef struct {
   retval_t ret;
   NSInvocation *inv;
 
-  EOFLOGObjectLevelArgs(@"gsdb", @"START self=%p", self);
-
   inv = [[[NSInvocation alloc] initWithArgframe: args
 			       selector: sel]
 	  autorelease];
@@ -470,21 +478,15 @@ typedef struct {
 
   ret = [inv returnFrame: args];
 
-  EOFLOGObjectLevelArgs(@"gsdb", @"STOP self=%p", self);
-
   return ret;
 }
 
 - (void)forwardInvocation: (NSInvocation *)invocation
 {
-  EOFLOGObjectLevelArgs(@"gsdb", @"START self=%p", self);
-
   if ([_handler shouldPerformInvocation: invocation])
     [_handler completeInitializationOfObject: self];
 
   [invocation invoke];
-
-  EOFLOGObjectLevelArgs(@"gsdb", @"STOP self=%p", self);
 }
 
 - (unsigned int)hash

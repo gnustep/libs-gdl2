@@ -157,6 +157,16 @@ RCS_ID("$Id$")
           || _databaseOperator==EODatabaseDeleteOperator)
          setOpe=NO;
     }
+  else if (dbOpe == EODatabaseDeleteOperator)
+    {
+      // Don't Delete a not inserted object
+      if (_databaseOperator==EODatabaseInsertOperator)
+        {
+          NSDebugMLog(@"Don't Delete a not inserted object: %p %@",
+                      _object,_object);
+          dbOpe=EODatabaseNothingOperator;
+        };
+    }
 
   if (setOpe)
     _databaseOperator = dbOpe;

@@ -3052,9 +3052,9 @@ shouldContinueFetchingWithCurrentObjectCount: (unsigned)count
     }
 
   infoDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                             objectsForInfo[0], @"insert",
+                             objectsForInfo[0], @"update",
                            objectsForInfo[1], @"delete",
-                           objectsForInfo[2], @"update",
+                           objectsForInfo[2], @"insert",
                            nil, nil];
 
   NSDebugMLog(@"infoDict=%@", infoDict);

@@ -111,6 +111,21 @@ RCS_ID("$Id$")
   return nil;
 }
 
+- (void)dealloc
+{
+#ifdef DEBUG
+  NSDebugFLog(@"Dealloc EOQualifier %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
+#endif
+
+  [super dealloc];
+
+#ifdef DEBUG
+  NSDebugFLog(@"Stop Dealloc EOQualifier %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
+#endif
+}
+
 static NSString *getOperator(const char **cFormat, const char **s)
 {
   NSString *operator;
@@ -468,6 +483,12 @@ static Class whichQualifier(const char **cFormat, const char **s)
       rightKey = getKey(&cFormat, &s, &isKeyValue, &args);
 
       operatorSelector = [EOQualifier operatorSelectorForString: operator];
+      if (!operatorSelector)
+        [NSException raise: NSInvalidArgumentException
+		     format: @"%@ -- %@ 0x%x: no operator or unknown operator: '%@'",
+                     NSStringFromSelector(_cmd),
+		     NSStringFromClass([self class]), self,
+                     operator];
 
       EOFLOGObjectLevelArgs(@"EOQualifier",
 			    @"leftKey=%@ operatorSelector=%s rightKey=%@ class=%@",

@@ -424,7 +424,7 @@ RCS_ID("$Id$")
   ret = [NSDecimalNumber zero];
 
   while ((item = [arrayEnum nextObject]))
-    [ret decimalNumberByAdding: item];
+    [ret decimalNumberByAdding: [item valueForKey:key]];
         
   EOFLOGObjectFnStopCond(@"EOKVC");
 
@@ -442,7 +442,7 @@ RCS_ID("$Id$")
   ret = [NSDecimalNumber zero];
 
   while ((item = [arrayEnum nextObject]))
-    [ret decimalNumberByAdding: item];
+    [ret decimalNumberByAdding: [item valueForKey:key]];
 
   ret = [ret decimalNumberByDividingBy:
 	       [NSDecimalNumber decimalNumberWithMantissa: [self count]
@@ -471,19 +471,23 @@ RCS_ID("$Id$")
 {
   NSEnumerator *arrayEnum;
   NSDecimalNumber *item, *max;
+  id value = nil;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
 
   arrayEnum = [self objectEnumerator];
 
-  max = item = [arrayEnum nextObject];
+  item = [arrayEnum nextObject];
+  value = [item valueForKey:key];
+  max = value;
 
-  if (max != nil)
+  if (item != nil)
     {
       while ((item = [arrayEnum nextObject]))
 	{
-	  if ([max compare: item] == NSOrderedAscending)
-	    max = item;
+          value = [item valueForKey:key];
+	  if ([max compare: value] == NSOrderedAscending)
+	    max = value;
 	}
     }
 
@@ -496,18 +500,22 @@ RCS_ID("$Id$")
 {
   NSEnumerator *arrayEnum;
   NSDecimalNumber *item, *min;
+  id value = nil;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
 
   arrayEnum = [self objectEnumerator];
-  min = item = [arrayEnum nextObject];
+  item = [arrayEnum nextObject];
+  value = [item valueForKey:key];
+  min = value;
 
-  if (min != nil)
+  if (item != nil)
     {
       while ((item = [arrayEnum nextObject]))
 	{
-	  if ([min compare: item] == NSOrderedDescending)
-	    min = item;
+          value = [item valueForKey:key];
+	  if ([min compare: value] == NSOrderedDescending)
+	    min = value;
 	}
     }
 
@@ -602,6 +610,7 @@ RCS_ID("$Id$")
 
   return value;
 }
+#endif /* !FOUNDATION_HAS_KVC */ //MG
 
 - (id)valueForKeyPath: (NSString*)keyPath
 {
@@ -685,7 +694,7 @@ RCS_ID("$Id$")
 
   return value;
 }
-#endif /* !FOUNDATION_HAS_KVC */
+//MG #endif /* !FOUNDATION_HAS_KVC */
 
 - (id)storedValueForKeyPath: (NSString*)keyPath
 {
