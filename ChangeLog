@@ -1,3 +1,8 @@
+2005-02-16  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOClassDescription.m ([NSObject-snapshot]):
+	Return valid dictionary for EONull.
+	
 2005-02-15  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAttribute.h/m (EOAdaptorUnknownType): Remove.

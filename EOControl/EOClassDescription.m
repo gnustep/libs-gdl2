@@ -727,9 +727,9 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 @implementation NSObject (EOInitialization)
 
-- initWithEditingContext: (EOEditingContext *)ec
-        classDescription: (EOClassDescription *)classDesc
-                globalID: (EOGlobalID *)globalID;
+- (id)initWithEditingContext: (EOEditingContext *)ec
+	    classDescription: (EOClassDescription *)classDesc
+		    globalID: (EOGlobalID *)globalID;
 {
   return [self init];
 }
@@ -1104,10 +1104,10 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   NSArray *toOneRelationshipKeys;
   NSArray *toManyRelationshipKeys;
 
-  int attributeKeyCount;
-  int toOneRelationshipKeyCount;
-  int toManyRelationshipKeyCount;
-  int i;
+  unsigned attributeKeyCount;
+  unsigned toOneRelationshipKeyCount;
+  unsigned toManyRelationshipKeyCount;
+  undigned i;
 
   EOFLOGObjectFnStart();
 
@@ -1115,7 +1115,13 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
   if (self==GDL2EONull)
     {
-      NSWarnMLog(@"Warning: self is an EONull");
+      static id emptyDict = nil;
+      if (emptyDict == nil)
+	{
+	  emptyDict = [NSDictionary new];
+	}
+      NSWarnMLog(@"Warning: self is the EONull instance");
+      snapshot = emptyDict;
     }
   else
     {
@@ -1132,14 +1138,15 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
       toOneRelationshipKeyCount = [toOneRelationshipKeys count];
       toManyRelationshipKeyCount = [toManyRelationshipKeys count];
 
-      NSDebugMLLog(@"gsdb", @"attributeKeyCount=%d toOneRelationshipKeyCount=%d "
+      NSDebugMLLog(@"gsdb", 
+		   @"attributeKeyCount=%d toOneRelationshipKeyCount=%d "
                    @"toManyRelationshipKeyCount=%d",
                    attributeKeyCount, toOneRelationshipKeyCount,
                    toManyRelationshipKeyCount);
 
-      snapshot = GDL2MutableDictionaryWithCapacity(attributeKeyCount
-                                                   + toOneRelationshipKeyCount
-                                                   + toManyRelationshipKeyCount);
+      snapshot = GDL2MutableDictionaryWithCapacity(attributeKeyCount +
+						   toOneRelationshipKeyCount +
+						   toManyRelationshipKeyCount);
       NSDebugMLLog(@"gsdb", @"attributeKeys=%@", attributeKeys);
 
       if (attributeKeyCount>0)
@@ -1159,7 +1166,8 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
               GDL2SetObjectForKeyWithImpPtr(snapshot,&snapshotSOFK,value,key);
             }
         };
-      NSDebugMLLog(@"gsdb", @"toOneRelationshipKeys=%@", toOneRelationshipKeys);
+      NSDebugMLLog(@"gsdb",
+		   @"toOneRelationshipKeys=%@", toOneRelationshipKeys);
 
       if (toOneRelationshipKeyCount>0)
         {
@@ -1167,7 +1175,8 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
           for (i = 0; i < toOneRelationshipKeyCount; i++)
             {
-              id key = GDL2ObjectAtIndexWithImpPtr(toOneRelationshipKeys,&oaiIMP,i);
+              id key = GDL2ObjectAtIndexWithImpPtr(toOneRelationshipKeys,
+						   &oaiIMP,i);
               id value = GDL2StoredValueForKeyWithImpPtr(self,&selfSVFK,key);
               
               if (!value)
@@ -1180,7 +1189,8 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
             }
         };
 
-      NSDebugMLLog(@"gsdb", @"toManyRelationshipKeys=%@", toManyRelationshipKeys);
+      NSDebugMLLog(@"gsdb",
+		   @"toManyRelationshipKeys=%@", toManyRelationshipKeys);
 
       if (toManyRelationshipKeyCount>0)
         {
@@ -1188,19 +1198,23 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
           for (i = 0; i < toManyRelationshipKeyCount; i++)
             {
-              id key = GDL2ObjectAtIndexWithImpPtr(toManyRelationshipKeys,&oaiIMP,i);
+              id key = GDL2ObjectAtIndexWithImpPtr(toManyRelationshipKeys,
+						   &oaiIMP,i);
               id value = GDL2StoredValueForKeyWithImpPtr(self,&selfSVFK,key);
               
               if (value)
                 {
-                  NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
+                  NSDebugMLLog(@"gsdb",
+			       @"TOMANY snap=%p key=%@ ==> value %p=%@",
                                snapshot, key, value, value);
                   
                   value = AUTORELEASE([value shallowCopy]);
-                  NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
+                  NSDebugMLLog(@"gsdb",
+			       @"TOMANY snap=%p key=%@ ==> value %p=%@",
                                snapshot, key, value, value);
                   
-                  GDL2SetObjectForKeyWithImpPtr(snapshot,&snapshotSOFK,value,key);
+                  GDL2SetObjectForKeyWithImpPtr(snapshot,&snapshotSOFK,
+						value,key);
                 }
               /*    //TODO-VERIFY or set it to eonull ?
                     else
