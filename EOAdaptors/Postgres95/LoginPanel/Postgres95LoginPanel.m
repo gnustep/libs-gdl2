@@ -27,6 +27,12 @@
 #include <Foundation/Foundation.h>
 #include <AppKit/AppKit.h>
 #include <EOAccess/EOAccess.h>
+
+#ifndef GNUSTEP
+#include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSCategories.h>
+#endif
+
 #include "Postgres95LoginPanel.h"
 
 static BOOL insideModalLoop;

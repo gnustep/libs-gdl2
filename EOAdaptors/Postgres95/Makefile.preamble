@@ -49,11 +49,16 @@ ADDITIONAL_INCLUDE_DIRS += \
 	-I../../EOControl/$(GNUSTEP_TARGET_DIR) \
 	-I../..
 
-# Libraries linked to the framework
-LIBRARIES_DEPEND_UPON +=
-
 # Additional library directories the linker should search
-ADDITIONAL_LIB_DIRS +=
+ADDITIONAL_LIB_DIRS += \
+	-L../../EOControl/$(GNUSTEP_OBJ_DIR) \
+	-L../../EOAccess/$(GNUSTEP_OBJ_DIR)
+
+# Libraries linked to the framework
+LIBRARIES_DEPEND_UPON += -lgnustep-db2control -lgnustep-db2
+ifneq ($(FOUNDATION_LIB),gnu)
+LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
+endif
 
 #
 # Flags dealing with installing and uninstalling

@@ -74,6 +74,7 @@ after-uninstall::
 after-distclean::
 	rm -rf config.cache config.log config.status
 	rm -rf config.h gdl2.make
+	rm -rf autom4te.cache
 
 # Things to do before checking
 # before-check::

@@ -26,9 +26,20 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 BUNDLE_NAME=LoginPanel
+
 LoginPanel_OBJC_FILES = Postgres95LoginPanel.m
 LoginPanel_PRINCIPAL_CLASS = Postgres95LoginPanel
-ADDITIONAL_INCLUDE_DIRS = -I.. -I../../..
+
+LoginPanel_INCLUDE_DIRS = -I.. -I../../..
+LoginPanel_LIB_DIRS = \
+	-L../../../EOControl/$(GNUSTEP_OBJ_DIR) \
+	-L../../../EOAccess/$(GNUSTEP_OBJ_DIR)
+LoginPanel_OBJC_LIBS = -lgnustep-db2control -lgnustep-db2
+
+ifneq ($(FOUNDATION_LIB),gnu)
+LoginPanel_OBJC_LIBS += -lgnustep-baseadd
+endif
+
 LoginPanel_COPY_INTO_DIR = ../Postgres95EOAdaptor.framework/Resources
 
 include ../config.mak

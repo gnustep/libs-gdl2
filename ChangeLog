@@ -1,5 +1,17 @@
 2004-04-15  David Ayers  <d.ayers@inode.at>
 
+	* EOAdaptors/Postgres95/Makefile.preamble: Add link flags
+	for Darwin.
+	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile: Ditto.
+
+	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.m:
+	Include GNUstep headers for non-*-gnu-* configurations.
+
+	* config/postgres.m4: Generalize test for PostgreSQL.
+	* configure: Regenerated.
+	
+	* Makefile.postamble: Remove autom4te.cache on distclean.
+
 	* TODO: Start tracking major TODO's until formal auditing is
 	available.
 
