@@ -104,14 +104,15 @@ initialize(void)
 			@selector(GDL2KVCNSObjectICategoryID), YES);
 }
 
-- (void) unableToSetNilForKey: (NSString *)key
+- (void) unableToSetNullForKey: (NSString *)key
 {
-  [self unableToSetNullForKey: key];
+  GSOnceMLog(@"This method is deprecated, use -unableToSetNilForKey:!");
+  [self unableToSetNilForKey: key];
 }
 
 - (void) setNilValueForKey: (NSString *)key
 {
-  [self unableToSetNullForKey: key];
+  [self unableToSetNilForKey: key];
 }
 
 /* See EODeprecated.h. */
@@ -125,7 +126,7 @@ initialize(void)
 }
 
 /* See header file for documentation. */
-- (void) unableToSetNullForKey: (NSString *)key
+- (void) unableToSetNilForKey: (NSString *)key
 {
   [NSException raise: NSInvalidArgumentException
 	       format: @"%@ -- %@ 0x%x: Given nil value to set for key \"%@\"",

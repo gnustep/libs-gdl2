@@ -105,13 +105,14 @@
  * This method is invoked by the EOKeyValueCoding mechanism when an attempt
  * is made to set an null value for a scalar attribute.  This implementation
  * raises an NSInvalidArgument exception. <br/>
- * The NSKeyValueCoding -unableToSetNilForKey: and -setNilValueForKey:
- * are overriden to invoke this
+ * Contrary to the TOC of the documentation, this method is called
+ * unableToSetNilForKey: and not unableToSetNullForKey:<br/>
+ * The NSKeyValueCoding -setNilValueForKey: is overriden to invoke this
  * method instead.  We manipulate the runtime to insure that our implementation
  * of unableToSetNilForKey: is used in favor of the one in gnustep-base or
  * Foundation.
  */
-- (void)unableToSetNullForKey: (NSString *)key;
+- (void)unableToSetNilForKey: (NSString *)key;
 
 @end
 

@@ -1,3 +1,10 @@
+2005-03-10  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOKeyValueCoding: (-unableToSetNullForKey:): Deprecate
+	and call unableToSetNilForKey.
+	(-setNilValueForKey:): Call unableToSetNilForKey.
+	(-unableToSetNilForKey:): Use default implementation.
+	
 2005-03-03  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EODatabaseContext.m (-forgetSnapshotForGlobalID:):
