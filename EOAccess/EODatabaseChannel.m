@@ -65,9 +65,7 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EODatabaseChannel.h>
-#include <EOAccess/EODatabaseChannelPriv.h>
 #include <EOAccess/EODatabaseContext.h>
-#include <EOAccess/EODatabaseContextPriv.h>
 #include <EOAccess/EODatabase.h>
 
 #include <EOAccess/EOAdaptor.h>
@@ -81,6 +79,9 @@ RCS_ID("$Id$")
 #include <EOAccess/EOSQLExpression.h>
 #include <EOAccess/EOSQLQualifier.h>
 
+#include "EOEntityPriv.h"
+#include "EODatabaseContextPriv.h"
+#include "EODatabaseChannelPriv.h"
 
 @implementation EODatabaseChannel
 

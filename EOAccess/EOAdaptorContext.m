@@ -54,9 +54,10 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOAdaptor.h>
-#include <EOAccess/EOAdaptorPriv.h>
 #include <EOAccess/EOAdaptorContext.h>
 #include <EOAccess/EOAdaptorChannel.h>
+
+#include "EOAdaptorPriv.h"
 
 
 NSString *EOAdaptorContextBeginTransactionNotification = @"EOAdaptorContextBeginTransactionNotofication";

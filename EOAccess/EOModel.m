@@ -68,12 +68,13 @@ RCS_ID("$Id$")
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
-#include <EOAccess/EOEntityPriv.h>
 #include <EOAccess/EOStoredProcedure.h>
 #include <EOAccess/EOModelGroup.h>
 #include <EOAccess/EOAccessFault.h>
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAttribute.h>
+
+#include "EOEntityPriv.h"
 
 #define DEFAULT_MODEL_VERSION 2
 
@@ -939,8 +940,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
               [markEntities setObject: plist
                             forKey: [plist objectForKey: @"name"]];
           
-              entity = [EOEntity entityWithPropertyList: plist
-				 owner: self];
+              entity 
+		= AUTORELEASE([[EOEntity alloc] initWithPropertyList: plist
+						owner: self]);
               [self addEntity: entity];
             }
 
@@ -1298,8 +1300,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSAssert(propertyList, @"no propertyList");
   EOFLOGObjectLevelArgs(@"gsdb", @"propertyList=%@", propertyList);
 
-  entity = [EOEntity entityWithPropertyList: propertyList
-		     owner: self];
+  entity = AUTORELEASE([[EOEntity alloc] initWithPropertyList: propertyList
+					 owner: self]);
 
   NSAssert2([entity className], @"Entity %p named %@ has no class name",
 	    entity, [entity name]);

@@ -30,7 +30,7 @@
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOModelGroup.h>
 
-@interface EOLoginPanel (Depricated)
+@interface EOLoginPanel (Deprecated)
 /**
  * Use runPanelForAdaptor:validate:allowsCreation: instead.
  */

@@ -67,18 +67,19 @@ RCS_ID("$Id$")
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOAttribute.h>
-#include <EOAccess/EOAttributePriv.h>
 #include <EOAccess/EORelationship.h>
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAdaptorContext.h>
 #include <EOAccess/EOAdaptorChannel.h>
 #include <EOAccess/EOJoin.h>
 #include <EOAccess/EOSQLExpression.h>
-#include <EOAccess/EOSQLExpressionPriv.h>
 #include <EOAccess/EOSQLQualifier.h>
 #include <EOAccess/EOExpressionArray.h>
 #include <EOAccess/EOSchemaGeneration.h>
 
+#include "EOEntityPriv.h"
+#include "EOAttributePriv.h"
+#include "EOSQLExpressionPriv.h"
 
 
 NSString *EOBindVariableNameKey = @"EOBindVariableNameKey";

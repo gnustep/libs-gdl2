@@ -90,12 +90,14 @@ RCS_ID("$Id$")
 
 #include <EOAccess/EODatabase.h>
 #include <EOAccess/EODatabaseContext.h>
-#include <EOAccess/EODatabaseContextPriv.h>
 #include <EOAccess/EODatabaseChannel.h>
 #include <EOAccess/EODatabaseOperation.h>
 #include <EOAccess/EOAccessFault.h>
-#include <EOAccess/EOAccessFaultPriv.h>
 #include <EOAccess/EOExpressionArray.h>
+
+#include "EOEntityPriv.h"
+#include "EOAccessFaultPriv.h"
+#include "EODatabaseContextPriv.h"
 
 #include <string.h>
 

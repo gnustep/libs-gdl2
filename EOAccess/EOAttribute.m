@@ -69,14 +69,15 @@ RCS_ID("$Id$")
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
-#include <EOAccess/EOEntityPriv.h>
 #include <EOAccess/EOAttribute.h>
-#include <EOAccess/EOAttributePriv.h>
 #include <EOAccess/EOStoredProcedure.h>
 #include <EOAccess/EORelationship.h>
 #include <EOAccess/EOExpressionArray.h>
 
 #include <string.h>
+
+#include "EOEntityPriv.h"
+#include "EOAttributePriv.h"
 
 
 @implementation EOAttribute

@@ -66,6 +66,8 @@ RCS_ID("$Id$")
 #include <EOAccess/EOSQLExpression.h>
 #include <EOAccess/EODatabaseOperation.h>
 
+#include "EOEntityPriv.h"
+
 
 NSString *EOAdaptorOperationsKey = @"EOAdaptorOperationsKey";
 NSString *EOFailedAdaptorOperationKey = @"EOFailedAdaptorOperationKey";

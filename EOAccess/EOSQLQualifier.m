@@ -66,6 +66,7 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EODebug.h>
 
+#include "EOEntityPriv.h"
 
 @implementation EOSQLQualifier
 

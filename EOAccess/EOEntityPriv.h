@@ -36,12 +36,63 @@
 
 @interface EOEntity (EOEntityPrivate)
 
+- (BOOL)isPrototypeEntity;
+
 - (void)setCreateMutableObjects: (BOOL)flag;
 - (BOOL)createsMutableObjects;
 
 - (void)setModel: (EOModel *)model;
 - (void)setParentEntity: (EOEntity *)parent;
 
+-(Class)_classForInstances;
+- (void)_setInternalInfo: (NSDictionary *)dictionary;
+
+- (NSDictionary *)attributesByName;
+- (NSDictionary *)relationshipsByName;
+- (NSArray *)_allFetchSpecifications;
+- (NSDictionary *)_fetchSpecificationDictionary;
+- (void)_loadEntity;
+- (id)parentRelationship;
+- (int)_numberOfRelationships;
+- (BOOL)_hasReadOnlyAttributes;
+- (NSArray *)writableDBSnapshotKeys;
+- (NSArray *)rootAttributesUsedForLocking;
+- (BOOL)isSubEntityOf: (id)param0;
+- (id)initObject: (id)param0
+  editingContext: (id)param1
+	globalID: (id)param2;
+- (id)allocBiggestObjectWithZone: (NSZone *)zone;
+- (Class)_biggestClass;
+- (NSArray *)relationshipsPlist;
+- (id)rootParent;
+- (void)_setParent: (id)param0;
+- (NSArray *)_hiddenRelationships;
+- (NSArray *)_propertyNames;
+- (id)_flattenAttribute: (id)param0
+       relationshipPath: (id)param1
+      currentAttributes: (id)param2;
+- (NSString *)snapshotKeyForAttributeName: (NSString *)attributeName;
+- (id)_flattenedAttNameToSnapshotKeyMapping;
+- (EOMKKDSubsetMapping *)_snapshotToAdaptorRowSubsetMapping;
+- (EOMutableKnownKeyDictionary *)_dictionaryForPrimaryKey;
+- (EOMutableKnownKeyDictionary *)_dictionaryForProperties;
+- (EOMutableKnownKeyDictionary *)_dictionaryForInstanceProperties;
+- (NSArray *)_relationshipsToFaultForRow: (NSDictionary *)row;
+- (NSArray *)_classPropertyAttributes;
+- (NSArray *)_attributesToSave;
+- (NSArray *)_attributesToFetch;
+- (EOMKKDInitializer *)_adaptorDictionaryInitializer;
+- (EOMKKDInitializer *)_snapshotDictionaryInitializer;
+- (EOMKKDInitializer *)_primaryKeyDictionaryInitializer;
+- (EOMKKDInitializer *)_propertyDictionaryInitializer;
+- (EOMKKDInitializer *)_instanceDictionaryInitializer;
+- (void)_setModel: (EOModel *)model;
+- (void)_setIsEdited;
+- (NSArray *)_classPropertyAttributes;
+
+- (Class)classForObjectWithGlobalID: (EOKeyGlobalID *)globalID;
+- (id)globalIDForRow: (NSDictionary *)row
+	     isFinal: (BOOL)isFinal;
 @end
 
 @interface EOEntity (EOEntityRelationshipPrivate)
@@ -68,6 +119,20 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path;
 - (id)_parsePropertyName: (id)param0;
 //- (id)_newStringWithBuffer: (unsigned short *)param0
 //                    length: (unsigned int *)param1;
+@end
+
+@interface EOEntity (MethodSet11)
+- (NSException *)validateObjectForDelete: (id)object;
+- (id)classPropertyAttributeNames;
+- (id)classPropertyToManyRelationshipNames;
+- (id)classPropertyToOneRelationshipNames;
+- (id)qualifierForDBSnapshot: (id)param0;
+- (EOAttribute *)attributeForPath: (NSString *)path;
+- (EORelationship *)relationshipForPath: (NSString *)path;
+- (void)_addAttributesToFetchForRelationshipPath: (NSString *)path
+					    atts: (NSMutableDictionary *)atts;
+- (id)dbSnapshotKeys;
+- (NSArray *)flattenedAttributes;
 @end
 
 #endif

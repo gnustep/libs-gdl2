@@ -76,13 +76,14 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOAdaptor.h>
-#include <EOAccess/EOAdaptorPriv.h>
 #include <EOAccess/EOAdaptorContext.h>
 #include <EOAccess/EOAdaptorChannel.h>
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOSQLExpression.h>
+
+#include "EOAdaptorPriv.h"
 
 
 NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";

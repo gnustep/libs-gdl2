@@ -1,3 +1,42 @@
+2004-06-23  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAccessFault.m: Include privat headers locally.
+	* EOAccess/EOAdaptor.m: Ditto.
+	* EOAccess/EOAdaptorChannel.m: Ditto.
+	* EOAccess/EOAdaptorContext.m: Ditto.
+	* EOAccess/EOAttribute.m: Ditto.
+	* EOAccess/EODatabaseChannel.m: Ditto.
+	* EOAccess/EODatabaseContext.m: Ditto.
+	* EOAccess/EODatabaseOperation.m: Ditto.
+	* EOAccess/EOModel.m: Ditto.
+	* EOAccess/EORelationship.m: Ditto.
+	* EOAccess/EOSQLExpression.m: Ditto.
+	* EOAccess/EOSQLQualifier.m: Ditto.
+
+	* EOAccess/EOEntity.h: Remove declarations of privat methods.
+	Reorder declaraions.
+	(+[entity], +[entityWithPropertyList:owner:]): Deprecate.
+	(-[sharedObjectFetchSpecificationNames]): New method.
+	(-[setSharedObjectFetchSpecificationsByName:]: Ditto.
+	(-[addSharedObjectFetchSpecificationByName:]: Ditto.
+	(-[removeSharedObjectFetchSpecificationByName:]: Ditto.
+	* EOAccess/EOEntityPriv.h: Add declarations of privat methods.
+	Reorder declarations.
+	* EOAccess/EOEntity.m: Reorder implementations according to
+	headers.  Include privat headers locally.
+	(+[entity], +[entityWithPropertyList:owner:]): Deprecate.
+	(-[sharedObjectFetchSpecificationNames]): New method.
+	(-[setSharedObjectFetchSpecificationsByName:]: Ditto.
+	(-[addSharedObjectFetchSpecificationByName:]: Ditto.
+	(-[removeSharedObjectFetchSpecificationByName:]: Ditto.
+	
+	* EOAccess/EOEntity.m: Adapt usage of deprecated -[entity...]
+	and privat methods.
+	* EOAccess/EOModel.m: Ditto.
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m: Ditto.
+
+	* TODO: Add comment.
+
 2004-06-21  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EONSAddOns.h/m

@@ -78,12 +78,13 @@ RCS_ID("$Id$")
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
-#include <EOAccess/EOEntityPriv.h>
 #include <EOAccess/EOAttribute.h>
-#include <EOAccess/EOAttributePriv.h>
 #include <EOAccess/EORelationship.h>
 #include <EOAccess/EOStoredProcedure.h>
 #include <EOAccess/EOExpressionArray.h>
+
+#include "EOEntityPriv.h"
+#include "EOAttributePriv.h"
 
 
 NSString *EOFetchAllProcedureOperation = @"EOFetchAllProcedureOperation";
@@ -95,18 +96,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 @implementation EOEntity
 
-+ (EOEntity *)entity
-{
-  return AUTORELEASE([[self alloc] init]);
-}
-
-+ (EOEntity *)entityWithPropertyList: (NSDictionary *)propertyList
-			       owner: (id)owner
-{
-  return AUTORELEASE([[self alloc] initWithPropertyList: propertyList
-				   owner: owner]);
-}
-
+/* Not documented becuase it is not a public method.  */
 - (id) initWithPropertyList: (NSDictionary*)propertyList
 		      owner: (id)owner
 {
@@ -842,11 +832,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return YES;
 }
 
-- (unsigned)hash
-{
-  return [_name hash];
-}
-
 - (NSString *)description
 {
   NSMutableDictionary *plist;
@@ -886,10 +871,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return dscr;
 }
 
-- (EOQualifier *)restrictingQualifier
-{
-  return _restrictingQualifier;
-}
+/*----------------------------------------*/
 
 - (NSString *)name
 {
@@ -901,26 +883,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return _model;
 }
 
-- (NSDictionary *)userInfo
-{
-  return _userInfo;
-}
-
-- (NSString *)docComment
-{
-  return _docComment;
-}
-
-- (BOOL)isReadOnly
-{
-  return _flags.isReadOnly;
-}
-
-- (NSString *)externalQuery
-{
-  return _externalQuery;
-}
-
 - (NSString *)externalName
 {
   EOFLOGObjectLevelArgs(@"EOEntity", @"entity %p (%@): external name=%@",
@@ -929,419 +891,34 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return _externalName;
 }
 
+- (NSString *)externalQuery
+{
+  return _externalQuery;
+}
+
+- (EOQualifier *)restrictingQualifier
+{
+  return _restrictingQualifier;
+}
+
+- (BOOL)isReadOnly
+{
+  return _flags.isReadOnly;
+}
+
+- (BOOL)cachesObjects
+{
+  return _flags.cachesObjects;
+}
+
 - (NSString *)className
 {
   return _className;
 } 
 
--(Class)_classForInstances
+- (NSDictionary *)userInfo
 {
-  EOFLOGObjectFnStart();
-
-  if (!_classForInstances)
-    {
-      NSString *className = nil;
-      Class objectClass = Nil;
-
-      className = [self className];
-      EOFLOGObjectLevelArgs(@"EOEntity", @"className=%@", className);
-
-      objectClass = NSClassFromString(className);
-
-      if (!objectClass)
-        {
-          NSLog(@"Error: No class named %@", className);
-        }
-      else
-        {
-          EOFLOGObjectLevelArgs(@"EOEntity", @"objectClass=%@", objectClass);
-          ASSIGN(_classForInstances, objectClass);
-        }
-    }
-
-  EOFLOGObjectFnStop();
-
-  return _classForInstances;
-}
-
-- (NSArray *)attributesUsedForLocking
-{
-  //OK
-  if (_flags.attributesUsedForLockingIsLazy)
-    {
-      int count = [_attributesUsedForLocking count];
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _attributesUsedForLocking=%@",
-			    _attributesUsedForLocking);
-
-      if (count > 0)
-        {
-          int i = 0;
-          NSArray *attributesUsedForLocking = _attributesUsedForLocking;
-
-          _attributesUsedForLocking = [GCMutableArray new];
-          _flags.attributesUsedForLockingIsLazy = NO;
-
-          for (i = 0; i < count; i++)
-            {
-              NSString *attributeName = [attributesUsedForLocking
-					  objectAtIndex: i];
-              EOAttribute *attribute = [self attributeNamed: attributeName];
-
-              NSAssert1(attribute,
-                        @"No attribute named %@ to use for locking",
-                        attribute);
-
-              if ([self isValidAttributeUsedForLocking: attribute])
-                [_attributesUsedForLocking addObject: attribute];
-              else
-                {
-		  NSEmitTODO(); //TODO
-                  [self notImplemented: _cmd]; //TODO
-                }
-            }
-
-          EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesUsedForLocking class=%@",
-				[_attributesUsedForLocking class]);          
-
-          DESTROY(attributesUsedForLocking);
-
-          [self _setIsEdited]; //To Clean Buffers
-        }
-      else
-        _flags.attributesUsedForLockingIsLazy = NO;
-    }
-
-  return _attributesUsedForLocking;
-}
-
-- (NSArray *)classPropertyNames
-{
-  //OK
-  EOFLOGObjectFnStart();
-
-  if (!_classPropertyNames)
-    {
-      NSArray *classProperties = [self classProperties];
-
-      NSAssert2(!classProperties
-		|| [classProperties isKindOfClass: [NSArray class]],
-                @"classProperties is not an NSArray but a %@\n%@",
-                [classProperties class],
-                classProperties);
-
-      ASSIGN(_classPropertyNames,
-	     [classProperties resultsOfPerformingSelector: @selector(name)]);
-    }
-
-  NSAssert4(!_attributesToFetch
-	    || [_attributesToFetch isKindOfClass: [NSArray class]],
-            @"entity %@ attributesToFetch %p is not an NSArray but a %@\n%@",
-            [self name],
-            _attributesToFetch,
-            [_attributesToFetch class],
-            _attributesToFetch);
-
-  EOFLOGObjectFnStop();
-
-  return _classPropertyNames;
-}
-
-- (NSArray *)classProperties
-{
-  //OK
-  EOFLOGObjectFnStart();
-
-  if (_flags.classPropertiesIsLazy)
-    {
-      int count = [_classProperties count];
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _classProperties=%@",
-			    _classProperties);
-
-      if (count > 0)
-        {
-          NSArray *classPropertiesList = _classProperties;
-          int i;
-
-          _classProperties = [GCMutableArray new];
-          _flags.classPropertiesIsLazy = NO;
-
-          for (i = 0; i < count; i++)
-            {
-#if 0
-              NSString *classPropertyName = [classPropertiesList
-					      objectAtIndex: i];
-#else
-              NSString *classPropertyName = (
-       [[classPropertiesList objectAtIndex:i] isKindOfClass:[NSString class]] ?
-        [classPropertiesList objectAtIndex:i] :
-        [(EOEntity *)[classPropertiesList objectAtIndex: i] name]);
-#endif
-              id classProperty = [self attributeNamed: classPropertyName];
-
-              if (!classProperty)
-                  classProperty = [self relationshipNamed: classPropertyName];
-
-              NSAssert2(classProperty,
-                        @"No attribute or relationship named %@ to use as classProperty in entity %@",
-                        classPropertyName,
-                        self);
-
-              if ([self isValidClassProperty: classProperty])
-                [_classProperties addObject: classProperty];
-              else
-                {
-                  //TODO
-                  NSAssert2(NO, @"not valid class prop %@ in %@",
-			    classProperty, [self name]);
-                }
-            }
-
-          DESTROY(classPropertiesList);
-
-          [_classProperties sortUsingSelector: @selector(eoCompareOnName:)]; //Very important to have always the same order.
-          [self _setIsEdited]; //To Clean Buffers
-        }
-      else
-        _flags.classPropertiesIsLazy = NO;
-    }
-
-  EOFLOGObjectFnStop();
-
-  return _classProperties;
-}
-
-- (NSArray*)primaryKeyAttributes
-{
-  //OK
-  if (_flags.primaryKeyAttributesIsLazy)
-    {
-      int count = [_primaryKeyAttributes count];
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _primaryKeyAttributes=%@",
-			    _primaryKeyAttributes);
-
-      if (count > 0)
-        {
-          int i = 0;
-          NSArray *primaryKeyAttributes = _primaryKeyAttributes;
-
-          _primaryKeyAttributes = [GCMutableArray new];
-          _flags.primaryKeyAttributesIsLazy = NO;
-
-          for (i = 0; i < count; i++)
-            {
-              NSString *attributeName = [primaryKeyAttributes objectAtIndex: i];
-              EOAttribute *attribute = [self attributeNamed: attributeName];
-
-              NSAssert3(attribute, @"In entity %@: No attribute named %@ "
-		@"to use for locking (attributes: %@)", [self name],
-		attributeName, [[self attributes]
-		  resultsOfPerformingSelector: @selector(name)]);
-
-              if ([self isValidPrimaryKeyAttribute: attribute])
-                [_primaryKeyAttributes addObject: attribute];
-              else
-                {
-                  NSAssert2(NO, @"not valid pk attribute %@ in %@",
-			    attribute, [self name]);
-                }
-            }
-
-          DESTROY(primaryKeyAttributes);
-
-          [_primaryKeyAttributes sortUsingSelector: @selector(eoCompareOnName:)]; //Very important to have always the same order.
-          [self _setIsEdited]; //To Clean Buffers
-        }
-      else
-        _flags.primaryKeyAttributesIsLazy = NO;
-    }
-
-  return _primaryKeyAttributes;
-}
-
-- (NSArray *)primaryKeyAttributeNames
-{
-  //OK
-  if (!_primaryKeyAttributeNames)
-    {
-      NSArray *primaryKeyAttributes = [self primaryKeyAttributes];
-      NSArray *primaryKeyAttributeNames = [primaryKeyAttributes
-					    resultsOfPerformingSelector:
-					      @selector(name)];
-
-      primaryKeyAttributeNames = [primaryKeyAttributeNames sortedArrayUsingSelector: @selector(compare:)]; //Not necessary: they are already sorted
-      ASSIGN(_primaryKeyAttributeNames, primaryKeyAttributeNames);
-    }
-
-  return _primaryKeyAttributeNames;
-}
-
-- (NSArray *)relationships
-{
-  //OK
-  if (_flags.relationshipsIsLazy)
-    {
-      int count = 0;
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"START construct relationships on %p",
-			    self);
-
-      count = [_relationships count];
-      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _relationships=%@",
-			    _relationships);
-
-      if (count > 0)
-        {
-          int i = 0;
-          NSArray *relationshipPLists = _relationships;
-          NSDictionary *attributesByName = nil;
-
-          DESTROY(_relationshipsByName);
-
-          _relationships = [GCMutableArray new];
-          _relationshipsByName = [GCMutableDictionary new];
-
-          if (!_flags.attributesIsLazy)
-            {
-              attributesByName = [self attributesByName];
-              NSAssert2((!attributesByName
-			 || [attributesByName isKindOfClass:
-						[NSDictionary class]]),
-                        @"attributesByName is not a NSDictionary but a %@. attributesByName [%p]",
-                        [attributesByName class],
-                        attributesByName);
-            }
-
-          _flags.relationshipsIsLazy = NO;
-          [EOObserverCenter suppressObserverNotification];
-          _flags.updating = YES;
-
-          NS_DURING
-            {
-              NSArray *relNames = nil;
-
-              for (i = 0; i < count; i++)
-                {
-                  NSDictionary *attrPList = [relationshipPLists
-					      objectAtIndex: i];
-                  EORelationship *relationship = nil;
-                  NSString *relationshipName = nil;
-
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"attrPList: %@",
-					attrPList);
-
-                  relationship = [EORelationship
-				   relationshipWithPropertyList: attrPList
-				   owner: self];
-
-                  relationshipName = [relationship name];
-
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"relationshipName: %@",
-					relationshipName);
-
-                  if ([attributesByName objectForKey: relationshipName])
-                    {
-                      [NSException raise: NSInvalidArgumentException
-                                   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model as attribute",
-                                   NSStringFromSelector(_cmd),
-                                   NSStringFromClass([self class]),
-                                   self,
-                                   relationshipName];
-                    }
-
-                  if ([_relationshipsByName objectForKey: relationshipName])
-                    {
-                      [NSException raise: NSInvalidArgumentException
-                                   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
-                                   NSStringFromSelector(_cmd),
-                                   NSStringFromClass([self class]),
-                                   self,
-                                   relationshipName];
-                    }
-
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"Add rel %p",
-					relationship);
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"Add rel=%@",
-					relationship);
-
-                  [_relationships addObject: relationship];
-                  [_relationshipsByName setObject: relationship
-                                        forKey: relationshipName];
-                }
-
-              EOFLOGObjectLevel(@"EOEntity", @"Rels added");
-
-              [self _setIsEdited];//To Clean Buffers
-              relNames = [_relationships
-			   resultsOfPerformingSelector: @selector(name)];
-
-              EOFLOGObjectLevelArgs(@"EOEntity", @"relNames=%@", relNames);
-
-              count = [relNames count];
-              EOFLOGObjectLevelArgs(@"EOEntity", @"self=%p rel count=%d",
-				    self, count);
-
-              NSAssert(count == [relationshipPLists count],
-		       @"Error during attribute creations");
-              {
-                int pass = 0;
-
-                //We'll first awake non flattened relationships
-                for (pass = 0; pass < 2; pass++)
-                  {
-                    for (i = 0; i < count; i++)
-                      {
-                        NSString *relName = [relNames objectAtIndex: i];
-                        NSDictionary *relPList = [relationshipPLists
-						   objectAtIndex: i];
-                        EORelationship *relationship = [self relationshipNamed:
-							       relName];
-
-                        EOFLOGObjectLevelArgs(@"EOEntity", @"relName=%@",
-					      relName);
-
-                        if ((pass == 0
-			     && ![relPList objectForKey: @"definition"]) 
-                            || (pass == 1
-				&& [relPList objectForKey: @"definition"]))
-                          {
-                            EOFLOGObjectLevelArgs(@"EOEntity", @"XXX REL: self=%p AWAKE relationship=%@",
-						  self, relationship);
-
-                            [relationship awakeWithPropertyList: relPList];
-                          }
-                      }
-                  }
-              }
-            }
-          NS_HANDLER
-            {
-              EOFLOGObjectLevelArgs(@"EOEntity", @"localException=%@",
-				    localException);
-
-              DESTROY(relationshipPLists);
-
-              _flags.updating = NO;
-              [EOObserverCenter enableObserverNotification];
-              [localException raise];
-            }
-          NS_ENDHANDLER;
-
-          DESTROY(relationshipPLists);
-
-          _flags.updating = NO;
-          [EOObserverCenter enableObserverNotification];
-        }
-      else
-        _flags.relationshipsIsLazy = NO;
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"STOP construct relationships on %p",
-			    self);
-    }
-
-  return _relationships;
+  return _userInfo;
 }
 
 - (NSArray *)attributes
@@ -1545,9 +1122,494 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return _attributes;
 }
 
-- (BOOL)cachesObjects
+- (EOAttribute *)attributeNamed: (NSString *)attributeName
 {
-  return _flags.cachesObjects;
+  //OK
+  EOAttribute *attribute = nil;
+  NSDictionary *attributesByName = nil;
+
+  EOFLOGObjectFnStart();
+
+  attributesByName = [self attributesByName];
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"attributesByName [%p] (%@)",
+			attributesByName,
+			[attributesByName class]);
+  NSAssert2((!attributesByName
+	     || [attributesByName isKindOfClass: [NSDictionary class]]),
+            @"attributesByName is not a NSDictionary but a %@. attributesByName [%p]",
+            [attributesByName class],
+            attributesByName);
+  //  EOFLOGObjectLevelArgs(@"EOEntity",@"attributesByName=%@",attributesByName);
+
+  attribute = [attributesByName objectForKey: attributeName];
+
+  EOFLOGObjectFnStop();
+
+  return attribute;
+}
+
+/** returns attribute named attributeName (no relationship) **/
+- (EOAttribute *)anyAttributeNamed: (NSString *)attributeName
+{
+  EOAttribute *attr;
+  NSEnumerator *attrEnum;
+
+  attr = [self attributeNamed:attributeName];
+
+  //VERIFY
+  if (!attr)
+    {
+      attrEnum = [[self primaryKeyAttributes] objectEnumerator];
+
+      while ((attr = [attrEnum nextObject]))
+        {
+	  if ([[attr name] isEqual: attributeName])
+	    return attr;
+        }
+    }
+
+  return attr;
+}
+
+- (NSArray *)relationships
+{
+  //OK
+  if (_flags.relationshipsIsLazy)
+    {
+      int count = 0;
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"START construct relationships on %p",
+			    self);
+
+      count = [_relationships count];
+      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _relationships=%@",
+			    _relationships);
+
+      if (count > 0)
+        {
+          int i = 0;
+          NSArray *relationshipPLists = _relationships;
+          NSDictionary *attributesByName = nil;
+
+          DESTROY(_relationshipsByName);
+
+          _relationships = [GCMutableArray new];
+          _relationshipsByName = [GCMutableDictionary new];
+
+          if (!_flags.attributesIsLazy)
+            {
+              attributesByName = [self attributesByName];
+              NSAssert2((!attributesByName
+			 || [attributesByName isKindOfClass:
+						[NSDictionary class]]),
+                        @"attributesByName is not a NSDictionary but a %@. attributesByName [%p]",
+                        [attributesByName class],
+                        attributesByName);
+            }
+
+          _flags.relationshipsIsLazy = NO;
+          [EOObserverCenter suppressObserverNotification];
+          _flags.updating = YES;
+
+          NS_DURING
+            {
+              NSArray *relNames = nil;
+
+              for (i = 0; i < count; i++)
+                {
+                  NSDictionary *attrPList = [relationshipPLists
+					      objectAtIndex: i];
+                  EORelationship *relationship = nil;
+                  NSString *relationshipName = nil;
+
+                  EOFLOGObjectLevelArgs(@"EOEntity", @"attrPList: %@",
+					attrPList);
+
+                  relationship = [EORelationship
+				   relationshipWithPropertyList: attrPList
+				   owner: self];
+
+                  relationshipName = [relationship name];
+
+                  EOFLOGObjectLevelArgs(@"EOEntity", @"relationshipName: %@",
+					relationshipName);
+
+                  if ([attributesByName objectForKey: relationshipName])
+                    {
+                      [NSException raise: NSInvalidArgumentException
+                                   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model as attribute",
+                                   NSStringFromSelector(_cmd),
+                                   NSStringFromClass([self class]),
+                                   self,
+                                   relationshipName];
+                    }
+
+                  if ([_relationshipsByName objectForKey: relationshipName])
+                    {
+                      [NSException raise: NSInvalidArgumentException
+                                   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+                                   NSStringFromSelector(_cmd),
+                                   NSStringFromClass([self class]),
+                                   self,
+                                   relationshipName];
+                    }
+
+                  EOFLOGObjectLevelArgs(@"EOEntity", @"Add rel %p",
+					relationship);
+                  EOFLOGObjectLevelArgs(@"EOEntity", @"Add rel=%@",
+					relationship);
+
+                  [_relationships addObject: relationship];
+                  [_relationshipsByName setObject: relationship
+                                        forKey: relationshipName];
+                }
+
+              EOFLOGObjectLevel(@"EOEntity", @"Rels added");
+
+              [self _setIsEdited];//To Clean Buffers
+              relNames = [_relationships
+			   resultsOfPerformingSelector: @selector(name)];
+
+              EOFLOGObjectLevelArgs(@"EOEntity", @"relNames=%@", relNames);
+
+              count = [relNames count];
+              EOFLOGObjectLevelArgs(@"EOEntity", @"self=%p rel count=%d",
+				    self, count);
+
+              NSAssert(count == [relationshipPLists count],
+		       @"Error during attribute creations");
+              {
+                int pass = 0;
+
+                //We'll first awake non flattened relationships
+                for (pass = 0; pass < 2; pass++)
+                  {
+                    for (i = 0; i < count; i++)
+                      {
+                        NSString *relName = [relNames objectAtIndex: i];
+                        NSDictionary *relPList = [relationshipPLists
+						   objectAtIndex: i];
+                        EORelationship *relationship = [self relationshipNamed:
+							       relName];
+
+                        EOFLOGObjectLevelArgs(@"EOEntity", @"relName=%@",
+					      relName);
+
+                        if ((pass == 0
+			     && ![relPList objectForKey: @"definition"]) 
+                            || (pass == 1
+				&& [relPList objectForKey: @"definition"]))
+                          {
+                            EOFLOGObjectLevelArgs(@"EOEntity", @"XXX REL: self=%p AWAKE relationship=%@",
+						  self, relationship);
+
+                            [relationship awakeWithPropertyList: relPList];
+                          }
+                      }
+                  }
+              }
+            }
+          NS_HANDLER
+            {
+              EOFLOGObjectLevelArgs(@"EOEntity", @"localException=%@",
+				    localException);
+
+              DESTROY(relationshipPLists);
+
+              _flags.updating = NO;
+              [EOObserverCenter enableObserverNotification];
+              [localException raise];
+            }
+          NS_ENDHANDLER;
+
+          DESTROY(relationshipPLists);
+
+          _flags.updating = NO;
+          [EOObserverCenter enableObserverNotification];
+        }
+      else
+        _flags.relationshipsIsLazy = NO;
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"STOP construct relationships on %p",
+			    self);
+    }
+
+  return _relationships;
+}
+
+- (EORelationship *)relationshipNamed: (NSString *)relationshipName
+{
+  //OK
+  return [[self relationshipsByName] objectForKey: relationshipName];
+}
+
+- (EORelationship *)anyRelationshipNamed: (NSString *)relationshipNamed
+{
+  EORelationship *rel;
+  NSEnumerator *relEnum = nil;
+
+  rel = [self relationshipNamed: relationshipNamed];
+
+  //VERIFY
+  if (!rel)
+    {
+      EORelationship *tmpRel = nil;
+
+      relEnum = [_hiddenRelationships objectEnumerator];
+
+      while (!rel && (tmpRel = [relEnum nextObject]))
+        {
+	  if ([[tmpRel name] isEqual: relationshipNamed])
+	    rel = tmpRel;
+        }
+    }
+
+  return rel;
+}
+
+- (NSArray *)classProperties
+{
+  //OK
+  EOFLOGObjectFnStart();
+
+  if (_flags.classPropertiesIsLazy)
+    {
+      int count = [_classProperties count];
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _classProperties=%@",
+			    _classProperties);
+
+      if (count > 0)
+        {
+          NSArray *classPropertiesList = _classProperties;
+          int i;
+
+          _classProperties = [GCMutableArray new];
+          _flags.classPropertiesIsLazy = NO;
+
+          for (i = 0; i < count; i++)
+            {
+#if 0
+              NSString *classPropertyName = [classPropertiesList
+					      objectAtIndex: i];
+#else
+              NSString *classPropertyName = (
+       [[classPropertiesList objectAtIndex:i] isKindOfClass:[NSString class]] ?
+        [classPropertiesList objectAtIndex:i] :
+        [(EOEntity *)[classPropertiesList objectAtIndex: i] name]);
+#endif
+              id classProperty = [self attributeNamed: classPropertyName];
+
+              if (!classProperty)
+                  classProperty = [self relationshipNamed: classPropertyName];
+
+              NSAssert2(classProperty,
+                        @"No attribute or relationship named %@ to use as classProperty in entity %@",
+                        classPropertyName,
+                        self);
+
+              if ([self isValidClassProperty: classProperty])
+                [_classProperties addObject: classProperty];
+              else
+                {
+                  //TODO
+                  NSAssert2(NO, @"not valid class prop %@ in %@",
+			    classProperty, [self name]);
+                }
+            }
+
+          DESTROY(classPropertiesList);
+
+          [_classProperties sortUsingSelector: @selector(eoCompareOnName:)]; //Very important to have always the same order.
+          [self _setIsEdited]; //To Clean Buffers
+        }
+      else
+        _flags.classPropertiesIsLazy = NO;
+    }
+
+  EOFLOGObjectFnStop();
+
+  return _classProperties;
+}
+
+- (NSArray *)classPropertyNames
+{
+  //OK
+  EOFLOGObjectFnStart();
+
+  if (!_classPropertyNames)
+    {
+      NSArray *classProperties = [self classProperties];
+
+      NSAssert2(!classProperties
+		|| [classProperties isKindOfClass: [NSArray class]],
+                @"classProperties is not an NSArray but a %@\n%@",
+                [classProperties class],
+                classProperties);
+
+      ASSIGN(_classPropertyNames,
+	     [classProperties resultsOfPerformingSelector: @selector(name)]);
+    }
+
+  NSAssert4(!_attributesToFetch
+	    || [_attributesToFetch isKindOfClass: [NSArray class]],
+            @"entity %@ attributesToFetch %p is not an NSArray but a %@\n%@",
+            [self name],
+            _attributesToFetch,
+            [_attributesToFetch class],
+            _attributesToFetch);
+
+  EOFLOGObjectFnStop();
+
+  return _classPropertyNames;
+}
+
+- (NSArray *)fetchSpecificationNames
+{
+  return _fetchSpecificationNames;
+}
+
+- (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)fetchSpecName
+{
+  return [_fetchSpecificationDictionary objectForKey: fetchSpecName];
+}
+
+- (NSArray *)sharedObjectFetchSpecificationNames
+{
+  NSEmitTODO(); //TODO
+  [self notImplemented: _cmd];
+  return nil;
+}
+
+- (NSArray*)primaryKeyAttributes
+{
+  //OK
+  if (_flags.primaryKeyAttributesIsLazy)
+    {
+      int count = [_primaryKeyAttributes count];
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _primaryKeyAttributes=%@",
+			    _primaryKeyAttributes);
+
+      if (count > 0)
+        {
+          int i = 0;
+          NSArray *primaryKeyAttributes = _primaryKeyAttributes;
+
+          _primaryKeyAttributes = [GCMutableArray new];
+          _flags.primaryKeyAttributesIsLazy = NO;
+
+          for (i = 0; i < count; i++)
+            {
+              NSString *attributeName = [primaryKeyAttributes objectAtIndex: i];
+              EOAttribute *attribute = [self attributeNamed: attributeName];
+
+              NSAssert3(attribute, @"In entity %@: No attribute named %@ "
+		@"to use for locking (attributes: %@)", [self name],
+		attributeName, [[self attributes]
+		  resultsOfPerformingSelector: @selector(name)]);
+
+              if ([self isValidPrimaryKeyAttribute: attribute])
+                [_primaryKeyAttributes addObject: attribute];
+              else
+                {
+                  NSAssert2(NO, @"not valid pk attribute %@ in %@",
+			    attribute, [self name]);
+                }
+            }
+
+          DESTROY(primaryKeyAttributes);
+
+          [_primaryKeyAttributes sortUsingSelector: @selector(eoCompareOnName:)]; //Very important to have always the same order.
+          [self _setIsEdited]; //To Clean Buffers
+        }
+      else
+        _flags.primaryKeyAttributesIsLazy = NO;
+    }
+
+  return _primaryKeyAttributes;
+}
+
+- (NSArray *)primaryKeyAttributeNames
+{
+  //OK
+  if (!_primaryKeyAttributeNames)
+    {
+      NSArray *primaryKeyAttributes = [self primaryKeyAttributes];
+      NSArray *primaryKeyAttributeNames = [primaryKeyAttributes
+					    resultsOfPerformingSelector:
+					      @selector(name)];
+
+      primaryKeyAttributeNames = [primaryKeyAttributeNames sortedArrayUsingSelector: @selector(compare:)]; //Not necessary: they are already sorted
+      ASSIGN(_primaryKeyAttributeNames, primaryKeyAttributeNames);
+    }
+
+  return _primaryKeyAttributeNames;
+}
+
+- (NSArray *)attributesUsedForLocking
+{
+  //OK
+  if (_flags.attributesUsedForLockingIsLazy)
+    {
+      int count = [_attributesUsedForLocking count];
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _attributesUsedForLocking=%@",
+			    _attributesUsedForLocking);
+
+      if (count > 0)
+        {
+          int i = 0;
+          NSArray *attributesUsedForLocking = _attributesUsedForLocking;
+
+          _attributesUsedForLocking = [GCMutableArray new];
+          _flags.attributesUsedForLockingIsLazy = NO;
+
+          for (i = 0; i < count; i++)
+            {
+              NSString *attributeName = [attributesUsedForLocking
+					  objectAtIndex: i];
+              EOAttribute *attribute = [self attributeNamed: attributeName];
+
+              NSAssert1(attribute,
+                        @"No attribute named %@ to use for locking",
+                        attribute);
+
+              if ([self isValidAttributeUsedForLocking: attribute])
+                [_attributesUsedForLocking addObject: attribute];
+              else
+                {
+		  NSEmitTODO(); //TODO
+                  [self notImplemented: _cmd]; //TODO
+                }
+            }
+
+          EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesUsedForLocking class=%@",
+				[_attributesUsedForLocking class]);          
+
+          DESTROY(attributesUsedForLocking);
+
+          [self _setIsEdited]; //To Clean Buffers
+        }
+      else
+        _flags.attributesUsedForLockingIsLazy = NO;
+    }
+
+  return _attributesUsedForLocking;
+}
+
+- (NSArray *)attributesToFetch
+{
+  //OK
+  NSAssert3(!_attributesToFetch 
+	    | [_attributesToFetch isKindOfClass: [NSArray class]],
+            @"entity %@ attributesToFetch %p is not an NSArray but a %@",
+            [self name],
+            _attributesToFetch,
+            [_attributesToFetch class]);
+
+  return [self _attributesToFetch];
 }
 
 - (EOQualifier *)qualifierForPrimaryKey: (NSDictionary *)row
@@ -1611,109 +1673,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   [self notImplemented:_cmd];
 
   return NO;
-}
-
-- (EOAttribute *)attributeNamed: (NSString *)attributeName
-{
-  //OK
-  EOAttribute *attribute = nil;
-  NSDictionary *attributesByName = nil;
-
-  EOFLOGObjectFnStart();
-
-  attributesByName = [self attributesByName];
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"attributesByName [%p] (%@)",
-			attributesByName,
-			[attributesByName class]);
-  NSAssert2((!attributesByName
-	     || [attributesByName isKindOfClass: [NSDictionary class]]),
-            @"attributesByName is not a NSDictionary but a %@. attributesByName [%p]",
-            [attributesByName class],
-            attributesByName);
-  //  EOFLOGObjectLevelArgs(@"EOEntity",@"attributesByName=%@",attributesByName);
-
-  attribute = [attributesByName objectForKey: attributeName];
-
-  EOFLOGObjectFnStop();
-
-  return attribute;
-}
-
-/** returns attribute named attributeName (no relationship) **/
-- (EOAttribute *)anyAttributeNamed: (NSString *)attributeName
-{
-  EOAttribute *attr;
-  NSEnumerator *attrEnum;
-
-  attr = [self attributeNamed:attributeName];
-
-  //VERIFY
-  if (!attr)
-    {
-      attrEnum = [[self primaryKeyAttributes] objectEnumerator];
-
-      while ((attr = [attrEnum nextObject]))
-        {
-	  if ([[attr name] isEqual: attributeName])
-	    return attr;
-        }
-    }
-
-  return attr;
-}
-
-- (EORelationship *)relationshipNamed: (NSString *)relationshipName
-{
-  //OK
-  return [[self relationshipsByName] objectForKey: relationshipName];
-}
-
-- (EORelationship *)anyRelationshipNamed: (NSString *)relationshipNamed
-{
-  EORelationship *rel;
-  NSEnumerator *relEnum = nil;
-
-  rel = [self relationshipNamed: relationshipNamed];
-
-  //VERIFY
-  if (!rel)
-    {
-      EORelationship *tmpRel = nil;
-
-      relEnum = [_hiddenRelationships objectEnumerator];
-
-      while (!rel && (tmpRel = [relEnum nextObject]))
-        {
-	  if ([[tmpRel name] isEqual: relationshipNamed])
-	    rel = tmpRel;
-        }
-    }
-
-  return rel;
-}
-
-- (NSArray *)fetchSpecificationNames
-{
-  return _fetchSpecificationNames;
-}
-
-- (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)fetchSpecName
-{
-  return [_fetchSpecificationDictionary objectForKey: fetchSpecName];
-}
-
-- (NSArray*) attributesToFetch
-{
-  //OK
-  NSAssert3(!_attributesToFetch 
-	    | [_attributesToFetch isKindOfClass: [NSArray class]],
-            @"entity %@ attributesToFetch %p is not an NSArray but a %@",
-            [self name],
-            _attributesToFetch,
-            [_attributesToFetch class]);
-
-  return [self _attributesToFetch];
 }
 
 - (NSDictionary *)primaryKeyForRow: (NSDictionary *)row
@@ -1795,7 +1754,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return isValid;
 }
 
-- (BOOL)isValidClassProperty:aProperty
+- (BOOL)isValidClassProperty: (id)aProperty
 {
   id thePropertyName;
 
@@ -1833,165 +1792,85 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return _batchCount;
 }
 
-- (BOOL)isPrototypeEntity
+- (EOGlobalID *)globalIDForRow: (NSDictionary *)row
 {
-  [self notImplemented:_cmd];
-  return NO; // TODO
+  EOGlobalID *gid = [self globalIDForRow: row
+			  isFinal: NO];
+
+  NSAssert(gid, @"No gid");
+//TODO
+/*
+pas toutjur: la suite editingc objectForGlobalID:
+EODatabaseContext snapshotForGlobalID:
+  if no snpashot:
+  {
+database recordSnapshot:forGlobalID:
+self classDescriptionForInstances
+createInstanceWithEditingContext:globalID:zone:
+  }
+*/
+  return gid;
 }
 
+- (NSDictionary *)primaryKeyForGlobalID: (EOKeyGlobalID *)gid
+{
+  //OK
+  NSMutableDictionary *dictionaryForPrimaryKey = nil;
+
+  EOFLOGObjectFnStart();
+
+  NSDebugMLLog(@"EOEntity", @"gid=%@", gid);
+
+  if ([gid isKindOfClass: [EOKeyGlobalID class]]) //if ([gid isFinal])//?? or class test ??//TODO
+    {
+      NSArray *primaryKeyAttributeNames = [self primaryKeyAttributeNames];
+      int count = [primaryKeyAttributeNames count];
+
+      NSDebugMLLog(@"EOEntity", @"primaryKeyAttributeNames=%@",
+		   primaryKeyAttributeNames);
+
+      if (count > 0)
+        {
+          int i;
+          id *gidkeyValues = [gid keyValues];
+
+          if (gidkeyValues)
+            {
+              dictionaryForPrimaryKey = [self _dictionaryForPrimaryKey];
+
+              NSAssert1(dictionaryForPrimaryKey,
+			@"No dictionaryForPrimaryKey in entity %@",
+                        [self name]);
+              NSDebugMLLog(@"EOEntity", @"dictionaryForPrimaryKey=%@",
+			   dictionaryForPrimaryKey);
+
+              for (i = 0; i < count; i++)
+                {
+                  id key = [primaryKeyAttributeNames objectAtIndex: i];
+
+                  [dictionaryForPrimaryKey setObject: gidkeyValues[i]
+                                           forKey: key];
+                }
+            }
+        }
+    }
+  else
+    {
+      NSDebugLog(@"EOEntity (%@): primaryKey is *nil* for globalID = %@",
+		 _name, gid);
+    }
+
+  NSDebugMLLog(@"EOEntity", @"dictionaryForPrimaryKey=%@",
+	       dictionaryForPrimaryKey);
+
+  EOFLOGObjectFnStop();
+
+  return dictionaryForPrimaryKey;
+}
 @end
 
 
 @implementation EOEntity (EOEntityEditing)
-
-- (void)setUserInfo: (NSDictionary *)dictionary
-{
-  //OK
-  [self willChange];
-  ASSIGN(_userInfo, dictionary);
-  [self _setIsEdited];
-}
-
-- (void)_setInternalInfo: (NSDictionary *)dictionary
-{
-  //OK
-  [self willChange];
-  ASSIGN(_internalInfo, dictionary);
-  [self _setIsEdited];
-}
-
-- (void)setDocComment: (NSString *)docComment
-{
-  //OK
-  [self willChange];
-  ASSIGN(_docComment, docComment);
-  [self _setIsEdited];
-}
-
-- (BOOL)setClassProperties: (NSArray *)properties
-{
-  int i, count = [properties count];
-
-  for (i = 0; i < count; i++)
-    if (![self isValidClassProperty: [properties objectAtIndex:i]])
-      return NO;
-
-  DESTROY(_classProperties);
-  if ([properties isKindOfClass:[GCArray class]]
-      || [properties isKindOfClass: [GCMutableArray class]])
-    _classProperties = [[GCMutableArray alloc] initWithArray: properties];
-  else
-    _classProperties = [[GCMutableArray alloc] initWithArray: properties]; //TODO
-
-  [self _setIsEdited]; //To clean cache
-
-  return YES;
-}
-
-- (BOOL)setPrimaryKeyAttributes: (NSArray *)keys
-{
-  int i, count = [keys count];
-
-  for (i = 0; i < count; i++)
-    if (![self isValidPrimaryKeyAttribute: [keys objectAtIndex:i]])
-      return NO;
-
-  DESTROY(_primaryKeyAttributes);
-
-  if ([keys isKindOfClass:[GCArray class]]
-      || [keys isKindOfClass: [GCMutableArray class]])
-    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys];
-  else
-    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys]; // TODO
-  
-  [self _setIsEdited];//To clean cache
-
-  return YES;
-}
-
-- (BOOL) setAttributesUsedForLocking: (NSArray *)attributes
-{
-  int i, count = [attributes count];
-
-  for (i = 0; i < count; i++)
-    if (![self isValidAttributeUsedForLocking: [attributes objectAtIndex: i]])
-      return NO;
-
-  DESTROY(_attributesUsedForLocking);
-  
-  if ([attributes isKindOfClass: [GCArray class]]   // TODO
-      || [attributes isKindOfClass: [GCMutableArray class]])
-    _attributesUsedForLocking = [[GCMutableArray alloc]
-				  initWithArray: attributes];
-  else
-    _attributesUsedForLocking = [[GCMutableArray alloc]
-				  initWithArray: attributes];
-  
-  [self _setIsEdited]; //To clean cache
-
-  return YES;
-}
-
-- (NSException *)validateName: (NSString *)name
-{
-  const char *p, *s = [name cString];
-  int exc = 0;
-  NSArray *storedProcedures;
-
-  if (!name || ![name length]) exc++;
-  if (!exc)
-    {
-      p = s;
-      while (*p)
-        {
-	  if (!isalnum(*p) &&
-	     *p != '@' && *p != '#' && *p != '_' && *p != '$')
-            {
-	      exc++;
-	      break;
-            }
-	  p++;
-        }
-      if (!exc && *s == '$') exc++;
-      
-      if ([self attributeNamed: name]) exc++;
-      else if ([self relationshipNamed: name]) exc++;
-      else if ((storedProcedures = [[self model] storedProcedures]))
-        {
-	  NSEnumerator *stEnum = [storedProcedures objectEnumerator];
-	  EOStoredProcedure *st;
-	  
-	  while ((st = [stEnum nextObject]))
-            {
-	      NSEnumerator *attrEnum;
-	      EOAttribute  *attr;
-
-	      attrEnum = [[st arguments] objectEnumerator];
-	      while ((attr = [attrEnum nextObject]))
-                {
-		  if ([name isEqualToString: [attr name]])
-                    {
-		      exc++;
-		      break;
-                    }
-                }
-
-	      if (exc) break;
-            }
-        }
-    }
-
-    if (exc)
-      return [NSException exceptionWithName: NSInvalidArgumentException
-			  reason: [NSString stringWithFormat:@"%@ -- %@ 0x%x: argument \"%@\" contains invalid chars",
-					    NSStringFromSelector(_cmd),
-					    NSStringFromClass([self class]),
-					    self,
-					    name]
-			  userInfo: nil];
-    else
-      return nil;
-}
 
 - (void)setName: (NSString *)name
 {
@@ -2191,22 +2070,168 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 				       @selector(compare:)]);
 }
 
-- (void)_setClassName:(NSString *)name
+- (void)setSharedObjectFetchSpecificationsByName: (NSArray *)names
 {
-  if (!name)
-    {
-      NSLog(@"Entity %@ has no class name. Use EOGenericRecord", [self name]);
-      name = @"EOGenericRecord";
-    }
-  ASSIGN(_className, name);
+  NSEmitTODO();  //TODO
+  [self notImplemented:_cmd];
+}
+- (void)addSharedObjectFetchSpecificationByName: (NSString *)name
+{
+  NSEmitTODO();  //TODO
+  [self notImplemented:_cmd];
+}
+- (void)removeSharedObjectFetchSpecificationByName: (NSString *)name
+{
+  NSEmitTODO();  //TODO
+  [self notImplemented:_cmd];
 }
 
 - (void)setClassName:(NSString *)name
 {
   //OK
   [self willChange];
-  [self _setClassName:name];
+
+  if (!name)
+    {
+      NSLog(@"Entity %@ has no class name. Use EOGenericRecord", [self name]);
+      name = @"EOGenericRecord";
+    }
+  ASSIGN(_className, name);
+
   [self _setIsEdited];
+}
+
+- (void)setUserInfo: (NSDictionary *)dictionary
+{
+  //OK
+  [self willChange];
+  ASSIGN(_userInfo, dictionary);
+  [self _setIsEdited];
+}
+
+- (BOOL)setClassProperties: (NSArray *)properties
+{
+  int i, count = [properties count];
+
+  for (i = 0; i < count; i++)
+    if (![self isValidClassProperty: [properties objectAtIndex:i]])
+      return NO;
+
+  DESTROY(_classProperties);
+  if ([properties isKindOfClass:[GCArray class]]
+      || [properties isKindOfClass: [GCMutableArray class]])
+    _classProperties = [[GCMutableArray alloc] initWithArray: properties];
+  else
+    _classProperties = [[GCMutableArray alloc] initWithArray: properties]; //TODO
+
+  [self _setIsEdited]; //To clean cache
+
+  return YES;
+}
+
+- (BOOL)setPrimaryKeyAttributes: (NSArray *)keys
+{
+  int i, count = [keys count];
+
+  for (i = 0; i < count; i++)
+    if (![self isValidPrimaryKeyAttribute: [keys objectAtIndex:i]])
+      return NO;
+
+  DESTROY(_primaryKeyAttributes);
+
+  if ([keys isKindOfClass:[GCArray class]]
+      || [keys isKindOfClass: [GCMutableArray class]])
+    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys];
+  else
+    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys]; // TODO
+  
+  [self _setIsEdited];//To clean cache
+
+  return YES;
+}
+
+- (BOOL) setAttributesUsedForLocking: (NSArray *)attributes
+{
+  int i, count = [attributes count];
+
+  for (i = 0; i < count; i++)
+    if (![self isValidAttributeUsedForLocking: [attributes objectAtIndex: i]])
+      return NO;
+
+  DESTROY(_attributesUsedForLocking);
+  
+  if ([attributes isKindOfClass: [GCArray class]]   // TODO
+      || [attributes isKindOfClass: [GCMutableArray class]])
+    _attributesUsedForLocking = [[GCMutableArray alloc]
+				  initWithArray: attributes];
+  else
+    _attributesUsedForLocking = [[GCMutableArray alloc]
+				  initWithArray: attributes];
+  
+  [self _setIsEdited]; //To clean cache
+
+  return YES;
+}
+
+- (NSException *)validateName: (NSString *)name
+{
+  const char *p, *s = [name cString];
+  int exc = 0;
+  NSArray *storedProcedures;
+
+  if (!name || ![name length]) exc++;
+  if (!exc)
+    {
+      p = s;
+      while (*p)
+        {
+	  if (!isalnum(*p) &&
+	     *p != '@' && *p != '#' && *p != '_' && *p != '$')
+            {
+	      exc++;
+	      break;
+            }
+	  p++;
+        }
+      if (!exc && *s == '$') exc++;
+      
+      if ([self attributeNamed: name]) exc++;
+      else if ([self relationshipNamed: name]) exc++;
+      else if ((storedProcedures = [[self model] storedProcedures]))
+        {
+	  NSEnumerator *stEnum = [storedProcedures objectEnumerator];
+	  EOStoredProcedure *st;
+	  
+	  while ((st = [stEnum nextObject]))
+            {
+	      NSEnumerator *attrEnum;
+	      EOAttribute  *attr;
+
+	      attrEnum = [[st arguments] objectEnumerator];
+	      while ((attr = [attrEnum nextObject]))
+                {
+		  if ([name isEqualToString: [attr name]])
+                    {
+		      exc++;
+		      break;
+                    }
+                }
+
+	      if (exc) break;
+            }
+        }
+    }
+
+    if (exc)
+      return [NSException exceptionWithName: NSInvalidArgumentException
+			  reason: [NSString stringWithFormat:@"%@ -- %@ 0x%x: argument \"%@\" contains invalid chars",
+					    NSStringFromSelector(_cmd),
+					    NSStringFromClass([self class]),
+					    self,
+					    name]
+			  userInfo: nil];
+    else
+      return nil;
 }
 
 - (void)addSubEntity: (EOEntity *)child
@@ -2221,10 +2246,10 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   [_subEntities removeObject: child];
 }
 
-- (void)setIsAbstractEntity: (BOOL)f
+- (void)setIsAbstractEntity: (BOOL)flag
 {
   //OK
-  _flags.isAbstractEntity = f;
+  _flags.isAbstractEntity = flag;
 }
 
 - (void)setMaxNumberOfInstancesToBatchFetch: (unsigned int)size
@@ -2237,7 +2262,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 @implementation EOEntity (EOModelReferentialIntegrity)
 
-- (BOOL)referencesProperty: property
+- (BOOL)referencesProperty: (id)property
 {
   NSEnumerator *enumerator;
   EORelationship *rel;
@@ -2319,306 +2344,19 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 @end
 
-@implementation EOEntity (MethodSet11)
-
-- (NSException *)validateObjectForDelete: (id)object
+@implementation EOEntity (GDL2Extenstions)
+- (NSString *)docComment
 {
-//OK ??
-  NSArray *relationships = nil;
-  NSEnumerator *relEnum = nil;
-  EORelationship *relationship = nil;
-  NSMutableArray *expArray = nil;
-
-  relationships = [self relationships];
-  relEnum = [relationships objectEnumerator];
-
-  while ((relationship = [relEnum nextObject]))
-    {
-//classproperties
-
-//rien pour nullify
-      if ([relationship deleteRule] == EODeleteRuleDeny)
-        {
-          if (!expArray)
-            expArray = [NSMutableArray arrayWithCapacity:5];
-
-          [expArray addObject:
-                      [NSException validationExceptionWithFormat:
-                                     @"delete operation for relationship key %@ refused",
-                                   [relationship name]]];
-        }
-    }
-
-  if (expArray)
-    return [NSException aggregateExceptionWithExceptions:expArray];
-  else
-    return nil;
+  return _docComment;
 }
 
-/** Retain an array of name of all EOAttributes **/
-- (NSArray*) classPropertyAttributeNames
-{
-  //Should be OK
-  if (!_classPropertyAttributeNames)
-    {
-      NSArray *classProperties = [self classProperties];
-      int i, count = [classProperties count];
-      Class attrClass = [EOAttribute class];
-
-      _classPropertyAttributeNames = [NSMutableArray new]; //or GC ?
-
-      for (i = 0; i < count; i++)
-        {
-          EOAttribute *property = [classProperties objectAtIndex: i];
-
-          if ([property isKindOfClass: attrClass])
-            [(NSMutableArray*)_classPropertyAttributeNames
-			      addObject: [property name]];
-        }
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyAttributeNames=%@",
-			    _classPropertyAttributeNames);
-    }
-
-  return _classPropertyAttributeNames;
-}
-
-- (NSArray*) classPropertyToManyRelationshipNames
-{
-  //Should be OK
-  if (!_classPropertyToManyRelationshipNames)
-    {
-      NSArray *classProperties = [self classProperties];
-      int i, count = [classProperties count];
-      Class relClass = [EORelationship class];
-
-      _classPropertyToManyRelationshipNames = [NSMutableArray new]; //or GC ?
-
-      for (i = 0; i < count; i++)
-        {
-          EORelationship *property = [classProperties objectAtIndex: i];
-
-          if ([property isKindOfClass: relClass]
-	      && [property isToMany])
-            [(NSMutableArray*)_classPropertyToManyRelationshipNames
-			      addObject: [property name]];
-        }
-    }
-
-  return _classPropertyToManyRelationshipNames;
-}
-
-- (NSArray*) classPropertyToOneRelationshipNames
-{
-  //Should be OK
-  if (!_classPropertyToOneRelationshipNames)
-    {
-      NSArray *classProperties = [self classProperties];
-      int i, count = [classProperties count];
-      Class relClass = [EORelationship class];
-
-      _classPropertyToOneRelationshipNames = [NSMutableArray new]; //or GC ?
-
-      for (i = 0; i <count; i++)
-        {
-          EORelationship *property = [classProperties objectAtIndex: i];
-
-          if ([property isKindOfClass: relClass]
-	      && ![property isToMany])
-            [(NSMutableArray*)_classPropertyToOneRelationshipNames
-			      addObject: [property name]];
-        }
-    }
-
-  return _classPropertyToOneRelationshipNames;
-}
-
-- (id) qualifierForDBSnapshot:(id)param0
-{
-  return [self notImplemented: _cmd]; //TODO
-}
-
-- (EOAttribute*) attributeForPath: (NSString*)path
+- (void)setDocComment: (NSString *)docComment
 {
   //OK
-  EOAttribute *attribute = nil;
-  NSArray *pathElements = nil;
-  NSString *part = nil;
-  EOEntity *entity = self;
-  int i, count = 0;
-
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
-
-  pathElements = [path componentsSeparatedByString: @"."];
-  EOFLOGObjectLevelArgs(@"EOEntity", @"pathElements=%@", pathElements);
-
-  count = [pathElements count];
-
-  for (i = 0; i < count - 1; i++)
-    {      
-      EORelationship *rel = nil;
-
-      part = [pathElements objectAtIndex: i];
-      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@", i, part);
-
-      rel = [entity anyRelationshipNamed: part];
-
-      NSAssert2(rel,
-		@"no relationship named %@ in entity %@",
-		part,
-		[entity name]);
-      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@ rel=%@",
-			    i, part, rel);
-
-      entity = [rel destinationEntity];
-      EOFLOGObjectLevelArgs(@"EOEntity", @"entity name=%@", [entity name]);
-    }
-
-  part = [pathElements lastObject];
-  EOFLOGObjectLevelArgs(@"EOEntity", @"part=%@", part);
-
-  attribute = [entity anyAttributeNamed: part];
-  EOFLOGObjectLevelArgs(@"EOEntity", @"resulting attribute=%@", attribute);
-
-  EOFLOGObjectFnStop();
-
-  return attribute;
+  [self willChange];
+  ASSIGN(_docComment, docComment);
+  [self _setIsEdited];
 }
-
-- (EORelationship*) relationshipForPath: (NSString*)path
-{
-  //OK ?
-  EORelationship *relationship = nil;
-  EOEntity *entity = self;
-  NSArray *pathElements = nil;
-  int i, count;
-
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
-
-  pathElements = [path componentsSeparatedByString: @"."];
-  count = [pathElements count];
-
-  for (i = 0; i < count; i++)
-    {
-      NSString *part = [pathElements objectAtIndex: i];
-
-      relationship = [entity anyRelationshipNamed: part];
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@ rel=%@",
-			    i, part, relationship);
-
-      if (relationship)
-        {
-          entity = [relationship destinationEntity];
-          EOFLOGObjectLevelArgs(@"EOEntity", @"entity name=%@", [entity name]);
-        }
-      else if (i < (count - 1)) // Not the last part
-        {
-          NSAssert2(relationship,
-                    @"no relationship named %@ in entity %@",
-                    part,
-                    [entity name]);
-        }
-    }
-
-  EOFLOGObjectFnStop();
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"relationship=%@", relationship);
-
-  return relationship;
-}
-
-- (void) _addAttributesToFetchForRelationshipPath: (NSString*)relPath
-                                             atts: (NSMutableDictionary*)attributes
-{
-  NSArray *parts = nil;
-  EORelationship *rel = nil;
-
-  NSAssert([relPath length] > 0, @"Empty relationship path");
-
-  //Verify when multi part path and not _relationshipPathIsToMany:path
-  parts = [relPath componentsSeparatedByString: @"."];
-  rel = [self relationshipNamed: [parts objectAtIndex: 0]];
-
-  if (!rel)
-    {
-      NSEmitTODO();  //TODO
-      //TODO
-    }
-  else
-    {
-      NSArray *joins = [rel joins];
-      int i, count = [joins count];
-
-      for (i = 0; i < count; i++)
-        {
-          EOJoin *join = [joins objectAtIndex: i];
-          EOAttribute *attribute = [join sourceAttribute];
-
-          [attributes setObject: attribute
-                      forKey: [attribute name]];
-        }
-    }
-}
-
-- (NSArray*) dbSnapshotKeys
-{
-  //OK
-  EOFLOGObjectFnStart();
-
-  if (!_dbSnapshotKeys)
-    {
-      NSArray *attributesToFetch = [self _attributesToFetch];
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"attributesToFetch=%@",
-			    attributesToFetch);
-      NSAssert3(!attributesToFetch
-		|| [attributesToFetch isKindOfClass: [NSArray class]],
-                @"entity %@ attributesToFetch is not an NSArray but a %@\n%@",
-                [self name],
-                [attributesToFetch class],
-                attributesToFetch);
-
-      ASSIGN(_dbSnapshotKeys,
-             [GCArray arrayWithArray: [attributesToFetch
-					resultsOfPerformingSelector:
-					  @selector(name)]]);
-    }
-
-  EOFLOGObjectFnStop();
-
-  return _dbSnapshotKeys;
-}
-
-- (NSArray*) flattenedAttributes
-{
-  //OK
-  NSMutableArray *flattenedAttributes = [NSMutableArray array];
-  NSArray *attributesToFetch = [self _attributesToFetch];
-  int i, count = [attributesToFetch count];
-
-  NSAssert3(!attributesToFetch
-	    || [attributesToFetch isKindOfClass: [NSArray class]],
-            @"entity %@ attributesToFetch is not an NSArray but a %@\n%@",
-            [self name],
-            [attributesToFetch class],
-            attributesToFetch);
-
-  for (i = 0; i < count; i++)
-    {
-      EOAttribute *attribute = [attributesToFetch objectAtIndex: i];
-
-      if ([attribute isFlattened])
-        [flattenedAttributes addObject: attribute];
-    }
-
-  return flattenedAttributes;
-}
-
 @end
 
 @implementation EOEntity (EOStoredProcedures)
@@ -2637,7 +2375,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 @end
 
-
 @implementation EOEntity (EOPrimaryKeyGeneration)
 
 - (NSString *)primaryKeyRootName
@@ -2649,7 +2386,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 }
 
 @end
-
 
 @implementation EOEntity (EOEntityClassDescription)
 
@@ -2663,8 +2399,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
   if (!_classDescription)
     {
-      _classDescription = RETAIN([EOEntityClassDescription
-			     entityClassDescriptionWithEntity: self]);
+      _classDescription 
+	= [[EOEntityClassDescription alloc] initWithEntity: self];
 
 //NO ? NotifyCenter addObserver:EOEntityClassDescription selector:_eoNowMultiThreaded: name:NSWillBecomeMultiThreadedNotification object:nil
     }
@@ -2677,6 +2413,12 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 @end
 
 @implementation EOEntity (EOEntityPrivate)
+
+- (BOOL)isPrototypeEntity
+{
+  [self notImplemented:_cmd];
+  return NO; // TODO
+}
 
 - (void) setCreateMutableObjects: (BOOL)flag
 {
@@ -2757,9 +2499,190 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return dict;
 }
 
-@end
+- (Class)_classForInstances
+{
+  EOFLOGObjectFnStart();
 
-@implementation EOEntity (EOEntityHidden)
+  if (!_classForInstances)
+    {
+      NSString *className = nil;
+      Class objectClass = Nil;
+
+      className = [self className];
+      EOFLOGObjectLevelArgs(@"EOEntity", @"className=%@", className);
+
+      objectClass = NSClassFromString(className);
+
+      if (!objectClass)
+        {
+          NSLog(@"Error: No class named %@", className);
+        }
+      else
+        {
+          EOFLOGObjectLevelArgs(@"EOEntity", @"objectClass=%@", objectClass);
+          ASSIGN(_classForInstances, objectClass);
+        }
+    }
+
+  EOFLOGObjectFnStop();
+
+  return _classForInstances;
+}
+
+- (void)_setInternalInfo: (NSDictionary *)dictionary
+{
+  //OK
+  [self willChange];
+  ASSIGN(_internalInfo, dictionary);
+  [self _setIsEdited];
+}
+
+- (id) globalIDForRow: (NSDictionary*)row
+              isFinal: (BOOL)isFinal
+{
+  EOKeyGlobalID *globalID = nil;
+  NSArray *primaryKeyAttributeNames = nil;
+  int count = 0;
+
+  NSAssert([row count] > 0, @"Empty Row.");
+
+  primaryKeyAttributeNames = [self primaryKeyAttributeNames];
+  count = [primaryKeyAttributeNames count];  
+  {
+    id keyArray[count];
+    int i;
+
+    memset(keyArray, 0, sizeof(id) * count);
+
+    for (i = 0; i < count; i++)
+      keyArray[i] = [row objectForKey:
+			   [primaryKeyAttributeNames objectAtIndex: i]];
+
+    globalID = [EOKeyGlobalID globalIDWithEntityName: [self name]
+			      keys: keyArray
+			      keyCount: count
+			      zone: [self zone]];
+  }
+
+  //NSEmitTODO();  //TODO
+  //TODO isFinal  ??
+
+  return globalID;
+}
+
+-(Class)classForObjectWithGlobalID: (EOKeyGlobalID*)globalID
+{
+  //near OK
+  Class classForInstances = _classForInstances;
+  EOFLOGObjectFnStart();
+
+  //TODO:use globalID ??
+  if (!classForInstances)
+    {
+      classForInstances = [self _classForInstances];
+    }
+
+  EOFLOGObjectFnStop();
+
+  return _classForInstances;
+}
+
+//DESTROY v later because it may be still in use
+#define AUTORELEASE_SETNIL(v) { AUTORELEASE(v); v=nil; }
+- (void) _setIsEdited
+{
+  if(_flags.updating)
+    return;
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"START entity name=%@", [self name]);
+
+  NSAssert4(!_attributesToFetch
+	    || [_attributesToFetch isKindOfClass: [NSArray class]],
+            @"entity %@ attributesToFetch %p is not an NSArray but a %@\n%@",
+            [self name],
+            _attributesToFetch,
+            [_attributesToFetch class],
+            _attributesToFetch);
+
+  //Destroy cached ivar
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyNames: void:%p [%p] %s",
+			(void*)nil, (void*)_classPropertyNames,
+			(_classPropertyNames ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_classPropertyNames);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_primaryKeyAttributeNames: %p %s",
+			(void*)_primaryKeyAttributeNames,
+			(_primaryKeyAttributeNames ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_primaryKeyAttributeNames);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyAttributeNames: %p %s",
+			_classPropertyAttributeNames,
+			(_classPropertyAttributeNames ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_classPropertyAttributeNames);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyToOneRelationshipNames: %p %s",
+			_classPropertyToOneRelationshipNames,
+			(_classPropertyToOneRelationshipNames ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_classPropertyToOneRelationshipNames);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyToManyRelationshipNames: %p %s",
+			_classPropertyToManyRelationshipNames,
+			(_classPropertyToManyRelationshipNames ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_classPropertyToManyRelationshipNames);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesToFetch: %p %s",
+			_attributesToFetch,
+			(_attributesToFetch ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_attributesToFetch);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_dbSnapshotKeys: %p %s",
+			_dbSnapshotKeys, (_dbSnapshotKeys ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_dbSnapshotKeys);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesToSave: %p %s",
+			_attributesToSave, (_attributesToSave ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_attributesToSave);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_propertiesToFault: %p %s",
+			_propertiesToFault, (_propertiesToFault ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_propertiesToFault);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_adaptorDictionaryInitializer: %p %s",
+			_adaptorDictionaryInitializer,
+			(_adaptorDictionaryInitializer ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_adaptorDictionaryInitializer);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"_snapshotDictionaryInitializer: %p %s",
+			_snapshotDictionaryInitializer,
+			(_snapshotDictionaryInitializer ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_snapshotDictionaryInitializer);
+
+  EOFLOGObjectLevelArgs(@"EOEntity",@"_primaryKeyDictionaryInitializer: %p %s",
+			_primaryKeyDictionaryInitializer,
+			(_primaryKeyDictionaryInitializer ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_primaryKeyDictionaryInitializer);
+
+  EOFLOGObjectLevelArgs(@"EOEntity",@"_propertyDictionaryInitializer: %p %s",
+			_propertyDictionaryInitializer,
+			(_propertyDictionaryInitializer ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_propertyDictionaryInitializer);
+
+  EOFLOGObjectLevelArgs(@"EOEntity",@"_instanceDictionaryInitializer: %p %s",
+			_instanceDictionaryInitializer,
+			(_instanceDictionaryInitializer ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_instanceDictionaryInitializer);
+
+  //TODO call _flushCache on each attr
+  NSAssert4(!_attributesToFetch
+	    || [_attributesToFetch isKindOfClass: [NSArray class]],
+            @"entity %@ attributesToFetch %p is not an NSArray but a %@\n%@",
+            [self name],
+            _attributesToFetch,
+            [_attributesToFetch class],
+            _attributesToFetch);
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"STOP%s", "");
+}
 
 /** Returns attributes by name (only attributes, not relationships) **/
 - (NSDictionary*)attributesByName
@@ -3123,7 +3046,7 @@ returns nil if there's no key in the instanceDictionaryInitializer
       dictionaryForProperties = [EOMutableKnownKeyDictionary
                                   dictionaryWithInitializer:
                                     instanceDictionaryInitializer];
-    };
+    }
   EOFLOGObjectLevelArgs(@"EOEntity", @"dictionaryForProperties=%@",
 			dictionaryForProperties);
 
@@ -3323,7 +3246,7 @@ returns nil if there's no key in the instanceDictionaryInitializer
           [localException raise];
         }
       NS_ENDHANDLER;
-    };
+    }
 
   NSAssert3(!_attributesToFetch
 	    || [_attributesToFetch isKindOfClass: [NSArray class]],
@@ -3484,7 +3407,7 @@ returns nil if there's no key in the instanceDictionaryInitializer
           NSMutableArray* mutableClassPropertyNames=[classPropertyNames mutableCopy];
           [mutableClassPropertyNames removeObjectsInArray:excludedPropertyNames];
           classPropertyNames=AUTORELEASE(mutableClassPropertyNames);
-        };
+        }
       
       EOFLOGObjectLevelArgs(@"EOEntity", @"entity %@ classPropertyNames=%@",
                             [self name], classPropertyNames);
@@ -3514,234 +3437,6 @@ returns nil if there's no key in the instanceDictionaryInitializer
 
   EOFLOGObjectFnStop();
 }
-
-//DESTROY v later because it may be still in use
-#define AUTORELEASE_SETNIL(v) { AUTORELEASE(v); v=nil; }
-- (void) _setIsEdited
-{
-  if(_flags.updating)
-    return;
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"START entity name=%@", [self name]);
-
-  NSAssert4(!_attributesToFetch
-	    || [_attributesToFetch isKindOfClass: [NSArray class]],
-            @"entity %@ attributesToFetch %p is not an NSArray but a %@\n%@",
-            [self name],
-            _attributesToFetch,
-            [_attributesToFetch class],
-            _attributesToFetch);
-
-  //Destroy cached ivar
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyNames: void:%p [%p] %s",
-			(void*)nil, (void*)_classPropertyNames,
-			(_classPropertyNames ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_classPropertyNames);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_primaryKeyAttributeNames: %p %s",
-			(void*)_primaryKeyAttributeNames,
-			(_primaryKeyAttributeNames ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_primaryKeyAttributeNames);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyAttributeNames: %p %s",
-			_classPropertyAttributeNames,
-			(_classPropertyAttributeNames ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_classPropertyAttributeNames);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyToOneRelationshipNames: %p %s",
-			_classPropertyToOneRelationshipNames,
-			(_classPropertyToOneRelationshipNames ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_classPropertyToOneRelationshipNames);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyToManyRelationshipNames: %p %s",
-			_classPropertyToManyRelationshipNames,
-			(_classPropertyToManyRelationshipNames ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_classPropertyToManyRelationshipNames);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesToFetch: %p %s",
-			_attributesToFetch,
-			(_attributesToFetch ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_attributesToFetch);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_dbSnapshotKeys: %p %s",
-			_dbSnapshotKeys, (_dbSnapshotKeys ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_dbSnapshotKeys);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesToSave: %p %s",
-			_attributesToSave, (_attributesToSave ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_attributesToSave);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_propertiesToFault: %p %s",
-			_propertiesToFault, (_propertiesToFault ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_propertiesToFault);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_adaptorDictionaryInitializer: %p %s",
-			_adaptorDictionaryInitializer,
-			(_adaptorDictionaryInitializer ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_adaptorDictionaryInitializer);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_snapshotDictionaryInitializer: %p %s",
-			_snapshotDictionaryInitializer,
-			(_snapshotDictionaryInitializer ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_snapshotDictionaryInitializer);
-
-  EOFLOGObjectLevelArgs(@"EOEntity",@"_primaryKeyDictionaryInitializer: %p %s",
-			_primaryKeyDictionaryInitializer,
-			(_primaryKeyDictionaryInitializer ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_primaryKeyDictionaryInitializer);
-
-  EOFLOGObjectLevelArgs(@"EOEntity",@"_propertyDictionaryInitializer: %p %s",
-			_propertyDictionaryInitializer,
-			(_propertyDictionaryInitializer ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_propertyDictionaryInitializer);
-
-  EOFLOGObjectLevelArgs(@"EOEntity",@"_instanceDictionaryInitializer: %p %s",
-			_instanceDictionaryInitializer,
-			(_instanceDictionaryInitializer ? "Not NIL" : "NIL"));
-  AUTORELEASE_SETNIL(_instanceDictionaryInitializer);
-
-  //TODO call _flushCache on each attr
-  NSAssert4(!_attributesToFetch
-	    || [_attributesToFetch isKindOfClass: [NSArray class]],
-            @"entity %@ attributesToFetch %p is not an NSArray but a %@\n%@",
-            [self name],
-            _attributesToFetch,
-            [_attributesToFetch class],
-            _attributesToFetch);
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"STOP%s", "");
-}
-
-@end
-
-@implementation EOEntity (EOKeyGlobalID)
-
-- (id) globalIDForRow: (NSDictionary*)row
-              isFinal: (BOOL)isFinal
-{
-  EOKeyGlobalID *globalID = nil;
-  NSArray *primaryKeyAttributeNames = nil;
-  int count = 0;
-
-  NSAssert([row count] > 0, @"Empty Row.");
-
-  primaryKeyAttributeNames = [self primaryKeyAttributeNames];
-  count = [primaryKeyAttributeNames count];  
-  {
-    id keyArray[count];
-    int i;
-
-    memset(keyArray, 0, sizeof(id) * count);
-
-    for (i = 0; i < count; i++)
-      keyArray[i] = [row objectForKey:
-			   [primaryKeyAttributeNames objectAtIndex: i]];
-
-    globalID = [EOKeyGlobalID globalIDWithEntityName: [self name]
-			      keys: keyArray
-			      keyCount: count
-			      zone: [self zone]];
-  }
-
-  //NSEmitTODO();  //TODO
-  //TODO isFinal  ??
-
-  return globalID;
-};
-
-- (EOGlobalID *)globalIDForRow: (NSDictionary *)row
-{
-  EOGlobalID *gid = [self globalIDForRow: row
-			  isFinal: NO];
-
-  NSAssert(gid, @"No gid");
-//TODO
-/*
-pas toutjur: la suite editingc objectForGlobalID:
-EODatabaseContext snapshotForGlobalID:
-  if no snpashot:
-  {
-database recordSnapshot:forGlobalID:
-self classDescriptionForInstances
-createInstanceWithEditingContext:globalID:zone:
-  }
-*/
-  return gid;
-}
-
--(Class)classForObjectWithGlobalID: (EOKeyGlobalID*)globalID
-{
-  //near OK
-  Class classForInstances = _classForInstances;
-  EOFLOGObjectFnStart();
-
-  //TODO:use globalID ??
-  if (!classForInstances)
-    {
-      classForInstances = [self _classForInstances];
-    }
-
-  EOFLOGObjectFnStop();
-
-  return _classForInstances;
-}
-
-- (NSDictionary *)primaryKeyForGlobalID: (EOKeyGlobalID *)gid
-{
-  //OK
-  NSMutableDictionary *dictionaryForPrimaryKey = nil;
-
-  EOFLOGObjectFnStart();
-
-  NSDebugMLLog(@"EOEntity", @"gid=%@", gid);
-
-  if ([gid isKindOfClass: [EOKeyGlobalID class]]) //if ([gid isFinal])//?? or class test ??//TODO
-    {
-      NSArray *primaryKeyAttributeNames = [self primaryKeyAttributeNames];
-      int count = [primaryKeyAttributeNames count];
-
-      NSDebugMLLog(@"EOEntity", @"primaryKeyAttributeNames=%@",
-		   primaryKeyAttributeNames);
-
-      if (count > 0)
-        {
-          int i;
-          id *gidkeyValues = [gid keyValues];
-
-          if (gidkeyValues)
-            {
-              dictionaryForPrimaryKey = [self _dictionaryForPrimaryKey];
-
-              NSAssert1(dictionaryForPrimaryKey,
-			@"No dictionaryForPrimaryKey in entity %@",
-                        [self name]);
-              NSDebugMLLog(@"EOEntity", @"dictionaryForPrimaryKey=%@",
-			   dictionaryForPrimaryKey);
-
-              for (i = 0; i < count; i++)
-                {
-                  id key = [primaryKeyAttributeNames objectAtIndex: i];
-
-                  [dictionaryForPrimaryKey setObject: gidkeyValues[i]
-                                           forKey: key];
-                }
-            }
-        }
-    }
-  else
-    {
-      NSDebugLog(@"EOEntity (%@): primaryKey is *nil* for globalID = %@",
-		 _name, gid);
-    }
-
-  NSDebugMLLog(@"EOEntity", @"dictionaryForPrimaryKey=%@",
-	       dictionaryForPrimaryKey);
-
-  EOFLOGObjectFnStop();
-
-  return dictionaryForPrimaryKey;
-}
-
 @end
 
 @implementation EOEntity (EOEntityRelationshipPrivate)
@@ -3877,7 +3572,6 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 
 @end
 
-
 @implementation EOEntity (EOEntitySQLExpression)
 
 - (NSString*) valueForSQLExpression: (EOSQLExpression*)sqlExpression
@@ -3888,6 +3582,308 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 + (NSString*) valueForSQLExpression: (EOSQLExpression*)sqlExpression
 {
   return [self notImplemented: _cmd]; //TODO
+}
+
+@end
+
+@implementation EOEntity (MethodSet11)
+
+- (NSException *)validateObjectForDelete: (id)object
+{
+//OK ??
+  NSArray *relationships = nil;
+  NSEnumerator *relEnum = nil;
+  EORelationship *relationship = nil;
+  NSMutableArray *expArray = nil;
+
+  relationships = [self relationships];
+  relEnum = [relationships objectEnumerator];
+
+  while ((relationship = [relEnum nextObject]))
+    {
+//classproperties
+
+//rien pour nullify
+      if ([relationship deleteRule] == EODeleteRuleDeny)
+        {
+          if (!expArray)
+            expArray = [NSMutableArray arrayWithCapacity:5];
+
+          [expArray addObject:
+                      [NSException validationExceptionWithFormat:
+                                     @"delete operation for relationship key %@ refused",
+                                   [relationship name]]];
+        }
+    }
+
+  if (expArray)
+    return [NSException aggregateExceptionWithExceptions:expArray];
+  else
+    return nil;
+}
+
+/** Retain an array of name of all EOAttributes **/
+- (NSArray*) classPropertyAttributeNames
+{
+  //Should be OK
+  if (!_classPropertyAttributeNames)
+    {
+      NSArray *classProperties = [self classProperties];
+      int i, count = [classProperties count];
+      Class attrClass = [EOAttribute class];
+
+      _classPropertyAttributeNames = [NSMutableArray new]; //or GC ?
+
+      for (i = 0; i < count; i++)
+        {
+          EOAttribute *property = [classProperties objectAtIndex: i];
+
+          if ([property isKindOfClass: attrClass])
+            [(NSMutableArray*)_classPropertyAttributeNames
+			      addObject: [property name]];
+        }
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyAttributeNames=%@",
+			    _classPropertyAttributeNames);
+    }
+
+  return _classPropertyAttributeNames;
+}
+
+- (NSArray*) classPropertyToManyRelationshipNames
+{
+  //Should be OK
+  if (!_classPropertyToManyRelationshipNames)
+    {
+      NSArray *classProperties = [self classProperties];
+      int i, count = [classProperties count];
+      Class relClass = [EORelationship class];
+
+      _classPropertyToManyRelationshipNames = [NSMutableArray new]; //or GC ?
+
+      for (i = 0; i < count; i++)
+        {
+          EORelationship *property = [classProperties objectAtIndex: i];
+
+          if ([property isKindOfClass: relClass]
+	      && [property isToMany])
+            [(NSMutableArray*)_classPropertyToManyRelationshipNames
+			      addObject: [property name]];
+        }
+    }
+
+  return _classPropertyToManyRelationshipNames;
+}
+
+- (NSArray*) classPropertyToOneRelationshipNames
+{
+  //Should be OK
+  if (!_classPropertyToOneRelationshipNames)
+    {
+      NSArray *classProperties = [self classProperties];
+      int i, count = [classProperties count];
+      Class relClass = [EORelationship class];
+
+      _classPropertyToOneRelationshipNames = [NSMutableArray new]; //or GC ?
+
+      for (i = 0; i <count; i++)
+        {
+          EORelationship *property = [classProperties objectAtIndex: i];
+
+          if ([property isKindOfClass: relClass]
+	      && ![property isToMany])
+            [(NSMutableArray*)_classPropertyToOneRelationshipNames
+			      addObject: [property name]];
+        }
+    }
+
+  return _classPropertyToOneRelationshipNames;
+}
+
+- (id) qualifierForDBSnapshot:(id)param0
+{
+  return [self notImplemented: _cmd]; //TODO
+}
+
+- (EOAttribute*) attributeForPath: (NSString*)path
+{
+  //OK
+  EOAttribute *attribute = nil;
+  NSArray *pathElements = nil;
+  NSString *part = nil;
+  EOEntity *entity = self;
+  int i, count = 0;
+
+  EOFLOGObjectFnStart();
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
+
+  pathElements = [path componentsSeparatedByString: @"."];
+  EOFLOGObjectLevelArgs(@"EOEntity", @"pathElements=%@", pathElements);
+
+  count = [pathElements count];
+
+  for (i = 0; i < count - 1; i++)
+    {      
+      EORelationship *rel = nil;
+
+      part = [pathElements objectAtIndex: i];
+      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@", i, part);
+
+      rel = [entity anyRelationshipNamed: part];
+
+      NSAssert2(rel,
+		@"no relationship named %@ in entity %@",
+		part,
+		[entity name]);
+      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@ rel=%@",
+			    i, part, rel);
+
+      entity = [rel destinationEntity];
+      EOFLOGObjectLevelArgs(@"EOEntity", @"entity name=%@", [entity name]);
+    }
+
+  part = [pathElements lastObject];
+  EOFLOGObjectLevelArgs(@"EOEntity", @"part=%@", part);
+
+  attribute = [entity anyAttributeNamed: part];
+  EOFLOGObjectLevelArgs(@"EOEntity", @"resulting attribute=%@", attribute);
+
+  EOFLOGObjectFnStop();
+
+  return attribute;
+}
+
+- (EORelationship*) relationshipForPath: (NSString*)path
+{
+  //OK ?
+  EORelationship *relationship = nil;
+  EOEntity *entity = self;
+  NSArray *pathElements = nil;
+  int i, count;
+
+  EOFLOGObjectFnStart();
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
+
+  pathElements = [path componentsSeparatedByString: @"."];
+  count = [pathElements count];
+
+  for (i = 0; i < count; i++)
+    {
+      NSString *part = [pathElements objectAtIndex: i];
+
+      relationship = [entity anyRelationshipNamed: part];
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@ rel=%@",
+			    i, part, relationship);
+
+      if (relationship)
+        {
+          entity = [relationship destinationEntity];
+          EOFLOGObjectLevelArgs(@"EOEntity", @"entity name=%@", [entity name]);
+        }
+      else if (i < (count - 1)) // Not the last part
+        {
+          NSAssert2(relationship,
+                    @"no relationship named %@ in entity %@",
+                    part,
+                    [entity name]);
+        }
+    }
+
+  EOFLOGObjectFnStop();
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"relationship=%@", relationship);
+
+  return relationship;
+}
+
+- (void) _addAttributesToFetchForRelationshipPath: (NSString*)relPath
+                                             atts: (NSMutableDictionary*)attributes
+{
+  NSArray *parts = nil;
+  EORelationship *rel = nil;
+
+  NSAssert([relPath length] > 0, @"Empty relationship path");
+
+  //Verify when multi part path and not _relationshipPathIsToMany:path
+  parts = [relPath componentsSeparatedByString: @"."];
+  rel = [self relationshipNamed: [parts objectAtIndex: 0]];
+
+  if (!rel)
+    {
+      NSEmitTODO();  //TODO
+      //TODO
+    }
+  else
+    {
+      NSArray *joins = [rel joins];
+      int i, count = [joins count];
+
+      for (i = 0; i < count; i++)
+        {
+          EOJoin *join = [joins objectAtIndex: i];
+          EOAttribute *attribute = [join sourceAttribute];
+
+          [attributes setObject: attribute
+                      forKey: [attribute name]];
+        }
+    }
+}
+
+- (NSArray*) dbSnapshotKeys
+{
+  //OK
+  EOFLOGObjectFnStart();
+
+  if (!_dbSnapshotKeys)
+    {
+      NSArray *attributesToFetch = [self _attributesToFetch];
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"attributesToFetch=%@",
+			    attributesToFetch);
+      NSAssert3(!attributesToFetch
+		|| [attributesToFetch isKindOfClass: [NSArray class]],
+                @"entity %@ attributesToFetch is not an NSArray but a %@\n%@",
+                [self name],
+                [attributesToFetch class],
+                attributesToFetch);
+
+      ASSIGN(_dbSnapshotKeys,
+             [GCArray arrayWithArray: [attributesToFetch
+					resultsOfPerformingSelector:
+					  @selector(name)]]);
+    }
+
+  EOFLOGObjectFnStop();
+
+  return _dbSnapshotKeys;
+}
+
+- (NSArray*) flattenedAttributes
+{
+  //OK
+  NSMutableArray *flattenedAttributes = [NSMutableArray array];
+  NSArray *attributesToFetch = [self _attributesToFetch];
+  int i, count = [attributesToFetch count];
+
+  NSAssert3(!attributesToFetch
+	    || [attributesToFetch isKindOfClass: [NSArray class]],
+            @"entity %@ attributesToFetch is not an NSArray but a %@\n%@",
+            [self name],
+            [attributesToFetch class],
+            attributesToFetch);
+
+  for (i = 0; i < count; i++)
+    {
+      EOAttribute *attribute = [attributesToFetch objectAtIndex: i];
+
+      if ([attribute isFlattened])
+        [flattenedAttributes addObject: attribute];
+    }
+
+  return flattenedAttributes;
 }
 
 @end
@@ -4233,12 +4229,22 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 
 @end
 
-@implementation EOEntityClassDescription
-
-+ (EOEntityClassDescription*)entityClassDescriptionWithEntity: (EOEntity *)entity
+@implementation EOEntity (Deprecated)
++ (EOEntity *)entity
 {
-  return AUTORELEASE([[self alloc] initWithEntity: entity]);
+  return AUTORELEASE([[self alloc] init]);
 }
+
++ (EOEntity *)entityWithPropertyList: (NSDictionary *)propertyList
+			       owner: (id)owner
+{
+  return AUTORELEASE([[self alloc] initWithPropertyList: propertyList
+				   owner: owner]);
+}
+
+@end
+
+@implementation EOEntityClassDescription
 
 - (id)initWithEntity: (EOEntity *)entity
 {
@@ -4275,6 +4281,13 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 - (EOEntity *)entity
 {
   return _entity;
+}
+
+- (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
+{
+  NSEmitTODO();  //TODO
+  [self notImplemented: _cmd];
+  return nil;
 }
 
 - (NSString *)entityName
@@ -4327,7 +4340,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                 // relationship properties of newly inserted enterprise objects]
                 [object takeStoredValue: [EOCheapCopyMutableArray array]
                         forKey: [relationship name]];
-              };
+              }
           }
         else //??
           {
@@ -4633,6 +4646,9 @@ if someone has an example of EOF creating an object here without propagatesPrima
   return exception;
 }
 
+@end
+
+@implementation EOEntityClassDescription (GDL2Extenstions)
 /** returns a new autoreleased mutable dictionary to store properties 
 returns nil if there's no key in the instanceDictionaryInitializer
 **/
@@ -4649,7 +4665,36 @@ returns nil if there's no key in the instanceDictionaryInitializer
   EOFLOGObjectFnStop();
 
   return dict;
-};
+}
+@end
+
+@implementation EOEntityClassDescription (Deprecated)
++ (EOEntityClassDescription*)entityClassDescriptionWithEntity: (EOEntity *)entity
+{
+  return AUTORELEASE([[self alloc] initWithEntity: entity]);
+}
+@end
+
+@implementation NSString (EODatabaseNameConversion)
+
++ (NSString *)nameForExternalName: (NSString *)externalName
+                  separatorString: (NSString *)separatorString
+                      initialCaps: (BOOL)initialCaps
+{
+  NSEmitTODO(); //TODO
+  [self notImplemented: _cmd];
+  return nil;
+}
+
++ (NSString *)externalNameForInternalName: (NSString *)internalName
+                          separatorString: (NSString *)separatorString
+                               useAllCaps: (BOOL)allCaps
+{
+  NSEmitTODO(); //TODO
+  [self notImplemented: _cmd];
+  return nil;
+}
+
 @end
 
 
@@ -4660,6 +4705,5 @@ instanceDictionaryInitializer **/
 {
   // default implementation returns nil
   return nil;
-};
+}
 @end
-

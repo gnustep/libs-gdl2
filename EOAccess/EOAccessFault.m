@@ -53,9 +53,10 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOAccessFault.h>
-#include <EOAccess/EOAccessFaultPriv.h>
 #include <EOAccess/EODatabaseContext.h>
-#include <EOAccess/EODatabaseContextPriv.h>
+
+#include "EOAccessFaultPriv.h"
+#include "EODatabaseContextPriv.h"
 
 
 NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAvailableException";

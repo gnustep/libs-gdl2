@@ -61,12 +61,17 @@ RCS_ID("$Id$")
 #include <Postgres95EOAdaptor/Postgres95Adaptor.h>
 #include <Postgres95EOAdaptor/Postgres95Values.h>
 
-@interface EOSQLExpression (Privat)
-//Ayers: Review (Don't rely on privat method)
+/* These methods are undocumented but exist in GDL2 and WO4.5. 
+   Ayers: Review (Don't rely on them) */
+@interface EOEntity (Undocumented)
+- (EORelationship *)relationshipForPath: (NSString *)path;
+@end
+
+@interface EOSQLExpression (PrivatUndocumented)
 - (NSString*) _aliasForRelatedAttribute: (EOAttribute *)attr
 		       relationshipPath: (NSString *)keyPath;
-
 @end
+
 
 @implementation Postgres95SQLExpression
 

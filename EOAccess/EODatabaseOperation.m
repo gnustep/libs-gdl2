@@ -58,6 +58,8 @@ RCS_ID("$Id$")
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
 
+#include "EOEntityPriv.h"
+
 
 @implementation EODatabaseOperation
 
