@@ -1,3 +1,15 @@
+2004-09-25  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOObserver.m
+	(-[EODelayedObserverQueue _notifyObservers:]): Fix prototype set
+	queue flag.
+	(-[EODelayedObserverQueue enqueueObserver:]): Fix setting of queue
+	flag and registering observers.
+	(-[EODelayedObserverQueue dequeueObserver:]): Break linked list.
+	Correct highestNonEmptyQueue setting.  Fix setting of queue flag.
+	(-[EODelayedObserverQueue notifyObserversUpToPriority]):  Dequeue
+	observers during processing.
+	
 2004-09-24  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOEntity.m (-[setName:],-[setExternalName:])

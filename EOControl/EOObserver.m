@@ -288,9 +288,10 @@ static EODelayedObserverQueue *observerQueue;
   return self;
 }
 
-- (void)_notifyObservers
+- (void)_notifyObservers: (id)ignore
 {
   [self notifyObserversUpToPriority: EOObserverPrioritySixth];
+  _haveEntryInNotificationQueue = NO;
 }
 
 - (void)enqueueObserver: (EODelayedObserver *)observer
@@ -301,40 +302,46 @@ static EODelayedObserverQueue *observerQueue;
     [observer subjectChanged];
   else
     {
+      NSAssert2(observer->_next != nil, @"observer:%@ has ->next:%@",
+		observer, observer->_next);
+
       if (_queue[priority])
 	{
 	  EODelayedObserver *obj = _queue[priority];
+	  EODelayedObserver *last = nil;
 
-	  while (YES)
+	  for (; obj != nil && obj != observer; obj = obj->_next)
 	    {
-	      if (obj == observer)
-		return;
-
-	      obj = obj->_next;
-
-	      if (!obj)
-		{
-		  obj->_next = observer;
-
-		  if (priority > _highestNonEmptyQueue)
-		    {
-		      _highestNonEmptyQueue = priority;
-		      _haveEntryInNotificationQueue = YES;
-		    }
-
-		  break;;
-		}
+	      last = obj;
 	    }
+	  
+	  if (obj == observer)
+	    {
+	      return;
+	    }
+
+	  NSAssert(last != nil, @"Currupted Queue");
+	  last->_next = observer;
 	}
       else
 	_queue[priority] = observer;
 
-      [[NSRunLoop currentRunLoop]
-	performSelector: @selector(_notifyObservers)
-	target: self
-	argument: nil
-	order: EOFlushDelayedObserversRunLoopOrdering
-	modes: _modes];
+      if (priority > _highestNonEmptyQueue)
+	{
+	  _highestNonEmptyQueue = priority;
+	}
+
+      if (_haveEntryInNotificationQueue == NO)
+	{
+	  [[NSRunLoop currentRunLoop]
+	    performSelector: @selector(_notifyObservers:)
+	    target: self
+	    argument: nil
+	    order: EOFlushDelayedObserversRunLoopOrdering
+	    modes: _modes];
+
+	  _haveEntryInNotificationQueue = YES;
+	}
     }
 }
 
@@ -354,9 +361,15 @@ static EODelayedObserverQueue *observerQueue;
       if (obj == observer)
 	{
 	  if (last)
-	    last->_next = obj->_next;
+	    {
+	      last->_next = obj->_next;
+	      obj->_next = nil;
+	    }
 	  else
-	    _queue[priority] = obj->_next;
+	    {
+	      _queue[priority] = obj->_next;
+	      obj->_next = nil;
+	    }
 
 
 	  if (!_queue[priority])
@@ -367,9 +380,9 @@ static EODelayedObserverQueue *observerQueue;
 		{
 		  for (; i > EOObserverPriorityImmediate; --i)
 		    {
-		      if (_queue[priority])
+		      if (_queue[i])
 			{
-			  _highestNonEmptyQueue = priority;
+			  _highestNonEmptyQueue = i;
 			  break;
 			}
 		    }
@@ -379,7 +392,6 @@ static EODelayedObserverQueue *observerQueue;
 		  || i == EOObserverPriorityImmediate)
 		{
 		  _highestNonEmptyQueue = EOObserverPriorityImmediate;
-		  _haveEntryInNotificationQueue = NO;
 		}
 	    }
 
@@ -391,19 +403,28 @@ static EODelayedObserverQueue *observerQueue;
     }
 }
 
+/**
+ * Note that unlike the reference implementation, we dequeue the
+ * observer after dispatching [EODelayedObserver-subjectChanged].
+ */
 - (void)notifyObserversUpToPriority: (EOObserverPriority)priority
 {
-  int i = _highestNonEmptyQueue;
+  EOObserverPriority i = EOObserverPriorityFirst;
+  EODelayedObserver *observer = nil;
 
-  for (; i > EOObserverPriorityImmediate; i--)
+  while (i <= priority)
     {
-      EODelayedObserver *observer = _queue[i];
+      observer = _queue[i];
 
-      while (observer)
+      if (observer)
 	{
+	  [self dequeueObserver: observer];
 	  [observer subjectChanged];
-
-	  observer = observer->_next;
+	  i = EOObserverPriorityFirst;
+	}
+      else
+	{
+	  i++;
 	}
     }
 }
