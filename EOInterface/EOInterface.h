@@ -31,6 +31,8 @@
 #include <EOInterface/EOActionInsertionAssociation.h>
 #include <EOInterface/EOAssociation.h>
 #include <EOInterface/EOColumnAssociation.h>
+#include <EOInterface/EOComboBoxAssociation.h>
+#include <EOInterface/EOControlAssociation.h>
 #include <EOInterface/EODisplayGroup.h>
 
 #endif /* __EOInterface_h__ */

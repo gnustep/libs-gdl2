@@ -35,20 +35,24 @@ EOInterface_C_FILES =
 # The Objective-C source files to be compiled
 EOInterface_OBJC_FILES = \
 EOActionAssociation.m \
+EOActionCellAssociation.m \
 EOActionInsertionAssociation.m \
 EOAssociation.m \
 EOColumnAssociation.m \
+EOComboBoxAssociation.m \
+EOControlAssociation.m \
 EODisplayGroup.m \
+EOGenericControlAssociation.m \
 EOTableViewAssociation.m \
-
-
-EOInterface_HEADER_FILES_DIR = .
+NSImage+Additions.m
 
 EOInterface_HEADER_FILES = \
 EOActionAssociation.h \
 EOActionInsertionAssociation.h \
 EOAssociation.h \
 EOColumnAssociation.h \
+EOComboBoxAssociation.h \
+EOControlAssociation.h \
 EODisplayGroup.h \
 EOInterface.h
 

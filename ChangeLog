@@ -1,3 +1,10 @@
+2004-10-17  David Ayers  <d.ayers@inode.at>
+
+	* 
+	* EOInterface/EOInterface.h: Added new headers.
+	* EOInterface/GNUmakefile: Use new files.  Remove superfluous
+	header files directory variable.
+	
 2004-10-16  David Ayers  <d.ayers@inode.at>
 
 	* EOInterface/EOActionAssociation.h/m: New files.
