@@ -1,5 +1,16 @@
 2003-02-25  David Ayers  <d.ayers@inode.at>
 
+	* EOControl/EOCheapArray.m ([EOCheapArray dealloc]): Replace
+	usage of objc_thread_id with GSCurrentThread.
+	* EOControl/EODebug.m: Include headers for non *-gnu-*.
+	Format function headers according to GNU standards.
+	(objectDescription): Make static and return something meaningfull
+	on failure.
+	(IVarInString, TypeToNSString, DumpIVar): Make static and format
+	function headers according to GNU standards.
+	(EOFLogDumpObject_, EOFLogAssertGood_): Format function headers 
+	according to GNU standards.
+	
 	* EOAccess/EOSQLExpression.m
 	([EOSQLExpression foreignKeyConstraintStatementsForRelationship:]):
 	Create constraint even though no inversRelationship exists.

@@ -139,8 +139,8 @@ RCS_ID("$Id$")
   NSDeallocateObject(self);
 
 #ifdef DEBUG
-  NSDebugFLog(@"Stop Dealloc EOCheapCopyArray %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Stop Dealloc EOCheapCopyArray %p. %@",
+              (void*)self, GSCurrentThread());
 #endif
 }
 

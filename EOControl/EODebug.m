@@ -43,6 +43,8 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/GSCategories.h>
 #endif
 
 #include <unistd.h>
@@ -56,7 +58,8 @@ RCS_ID("$Id$")
 
 #ifdef DEBUG
 
-void EOFLogC_(const char *file, int line, const char *string)
+void 
+EOFLogC_(const char *file, int line, const char *string)
 {
   int len = 0;
 
@@ -84,7 +87,8 @@ void EOFLogC_(const char *file, int line, const char *string)
 
 #ifdef DEBUG
 
-NSString *objectDescription(id object)
+static NSString *
+objectDescription(id object)
 {
   NSString *description = nil;
 
@@ -93,13 +97,17 @@ NSString *objectDescription(id object)
       NS_DURING
 	description = [object description];
       NS_HANDLER
-	NS_ENDHANDLER;
+	description 
+	  = [NSString stringWithFormat:@"[%s:%p]: description raised",
+		      GSClassNameFromObject(object), object];
+      NS_ENDHANDLER;
     }
 
   return description;
 }
 
-NSString *IVarInString(const char* _type, void* _value)
+static NSString *
+IVarInString(const char* _type, void* _value)
 {
   if (_type && _value)
     {
@@ -231,7 +239,8 @@ NSString *IVarInString(const char* _type, void* _value)
     return [NSString stringWithString: @"NULL type or NULL pValue"];
 }
 
-NSString *TypeToNSString(const char* _type)
+static NSString *
+TypeToNSString(const char* _type)
 {
   if (_type)
     {
@@ -306,7 +315,8 @@ NSString *TypeToNSString(const char* _type)
     return [NSString stringWithString: @"NULL type"];
 }
 
-void DumpIVar(id object, struct objc_ivar *ivar, int deep)
+static void 
+DumpIVar(id object, GSIVar ivar, int deep)
 {
   if (ivar && object && deep >= 0)
     {
@@ -327,7 +337,8 @@ void DumpIVar(id object, struct objc_ivar *ivar, int deep)
 }
 
 //Dump object 
-void EOFLogDumpObject_(const char *file, int line, id object, int deep)
+void 
+EOFLogDumpObject_(const char *file, int line, id object, int deep)
 {
   USTART
 
@@ -367,7 +378,8 @@ void EOFLogDumpObject_(const char *file, int line, id object, int deep)
   USTOP
 }
 
-void EOFLogAssertGood_(const char *file, int line, id object)
+void 
+EOFLogAssertGood_(const char *file, int line, id object)
 {
   if (object)
     {
