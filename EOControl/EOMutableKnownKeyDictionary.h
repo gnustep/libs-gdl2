@@ -58,7 +58,6 @@
 		 zone: (NSZone *)zone;
 
 - (id)initWithKeys: (NSArray *)keys;
-- (void)dealloc;
 - (NSString *)description;
 - (unsigned int)count;
 - (void)setObject: (id)object
@@ -88,7 +87,6 @@
 }
 
 - (id)initWithTarget: (EOMutableKnownKeyDictionary *)target;
-- (void)dealloc;
 - (NSString *)description;
 - (id)nextObject;
 
@@ -106,7 +104,6 @@
            sourceDescription: (EOMKKDInitializer *)source
       destinationDescription: (EOMKKDInitializer *)destination
                         zone: (NSZone *)zone;
-- (void)dealloc;
 - (NSString *)description;
 
 @end
@@ -120,7 +117,6 @@
 + (id)newInstanceWithKeyCount: (unsigned int)keyCount
        destinationDescription: (EOMKKDInitializer *)destination
 			 zone: (NSZone *)zone;
-- (void)dealloc;
 - (NSString *)description;
 
 @end
@@ -160,7 +156,6 @@
 - (id)initWithObjects: (id *)objects
 	      forKeys: (id *)keys
 		count: (unsigned int)count;
-- (void)dealloc;
 - (unsigned int)count;
 - (id)objectForKey: (id)key;
 - (void)setObject: (id)object

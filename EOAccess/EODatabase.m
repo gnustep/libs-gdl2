@@ -153,12 +153,12 @@ static NSMutableArray *databaseInstances;
 
 - (void)dealloc
 {
-  [_adaptor release];
-  [_registeredContexts release];
-  [_snapshots release];
-  [_models release];
-  [_entityCache release];
-  [_toManySnapshots release];
+  DESTROY(_adaptor);
+  DESTROY(_registeredContexts);
+  DESTROY(_snapshots);
+  DESTROY(_models);
+  DESTROY(_entityCache);
+  DESTROY(_toManySnapshots);
 
   [super dealloc];
 }

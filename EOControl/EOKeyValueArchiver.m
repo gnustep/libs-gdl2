@@ -68,7 +68,6 @@ RCS_ID("$Id$")
 - (id) parent;
 - (void) setObject: (id)object;
 - (id) object;
-- (void) dealloc;
 
 @end
 

@@ -121,7 +121,7 @@ postgresClientVersion()
   while ((pgConn = [[enumerator nextObject] pointerValue]))
     [self releasePGconn: pgConn force: YES];
 
-  [_pgConnPool release];
+  DESTROY(_pgConnPool);
 
   [super dealloc];
 }

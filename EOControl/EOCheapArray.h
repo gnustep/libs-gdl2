@@ -46,7 +46,6 @@
 - (id)initWithArray: (id)array;
 - (id)initWithObjects: (id *)objects
 		count: (unsigned int)count;
-- (void)dealloc;
 - (void)release;
 - (unsigned int)retainCount;
 - (id)retain;

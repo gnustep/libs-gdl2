@@ -7,6 +7,24 @@
 	([Postgres95LoginPanel init]): Minor reformatting and more
 	tempRect usage.
 
+	* EOAccess/EODatabase.m ([EODatabase dealloc]): Use DESTROY
+	in favor of release.
+	* EOAccess/EOExpressionArray.m ([EOExpressionArray dealloc]):
+	Ditto.
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m
+	([Postgres95Adaptor dealloc]): Ditto.
+
+	* EOControl/EOCheapArray.h ([EOCheapArray dealloc]) Remove
+	declaration.
+	* EOControl/EOKeyValueArchiver.m
+	([EOKeyValueArchivingContainer dealloc]): Ditto.
+	* EOControl/EOMutableKnownKeyDictionary.h
+	([EOMKKDInitializer dealloc]),
+	([EOMKKDKeyEnumerator dealloc]),
+	([EOMKKDSubsetMapping dealloc]),
+	([EOMKKDArrayMapping dealloc]),
+	([EOMutableKnownKeyDictionary dealloc]) Ditto.
+
 2004-04-17  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.m

@@ -124,9 +124,9 @@ RCS_ID("$Id$")
 {
   DESTROY(_realAttribute); //TODO mettere nei metodi GC
 //  DESTROY(_definition);
-  [_prefix release];
-  [_infix release];
-  [_suffix release];
+  DESTROY(_prefix);
+  DESTROY(_infix);
+  DESTROY(_suffix);
 
   [super dealloc];
 }
