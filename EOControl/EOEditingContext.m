@@ -35,12 +35,14 @@
 RCS_ID("$Id$")
 
 //TODO EOMultiReaderLocks 
-#include <Foundation/Foundation.h>
-
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSCategories.h>
 #endif
+
+#include <Foundation/Foundation.h>
+
+#include <GNUstepBase/GSLock.h>
 
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EOObjectStoreCoordinator.h>
@@ -50,8 +52,8 @@ RCS_ID("$Id$")
 #include <EOControl/EOFault.h>
 #include <EOControl/EONull.h>
 #include <EOControl/EONSAddOns.h>
+#include <EOControl/EODeprecated.h>
 #include <EOControl/EODebug.h>
-
 
 @class EOEntityClassDescription;
 
@@ -69,26 +71,172 @@ RCS_ID("$Id$")
 @end
 
 @interface EOEditingContext(EOEditingContextPrivate)
+- (void) incrementUndoTransactionID;
+- (BOOL) handleError: (NSException *)exception;
+- (BOOL) handleErrors: (NSArray *)exceptions;
+
+- (void) _enqueueEndOfEventNotification;
+- (void) _sendOrEnqueueNotification: (NSNotification *)notification
+                           selector: (SEL)selector;
+
+- (void) _insertObject: (id)object
+          withGlobalID: (EOGlobalID *)gid;
+
+- (void) _processObjectStoreChanges: (NSDictionary *)changes;
+- (void) _processDeletedObjects;
+- (void) _processOwnedObjectsUsingChangeTable: (NSHashTable*)changeTable
+                                  deleteTable: (NSHashTable*)deleteTable;
+- (void)_processNotificationQueue;
+
 - (void) _observeUndoManagerNotifications;
+
+- (void) _registerClearStateWithUndoManager;
+
+- (void) _forgetObjectWithGlobalID:(EOGlobalID *)gid;
+
+- (void) _invalidateObject:(id)obj withGlobalID: (EOGlobalID *)gid;
+- (void) _invalidateObjectsWithGlobalIDs: (NSArray*)gids;
+- (NSDictionary *) _objectBasedChangeInfoForGIDInfo: (NSDictionary *)changes;
+
+- (NSMutableSet *)_mutableSetFromToManyArray: (NSArray *)array;
+- (NSArray *)_uncommittedChangesForObject: (id)obj
+                             fromSnapshot: (NSDictionary *)snapshot;
+- (NSArray *)_changesFromInvalidatingObjectsWithGlobalIDs: (NSArray *)globalIDs;
+
+- (void) _resetAllChanges;
+
 @end
+
+@interface EOThreadSafeQueue : NSObject
+{
+  GSLazyRecursiveLock *lock;
+  NSMutableArray *arr;
+}
+-(void)addItem:(id)object;
+-(id)removeItem;
+@end
+
+@implementation EOThreadSafeQueue
+- (id)init
+{
+  if ((self=[super init]))
+    {
+      lock = [GSLazyRecursiveLock new];
+      arr = [NSMutableArray new];
+    }
+  return self;
+}
+- (void)dealloc
+{
+  RELEASE(lock);
+  RELEASE(arr);
+  [super dealloc];
+}
+
+-(void)addItem:(id)object
+{
+  NSParameterAssert(object);
+  [lock lock];
+  [arr addObject: object];
+  [lock unlock];
+}
+-(id)removeItem
+{
+  id item = nil;
+  [lock lock];
+  if ([arr count])
+    {
+      item = [arr objectAtIndex: 0];
+      [arr removeObjectAtIndex: 0];
+    }
+  [lock unlock];
+  return item;
+}
+@end
+
 
 @implementation EOEditingContext
 
+static EONull *null = nil;
+static Class EOEditingContextClass = nil;
+static Class EOAssociationClass = nil;
 
 static EOObjectStore *defaultParentStore = nil;
 static NSTimeInterval defaultFetchLag = 3600.0;
 
-//Notifications
-NSString *EOObjectsChangedInEditingContextNotification = @"EOObjectsChangedInEditingContextNotification";
-NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSaveChangesNotification";
+static NSHashTable *ecDeallocHT = 0;
+static NSHashTable *assocDeallocHT = 0;
 
+/* Notifications */
+NSString *EOObjectsChangedInEditingContextNotification
+      = @"EOObjectsChangedInEditingContextNotification";
+NSString *EOEditingContextDidSaveChangesNotification 
+      = @"EOEditingContextDidSaveChangesNotification";
+
+/* Local constants */
+NSString *EOConstObject = @"EOConstObject";
+NSString *EOConstChanges = @"EOConstChanges";
+
+NSString *EOConstKey = @"EOConstKey";
+NSString *EOConstValue = @"EOConstValue";
+NSString *EOConstAdd = @"EOConstAdd";
+NSString *EOConstDel = @"EOConstDel";
+
+/*
+ * This function is used during change processing to multiple changes 
+ * to one class property.
+ * Either value or the add and remove arrays should be set.
+ * The arrays may be emtpy but they must be supplied unless
+ * the value is supplied.
+ * The value is set via the takeStoredValue:forKey: method (i.e. avoiding
+ * the formal accessor machinery) replacing any EONull's with nil.
+ * When add and remove arrays are given, processing starts with the remove
+ * array and then continues with the add array.
+ */
+static inline void
+_mergeValueForKey(id obj, id value, 
+		 NSArray *add, NSArray *del, 
+		 NSString *key)
+{
+  id relObj;
+  unsigned int i,n;
+
+  NSCAssert(((value == nil && add != nil && del !=nil)
+	     || (value != nil && add == nil && del == nil)),
+	    @"Illegal usage of function.");
+
+  for (i = 0, n = [del count]; i < n; i++)
+    {
+      relObj = [del objectAtIndex: i];
+      [obj removeObject: relObj fromPropertyWithKey: key];
+    }
+  for (i = 0, n = [add count]; i < n; i++)
+    {
+      relObj = [add objectAtIndex: i];
+      [obj addObject: relObj toPropertyWithKey: key];
+    }
+
+  if (add == nil && del == nil)
+    {
+      value = (value == null) ? nil : value;
+      [obj takeStoredValue: value forKey: key];
+    }
+}
 
 + (void)initialize
 {
   if (self == [EOEditingContext class] && defaultParentStore == nil)
     {
       defaultParentStore = [EOObjectStoreCoordinator defaultCoordinator];
+      null = [EONull null];
+      EOEditingContextClass = self;
+      EOAssociationClass = NSClassFromString(@"EOAssociation");
     }
+}
+
++ (void)objectDeallocated:(id)object
+{
+  [[object editingContext] forgetObject: object];
 }
 
 + (NSTimeInterval)defaultFetchTimestampLag
@@ -132,11 +280,12 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
       _deletedObjects = NSCreateHashTable(NSObjectHashCallBacks, 32);
       _changedObjects = NSCreateHashTable(NSObjectHashCallBacks, 32);
 
-      _objectsById = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,//NSObjectMapKeyCallBacks,  retained by _objectsByGID
-                                      NSObjectMapValueCallBacks,
-                                      32);
+      /* We may not retain the objects we are managing.  */
+      _globalIDsByObject = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
+					    NSObjectMapValueCallBacks,
+					    32);
       _objectsByGID = NSCreateMapTable(NSObjectMapKeyCallBacks, 
-                                       NSObjectMapValueCallBacks,
+                                       NSNonOwnedPointerMapValueCallBacks,
                                        32);
 
       _snapshotsByGID = [[NSMutableDictionary alloc] initWithCapacity:16];
@@ -146,8 +295,7 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
       
       _lock = [NSRecursiveLock new];
 
-//TODO-NOW      _undoManager = [NSUndoManager new];
-      [_undoManager beginUndoGrouping]; //??
+      _undoManager = [EOUndoManager new];
 
       [self _observeUndoManagerNotifications];
 
@@ -195,8 +343,8 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
 
 - (id) init
 {
-  return [self initWithParentObjectStore:
-		 [EOEditingContext defaultParentObjectStore]];
+  EOObjectStore *defaultStore = [EOEditingContext defaultParentObjectStore];
+  return [self initWithParentObjectStore: defaultStore];
 }
 
 - (void)dealloc
@@ -213,7 +361,7 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
   NSFreeHashTable(_deletedObjects);
   NSFreeHashTable(_changedObjects);
 
-  NSFreeMapTable(_objectsById);
+  NSFreeMapTable(_globalIDsByObject);
   NSFreeMapTable(_objectsByGID);
 
   DESTROY(_snapshotsByGID);
@@ -223,6 +371,84 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
   DESTROY(_lock);
 
   [super dealloc];
+}
+
+/*
+ * This method processes CHANGES which should be an array of
+ * dictionaries with EOConstKey and either EOConstValue or
+ * both EOConstAdd and EOConstDel entries and merges the changes
+ * into OBJ.
+ */
+- (void) _mergeObject: (id)obj withChanges: (NSArray *)changes
+{
+  unsigned int i,n;
+  NSString *key;
+  NSArray *add, *del;
+  NSDictionary *change;
+  id val;
+
+  for(i = 0, n = [changes count]; i < n; i++)
+    {
+      change = [changes objectAtIndex: i];
+      key = [change objectForKey: EOConstKey];
+      val = [change objectForKey: EOConstValue];
+      if (val == nil)
+	{
+	  add = [change objectForKey: EOConstAdd];
+	  del = [change objectForKey: EOConstDel];
+	  NSAssert(add!=nil && del!=nil,@"Invalid changes dictionary.");
+	}
+      _mergeValueForKey(obj, val, add, del, key);
+    }
+}
+
+/*
+ * This method creates an dictionary of changed objects by the
+ * change action, based on a similar dictionary with globalIDs.
+ * For each key of EODeletedKey, EOInsertedKey, EOInvalidatedKey
+ * and EOUpdatedKey an array of corresponding GIDs from the
+ * CHANGES array will be mapped to the cooresponding objects
+ * managed by the receiver for ther returned dictionary. 
+ */
+- (NSDictionary *)_objectBasedChangeInfoForGIDInfo: (NSDictionary *)changes
+{
+  NSString *keys[] = { EODeletedKey,
+                       EOInsertedKey,
+                       EOInvalidatedKey,
+                       EOUpdatedKey };
+  NSArray *valueArray[4];
+  NSDictionary   *dict;
+  int i;
+
+  EOFLOGObjectFnStart();
+
+  for (i=0; i<4; i++)
+    {
+      NSArray  *gids = [changes objectForKey: keys[i]];
+      unsigned  cnt = [gids count];
+      id        values[cnt>GS_MAX_OBJECTS_FROM_STACK?0:cnt];
+      id       *valuesPStart;
+      id       *valuesP;
+      unsigned  j;
+
+      valuesPStart = valuesP = (cnt > GS_MAX_OBJECTS_FROM_STACK
+                                ? GSAutoreleasedBuffer(sizeof(id) * cnt)
+                                : values);
+      for (j=0; j<cnt; j++)
+        {
+          *valuesP++ = [self objectForGlobalID: [gids objectAtIndex: j]];
+        }
+      valueArray[i] = [NSArray arrayWithObjects: valuesPStart
+                               count: cnt];
+    }
+
+  dict = [NSDictionary dictionaryWithObjects: valueArray
+                       forKeys: keys
+                       count: 4];
+
+  EOFLOGObjectFnStop();
+
+  return dict;
 }
 
 - (id) parentPath
@@ -241,79 +467,287 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
     object: _undoManager];
 }
 
-- (void) _processObjectStoreChanges: (NSNotification *)notification
+/*
+ * Process CHANGES, a dictionary of GlobalID arrays assigned
+ * to on of the following processing keys: EOInsertedKey, EODeletedKey,
+ * EOInvalidatedKey, EOUpdatedKey.
+ * First and pending changes are processed via processRecentChanges.
+ * The receiver will then forget all objects refered to in the 
+ * EODeletedKey array, invalidate all objects refered to in the 
+ * EOInvalidatedKey array and generate changes for the objects refered
+ * to in the EOUpdatedKey array.
+ * This method will reset the _unprocessedInserts, _unprocessedDeletes
+ * and _unprocessedChanges hash tables.
+ * If the delegate responds to editingContextDidMergeChanges:, it
+ * will be notified.
+ * Then an EOObjectsChangedInStoreNotification will be posted with the
+ * changes with the array of EOGlobalID's followed by an
+ * EOObjectsChangedInEditingContextNotification notification with the
+ * same chanes but an array of the changes objects.
+ */
+- (void) _processObjectStoreChanges: (NSDictionary *)changes
 {
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
-			[self unprocessedDescription]);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
-			[self objectsDescription]);
+  NSArray *updatedGIDs;
+  NSArray *deletedGIDs;
+  NSArray *invalidatedGIDs;
+  NSArray *updatedChanges;
+  NSDictionary *objectChangeInfo;
+  unsigned i,n;
 
-  [self notImplemented: _cmd]; //TODO
+  EOFLOGObjectFnStart();
+
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"changes=%@", changes);
+
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
+                        [self unprocessedDescription]);
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
+                        [self objectsDescription]);
+
+  [self processRecentChanges];
+
+  deletedGIDs = [changes objectForKey: EODeletedKey];
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"deletedGIDs=%@",
+                        deletedGIDs);
+
+  for (i = 0,n = [deletedGIDs count]; i < n; i++)
+    {
+      id obj = [deletedGIDs objectAtIndex: i];
+      [self _forgetObjectWithGlobalID: obj];
+    }
+
+  invalidatedGIDs = [changes objectForKey: EOInvalidatedKey];
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"invalidatedGIDs=%@",
+                        invalidatedGIDs);
+  [self _invalidateObjectsWithGlobalIDs: invalidatedGIDs];
+
+  updatedGIDs = [changes objectForKey: EOUpdatedKey];
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"updatedGIDs=%@",
+                        updatedGIDs);
+  updatedChanges
+    = [self _changesFromInvalidatingObjectsWithGlobalIDs: updatedGIDs];
+
+  NSResetHashTable(_unprocessedInserts);
+  NSResetHashTable(_unprocessedDeletes);
+  NSResetHashTable(_unprocessedChanges);
+
+  if (updatedChanges != nil)
+    {
+      id obj;
+      NSArray *chgs;
+      NSDictionary *changeSet;
+      unsigned i, n;
+
+      [_undoManager removeAllActionsWithTarget: self];
+
+      n = [updatedChanges count];
+      for (i = 0; i < n; i++)
+        {
+	  changeSet = [updatedChanges objectAtIndex: i];
+	  obj = [changeSet objectForKey: EOConstObject];
+	  chgs = [changeSet objectForKey: EOConstChanges];
+
+          [self _mergeObject: obj withChanges: chgs];
+        }
+    }
+
+  if ([updatedChanges count]
+      && [_delegate respondsToSelector:
+                      @selector(editingContextDidMergeChanges:)])
+    {
+      [_delegate editingContextDidMergeChanges: self];
+    }
+
+  [[NSNotificationCenter defaultCenter]
+    postNotificationName: EOObjectsChangedInStoreNotification
+    object: self
+    userInfo: changes];
+
+  objectChangeInfo = [self _objectBasedChangeInfoForGIDInfo: changes];
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"objectChangeInfo=%@",
+                        objectChangeInfo);
+
+  [[NSNotificationCenter defaultCenter]
+    postNotificationName: EOObjectsChangedInEditingContextNotification
+    object: self
+    userInfo: objectChangeInfo];
+
+  EOFLOGObjectFnStop();
 }
 
-//"Receive EOObjectsChangedInStoreNotification notification"
-//oldname:_handleObjectsChangedInStoreNotification:
+- (NSArray *)_changesFromInvalidatingObjectsWithGlobalIDs: (NSArray *)globalIDs
+{
+  NSMutableArray *chgs = nil;
+  unsigned int i, n;
+
+  if ((n = [globalIDs count]))
+    {
+      SEL sel = @selector(editingContext:shouldMergeChangesForObject:);
+      BOOL send;
+      send = [_delegate respondsToSelector: sel];
+      chgs = [NSMutableArray arrayWithCapacity: n];
+
+      for (i = 0; i < n; i++)
+        {
+          EOGlobalID *globalID = [globalIDs objectAtIndex: i];
+          id obj = NSMapGet(_objectsByGID, globalID);
+
+          if (obj != nil && [EOFault isFault: obj] == NO)
+            {
+              id hObj = NSHashGet(_changedObjects, obj);
+              if (hObj != 0)
+                {
+                  if (send == NO
+                      || [_delegate editingContext: self
+                                    shouldMergeChangesForObject: obj])
+                    {
+                      NSDictionary *snapshot;
+                      NSDictionary *chgDict;
+                      NSArray *uncommitedChgs;
+
+                      snapshot = [_snapshotsByGID objectForKey: globalID];
+                      uncommitedChgs = [self _uncommittedChangesForObject: obj
+                                             fromSnapshot: snapshot];
+
+                      if (uncommitedChgs != 0)
+                        {
+			  chgDict 
+			    = [NSDictionary dictionaryWithObjectsAndKeys:
+					      obj, EOConstObject,
+					    uncommitedChgs, EOConstChanges,
+					    nil];
+                          [chgs addObject: chgDict];
+                        }
+                      [self refaultObject: obj
+                            withGlobalID: globalID
+                            editingContext: self];
+                    }
+                  else
+                    {
+                      [self _invalidateObject: obj
+                            withGlobalID: globalID];
+                    }
+                }
+            }
+        }
+    }
+  return chgs;
+}
+
+- (NSArray *)_uncommittedChangesForObject: (id)obj
+                             fromSnapshot: (NSDictionary *)snapshot
+{
+  NSMutableArray *chgs = [NSMutableArray array];
+  NSArray *attribKeys = [obj attributeKeys];
+  NSArray *toOneKeys  = [obj toOneRelationshipKeys];
+  NSArray *toManyKeys = [obj toManyRelationshipKeys];
+  NSString *key;
+  NSDictionary *change;
+  id objVal, ssVal;
+  unsigned i,n;
+
+  for(i = 0, n = [attribKeys count]; i < n; i++)
+    {
+      key = [attribKeys objectAtIndex: i];
+      objVal = [obj storedValueForKey: key];
+      ssVal  = [snapshot objectForKey: key];
+
+      objVal = (objVal == nil) ? null : objVal;
+
+      if ([objVal isEqual: ssVal] == NO)
+        {
+	  change = [NSDictionary dictionaryWithObjectsAndKeys:
+				   key, EOConstKey,
+				 objVal, EOConstValue, nil];
+          [chgs addObject: change];
+        }
+    }
+
+  for(i = 0, n = [toOneKeys count]; i < n; i++)
+    {
+      key = [toOneKeys objectAtIndex: i];
+      objVal = [obj storedValueForKey: key];
+      ssVal  = [snapshot objectForKey: key];
+      if (objVal != nil)
+        {
+          EOGlobalID *gid = [self globalIDForObject: objVal];
+          objVal = (gid == nil) ? null : objVal;
+          if (objVal != ssVal)
+            {
+	      change = [NSDictionary dictionaryWithObjectsAndKeys:
+				       key, EOConstKey,
+				     objVal, EOConstValue, nil];
+	      [chgs addObject: change];
+            }
+        }
+    }
+
+  for(i = 0, n = [toManyKeys count]; i < n; i++)
+    {
+      key = [toOneKeys objectAtIndex: i];
+      objVal = [obj storedValueForKey: key];
+      ssVal = [snapshot objectForKey: key];
+      if ([EOFault isFault: objVal] == NO
+          && [EOFault isFault: ssVal] == NO)
+        {
+          NSMutableSet *objSet = [self _mutableSetFromToManyArray: objVal];
+          NSMutableSet *ssSet  = [self _mutableSetFromToManyArray: ssVal];
+          NSSet *_ssSet = [NSSet setWithSet: ssSet];
+
+          [ssSet  minusSet: objSet]; /* now contains deleted objects */
+          [objSet minusSet: _ssSet]; /* now contains added objects */
+
+          if ([objSet count] != 0 || [ssSet count] != 0)
+            {
+              NSArray *addArr = [objSet allObjects];
+              NSArray *delArr = [ssSet  allObjects];
+
+	      change = [NSDictionary dictionaryWithObjectsAndKeys:
+				       key, EOConstKey,
+				     addArr, EOConstAdd,
+				     delArr, EOConstDel,
+				     nil];
+	      [chgs addObject: change];
+            }
+        }
+    }
+  return ([chgs count] == 0) ? nil : chgs;
+}
+
+- (NSMutableSet *)_mutableSetFromToManyArray: (NSArray *)array
+{
+  EOGlobalID *gid;
+  NSMutableSet *set;
+  id obj;
+  unsigned i,n;
+
+  n = [array count];
+  set = [NSMutableSet setWithCapacity: n];
+
+  NSAssert(_objectsByGID, @"_objectsByGID does not exist!");
+  for (i=0; i<n; i++)
+    {
+      gid = [array objectAtIndex: i];
+      obj = NSMapGet(_objectsByGID, gid);
+      [set addObject: obj];
+    }
+  return set;
+}
+
 - (void)_objectsChangedInStore: (NSNotification *)notification
 {
-  NSEnumerator *arrayEnum;
-  EOGlobalID   *gid;
-  NSArray *array = nil;
-
-  NSEmitTODO();
-  // userInfo = {deleted = (); inserted = (); updated = ([GID: CustomerCredit, (1)]); }}
-
-  if ([notification object] != self)
+  if (_flags.ignoreChangeNotification == NO
+      && [notification object] == _objectStore)
     {
-      // Notification is posted from EODatabase
-      array = [[notification userInfo] objectForKey: EOInsertedKey];
-
-      if (array)
-	{
-	}
-
-      array = [[notification userInfo] objectForKey: EODeletedKey];
-      if (array)
-	{
-	}
-
-      array = [[notification userInfo] objectForKey: EOUpdatedKey];
-      if (array)
-	{
-          if (_flags.processingChanges == NO)
-	    {
-	      arrayEnum = [array objectEnumerator];
-
-	      while ((gid = [arrayEnum nextObject]))
-		{
-		  [self refaultObject: [self objectForGlobalID:gid]
-			withGlobalID: gid
-			editingContext: self];
-
-		  // TODO: verify modified objects
-		}
-	    }
-	}
-
-      array = [[notification userInfo] objectForKey: EOInvalidatedKey];
-      if (array)
-	{
-          // these none-EOTemporary-GID EOObjects are retransformed into EOFaults
-          // all snapshots accesses to their gid's are invalid and must remove
-
-          arrayEnum = [array objectEnumerator];
-          while ((gid = [arrayEnum nextObject]))
-            {
-              if ([gid isTemporary] == NO)
-		{
-		  [_snapshotsByGID removeObjectForKey: gid];
-		  [_eventSnapshotsByGID removeObjectForKey: gid];
-		}
-            }
-	}
+      [self _sendOrEnqueueNotification: notification
+            selector: @selector(_processObjectStoreChanges:)];
     }
 }
 
-//"Receive EOGlobalIDChangedNotification notification"
+/* 
+ * This method is called when the an EOGlobalIDChangedNotification 
+ * is posted. It updates the globalID mappings maintained by
+ * the receiver accordingly.
+ */
 - (void)_globalIDChanged: (NSNotification *)notification
 {
   NSDictionary *snapshot = nil;
@@ -328,6 +762,9 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
   userInfo = [notification userInfo];
   enumerator = [userInfo keyEnumerator];
 
+  NSAssert(_objectsByGID, @"_objectsByGID does not exist!");
+  NSAssert(_globalIDsByObject, @"_globalIDsByObject does not exist!");
+
   while ((tempGID = [enumerator nextObject]))
     {
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"tempGID=%@", tempGID);
@@ -335,58 +772,63 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
       gid = [userInfo objectForKey: tempGID];
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
 
-      if (_objectsByGID)
-        {
-          object = NSMapGet(_objectsByGID, tempGID);
+      object = NSMapGet(_objectsByGID, tempGID);
+      EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%@", object);
 
-          EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%@", object);
+      if (object)
+	{
+	  /* This insert replaces the object->tmpGID mapping.  */
+	  NSMapInsert(_globalIDsByObject, object, gid);
 
-          RETAIN(object);
-          NSAssert(_objectsById, @"no _objectsById");
-
-          if (object)
-            {
-              NSMapInsert(_objectsById, object, gid);
-              NSMapRemove(_objectsByGID, tempGID);
-              NSMapInsert(_objectsByGID, gid, object);
-              AUTORELEASE(object);
-            }
-        }
-
-      if (!object)
+	  NSMapRemove(_objectsByGID, tempGID);
+	  NSMapInsert(_objectsByGID, gid, object);
+	}
+      else
         {
           // object is from other editingcontext
           EOFLOGObjectLevelArgs(@"EOEditingContextValues",
-                                @"nothing done , object with gid '%@' is from other ed", 
+                                @"nothing done: object with gid '%@' "
+				@"is from other editing context", 
                                 tempGID);
         }
 
-      //if (object)     
       snapshot = [_snapshotsByGID objectForKey: tempGID];
       EOFLOGObjectLevelArgs(@"EOEditingContext",
 			    @"_snapshotsByGID snapshot=%@", snapshot);
 
       if (snapshot)
         {
-          RETAIN(snapshot);
-
           [_snapshotsByGID removeObjectForKey: tempGID];
-          EOFLOGObjectLevel(@"EOEditingContext", @"After Remove");
-
           [_snapshotsByGID setObject: snapshot
                            forKey: gid];          
-          EOFLOGObjectLevel(@"EOEditingContext", @"After SetObject");
-
-          AUTORELEASE(snapshot);
         }
-      else 
+      else if (object)
         {
+          /* What should happen?  The object is maintained by
+	     this editing context but it doesn't have a snapshot!
+	     Should we creat it? */
+	  /*
           // set snapshot with last committed values
-          //EOFLOGObjectLevelArgs(@"EOEditingContextValues", @"adding new object = %@", [self objectForGlobalID:gid]);
-          //EOFLOGObjectLevelArgs(@"EOEditingContextValues", @"object class = %@", NSStringFromClass([object class]));
-          //EOFLOGObjectLevelArgs(@"EOEditingContextValues", @"with snapshot = %@", [[self objectForGlobalID:gid] snapshot]);
-          
-          // ?? [_snapshots setObject:[[self objectForGlobalID:gid] snapshot]  forKey:gid];
+          EOFLOGObjectLevelArgs(@"EOEditingContextValues", 
+				@"adding new object = %@", 
+				[self objectForGlobalID:gid]);
+          EOFLOGObjectLevelArgs(@"EOEditingContextValues",
+				@"object class = %@",
+				NSStringFromClass([object class]));
+          EOFLOGObjectLevelArgs(@"EOEditingContextValues",
+				@"with snapshot = %@",
+				[[self objectForGlobalID:gid] snapshot]);
+          [_snapshotsByGID setObject:[[self objectForGlobalID:gid] snapshot] 
+		           forKey:gid];
+	  */
+        }
+      else
+        {
+          // object is from other editingcontext
+          EOFLOGObjectLevelArgs(@"EOEditingContextValues",
+                                @"nothing done: object with gid '%@' "
+				@"is from other editing context", 
+                                tempGID);
         }
 
       snapshot = [_eventSnapshotsByGID objectForKey: tempGID];
@@ -395,37 +837,92 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
 
       if (snapshot)
         {
-          RETAIN(snapshot);
           [_eventSnapshotsByGID removeObjectForKey: tempGID];
           [_eventSnapshotsByGID setObject: snapshot
                                 forKey: gid];
-
-          AUTORELEASE(snapshot);
 	}
     }
 
   EOFLOGObjectFnStop();
 }
 
-- (void) _processNotificationQueue
+- (void)_processNotificationQueue
 {
-  NSEmitTODO();
-  [self notImplemented: _cmd]; //TODO
+  EOThreadSafeQueue *queue = _notificationQueue;
+  NSDictionary *dict, *userInfo;
+  NSString *name;
+  SEL selector;
+
+  if ([self tryLock])
+    {
+      while ((dict = [queue removeItem]))
+	{
+	  name = [dict objectForKey: @"selector"];
+	  selector = NSSelectorFromString(name);
+	  userInfo = [dict objectForKey: @"userInfo"];
+      
+	  [self performSelector: selector
+		withObject: userInfo];
+	}
+      [self unlock];
+    }
+  else
+    {
+      /* Setup new call to _processNotificationQueue */
+    }
 }
 
-- (void) _sendOrEnqueueNotification: (id)param0
-                           selector: (SEL)param1
+- (void)_sendOrEnqueueNotification: (NSNotification *)notification
+			  selector: (SEL)selector
 {
-  [self notImplemented: _cmd]; //TODO
+  if ([self tryLock])
+    {
+      [self _processNotificationQueue];
+      [self performSelector: selector
+            withObject: [notification userInfo]];
+      [self unlock];
+    }
+  else
+    {
+      static NSDictionary *emptyDict = nil;
+      NSDictionary *userInfo = nil;
+      NSDictionary *queDict;
+
+      if (emptyDict == nil)
+        {
+          emptyDict = [NSDictionary new];
+        }
+
+      userInfo = [notification userInfo];
+      if (userInfo == nil)
+        {
+          userInfo = emptyDict;
+        }
+
+      queDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                NSStringFromSelector(selector), @"selector",
+                              userInfo, @"userInfo",
+                              nil ];
+      [(EOThreadSafeQueue *)_notificationQueue addItem: queDict];
+    }
 }
 
 //"Invalidate All Objects"
 - (void) invalidateAllObjects
 {
-  NSEmitTODO();
+  NSArray *gids;
+  [self _resetAllChanges];
 
-  [super invalidateAllObjects]; //??
-  [self notImplemented: _cmd]; //TODO-NOW
+  /* The reference implementation seems to first obtain the objects
+     via -registeredObjects and then calls globalIDForObject: on each
+     but this seems wasteful and we have the array at easy access.  */
+
+  gids = NSAllMapTableKeys(_objectsByGID);
+  [_objectStore invalidateObjectsWithGlobalIDs: gids];
+
+  [[NSNotificationCenter defaultCenter] postNotificationName: EOInvalidatedAllObjectsInStoreNotification
+					object: self
+					userInfo: nil];
 }
 
 //"Receive ???? notification"
@@ -437,49 +934,180 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
 
 - (void) _forgetObjectWithGlobalID:(EOGlobalID*)gid
 {
-  NSEmitTODO();
-  [self notImplemented:_cmd]; //TODO
+  id object = [self objectForGlobalID: gid];
+  if (object != nil)
+    {
+      [self forgetObject: object];
+      NSHashRemove(_insertedObjects, object);
+      NSHashRemove(_deletedObjects, object);
+      NSHashRemove(_changedObjects, object);
+
+      if ([EOFault isFault: object] == NO)
+        {
+          [object clearProperties];
+        }
+    }
 }
 
 - (void) _invalidateObject: (id)object
               withGlobalID: (EOGlobalID*)gid
 {
-  NSEmitTODO();
-  [self notImplemented: _cmd]; //TODO
+  SEL sel = @selector(editingContext:shouldInvalidateObject:globalID:);
+  BOOL invalidate = YES;
+  if ([_delegate respondsToSelector: sel])
+    {
+      invalidate = [_delegate editingContext: self
+                              shouldInvalidateObject: object
+                              globalID: gid];
+    }
+  if (invalidate == YES)
+    {
+      [self refaultObject: object
+            withGlobalID: gid
+            editingContext: self];
+    }
 }
 
 - (void) _invalidateObjectWithGlobalID: (EOGlobalID*)gid
 {
-  NSEmitTODO();
-  [self notImplemented: _cmd]; //TODO
+  id object = [self objectForGlobalID: gid];
+  if ((object != nil ) && ([EOFault isFault: object] == NO))
+    {
+      [self _invalidateObject: object withGlobalID: gid];
+    }
+}
+
+- (void) _invalidateObjectsWithGlobalIDs: (NSArray*)gids
+{
+  unsigned    i, count;
+  SEL         oaiSEL = @selector(objectAtIndex:);
+  SEL         iowgidSEL = @selector(_invalidateObjectWithGlobalID:);
+  IMP         oaiIMP = [gids methodForSelector: oaiSEL];
+  IMP         iowgidIMP = [self methodForSelector: iowgidSEL];
+
+  EOFLOGObjectFnStart();
+
+  for (i=0, count=[gids count]; i<count; i++)
+    {
+      EOGlobalID *gid = (*oaiIMP)(gids, oaiSEL, i);
+      (*iowgidIMP)(self, iowgidSEL, gid);
+    }
+
+  EOFLOGObjectFnStop();
 }
 
 - (void) invalidateObjectsWithGlobalIDs: (NSArray*)gids
 {
-  NSEmitTODO();
-  [self notImplemented: _cmd]; //TODO
+  NSMutableArray *insertedObjects = [NSMutableArray array];
+  NSMutableArray *deletedObjects = [NSMutableArray array];
+  NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+  int i;
+
+  EOFLOGObjectFnStart();
+
+  [self processRecentChanges];
+
+  for (i=0; i<[gids count]; i++)
+    {
+      EOGlobalID *gid = [gids objectAtIndex: i];
+      id obj = [self objectForGlobalID: gid];
+
+      if (obj != nil)
+        {
+          if (NSHashGet(_insertedObjects, obj))
+            {
+              [insertedObjects addObject: obj];
+            }
+
+          if (NSHashGet(_deletedObjects, obj))
+            {
+              [deletedObjects addObject: obj];
+            }
+        }
+    }
+
+  if ([insertedObjects count] != 0)
+    {
+      [dict setObject: insertedObjects forKey: EODeletedKey];
+    }
+  if ([deletedObjects count] != 0)
+    {
+      [dict setObject: deletedObjects forKey: EOInsertedKey];
+    }
+
+  if ([dict count] != 0)
+    {
+      [self _processObjectStoreChanges: dict];
+    }
+
+  /* Once we have a shared editing context we have to unlockForReading
+     under certain circumstances...  */
+
+  [_objectStore invalidateObjectsWithGlobalIDs: gids];
+
+  /* ... and lockForReading again when apropriate.  */
+
+  EOFLOGObjectFnStop();
 }
 
-- (void) _resetAllChanges: (NSNotification*)notification //??
+- (void) _resetAllChanges: (NSDictionary *)dictionary
 {
-  NSEmitTODO();
-  [self notImplemented: _cmd]; //TODO
+  [self _resetAllChanges];
 }
 
 - (void) _resetAllChanges
 {
-  NSEmitTODO();
-  [self notImplemented: _cmd]; //TODO
+  //TODO: Ayers Verify
+  EOFLOGObjectFnStart();
+
+  [self processRecentChanges];
+
+  NSResetHashTable(_insertedObjects);
+  NSResetHashTable(_deletedObjects);
+  NSResetHashTable(_changedObjects);
+
+  [_undoManager removeAllActions];
+
+  [self incrementUndoTransactionID];
+
+  EOFLOGObjectFnStop();
 }
 
-- (void) _enqueueEndOfEventNotification
+- (void)_enqueueEndOfEventNotification
 {
-  [_undoManager groupsByEvent];
-  [_undoManager registerUndoWithTarget: self
-                selector: @selector(noop:)
-                object: nil];
+  EOFLOGObjectFnStart();
 
-  _flags.registeredForCallback = YES;
+  if (_flags.registeredForCallback == NO && _flags.processingChanges == NO)
+    {
+      EOFLOGObjectLevelArgs(@"EOEditingContext", @"_undoManager: %@",
+                            _undoManager);
+
+      if ([_undoManager groupsByEvent])
+        {
+          /*
+           * Make sure there is something registered to force processing.
+           * The seems to correspond to the reference implementation but
+           * also seems very hacky.
+           */
+          [_undoManager registerUndoWithTarget: self
+                        selector: @selector(noop:)
+                        object: nil];
+        }
+      else
+        {
+          NSArray *modes;
+
+          modes = [[EODelayedObserverQueue defaultObserverQueue] runLoopModes];
+          [[NSRunLoop currentRunLoop]
+            performSelector: @selector(_processEndOfEventNotification:)
+            target: self
+            argument: nil
+            order: EOEditingContextFlushChangesRunLoopOrdering
+            modes: modes];
+        }
+      _flags.registeredForCallback = YES;
+    }
+  EOFLOGObjectFnStop();
 }
 
 - (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetch
@@ -527,7 +1155,7 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
     {
       if (!gid)
         {
-          gid = [EOTemporaryGlobalID temporaryGlobalID];
+          gid = AUTORELEASE([EOTemporaryGlobalID new]);
           EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
         }
 
@@ -625,16 +1253,20 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
 
       gidBis = [self globalIDForObject: object];
 
+      /* Record object for GID mappings.  */
       if (!gidBis)
         {
           NSAssert(gid, @"No gid");
 
           [self recordObject: object
                 globalID: gid];
-
-          NSHashInsert(_unprocessedInserts, object);
-          [self _enqueueEndOfEventNotification];
         }
+
+      /* Do the actual insert into the editing context,
+	 independent  of whether this object has ever been
+         previously tracked by the GID mappings.  */
+      NSHashInsert(_unprocessedInserts, object);
+      [self _enqueueEndOfEventNotification];
     }
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
@@ -645,10 +1277,8 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
   EOFLOGObjectFnStop();
 }
 
-- (void) _processEndOfEventNotification: (NSNotification*)notification
+- (void)_processEndOfEventNotification: (NSNotification*)notification
 {
-  NSEmitTODO();
-
   EOFLOGObjectFnStart();
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
@@ -659,13 +1289,10 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
   if ([self tryLock])
     {
       [self processRecentChanges];
+      [self _processNotificationQueue];
       [self unlock];
     }
-  else
-    {
-      NSEmitTODO();
-      [self notImplemented: _cmd]; //TODO
-    }
+  /* else ignore.  */
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			[self unprocessedDescription]);
@@ -675,568 +1302,307 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
   EOFLOGObjectFnStop();
 }
 
-- (void) noop: (id)param0
+- (void)noop: (id)object
 {
-  [self notImplemented: _cmd]; //TODO
+  EOFLOGObjectFnStart();
+  /*
+   * This is just a dummy method which is only registered
+   * to achieve the side effect of registering a method
+   * with the undo manager.  The side effect is that the
+   * undo manager will register another method which will later
+   * post the NSUndoManagerCheckpointNotification.
+   */
+  EOFLOGObjectFnStop();
 }
 
 //"Receive NSUndoManagerCheckpointNotification Notification
 - (void) _undoManagerCheckpoint: (NSNotification*)notification
 {
-  NSEmitTODO();
-
-  [self _processEndOfEventNotification: notification]; //OK
+  [self _processEndOfEventNotification: notification];
 }
 
 - (BOOL) _processRecentChanges
 {
-  //Near OK for insert and update
   BOOL result = YES;
+  NSMutableSet *cumulativeChanges = (id)[NSMutableSet set];
+  NSMutableSet *consolidatedInserts = (id)[NSMutableSet set];
+  NSMutableSet *deletedAndChanged = (id)[NSMutableSet set];
+  NSMutableSet *insertedAndDeleted = (id)[NSMutableSet set];
+  //  NSMutableSet *deletedAndInserted = (id)[NSMutableSet set];
+  NSEnumerator *currEnum;
+  EOGlobalID *globalID;
+  id obj;
 
   EOFLOGObjectFnStart();
 
-  if (!_flags.processingChanges)
-    {
-      NSArray *unprocessedInsertsArray = nil;
-      NSArray *unprocessedInsertsGlobalIDs = nil;
-      NSArray *unprocessedDeletesArray = nil;
-      NSArray *unprocessedDeletesGlobalIDs = nil;
-      NSArray *unprocessedChangesArray = nil;
-      NSArray *unprocessedChangesGlobalIDs = nil;
-      NSMutableDictionary *objectsArray = [NSMutableDictionary dictionary];
-      NSMutableDictionary *objectGIDsArray = [NSMutableDictionary dictionary];
-      int count = 0;
+  /* _assertSafeMultiThreadedAccess when/if necessary.  */
 
+  if (_flags.processingChanges == NO)
+    {
       _flags.processingChanges = YES;
 
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
-			    [self unprocessedDescription]);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
-			    [self objectsDescription]);
-
-      [self _registerClearStateWithUndoManager];
-
-      //_undoManager isUndoing //ret NO //TODO
-      //_undoManager isRedoing //ret NO //TODO
-      [_undoManager beginUndoGrouping];
-
-      /*in undomanager beginUndoGrouping
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"NSUndoManagerCheckpointNotification" 
-        object:_undoManager]; //call _undoManagerCheckpoint:
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"NSUndoManagerDidOpenUndoGroupNotification"
-        object:_undoManager];
-      */
-
-      [self _processDeletedObjects];
-
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
-			    [self unprocessedDescription]);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
-			    [self objectsDescription]);
-
-      [_undoManager endUndoGrouping];
-
-      /*in undomanager endUndoGrouping
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"NSUndoManagerCheckpointNotification"
-        object:_undoManager] //call _undoManagerCheckpoint:
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"NSUndoManagerWillCloseUndoGroupNotification"
-        object:_undoManager];
-      */
-      
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
-			    [self unprocessedDescription]);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
-			    [self objectsDescription]);
-      //on inserted objects
-      EOFLOGObjectLevel(@"EOEditingContext",
-			@"process _unprocessedInserts");
-
-      unprocessedInsertsArray = NSAllHashTableObjects(_unprocessedInserts);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"unprocessedInsertsArray=%@",
-			    unprocessedInsertsArray);
-
-      [objectsArray setObject: unprocessedInsertsArray
-                    forKey: @"inserted"];
-
-      unprocessedInsertsGlobalIDs
-	= [self resultsOfPerformingSelector: @selector(globalIDForObject:)
-		withEachObjectInArray: unprocessedInsertsArray];
-
-      [objectGIDsArray setObject: unprocessedInsertsGlobalIDs
-                       forKey: @"inserted"];
-
-      count = [unprocessedInsertsArray count];
-
-      if (count > 0)
+      while (NSCountHashTable (_unprocessedInserts)
+             || NSCountHashTable (_unprocessedChanges)
+             || NSCountHashTable (_unprocessedDeletes))
         {
-          int i;
+          NSException *exception = nil;
+          NSArray *unprocessedInsertsArray = nil;
+          NSArray *unprocessedInsertsGlobalIDs = nil;
+          NSArray *unprocessedDeletesArray = nil;
+          NSArray *unprocessedDeletesGlobalIDs = nil;
+          NSArray *unprocessedChangesArray = nil;
+          NSArray *unprocessedChangesGlobalIDs = nil;
+          NSMutableDictionary *objectsUserInfo = nil;
+          NSMutableDictionary *globalIDsUserInfo = nil;
+          NSHashEnumerator hashEnum;
 
-          for (i = 0; i < count; i++)
-            NSHashInsertIfAbsent(_insertedObjects,
-				 [unprocessedInsertsArray objectAtIndex: i]);
+          objectsUserInfo = (id)[NSMutableDictionary dictionary];
+          globalIDsUserInfo = (id)[NSMutableDictionary dictionary];
 
+          NSDebugMLLog(@"EOEditingContext", @"Unprocessed: %@",
+                       [self unprocessedDescription]);
+          NSDebugMLLog(@"EOEditingContext", @"Objects: %@",
+                       [self objectsDescription]);
+
+          [self _registerClearStateWithUndoManager];
+
+          /* Propagate deletes.  */
+          if (_flags.propagatesDeletesAtEndOfEvent == NO
+              && [_undoManager isUndoing] == NO
+              && [_undoManager isRedoing] == NO)
+            {
+
+              NS_DURING
+                {
+                  /* Delete propagation.  */
+                  [_undoManager beginUndoGrouping];
+                  [self _processDeletedObjects];
+                  [_undoManager endUndoGrouping];
+                }
+              NS_HANDLER
+                {
+                  NSDictionary *snapshot;
+                  /* If delete propagation fails, then this could
+                     be due to a violation of EODeleteDeny rule.
+                     So we reset all changes of this event loop.  */
+                  [_undoManager endUndoGrouping];
+
+                  hashEnum = NSEnumerateHashTable(_unprocessedChanges);
+
+                  /* These changes happen in the parent undo grouping.  */
+                  while ((obj = NSNextHashEnumeratorItem(&hashEnum)))
+                    {
+                      snapshot = [self committedSnapshotForObject: obj];
+                      [obj updateFromSnapshot: snapshot];
+                    }
+
+                  /* Undo parent grouping and start a new one.  */
+                  [_undoManager endUndoGrouping];
+                  [_undoManager undo];
+                  [_undoManager beginUndoGrouping];
+
+                  NSResetHashTable(_unprocessedInserts);
+                  NSResetHashTable(_unprocessedDeletes);
+                  NSResetHashTable(_unprocessedChanges);
+
+                  /* Now handle the Exception.  */
+                  NS_DURING
+                    {
+                      [self handleError: exception];
+                    }
+                  NS_HANDLER
+                    {
+                      _flags.processingChanges = NO;
+                      _flags.registeredForCallback = NO;
+                      [localException raise];
+                    }
+                  NS_ENDHANDLER;
+
+                  return NO;
+                }
+              NS_ENDHANDLER;
+            }
+
+          NSDebugMLLog(@"EOEditingContext", @"Unprocessed: %@",
+                       [self unprocessedDescription]);
+          NSDebugMLLog(@"EOEditingContext", @"Objects: %@",
+                       [self objectsDescription]);
+
+          EOFLOGObjectLevel(@"EOEditingContext",
+                            @"process _unprocessedInserts");
+
+          unprocessedInsertsArray = NSAllHashTableObjects(_unprocessedInserts);
+          NSDebugMLLog(@"EOEditingContext", @"(1)unprocessedInsertsArray=%@",
+                       unprocessedInsertsArray);
+
+          /* Consoldate insert/deletes triggered by undo operations.
+             Unprocessed inserts of deleted objects are undos, not
+             real inserts.  */
+
+          [consolidatedInserts addObjectsFromArray: unprocessedInsertsArray];
+          hashEnum = NSEnumerateHashTable(_unprocessedInserts);
+          while ((obj = NSNextHashEnumeratorItem(&hashEnum)))
+            {
+              if (NSHashGet(_deletedObjects, obj))
+                {
+                  NSHashRemove(_deletedObjects, obj);
+                  [consolidatedInserts removeObject: obj];
+                }
+              else
+                {
+                  NSHashInsert(_insertedObjects, obj);
+                }
+            }
+
+          unprocessedInsertsArray = NSAllHashTableObjects(_unprocessedInserts);
+          NSDebugMLLog(@"EOEditingContext", @"(2)unprocessedInsertsArray=%@",
+                       unprocessedInsertsArray);
+
+          [objectsUserInfo setObject: unprocessedInsertsArray
+                           forKey: EOInsertedKey];
+
+          unprocessedInsertsGlobalIDs
+            = [self resultsOfPerformingSelector: @selector(globalIDForObject:)
+                    withEachObjectInArray: unprocessedInsertsArray];
+
+          [globalIDsUserInfo setObject: unprocessedInsertsGlobalIDs
+                             forKey: EOInsertedKey];
           NSResetHashTable(_unprocessedInserts);
-        }
-      
-      //on deleted or updated
-      EOFLOGObjectLevel(@"EOEditingContext",
-			@"process _unprocessedDeletes");
 
-      unprocessedDeletesArray = NSAllHashTableObjects(_unprocessedDeletes);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"unprocessedDeletesArray=%@",
-			    unprocessedDeletesArray);
+          EOFLOGObjectLevel(@"EOEditingContext",
+                            @"process _unprocessedDeletes");
 
-      [objectsArray setObject: unprocessedDeletesArray 
-                    forKey: @"deleted"];
-      unprocessedDeletesGlobalIDs = [self resultsOfPerformingSelector:
-					    @selector(globalIDForObject:)
-					  withEachObjectInArray:
-					    unprocessedDeletesArray];
+          hashEnum = NSEnumerateHashTable(_unprocessedDeletes);
+          while ((obj = NSNextHashEnumeratorItem(&hashEnum)))
+            {
+              if (NSHashGet(_insertedObjects, obj))
+                {
+                  BOOL add = NO;
+                  NSHashRemove(_insertedObjects, obj);
+                  if ([consolidatedInserts containsObject: obj])
+                    {
+                      EOGlobalID *gid;
+                      [consolidatedInserts removeObject: obj];
+                      gid = [self globalIDForObject: obj];
+                      if ([gid isTemporary])
+                        {
+                          add = YES;
+                        }
+                    }
+                  else
+                    add = YES;
 
-      [objectGIDsArray setObject: unprocessedDeletesGlobalIDs
-                       forKey: @"deleted"];
+                  /* The insert was an undo of this delete.  */
+                  if (add == NO) continue;
 
-      count = [unprocessedDeletesArray count];
+                  [insertedAndDeleted addObject: obj];
+                }
+              else
+                {
+                  if (NSHashGet(_unprocessedChanges, obj))
+                    {
+                      NSHashRemove(_unprocessedChanges, obj);
+                    }
+                  [deletedAndChanged addObject: obj];
+                  NSHashInsert(_deletedObjects, obj);
+                }
+            }
 
-      if (count > 0)
-        {
-          int i;
+          unprocessedDeletesArray = NSAllHashTableObjects(_unprocessedDeletes);
+          NSDebugMLLog(@"EOEditingContext",
+                       @"unprocessedDeletesArray=%@", unprocessedDeletesArray);
 
-          for (i = 0; i < count; i++)
-            NSHashInsertIfAbsent(_deletedObjects,
-				 [unprocessedDeletesArray objectAtIndex: i]);
+          [objectsUserInfo setObject: unprocessedDeletesArray
+                           forKey: EODeletedKey];
+          unprocessedDeletesGlobalIDs
+            = [self resultsOfPerformingSelector: @selector(globalIDForObject:)
+                    withEachObjectInArray: unprocessedDeletesArray];
+
+          [globalIDsUserInfo setObject: unprocessedDeletesGlobalIDs
+                             forKey: EODeletedKey];
 
           NSResetHashTable(_unprocessedDeletes);
-        }
 
-      //Changes
-      EOFLOGObjectLevel(@"EOEditingContext",
-			@"process _unprocessedChanges");
+          //Changes
+          EOFLOGObjectLevel(@"EOEditingContext",
+                            @"process _unprocessedChanges");
 
-      unprocessedChangesArray = NSAllHashTableObjects(_unprocessedChanges);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"unprocessedChangesArray=%@",
-			    unprocessedChangesArray);
+          unprocessedChangesArray = NSAllHashTableObjects(_unprocessedChanges);
+          NSDebugMLLog(@"EOEditingContext",
+                       @"unprocessedChangesArray=%@", unprocessedChangesArray);
 
-      [objectsArray setObject:unprocessedChangesArray
-                    forKey:@"updated"];
+          [objectsUserInfo setObject:unprocessedChangesArray
+                           forKey: EOUpdatedKey];
 
-      unprocessedChangesGlobalIDs = [self resultsOfPerformingSelector:
-					    @selector(globalIDForObject:)
-					  withEachObjectInArray:
-					    unprocessedChangesArray];
+          unprocessedChangesGlobalIDs
+            = [self resultsOfPerformingSelector: @selector(globalIDForObject:)
+                    withEachObjectInArray: unprocessedChangesArray];
 
-      [objectGIDsArray setObject: unprocessedChangesGlobalIDs
-                       forKey: @"updated"];
+          [globalIDsUserInfo setObject: unprocessedChangesGlobalIDs
+                             forKey: EOUpdatedKey];
 
-      count = [unprocessedChangesArray count];
-
-      if (count > 0)
-        {
-          int i;
-
-          for (i = 0; i < count; i++)
+          hashEnum = NSEnumerateHashTable(_unprocessedChanges);
+          while ((obj = NSNextHashEnumeratorItem(&hashEnum)))
             {
-              id object = [unprocessedChangesArray objectAtIndex: i];
-
-              EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%p", object);
-
-              if (!NSHashGet(_insertedObjects, object)) //Don't update inserted objects ??
-                NSHashInsertIfAbsent(_changedObjects, object);
+              NSHashInsert(_changedObjects, obj);
             }
+
 
           NSResetHashTable(_unprocessedChanges);
+          [cumulativeChanges addObjectsFromArray: unprocessedChangesArray];
+
+          [EOObserverCenter notifyObserversObjectWillChange: nil];
+
+          [[NSNotificationCenter defaultCenter]
+            postNotificationName: EOObjectsChangedInStoreNotification
+            object: self
+            userInfo: globalIDsUserInfo];
+
+          [[NSNotificationCenter defaultCenter]
+            postNotificationName: EOObjectsChangedInEditingContextNotification
+            object: self
+            userInfo: objectsUserInfo];
         }
 
-      [EOObserverCenter notifyObserversObjectWillChange: nil];
-
-      [[NSNotificationCenter defaultCenter]
-	postNotificationName: @"EOObjectsChangedInStoreNotification"
-	object: self
-	userInfo: objectGIDsArray];
-
-      [[NSNotificationCenter defaultCenter]
-	postNotificationName: @"EOObjectsChangedInEditingContextNotification"
-	object: self
-	userInfo: objectsArray];
-
-      count = [unprocessedChangesArray count];
-
-      if (count > 0)
+      currEnum = [cumulativeChanges objectEnumerator];
+      while ((obj = [currEnum nextObject]))
         {
-          int i;
-
-          for (i = 0; i < count; i++)          
+          if ([consolidatedInserts containsObject: obj])
             {
-              id object = [unprocessedChangesArray objectAtIndex: i];
-
-              EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%p", object);
-              [self registerUndoForModifiedObject: object];
+              /* This is a 'new' object.
+                 Clear any implicit snapshot records.  */
+              globalID = [self globalIDForObject: obj];
+              [_snapshotsByGID removeObjectForKey: globalID];
+              [_eventSnapshotsByGID removeObjectForKey: globalID];
+            }
+          else
+            {
+              /* This is a 'modified' object.
+                 Register for undo operation.  */
+              [self registerUndoForModifiedObject: obj];
+              if ([deletedAndChanged containsObject: obj])
+                {
+                  /* Make sure the object only gets registered once.  */
+                  [deletedAndChanged removeObject: obj];
+                }
             }
         }
 
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
-			    [self unprocessedDescription]);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
-			    [self objectsDescription]);
+      /* Register deleted and changed objects for undo
+         that have not already been registered.  */
+      currEnum = [deletedAndChanged objectEnumerator];
+      while ((obj = [currEnum nextObject]))
+        {
+          [self registerUndoForModifiedObject: obj];
+        }
 
       _flags.processingChanges = NO;
+      _flags.registeredForCallback = NO;
     }
 
   EOFLOGObjectFnStop();
 
   return result;
-/*
- (count=0)
-  NSMutableDictionary *userInfo;
-  NSMutableArray *changedObjects, *invalidatedObjects;
-  NSMutableArray *objectsToRemove, *objectsToKeep;
-  NSEnumerator *objEnum;
-  NSException *exp;
-  NSArray *deletedObjects;
-  EOGlobalID *gid;
-  EONull *null = [EONull null];
-  BOOL propagatesDeletes = YES, validateChanges = YES;
-  id object;
-
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"process recent changes");
-
-  objectsToKeep   = [NSMutableArray arrayWithCapacity:8];
-  objectsToRemove = [NSMutableArray arrayWithCapacity:8];
-
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"process2");
-
-  objEnum = [NSAllHashTableObjects(_unprocessedChanges) objectEnumerator];
-  while((object = [objEnum nextObject]))
-    {
-      NSDictionary *snapshot, *oldSnapshot, *changes;
-      NSArray *toRelArray;
-      NSEnumerator *toRelEnum;
-      NSString *key;
-
-      gid = [self globalIDForObject:object];
-      oldSnapshot = [_eventSnapshotsByGID objectForKey:gid];
-      snapshot = [object snapshot];
-      changes = [object changesFromSnapshot:oldSnapshot];
-
-      toRelArray = [object toOneRelationshipKeys];
-      toRelEnum = [toRelArray objectEnumerator];
-      while((key = [toRelEnum nextObject]))
-	{
-	  id val = [changes objectForKey:key];
-
-          if(val == null)
-          val = nil;
-
-	  if(val &&
-	     [object ownsDestinationObjectsForRelationshipKey:key] == YES)
-	    {
-	      if(val != null)
-		[objectsToKeep addObject:val];
-
-	      val = [oldSnapshot objectForKey:key];
-	      if(val != null)
-		[objectsToRemove addObject:val];
-	    }
-	}
-
-      toRelArray = [object toManyRelationshipKeys];
-      toRelEnum = [toRelArray objectEnumerator];
-      while((key = [toRelEnum nextObject]))
-	{
-	  NSArray *val = [changes objectForKey:key];
-
-          if(val == null)
-          val = nil;
-
-	  if(val &&
-	     [object ownsDestinationObjectsForRelationshipKey:key] == YES)
-	    {
-	      [objectsToKeep addObjectsFromArray:[val objectAtIndex:0]];
-	      [objectsToRemove addObjectsFromArray:[val objectAtIndex:0]];
-	    }
-	}
-
-      [_eventSnapshotsByGID setObject:snapshot
-		       forKey:gid];
-    }
-
-  [objectsToRemove removeObjectsInArray:objectsToKeep];
-  objEnum = [objectsToRemove objectEnumerator];
-  while((object = [objEnum nextObject]))
-    NSHashInsert(_unprocessedDeletes, object);
-
-  deletedObjects = NSAllHashTableObjects(_unprocessedDeletes);
-  objEnum = [deletedObjects objectEnumerator];
-  while((object = [objEnum nextObject]))
-    {
-      if(validateChanges)
-	{
-
-//in 
-validateTable:(NSHashTable*)table
-          withSelector:(SEL)sel
-        exceptionArray:(id*)param2
-  continueAfterFailure:
-	  exp = [object validateForDelete];
-
-	  if(exp) // TODO
-	    {
-	      if(_flags.stopsValidation == NO)
-		{
-		  if(_delegate == nil ||
-		     _delegateRespondsTo.shouldPresentException == NO ||
-		     (_delegateRespondsTo.shouldPresentException &&
-
-		      [_delegate editingContext:self
-				 shouldPresentException:exp] == YES))
-		    [_messageHandler editingContext:self
-				     presentErrorMessage:[exp reason]];
-		}
-	      else
-		[exp raise];
-	    }
-	}
-//fin in...
-      NSHashInsert(_deletedObjects, object);
-
-      if(_undoManager)
-	[_undoManager registerUndoWithTarget:self
-		      selector:@selector(_revertDelete:)
-		      object:object];
-    }
-
-
-*/
-
-/*
-//propagatesDeletesUsingTable:(NSHashTable*)deleteTable
-  if(_flags.processingChanges == YES &&
-     _delegateRespondsTo.shouldValidateChanges)
-    validateChanges = [_delegate editingContextShouldValidateChanges:self];
-
-  if(_flags.processingChanges == NO && [self propagatesDeletesAtEndOfEvent] == NO)
-    propagatesDeletes = NO;
-
-  if(propagatesDeletes == YES)
-    {
-      if([self propagatesDeletesAtEndOfEvent] == YES)
-	objEnum = [NSAllHashTableObjects(_deletedObjects) objectEnumerator];
-      else
-	objEnum = [NSAllHashTableObjects(_unprocessedDeletes)
-					objectEnumerator];
-
-      while((object = [objEnum nextObject]))
-	[object propagatesDeleteWithEditingContext:self];
-
-      if([self propagatesDeletesAtEndOfEvent] == YES)
-	{
-	  objEnum = [NSAllHashTableObjects(_unprocessedDeletes)
-					  objectEnumerator];
-	  while((object = [objEnum nextObject]))
-	    NSHashInsert(_deletedObjects, object);
-
-	  deletedObjects = NSAllHashTableObjects(_deletedObjects);
-	}
-      else
-	deletedObjects = NSAllHashTableObjects(_unprocessedDeletes);
-    }
-  else
-    deletedObjects = NSAllHashTableObjects(_unprocessedDeletes);
-
-  objEnum = [deletedObjects objectEnumerator];
-  while((object = [objEnum nextObject]))
-    {
-      if(validateChanges)
-	{
-	  exp = [object validateForDelete];
-
-	  if(exp) // TODO
-	    {
-	      if(_flags.stopsValidation == NO)
-		{
-		  if(_delegate == nil ||
-		     _delegateRespondsTo.shouldPresentException == NO ||
-		     (_delegateRespondsTo.shouldPresentException &&
-
-		      [_delegate editingContext:self
-				 shouldPresentException:exp] == YES))
-		    [_messageHandler editingContext:self
-				     presentErrorMessage:[exp reason]];
-		}
-	      else
-		[exp raise];
-	    }
-	}
-
-      if(propagatesDeletes == NO || [self propagatesDeletesAtEndOfEvent] == NO)
-	NSHashInsert(_deletedObjects, object);
-
-      if(_undoManager)
-	[_undoManager registerUndoWithTarget:self
-		      selector:@selector(_revertDelete:)
-		      object:object];
-    }
-*/
-
-
-
-
-/*
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"process recent changes: prop delete");
-
-  objEnum = [NSAllHashTableObjects(_unprocessedChanges) objectEnumerator];
-  while((object = [objEnum nextObject]))
-    {
-      if(validateChanges)
-	{
-	  exp = [object validateForUpdate];
-
-	  if(exp)
-	    {
-	      if(_flags.stopsValidation == NO)
-		{
-		  if(_delegate == nil ||
-		     _delegateRespondsTo.shouldPresentException == NO ||
-		     (_delegateRespondsTo.shouldPresentException &&
-
-		      [_delegate editingContext:self
-				 shouldPresentException:exp] == YES))
-		    [_messageHandler editingContext:self
-				     presentErrorMessage:[exp reason]];
-		}
-	      else
-		[exp raise];
-	    }
-	}
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"** add changed");
-      NSHashInsert(_changedObjects, object);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"** add changed2");
-
-      if(_undoManager)
-	[_undoManager registerUndoWithTarget:self
-		      selector:@selector(_revertChanged:) // TODO si pianta
-		      object:object];
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"** add changed: undo");
-    }
-
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"process recent changes: validated changes");
-
-  objEnum = [NSAllHashTableObjects(_unprocessedInserts) objectEnumerator];
-  while((object = [objEnum nextObject]))
-    {
-      if(validateChanges)
-	{
-	  exp = [object validateForInsert];
-
-	  if(exp)
-	    {
-	      if(_flags.stopsValidation == NO)
-		{
-		  if(_delegate == nil ||
-		     _delegateRespondsTo.shouldPresentException == NO ||
-		     (_delegateRespondsTo.shouldPresentException &&
-
-		      [_delegate editingContext:self
-				 shouldPresentException:exp] == YES))
-		    [_messageHandler editingContext:self
-				     presentErrorMessage:[exp reason]];
-		}
-	      else
-		[exp raise];
-	    }
-	}
-
-      NSHashInsert(_insertedObjects, object);
-
-      if(_undoManager)
-	[_undoManager registerUndoWithTarget:self
-		      selector:@selector(_revertInsert:)
-		      object:object];
-    }
-
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"process recent changes: validated inserts");
-
-  [_undoManager endUndoGrouping];
-  [_undoManager beginUndoGrouping];
-
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"process recent changes: end undo");
-
-  userInfo = [NSMutableDictionary dictionaryWithCapacity:3];
-
-  changedObjects = [NSMutableArray arrayWithCapacity:8];
-  objEnum = [NSAllHashTableObjects(_unprocessedDeletes) objectEnumerator];
-  while((object = [objEnum nextObject]))
-    [changedObjects addObject:[self globalIDForObject:object]];
-
-  [userInfo setObject:changedObjects
-	    forKey:EODeletedKey];
-
-  changedObjects = [NSMutableArray arrayWithCapacity:8];
-  objEnum = [NSAllHashTableObjects(_unprocessedInserts) objectEnumerator];
-  while((object = [objEnum nextObject]))
-    [changedObjects addObject:[self globalIDForObject:object]];
-
-  [userInfo setObject:changedObjects
-	    forKey:EOInsertedKey];
-
-  invalidatedObjects = [NSMutableArray arrayWithCapacity:8];
-  changedObjects     = [NSMutableArray arrayWithCapacity:8];
-
-  objEnum = [NSAllHashTableObjects(_changedObjects) objectEnumerator];
-  while((object = [objEnum nextObject]))
-    {
-      if([EOFault isFault:object] == YES)
-	[invalidatedObjects addObject:[self globalIDForObject:object]];
-      else
-	[changedObjects addObject:[self globalIDForObject:object]];
-    }
-
-  [userInfo setObject:changedObjects
-	    forKey:EOUpdatedKey];
-  [userInfo setObject:invalidatedObjects
-	    forKey:EOInvalidatedKey];
-
-  [[NSNotificationCenter defaultCenter]
-    postNotificationName:EOObjectsChangedInStoreNotification
-    object:self
-    userInfo:userInfo];
-
-  userInfo = [NSMutableDictionary dictionaryWithCapacity:3];
-
-  [userInfo setObject:NSAllHashTableObjects(_unprocessedDeletes)
-	    forKey:EODeletedKey];
-  [userInfo setObject:NSAllHashTableObjects(_unprocessedInserts)
-	    forKey:EOInsertedKey];
-
-  invalidatedObjects = [NSMutableArray arrayWithCapacity:8];
-  changedObjects     = [NSMutableArray arrayWithCapacity:8];
-
-  objEnum = [NSAllHashTableObjects(_unprocessedChanges) objectEnumerator];
-  while((object = [objEnum nextObject]))
-    {
-      if([EOFault isFault:object] == YES)
-	[invalidatedObjects addObject:object];
-      else
-	[changedObjects addObject:object];
-    }
-
-  [userInfo setObject:changedObjects
-	    forKey:EOUpdatedKey];
-  [userInfo setObject:invalidatedObjects
-	    forKey:EOInvalidatedKey];
-
-  [[NSNotificationCenter defaultCenter]
-    postNotificationName:EOObjectsChangedInEditingContextNotification
-    object:self
-    userInfo:userInfo];
-
-  NSResetHashTable(_unprocessedChanges);
-  NSResetHashTable(_unprocessedDeletes);
-  NSResetHashTable(_unprocessedInserts);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"** process finished");
-
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"process recent changes END");
-*/
 }
 
 - (void) _processDeletedObjects
@@ -1761,7 +2127,7 @@ validateTable:(NSHashTable*)table
 
 - (void) _registerClearStateWithUndoManager
 {
-//pas appellé dans le cas d'un delete ?
+//pas appellee dans le cas d'un delete ?
   id object;
 
   EOFLOGObjectFnStart();
@@ -1780,6 +2146,37 @@ validateTable:(NSHashTable*)table
 
   EOFLOGObjectFnStop();
 }
+
+- (void)_clearChangedThisTransaction:(NSNumber *)transID
+{
+  EOFLOGObjectFnStart();
+  if (_undoTransactionID == [transID unsignedShortValue])
+    {
+      static NSDictionary *info = nil;
+
+      if (info == nil)
+        {
+          NSArray *arr = [NSArray array];
+          info = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                         arr, EOInsertedKey,
+                                       arr, EODeletedKey,
+                                       arr, EOUpdatedKey,
+                                       nil];
+        }
+
+      [self processRecentChanges];
+      NSResetHashTable(_changedObjects);
+
+      [self incrementUndoTransactionID];
+      [[NSNotificationCenter defaultCenter]
+        postNotificationName: EOObjectsChangedInEditingContextNotification
+        object: self
+        userInfo: info];
+
+    }
+  EOFLOGObjectFnStop();
+}
+
 
 - (void)deleteObject: (id)object
 {
@@ -1854,7 +2251,10 @@ validateTable:(NSHashTable*)table
 {
   if(NSCountHashTable(_insertedObjects)
      || NSCountHashTable(_deletedObjects)
-     || NSCountHashTable(_changedObjects))
+     || NSCountHashTable(_changedObjects)
+     || NSCountHashTable(_unprocessedInserts)
+     || NSCountHashTable(_unprocessedDeletes)
+     || NSCountHashTable(_unprocessedChanges))
     return YES;
 
   return NO;
@@ -2040,10 +2440,8 @@ validateTable:(NSHashTable*)table
 	updateFromSnapshot: [_eventSnapshotsByGID objectForKey: gid]];
     }
 
-#if 0
   [_undoManager removeAllActions];
   [_undoManager beginUndoGrouping];
-#endif
 
   NSResetHashTable(_unprocessedChanges);
   NSResetHashTable(_unprocessedDeletes);
@@ -2102,11 +2500,11 @@ validateTable:(NSHashTable*)table
   EOFLOGObjectFnStart();
 
   EOFLOGObjectLevelArgs(@"EOEditingContext",
-			@"ed context=%p _objectsById=%p object=%p",
-			self, _objectsById, object);
-//  EOFLOGObjectLevelArgs(@"EOEditingContext",@"_objectsById Values=%@",NSAllMapTableValues(_objectsById));
+			@"ed context=%p _globalIDsByObject=%p object=%p",
+			self, _globalIDsByObject, object);
+//  EOFLOGObjectLevelArgs(@"EOEditingContext",@"_globalIDsByObject Values=%@",NSAllMapTableValues(_globalIDsByObject));
 
-  gid = NSMapGet(_objectsById, object);
+  gid = NSMapGet(_globalIDsByObject, object);
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
 
@@ -2220,21 +2618,19 @@ validateTable:(NSHashTable*)table
 			  object:nil;];
 */
 ////////
+
       if (NSHashInsertIfAbsent(_unprocessedChanges, object)) //The object is already here
 	{
           EOFLOGObjectLevel(@"EOEditingContext",
 			    @"_enqueueEndOfEventNotification");
-          [self _enqueueEndOfEventNotification];
-
-          /*
+	  [self _enqueueEndOfEventNotification];
 	  if(_undoManager)
-	    [_undoManager registerUndoWithTarget:self
+	    [_undoManager registerUndoWithTarget: self
 			  selector:@selector(_revertChange:)
 			  object:[NSDictionary dictionaryWithObjectsAndKeys:
 						 object, @"object",
 					       [object snapshot], @"snapshot",
 					       nil]];
-          */
 	}
       else
 	{
@@ -2252,6 +2648,8 @@ validateTable:(NSHashTable*)table
 
 	  if (_flags.autoLocking == YES)
 	    [self lockObject: object];
+
+	  [self _enqueueEndOfEventNotification];
 	}
     }
 
@@ -2265,19 +2663,27 @@ validateTable:(NSHashTable*)table
   EOFLOGObjectFnStart();
 
   EOFLOGObjectLevelArgs(@"EOEditingContext",
-			@"Record %p for %@ in ed context %p _objectsById=%p",
-			object, globalID, self, _objectsById);
+			@"Record %p for %@ in ed context %p _globalIDsByObject=%p",
+			object, globalID, self, _globalIDsByObject);
 
   NSAssert(object, @"No Object");
   NSAssert(globalID, @"No GlobalID");
   
-  EOFLOGObjectLevel(@"EOEditingContext", @"insertInto _objectsById");
-  NSMapInsert(_objectsById, object, globalID);
+  /* Global hash table for faster dealloc.  */
+  if (!ecDeallocHT)
+    {
+      ecDeallocHT 
+	= NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 64);
+    }
+  NSHashInsert(ecDeallocHT, object);
+
+  EOFLOGObjectLevel(@"EOEditingContext", @"insertInto _globalIDsByObject");
+  NSMapInsert(_globalIDsByObject, object, globalID);
 
   //TODO: delete
   {
     id aGID2;
-    id aGID = NSMapGet(_objectsById, object);
+    id aGID = NSMapGet(_globalIDsByObject, object);
 
     NSAssert1(aGID, @"Object %p recorded but can't retrieve it directly !",
 	      object);
@@ -2303,8 +2709,11 @@ validateTable:(NSHashTable*)table
 {
   EOGlobalID *gid;
 
+  /* Global hash table for faster dealloc.  */
+  NSHashRemove(ecDeallocHT, object);
+
   gid = [self globalIDForObject: object];
-  NSMapRemove(_objectsById, object);
+  NSMapRemove(_globalIDsByObject, object);
   NSMapRemove(_objectsByGID, gid);
 
   [EOObserverCenter removeObserver: self
@@ -2378,10 +2787,8 @@ validateTable:(NSHashTable*)table
 			[self unprocessedDescription]);
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			[self objectsDescription]);
-  NSEmitTODO();
 
-//  [self notImplemented:_cmd]; //TODO
-  [self _processRecentChanges]; //ret YES
+  [self _processRecentChanges];
 }
 
 - (BOOL)propagatesDeletesAtEndOfEvent
@@ -2454,7 +2861,7 @@ modified state of the object.**/
 
   [self processRecentChanges];
 
-  [objs addObjectsFromArray: NSAllMapTableKeys(_objectsById)];
+  [objs addObjectsFromArray: NSAllMapTableKeys(_globalIDsByObject)];
 
   [objs removeObjectsInArray: [self insertedObjects]];
   [objs removeObjectsInArray: [self deletedObjects]];
@@ -3039,7 +3446,9 @@ shouldContinueFetchingWithCurrentObjectCount: (unsigned)count
   tryLock = [_lock tryLock];
 
   if (tryLock)
-    _lockCount++;
+    {
+      _lockCount++;
+    }
 
   EOFLOGObjectFnStop();
 
@@ -3156,4 +3565,29 @@ shouldContinueFetchingWithCurrentObjectCount: (unsigned)count
   return infoDict;  
 }
 
+@end
+
+@implementation NSObject (DeallocHack)
+/*
+ * This is a real hack that shows that the design of this
+ * library did not take the reference counting mechanisms
+ * of OpenStep to heart.  I'm sorry kids, but this seems
+ * how it has to be done to remain compatible.  Any hints
+ * on how to speed this up are appreciated.  But understand
+ * that we don't know the classes which need to call this
+ * and there could be deep hierarchy.
+ */
+- (void) dealloc
+{
+  if (ecDeallocHT && NSHashGet(ecDeallocHT, self))
+    {
+      [EOEditingContextClass objectDeallocated: self];
+    }
+  if (assocDeallocHT && NSHashGet(assocDeallocHT, self))
+    {
+      [EOAssociationClass objectDeallocated: self];
+    }
+
+  NSDeallocateObject (self);
+}
 @end

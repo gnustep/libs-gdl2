@@ -25,8 +25,73 @@
 	(-forgetLocksForObjectsWithGlobalIDs:) Ditto.
 	* EOAccess/EODatabaseDataSource.m (-insertObject): Do not
 	insert object into the editing context.
+	
 	* EOAdaptors/Postgres95/Postgres95Adaptor.m (externalTypeNames):
 	Add new types.
+	
+	* EOControl/EOEditingContext.h
+	(_objectsById): Rename to _globalIDsByObject.
+	(ignoreSharedContextNotifications, isSharedContextLocked): Added.
+	(_sharedContext, fetchTimestamp): Ditto.
+	(-_insertObject:withGlobalID:, -_observeUndoManagerNotifications)
+	(-_processDeletedObjects)
+	(-_processOwnedObjectsUsingChangeTable:deleteTable:)
+	(-_registerClearStateWithUndoManager): Remove public declarations
+	of private methods.
+	(-didMergeChangedObjectsInEditingContext:) Rename to
+	-editingContextDidMergeChanges:.
+	* EOControl/EOEditingContext.m: Update header dependencies.
+	Declare private methods locally.
+	(EOThreadSafeQueue): New local class.
+	(null, EOEditingContextClass, EOAssociationClass)
+	(ecDeallocHT, assocDeallocHT): New static local variables.
+	(EOConstObject, EOConstChanges, EOConstKey, EOConstValue)
+	(EOConstAdd, EOConstDel): Added experimental variables.
+	(_mergeValueForKey): New function.
+	(-_mergeObject:withChanges:): Implement.
+	(-_objectBasedChangeInfoForGIDInfo:): Ditto.
+	(-_processObjectStoreChanges:): Implement.
+	(-_objectsChangedInStore:): Reimplement.
+	(-_changesFromInvalidatingObjectsWithGlobalIDs:): Implement.
+	(-_uncommittedChangesForObject:fromSnapshot:): Implement.
+	(-_mutableSetFromToManyArray:): Implement.
+	(-_globalIDChanged:): Reimplement.
+	(-_processNotificationQueue): Implement.
+	(-_sendOrEnqueueNotification:selector:): Implement.
+	(-invalidateAllObjects): Reimplement.
+	(-_forgetObjectWithGlobalID:): Implement.
+	(-_invalidateObject:withGlobalID:) Implement.
+	(-_invalidateObjectWithGlobalID:) Implement.
+	(-_invalidateObjectsWithGlobalIDs:) Implement.
+	(-invalidateObjectsWithGlobalIDs:) Reimplement.
+	(-_resetAllChanges:): Implement.
+	(-_resetAllChanges): Implement.
+	(-_enqueueEndOfEventNotification): Reimplement.
+	(-_processEndOfEventNotification): Reimplement.
+	(-noop:): Implement.
+	(-_undoManagerCheckpoint:): Remove TODO.
+	(-processRecentChanges): Ditto.
+	(-_processRecentChanges:): Reimplement.
+	(-_clearChangedThisTransaction:): Implement.
+	(+initialize): Initialize some static variables.
+	(+objectDeallocated:): Implemented.
+	(_objectsById): Update usages with _globalIDsByObject.
+	Do not retain objects but rely on new objectDeallocated:
+	mechanism.
+	(-initWithParentObjectStore:): Initialize undo manager.
+	(-init): Make more gdb friendly.
+	(-insertObject:): Use standard autorelease macro.
+	(-_insertObject:withGlobalID:) Always insert the a new object
+	into the inserted objects independent of previous GID mappings.
+	(-hasChanges): Also check unprocessed changes.
+	(-revert): Enable undo manager handling.
+	(-objectWillChange:): Register for revert.
+	(-recordObject:globalID:): Initialize ecDeallocHT and insert
+	objects that are registered.
+	(-forgetObject:): Remove objects from ecDeallocHT.
+
+	([NSObject-dealloc]): Added hack to automagically deregister
+	objects fromm the editing context and association mappings.
 	
 2005-02-02  Matt Rice  <ratmice@yahoo.com>
 

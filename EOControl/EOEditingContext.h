@@ -52,6 +52,7 @@
 {
   EOObjectStore *_objectStore;
   NSUndoManager *_undoManager;
+
   NSHashTable *_unprocessedChanges;
   NSHashTable *_unprocessedDeletes;
   NSHashTable *_unprocessedInserts;
@@ -59,7 +60,7 @@
   NSHashTable *_deletedObjects;
   NSHashTable *_changedObjects;
 
-  NSMapTable *_objectsById;
+  NSMapTable *_globalIDsByObject;
   NSMapTable *_objectsByGID;
   NSMutableDictionary *_snapshotsByGID;
   NSMutableDictionary *_eventSnapshotsByGID;
@@ -68,6 +69,7 @@
   NSMutableArray *_editors;
   id _messageHandler;
   unsigned short _undoTransactionID;
+
   struct {
     unsigned registeredForCallback:1;
     unsigned propagatesDeletesAtEndOfEvent:1;
@@ -80,8 +82,11 @@
     unsigned registeredUndoTransactionID:1;
     unsigned retainsAllRegisteredObjects:1;
     unsigned lockUsingParent:1;
-    unsigned unused:5;
+    unsigned ignoreSharedContextNotifications:1;
+    unsigned isSharedContextLocked:1;
+    unsigned unused:3;
   } _flags;
+
   struct {
     unsigned willRunLoginPanel:1;
     unsigned shouldFetchObjects:1;
@@ -94,9 +99,11 @@
   } _delegateRespondsTo;
   
   NSRecursiveLock*_lock;
+  id _sharedContext;
   int _lockCount;
   id _notificationQueue;
   NSAutoreleasePool * _lockPool;
+  NSTimeInterval fetchTimestamp;
 }
 
 + (void)setDefaultFetchTimestampLag: (NSTimeInterval)lag;
@@ -112,8 +119,6 @@
 - (void)insertObject: (id)object;
 - (void)insertObject: (id)object
         withGlobalID: (EOGlobalID *)gid;
-- (void)_insertObject: (id)object
-         withGlobalID: (EOGlobalID *)gid;
 
 -(void)setLevelsOfUndo: (int)levels;
 
@@ -138,8 +143,6 @@
 - (void)setUndoManager: (NSUndoManager *)undoManager;
 - (NSUndoManager *)undoManager;
 
-- (void)_observeUndoManagerNotifications;
-
 - (void)objectWillChange: (id)object;
 
 - (void)recordObject: (id)object
@@ -155,9 +158,6 @@
 - (NSArray *)insertedObjects;
 - (NSArray *)deletedObjects;
 
-- (void)_processDeletedObjects;
-- (void)_processOwnedObjectsUsingChangeTable: (NSHashTable *)changeTable
-				 deleteTable: (NSHashTable *)deleteTable;
 - (void)propagatesDeletesUsingTable: (NSHashTable *)deleteTable;
 - (void)validateDeletesUsingTable: (NSHashTable *)deleteTable;
 - (BOOL)validateTable: (NSHashTable *)table
@@ -167,7 +167,6 @@
 
 
 - (void)processRecentChanges;
-- (void)_registerClearStateWithUndoManager;
 
 - (BOOL)propagatesDeletesAtEndOfEvent;
 - (void)setPropagatesDeletesAtEndOfEvent: (BOOL)propagatesDeletesAtEndOfEvent;
@@ -287,9 +286,8 @@ shouldInvalidateObject: (id)object
 shouldFetchObjectsDescribedByFetchSpecification: (EOFetchSpecification *)fetchSpecification;
 
 - (BOOL)editingContext: (EOEditingContext *)editingContext
-shouldMergeChangedObject: (id)object;
-
-- (void)didMergeChangedObjectsInEditingContext: (EOEditingContext *)editingContext;
+shouldMergeChangesForObject: (id)object;
+- (void)editingContextDidMergeChanges: (EOEditingContext *)editingContext;
 
 @end
 
