@@ -1,6 +1,10 @@
 2004-10-17  David Ayers  <d.ayers@inode.at>
 
-	* 
+	* EOInterface/EOComboBoxAssociation.h/m: New files.
+	* EOInterface/EOControlAssociation.h/m: Ditto.
+	* EOInterface/EOGenericControlAssociation.m: Ditto.
+	* EOInterface/EOActionCellAssociation.m: Ditto.
+	* EOInterface/NSImage+Additions.m: Ditto.
 	* EOInterface/EOInterface.h: Added new headers.
 	* EOInterface/GNUmakefile: Use new files.  Remove superfluous
 	header files directory variable.
