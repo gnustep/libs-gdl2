@@ -1,5 +1,5 @@
 #
-#  EOAccess makefile for GNUstep Database Library.
+#  Tools makefile for GNUstep Database Library.
 #  
 #  Copyright (C) 1997 Free Software Foundation, Inc.
 #
@@ -32,7 +32,13 @@ include ../Version
 # The library to be compiled
 TOOL_NAME=gdlgsdoc eoutil
 
-LIBRARIES_DEPEND_UPON=-lgnustep-base -lgnustep-db2control -lgnustep-db2
+ifeq ((FOUNDATION_LIB),gnu)
+LIBRARIES_DEPEND_UPON=-lgnustep-base
+else
+LIBRARIES_DEPEND_UPON=-lgnustep-baseadd
+endif
+
+LIBRARIES_DEPEND_UPON+=-lgnustep-db2control -lgnustep-db2
 
 # The C source files to be compiled
 gdlgsdoc_C_FILES = 

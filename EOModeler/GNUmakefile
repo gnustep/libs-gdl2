@@ -32,7 +32,11 @@ include ../Version
 # The library to be compiled
 LIBRARY_NAME=libgnustep-db2modeler
 
+ifeq ((FOUNDATION_LIB),gnu)
 libgnustep-db2modeler_LIBRARIES_DEPEND_UPON = -lgnustep-base
+else
+libgnustep-db2modeler_LIBRARIES_DEPEND_UPON = -lgnustep-baseadd
+endif
 
 # The C source files to be compiled
 libgnustep-db2modeler_C_FILES = 

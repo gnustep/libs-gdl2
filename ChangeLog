@@ -1,3 +1,11 @@
+2003-01-29  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/GNUmakefile:  Test FOUNDATION_LIB to determine whether
+	to link -base or -baseadd.
+	* EOControl/GNUmakefile: Ditto.
+	* EOModeler/GNUmakefile: Ditto.
+	* Tools/GNUmakefile: Ditto.  Update title.
+
 2003-11-28  Manuel Guesdon  <mguesdon@orange-concept.com>
 	
 	* EOAccess/EOAttribute.m:
