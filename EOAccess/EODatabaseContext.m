@@ -1375,7 +1375,6 @@ userInfo = {
 	    EOFLOGObjectLevelArgs(@"EODatabaseContext", @"channel class %@ [channel isFetchInProgress]=%s",
 				  [channel class],
 				  ([channel isFetchInProgress] ? "YES" : "NO"));
-
 	    NSLog(@"%@ -- %@ 0x%x: channel isFetchInProgress=%s",
 		  NSStringFromSelector(_cmd),
 		  NSStringFromClass([self class]),
@@ -2221,9 +2220,10 @@ forDatabaseOperation:(EODatabaseOperation *)op
 		       editingContext: (EOEditingContext *)context
 {
   //near OK
+  //Ayers: Review
   NSArray *insertedObjects = nil;
-  int i = 0;
-  int count = 0;
+  NSMutableArray *noPKObjects = nil;
+  int round = 0;
 
   EOFLOGObjectFnStart();
   NSAssert(context, @"No editing context");
@@ -2242,40 +2242,80 @@ forDatabaseOperation:(EODatabaseOperation *)op
   [self _buildPrimaryKeyGeneratorListForEditingContext: context];
 
   // Now get newly inserted objects
-  // For each objet, we will recordInsertForObject: and relay PK if it is !nil
+  // For each object, we will recordInsertForObject: and relay PK if it is !nil
   insertedObjects = [context insertedObjects];
-  i = 0;
-  count = [insertedObjects count];
 
-  for (i = 0; i < count; i++)
+  // We can make 2 rounds to try to get primary key for dependant objects
+  for(round=0;round<2;round++)
     {
-      id object = [insertedObjects objectAtIndex: i];
-
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%@",object);
-
-      if ([self ownsObject:object])
+      EOFLOGObjectLevelArgs(@"EODatabaseContext",
+			    @"round=%d [noPKObjects count]=%d",
+                            round,[noPKObjects count]);
+      if (round==1 && [noPKObjects count]==0)
+        break;
+      else
         {
-          NSDictionary *objectPK = nil;
-          EODatabaseOperation *dbOpe = nil;
-          NSMutableDictionary *newRow = nil;
-          EOEntity *entity = [_database entityForObject:object];
-
-          [self recordInsertForObject: object];
-          objectPK = [self _primaryKeyForObject: object];
-
-          if (objectPK)
+          NSArray* array=nil;
+          int i = 0;
+          int count = 0;
+          if (round==0)
+            array=insertedObjects;
+          else
             {
-              dbOpe = [self databaseOperationForObject: object];
+              array=noPKObjects;
+              EOFLOGObjectLevelArgs(@"EODatabaseContext",@"noPKObjects=%@",
+				    noPKObjects);
+            }
+          count = [array count];
+          for (i = 0; i < count; i++)
+            {
+              id object = [array objectAtIndex: i];
+              
+              EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%@",object);
+              
+              if ([self ownsObject:object])
+                {
+                  NSDictionary *objectPK = nil;
+                  EODatabaseOperation *dbOpe = nil;
+                  NSMutableDictionary *newRow = nil;
+                  EOEntity *entity = [_database entityForObject:object];
+      
+                  if (round==0)
+                    [self recordInsertForObject: object];
+                  objectPK = [self _primaryKeyForObject: object
+                                   raiseException: round>0];
+                  
+                  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"objectPK=%@",
+					objectPK);
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p dbOpe=%@",
-                                    object,dbOpe);
-
-              newRow=[dbOpe newRow];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRow=%@", newRow);
-
-              [self relayPrimaryKey: objectPK
-                    object: object
-                    entity: entity];
+                  if (objectPK)
+                    {
+                      dbOpe = [self databaseOperationForObject: object];
+                      
+                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					    @"object=%p dbOpe=%@",
+                                            object,dbOpe);
+                      
+                      newRow=[dbOpe newRow];
+                      EOFLOGObjectLevelArgs(@"EODatabaseContext", 
+					    @"newRow=%@", newRow);
+                      
+                      [self relayPrimaryKey: objectPK
+                            object: object
+                            entity: entity];
+                      if (round>0)
+                        {
+                          [noPKObjects removeObjectAtIndex:i];
+                          i--;
+                        };
+                    }
+                  else if (round>0)
+                    {
+                      if (!noPKObjects)
+                        noPKObjects=(NSMutableArray*)[NSMutableArray array];
+                      [noPKObjects addObject:object];
+                    }
+                }
             }
         }
     }
@@ -6245,7 +6285,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%d", object);
+  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=0x%x", object);
 
   classPropertyAttributeNames = [entity classPropertyAttributeNames];
   count = [classPropertyAttributeNames count];
@@ -6285,7 +6325,6 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
 			    relationship);
-
       if ([relationship isToMany])
         {
           EOGlobalID *gid = [entity globalIDForRow: row];
@@ -6294,8 +6333,16 @@ Raises an exception is the adaptor is unable to perform the operations.
 			    relationshipName: [relationship name]
 			    editingContext: context];
         }
-      else
+      else if ([relationship isFlattened])
         {
+          // to one flattened relationship like aRelationship.anotherRelationship...
+
+          // I don't know how to handle this case.... May be we shouldn't treat this as real property ??
+          NSEmitTODO();
+          relObject = nil;          
+        }
+      else
+        {          
           EOMutableKnownKeyDictionary *foreignKeyForSourceRow = nil;
 
           EOFLOGObjectLevelArgs(@"EODatabaseContext",
@@ -6305,8 +6352,8 @@ Raises an exception is the adaptor is unable to perform the operations.
           foreignKeyForSourceRow = [relationship _foreignKeyForSourceRow: row];
 
           EOFLOGObjectLevelArgs(@"EODatabaseContext",
-                                @"foreignKeyForSourceRow:%@\n=%@",
-				foreignKeyForSourceRow, row);
+                                @"row=%@\nforeignKeyForSourceRow:%@",
+				row,foreignKeyForSourceRow);
           
           if (![foreignKeyForSourceRow
 		 containsObjectsNotIdenticalTo: [EONull null]])
@@ -6602,7 +6649,16 @@ _numLocked = 0;
 
 - (NSDictionary*)_primaryKeyForObject: (id)object
 {
+  //Ayers: Review
+  return [self _primaryKeyForObject: object
+               raiseException: YES];
+}
+
+- (NSDictionary*)_primaryKeyForObject: (id)object
+                       raiseException: (BOOL)raiseException
+{
   //NEAR OK
+  //Ayers: Review
   NSDictionary *pk = nil;
   EOEntity *entity = nil;
   NSArray *pkNames = nil;
@@ -6616,7 +6672,8 @@ _numLocked = 0;
   entity = [_database entityForObject: object];
   shouldGeneratePrimaryKey = [self _shouldGeneratePrimaryKeyForEntityName:
 				     [entity name]];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p shouldGeneratePrimaryKey=%d",
+  EOFLOGObjectLevelArgs(@"EODatabaseContext",
+			@"object=%p shouldGeneratePrimaryKey=%d",
                         object,shouldGeneratePrimaryKey);
 
 /*
@@ -6647,8 +6704,8 @@ _numLocked = 0;
           {
             //merge pk2 into pk
             NSEnumerator *pk2Enum = [pk2 keyEnumerator];
-            NSMutableDictionary *realPK = [NSMutableDictionary
-					    dictionaryWithDictionary: pk];//revoir
+            NSMutableDictionary *realPK 
+	      = [NSMutableDictionary dictionaryWithDictionary: pk];//revoir
             id key = nil;
 
             while ((key = [pk2Enum nextObject]))
@@ -6672,6 +6729,10 @@ _numLocked = 0;
       if (isPKValid == NO)
         pk = nil;
 
+
+      EOFLOGObjectLevelArgs(@"EODatabaseContext",
+			    @"object=%p isPKValid=%d shouldGeneratePrimaryKey=%d",
+                            object,isPKValid,shouldGeneratePrimaryKey);
 
       if (isPKValid == NO && shouldGeneratePrimaryKey)
         {
@@ -6700,51 +6761,55 @@ _numLocked = 0;
 
               pkAttributes = [entity primaryKeyAttributes];
 
+              EOFLOGObjectLevelArgs(@"EODatabaseContext",
+				    @"object=%p pk=%@ [pkAttributes count]=%d",
+                                    object,pk,[pkAttributes count]);
+              
               if (pk == nil && [pkAttributes count] == 1)
                 {
                   EOAttribute *pkAttr = [pkAttributes objectAtIndex: 0];
                   //TODO attr: adaptorValueType //returned EOAdaptorNumberType
                   //TODO [entity rootParent];//so what
-
+                  
                   if (channel == nil)
                     {
                       channel = [[self _obtainOpenChannel] adaptorChannel];
-
+                      
                       if ([[channel adaptorContext]
-			    transactionNestingLevel] == 0)
+                            transactionNestingLevel] == 0)
                         [[channel adaptorContext] beginTransaction];
-
+                      
                       if (_flags.beganTransaction == NO)
                         {
                           EOFLOGObjectLevel(@"EODatabaseContext",
-					    @"BEGAN TRANSACTION FLAG==>NO");
+                                            @"BEGAN TRANSACTION FLAG==>NO");
                           _flags.beganTransaction = YES;
                         }
                     }
-
+                  
                   pk = [channel primaryKeyForNewRowWithEntity: entity];
-
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					@"** prepare pk %@", pk);
-
-
+                  
+                 EOFLOGObjectLevelArgs(@"EODatabaseContext",
+                                        @"** prepare pk %@", pk);
+                  
+                  
                   if (pk == nil && [[pkAttr valueClassName]
-				     isEqual:@"NSData"] == YES)
+                                     isEqual:@"NSData"] == YES)
                     {
                       unsigned char data[EOUniqueBinaryKeyLength];
-
+                      
                       [EOTemporaryGlobalID assignGloballyUniqueBytes: data];
-
+                      
                       pk = [NSDictionary dictionaryWithObject:
                                            [NSData dataWithBytes: data
                                                    length:
 						     EOUniqueBinaryKeyLength]
                                          forKey: [pkAttr name]];
-                    }
+                    };
                 }
             }
-
-          if (!pk)
+          
+          if (!pk && raiseException)
             [NSException raise: NSInvalidArgumentException
                          format: @"%@ -- %@ 0x%x: cannot generate primary key for object '%@'",
                          NSStringFromSelector(_cmd),
@@ -6801,18 +6866,23 @@ _numLocked = 0;
               NSDictionary *relationshipValuePK = nil;
 
               // get object value for the relationship
-              id relationshipValue=[objectSnapshot valueForKey:relationshipName];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity name=%@ relationship name=%@ Value=%@",
-                                    [entity name],relationshipName,relationshipValue);
+              id relationshipValue
+		= [objectSnapshot valueForKey:relationshipName];
+              EOFLOGObjectLevelArgs(@"EODatabaseContext",
+			       @"entity name=%@ relationship name=%@ Value=%@",
+                                    [entity name],
+				    relationshipName, relationshipValue);
 
               // get relationshipValue pk
               NSAssert2(!isNilOrEONull(relationshipValue), 
-                        @"No relationshipValue for relationship %@ in objectSnapshot %@ ",
+			@"No relationshipValue for relationship %@ in objectSnapshot %@ ",
                         relationshipName,
                         objectSnapshot);
 
-              relationshipValuePK = [self _primaryKeyForObject:relationshipValue];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationshipValuePK=%@",
+              relationshipValuePK 
+		= [self _primaryKeyForObject: relationshipValue];
+              EOFLOGObjectLevelArgs(@"EODatabaseContext",
+				    @"relationshipValuePK=%@",
                                     relationshipValuePK);
 
               // force object to relay pk now !
@@ -6833,13 +6903,14 @@ _numLocked = 0;
       EODatabaseOperation *dbOpe = [self databaseOperationForObject: object];
       NSMutableDictionary *newRow = [dbOpe newRow]; 
       
-      [newRow addEntriesFromDictionary: pk];//VERIFY Here we replace previous key
+      [newRow addEntriesFromDictionary: pk];// VERIFY Here we replace 
+                                            // previous key
     }
   
-  EOFLOGObjectFnStop();
-
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"pk=%@", pk);
   NSDebugMLog(@"object %p=%@\npk=%@",object, object, pk);
+
+  EOFLOGObjectFnStop();
 
   return pk;
 }
@@ -6978,6 +7049,10 @@ _numLocked = 0;
         }
     }
 
+  EOFLOGObjectLevelArgs(@"EODatabaseContext",
+                        @"_nonPrimaryKeyGenerators=%@",
+                        NSStringFromHashTable(_nonPrimaryKeyGenerators));
+  
   EOFLOGObjectFnStop();
 
   NSFreeHashTable(processedEntities);

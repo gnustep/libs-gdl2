@@ -1,4 +1,4 @@
-2003-11-28  Manuel Guesdon  <mguesdon@orange-concept.com>
+2003-11-26  Manuel Guesdon  <mguesdon@orange-concept.com>
 	
 	* EOAccess/EOAttribute.m:
 		o introducing new number types: 
@@ -16,6 +16,12 @@
 		o added number accessors for NSString
 		o added NSObject
 		  -performSelector:withObject:withObject:withObject:
+	* EOAccess/EODatabaseContext.m:
+		o in -prepareForSaveWithCoordinator:editingContext:
+		  Try harder to find primary key (for linked objects
+		  with more than one attribute for PK)
+	* EOAccess/EODatabaseContextPriv.h
+		o added -_primaryKeyForObject:raiseException:
 	
 2003-10-24  David Ayers  <d.ayers@inode.at>
 
