@@ -48,11 +48,7 @@ ADDITIONAL_CFLAGS =
 ADDITIONAL_INCLUDE_DIRS = -I..
 
 # Additional LDFLAGS to pass to the linker
-ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lgnustep-db2_d -lgnustep-db2control_d
-else
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lgnustep-db2 -lgnustep-db2control
-endif
+ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lgnustep-db2 -lgnustep-db2control
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS += -L../EOAccess/$(GNUSTEP_OBJ_DIR) -L../EOControl/$(GNUSTEP_OBJ_DIR)

@@ -1,3 +1,12 @@
+2002-11-28  Richard Frith-Macdonald <rfm@gnu.org>
+
+	* EOAccess/EOEntity.m:  Patch by David Ayers.
+
+2002-11-27  Richard Frith-Macdonald <rfm@gnu.org>
+
+	* gdl2.make.in: simplify libraries ... let which_lib sort them out.
+	* Tools/GNUmakefile.preamble: ditto
+
 2002-11-27  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOAccess/EOModel.m: 
 		o fixed typo in -entityNamed:

@@ -84,8 +84,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 			owner: owner] autorelease];
 }
 
-- (id)initWithPropertyList: (NSDictionary *)propertyList
-                     owner: (id)owner
+- (id) initWithPropertyList: (NSDictionary*)propertyList
+		      owner: (id)owner
 {
   [EOObserverCenter suppressObserverNotification];
 
@@ -93,18 +93,17 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
   NS_DURING
     {
-      if ((self = [self init]))
+      if ((self = [self init]) != nil)
         {
-          NSArray *array = nil;
-          NSString *tmpString = nil;
-          id tmpObject = nil;
+          NSArray	*array = nil;
+          NSString	*tmpString = nil;
+          id		tmpObject = nil;
           
-          [self setCreateMutableObjects: YES];
-
           ASSIGN(_name, [propertyList objectForKey: @"name"]);
 
           [self setExternalName: [propertyList objectForKey: @"externalName"]];
-          [self setExternalQuery: [propertyList objectForKey: @"externalQuery"]];
+          [self setExternalQuery:
+	    [propertyList objectForKey: @"externalQuery"]];
 
           tmpString = [propertyList objectForKey: @"restrictingQualifier"];
 
@@ -133,7 +132,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           tmpObject = [propertyList objectForKey: @"userInfo"];
 
           EOFLOGObjectLevelArgs(@"EOEntity", @"tmpObject=%@", tmpObject);
-          /*NSAssert2((!tmpString || [tmpString isKindOfClass:[NSString class]]),
+          /*NSAssert2((!tmpString
+		|| [tmpString isKindOfClass:[NSString class]]),
                     @"tmpString is not a NSString but a %@. tmpString:\n%@",
                     [tmpString class],
                     tmpString);
@@ -145,7 +145,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           else
             {
               tmpObject = [propertyList objectForKey: @"userDictionary"];
-              /*NSAssert2((!tmpString || [tmpString isKindOfClass:[NSString class]]),
+              /*NSAssert2((!tmpString
+		|| [tmpString isKindOfClass:[NSString class]]),
                         @"tmpString is not a NSString but a %@ tmpString:\n%@",
                         [tmpString class],
                         tmpString);*/
@@ -202,7 +203,10 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               _flags.primaryKeyAttributesIsLazy = YES;
             }
 
-          //Assign them to _classProperties, not _classPropertyNames, this will be build after
+          /*
+	   * Assign them to _classProperties, not _classPropertyNames,
+	   * this will be build after
+	   */
           array = [propertyList objectForKey: @"classProperties"];
 
           EOFLOGObjectLevelArgs(@"EOEntity", @"classProperties: %@", array);
@@ -234,8 +238,9 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           tmpString = [propertyList objectForKey:
 				      @"maxNumberOfInstancesToBatchFetch"];
 
-          EOFLOGObjectLevelArgs(@"EOEntity", @"maxNumberOfInstancesToBatchFetch=%@ [%@]",
-				tmpString, [tmpString class]);
+          EOFLOGObjectLevelArgs(@"EOEntity",
+	    @"maxNumberOfInstancesToBatchFetch=%@ [%@]",
+	    tmpString, [tmpString class]);
 
           if (tmpString)
               [self setMaxNumberOfInstancesToBatchFetch: [tmpString intValue]];
@@ -250,8 +255,9 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           tmpObject = [propertyList objectForKey:
 				      @"fetchSpecificationDictionary"];
 
-          EOFLOGObjectLevelArgs(@"EOEntity", @"fetchSpecificationDictionary=%@ [%@]",
-				tmpObject, [tmpObject class]);
+          EOFLOGObjectLevelArgs(@"EOEntity",
+	    @"fetchSpecificationDictionary=%@ [%@]",
+	    tmpObject, [tmpObject class]);
 
           if (tmpObject)
             {
@@ -261,11 +267,12 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
             {
               _fetchSpecificationDictionary = [NSDictionary new];
 
-              EOFLOGObjectLevelArgs(@"EOEntity", @"Entity %@ - _fetchSpecificationDictionary %p [RC=%d]:%@",
-                           [self name],
-                           _fetchSpecificationDictionary,
-                           [_fetchSpecificationDictionary retainCount],
-                           _fetchSpecificationDictionary);
+              EOFLOGObjectLevelArgs(@"EOEntity",
+		@"Entity %@ - _fetchSpecificationDictionary %p [RC=%d]:%@",
+		[self name],
+		_fetchSpecificationDictionary,
+		[_fetchSpecificationDictionary retainCount],
+		_fetchSpecificationDictionary);
             }
 
           // load entity's FetchSpecifications
@@ -478,12 +485,14 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   //OK
   if ((self = [super init]))
     {
+      _attributes = [GCMutableArray new];
+      [self setCreateMutableObjects: YES];
     }
 
   return self;
 }
 
-- (void)dealloc
+- (void) dealloc
 {
   DESTROY(_name);
   DESTROY(_className);
@@ -504,7 +513,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   [super dealloc];
 }
 
-- (void)gcDecrementRefCountOfContainedObjects
+- (void) gcDecrementRefCountOfContainedObjects
 {
   int where = 0;
   NSProcessInfo *_processInfo = [NSProcessInfo processInfo];
@@ -619,7 +628,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   [_debugSet removeObject: @"gsdb"];
 }
 
-- (BOOL)gcIncrementRefCountOfContainedObjects
+- (BOOL) gcIncrementRefCountOfContainedObjects
 {
   int where = 0;
   NSProcessInfo *_processInfo = [NSProcessInfo processInfo];
@@ -1051,11 +1060,10 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               NSString *attributeName = [primaryKeyAttributes objectAtIndex: i];
               EOAttribute *attribute = [self attributeNamed: attributeName];
 
-              NSAssert3(attribute,
-                        @"In entity %@: No attribute named %@ to use for locking (attributes: %@)",
-                        [self name],
-                        attributeName,
-                        [_attributes resultsOfPerformingSelector: @selector(name)]);
+              NSAssert3(attribute, @"In entity %@: No attribute named %@ "
+		@"to use for locking (attributes: %@)", [self name],
+		attributeName, [[self attributes]
+		  resultsOfPerformingSelector: @selector(name)]);
 
               if ([self isValidPrimaryKeyAttribute: attribute])
                 [_primaryKeyAttributes addObject: attribute];
@@ -1614,7 +1622,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return [_fetchSpecificationDictionary objectForKey: fetchSpecName];
 }
 
-- (NSArray *)attributesToFetch
+- (NSArray*) attributesToFetch
 {
   //OK
   NSAssert3(!_attributesToFetch 
@@ -1820,7 +1828,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return YES;
 }
 
-- (BOOL)setAttributesUsedForLocking: (NSArray *)attributes
+- (BOOL) setAttributesUsedForLocking: (NSArray *)attributes
 {
   int i, count = [attributes count];
 
@@ -1958,20 +1966,23 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   NSString *attributeName = [attribute name];
 
   if ([[self attributesByName] objectForKey: attributeName])
-    [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self,
-                 attributeName];
-  
+    {
+      [NSException raise: NSInvalidArgumentException
+	format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+	NSStringFromSelector(_cmd),
+	NSStringFromClass([self class]),
+	self,
+	attributeName];
+     } 
   if ([[self relationshipsByName] objectForKey: attributeName])
-    [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: \"%@\" already used in the model as relationship",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self,
-                 attributeName];
+    {
+      [NSException raise: NSInvalidArgumentException format:
+	@"%@ -- %@ 0x%x: \"%@\" already used in the model as  relationship",
+	NSStringFromSelector(_cmd),
+	NSStringFromClass([self class]),
+	self,
+	attributeName];
+    }
   
   if ([self createsMutableObjects])
     [(GCMutableArray *)_attributes addObject: attribute];
@@ -1979,11 +1990,17 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
     _attributes = [[[_attributes autorelease]
 		     arrayByAddingObject: attribute] retain];
 
+  if (_attributesByName == nil)
+    {
+      _attributesByName = [GCMutableDictionary new];
+    }
+  [_attributesByName setObject: attribute forKey: attributeName];
+
   [self _setIsEdited]; //To clean caches
   [attribute setParent: self];
 }
 
-- (void)removeAttribute: (EOAttribute *)attribute
+- (void) removeAttribute: (EOAttribute *)attribute
 {
   if (attribute)
     {
@@ -1999,6 +2016,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 	  [(GCMutableArray *)_attributes removeObject: attribute];
 	  _attributes = [[_attributes autorelease] copy];
         }
+      [_attributesByName removeObjectForKey: [attribute name]];
       [self _setIsEdited];//To clean caches
     }
 }
@@ -2554,11 +2572,12 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 @implementation EOEntity (EOEntityPrivate)
 
-- (void)setCreateMutableObjects: (BOOL)flag
+- (void) setCreateMutableObjects: (BOOL)flag
 {
   if (_flags.createsMutableObjects == flag)
-    return;
-
+    {
+      return;
+    }
   _flags.createsMutableObjects = flag;
 
 //TODO  NSEmitTODO();
@@ -2583,7 +2602,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
             _attributesToFetch);
 }
 
-- (BOOL)createsMutableObjects
+- (BOOL) createsMutableObjects
 {
   return _flags.createsMutableObjects;
 }

@@ -36,10 +36,6 @@ GDL2_SUBMINOR_VERSION = @SUBMINOR_VERSION@
 
 
 # Nothing special just include the library
-ifeq ($(debug), yes)
-	AUXILIARY_TOOL_LIBS += -lgnustep-db2_d -lgnustep-db2control_d
-else
-	AUXILIARY_TOOL_LIBS += -lgnustep-db2 -lgnustep-db2control
-endif
+AUXILIARY_TOOL_LIBS += -lgnustep-db2 -lgnustep-db2control
 
 endif
