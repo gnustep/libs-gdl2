@@ -30,6 +30,7 @@ POSTGRES95_DATABASE=@POSTGRES_DATABASE@
 
 # The framework to be compiled
 FRAMEWORK_NAME=Postgres95EOAdaptor
+SUBPROJECTS = LoginPanel
 
 # Install into the local root by default
 Postgres95EOAdaptor_INSTALLATION_DIR = $(GNUSTEP_LOCAL_ROOT)
@@ -78,6 +79,7 @@ Postgres95EOAdaptor_AGSDOC_FLAGS = \
 
 ifeq ($(POSTGRES95_DATABASE),yes)
 include $(GNUSTEP_MAKEFILES)/framework.make
+include $(GNUSTEP_MAKEFILES)/aggregate.make
 else
 include $(GNUSTEP_MAKEFILES)/rules.make
 endif

@@ -1786,6 +1786,41 @@ each key
   return model;
 }
 
+/* extensions for login panel */
+- (NSArray *)describeDatabaseNames
+{
+  NSMutableArray *databaseNames = [NSMutableArray array]; 
+  NSString *stmt = [NSS_SWF:@"SELECT datname FROM pg_database LEFT JOIN pg_user "
+                            @"ON datdba = usesysid ORDER BY 1"];
+  int i; 
+  _pgResult = PQexec(_pgConn, [stmt cString]);
+  for (i=0; i < PQntuples(_pgResult); i++)
+    {
+      [databaseNames addObject: [NSString stringWithCString:PQgetvalue(_pgResult,i,0)]]; 
+    }
+  return (NSArray *)databaseNames;
+}
+
+- (BOOL) userNameIsAdministrative:(NSString *)userName
+{
+  NSString *stmt = [NSS_SWF:@"SELECT usecreatedb FROM pg_user WHERE "
+                            @"usename = '%@'",userName]; 
+  _pgResult = PQexec(_pgConn, [stmt cString]);
+  if (_pgResult != NULL)
+    if (PQntuples(_pgResult))
+      {
+        const char *bytes;
+	
+	bytes = PQgetvalue(_pgResult,0,0); 
+        if (((char *)bytes)[0] == 't' && ((char *)bytes)[1] == 0)
+          return YES;
+        if (((char *)bytes)[0] == 'f' && ((char *)bytes)[1] == 0)
+          return NO;
+     
+      }
+  return NO; 
+}
+
 - (void)setDelegate:delegate
 {
   [super setDelegate: delegate];

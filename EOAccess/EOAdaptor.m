@@ -766,9 +766,9 @@ NSString *EOAdministrativeConnectionDictionaryKey
 }
 
 /**
- * Attempts to create a database using 
+ * Attempts to drop a database using 
  * the statments returned by the Adaptor's expression class
- * for @selector(createDatabaseStatementsForConnectionDictionary:administrativeConnectionDictionary:);
+ * for @selector(dropDatabaseStatementsForConnectionDictionary:administrativeConnectionDictionary:);
  * using the connectionDictionary as the administrative connection dictionary. 
  */
 - (void)dropDatabaseWithAdministrativeConnectionDictionary: (NSDictionary *)connectionDictionary
@@ -1000,7 +1000,11 @@ NSString *EOAdministrativeConnectionDictionaryKey
   [self subclassResponsibility: _cmd];
   return nil;
 }
-
+/** 
+   Subclasses should implement this method to return a connection dictionary
+   for an administrative user able to create databases etc. Or nil if the  
+   the user cancels.
+*/
 - (NSDictionary *) administrativeConnectionDictionaryForAdaptor: (EOAdaptor *)adaptor
 {
   [self subclassResponsibility: _cmd];

@@ -303,7 +303,8 @@ static NSString *internalTypeNames[] = {
 	exception = localException;
       NS_ENDHANDLER;
 
-      [adaptorChannel closeChannel];
+      if ([adaptorChannel isOpen])
+        [adaptorChannel closeChannel];
 
       if (exception)
 	[exception raise];
@@ -399,7 +400,10 @@ static NSString *internalTypeNames[] = {
   // Check connection
   if (PQstatus(pgConn) == CONNECTION_BAD)
     {
-      //TODO: report error in an exception ?
+      [[NSException exceptionWithName:@"InvalidConnection" 
+                               reason:[NSString
+			               stringWithCString:PQerrorMessage(pgConn)]
+			     userInfo:nil] raise]; 
       [self privateReportError: pgConn];
       PQfinish(pgConn);
       pgConn = NULL;

@@ -1,3 +1,24 @@
+2003-03-06  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/EOAdaptor.m
+	([EOAdaptor dropDatabaseWithAdministrativeConnectionDictionary:
+	administrativeConnectionDictionary:]): Correct documentation.
+	([EOAdaptor administrativeConnectionDictionaryForAdaptor:]):
+	Documented.
+	
+	* EOAdaptors/Postgres95/GNUmakefile.in: Added LoginPanel subproject.
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m
+	([Postgres95Adaptor assertConnectionDictionaryIsValid]): Added
+	test to insure channel is open befor attempting to close.
+	([Postgres95Adaptor createPGconn]): Added exception to raise.
+	* EOAdaptors/Postgres95/Postgres95Channel.m
+	([Postgres95/Postgres95Channel describeDatabaseNames]): Implemented
+	new method.
+	([Postgres95 userNameIsAdministrative]): Ditto.
+
+	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile: New file.
+	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.h/m: Ditto.
+
 2003-03-06  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/Makefile.preamble:  Fix --disable-flattend.
