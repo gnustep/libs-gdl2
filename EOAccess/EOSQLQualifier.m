@@ -3,7 +3,7 @@
 
    Copyright (C) 2002 Free Software Foundation, Inc.
 
-   Author: Manuel Guesdon <mguesdon@orange-concept.coù>
+   Author: Manuel Guesdon <mguesdon@orange-concept.com>
    Date: February 2002
 
    $Revision$

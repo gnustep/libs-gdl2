@@ -51,7 +51,7 @@ typedef enum {
 
 /* The EOAdaptorContext class could be overriden for a concrete database
    adaptor. You have to override only those methods marked in this header
-   with `override'.
+   with 'override'.
 */
 
 @interface EOAdaptorContext : NSObject

@@ -1,3 +1,8 @@
+2004-11-03  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAdaptorContext.h: Only use ASCII characters.
+	* EOAccess/EOSQLQualifier.m: Ditto.
+	
 2004-11-02  David Ayers  <d.ayers@inode.at>
 
 	* GDL2.gsdoc: New file for documentation project.
