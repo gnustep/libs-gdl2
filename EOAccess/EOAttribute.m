@@ -181,16 +181,23 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
       tmpString = [propertyList objectForKey: @"parameterDirection"];
       if (tmpString)
         {
-          EOParameterDirection eDirection = EOVoid;
+	  if ([tmpString isKindOfClass: [NSNumber class]])
+	    {
+	      [self setParameterDirection: [tmpString intValue]];
+	    }
+	  else
+	    {
+	      EOParameterDirection eDirection = EOVoid;
 
-          if ([tmpString isEqual: @"in"])
-            eDirection = EOInParameter;
-          else if ([tmpString isEqual: @"out"])
-            eDirection = EOOutParameter;
-          else if ([tmpString isEqual: @"inout"])
-            eDirection = EOInOutParameter;
+	      if ([tmpString isEqual: @"in"])
+		eDirection = EOInParameter;
+	      else if ([tmpString isEqual: @"out"])
+		eDirection = EOOutParameter;
+	      else if ([tmpString isEqual: @"inout"])
+		eDirection = EOInOutParameter;
 
-          [self setParameterDirection: eDirection];
+	      [self setParameterDirection: eDirection];
+	    }
         }
 
       tmpObject = [propertyList objectForKey: @"userInfo"];
@@ -278,18 +285,71 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
     [propertyList setObject: _valueClassName forKey: @"valueClassName"];
   if (_valueType)
     [propertyList setObject: _valueType forKey: @"valueType"];
+
+  if (_valueFactoryMethodName)
+    {
+      NSString *methodArg;
+
+      [propertyList setObject: _valueFactoryMethodName
+		    forKey: @"valueFactoryMethodName"];
+
+      switch (_argumentType)
+	{
+	  case EOFactoryMethodArgumentIsNSData:
+	    methodArg = @"EOFactoryMethodArgumentIsNSData";
+	    break;
+	  case EOFactoryMethodArgumentIsNSString:
+	    methodArg = @"EOFactoryMethodArgumentIsNSString";
+	    break;
+	  case EOFactoryMethodArgumentIsBytes:
+	    methodArg = @"EOFactoryMethodArgumentIsBytes";
+	    break;
+	  default:
+	    methodArg = nil;
+	    [NSException raise: NSInternalInconsistencyException
+			 format: @"%@ -- %@ 0x%x: Invalid value for _argumentType:%d",
+			 NSStringFromSelector(_cmd),
+			 NSStringFromClass([self class]),
+			 self, _argumentType];
+	}
+
+      [propertyList setObject: methodArg
+		    forKey: @"factoryMethodArgumentType"];
+    }
+
+  if (_adaptorValueConversionMethodName)
+    [propertyList setObject: _adaptorValueConversionMethodName
+		  forKey: @"adaptorValueConversionMethodName"];
+
   if (_readFormat)
     [propertyList setObject: _readFormat forKey: @"readFormat"];
   if (_writeFormat)
     [propertyList setObject: _writeFormat forKey: @"writeFormat"];
+  if (_width > 0)
+    [propertyList setObject: [NSNumber numberWithUnsignedInt: _width]
+		  forKey: @"width"];
+  if (_precision > 0)
+    [propertyList setObject: [NSNumber numberWithUnsignedShort: _precision]
+		  forKey: @"precision"];
+  if (_scale != 0)
+    [propertyList setObject: [NSNumber numberWithShort: _scale]
+		  forKey: @"scale"];
+
+  if (_parameterDirection != 0)
+    [propertyList setObject: [NSNumber numberWithInt: _parameterDirection]
+		  forKey: @"parameterDirection"];
+
   if (_userInfo)
     [propertyList setObject: _userInfo forKey: @"userInfo"];
   if (_docComment)
     [propertyList setObject: _docComment forKey: @"docComment"];
   
   if (_flags.isReadOnly)
-    [propertyList setObject: [NSString stringWithCString: "Y"]
+    [propertyList setObject: @"Y"
 		  forKey: @"isReadOnly"];
+  if (_flags.allowsNull)
+    [propertyList setObject: @"Y"
+		  forKey: @"allowsNull"];
 }
 
 - (void)dealloc

@@ -1,4 +1,13 @@
-2003-08-14  David Ayers  <d.ayers@inode.at>
+2003-05-16  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAttribute.m ([EOAttribute -encodeIntoPropertyList:]):
+	Encode missing aattributes as reported by Dirk Lattermann.  Also
+	corrected encoding of parameterDirection.
+	([EOAttribute initWithPropertyList:owner:]): Corrected parsing of
+	parameterDirection to account for WO 4.5 compatibility and
+	previous encodings.
+	
+2003-05-14  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EODatabaseDataSource.m ([EODatabaseDataSource
 	-initWithEditingContext:entityName:fetchSpecificationName:]):
@@ -8,7 +17,7 @@
 	([EOEntity -addFetchSpecification:withName:]): Corrected name and
 	initialization as reported by Dirk Lattermann.
 	
-2003-08-05  David Ayers  <d.ayers@inode.at>
+2003-05-08  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOObjectStoreCoordinator.m ([EOObjectStoreCoordinator
 	+initialize]): Insure EODatabaseContext is setup to receive
