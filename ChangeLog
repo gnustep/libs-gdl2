@@ -1,3 +1,12 @@
+2003-03-08  David Ayers  <d.ayers@inode.at>
+
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m
+	([Postgres95Adaptor createPGconn]): Insure cleanup code gets 
+	executed before exception is raised.
+
+	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble: New file
+	to create symlink to be able to include local adaptor headers.
+
 2003-03-06  David Ayers  <d.ayers@inode.at>
 
 	* configure.ac: Replace generation of

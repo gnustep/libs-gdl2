@@ -400,13 +400,14 @@ static NSString *internalTypeNames[] = {
   // Check connection
   if (PQstatus(pgConn) == CONNECTION_BAD)
     {
-      [[NSException exceptionWithName:@"InvalidConnection" 
-                               reason:[NSString
-			               stringWithCString:PQerrorMessage(pgConn)]
-			     userInfo:nil] raise]; 
+      NSString *reason;
+
+      reason = [NSString stringWithCString:PQerrorMessage(pgConn)];
       [self privateReportError: pgConn];
       PQfinish(pgConn);
-      pgConn = NULL;
+      [[NSException exceptionWithName:@"InvalidConnection" 
+		    reason: reason
+		    userInfo:nil] raise]; 
     }
 
   if (pgConn)
