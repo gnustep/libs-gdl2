@@ -170,28 +170,34 @@ postgresClientVersion()
     return dict;
     }*/
 
+
+/* 
+   The first 4 must correspond to EOAdaptorValueTypes:
+   EOAdaptorNumberType, EOAdaptorCharactersType,
+   EOAdaptorBytesType, EOAdaptorDateType
+*/
 static NSString *externalTypeNames[] = {
 #warning (stephane@sente.ch) Needs to be updated!!!
+  @"numeric", @"varchar",  @"bpchar", @"date",
   @"boolean", @"bool", 
   @"char", @"char2", @"char4", @"char8", @"char16", @"filename", 
-  @"date", @"reltime", @"time", @"tinterval", @"abstime", @"timestamp",
+  @"reltime", @"time", @"tinterval", @"abstime", @"timestamp",
   @"real", @"double precision", @"float4", @"float8", 
   @"bigint", @"int8", @"int4", @"int2", 
   @"oid", @"oid8", @"oidint2", @"oidint4", @"oidchar16",
-  @"varchar", @"bpchar",
-  @"numeric", @"decimal", @"cid", @"tid", @"xid",
+  @"decimal", @"cid", @"tid", @"xid",
   nil
 };
 
 static NSString *internalTypeNames[] = {
+  @"NSNumber", @"NSString", @"NSData", @"NSCalendarDate",
   @"NSNumber", @"NSNumber",
-  @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
-  @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate",
+  @"NSString", @"NSString", @"NSString", @"NSString", @"NSString", @"NSString",
+  @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate",
   @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
   @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
   @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
-  @"NSString", @"NSString",
-  @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber",
+  @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber",
   nil
 };
 
@@ -504,4 +510,3 @@ call dict obj for key databaseEncoding
     return 2 par defaut
 };
 */
-

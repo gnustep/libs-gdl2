@@ -1,5 +1,7 @@
 2003-02-25  David Ayers  <d.ayers@inode.at>
 
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m: Reorder external
+	type mappings to correspond to EOAdaptorValueTypes.
 	* EOAccess/EOModel.m ([EOModel beautifyNames]): Remove log and 
 	reformat comments. 
 
