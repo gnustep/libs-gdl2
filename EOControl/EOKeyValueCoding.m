@@ -321,7 +321,7 @@ initialize(void)
   if (count>0)
     {
       unsigned int i=0;
-      IMP oaiIMP = [self methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
       for (i=0; i<count; i++)
         {
           left = result;
@@ -358,7 +358,7 @@ initialize(void)
   if (count>0)
     {
       unsigned int i=0;
-      IMP oaiIMP = [self methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
       
       for (i=0; i<count; i++)
         {
@@ -405,7 +405,7 @@ initialize(void)
       unsigned int i=0;
       id           current = nil;
       id	   currentVal = nil;
-      IMP          oaiIMP = [self methodForSelector: GDL2_objectAtIndexSEL];
+      IMP          oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
 
       for(i=0; i<count && (resultVal == nil || resultVal == GDL2EONull); i++)
 	{
@@ -448,7 +448,7 @@ initialize(void)
       id current=nil;
       id currentVal=nil;
       unsigned int i = 0;
-      IMP oaiIMP = [self methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
 
       for(i=0; i<count && (resultVal == nil || resultVal == GDL2EONull); i++)
 	{

@@ -38,6 +38,13 @@
 	* EOControl/EOFault.m: (+isFault:): Update comment.
 	* EOControl/GNUmakefile: Build EOPrivate.m instead of EOPriv.m.
 	Do not install private header.
+
+	* EOAccess/EOPrivate.h, EOAccess/EOPrivate.m,
+	* EOAccess/EODatabaseContext.m, EOAccess/EOSQLExpression.m,
+	* EOControl/EOEditingContext.m, EOControl/EOKeyValueCoding.m,
+	* EOControl/EOMutableKnownKeyDictionary.m,
+	* EOControl/EOPrivate.h, EOControl/EOPrivate.m: Remove global
+	selector cache.
 	
 2005-02-19  David Ayers  <d.ayers@inode.at>
 

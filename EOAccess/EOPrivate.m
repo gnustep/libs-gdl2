@@ -51,10 +51,6 @@ RCS_ID("$Id$")
 Class GDL2EODatabaseContextClass=Nil;
 Class GDL2EOAttributeClass=Nil;
 
-// ==== Selectors =====
-SEL GDL2_snapshotForGlobalIDSEL;
-SEL GDL2__globalIDForObjectSEL;
-
 // ==== IMPs ====
 IMP GDL2EODatabaseContext_snapshotForGlobalIDIMP=NULL;
 IMP GDL2EODatabaseContext__globalIDForObjectIMP=NULL;
@@ -67,17 +63,13 @@ void GDL2_EOAccessPrivateInit()
     {
       GDL2PrivInit();
 
-      // ==== Selectors =====
-      GDL2_snapshotForGlobalIDSEL = @selector(snapshotForGlobalID:);
-      GDL2__globalIDForObjectSEL = @selector(_globalIDForObject:);
-
       // ==== Classes ====
       GDL2EODatabaseContextClass = [EODatabaseContext class];
       GDL2EOAttributeClass = [EOAttribute class];
 
-      GDL2EODatabaseContext_snapshotForGlobalIDIMP=[GDL2EODatabaseContextClass instanceMethodForSelector:GDL2_snapshotForGlobalIDSEL];
+      GDL2EODatabaseContext_snapshotForGlobalIDIMP=[GDL2EODatabaseContextClass instanceMethodForSelector:@selector(snapshotForGlobalID:)];
 
-      GDL2EODatabaseContext__globalIDForObjectIMP=[GDL2EODatabaseContextClass instanceMethodForSelector:GDL2__globalIDForObjectSEL];
+      GDL2EODatabaseContext__globalIDForObjectIMP=[GDL2EODatabaseContextClass instanceMethodForSelector:@selector(_globalIDForObject:)];
 
     };
 }
@@ -99,11 +91,11 @@ EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,
               && GDL2EODatabaseContext_snapshotForGlobalIDIMP)
             imp=GDL2EODatabaseContext_snapshotForGlobalIDIMP;
           else
-            imp=[dbContext methodForSelector:GDL2_snapshotForGlobalIDSEL];
+            imp=[dbContext methodForSelector:@selector(snapshotForGlobalID:)];
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(dbContext,GDL2_snapshotForGlobalIDSEL,gid);
+      return (*imp)(dbContext,@selector(snapshotForGlobalID:),gid);
     }
   else
     return nil;
@@ -122,11 +114,11 @@ EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODatabaseContext* dbC
               && GDL2EODatabaseContext__globalIDForObjectIMP)
             imp=GDL2EODatabaseContext__globalIDForObjectIMP;
           else
-            imp=[dbContext methodForSelector:GDL2__globalIDForObjectSEL];
+            imp=[dbContext methodForSelector:@selector(_globalIDForObject:)];
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(dbContext,GDL2__globalIDForObjectSEL,object);
+      return (*imp)(dbContext,@selector(_globalIDForObject:),object);
     }
   else
     return nil;

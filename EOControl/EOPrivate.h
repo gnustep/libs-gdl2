@@ -57,57 +57,6 @@ GDL2CONTROL_EXPORT Class GDL2MKKDClass;
 GDL2CONTROL_EXPORT Class GDL2EOMKKDInitializerClass;
 GDL2CONTROL_EXPORT Class GDL2EOEditingContextClass;
 
-// ==== Selectors ====
-GDL2CONTROL_EXPORT SEL GDL2_newSEL;
-GDL2CONTROL_EXPORT SEL GDL2_allocWithZoneSEL;
-
-// ---- String Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_isEqualToStringSEL;
-GDL2CONTROL_EXPORT SEL GDL2_appendStringSEL;
-GDL2CONTROL_EXPORT SEL GDL2_stringWithCString_lengthSEL;
-GDL2CONTROL_EXPORT SEL GDL2_stringWithCStringSEL;
-GDL2CONTROL_EXPORT SEL GDL2_defaultCStringEncodingSEL;
-
-// ---- Data Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_dataWithBytes_lengthSEL;
-
-// ---- Array Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_addObjectSEL;
-GDL2CONTROL_EXPORT SEL GDL2_objectAtIndexSEL;
-GDL2CONTROL_EXPORT SEL GDL2_indexOfObjectIdenticalToSEL;
-GDL2CONTROL_EXPORT SEL GDL2_lastObjectSEL;
-GDL2CONTROL_EXPORT SEL GDL2_arrayWithCapacitySEL;
-GDL2CONTROL_EXPORT SEL GDL2_arrayWithArraySEL;
-GDL2CONTROL_EXPORT SEL GDL2_arraySEL;
-
-// ---- Enumerator Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_nextObjectSEL;
-
-// ---- KVC Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_storedValueForKeySEL;
-GDL2CONTROL_EXPORT SEL GDL2_takeStoredValueForKeySEL;
-GDL2CONTROL_EXPORT SEL GDL2_valueForKeySEL;
-GDL2CONTROL_EXPORT SEL GDL2_takeValueForKeySEL;
-GDL2CONTROL_EXPORT SEL GDL2_validateValueForKeySEL;
-
-// ---- GDL2 Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_recordObjectGlobalIDSEL;
-GDL2CONTROL_EXPORT SEL GDL2_objectForGlobalIDSEL;
-GDL2CONTROL_EXPORT SEL GDL2_globalIDForObjectSEL;
-
-// ---- Dictionary Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_objectForKeySEL;
-GDL2CONTROL_EXPORT SEL GDL2_setObjectForKeySEL;
-GDL2CONTROL_EXPORT SEL GDL2_removeObjectForKeySEL;
-GDL2CONTROL_EXPORT SEL GDL2_dictionaryWithCapacitySEL;
-
-// ---- NSObject Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_respondsToSelectorSEL;
-
-// ---- KMKKD Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_hasKeySEL;
-GDL2CONTROL_EXPORT SEL GDL2_indexForKeySEL;
-
 // ==== IMPs ====
 GDL2CONTROL_EXPORT IMP GDL2NSAutoreleasePool_newIMP;
 GDL2CONTROL_EXPORT IMP GDL2NSNumber_allocWithZoneIMP;
@@ -163,43 +112,43 @@ _isNilOrEONull(id obj)
 
 // ---- NSMutableString appendString: ----
 #define GDL2AppendStringWithImp(string,methodIMP,aString) \
-	(*(methodIMP))((string),GDL2_appendStringSEL,(aString))
+	(*(methodIMP))((string),@selector(appendString:),(aString))
 
 static inline void GDL2AppendStringWithImpPtr(NSMutableString* object,IMP* impPtr,NSString* string)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_appendStringSEL];
-      (**impPtr)(object,GDL2_appendStringSEL,string);
+        *impPtr=[object methodForSelector:@selector(appendString:)];
+      (**impPtr)(object,@selector(appendString:),string);
     };
 };
 
 // ---- NSMutableArray addObject: ----
 #define GDL2AddObjectWithImp(array,methodIMP,anObject) \
-	(*(methodIMP))((array),GDL2_addObjectSEL,(anObject))
+	(*(methodIMP))((array),@selector(addObject:),(anObject))
 
 static inline void GDL2AddObjectWithImpPtr(id object,IMP* impPtr,id objectToAdd)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_addObjectSEL];
-      (**impPtr)(object,GDL2_addObjectSEL,objectToAdd);
+        *impPtr=[object methodForSelector:@selector(addObject:)];
+      (**impPtr)(object,@selector(addObject:),objectToAdd);
     };
 };
 
 // ---- NSArray objectAtIndex: ----
 #define GDL2ObjectAtIndexWithImp(array,methodIMP,index) \
-	(*(methodIMP))((array),GDL2_objectAtIndexSEL,(index))
+	(*(methodIMP))((array),@selector(objectAtIndex:),(index))
 
 static inline id GDL2ObjectAtIndexWithImpPtr(id object,IMP* impPtr,int index)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_objectAtIndexSEL];
-      return (**impPtr)(object,GDL2_objectAtIndexSEL,index);
+        *impPtr=[object methodForSelector:@selector(objectAtIndex:)];
+      return (**impPtr)(object,@selector(objectAtIndex:),index);
     }
   else
     return nil;
@@ -207,20 +156,20 @@ static inline id GDL2ObjectAtIndexWithImpPtr(id object,IMP* impPtr,int index)
 
 // ---- NSArray indexOfObjectIdenticalTo: ----
 #define GDL2IndexOfObjectIdenticalToWithImp(array,methodIMP,anObject) \
-	(*(methodIMP))((array),GDL2_indexOfObjectIdenticalToSEL,(anObject))
+	(*(methodIMP))((array),@selector(indexOfObjectIdenticalTo:),(anObject))
 
 
 // ---- NSArray lastObject ----
 #define GDL2LastObjectWithImp(array,methodIMP) \
-	(*(methodIMP))((array),GDL2_lastObjectSEL)
+	(*(methodIMP))((array),@selector(lastObject))
 
 static inline id GDL2LastObjectWithImpPtr(id object,IMP* impPtr)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_lastObjectSEL];
-      return (**impPtr)(object,GDL2_lastObjectSEL);
+        *impPtr=[object methodForSelector:@selector(lastObject)];
+      return (**impPtr)(object,@selector(lastObject));
     }
   else
     return nil;
@@ -228,15 +177,15 @@ static inline id GDL2LastObjectWithImpPtr(id object,IMP* impPtr)
 
 // ---- NSEnumerator nextObject ----
 #define GDL2NextObjectWithImp(enumerator,methodIMP) \
-	(*(methodIMP))((enumerator),GDL2_nextObjectSEL)
+	(*(methodIMP))((enumerator),@selector(nextObject))
 
 static inline id GDL2NextObjectWithImpPtr(id object,IMP* impPtr)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_nextObjectSEL];
-      return (**impPtr)(object,GDL2_nextObjectSEL);
+        *impPtr=[object methodForSelector:@selector(nextObject)];
+      return (**impPtr)(object,@selector(nextObject));
     }
   else
     return nil;
@@ -244,15 +193,15 @@ static inline id GDL2NextObjectWithImpPtr(id object,IMP* impPtr)
 
 // ---- KVC storedValueForKey: ----
 #define GDL2StoredValueForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),GDL2_storedValueForKeySEL,value,key)
+	(*methodIMP)((object),@selector(storedValueForKey:),value,key)
 
 static inline id GDL2StoredValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_storedValueForKeySEL];
-      return (**impPtr)(object,GDL2_storedValueForKeySEL,key);
+        *impPtr=[object methodForSelector:@selector(storedValueForKey:)];
+      return (**impPtr)(object,@selector(storedValueForKey:),key);
     }
   else
     return nil;
@@ -260,29 +209,29 @@ static inline id GDL2StoredValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
 
 // ---- KVC takeStoredValue:forKey: ----
 #define GDL2TakeStoredValueForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),GDL2_takeStoredValueForKeySEL,value,key)
+	(*methodIMP)((object),@selector(takeStoredValue:forKey:),value,key)
 
 static inline void GDL2TakeStoredValueForKeyWithImpPtr(id object,IMP* impPtr,id value, id key)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_takeStoredValueForKeySEL];
-      (**impPtr)(object,GDL2_takeStoredValueForKeySEL,value,key);
+        *impPtr=[object methodForSelector:@selector(takeStoredValue:forKey:)];
+      (**impPtr)(object,@selector(takeStoredValue:forKey:),value,key);
     };
 };
 
 // ---- KVC valueForKey: ----
 #define GDL2ValueForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),GDL2_valueForKeySEL,value,key)
+	(*methodIMP)((object),@selector(valueForKey:),value,key)
 
 static inline id GDL2ValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_valueForKeySEL];
-      return (**impPtr)(object,GDL2_valueForKeySEL,key);
+        *impPtr=[object methodForSelector:@selector(valueForKey:)];
+      return (**impPtr)(object,@selector(valueForKey:),key);
     }
   else
     return nil;
@@ -290,29 +239,29 @@ static inline id GDL2ValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
 
 // ---- KVC takeValue:forKey: ----
 #define GDL2TakeValueForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),GDL2_takeValueForKeySEL,value,key)
+	(*methodIMP)((object),@selector(takeValue:forKey:),value,key)
 
 static inline void GDL2TakeValueForKeyWithImpPtr(id object,IMP* impPtr,id value, id key)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_takeValueForKeySEL];
-      (**impPtr)(object,GDL2_takeValueForKeySEL,value,key);
+        *impPtr=[object methodForSelector:@selector(takeValue:forKey:)];
+      (**impPtr)(object,@selector(takeValue:forKey:),value,key);
     };
 };
 
 // ---- KVC validateValue:forKey: ----
 #define GDL2ValidateValueForKeyWithImp(object,methodIMP,valuePtr,key) \
-	(*methodIMP)((object),GDL2_validateValueForKeySEL,valuePtr,key)
+	(*methodIMP)((object),@selector(validateValue:forKey:),valuePtr,key)
 
 static inline id GDL2ValidateValueForKeyWithImpPtr(id object,IMP* impPtr,id* valuePtr,id key)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_validateValueForKeySEL];
-      return (**impPtr)(object,GDL2_validateValueForKeySEL,valuePtr,key);
+        *impPtr=[object methodForSelector:@selector(validateValue:forKey:)];
+      return (**impPtr)(object,@selector(validateValue:forKey:),valuePtr,key);
     }
   else
     return nil;
@@ -320,15 +269,15 @@ static inline id GDL2ValidateValueForKeyWithImpPtr(id object,IMP* impPtr,id* val
 
 // ---- Dictionary objectForKey: ----
 #define GDL2ObjectForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),GDL2_objectForKeySEL,value,key)
+	(*methodIMP)((object),@selector(objectForKey:),value,key)
 
 static inline id GDL2ObjectForKeyWithImpPtr(id object,IMP* impPtr,id key)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_objectForKeySEL];
-      return (**impPtr)(object,GDL2_objectForKeySEL,key);
+        *impPtr=[object methodForSelector:@selector(objectForKey:)];
+      return (**impPtr)(object,@selector(objectForKey:),key);
     }
   else
     return nil;
@@ -336,77 +285,77 @@ static inline id GDL2ObjectForKeyWithImpPtr(id object,IMP* impPtr,id key)
 
 // ---- Dictionary setObject:forKey: ----
 #define GDL2SetObjectForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),GDL2_setObjectForKeySEL,value,key)
+	(*methodIMP)((object),@selector(setObject:forKey:),value,key)
 
 static inline void GDL2SetObjectForKeyWithImpPtr(id object,IMP* impPtr,id value, id key)
 {
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:GDL2_setObjectForKeySEL];
-      (**impPtr)(object,GDL2_setObjectForKeySEL,value,key);
+        *impPtr=[object methodForSelector:@selector(setObject:forKey:)];
+      (**impPtr)(object,@selector(setObject:forKey:),value,key);
     }
 };
 
 // ---- NSString stringWithCString:length: ----
-#define GDL2StringWithCStringAndLength(cString,length)	\
-	(*GDL2NSString_stringWithCString_lengthIMP)(GDL2NSStringClass,GDL2_stringWithCString_lengthSEL,(const char*)(cString),(int)(length))
+#define GDL2StringWithCStringAndLength(cString,len)	\
+	(*GDL2NSString_stringWithCString_lengthIMP)(GDL2NSStringClass,@selector(stringWithCString:length:),(const char*)(cString),(unsigned)(len))
 
 // ---- NSString stringWithCString: ----
 #define GDL2StringWithCString(cString)	\
-	(*GDL2NSString_stringWithCStringIMP)(GDL2NSStringClass,GDL2_stringWithCStringSEL,(const char*)(cString))
+	(*GDL2NSString_stringWithCStringIMP)(GDL2NSStringClass,@selector(stringWithCString:),(const char*)(cString))
 
 // ---- NSString +defaultCStringEncoding ----
 #define GDL2StringDefaultCStringEncoding()	\
-	(*GDL2NSString_defaultCStringEncodingIMP)(GDL2NSStringClass,GDL2_defaultCStringEncodingSEL)
+	(*GDL2NSString_defaultCStringEncodingIMP)(GDL2NSStringClass,@selector(defaultCStringEncoding))
 
 // ---- NSAutoreleasePool +new ----
 #define GDL2NSAutoreleasePool_new() \
-	(*GDL2NSAutoreleasePool_newIMP)(GDL2NSAutoreleasePoolClass,GDL2_newSEL)
+	(*GDL2NSAutoreleasePool_newIMP)(GDL2NSAutoreleasePoolClass,@selector(new))
 
 // ---- NSString +alloc ----
 #define GDL2NSString_alloc()	\
-	(*GDL2NSString_allocWithZoneIMP)(GDL2NSStringClass,GDL2_allocWithZoneSEL,NULL)
+	(*GDL2NSString_allocWithZoneIMP)(GDL2NSStringClass,@selector(allocWithZone:),NULL)
 
 // ---- NSDecimalNumber +alloc ----
 #define GDL2NSDecimalNumber_alloc() \
-	(*GDL2NSDecimalNumber_allocWithZoneIMP)(GDL2NSDecimalNumberClass,GDL2_allocWithZoneSEL,NULL) 
+	(*GDL2NSDecimalNumber_allocWithZoneIMP)(GDL2NSDecimalNumberClass,@selector(allocWithZone:),NULL) 
 
 // ---- NSNumber +alloc ----
 #define GDL2NSNumber_alloc() \
-	(*GDL2NSNumber_allocWithZoneIMP)(GDL2NSNumberClass,GDL2_allocWithZoneSEL,NULL) 
+	(*GDL2NSNumber_allocWithZoneIMP)(GDL2NSNumberClass,@selector(allocWithZone:),NULL) 
 
 // ---- NSCalendarDate +alloc ----
 #define GDL2NSCalendarDate_alloc() \
-	(*GDL2NSCalendarDate_allocWithZoneIMP)(GDL2NSCalendarDateClass,GDL2_allocWithZoneSEL,NULL) 
+	(*GDL2NSCalendarDate_allocWithZoneIMP)(GDL2NSCalendarDateClass,@selector(allocWithZone:),NULL) 
 
 // ---- NSData +alloc ----
 #define GDL2NSData_alloc()	\
-	(*GDL2NSData_allocWithZoneIMP)(GDL2NSDataClass,GDL2_allocWithZoneSEL,NULL)
+	(*GDL2NSData_allocWithZoneIMP)(GDL2NSDataClass,@selector(allocWithZone:),NULL)
 
 // ---- NSData dataWithBytes:length: ----
 #define GDL2DataWithBytesAndLength(bytes,length)	\
-	(*GDL2NSData_dataWithBytes_lengthIMP)(GDL2NSDataClass,GDL2_dataWithBytes_lengthSEL,(const void*)(bytes),(int)(length))
+	(*GDL2NSData_dataWithBytes_lengthIMP)(GDL2NSDataClass,@selector(dataWithBytes:length:),(const void*)(bytes),(int)(length))
 
 // ---- NSMutableArray +arrayWithCapacity: ----
 #define GDL2MutableArrayWithCapacity(capacity)	\
-	(*GDL2NSMutableArray_arrayWithCapacityIMP)(GDL2NSMutableArrayClass,GDL2_arrayWithCapacitySEL,capacity)
+	(*GDL2NSMutableArray_arrayWithCapacityIMP)(GDL2NSMutableArrayClass,@selector(arrayWithCapacity:),capacity)
 
 // ---- NSMutableArray +arrayWithArray: ----
 #define GDL2MutableArrayWithArray(array)	\
-	(*GDL2NSMutableArray_arrayWithArrayIMP)(GDL2NSMutableArrayClass,GDL2_arrayWithArraySEL,array)
+	(*GDL2NSMutableArray_arrayWithArrayIMP)(GDL2NSMutableArrayClass,@selector(arrayWithArray:),array)
 
 // ---- NSMutableArray +array ----
 #define GDL2MutableArray()	\
-	(*GDL2NSMutableArray_arrayIMP)(GDL2NSMutableArrayClass,GDL2_arraySEL)
+	(*GDL2NSMutableArray_arrayIMP)(GDL2NSMutableArrayClass,(array))
 
 // ---- NSArray +array ----
 #define GDL2Array()	\
-	(*GDL2NSArray_arrayIMP)(GDL2NSArrayClass,GDL2_arraySEL)
+	(*GDL2NSArray_arrayIMP)(GDL2NSArrayClass,@selector(array))
 
 // ---- NSMutableDictionary +dictionaryWithCapacity: ----
 #define GDL2MutableDictionaryWithCapacity(capacity)	\
-	(*GDL2NSMutableDictionary_dictionaryWithCapacityIMP)(GDL2NSMutableDictionaryClass,GDL2_dictionaryWithCapacitySEL,capacity)
+	(*GDL2NSMutableDictionary_dictionaryWithCapacityIMP)(GDL2NSMutableDictionaryClass,@selector(dictionaryWithCapacity:),capacity)
 
 // ---- NSObject respondsToSelector: ----
 static inline BOOL GDL2RespondsToSelectorWithImpPtr(id object,GDL2IMP_BOOL* impPtr,SEL sel)
@@ -414,8 +363,8 @@ static inline BOOL GDL2RespondsToSelectorWithImpPtr(id object,GDL2IMP_BOOL* impP
   if (object)
     {
       if (!*impPtr)
-        *impPtr=(GDL2IMP_BOOL)[object methodForSelector:GDL2_respondsToSelectorSEL];
-      return (**impPtr)(object,GDL2_respondsToSelectorSEL,sel);
+        *impPtr=(GDL2IMP_BOOL)[object methodForSelector:@selector(respondsToSelector:)];
+      return (**impPtr)(object,@selector(respondsToSelector:),sel);
     }
   else
     return NO;

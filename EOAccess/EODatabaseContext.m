@@ -417,7 +417,7 @@ static Class _contextClass = Nil;
   if (count>0)
     {
       int i = 0;
-      IMP oaiIMP=[_registeredChannels methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[_registeredChannels methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0 ; !busy && i < count; i++)
         {
@@ -441,7 +441,7 @@ static Class _contextClass = Nil;
 
   if (count>0)
     {
-      IMP oaiIMP=[_registeredChannels methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[_registeredChannels methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0; i < count; i++)
         [array addObject: [GDL2ObjectAtIndexWithImp(_registeredChannels,oaiIMP,i)
@@ -470,7 +470,7 @@ static Class _contextClass = Nil;
   int count= [_registeredChannels count];
   if (count>0)
     {
-      IMP oaiIMP=[_registeredChannels methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[_registeredChannels methodForSelector: @selector(objectAtIndex:)];
 
       for (i = count - 1; i >= 0; i--)
         {
@@ -922,7 +922,7 @@ userInfo = {
 
       if (count>0)
         {
-          IMP oaiIMP=[updatedObjects methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[updatedObjects methodForSelector: @selector(objectAtIndex:)];
           
           for (i = 0; i < count; i++)
             {
@@ -1018,8 +1018,8 @@ userInfo = {
       [EOFault clearFault: relationshipValue];
 
       // Be carefull: Never call methodForSelector before clearing fault !
-      addObjectIMP=[relationshipValue methodForSelector:GDL2_addObjectSEL];
-      oaiIMP=[sourceSnapshot methodForSelector: GDL2_objectAtIndexSEL];
+      addObjectIMP=[relationshipValue methodForSelector:@selector(addObject:)];
+      oaiIMP=[sourceSnapshot methodForSelector: @selector(objectAtIndex:)];
           
 
       for (i = 0; i < sourceSnapshotCount; i++)
@@ -1449,23 +1449,21 @@ userInfo = {
 
 		NS_DURING
 		  {
-                    SEL fetchObjectSEL=@selector(fetchObject);
-
                     IMP channelFetchObjectIMP=
-                      [channel methodForSelector:fetchObjectSEL];
+                      [channel methodForSelector:@selector(fetchObject)];
 
                     IMP arrayAddObjectIMP=
-                      [array methodForSelector:GDL2_addObjectSEL];
+                      [array methodForSelector:@selector(addObject:)];
 
                     GDL2IMP_UINT arrayIndexOfObjectIdenticalToIMP=
-                      (GDL2IMP_UINT)[array methodForSelector:GDL2_indexOfObjectIdenticalToSEL];
+                      (GDL2IMP_UINT)[array methodForSelector:@selector(indexOfObjectIdenticalTo:)];
                     
 		    arp = GDL2NSAutoreleasePool_new();
 		    NSDebugMLLog(@"EODatabaseContext",
 				 @"[channel isFetchInProgress]=%s",
 				 ([channel isFetchInProgress] ? "YES" : "NO"));
 
-		    while ((obj = (*channelFetchObjectIMP)(channel,fetchObjectSEL)))
+		    while ((obj = (*channelFetchObjectIMP)(channel,@selector(fetchObject))))
 		      {
 			NSDebugMLLog(@"EODatabaseContext",
 				     @"fetched an object");
@@ -1592,23 +1590,15 @@ userInfo = {
               EOAdaptorChannel *adaptorChannel = nil;
 
               IMP channelFetchRowWithZoneIMP=NULL;
-
-              SEL fetchRowWithZoneSEL=@selector(fetchRowWithZone:);
-
-              SEL globalIDForRowSEL=@selector(globalIDForRow:);
-              
-              IMP entityGlobalIDForRowIMP=[entity methodForSelector:globalIDForRowSEL];
-
-              SEL recordSnapshotForGlobalIDSEL=@selector(recordSnapshot:forGlobalID:);
-              IMP databaseRecordSnapshotForGlobalID=[_database methodForSelector:recordSnapshotForGlobalIDSEL];
-
+              IMP entityGlobalIDForRowIMP=[entity methodForSelector:@selector(globalIDForRow:)];
+              IMP databaseRecordSnapshotForGlobalID=[_database methodForSelector:@selector(recordSnapshot:forGlobalID:)];
               IMP cacheAddObjectIMP=NULL;
                             
               channel = [self availableChannel];
               adaptorChannel = [channel adaptorChannel];
 
               channelFetchRowWithZoneIMP=
-                [adaptorChannel methodForSelector:fetchRowWithZoneSEL];
+                [adaptorChannel methodForSelector:@selector(fetchRowWithZone:)];
 
               if (_flags.beganTransaction == NO
                   && _updateStrategy == EOUpdateWithPessimisticLocking)
@@ -1631,18 +1621,18 @@ userInfo = {
                               entity: entity];
 
               cache = [NSMutableArray arrayWithCapacity: 16];
-              cacheAddObjectIMP=[cache methodForSelector:GDL2_addObjectSEL];
+              cacheAddObjectIMP=[cache methodForSelector:@selector(addObject:)];
 
               while ((row = (*channelFetchRowWithZoneIMP)
-                      (adaptorChannel,fetchRowWithZoneSEL,NULL)))
+                      (adaptorChannel,@selector(fetchRowWithZone:),NULL)))
                 {
                   NSDebugMLLog(@"EODatabaseContext", @"row=%@", row);
 
-                  gid = (*entityGlobalIDForRowIMP)(entity,globalIDForRowSEL,row);
+                  gid = (*entityGlobalIDForRowIMP)(entity,@selector(globalIDForRow:),row);
                   NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
                   (*databaseRecordSnapshotForGlobalID)
-                    (_database,recordSnapshotForGlobalIDSEL,row,gid);
+                    (_database,@selector(recordSnapshot:forGlobalID:),row,gid);
                   GDL2AddObjectWithImp(cache,cacheAddObjectIMP,gid);
                 }
 
@@ -1657,21 +1647,20 @@ userInfo = {
           if ([cache count]>0)
             {
               IMP arrayAddObjectIMP=
-                [array methodForSelector:GDL2_addObjectSEL];
+                [array methodForSelector:@selector(addObject:)];
               
               GDL2IMP_UINT arrayIndexOfObjectIdenticalToIMP=
-                (GDL2IMP_UINT)[array methodForSelector:GDL2_indexOfObjectIdenticalToSEL];
+                (GDL2IMP_UINT)[array methodForSelector:@selector(indexOfObjectIdenticalTo:)];
               
               NSEnumerator *cacheEnum = [cache objectEnumerator];
 
-              IMP cacheEnumNextObjectIMP=[cacheEnum methodForSelector:GDL2_nextObjectSEL];
+              IMP cacheEnumNextObjectIMP=[cacheEnum methodForSelector:@selector(nextObject)];
           
               EOClassDescription* classDescriptionForInstances=
                 [entity classDescriptionForInstances];
 
-              SEL evaluateWithObjectSEL=@selector(evaluateWithObject:);
               GDL2IMP_BOOL qualifierEvaluateWithObjectIMP=
-                (GDL2IMP_BOOL)[qualifier methodForSelector:evaluateWithObjectSEL];
+                (GDL2IMP_BOOL)[qualifier methodForSelector:@selector(evaluateWithObject:)];
 
               IMP ecObjectForGlobalIDIMP=NULL;
               IMP ecRecordObjectGlobalIDIMP=NULL;
@@ -1684,7 +1673,7 @@ userInfo = {
                   if (snapshot)
                     {
                       if (!qualifier
-                          || (*qualifierEvaluateWithObjectIMP)(qualifier,evaluateWithObjectSEL,snapshot) == YES)
+                          || (*qualifierEvaluateWithObjectIMP)(qualifier,@selector(evaluateWithObject:),snapshot) == YES)
                         {
                           obj = EOEditingContext_objectForGlobalIDWithImpPtr(context,&ecObjectForGlobalIDIMP,gid);
                           
@@ -1804,16 +1793,14 @@ userInfo = {
 
                   NS_DURING
                     {                  
-                      SEL fetchObjectSEL=@selector(fetchObject);
-                      
                       IMP channelFetchObjectIMP=
-                        [channel methodForSelector:fetchObjectSEL];
+                        [channel methodForSelector:@selector(fetchObject)];
                       
                       IMP arrayAddObjectIMP=
-                        [array methodForSelector:GDL2_addObjectSEL];
+                        [array methodForSelector:@selector(addObject:)];
                       
                       GDL2IMP_UINT arrayIndexOfObjectIdenticalToIMP=
-                        (GDL2IMP_UINT)[array methodForSelector:GDL2_indexOfObjectIdenticalToSEL];
+                        (GDL2IMP_UINT)[array methodForSelector:@selector(indexOfObjectIdenticalTo:)];
                       
                       arp = GDL2NSAutoreleasePool_new();
                       
@@ -1822,7 +1809,7 @@ userInfo = {
 				   ([channel isFetchInProgress] 
 				    ? "YES" : "NO"));
 
-                      while ((obj = (*channelFetchObjectIMP)(channel,fetchObjectSEL)))
+                      while ((obj = (*channelFetchObjectIMP)(channel,@selector(fetchObject))))
                         {
                           NSDebugMLLog(@"EODatabaseContext",
 				       @"fetched an object");
@@ -2274,7 +2261,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
   count = [classProperties count];
   if (count>0)
     {
-      IMP oaiIMP=[classProperties methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[classProperties methodForSelector: @selector(objectAtIndex:)];
           
       for (i = 0; i < count; i++)
         {
@@ -2361,7 +2348,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
           count = [array count];
           if (count>0)
             {
-              IMP oaiIMP=[array methodForSelector: GDL2_objectAtIndexSEL];
+              IMP oaiIMP=[array methodForSelector: @selector(objectAtIndex:)];
           
               for (i = 0; i < count; i++)
                 {
@@ -2459,7 +2446,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
 
       if (count>0)
         {
-          IMP oaiIMP=[objects[which] methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[objects[which] methodForSelector: @selector(objectAtIndex:)];
           int i = 0;
 
           // For each object
@@ -2530,7 +2517,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
                            object,relationships);
                   
               relationshipsCount = [relationships count];
-              relObjectAtIndexIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+              relObjectAtIndexIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
 
               if (which == 1) //delete        //Not in insert //not in update
                 {                  
@@ -2759,8 +2746,8 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                         {
                                           int iValue;
                                           NSMutableArray *valuesGIDs = [NSMutableArray array];
-                                          IMP valuesGIDsAddObjectIMP=[valuesGIDs methodForSelector:GDL2_addObjectSEL];
-                                          IMP svObjectAtIndexIMP=[relationshipSnapshotValue methodForSelector: GDL2_objectAtIndexSEL];
+                                          IMP valuesGIDsAddObjectIMP=[valuesGIDs methodForSelector:@selector(addObject:)];
+                                          IMP svObjectAtIndexIMP=[relationshipSnapshotValue methodForSelector: @selector(objectAtIndex:)];
                                           
                                           for (iValue = 0;
                                                iValue < newValuesCount;
@@ -3742,7 +3729,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
               if (destinationKeysCount>0)
                 {
-                  IMP oaiIMP=[destinationKeys methodForSelector: GDL2_objectAtIndexSEL];
+                  IMP oaiIMP=[destinationKeys methodForSelector: @selector(objectAtIndex:)];
 
                   for (i = 0 ;i < destinationKeysCount; i++)
                     {
@@ -3788,7 +3775,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (destinationObjectsCount > 0)
     {
       int i;
-      IMP oaiIMP=[destinationObjects methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[destinationObjects methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0; i < destinationObjectsCount; i++)
         {
@@ -3825,7 +3812,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (destinationObjectsCount > 0)
     {
       int i;
-      IMP oaiIMP=[destinationObjects methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[destinationObjects methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0; i < destinationObjectsCount; i++)
         {
@@ -3904,8 +3891,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       if (foreignKeyInDestination || [relationship propagatesPrimaryKey])
         {
-          IMP srcObjectAIndexIMP=[sourceKeys methodForSelector: GDL2_objectAtIndexSEL];
-          IMP dstObjectAIndexIMP=[destinationKeys methodForSelector: GDL2_objectAtIndexSEL];
+          IMP srcObjectAIndexIMP=[sourceKeys methodForSelector: @selector(objectAtIndex:)];
+          IMP dstObjectAIndexIMP=[destinationKeys methodForSelector: @selector(objectAtIndex:)];
 
           relayedValues = AUTORELEASE([[sourceNewRow valuesForKeys: sourceKeys]
 			     mutableCopy]);// {code = 0; }
@@ -3945,8 +3932,8 @@ Raises an exception is the adaptor is unable to perform the operations.
         {
           //Verify !!
           NSDictionary *destinationValues;
-          IMP srcObjectAIndexIMP=[sourceKeys methodForSelector: GDL2_objectAtIndexSEL];
-          IMP dstObjectAIndexIMP=[destinationKeys methodForSelector: GDL2_objectAtIndexSEL];
+          IMP srcObjectAIndexIMP=[sourceKeys methodForSelector: @selector(objectAtIndex:)];
+          IMP dstObjectAIndexIMP=[destinationKeys methodForSelector: @selector(objectAtIndex:)];
 
           NSDebugMLLog(@"EODatabaseContext",
 		       @"Call valuesForKeys destinationObject (%p-<%@>)",
@@ -4236,7 +4223,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 	     [object debugDictionaryDescription]);*/
            if (propNamesCount>0)
              {
-               IMP oaiIMP=[classPropertyNames methodForSelector: GDL2_objectAtIndexSEL];
+               IMP oaiIMP=[classPropertyNames methodForSelector: @selector(objectAtIndex:)];
 
                for (i = 0; i < propNamesCount; i++)
                  {
@@ -4284,7 +4271,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
            if (snapKeyCount>0)
              {
-               IMP oaiIMP=[dbSnapshotKeys methodForSelector: GDL2_objectAtIndexSEL];
+               IMP oaiIMP=[dbSnapshotKeys methodForSelector: @selector(objectAtIndex:)];
                for (i = 0; i < snapKeyCount; i++)
                  {
                    id key = GDL2ObjectAtIndexWithImp(dbSnapshotKeys,oaiIMP,i);
@@ -4361,7 +4348,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      IMP oaiIMP=[values methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[values methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0; nullPKValues && i < count; i++)
         nullPKValues = _isNilOrEONull(GDL2ObjectAtIndexWithImp(values,oaiIMP,i));
@@ -4416,7 +4403,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      IMP oaiIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0; i < count; i++)
         {
@@ -4473,7 +4460,7 @@ Raises an exception is the adaptor is unable to perform the operations.
                       if (valueValuesCount>0)
                         {
                           int iValueValue = 0;
-                          IMP vObjectAtIndexIMP=[value methodForSelector: GDL2_objectAtIndexSEL];
+                          IMP vObjectAtIndexIMP=[value methodForSelector: @selector(objectAtIndex:)];
 
                           for (iValueValue = 0;
                                iValueValue < valueValuesCount;
@@ -4862,8 +4849,8 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (count>0)
     {
       int i=0;
-      IMP attributesAddObjectIMP=[attributes methodForSelector:GDL2_addObjectSEL];
-      IMP attributesToSaveObjectAtIndexIMP=[attributesToSave methodForSelector:GDL2_objectAtIndexSEL];
+      IMP attributesAddObjectIMP=[attributes methodForSelector:@selector(addObject:)];
+      IMP attributesToSaveObjectAtIndexIMP=[attributesToSave methodForSelector:@selector(objectAtIndex:)];
 
       for (i = 0; i < count; i++)
         {
@@ -4928,7 +4915,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
           if (count>0)
             {
-              IMP oaiIMP=[dbOpeAdaptorOperations methodForSelector: GDL2_objectAtIndexSEL];
+              IMP oaiIMP=[dbOpeAdaptorOperations methodForSelector: @selector(objectAtIndex:)];
               int i=0;
 
               for (i = 0; i < count; i++)
@@ -4962,8 +4949,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 
         if (entitiesCount>0)
           {
-            IMP entityObjectAtIndexIMP=[entityNameOrderingArray methodForSelector: GDL2_objectAtIndexSEL];
-            IMP opeObjectAtIndexIMP=[adaptorOperations methodForSelector: GDL2_objectAtIndexSEL];
+            IMP entityObjectAtIndexIMP=[entityNameOrderingArray methodForSelector: @selector(objectAtIndex:)];
+            IMP opeObjectAtIndexIMP=[adaptorOperations methodForSelector: @selector(objectAtIndex:)];
             int iEntity=0;
 
             for (iEntity = 0; iEntity < entitiesCount; iEntity++)
@@ -5008,7 +4995,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      IMP oaiIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
       int i=0;
 
       for (i = 0; i < count; i++)
@@ -5092,7 +5079,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      IMP oaiIMP=[entities methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[entities methodForSelector: @selector(objectAtIndex:)];
       int i=0;
 
       for (i = 0; i < count; i++)
@@ -5173,7 +5160,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      IMP oaiIMP=[attributes methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[attributes methodForSelector: @selector(objectAtIndex:)];
       int i=0;
 
       for (i = 0; i < count; i++)
@@ -5218,7 +5205,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      IMP oaiIMP=[attributes methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[attributes methodForSelector: @selector(objectAtIndex:)];
       int i=0;
 
       for (i = 0; i < count; i++)
@@ -5260,7 +5247,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      IMP oaiIMP=[attributes methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[attributes methodForSelector: @selector(objectAtIndex:)];
       int i=0;
 
       for (i = 0; i < count; i++)
@@ -5313,7 +5300,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       if (count>0)
         {
-          IMP oaiIMP=[array methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[array methodForSelector: @selector(objectAtIndex:)];
           int i=0;
 
           for (i = 0; i < count; i++)
@@ -5482,7 +5469,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       int count = [attributes count];
       if (count>0)
         {
-          IMP oaiIMP=[attributes methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[attributes methodForSelector: @selector(objectAtIndex:)];
           int i=0;
 
           for (i = 0; i < count; i++)
@@ -5559,7 +5546,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   qualifierArray = GDL2MutableArray();
   valuesArray = GDL2MutableArray();
   toManySnapshotArray = GDL2MutableArray();
-  toManySnapArrayObjectAtIndexIMP=[toManySnapshotArray methodForSelector: GDL2_objectAtIndexSEL];
+  toManySnapArrayObjectAtIndexIMP=[toManySnapshotArray methodForSelector: @selector(objectAtIndex:)];
   relationshipName = [relationship name];
 
   objsEnum = [objects objectEnumerator];
@@ -5603,7 +5590,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      IMP oaiIMP=[valuesArray methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[valuesArray methodForSelector: @selector(objectAtIndex:)];
 
       objsEnum = [array objectEnumerator];
       objsEnumNO=NULL;
@@ -6298,7 +6285,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (snapshotsDictCount>0)
     {
       int i = 0;
-      IMP oaiIMP=[_uniqueStack methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[_uniqueStack methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0; !snapshot && i < snapshotsDictCount; i++)
         {
@@ -6366,7 +6353,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   n = [_uniqueStack count];
   if (n>0)
     {
-      IMP oaiIMP=[_uniqueStack methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[_uniqueStack methodForSelector: @selector(objectAtIndex:)];
 
       for (i=0; i<n; i++)
         {
@@ -6378,7 +6365,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   n = [_uniqueArrayStack count];
   if (n>0)
     {
-      IMP oaiIMP=[_uniqueArrayStack methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[_uniqueArrayStack methodForSelector: @selector(objectAtIndex:)];
 
       for (i=0; i<n; i++)
         {
@@ -6390,7 +6377,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   n = [_deleteStack count];
   if (n>0)
     {
-      IMP oaiIMP=[_deleteStack methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[_deleteStack methodForSelector: @selector(objectAtIndex:)];
       for (i=0; i<n; i++)
         {
           snapshots = GDL2ObjectAtIndexWithImp(_deleteStack,oaiIMP,i);
@@ -6428,7 +6415,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       if (count>0)
         {
-          IMP oaiIMP=[keys methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[keys methodForSelector: @selector(objectAtIndex:)];
           int i = 0;
 
           for (i = 0; i < count; i++)
@@ -6505,12 +6492,12 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (count>0)
     {
       int i=0;
-      IMP oaiIMP=[classPropertyAttributeNames methodForSelector:GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[classPropertyAttributeNames methodForSelector:@selector(objectAtIndex:)];
 
       NSAssert(!_isFault(object),
                @"Object is a fault. call -methodForSelector: on it is a bad idea");
 
-      objectTakeStoredValueForKeyIMP=[object methodForSelector:GDL2_takeStoredValueForKeySEL];
+      objectTakeStoredValueForKeyIMP=[object methodForSelector:@selector(takeStoredValue:forKey:)];
 
       for (i = 0; i < count; i++)
         {
@@ -6542,14 +6529,14 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (count>0)
     {
       int i=0;
-      IMP oaiIMP=[relationships methodForSelector:GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[relationships methodForSelector:@selector(objectAtIndex:)];
 
       if (!objectTakeStoredValueForKeyIMP)
         {
           NSAssert(!_isFault(object),
                    @"Object is a fault. call -methodForSelector: on it is a bad idea");
 
-          objectTakeStoredValueForKeyIMP=[object methodForSelector:GDL2_takeStoredValueForKeySEL];
+          objectTakeStoredValueForKeyIMP=[object methodForSelector:@selector(takeStoredValue:forKey:)];
         };
 
       for (i = 0; i < count; i++)
@@ -6692,7 +6679,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       if (n>0)
         {
-          IMP oaiIMP=[gids methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[gids methodForSelector: @selector(objectAtIndex:)];
           unsigned i = 0;
 
           for (i=0; i<n; i++)
@@ -7097,7 +7084,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       
       if (relationshipsCount>0)
         {
-          IMP oaiIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
           int i = 0;
 
           for (i = 0; i < relationshipsCount; i++)
@@ -7216,7 +7203,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       if (count>0)
         {
-          IMP oaiIMP=[objects[which] methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[objects[which] methodForSelector: @selector(objectAtIndex:)];
           int i = 0;
           
           for (i = 0; i < count; i++)
@@ -7250,7 +7237,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
           if (relationshipsCount>0)
             {
-              IMP relObjectAtIndexIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+              IMP relObjectAtIndexIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
               int iRelationship = 0;
           
               for (iRelationship = 0;
@@ -7285,7 +7272,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
                           if (count>0)
                             {
-                              IMP destAttrsObjectAtIndexIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+                              IMP destAttrsObjectAtIndexIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
                               int i=0;
                               for (i = 0; i < count; i++)
                                 {

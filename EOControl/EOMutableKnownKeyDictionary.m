@@ -266,7 +266,7 @@ RCS_ID("$Id$")
     {
       int i=0;
       GDL2IMP_UINT indexForKeyIMP=NULL;
-      IMP objectAtIndexIMP=[keys methodForSelector:GDL2_objectAtIndexSEL];
+      IMP objectAtIndexIMP=[keys methodForSelector:@selector(objectAtIndex:)];
 
       for (i = 0; i < keyCount; i++)
         {
@@ -307,8 +307,8 @@ RCS_ID("$Id$")
         int i;
         GDL2IMP_UINT selfIndexForKeyIMP=NULL;
         GDL2IMP_UINT sourceInitializerIndexForKeyIMP=NULL;
-        IMP sourceObjectAtIndexIMP=[sourceKeys methodForSelector:GDL2_objectAtIndexSEL];
-        IMP destinationObjectAtIndexIMP=[destinationKeys methodForSelector:GDL2_objectAtIndexSEL];
+        IMP sourceObjectAtIndexIMP=[sourceKeys methodForSelector:@selector(objectAtIndex:)];
+        IMP destinationObjectAtIndexIMP=[destinationKeys methodForSelector:@selector(objectAtIndex:)];
 
         for (i = 0; i < keyCount; i++)
           {

@@ -208,7 +208,7 @@ _mergeValueForKey(id obj, id value,
   n = [del count];
   if (n>0)
     {
-      IMP oaiIMP=[del methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[del methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0; i < n; i++)
         {
@@ -222,7 +222,7 @@ _mergeValueForKey(id obj, id value,
   n = [add count];
   if (n>0)
     {
-      IMP oaiIMP=[add methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[add methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0; i < n; i++)
         {
@@ -412,7 +412,7 @@ _mergeValueForKey(id obj, id value,
   n = [changes count];
   if (n>0)
     {
-      IMP oaiIMP=[del methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[del methodForSelector: @selector(objectAtIndex:)];
 
       for(i = 0; i < n; i++)
         {
@@ -466,7 +466,7 @@ _mergeValueForKey(id obj, id value,
 
       if (cnt>0)
         {
-          IMP oaiIMP=[gids methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[gids methodForSelector: @selector(objectAtIndex:)];
 
           for (j=0; j<cnt; j++)
             {
@@ -552,7 +552,7 @@ _mergeValueForKey(id obj, id value,
   n=[deletedGIDs count];
   if (n>0)
     {
-      IMP oaiIMP=[deletedGIDs methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[deletedGIDs methodForSelector: @selector(objectAtIndex:)];
       for (i = 0; i < n; i++)
         {
           id obj = GDL2ObjectAtIndexWithImp(deletedGIDs,oaiIMP,i);
@@ -587,7 +587,7 @@ _mergeValueForKey(id obj, id value,
       n = [updatedChanges count];
       if (n>0)
         {
-          IMP oaiIMP=[deletedGIDs methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[deletedGIDs methodForSelector: @selector(objectAtIndex:)];
 
           for (i = 0; i < n; i++)
             {
@@ -631,7 +631,7 @@ _mergeValueForKey(id obj, id value,
 
   if ((n = [globalIDs count]))
     {
-      IMP oaiIMP=[globalIDs methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[globalIDs methodForSelector: @selector(objectAtIndex:)];
       SEL sel = @selector(editingContext:shouldMergeChangesForObject:);
       BOOL send;
       send = [_delegate respondsToSelector: sel];
@@ -695,12 +695,12 @@ _mergeValueForKey(id obj, id value,
   NSDictionary *change;
   id objVal, ssVal;
   unsigned i,n;
-  IMP chgsAddObjectIMP=[chgs methodForSelector: GDL2_addObjectSEL];
+  IMP chgsAddObjectIMP=[chgs methodForSelector: @selector(addObject:)];
 
   n = [attribKeys count];
   if (n>0)
     {
-      IMP oaiIMP=[attribKeys methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[attribKeys methodForSelector: @selector(objectAtIndex:)];
 
       for(i = 0; i < n; i++)
         {
@@ -723,7 +723,7 @@ _mergeValueForKey(id obj, id value,
   n = [toOneKeys count];
   if (n>0)
     {
-      IMP oaiIMP = [toOneKeys methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP = [toOneKeys methodForSelector: @selector(objectAtIndex:)];
       IMP globalIDForObjectIMP = NULL;
 
       for(i = 0; i < n; i++)
@@ -749,7 +749,7 @@ _mergeValueForKey(id obj, id value,
   n = [toManyKeys count];
   if (n>0)
     {
-      IMP oaiIMP=[toManyKeys methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[toManyKeys methodForSelector: @selector(objectAtIndex:)];
 
       for(i = 0; i < n; i++)
         {
@@ -798,8 +798,8 @@ _mergeValueForKey(id obj, id value,
 
   if (n>0)
     {
-      IMP oaiIMP=[array methodForSelector: GDL2_objectAtIndexSEL];
-      IMP aoIMP=[set methodForSelector: GDL2_addObjectSEL];
+      IMP oaiIMP=[array methodForSelector: @selector(objectAtIndex:)];
+      IMP aoIMP=[set methodForSelector: @selector(addObject:)];
 
       for (i=0; i<n; i++)
         {
@@ -1111,7 +1111,7 @@ _mergeValueForKey(id obj, id value,
     {
       unsigned    i = 0;
       SEL         iowgidSEL = @selector(_invalidateObjectWithGlobalID:);//TODO optimz
-      IMP         oaiIMP = [gids methodForSelector: GDL2_objectAtIndexSEL];
+      IMP         oaiIMP = [gids methodForSelector: @selector(objectAtIndex:)];
       IMP         iowgidIMP = [self methodForSelector: iowgidSEL];
       
       for (i=0; i<count; i++)
@@ -1140,7 +1140,7 @@ _mergeValueForKey(id obj, id value,
 
   if (count>0)
     {
-      IMP oaiIMP = [gids methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP = [gids methodForSelector: @selector(objectAtIndex:)];
       IMP insertedAddObjectIMP = NULL;
       IMP deletedAddObjectIMP = NULL;
       IMP objectForGlobalIDIMP=NULL;
@@ -1155,14 +1155,14 @@ _mergeValueForKey(id obj, id value,
               if (NSHashGet(_insertedObjects, obj))
                 {
                   if (!insertedAddObjectIMP)
-                    insertedAddObjectIMP = [insertedObjects methodForSelector: GDL2_addObjectSEL];
+                    insertedAddObjectIMP = [insertedObjects methodForSelector: @selector(addObject:)];
                   GDL2AddObjectWithImp(insertedObjects, insertedAddObjectIMP, obj);
                 }
               
               if (NSHashGet(_deletedObjects, obj))
                 {
                   if (!deletedAddObjectIMP)
-                    deletedAddObjectIMP = [deletedObjects methodForSelector: GDL2_addObjectSEL];
+                    deletedAddObjectIMP = [deletedObjects methodForSelector: @selector(addObject:)];
                   GDL2AddObjectWithImp(deletedObjects, deletedAddObjectIMP, obj);
                 }
             }
@@ -1622,7 +1622,7 @@ _mergeValueForKey(id obj, id value,
                            forKey: EOInsertedKey];
 
           unprocessedInsertsGlobalIDs
-            = [self resultsOfPerformingSelector: GDL2_globalIDForObjectSEL
+            = [self resultsOfPerformingSelector: @selector(globalIDForObject:)
                     withEachObjectInArray: unprocessedInsertsArray];
 
           [globalIDsUserInfo setObject: unprocessedInsertsGlobalIDs
@@ -1675,7 +1675,7 @@ _mergeValueForKey(id obj, id value,
           [objectsUserInfo setObject: unprocessedDeletesArray
                            forKey: EODeletedKey];
           unprocessedDeletesGlobalIDs
-            = [self resultsOfPerformingSelector: GDL2_globalIDForObjectSEL
+            = [self resultsOfPerformingSelector: @selector(globalIDForObject:)
                     withEachObjectInArray: unprocessedDeletesArray];
 
           [globalIDsUserInfo setObject: unprocessedDeletesGlobalIDs
@@ -1695,7 +1695,7 @@ _mergeValueForKey(id obj, id value,
                            forKey: EOUpdatedKey];
 
           unprocessedChangesGlobalIDs
-            = [self resultsOfPerformingSelector: GDL2_globalIDForObjectSEL
+            = [self resultsOfPerformingSelector: @selector(globalIDForObject:)
                     withEachObjectInArray: unprocessedChangesArray];
 
           [globalIDsUserInfo setObject: unprocessedChangesGlobalIDs
@@ -2089,7 +2089,7 @@ _mergeValueForKey(id obj, id value,
       count = [toOneRelationshipKeys count];
       if (count > 0)
         {
-          IMP oaiIMP=[toOneRelationshipKeys methodForSelector: GDL2_objectAtIndexSEL];
+          IMP oaiIMP=[toOneRelationshipKeys methodForSelector: @selector(objectAtIndex:)];
           
           for (i = 0; i < count; i++)
             {
@@ -2171,7 +2171,7 @@ _mergeValueForKey(id obj, id value,
 
       count = [toManyRelationshipKeys count];
       
-      IMP oaiIMP=[toManyRelationshipKeys methodForSelector: GDL2_objectAtIndexSEL];
+      IMP oaiIMP=[toManyRelationshipKeys methodForSelector: @selector(objectAtIndex:)];
       
       for (i = 0; i < count; i++)
         {

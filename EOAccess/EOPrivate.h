@@ -36,10 +36,6 @@
 GDL2ACCESS_EXPORT Class GDL2EODatabaseContextClass;
 GDL2ACCESS_EXPORT Class GDL2EOAttributeClass;
 
-// ==== Selectors =====
-GDL2ACCESS_EXPORT SEL GDL2_snapshotForGlobalIDSEL;
-GDL2ACCESS_EXPORT SEL GDL2__globalIDForObjectSEL;
-
 // ==== IMPs ====
 GDL2ACCESS_EXPORT IMP GDL2EODatabaseContext_snapshotForGlobalIDIMP;
 GDL2ACCESS_EXPORT IMP GDL2EODatabaseContext__globalIDForObjectIMP;

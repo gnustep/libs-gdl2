@@ -370,7 +370,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	GDL2AppendStringWithImp(entitiesString,
                                 entitiesStringAppendStringIMP,@", ");
       else
-        entitiesStringAppendStringIMP = [entitiesString methodForSelector:GDL2_appendStringSEL];
+        entitiesStringAppendStringIMP = [entitiesString methodForSelector:@selector(appendString:)];
 
       if ([relationshipPath isEqualToString: @""])
         {
@@ -1272,7 +1272,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	  char *s;
 	  NSMutableString *str = [NSMutableString stringWithCapacity:
 						    [format length]];
-          IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
+          IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
 
 	  while ((s = strchr(p, '%')))
 	    {
@@ -2095,7 +2095,7 @@ else if([anAttribute isDerived] == YES)
       const char *s, *p, *init = [pattern cString];
       NSMutableString *str = [NSMutableString stringWithCapacity:
                                                 patternLength];
-      IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
+      IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
 
       for (s = p = init; *s; s++)
         {
@@ -2167,7 +2167,7 @@ else if([anAttribute isDerived] == YES)
   const char *s, *p, *init = [pattern cString];
   NSMutableString *str = [NSMutableString stringWithCapacity:
 					    [pattern length]];
-  IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
+  IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
 
   for (s = p = init; *s; s++)
     {
@@ -2534,7 +2534,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 @implementation EOSQLExpression (EOSchemaGeneration)
 
 + (NSArray *)_administrativeDatabaseStatementsForSelector:(SEL) sel
-					    forEntityGroup:(NSArray *)group
+					   forEntityGroup:(NSArray *)group
 {
   EOEntity     *entity;
   EOModel      *model;
