@@ -20,7 +20,10 @@
 	(-encodeIntoPropertyList:): Implement.
 	(-description): Implement.
 	(-_setIsEdited): Implement.
-	
+
+	* EOControl/EOEditingContext.m
+	(-_objectBasedChangeInfoForGIDInfo:): Make a little more gdb
+	friendly.
 	
 2005-02-07  Matt Rice  <ratmice@yahoo.com>
 

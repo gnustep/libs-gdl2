@@ -436,7 +436,10 @@ _mergeValueForKey(id obj, id value,
                                 : values);
       for (j=0; j<cnt; j++)
         {
-          *valuesP++ = [self objectForGlobalID: [gids objectAtIndex: j]];
+	  EOGlobalID *gid = [gids objectAtIndex: j];
+	  id obj = [self objectForGlobalID: gid];
+	  NSAssert1(obj, @"called with GID %@ not managed by reciever.", gid);
+          *valuesP++ = obj;
         }
       valueArray[i] = [NSArray arrayWithObjects: valuesPStart
                                count: cnt];
