@@ -320,7 +320,7 @@ static Class EOFaultClass = NULL;
   NSDebugFLLog(@"gsdb", @"class=%@ aSelector=%@", class,
 	       NSStringFromSelector(aSelector));
 
-  respondsToSelector = (GSObjCGetInstanceMethod(class, aSelector) != (IMP)0);
+  respondsToSelector = (GSObjCGetMethod(class, aSelector) != (IMP)0);
   NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
 
   return respondsToSelector;

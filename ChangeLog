@@ -1,3 +1,9 @@
+2003-03-31  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOFault.m ([EOFault respondsToSelector:]): Replaced
+	usage of potential future runtime function name with current
+	function name.
+	
 2003-03-30  David Ayers  <d.ayers@inode.at>
 
 	* *.h/m, *.h/m):
