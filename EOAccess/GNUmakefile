@@ -33,12 +33,12 @@ include ../Version
 LIBRARY_NAME=libgnustep-db2
 
 ifeq ($(FOUNDATION_LIB),gnu)
-LIBRARIES_DEPEND_UPON=-lgnustep-base
+LIBRARIES_DEPEND_UPON = -lgnustep-base
 else
-LIBRARIES_DEPEND_UPON=-lgnustep-baseadd
+LIBRARIES_DEPEND_UPON = -lgnustep-baseadd
 endif
 
-LIBRARIES_DEPEND_UPON+=-lgnustep-db2control
+LIBRARIES_DEPEND_UPON += -lgnustep-db2control
 
 # The C source files to be compiled
 libgnustep-db2_C_FILES = 

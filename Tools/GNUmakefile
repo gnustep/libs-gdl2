@@ -33,12 +33,12 @@ include ../Version
 TOOL_NAME=gdlgsdoc eoutil
 
 ifeq ((FOUNDATION_LIB),gnu)
-LIBRARIES_DEPEND_UPON=-lgnustep-base
+LIBRARIES_DEPEND_UPON = -lgnustep-base
 else
-LIBRARIES_DEPEND_UPON=-lgnustep-baseadd
+LIBRARIES_DEPEND_UPON = -lgnustep-baseadd
 endif
 
-LIBRARIES_DEPEND_UPON+=-lgnustep-db2control -lgnustep-db2
+LIBRARIES_DEPEND_UPON += -lgnustep-db2control -lgnustep-db2
 
 # The C source files to be compiled
 gdlgsdoc_C_FILES = 
