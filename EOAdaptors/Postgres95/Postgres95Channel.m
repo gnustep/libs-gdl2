@@ -1732,7 +1732,8 @@ each key
 {
   EOModel   *model;
   EOAdaptor *adaptor;
-  NSArray *entityNames;
+  EOEntity  *entity;
+  NSArray   *entityNames;
   unsigned int i;
 
   adaptor = [[self adaptorContext] adaptor];
@@ -1766,7 +1767,6 @@ each key
     {
       NSAutoreleasePool *pool = [NSAutoreleasePool new];
       NSString *entityName;
-      EOEntity *entity;
 
       NS_DURING
 	entityName = [entityNames objectAtIndex:i];
@@ -1782,6 +1782,20 @@ each key
 
       [pool release];
     }
+
+  for (i=0; i < [entityNames count]; i++)
+    {
+      NSAutoreleasePool *pool = [NSAutoreleasePool new];
+      NSMutableArray *classProperties;
+
+      entity = [model entityNamed:[entityNames objectAtIndex:i]];
+      classProperties = [NSMutableArray arrayWithArray:[entity attributes]]; 
+      [classProperties removeObjectsInArray: [entity primaryKeyAttributes]];
+      [entity setClassProperties: classProperties];
+
+      [pool release];
+    }
+
   [model beautifyNames];
   return model;
 }

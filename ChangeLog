@@ -1,3 +1,9 @@
+2004-05-15  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAdaptors/Postgres95/Postgres95Channel.m
+	([Postgres95Channel describeModelWithTableNames:]):
+	Set class properties.
+	
 2004-05-15  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAttribute.m
