@@ -33,6 +33,12 @@
 #
 
 # Things to do before compiling
+ifneq ($(GUI_MAKE_LOADED),yes)
+ifneq ($(GUI_LIB),apple)
+before-all::
+	@echo Skipping login panel compilation. GNUstep gui not installed.
+endif
+endif
 before-all:: Postgres95EOAdaptor
 
 # Things to do after compiling

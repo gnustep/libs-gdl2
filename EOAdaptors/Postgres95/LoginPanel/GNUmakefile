@@ -26,6 +26,11 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 BUNDLE_NAME=LoginPanel
+ifneq ($(GUI_MAKE_LOADED),yes)
+ifneq ($(GUI_LIB),apple)
+BUNDLE_NAME=
+endif
+endif
 
 LoginPanel_OBJC_FILES = Postgres95LoginPanel.m
 LoginPanel_PRINCIPAL_CLASS = Postgres95LoginPanel
@@ -48,15 +53,7 @@ include ../config.mak
 
 -include GNUmakefile.local
 
-ifeq ($(GUI_MAKE_LOADED),yes)
-  include $(GNUSTEP_MAKEFILES)/bundle.make
-else
-  ifeq ($(GUI_LIB),apple)
-      include $(GNUSTEP_MAKEFILES)/bundle.make
-  else
-       guiNotInstalled:
-	@echo Skipping login panel compilation. GNUstep gui not installed. 
-  endif
-endif
+include $(GNUSTEP_MAKEFILES)/bundle.make
 
 -include Makefile.postamble
+

@@ -1,3 +1,9 @@
+2004-04-20  David Ayers  <d.ayers@inode.at>
+
+	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile
+	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble: Allow clean
+	and distclean targets when -gui is not available.
+
 2004-04-18  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOGlobalID.h: Correct size of _bytes.
@@ -16,7 +22,6 @@
 	bytes instead of pointer value.
 	([EOTemporaryGlobalID decodeWithCoder:]): Decode contents of
 	bytes instead of pointer value.
-
 	
 2004-04-17  David Ayers  <d.ayers@inode.at>
 
