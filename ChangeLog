@@ -82,6 +82,15 @@
 		o implemented -bindingKeys
 		o implemented -keyPathForBindingKey:
 		o added EOQualifierVariableSubstitutionException;
+	* EOControl/EOClassDescription.m/h:
+		o added -dictionaryForProperties 
+		o added EOEntityClassDescription -dictionaryForProperties
+		  wich use entity -_dictionaryForProperties
+	* EOControl/EOGenericRecord.m/h:
+		o use EOClassDescription  -dictionaryForProperties
+		  instead of building itself it's dictionary so we can
+		  always use the same EOMKKDInitializer to save	(lots of)
+		  memory.
 	
 2003-10-24  David Ayers  <d.ayers@inode.at>
 

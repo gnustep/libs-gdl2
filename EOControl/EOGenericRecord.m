@@ -129,6 +129,16 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
   [allGenericRecordsLock unlock];
 }
 
+-(void)_createDictionaryForInstanceProperties
+{
+  // Ayers: Review
+  // We use entity dictionaryForProperties to avoid creation 
+  //of new EOMKKDInitializer
+  ASSIGN(dictionary,[classDescription dictionaryForInstanceProperties]);
+  EOFLOGObjectLevelArgs(@"EOGenericRecord", @"Record %p: dictionary=%@",
+                        self, dictionary);
+};
+
 - (id) init
 {
   if ((self = [super init]))
@@ -145,9 +155,6 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 {
   if ((self = [self init]))
     {
-      NSMutableArray *classPropertyNames = nil;
-      EOMutableKnownKeyDictionary *entityMKKD = nil;
-
       if (!classDesc)
         {
           [NSException raise: NSInternalInconsistencyException
@@ -162,25 +169,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 
       ASSIGN(classDescription, classDesc);
 
-      // Get class properties (attributes + relationships)
-      classPropertyNames = [[NSMutableArray alloc]
-			     initWithArray: [classDesc attributeKeys]];
-      [classPropertyNames addObjectsFromArray:
-			    [classDesc toOneRelationshipKeys]];
-      [classPropertyNames addObjectsFromArray:
-			    [classDesc toManyRelationshipKeys]];
-
-      NSAssert1([classPropertyNames count] > 0,
-                @"No classPropertyNames in %@", classDesc);
-
-      entityMKKD = [EOMutableKnownKeyDictionary
-                  dictionaryWithInitializer:
-          [[EOMKKDInitializer newWithKeyArray: classPropertyNames] autorelease]];
-
-      ASSIGN(dictionary,entityMKKD);
-      EOFLOGObjectLevelArgs(@"EOGenericRecord", @"Record %p: dictionary=%@",
-			    self, dictionary);
-      [classPropertyNames release];
+      [self _createDictionaryForInstanceProperties];
     }
 
   return self;
@@ -997,6 +986,16 @@ infinite loop in description **/
 {
   return [dictionary debugDescription];
 }
+
+/** should returns an array of property names to exclude from entity 
+instanceDictionaryInitializer.
+You can override this to exclude properties manually handled by derived object **/
++ (NSArray *)_instanceDictionaryInitializerExcludedPropertyNames
+{
+  //Ayers: Review (There is also an NSObject category making kind of redundant)
+  // default implementation returns nil
+  return nil;
+};
 
 /*dictionary has following entries:
   - NSMutableDictionary* processed: processed entries (key=object address, value=size)

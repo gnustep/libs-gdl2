@@ -65,6 +65,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOCheapArray.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOMutableKnownKeyDictionary.h>
 
 // NOTE: (stephane@sente.ch) Should we subclass NSClassDescription?
 
@@ -261,6 +262,39 @@ static id classDelegate = nil;
 {
   return nil;
 }
+
+/** returns a new autoreleased mutable dictionary to store properties **/
+- (NSMutableDictionary*) dictionaryForInstanceProperties
+{
+  // Default implementation create a new EOMKKDInitializer. But subclass 
+  // implementation like EOEntityClassDescription can (should :-) use the 
+  // same EOMKKDInitializer to save memory.
+
+  NSMutableArray* classPropertyNames=nil;
+  NSMutableDictionary* dictionary=nil;
+
+  EOFLOGObjectFnStart();
+
+  // Get class properties (attributes + relationships)
+  classPropertyNames = [[NSMutableArray alloc]
+                         initWithArray: [self attributeKeys]];
+  [classPropertyNames addObjectsFromArray:
+                        [self toOneRelationshipKeys]];
+  [classPropertyNames addObjectsFromArray:
+                        [self toManyRelationshipKeys]];
+  
+  NSAssert1([classPropertyNames count] > 0,
+            @"No classPropertyNames in %@", self);
+  
+  dictionary = [EOMutableKnownKeyDictionary
+                 dictionaryWithInitializer:
+                   [[EOMKKDInitializer newWithKeyArray: classPropertyNames] autorelease]];
+  [classPropertyNames release];
+
+  EOFLOGObjectFnStop();
+
+  return dictionary;
+};
 
 - (void)awakeObject: (id)object
 fromFetchInEditingContext: (EOEditingContext *)anEditingContext

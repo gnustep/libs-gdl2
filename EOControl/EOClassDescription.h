@@ -84,6 +84,10 @@ fromFetchInEditingContext: (EOEditingContext *)editingContext;
 - (NSArray *)attributeKeys;
 - (NSArray *)toOneRelationshipKeys;
 - (NSArray *)toManyRelationshipKeys;
+
+/** returns a new autoreleased mutable dictionary to store properties **/
+- (NSMutableDictionary*) dictionaryForInstanceProperties;
+
 - (EORelationship *)relationshipNamed: (NSString *)relationshipName;
 - (EORelationship *)anyRelationshipNamed: (NSString *)relationshipNamed;
 

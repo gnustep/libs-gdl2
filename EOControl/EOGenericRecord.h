@@ -68,6 +68,11 @@
 
 - (NSString *)debugDictionaryDescription;
 
+/** should returns an array of property names to exclude from entity 
+instanceDictionaryInitializer.
+You can override this to exclude properties manually handled by derived object **/
++ (NSArray *)_instanceDictionaryInitializerExcludedPropertyNames;
+
 @end /* EOGenericRecord */
 
 
