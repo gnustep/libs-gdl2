@@ -92,6 +92,9 @@
 	static locals.
 	(+initialize, +newValueForNumberType:length:attribute:): Remove
 	dependency and used static locals instead.
+
+	* EOAccess/EOAdaptor.m: Consistently use unsigned for array
+	index variables.
 	
 2005-02-18  Matt Rice  <ratmice@yahoo.com>
 

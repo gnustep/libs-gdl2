@@ -151,7 +151,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   NSArray *paths;
   Class adaptorClass;
   NSString *adaptorClassName;
-  int i, count;
+  unsigned i, count;
 
   /* Check error */
   if ([adaptorName length] == 0)
@@ -371,7 +371,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
       EOAdaptorContext *admContext;
       EOAdaptorChannel *admChannel;
       NSArray          *stmts;
-      int i;
+      unsigned i;
 
       stmts = [(id)[self expressionClass] performSelector: sel
 					  withObject: connDict
@@ -385,7 +385,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
       admChannel = [admContext createAdaptorChannel];
       NS_DURING
 	{
-          int stmtsCount=0;
+          unsigned stmtsCount=0;
 	  [admChannel openChannel];
           stmtsCount=[stmts count];
 	  for (i = 0; i < stmtsCount; i++)
@@ -427,7 +427,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   if (model)
     {
       NSArray *entities;
-      int i, count;
+      unsigned i, count;
 
       attributes = [NSMutableArray arrayWithCapacity: 20];
 
@@ -503,7 +503,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
 - (BOOL)hasOpenChannels
 {
-  int i;
+  unsigned i;
 
   for (i = [_contexts count] - 1; i >= 0; i--)
     {
@@ -584,7 +584,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   NSString	   *encodingString=nil;
   NSDictionary	   *encodingsDict = [self connectionDictionary];
   const NSStringEncoding *availableEncodingsArray;
-  int		    count = 0;
+  unsigned	    count = 0;
   NSStringEncoding  availableEncodingValue;
   NSString	   *availableEncodingString;
   
@@ -678,7 +678,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
       //TODO-NOW: correct this code which loop!
       /*
       const char *cstr=NULL;
-      int i=0, spc=0;
+      unsigned i=0, spc=0;
       cstr = [value cString];
       while(*cstr)
         {
@@ -728,7 +728,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
 - (void)handleDroppedConnection
 {
   NSDictionary *newConnectionDictionary = nil;
-  int i;
+  unsigned i;
   
   for (i = [_contexts count] - 1; i >= 0; i--)
     {
@@ -932,7 +932,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
 {
   NSArray  *attributes=nil;
   unsigned i=0;
-  int attributesCount=0;
+  unsigned attributesCount=0;
 
   if ([[entity externalName] length] == 0)
     {
@@ -962,7 +962,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
 {
   NSArray  *entities=nil;
   unsigned i=0;
-  int entitiesCount=0;
+  unsigned entitiesCount=0;
 
   entities = [model entities];
   entitiesCount=[entities count];
@@ -985,7 +985,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
 - (void) _unregisterAdaptorContext: (EOAdaptorContext*)adaptorContext
 {
-  int i = 0;    
+  unsigned i = 0;    
 
   for (i = [_contexts count] - 1; i >= 0; i--)
     {
