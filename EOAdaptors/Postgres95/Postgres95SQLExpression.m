@@ -264,14 +264,6 @@ RCS_ID("$Id$")
   return formatted;
 }
 
-- (NSString *)externalNameQuoteCharacter
-{
-  if ([EOSQLExpression useQuotedExternalNames])
-    return @"'";
-  else
-    return @"";
-}
-
 - (NSString *)lockClause
 {
   return @"FOR UPDATE";
@@ -325,33 +317,38 @@ RCS_ID("$Id$")
 + (NSArray *)createDatabaseStatementsForConnectionDictionary: (NSDictionary *)connDict
                           administrativeConnectionDictionary: (NSDictionary *)admConnDict
 {
-  NSArray *ret;
+  NSArray *newArray;
   NSString *databaseName;
   NSString *stmt;
   EOSQLExpression *expr;
 
   databaseName = [connDict objectForKey: @"databaseName"];
-  stmt = [NSString stringWithFormat:@"CREATE DATABASE %@", databaseName];
-  expr = [self expressionForString: stmt];
-  ret = [NSArray arrayWithObject: expr];
   
-  return ret;
+  expr = [self expressionForString: nil];
+  databaseName = [expr sqlStringForSchemaObjectName: databaseName];
+  stmt = [NSString stringWithFormat:@"CREATE DATABASE %@", databaseName];
+  [expr setStatement: stmt];
+  newArray = [NSArray arrayWithObject: expr];
+  
+  return newArray;
 }
 
 + (NSArray *)dropDatabaseStatementsForConnectionDictionary: (NSDictionary *)connDict
 			administrativeConnectionDictionary: (NSDictionary *)admConnDict
 {
-  NSArray *ret;
+  NSArray *newArray;
   NSString *databaseName;
   NSString *stmt;
   EOSQLExpression *expr;
 
   databaseName = [connDict objectForKey: @"databaseName"];
-  stmt = [NSString stringWithFormat:@"DROP DATABASE %@", databaseName];
-  expr = [self expressionForString: stmt];
-  ret = [NSArray arrayWithObject: expr];
+  expr = [self expressionForString: nil];
+  databaseName = [expr sqlStringForSchemaObjectName: databaseName];
+  stmt = [NSString stringWithFormat:@"DROP DATABASE \"%@\"", databaseName];
+  [expr setStatement: stmt];
+  newArray = [NSArray arrayWithObject: expr];
   
-  return ret;
+  return newArray;
 }
 
 + (NSArray *)dropTableStatementsForEntityGroup:(NSArray *)entityGroup
@@ -376,9 +373,16 @@ RCS_ID("$Id$")
     }
   else
     {
-      newArray = [NSArray arrayWithObject: [self expressionForString:
-	[NSString stringWithFormat: @"DROP TABLE %@ CASCADE",
-		  [entity externalName]]]];
+      EOSQLExpression *sqlExp;
+      NSString *tableName;
+      NSString *stmt;
+
+      sqlExp = [self expressionForString: nil];
+      tableName = [entity externalName];
+      tableName = [sqlExp sqlStringForSchemaObjectName: tableName];
+      stmt = [NSString stringWithFormat: @"DROP TABLE %@ CASCADE", tableName];
+      [sqlExp setStatement: stmt];
+      newArray = [NSArray arrayWithObject: sqlExp];
     }
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
@@ -449,32 +453,37 @@ RCS_ID("$Id$")
           
           if ([relationshipPath isEqualToString: @""])
             {
-              NSString *externalName = [currentEntity externalName];
-              
+              NSString *tableName = [currentEntity externalName];
+
+	      tableName = [self sqlStringForSchemaObjectName: tableName];
               EOFLOGObjectLevelArgs(@"EOSQLExpression",
-                                    @"entity %p named %@: externalName=%@",
+                                    @"entity %p named %@: "
+				    @"externalName=%@ tableName=%@",
                                     currentEntity, [currentEntity name],
-                                    externalName);
+                                    [currentEntity externalName], tableName);
               
-              NSAssert1([externalName length]>0,@"No external name for entity %@",
+              NSAssert1([[currentEntity externalName] length]>0,
+			@"No external name for entity %@",
                         [currentEntity name]);
               
-              [entitiesString appendString: externalName];
+              [entitiesString appendString: tableName];
               
-              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", 
+				    @"entitiesString=%@", entitiesString);
               
               if (useAliases)
                 [entitiesString appendFormat: @" %@",
                                 [_aliasesByRelationshipPath
                                   objectForKey: relationshipPath]];
-              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", 
+				    @"entitiesString=%@", entitiesString);
             }
           else
             {
               NSEnumerator *defEnum = nil;
               NSArray *defArray = nil;
               NSString *relationshipString;
-              NSString *externalName = nil;
+              NSString *tableName = nil;
               EORelationship *rel = nil;
               EOQualifier *auxiliaryQualifier = nil;
               NSArray *joins = nil;
@@ -520,14 +529,17 @@ RCS_ID("$Id$")
                   currentEntity = [relationship destinationEntity];
                 }
               
-              externalName = [currentEntity externalName];
+              tableName = [currentEntity externalName];
+	      tableName = [self sqlStringForSchemaObjectName: tableName];
 
               EOFLOGObjectLevelArgs(@"EOSQLExpression",
-                                    @"entity %p named %@: externalName=%@",
+                                    @"entity %p named %@: "
+				    @"externalName=%@ tableName=%@",
                                     currentEntity, [currentEntity name],
-                                    externalName);
+                                    [currentEntity externalName], tableName);
               
-              NSAssert1([externalName length]>0,@"No external name for entity %@",
+              NSAssert1([[currentEntity externalName] length]>0,
+			@"No external name for entity %@",
                         [currentEntity name]);
               
               joinSemantic = [rel joinSemantic];
@@ -608,7 +620,7 @@ RCS_ID("$Id$")
               
               [entitiesString appendFormat:@" %@ %@",
                               joinOp,
-                              externalName];
+                              tableName];
               
               EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
               

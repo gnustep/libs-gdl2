@@ -1,5 +1,39 @@
 2003-02-25  David Ayers  <d.ayers@inode.at>
 
+	* EOAccess/EOSQLExpression.m
+	([EOSQLExpression foreignKeyConstraintStatementsForRelationship:]):
+	Create constraint even though no inversRelationship exists.
+	([EOSQLExpression foreignKeyConstraintStatementsForEntityGroup:]):
+	Create constraints for all entities in the group which have no
+	parent entity.
+	([EOSQLExpression foreignKeyConstraintStatementsForEntityGroups:]):
+	Reformat for source level debuging.
+	([EOSQLExpression tableListWithRootEntity:]): Honor 
+	EOAdaptorQuotesExternalNames.
+	([EOSQLExpression createTableStatementsForEntityGroup:]): Ditto.
+	([EOSQLExpression dropTableStatementsForEntityGroup:]): Ditto.
+	([EOSQLExpression primaryKeyConstraintStatementsForEntityGroup:]): 
+	Ditto.
+	([EOSQLExpression primaryKeySupportStatementsForEntityGroup]): 
+	Ditto.
+	([EOSQLExpression dropPrimaryKeySupportStatementsForEntityGroup:]): 
+	Ditto.
+	([EOSQLExpression prepareConstraintStatementForRelationship:
+	sourceColumns:destinationColumns:]): Ditto.
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.h/m
+	([Postgres95SQLExpression externalNameQuoteCharacter]): Remove.
+	([Postgres95SQLExpression 
+	createDatabaseStatementsForConnectionDictionary:
+	administrativeConnectionDictionary]): Honor 
+	EOAdaptorQuotesExternalNames.
+	([Postgres95SQLExpression 
+	dropDatabaseStatementsForConnectionDictionary:
+	administrativeConnectionDictionary:]): Ditto.
+	([Postgres95SQLExpression dropTableStatementsForEntityGroup:]): 
+	Ditto.
+	([Postgres95SQLExpression tableListWithRootEntity:]): Ditto.
+	
+
 	* EOAdaptors/Postgres95/Postgres95Channel.m: Define 
 	EOAdaptorDebugLog convinience macro and use it throughout the file.
 	([Postgres95Channel _describeResults]): Rename externalName to 

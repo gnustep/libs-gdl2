@@ -37,7 +37,6 @@
 
 + (NSString *)formatValue: (id)value
              forAttribute: (EOAttribute *)attribute;
-- (NSString *)externalNameQuoteCharacter;
 - (NSString *)lockClause;
 - (NSString *)assembleSelectStatementWithAttributes: (NSArray *)attributes
                                                lock: (BOOL)lock

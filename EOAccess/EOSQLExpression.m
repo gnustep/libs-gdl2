@@ -360,17 +360,20 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
       if ([relationshipPath isEqualToString: @""])
         {
-          NSString *externalName = [currentEntity externalName];
+          NSString *tableName = [currentEntity externalName];
 
+	  tableName = [self sqlStringForSchemaObjectName: tableName];
           EOFLOGObjectLevelArgs(@"EOSQLExpression",
-				@"entity %p named %@: externalName=%@",
+				@"entity %p named %@: "
+				@"externalName=%@ tableName=%@",
 				currentEntity, [currentEntity name],
-				externalName);
+				[currentEntity externalName], tableName);
 
-          NSAssert1([externalName length]>0,@"No external name for entity %@",
+          NSAssert1([[currentEntity externalName] length]>0,
+		    @"No external name for entity %@",
                     [currentEntity name]);
 
-	  [entitiesString appendString: externalName];
+	  [entitiesString appendString: tableName];
 
 	  if (_flags.useAliases)
 	    [entitiesString appendFormat: @" %@",
@@ -382,7 +385,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	  NSEnumerator *defEnum = nil;
 	  NSArray *defArray = nil;
 	  NSString *relationshipString;
-          NSString *externalName = nil;
+          NSString *tableName = nil;
 
 	  defArray = [relationshipPath componentsSeparatedByString: @"."];
 	  defEnum = [defArray objectEnumerator];
@@ -404,17 +407,20 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	      currentEntity = [relationship destinationEntity];
 	    }
 
-          externalName = [currentEntity externalName];
+          tableName = [currentEntity externalName];
+	  tableName = [self sqlStringForSchemaObjectName: tableName];
 
           EOFLOGObjectLevelArgs(@"EOSQLExpression",
-				@"entity %p named %@: externalName=%@",
+				@"entity %p named %@: "
+				@"externalName=%@ tableName=%@",
 				currentEntity, [currentEntity name],
-				externalName);
+				[currentEntity externalName], tableName);
 
-          NSAssert1([externalName length]>0,@"No external name for entity %@",
+          NSAssert1([[currentEntity externalName] length]>0,
+		    @"No external name for entity %@",
                     [currentEntity name]);
 
-	  [entitiesString appendString: externalName];
+	  [entitiesString appendString: tableName];
 
 	  if (_flags.useAliases)
             {
@@ -2609,9 +2615,10 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 {
   NSMutableArray *array, *sourceColumns, *destColumns;
   EOSQLExpression *sqlExpression;
+  EOEntity *entity;
   NSEnumerator *joinEnum;
   EOJoin *join;
-  int num;
+  unsigned num;
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
@@ -2626,14 +2633,16 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
     }
 
   if ([relationship isToMany] == YES
-      || [[relationship inverseRelationship] isToMany] == NO)
+      || ([relationship inverseRelationship] != nil
+	  && [[relationship inverseRelationship] isToMany] == NO))
     {
       EOFLOGClassFnStopOrCond(@"EOSQLExpression");
 
       return array;
     }
 
-  sqlExpression = [self sqlExpressionWithEntity: [relationship entity]];
+  entity = [relationship entity];
+  sqlExpression = [self sqlExpressionWithEntity: entity];
 
   num = [[relationship joins] count];
 
@@ -2661,20 +2670,31 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 + (NSArray *)foreignKeyConstraintStatementsForEntityGroup:(NSArray *)entityGroup
 {
   NSMutableArray *sqlExps;
-  NSEnumerator    *relEnum;
-  EORelationship  *rel;
-  EOEntity        *entity;
+  EORelationship *rel;
+  EOEntity       *entity;
+  EOEntity       *parentEntity;
+  unsigned       i,j,n,m;
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
-  entity = [entityGroup objectAtIndex: 0];
   sqlExps = [NSMutableArray array];
-  relEnum = [[entity relationships] objectEnumerator];
 
-  while ((rel = [relEnum nextObject]))
+  for (i=0, n=[entityGroup count]; i<n; i++)
     {
-      [sqlExps addObjectsFromArray:
-		 [self foreignKeyConstraintStatementsForRelationship: rel]];
+      NSArray *rels;
+
+      entity = [entityGroup objectAtIndex: i];
+      parentEntity = [entity parentEntity];
+      rels = [entity relationships];
+
+      for (j=0, m=[rels count]; parentEntity == nil && j<m; j++)
+	{
+	  NSArray *stmts;
+
+	  rel = [rels objectAtIndex: j];
+	  stmts =[self foreignKeyConstraintStatementsForRelationship: rel];
+	  [sqlExps addObjectsFromArray: stmts];
+	}
     }
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
@@ -2695,8 +2715,10 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   groupsEnum = [entityGroups objectEnumerator];
   while ((group = [groupsEnum nextObject]))
     {
-      [array addObjectsFromArray:
-	       [self foreignKeyConstraintStatementsForEntityGroup: group]];
+      NSArray *stmts;
+
+      stmts = [self foreignKeyConstraintStatementsForEntityGroup: group];
+      [array addObjectsFromArray: stmts];
     }
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
@@ -2714,6 +2736,8 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSEnumerator *entityEnum, *attrEnum;
   EOAttribute *attr;
   EOEntity *entity;
+  NSString *tableName;
+  NSString *stmt;
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
@@ -2728,9 +2752,14 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 	[sqlExp addCreateClauseForAttribute: attr];
     }
 
-  [sqlExp setStatement: [NSString stringWithFormat:@"CREATE TABLE %@ (%@)",
-				  [[entityGroup objectAtIndex: 0] externalName],
-				  [sqlExp listString]]];
+  entity = [entityGroup objectAtIndex: 0];
+  tableName = [entity externalName];
+  tableName = [sqlExp sqlStringForSchemaObjectName: tableName];
+
+  stmt = [NSString stringWithFormat: @"CREATE TABLE %@ (%@)",
+		   tableName,
+		   [sqlExp listString]];
+  [sqlExp setStatement: stmt];
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
 
@@ -2739,15 +2768,22 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 
 + (NSArray *)dropTableStatementsForEntityGroup:(NSArray *)entityGroup
 {
-  NSArray *newArray = nil;
+  NSArray *newArray;
+  NSString *tableName;
+  EOEntity *entity;
+  NSString *stmt;
+  EOSQLExpression *sqlExp;
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
-  newArray = [NSArray arrayWithObject:
-		    [self expressionForString:
-			    [NSString stringWithFormat: @"DROP TABLE %@",
-				      [[entityGroup objectAtIndex: 0]
-					externalName]]]];
+  entity = [entityGroup objectAtIndex: 0];
+  sqlExp = [self sqlExpressionWithEntity: entity];
+  tableName = [entity externalName];
+  tableName = [sqlExp sqlStringForSchemaObjectName: tableName];
+
+  stmt = [NSString stringWithFormat: @"DROP TABLE %@", tableName];
+  [sqlExp setStatement: stmt];
+  newArray = [NSArray arrayWithObject: sqlExp];
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
 
@@ -2761,6 +2797,8 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSEnumerator    *attrEnum;
   EOAttribute     *attr;
   EOEntity        *entity;
+  NSString        *tableName;
+  NSString        *stmt;
   BOOL             first = YES;
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
@@ -2791,11 +2829,12 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
     }
 
   sqlExp = [self sqlExpressionWithEntity:[entityGroup objectAtIndex: 0]];
+  tableName = [entity externalName];
+  tableName = [sqlExp sqlStringForSchemaObjectName: tableName];
 
-  [sqlExp setStatement: [NSString stringWithFormat:
-				    @"ALTER TABLE %@ ADD PRIMARY KEY (%@)",
-				  [entity externalName],
-				  listString]];
+  stmt = [NSString stringWithFormat: @"ALTER TABLE %@ ADD PRIMARY KEY (%@)",
+		   tableName, listString];
+  [sqlExp setStatement: stmt];
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
 
@@ -2804,19 +2843,25 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 
 + (NSArray *)primaryKeySupportStatementsForEntityGroup: (NSArray *)entityGroup
 {
-  NSArray *newArray = nil;
-  NSString *seqName = nil;
+  NSArray *newArray;
+  NSString *seqName;
+  EOEntity *entity;
+  NSString *pkRootName;
+  NSString *stmt;
+  EOSQLExpression *sqlExp;
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
-  seqName = [NSString stringWithFormat: @"%@_SEQ",
-		      [[entityGroup objectAtIndex: 0]
-				  primaryKeyRootName]];
+  entity = [entityGroup objectAtIndex: 0];
+  pkRootName = [entity primaryKeyRootName];
+  seqName = [NSString stringWithFormat: @"%@_SEQ", pkRootName];
 
-  newArray = [NSArray arrayWithObject:
-		    [self expressionForString:
-			    [NSString stringWithFormat: @"CREATE SEQUENCE %@",
-				      seqName]]];
+  sqlExp = [self sqlExpressionWithEntity: nil];
+  seqName = [sqlExp sqlStringForSchemaObjectName: seqName];
+
+  stmt = [NSString stringWithFormat: @"CREATE SEQUENCE %@", seqName];
+  [sqlExp setStatement: stmt];
+  newArray = [NSArray arrayWithObject: sqlExp];
                                       
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
 
@@ -2825,19 +2870,25 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 
 + (NSArray *)dropPrimaryKeySupportStatementsForEntityGroup: (NSArray *)entityGroup
 {
-  NSArray *newArray = nil;
-  NSString *seqName = nil;
+  NSArray *newArray;
+  NSString *seqName;
+  EOEntity *entity;
+  NSString *pkRootName;
+  NSString *stmt;
+  EOSQLExpression *sqlExp;
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
-  seqName = [NSString stringWithFormat: @"%@_SEQ",
-				[[entityGroup objectAtIndex: 0]
-				  primaryKeyRootName]];
+  entity = [entityGroup objectAtIndex: 0];
+  pkRootName = [entity primaryKeyRootName];
+  seqName = [NSString stringWithFormat: @"%@_SEQ", pkRootName];
 
-  newArray = [NSArray arrayWithObject:
-		    [self expressionForString:
-			    [NSString stringWithFormat: @"DROP SEQUENCE %@",
-				      seqName]]];
+  sqlExp = [self sqlExpressionWithEntity: nil];
+  seqName = [sqlExp sqlStringForSchemaObjectName: seqName];
+
+  stmt = [NSString stringWithFormat: @"DROP SEQUENCE %@", seqName];
+  [sqlExp setStatement: stmt];
+  newArray = [NSArray arrayWithObject: sqlExp];
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
 
@@ -3081,7 +3132,8 @@ struct _schema
   else if ([attribute width])
     {
       EOFLOGClassFnStopOrCond(@"EOSQLExpression");
-      return [NSString stringWithFormat: @"%@(%d)", extType, [attribute width]];
+      return [NSString stringWithFormat: @"%@(%d)", 
+		       extType, [attribute width]];
     }
   else
     {
@@ -3128,7 +3180,7 @@ struct _schema
   NSMutableString *sourceString, *destinationString;
   NSEnumerator    *attrEnum;
   EOAttribute     *attr;
-  NSString        *name, *str;
+  NSString        *name, *str, *tableName, *relTableName;
   BOOL             first = YES;
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
@@ -3171,11 +3223,18 @@ struct _schema
       first = NO;
     }
 
-  str = [NSString stringWithFormat: @"ALTER TABLE %@ ADD CONSTRAINT %@ FOREIGN KEY (%@) REFERENCES %@ (%@)",
-		  [_entity externalName],
+  tableName = [_entity externalName];
+  tableName = [self sqlStringForSchemaObjectName: tableName];
+
+  relTableName = [[relationship destinationEntity] externalName];
+  relTableName = [self sqlStringForSchemaObjectName: relTableName];
+
+  str = [NSString stringWithFormat: @"ALTER TABLE %@ ADD CONSTRAINT %@ "
+		  @"FOREIGN KEY (%@) REFERENCES %@ (%@)",
+		  tableName,
 		  name,
 		  sourceString,
-		  [[relationship destinationEntity] externalName],
+		  relTableName,
 		  destinationString];
 
   ASSIGN(_statement, str);
