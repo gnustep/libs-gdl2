@@ -645,12 +645,12 @@ static Class whichQualifier(const char **cFormat, const char **s)
 
 + (NSArray *)allQualifierOperators
 { // rivedere
-  return [NSArray arrayWithObjects:@"=", @"!=", @"<=", @"<", @">=", @">", @"contains", @"like", @"caseInsensitiveLike"];
+  return [NSArray arrayWithObjects:@"=", @"!=", @"<=", @"<", @">=", @">", @"doesContain", @"like", @"caseInsensitiveLike", nil];
 }
 
 + (NSArray *)relationalQualifierOperators
 { // rivedere
-  return [NSArray arrayWithObjects:@"=", @"!=", @"<=", @"<", @">=", @">"];
+  return [NSArray arrayWithObjects:@"=", @"!=", @"<=", @"<", @">=", @">", nil];
 }
 
 + (NSString *)stringForOperatorSelector: (SEL)selector
@@ -668,7 +668,7 @@ static Class whichQualifier(const char **cFormat, const char **s)
   else if (sel_eq(selector, EOQualifierOperatorGreaterThanOrEqualTo))
     return @">=";
   else if (sel_eq(selector, EOQualifierOperatorContains))
-    return @"contains";
+    return @"doesContain";
   else if (sel_eq(selector, EOQualifierOperatorLike))
     return @"like";
   else if (sel_eq(selector, EOQualifierOperatorCaseInsensitiveLike))
