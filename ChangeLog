@@ -1,3 +1,23 @@
+2004-04-18  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOGlobalID.h: Correct size of _bytes.
+	* EOControl/EOGlobalID.m: Update includes.
+	(sequence): Define plattform independently.
+	(sequenceRev): Remove.
+	([EOGlobalID isEqual:]): Fix declaration.
+	([EOTemporaryGlobalID init]): Ditto.
+	([EOTemporaryGlobalID isEqual:]): Ditto.  Remove access 
+	instance variable directly instead of relying on superflous 
+	accessor method.
+	([EOTemporaryGlobalID assignGloballyUniqueBytes]): Rewrite and 
+	document.
+	([EOTemporaryGlobalID _bytes]): Remove.
+	([EOTemporaryGlobalID encodeWithCoder:]): Encode contents of
+	bytes instead of pointer value.
+	([EOTemporaryGlobalID decodeWithCoder:]): Decode contents of
+	bytes instead of pointer value.
+
+	
 2004-04-17  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.m

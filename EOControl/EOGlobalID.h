@@ -64,7 +64,7 @@ enum {
 @interface EOTemporaryGlobalID : EOGlobalID <NSCoding>
 {
   unsigned _refCount;
-  unsigned char _bytes[EOUniqueBinaryKeyLength+1];
+  unsigned char _bytes[EOUniqueBinaryKeyLength];
 }
 
 + (EOTemporaryGlobalID *)temporaryGlobalID;

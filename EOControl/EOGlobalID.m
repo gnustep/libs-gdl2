@@ -38,6 +38,9 @@ RCS_ID("$Id$")
 #ifdef GNUSTEP
 #include <Foundation/NSCoder.h>
 #include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSProcessInfo.h>
+#include <Foundation/NSHost.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -49,11 +52,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOGlobalID.h>
 #include <EOControl/EODebug.h>
 
-#include <stdio.h>
 #include <string.h>
-#include <time.h>
-#include <unistd.h>
-
 
 NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 
@@ -71,7 +70,7 @@ NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
     }
 }
 
-- (BOOL)isEqual: other
+- (BOOL)isEqual: (id)other
 {
   return NO;
 }
@@ -98,8 +97,7 @@ NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 
 @implementation EOTemporaryGlobalID
 
-static unsigned short sequence = 65535;
-static unsigned long sequenceRev = 0;
+static unsigned short sequence = (unsigned short)-1;
 
 
 + (EOTemporaryGlobalID *)temporaryGlobalID
@@ -107,37 +105,76 @@ static unsigned long sequenceRev = 0;
   return [[[self alloc] init] autorelease];
 }
 
-// < Sequence [2], ProcessID [2] , Time [4], IP Addr [4] >
+/**
+ * Fills the supplied buffer with 12 bytes that are unique to the
+ * subnet.  The first two bytes encode a sequence of the process.  
+ * Then two bytes encode the process ID followed by four bytes which
+ * encode a time stamp.  The last four bytes encode the IP address.  
+ * The caller must insure that the buffer pointed to is large enough
+ * to hold the twelve bytes.
+ */
 + (void)assignGloballyUniqueBytes: (unsigned char *)buffer
 {
+  static int pid = 0;
+  static unsigned char ipComp[4];
+  unsigned char *bPtr;
+  unsigned short seq;
+  unsigned int i;
+  union { NSTimeInterval interval; unsigned long stamp; } time;
+
   EOFLOGObjectFnStart();
- // sprintf(buffer, "%02x%02x%04x%04x", sequence++ % 0xff, 0, (unsigned int)time( NULL ) % 0xffffffff, 0); // <-- overwrite memory
 
-    // buffer should have space for EOUniqueBinaryKeyLength (12) bytes.
-    // Assigns a world-wide unique ID made up of:
-    // < Sequence [2], ProcessID [2] , Time [4], IP Addr [4] >
+  if (pid == 0)
+    {
+      NSString *ipString;
+      NSArray *ipComps;
 
-  //printf("sequence : %d (%02x,%02x,%04x,%04x)\n",sequence -1, (sequence - 1) % 0xff, getpid() % 0xff, (unsigned int)time( NULL ) % 0xffff, (sequenceRev+1) % 0xffff);
+      pid = [[NSProcessInfo processInfo] processIdentifier];
+      pid %= 0xFFFF;
 
-  snprintf(buffer, 12, 
-           "%02x%02x%04x%04x", 
-           sequence-- % 0xff, 
-           getpid() % 0xff, 
-           (unsigned int)time( NULL ) % 0xffff,
-           (unsigned int)sequenceRev++ % 0xffff);
+      ipString = [[NSHost currentHost] address];
+      ipComps = [ipString componentsSeparatedByString: @"."];
+
+      for (i=0;  i<4; i++)
+	{
+	  NSString *comp = [ipComps objectAtIndex: i];
+	  ipComp[i] = (unsigned char)[comp intValue];
+	}
+    }
+
+  memset (buffer, 0, 12);
+
+  seq = sequence-- % 0xFFFF;
+  bPtr = (unsigned char *)&seq;
+  buffer[0] = bPtr[0];
+  buffer[1] = bPtr[1];
+
+  bPtr = (unsigned char *)&pid;
+  buffer[2] = bPtr[0];
+  buffer[3] = bPtr[1];
+
+  time.interval = [NSDate timeIntervalSinceReferenceDate];
+  time.stamp %= 0xFFFFFFFF;
+  bPtr = (unsigned char *)&time.stamp;
+  buffer[4] = bPtr[0];
+  buffer[5] = bPtr[1];
+  buffer[6] = bPtr[2];
+  buffer[7] = bPtr[3];
+
+  buffer[8]  = ipComp[0];
+  buffer[9]  = ipComp[1];
+  buffer[10] = ipComp[2];
+  buffer[11] = ipComp[3];
 
   if (sequence == 0)
-    sequence = 65535;
+    {
+      sequence = (unsigned short)-1;
+    }
   
-  if (sequenceRev == 4294967295UL)
-    sequenceRev = 1;
-
   EOFLOGObjectFnStop();
-
-  return; // TODO
 }
 
-- init
+- (id)init
 {
   EOFLOGObjectFnStart();
 
@@ -156,12 +193,7 @@ static unsigned long sequenceRev = 0;
   return YES;
 }
 
-- (unsigned char *)_bytes
-{
-  return _bytes;
-}
-
-- (BOOL)isEqual:other
+- (BOOL)isEqual: (id)other
 {
   if (self == other)
     return YES;
@@ -169,7 +201,7 @@ static unsigned long sequenceRev = 0;
   if ([other isKindOfClass: [EOTemporaryGlobalID class]] == NO)
     return NO;
 
-  if (!memcmp(_bytes, [other _bytes], sizeof(_bytes)))
+  if (!memcmp(_bytes, ((EOTemporaryGlobalID *)other)->_bytes, sizeof(_bytes)))
     return YES;
 
   return NO;
@@ -178,7 +210,7 @@ static unsigned long sequenceRev = 0;
 - (void)encodeWithCoder: (NSCoder *)coder
 {
   [coder encodeValueOfObjCType: @encode(unsigned) at: &_refCount];
-  [coder encodeValueOfObjCType: @encode(unsigned char[]) at: _bytes];
+  [coder encodeValueOfObjCType: @encode(unsigned char[12]) at: _bytes];
 }
 
 - (id)initWithCoder: (NSCoder *)coder
@@ -186,7 +218,7 @@ static unsigned long sequenceRev = 0;
   self = [super init];
 
   [coder decodeValueOfObjCType: @encode(unsigned) at: &_refCount];
-  [coder decodeValueOfObjCType: @encode(unsigned char[]) at: _bytes];
+  [coder decodeValueOfObjCType: @encode(unsigned char[12]) at: _bytes];
 
   return self;
 }
