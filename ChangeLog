@@ -1,5 +1,7 @@
 2003-08-05  David Ayers  <d.ayers@inode.at>
 
+	* EOControl/EOFault.m ([EOFault +initialize]): Fix initialization
+	of cached class variable.
 	* EOAccess/EODatabaseContext.m
 	([EODatabaseContext -dealloc]): Corrected debug logs. 
 	([EODatabaseContext +databaseContextWithDatabase:]): Use

@@ -75,7 +75,7 @@ static Class EOFaultClass = NULL;
   // without asking if it responds to it !
   if (EOFaultClass == NULL)
     {
-      EOFaultClass = [EOFaultClass class];
+      EOFaultClass = [EOFault class];
     }
 }
 
