@@ -341,6 +341,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately= NO;
 
 - (id)insertObjectAtIndex: (unsigned)index
 {
+  return nil;
 }
 - (void)insertObject: (id)object atIndex: (unsigned)index
 {

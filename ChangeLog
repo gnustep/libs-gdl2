@@ -1,3 +1,12 @@
+2004-10-15  David Ayers  <d.ayers@inode.at>
+
+	* EOInterface/EOAssociation.h/m: New files.
+	* EOInterface/EOInterface.h: Add EOAssocitaion.
+	* EOInterface/GNUmakefile: Ditto.
+	* EOInterface/EODisplayGroup.h: Add missing forward declaration.
+	* EOInterface/EODisplayGroup.m: ([-insertObjectAtIndex]):
+	avoid warning.
+	
 2004-10-14  David Ayers  <d.ayers@inode.at>
 
 	* EOInterface: New directory.

@@ -34,12 +34,14 @@ EOInterface_C_FILES =
 
 # The Objective-C source files to be compiled
 EOInterface_OBJC_FILES = \
+EOAssociation.m \
 EODisplayGroup.m \
 
 
 EOInterface_HEADER_FILES_DIR = .
 
 EOInterface_HEADER_FILES = \
+EOAssociation.h \
 EODisplayGroup.h \
 EOInterface.h
 

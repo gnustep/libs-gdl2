@@ -27,6 +27,7 @@
 #ifndef __EOInterface_h__
 #define __EOInterface_h__
 
+#include <EOInterface/EOAssociation.h>
 #include <EOInterface/EODisplayGroup.h>
 
 #endif /* __EOInterface_h__ */

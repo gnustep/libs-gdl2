@@ -39,6 +39,7 @@
 @class NSMutableDictionary;
 @class NSNotification;
 
+@class EOEditingContext;
 @class EODataSource;
 @class EOQualifier;
 
