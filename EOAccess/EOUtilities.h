@@ -30,6 +30,7 @@
 
 #import <EOControl/EOEditingContext.h>
 #import <EOControl/EOFetchSpecification.h>
+#import <EOControl/EOObjectStoreCoordinator.h>
 
 
 @class NSArray;

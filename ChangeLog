@@ -1,3 +1,7 @@
+2003-02-24  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOUtilities.h: added EOObjectStoreCoordinator.
+
 2003-02-17  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOSortOrdering.m: Added documentation.
