@@ -74,8 +74,6 @@
 		  isDeep: (BOOL)isDeep
 		   hints: (NSDictionary *)hints;
 
-- (EOFetchSpecification *)fetchSpecificationByApplyingBindings: (id)bindings;
-
 - (EOFetchSpecification *)fetchSpecificationWithQualifierBindings: (NSDictionary *)bindings;
 
 + (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name

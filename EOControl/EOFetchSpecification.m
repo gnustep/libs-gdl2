@@ -143,16 +143,15 @@ NSString *EOPromptAfterFetchLimitHintKey = @"EOPromptAfterFetchLimitHintKey";
   return self;
 }
 
-- (EOFetchSpecification *)fetchSpecificationByApplyingBindings: (id)bindings
-{
-  [self notImplemented:_cmd];
-  return nil;
-}
-
 - (EOFetchSpecification *)fetchSpecificationWithQualifierBindings: (NSDictionary *)bindings
 {
-  [self notImplemented: _cmd];
-  return nil;
+  EOQualifier *qualifier;
+  BOOL flag = [self requiresAllQualifierBindingVariables];
+
+  qualifier = [[self qualifier] qualifierWithBindings: bindings
+				requiresAllVariables: flag];
+  [self setQualifier: qualifier];
+  return self;
 }
 
 + (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name

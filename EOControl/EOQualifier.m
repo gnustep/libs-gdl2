@@ -972,12 +972,16 @@ static Class whichQualifier(const char **cFormat, const char **s)
 
 - (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver
 {
-  return [self notImplemented: _cmd]; //TODO
+  if ((self = [super init]))
+    {
+      _key = RETAIN([unarchiver decodeObjectForKey: @"_key"]);
+    }
+  return self;
 }
 
 - (void)encodeWithKeyValueArchiver: (EOKeyValueArchiver *)archiver
 {
-  [self notImplemented: _cmd]; //TODO
+  [archiver encodeObject: _key forKey: @"_key"];
 }
 
 @end

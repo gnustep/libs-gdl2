@@ -1,3 +1,15 @@
+2005-01-26  Juergen Lorenz Simon  <juergen_simon@mac.com>
+	    David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOEntity.m (-initWithPropertyList:owner:): Correct
+	test for file existance and reformat.
+	* EOControl/EOFetchSpecification.h/m 
+	(-fetchSpecificationByApplyingBindings:) Remove obsolete method.
+	(-fetchSpecificationWithQualifierBindings:) Implement.
+	* EOControl/EOQualifier.m (initWithKeyValueUnarchiver:):
+	Implement.
+	(-encodeWithKeyValueArchiver:): Ditto.
+	
 2005-01-22  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOQualifer.m (getKey): Allow literal numbers without
