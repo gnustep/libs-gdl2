@@ -278,11 +278,12 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           if (tmpObject)
             {
+	      tmpObject = AUTORELEASE([tmpObject mutableCopy]);
               ASSIGN(_fetchSpecificationDictionary, tmpObject);
             }
           else
             {
-              _fetchSpecificationDictionary = [NSDictionary new];
+              _fetchSpecificationDictionary = [NSMutableDictionary new];
 
               EOFLOGObjectLevelArgs(@"EOEntity",
 		@"Entity %@ - _fetchSpecificationDictionary %p [RC=%d]:%@",
@@ -331,7 +332,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 		    //NSLog(@"fetchSpecName:%@ fetchSpec:%@", fetchSpecName, fetchSpec);
 
 		    [self addFetchSpecification: fetchSpec
-			  named: fetchSpecName];
+			  withName: fetchSpecName];
 		  }
 	      }
           }
@@ -519,6 +520,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   DESTROY(_externalQuery);
   DESTROY(_userInfo);
   DESTROY(_docComment);
+  DESTROY(_fetchSpecificationDictionary);
   DESTROY(_primaryKeyAttributeNames);
   DESTROY(_classPropertyNames);
   DESTROY(_classDescription);
@@ -2131,8 +2133,13 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 }
 
 - (void)addFetchSpecification: (EOFetchSpecification *)fetchSpec
-			named: (NSString *)name
+		     withName: (NSString *)name
 {
+  if (_fetchSpecificationDictionary == nil)
+    {
+      _fetchSpecificationDictionary = [NSMutableDictionary new];
+    }
+
   [_fetchSpecificationDictionary setObject: fetchSpec forKey: name];
   ASSIGN(_fetchSpecificationNames, [[_fetchSpecificationDictionary allKeys]
 				     sortedArrayUsingSelector:

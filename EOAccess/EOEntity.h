@@ -235,7 +235,7 @@
 - (void)removeRelationship: (EORelationship *)relationship;
 
 - (void)addFetchSpecification: (EOFetchSpecification *)fetchSpec
-                        named: (NSString *)name;
+                     withName: (NSString *)name;
 - (void)removeFetchSpecificationNamed: (NSString *)name;
 
 - (void)setClassName: (NSString*)name;

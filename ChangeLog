@@ -1,3 +1,13 @@
+2003-08-14  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EODatabaseDataSource.m ([EODatabaseDataSource
+	-initWithEditingContext:entityName:fetchSpecificationName:]):
+	Create default fetch specification if we cannot obtain one from
+	the entity by name as reported by Dirk Lattermann.
+	* EOAccess/EOEntity.h/m
+	([EOEntity -addFetchSpecification:withName:]): Corrected name and
+	initialization as reported by Dirk Lattermann.
+	
 2003-08-05  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOObjectStoreCoordinator.m ([EOObjectStoreCoordinator

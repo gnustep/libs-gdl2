@@ -77,17 +77,17 @@ RCS_ID("$Id$")
 
 @implementation EODatabaseDataSource
 
-- initWithEditingContext: (EOEditingContext *)editingContext
-	      entityName: (NSString *)entityName
+- (id)initWithEditingContext: (EOEditingContext *)editingContext
+		  entityName: (NSString *)entityName
 {
   return [self initWithEditingContext: editingContext
 	       entityName: entityName
 	       fetchSpecificationName: nil];
 }
 
-- initWithEditingContext: (EOEditingContext *)editingContext
-	      entityName: (NSString *)entityName
-  fetchSpecificationName: (NSString *)fetchName
+- (id)initWithEditingContext: (EOEditingContext *)editingContext
+		  entityName: (NSString *)entityName
+      fetchSpecificationName: (NSString *)fetchName
 {
   NSArray *stores;
   EODatabaseContext *store = nil;
@@ -95,6 +95,7 @@ RCS_ID("$Id$")
   EOModel *model;
   EOEntity *entity = nil;
   id rootStore;
+  EOFetchSpecification *fetchSpec;
 
   if ((self = [super init]))
     {
@@ -146,8 +147,16 @@ RCS_ID("$Id$")
                      self,
                      editingContext,
                      entityName];
-      
-      ASSIGN(_fetchSpecification, [entity fetchSpecificationNamed:fetchName]);
+
+      fetchSpec = [entity fetchSpecificationNamed: fetchName];
+      if (fetchSpec == nil)
+	{
+	  fetchSpec = [EOFetchSpecification 
+			fetchSpecificationWithEntityName: entityName
+			qualifier: nil
+			sortOrderings: nil];
+	}
+      ASSIGN(_fetchSpecification, fetchSpec);
     }
 
   return self;
