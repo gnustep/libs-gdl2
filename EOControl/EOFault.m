@@ -47,7 +47,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSString.h>
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSInvocation.h>
-#include <Foundation/NSLock.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
 #else

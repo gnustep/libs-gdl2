@@ -43,7 +43,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSAutoreleasePool.h>
 #include <Foundation/NSDictionary.h>
 #include <Foundation/NSObjCRuntime.h>
-#include <Foundation/NSLock.h>
 #include <Foundation/NSValue.h>
 #include <Foundation/NSHashTable.h>
 #include <Foundation/NSDebug.h>
@@ -56,6 +55,8 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSObjCRuntime.h>
 #include <GNUstepBase/GSCategories.h>
 #endif
+
+#include <GNUstepBase/GSLock.h>
 
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EOGenericRecord.h>
@@ -111,7 +112,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
     {
       allGenericRecords = NSCreateHashTable(NSNonOwnedPointerHashCallBacks,
 					    1000);
-      allGenericRecordsLock = [NSRecursiveLock new];
+      allGenericRecordsLock = [GSLazyRecursiveLock new];
     }
 }
 

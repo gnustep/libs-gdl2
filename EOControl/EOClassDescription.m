@@ -104,6 +104,7 @@ NSString *EOValidatedPropertyUserInfoKey = @"EOValidatedPropertyUserInfoKey";
 static NSMapTable *classDescriptionForEntity = NULL;
 static NSMapTable *classDescriptionForClass = NULL;
 static id classDelegate = nil;
+static NSRecursiveLock *local_lock = nil;
 
 + (void)initialize
 {
@@ -111,6 +112,7 @@ static id classDelegate = nil;
     {
       Class cls = NSClassFromString(@"EOModelGroup");
 
+      local_lock = [GSLazyRecursiveLock new];
       classDescriptionForClass = NSCreateMapTable(NSObjectMapKeyCallBacks, 
 						  NSObjectMapValueCallBacks,
 						  32);
@@ -132,22 +134,15 @@ static id classDelegate = nil;
 + (id)classDelegate
 {
   id      delegate;
-  NSLock *lock = GDL2GlobalLock();
-
-  if (lock == nil)
+  
+  [local_lock lock];
+  delegate = classDelegate;
+  
+  if (delegate != nil)
     {
-      delegate = classDelegate;
+      AUTORELEASE(RETAIN(delegate));
     }
-  else
-    {
-      [lock lock];
-      delegate = classDelegate;
-      if (delegate != nil)
-	{
-	  AUTORELEASE(RETAIN(delegate));
-	}
-      [lock unlock];
-    }
+  [local_lock unlock];
 
   return delegate;
 }

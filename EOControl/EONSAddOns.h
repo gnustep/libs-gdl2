@@ -46,17 +46,8 @@
     : ( TYPE *)GSAutoreleasedBuffer((ID##_size) * sizeof( TYPE )); \
   TYPE *ID = ID##_base;
 
-@class NSLock;
-@class NSRecursiveLock;
-
 GDL2CONTROL_EXPORT BOOL
 GSUseStrictWO451Compatibility(NSString *key);
-
-GDL2CONTROL_EXPORT NSLock *
-GDL2GlobalLock();
-
-GDL2CONTROL_EXPORT NSRecursiveLock *
-GDL2GlobalRecursiveLock();
 
 @interface NSObject (NSObjectPerformingSelector)
 - (NSArray*)resultsOfPerformingSelector: (SEL)sel

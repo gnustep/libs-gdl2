@@ -40,7 +40,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSArray.h>
 #include <Foundation/NSScanner.h>
 #include <Foundation/NSCharacterSet.h>
-#include <Foundation/NSLock.h>
 #include <Foundation/NSUserDefaults.h>
 #include <Foundation/NSNotification.h>
 #include <Foundation/NSThread.h>
@@ -55,10 +54,12 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 #endif
+#include <GNUstepBase/GSLock.h>
 
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 
+static NSRecursiveLock *local_lock = nil;
 static BOOL GSStrictWO451Flag = NO;
 
 BOOL
@@ -67,11 +68,8 @@ GSUseStrictWO451Compatibility (NSString *key)
   static BOOL read = NO;
   if (read == NO)
     {
-      NSLock *lock = GDL2GlobalLock();
-      if (lock!=nil)
-	{
-	  [lock lock];
-	}
+      [GS_INITIALIZED_LOCK(local_lock, GSLazyRecursiveLock) lock];
+
       NS_DURING
         if (read == NO)
           {
@@ -82,41 +80,14 @@ GSUseStrictWO451Compatibility (NSString *key)
             read = YES;
           }
       NS_HANDLER
-	if (lock != nil)
-	  {
-	    [lock unlock];
-	  }
+	[local_lock unlock];
         [localException raise];
       NS_ENDHANDLER
-	if (lock != nil)
-	  {
-	    [lock unlock];
-	  }
+
+      [local_lock unlock];
     }
   return GSStrictWO451Flag;
 }
-
-/* We use this helper class because the runtime
-   guarantees to call +initialize under a mutex,
-   allowing for clean setup of the global locks.*/
-
-@interface GDL2GlobalLockVendor : NSObject
-+ (NSLock *) globalLock;
-+ (NSRecursiveLock *) globalRecursiveLock;
-@end
-
-NSLock *
-GDL2GlobalLock()
-{
-  return [GDL2GlobalLockVendor globalLock];
-}
-
-NSRecursiveLock *
-GDL2GlobalRecursiveLock()
-{
-  return [GDL2GlobalLockVendor globalRecursiveLock];
-}
-
 
 @implementation NSObject (NSObjectPerformingSelector)
 
@@ -546,83 +517,6 @@ GDL2GlobalRecursiveLock()
 
   return version;
 }
-@end
-
-
-@interface GDL2GlobalLockVendor (private)
-+ (void) _setupLocks: (NSNotification *)notif;
-@end
-
-@implementation GDL2GlobalLockVendor
-
-static NSLock          *lock  = nil;
-static NSRecursiveLock *rlock = nil;
-
-/*
- * Depending on whether we are multithreaded or not, we
- * setup for the becomeMultithreadedNotification to
- * invoke _setupLocks: or invoke it directly.  This method
- * is invoked once by the runtime under a lock and
- * therefor allows thread safe access to global variables.
- */
-+ (void) initialize
-{
-  if (self == [GDL2GlobalLockVendor class])
-    {
-      if ([NSThread isMultiThreaded] == YES)
-	{
-	  [self _setupLocks: nil];
-	}
-      else
-	{
-	  NSNotificationCenter *nc;
-	  nc = [NSNotificationCenter defaultCenter];
-	  [nc addObserver: self
-	      selector:@selector(_setupLocks:)
-	      name: NSWillBecomeMultiThreadedNotification
-	      object: nil];
-	}
-    }
-}
-
-/*
- * Setup globalLock and globalRecursiveLock.  This method should 
- * only be called from a thread safe context (i.e. from +initialze
- * or during NSWillBecomeMultiThreadedNotification).
- */
-+ (void) _setupLocks: (NSNotification *)notif
-{
-  if (lock == nil && rlock == nil)
-    {
-      lock  = [NSLock new];
-      rlock = [NSRecursiveLock new];
-    }
-  else
-    {
-      NSLog(@"%@ - +%@ called multiple times!",
-	    NSStringFromClass([self class]),
-	    NSStringFromSelector(_cmd));
-    }
-}
-
-/**
- * Returns a global NSLock, if the process is multithreaded.
- * Otherwise returns nil.
- */
-+ (NSLock *) globalLock
-{
-  return lock;
-}
-
-/**
- * Returns a global NSRecursiveLock, if the process is multithreaded.
- * Otherwise returns nil.
- */
-+ (NSRecursiveLock *) globalRecursiveLock
-{
-  return rlock;
-}
-
 @end
 
 @implementation NSString (StringToNumber)

@@ -1,5 +1,18 @@
 2003-02-12  David Ayers  <d.ayers@inode.at>
 
+	* EOControl/EOClassDescription.m
+	([EOClassDescription initialize]): Use local 
+	GSLazyRecursiveLock instead of old locking mechanism.
+	([EOClassDescription classDelegate]): Ditto.
+	* EOControl/EOGenericRecord.m:  Use GSLazyRecursiveLock
+	instead	of NSRecursiveLock.
+	* EOControl/EONSAddOns.h/m (GDL2GlobalLock, 
+	GDL2GlobalRecursiveLock) Remove.
+	(GDL2GlobalLockVendor) Ditto.
+	(GSUseStrictWO451Compatibility): Use local GSLazyRecursiveLock
+	instead of old locking mechanism.
+	* EOControl/EOFault.m: Remove superfluous include.
+	
 	* EOControl/EOKeyValueQualifier.m
 	([EOKeyValueQualifier initWithKey:operatorSelector:value:]):
 	Use EONull instance if value is nil.
