@@ -1,3 +1,24 @@
+2004-09-26  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOObserver.m: Update includes.  Document classes and
+	methods.
+	(+[EOObserverCenter addObserver:forObject:]): Do not retain
+	object.  Add logging.
+	(+[EOObserverCenter removeObserver:forObject:]): Do not release
+	object.
+	(+[EOObserverCenter observerForObject:]): Use +observersForObject:
+	to obtain the observers for overriding subclasses.
+	(+[EOObserverCenter enableObserverNotification]): Raise
+	NSInternalInconsistencyException when called to often.
+	(-[EODelayedObserver objectWillChange:]): Use the receivers
+	observerQueue for overriding subclasses.
+	(-[EODelayedObserver discardPendingNotification]): Ditto.
+	(-[EODelayedObserverQueue enqueueObserver:]): Relocate assertion
+	to safer place.
+	(-[EOObserverProxy initWithTarget:action:priority:]): Implement.
+	(-[EOObserverProxy dealloc],-[EOObserverProxy priority])
+	(-[EOObserverProxy subjectChanged]): Ditto.
+	
 2004-09-25  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOObserver.m

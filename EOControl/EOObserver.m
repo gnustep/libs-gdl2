@@ -4,6 +4,7 @@
    Copyright (C) 2000 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+   Author: David Ayers <d.ayers@inode.at>
    Date: June 2000
 
    $Revision$
@@ -36,12 +37,12 @@
 RCS_ID("$Id$")
 
 #ifdef GNUSTEP
-#include <Foundation/NSObject.h>
 #include <Foundation/NSMapTable.h>
-#include <Foundation/NSNotification.h>
+#include <Foundation/NSArray.h>
 #include <Foundation/NSEnumerator.h>
 #include <Foundation/NSRunLoop.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSException.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -51,17 +52,20 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #endif
 
-#include <EOControl/EOClassDescription.h>
-#include <EOControl/EOKeyValueCoding.h>
-#include <EOControl/EONull.h>
 #include <EOControl/EOObserver.h>
 #include <EOControl/EODebug.h>
-
-#include <string.h>
 
 
 @implementation NSObject (EOObserver)
 
+/**
+ * This is the hook to allow observers to be notified that the state
+ * of the receiver is about to change.  The method should be called in
+ * all mutating accessor methods before the state of the receiver changes.
+ * This method invokes [EOObserverCenter+notifyObserversObjectWillChange:]
+ * with the receiver.  It is responsible for invoking 
+ * [EOObserving-objectWillChange:] for all corresponding observers.
+ */
 - (void)willChange
 {
   EOFLOGObjectFnStart();
@@ -74,6 +78,21 @@ RCS_ID("$Id$")
 
 @end
 
+/**
+ * <p>This is the central coordinating class of the change tracking system
+ * of EOControl.  It manages the observers [EOObserving] and the objects
+ * to be observed.  No instances of this class should be needed or created.
+ * All methods for coordinating the tracking mechanism are class methods.</p>
+ * <p>Observers must implement the [EObserving] protocol, in particular
+ * [EOObserving-objectWillChange:] while the observed objects must invoke
+ * [NSObject-willChange].  Invoke [+addObserver:forObject:] to register an
+ * observer for a particular object.  That will setup for 
+ * [EOObserving-objectWillChange:] to be invoked on the observer each time
+ * [NSObject-willChange] gets called.  To remove an observer invoke 
+ * [+removeObserver:forObject:].  For observers who wish to be notified for
+ * every change the methods [+addOmniscientObserver:] and 
+ * [+removeOmniscientObserver:] can be used.</p>
+ */
 
 @implementation EOObserverCenter
 
@@ -85,7 +104,7 @@ static id lastObject;
 
 + (void)initialize
 {
-  observersMap = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks, //No because it de-fault observed objects NSObjectMapKeyCallBacks, 
+  observersMap = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
 				  NSObjectMapValueCallBacks,
 				  32);
 
@@ -95,6 +114,13 @@ static id lastObject;
   notificationSuppressCount = 0;
 }
 
+/**
+ * Adds the observer to be notified with a [EOObserving-objectWillChange:] 
+ * on the first of consecutive [NSObject-willChange] methods invoked on
+ * the object.  The does not the object.  It is the observers responsibility
+ * to unregister the object with [-removeObserver:forObject:] before the 
+ * object ceases to exist.
+ */
 + (void)addObserver: (id <EOObserving>)observer forObject: (id)object
 {
   NSMutableArray *observersArray;
@@ -106,16 +132,25 @@ static id lastObject;
       observersArray = [NSMutableArray arrayWithCapacity: 16];
       [observersArray addObject: observer];
 
-      RETAIN(object); //because not owned by observersMap
+      /* The object is not retained.  It is the responsibility
+	 of the observer to remove the object before it ceases
+	 to exist.  */ 
       NSMapInsert(observersMap, object, observersArray);
     }
   else
     {
       if ([observersArray containsObject: observer] == NO)
 	[observersArray addObject: observer];
+      else
+	NSDebugMLog(@"Observer: %@ for object: %@(%p) added multiple times.",
+		    observer, NSStringFromClass(GSObjCClass(object)), object);
     }
 }
 
+/**
+ * Removes the observer from being notified on [NSObject-willChange] 
+ * invocations of object.
+ */
 + (void)removeObserver: (id <EOObserving>)observer forObject: (id)object
 {
   NSMutableArray *observersArray;
@@ -129,11 +164,24 @@ static id lastObject;
       if (![observersArray count])
         {
           NSMapRemove(observersMap, object);
-          RELEASE(object); //because not owned by observersMap
+	  /* The object is not released.  It is the responsibility
+	     of the observer to remove the object before it ceases 
+	     to exist.  */ 
         }
     }
 }
 
+/**
+ * This method is invoked from [NSObject-willChange] to dispatch
+ * [EOObserving-objectWillChange:] to all observers registered
+ * to observe object.  This method records the last object it was
+ * invoked with so that subsequent invocations with the same object
+ * get ignored.  Invoke this method with nil as the object to insure
+ * that the new changes will be forwarded to the observer.
+ * The observer notification can be suppressed with invocations of
+ * [+suppressObserverNotification] which must be paired up with invocations 
+ * of [+enableObserverNotification] before they are dispatched again.
+ */
 + (void)notifyObserversObjectWillChange: (id)object
 {
   EOFLOGClassFnStart();
@@ -142,7 +190,6 @@ static id lastObject;
 
   if (!notificationSuppressCount)
     {
-      //EOFLOGObjectLevelArgs(@"EOObserver", @"object=%p", object);
       EOFLOGObjectLevelArgs(@"EOObserver", @"object=%p lastObject=%p",
 			    object, lastObject);
 
@@ -177,16 +224,23 @@ static id lastObject;
   EOFLOGClassFnStop();
 }
 
+/**
+ * Returns an array of observers that have been registered of object.
+ */
 + (NSArray *)observersForObject: (id)object
 {
   return NSMapGet(observersMap, object);
 }
 
+/**
+ * Returns the first observer of the objects as determined by
+ * [+observersForObject:] that match [-isKindOfClass:] of the targetClass.
+ */
 + (id)observerForObject: (id)object ofClass: (Class)targetClass
 {
   NSArray *observersArray;
 
-  observersArray = NSMapGet(observersMap, object);
+  observersArray = [self observersForObject: object];
 
   if (observersArray)
     {
@@ -202,32 +256,59 @@ static id lastObject;
   return nil;
 }
 
+/**
+ * Increases the notification suppression count.  When the count is 
+ * non zero [+notifyObserversObjectWillChange:] invocations do nothing.  
+ * Call [+enableObserverNotificaion] a matching amount of times
+ * to enable the dispatch of those notifications again.
+ */
 + (void)suppressObserverNotification
 {
   notificationSuppressCount++;
 }
 
+/**
+ * Decreases the notification suppression count.  This should be called
+ * to pair up [+suppressObserverNotification] invocations.  When they
+ * all have been paired up [+notifyObserversObjectWillChange:] will
+ * continue to dispatch [EOObserving-objectWillChange:] methods again.
+ * If this is invoked when the [+observerNotificationCount] is 0, this
+ * method raises an NSInternalInconsistencyException.
+ */
 + (void)enableObserverNotification
 {
   if (notificationSuppressCount)
-    notificationSuppressCount--;
+    {
+      notificationSuppressCount--;
+    }
   else
     {
-      NSLog(@"enableObserverNotification called more than suppressObserverNotification");
+      [NSException raise: NSInternalInconsistencyException
+		   format: @"Unmatched enableObserverNotification invocation"];
     }
 }
 
+/**
+ * Returns the current observer notification suppress count.
+ */
 + (unsigned int)observerNotificationSuppressCount
 {
   return notificationSuppressCount;
 }
 
+/**
+ * Adds observer as an omniscient observer to receive 
+ * [EOObserving-objectWillChange:] for all objects and nil.
+ */
 + (void)addOmniscientObserver: (id <EOObserving>)observer
 {
   if ([omniscientObservers containsObject: observer] == NO)
     [omniscientObservers addObject: observer];
 }
 
+/**
+ * Removes observer as an omniscient observer.
+ */
 + (void)removeOmniscientObserver: (id <EOObserving>)observer
 {
   [omniscientObservers removeObject: observer];
@@ -238,38 +319,80 @@ static id lastObject;
 
 @implementation EODelayedObserver
 
+/**
+ * EOObserving implementation which enqueues the receiver in the
+ * queue returned by observerQueue.
+ */
 - (void)objectWillChange: (id)subject
 {
-  [[EODelayedObserverQueue defaultObserverQueue] enqueueObserver: self];
+  [[self observerQueue] enqueueObserver: self];
 }
 
+/**
+ * Returns the EOObserverPriority of the receiver.  EODelayedObserver 
+ * returns EOObserverPriorityThird by default.  Subclasses can override
+ * this method to return the corresponding priority.
+ */
 - (EOObserverPriority)priority
 {
   return EOObserverPriorityThird;
 }
 
+/**
+ * Returns the receivers observer queue.  EODelayedObserver returns
+ * [EODelayedObserverQueue+defaultObserverQueue].  Subclasses can
+ * override this method to return an applicable queue.
+ */
 - (EODelayedObserverQueue *)observerQueue
 {
   return [EODelayedObserverQueue defaultObserverQueue];
 }
 
+/**
+ * Invoked by [EODelayedObserverQueue-notifyObserverUpToPriority:] or 
+ * [EODelayedObserverQueue-enqueueObserver:].  Overridden by subclasses
+ * to process the delayed change notification.  EODelayesObserver does
+ * nothing.
+ */
 - (void)subjectChanged
 {
 }
 
+/**
+ * Discards all pending notifications of the receiver by dequeuing
+ * the receiver from the observer queue returned by [-observerQueue].
+ * Subclasses should invoke this method in thier dealloc implementations.
+ */
 - (void)discardPendingNotification
 {
-  [[EODelayedObserverQueue defaultObserverQueue] dequeueObserver: self];
+  [[self observerQueue] dequeueObserver: self];
 }
 
 @end
 
 
-static EODelayedObserverQueue *observerQueue;
-
+/**
+ * EODelayedObserverQueue manages the delayed observer notifications
+ * for [EODelayedObservers] that register with it.  A delayed observer
+ * may only register itself with one queue and a fixed priority.  
+ * Upon [-notifyObserversUpToPriority:] all enqueued observers are sent
+ * [EODelyedObserver-subjectChanged] according to the EOObserverPriority
+ * of the observer.  The first time an observer is enqueued with
+ * [-enqueueObserver:] (with a priority other than 
+ * EOObserverPriorityImmediate) the queue registers itself with the
+ * [NSRunLoop-currentRunLoop] with EOFlushDelayedObserverRunLoopOrdering
+ * to invoke [-notifyObserversUpToPriority:] with EOObserverPrioritySixth.
+ * In general this mechanism is used by [EOAssociation] subclasses and
+ * in part [EODisplayGroup] or even [EOEditingContext].
+ */
 
 @implementation EODelayedObserverQueue
 
+static EODelayedObserverQueue *observerQueue;
+
+/**
+ * Returns the default queue.
+ */
 + (EODelayedObserverQueue *)defaultObserverQueue
 {
   if (!observerQueue)
@@ -278,6 +401,10 @@ static EODelayedObserverQueue *observerQueue;
   return observerQueue;
 }
 
+/**
+ * </init>Initializes the an EODelayedObserverQueue 
+ * with NSDefaultRunLoopMode.
+ */
 - init
 {
   if ((self == [super init]))
@@ -294,6 +421,22 @@ static EODelayedObserverQueue *observerQueue;
   _haveEntryInNotificationQueue = NO;
 }
 
+/**
+ * <p>Registers the observer with the receiver so that it will
+ * dispatch [EODelayedObserver-subjectChanged] either immediately,
+ * if the observers priority is EOObserverPriorityImmediate, or
+ * for the next invocation of [-notifyObserversUpToPriority:].  If
+ * this method is invoked during the processing of 
+ * [-notifyObserversUpToPriority:], then the dispatch will be enqueue
+ * for the current processing.</p>
+ * <p>Upon the first invocation within a run loop, this method registers
+ * a callback method to have [-notifyObserversUpToPriority:] invoked
+ * with EOObserverPrioritySixth with the [NSRunLoop-currentRunLoop] with
+ * EOFlushDelayedObserverRunLoopOrdering and the receivers run loop modes.</p>
+ * <p>The observer is not retained and should be removed from the receiver
+ * with [-dequeueObserver:] during the EODelayedObservers [NSObject-dealloc]
+ * method.</p>
+ */
 - (void)enqueueObserver: (EODelayedObserver *)observer
 {
   EOObserverPriority priority = [observer priority];
@@ -302,9 +445,6 @@ static EODelayedObserverQueue *observerQueue;
     [observer subjectChanged];
   else
     {
-      NSAssert2(observer->_next != nil, @"observer:%@ has ->next:%@",
-		observer, observer->_next);
-
       if (_queue[priority])
 	{
 	  EODelayedObserver *obj = _queue[priority];
@@ -319,6 +459,9 @@ static EODelayedObserverQueue *observerQueue;
 	    {
 	      return;
 	    }
+
+	  NSAssert2(observer->_next != nil, @"observer:%@ has ->next:%@",
+		    observer, observer->_next);
 
 	  NSAssert(last != nil, @"Currupted Queue");
 	  last->_next = observer;
@@ -345,6 +488,9 @@ static EODelayedObserverQueue *observerQueue;
     }
 }
 
+/**
+ * Unregisters the observer from the receiver.
+ */
 - (void)dequeueObserver: (EODelayedObserver *)observer
 {
   EOObserverPriority priority;
@@ -404,8 +550,14 @@ static EODelayedObserverQueue *observerQueue;
 }
 
 /**
- * Note that unlike the reference implementation, we dequeue the
- * observer after dispatching [EODelayedObserver-subjectChanged].
+ * <p>Dispatches registered observer notifications by sending
+ * [EODelayedObserver-subjectChanged] to all registered observers
+ * of the receiver.  During the processing new enqueObserver: methods will
+ * be honored.  It is up toe the callers to ensure no loops result.</p>
+ * <p>This method is invoked automatically with EOObserverPrioritySixth
+ * during each run loop after an invocation of [-enqueueObserver:].</p>
+ * <p>Note that unlike the reference implementation, we dequeue the
+ * observer after dispatching [EODelayedObserver-subjectChanged].</p>
  */
 - (void)notifyObserversUpToPriority: (EOObserverPriority)priority
 {
@@ -429,11 +581,21 @@ static EODelayedObserverQueue *observerQueue;
     }
 }
 
+/**
+ * Sets the run loop modes the receiver uses when registering
+ * for [-notifyObserversUpToPriority:] during [-enqueueObserver:].
+ * (see [NSRunLoop]).
+ */
 - (void)setRunLoopModes: (NSArray *)modes
 {
   ASSIGN(_modes, modes);
 }
 
+/**
+ * Returns the run loop modes the receiver uses when registering
+ * for [-notifyObserversUpToPriority:] during [-enqueueObserver:].
+ * (see [NSRunLoop]).
+ */
 - (NSArray *)runLoopModes
 {
   return _modes;
@@ -441,15 +603,55 @@ static EODelayedObserverQueue *observerQueue;
 
 @end
 
+/**
+ * This is a convenience class which is initialized with a target,
+ * an action method and a priority, to have the action method
+ * invoked on the target when the subjectChanged method is invoked
+ * by the EODelayedObserverQueue.
+ */
 
 @implementation EOObserverProxy
 
-- initWithTarget: (id)target
-	  action: (SEL)action
-	priority: (EOObserverPriority)priority
+/**
+ * Initializes the receiver to dispatch action to target upon processing
+ * [-subjectChanged].  The receiver uses priority for the 
+ * [EODelayedObserverQueue].
+ */
+- (id)initWithTarget: (id)target
+	      action: (SEL)action
+	    priority: (EOObserverPriority)priority
 {
-  NSEmitTODO();
-  return [self notImplemented: _cmd]; //TODO
+  if ((self = [super init]))
+    {
+      ASSIGN(_target, target);
+      _action = action;
+      _priority = priority;
+    }
+  return self;
+}
+
+- (void)dealloc
+{
+  RELEASE(_target);
+  [super dealloc];
+}
+
+/**
+ * Returns the priority the receiver was initialized with.
+ */
+- (EOObserverPriority)priority
+{
+  return _priority;
+}
+
+/**
+ * Overridden to dispatch the action method to the target which
+ * the receiver was initialized with.
+ */
+- (void)subjectChanged
+{
+  [_target performSelector: _action
+	   withObject: self];
 }
 
 @end
