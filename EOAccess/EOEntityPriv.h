@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOEntityPriv.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -45,29 +45,29 @@
 @end
 
 @interface EOEntity (EOEntityRelationshipPrivate)
-- (EORelationship*) _inverseRelationshipPathForPath: (NSString*)path;
-- (id) _keyMapForRelationshipPath: (NSString*)path;
-- (id) _keyMapForIdenticalKeyRelationshipPath: (id)param0;
-- (id) _mapAttribute: (id)param0
-toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path;
-- (BOOL) _relationshipPathIsToMany: (id)param0;
-- (BOOL) _relationshipPathHasIdenticalKeys: (id)param0;
+- (EORelationship *)_inverseRelationshipPathForPath: (NSString *)path;
+- (id)_keyMapForRelationshipPath: (NSString *)path;
+- (id)_keyMapForIdenticalKeyRelationshipPath: (id)param0;
+- (id)_mapAttribute: (id)param0
+toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path;
+- (BOOL)_relationshipPathIsToMany: (id)param0;
+- (BOOL)_relationshipPathHasIdenticalKeys: (id)param0;
 @end
 
 
 @interface EOEntity (EOEntitySQLExpression)
-- (id) valueForSQLExpression: (id)param0;
-+ (id) valueForSQLExpression: (id)param0;
+- (id)valueForSQLExpression: (id)param0;
++ (id)valueForSQLExpression: (id)param0;
 @end
 
 @interface EOEntity (EOEntityPrivateXX)
-- (EOExpressionArray *) _parseDescription: (NSString *)description
-                                 isFormat: (BOOL)isFormat
-                                arguments: (char*)param2;
-- (EOExpressionArray*) _parseRelationshipPath: (NSString*)path;
-- (id) _parsePropertyName: (id)param0;
-//- (id) _newStringWithBuffer: (unsigned short*)param0
-//                     length: (unsigned int*)param1;
+- (EOExpressionArray *)_parseDescription: (NSString *)description
+				isFormat: (BOOL)isFormat
+			       arguments: (char *)param2;
+- (EOExpressionArray *)_parseRelationshipPath: (NSString *)path;
+- (id)_parsePropertyName: (id)param0;
+//- (id)_newStringWithBuffer: (unsigned short *)param0
+//                    length: (unsigned int *)param1;
 @end
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOJoin.h
 
    Copyright (C) 1996 Free Software Foundation, Inc.
@@ -46,8 +46,8 @@
 + (EOJoin *)joinWithSourceAttribute: (EOAttribute *)source
                destinationAttribute: (EOAttribute *)destination;
 
-- initWithSourceAttribute: (EOAttribute *)source
-     destinationAttribute: (EOAttribute *)destination;
+- (id)initWithSourceAttribute: (EOAttribute *)source
+	 destinationAttribute: (EOAttribute *)destination;
 
 - (NSString *)description;
 
@@ -61,8 +61,8 @@
 
 @interface EOJoin (EOJoinPrivate)
 
-//+ (EOJoin*)joinFromPropertyList:(id)propertyList;
-//- (void)replaceStringsWithObjectsInRelationship:(EORelationship*)entity;
+//+ (EOJoin *)joinFromPropertyList: (id)propertyList;
+//- (void)replaceStringsWithObjectsInRelationship: (EORelationship *)entity;
 //- (id)propertyList;
 
 @end /* EOJoin (EOJoinPrivate) */

@@ -1,4 +1,4 @@
-/** 
+/* -*-objc-*- 
    EOJoin+GSDoc.h <title>EOJoin+GSDoc</title>
 
    Copyright (C) 2000-2002 Free Software Foundation, Inc.

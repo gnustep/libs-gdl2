@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOAdaptorPriv.h
 
    Copyright (C) 2002 Free Software Foundation, Inc.
@@ -30,9 +30,9 @@
 
 @interface EOAdaptor(EOAdaptorPrivate)
 
-- (void) _requestConcreteImplementationForSelector: (SEL)param0;
-- (void) _unregisterAdaptorContext: (EOAdaptorContext*)adaptorContext;
-- (void) _registerAdaptorContext: (EOAdaptorContext*)adaptorContext;
+- (void)_requestConcreteImplementationForSelector: (SEL)param0;
+- (void)_unregisterAdaptorContext: (EOAdaptorContext *)adaptorContext;
+- (void)_registerAdaptorContext: (EOAdaptorContext *)adaptorContext;
 
 @end
 

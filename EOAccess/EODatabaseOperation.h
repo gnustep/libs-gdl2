@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EODatabaseOperation.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -74,7 +74,7 @@ Instance objects are created by EODatabaseOperation
 + (EOAdaptorOperation *)adaptorOperationWithEntity: (EOEntity *)entity;
 
 /** Init the instance with the main concerned entity **/
-- (id) initWithEntity: (EOEntity *)entity;
+- (id)initWithEntity: (EOEntity *)entity;
 
 /** returns adaptor operator **/
 - (EOAdaptorOperator)adaptorOperator;
@@ -136,7 +136,7 @@ You generally don't need to create such objects by yourself. They are created by
   NSMutableDictionary *_toManySnapshots; /** **/
 }
 
-+ (EODatabaseOperation*)databaseOperationWithGlobalID: (EOGlobalID *)globalID
++ (EODatabaseOperation *)databaseOperationWithGlobalID: (EOGlobalID *)globalID
                                                object: (id)object
                                                entity: (EOEntity *)entity;
 
@@ -157,21 +157,17 @@ If the object has just been inserted (i.e. not yet in database), the returned di
 The newRow dictionary is created when creating the database operation (in EODatabaseChannel -databaseOperationForObject: for exemple). Values come from object state in database and overrides by changes made on the object
 **/
 - (NSMutableDictionary *)newRow;
-- (void)setNewRow:(NSMutableDictionary *)newRow;
+- (void)setNewRow: (NSMutableDictionary *)newRow;
 
 - (EOGlobalID *)globalID;
-
 - (id)object;
-
 - (EOEntity *)entity;
 
 - (EODatabaseOperator)databaseOperator;
 - (void)setDatabaseOperator: (EODatabaseOperator)dbOp;
 
 - (NSDictionary *)rowDiffs;
-
 - (NSDictionary *)rowDiffsForAttributes: (NSArray *)attributes;
-
 - (NSDictionary *)primaryKeyDiffs;
 
 /** returns array of EOAdaptorOperations to perform **/
@@ -185,7 +181,7 @@ Raises an exception if adaptorOperation is nil
 /** removes an Adaptor Operation **/
 - (void)removeAdaptorOperation: (EOAdaptorOperation *)adaptorOperation;
 
-- (void)recordToManySnapshot: (NSArray *)gids relationshipName:(NSString *)name;
+- (void)recordToManySnapshot: (NSArray *)gids relationshipName: (NSString *)name;
 - (NSDictionary *)toManySnapshots;
 
 @end

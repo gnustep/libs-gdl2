@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOSortOrdering.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -26,7 +26,7 @@
 
 #ifndef __EOSortOrdering_h__
 #define __EOSortOrdering_h__
-
+/* WO45 OK */
 
 #ifdef GNUSTEP
 #include <Foundation/NSObject.h>
@@ -47,7 +47,7 @@
 + (EOSortOrdering *)sortOrderingWithKey: (NSString *)key
 			       selector: (SEL)selector;
 
-- initWithKey: (NSString *)key selector: (SEL)selector;
+- (id)initWithKey: (NSString *)key selector: (SEL)selector;
 - (NSString *)key;
 - (SEL)selector;
 

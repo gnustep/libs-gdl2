@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOStoredProcedure.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -54,7 +54,7 @@
 + (EOStoredProcedure *)storedProcedureWithPropertyList: (NSDictionary *)propertyList 
                                                  owner: (id)owner;
 
-- (EOStoredProcedure *)initWithName:(NSString *)name;
+- (EOStoredProcedure *)initWithName: (NSString *)name;
 
 - (NSString *)name;
 
@@ -66,14 +66,14 @@
 
 - (NSDictionary *)userInfo;
 
-- (void)setName:(NSString *)name;
-- (void)setExternalName:(NSString *)name;
-- (void)setArguments:(NSArray *)arguments;
-- (void)setUserInfo:(NSDictionary *)dictionary;
+- (void)setName: (NSString *)name;
+- (void)setExternalName: (NSString *)name;
+- (void)setArguments: (NSArray *)arguments;
+- (void)setUserInfo: (NSDictionary *)dictionary;
 
 @end
 
-@interface EOStoredProcedure(EOModelBeautifier)
+@interface EOStoredProcedure (EOModelBeautifier)
 
 - (void)beautifyName;
 

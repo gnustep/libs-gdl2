@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOQualifier.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -35,6 +35,8 @@
 
 #include <EOControl/EOKeyValueArchiver.h>
 
+#include <EOControl/EODefines.h>
+
 @class NSArray;
 @class NSDictionary;
 @class NSString;
@@ -47,8 +49,6 @@
 
 
 @interface EOQualifier : NSObject <NSCopying>
-{
-}
 
 + (EOQualifier *)qualifierWithQualifierFormat: (NSString *)qualifierFormat, ...;
 
@@ -95,7 +95,7 @@
 
 @protocol EOQualifierEvaluation
 
-- (BOOL)evaluateWithObject: object;
+- (BOOL)evaluateWithObject: (id)object;
 
 @end
 
@@ -126,40 +126,40 @@
 #define EOQualifierOperatorCaseInsensitiveLike @selector(isCaseInsensitiveLike:)
 
 
-@interface EOKeyValueQualifier:EOQualifier <EOQualifierEvaluation>
+@interface EOKeyValueQualifier : EOQualifier <EOQualifierEvaluation>
 {
   SEL _selector;
   NSString *_key;
   id _value;
 }
 
-+ (EOKeyValueQualifier*)qualifierWithKey: (NSString *)key
-			operatorSelector: (SEL)selector
-				   value: (id)value;
++ (EOKeyValueQualifier *)qualifierWithKey: (NSString *)key
+			 operatorSelector: (SEL)selector
+				    value: (id)value;
 
-- (id)  initWithKey: (NSString *)key
-   operatorSelector: (SEL)selector
-              value: (id)value;
+- (id)initWithKey: (NSString *)key
+ operatorSelector: (SEL)selector
+	    value: (id)value;
 - (SEL)selector;
 - (NSString *)key;
 - (id)value;
 
 @end
 
-@interface EOKeyComparisonQualifier:EOQualifier <EOQualifierEvaluation>
+@interface EOKeyComparisonQualifier : EOQualifier <EOQualifierEvaluation>
 {
   SEL _selector;
   NSString *_leftKey;
   NSString *_rightKey;
 }
 
-+ (EOQualifier*)qualifierWithLeftKey: (NSString *)leftKey
-		    operatorSelector: (SEL)selector
-			    rightKey: (id)rightKey;
++ (EOQualifier *)qualifierWithLeftKey: (NSString *)leftKey
+		     operatorSelector: (SEL)selector
+			     rightKey: (id)rightKey;
 
-- initWithLeftKey: (NSString *)leftKey
- operatorSelector: (SEL)selector
-	 rightKey: (id)rightKey;
+- (id)initWithLeftKey: (NSString *)leftKey
+     operatorSelector: (SEL)selector
+	     rightKey: (id)rightKey;
 - (SEL)selector;
 - (NSString *)leftKey;
 - (NSString *)rightKey;
@@ -175,15 +175,15 @@
 + (EOQualifier *)qualifierWithQualifierArray: (NSArray *)array;
 + (EOQualifier *)qualifierWithQualifiers: (EOQualifier *)qualifiers, ...;
 
-- initWithQualifiers: (EOQualifier *)qualifiers, ...;
-- initWithQualifierArray: (NSArray *)array;
+- (id)initWithQualifiers: (EOQualifier *)qualifiers, ...;
+- (id)initWithQualifierArray: (NSArray *)array;
 
 - (NSArray *)qualifiers;
 
 @end
 
 
-@interface EOOrQualifier:EOQualifier <EOQualifierEvaluation>
+@interface EOOrQualifier : EOQualifier <EOQualifierEvaluation>
 {
   NSArray *_qualifiers;
 }
@@ -191,31 +191,31 @@
 + (EOQualifier *)qualifierWithQualifierArray: (NSArray *)array;
 + (EOQualifier *)qualifierWithQualifiers: (EOQualifier *)qualifiers, ...;
 
-- initWithQualifiers: (EOQualifier *)qualifiers, ...;
-- initWithQualifierArray: (NSArray *)array;
+- (id)initWithQualifiers: (EOQualifier *)qualifiers, ...;
+- (id)initWithQualifierArray: (NSArray *)array;
 
 - (NSArray *)qualifiers;
 
 @end
 
 
-@interface EONotQualifier:EOQualifier <EOQualifierEvaluation>
+@interface EONotQualifier : EOQualifier <EOQualifierEvaluation>
 {
   EOQualifier *_qualifier;
 }
 
 + (EOQualifier *)qualifierWithQualifier: (EOQualifier *)qualifier;
 
-- initWithQualifier: (EOQualifier *)qualifier;
+- (id)initWithQualifier: (EOQualifier *)qualifier;
 
 - (EOQualifier *)qualifier;
 
 @end
 
-extern NSString *EOQualifierVariableSubstitutionException;
+GDL2CONTROL_EXPORT NSString *EOQualifierVariableSubstitutionException;
 
 
-@interface EOQualifierVariable:NSObject <NSCoding, EOKeyValueArchiving>
+@interface EOQualifierVariable : NSObject <NSCoding, EOKeyValueArchiving>
 {
   NSString *_key;
 }

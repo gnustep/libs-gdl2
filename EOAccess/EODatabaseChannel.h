@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EODatabaseChannel.h
 
    Copyright (C) 2000-2002 Free Software Foundation, Inc.
@@ -66,12 +66,12 @@
   } _delegateRespondsTo;
 }
 
-+ (EODatabaseChannel*)databaseChannelWithDatabaseContext: (EODatabaseContext *)databaseContext;
++ (EODatabaseChannel *)databaseChannelWithDatabaseContext: (EODatabaseContext *)databaseContext;
 
-- initWithDatabaseContext: (EODatabaseContext *)databaseContext;
+- (id)initWithDatabaseContext: (EODatabaseContext *)databaseContext;
 
 - (void)setCurrentEntity: (EOEntity *)entity;
-- (void) setEntity: (EOEntity *)entity;
+- (void)setEntity: (EOEntity *)entity;
 
 - (void)setCurrentEditingContext: (EOEditingContext *)context;
 
@@ -95,7 +95,7 @@
 - (void)setIsLocking: (BOOL)isLocking;
 
 - (void)setDelegate: (id)delegate;
-- (id) delegate;
+- (id)delegate;
 
 @end
 

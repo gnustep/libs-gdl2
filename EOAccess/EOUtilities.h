@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOUtilities.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -49,67 +49,67 @@ GDL2ACCESS_EXPORT NSString *EOMoreThanOneException;
 
 @interface EOEditingContext (EOUtilities)
 
-- (NSArray*)objectsForEntityNamed: (NSString*)name;
-- (NSArray*)objectsOfClass: (Class)classObject;
-- (NSArray*)objectsWithFetchSpecificationNamed: (NSString*)fetchSpecName
-				   entityNamed: (NSString*)entityName
-				      bindings: (NSDictionary*)bindings;
-- (NSArray*)objectsForEntityNamed: (NSString*)name
-		  qualifierFormat: (NSString*)format, ...;
-- (NSArray*)objectsMatchingValue: (id)value
-			  forKey: (NSString*)key
-		     entityNamed: (NSString*)name;
-- (NSArray*)objectsMatchingValues: (NSDictionary*)values
-		      entityNamed: (NSString*)name;
+- (NSArray *)objectsForEntityNamed: (NSString *)name;
+- (NSArray *)objectsOfClass: (Class)classObject;
+- (NSArray *)objectsWithFetchSpecificationNamed: (NSString *)fetchSpecName
+				    entityNamed: (NSString *)entityName
+				       bindings: (NSDictionary *)bindings;
+- (NSArray *)objectsForEntityNamed: (NSString *)name
+		   qualifierFormat: (NSString *)format, ...;
+- (NSArray *)objectsMatchingValue: (id)value
+			   forKey: (NSString *)key
+		      entityNamed: (NSString *)name;
+- (NSArray *)objectsMatchingValues: (NSDictionary *)values
+		       entityNamed: (NSString *)name;
 
-- (id)objectWithFetchSpecificationNamed: (NSString*)fetchSpecName
-			    entityNamed: (NSString*)entityName
-			       bindings: (NSDictionary*)bindings;
-- (id)objectForEntityNamed: (NSString*)name
-	   qualifierFormat: (NSString*)format, ...;
+- (id)objectWithFetchSpecificationNamed: (NSString *)fetchSpecName
+			    entityNamed: (NSString *)entityName
+			       bindings: (NSDictionary *)bindings;
+- (id)objectForEntityNamed: (NSString *)name
+	   qualifierFormat: (NSString *)format, ...;
 - (id)objectMatchingValue: (id)value
-		   forKey: (NSString*)key
-	      entityNamed: (NSString*)name;
-- (id)objectMatchingValues: (NSDictionary*)values
-	       entityNamed: (NSString*)name;
+		   forKey: (NSString *)key
+	      entityNamed: (NSString *)name;
+- (id)objectMatchingValues: (NSDictionary *)values
+	       entityNamed: (NSString *)name;
 - (id)objectWithPrimaryKeyValue: (id)value
-		    entityNamed: (NSString*)name;
-- (id)objectWithPrimaryKey: (NSDictionary*)pkDict
-	       entityNamed: (NSString*)name;
+		    entityNamed: (NSString *)name;
+- (id)objectWithPrimaryKey: (NSDictionary *)pkDict
+	       entityNamed: (NSString *)name;
 
-- (NSArray*)rawRowsForEntityNamed: (NSString*)name
-		  qualifierFormat: (NSString*)format, ...;
-- (NSArray*)rawRowsMatchingValue: (id)value
-			  forKey: (NSString*)key
-		     entityNamed: (NSString*)name;
-- (NSArray*)rawRowsMatchingValues: (NSDictionary*)values
-		      entityNamed: (NSString*)name;
-- (NSArray*)rawRowsWithSQL: (NSString*)sqlString
-		modelNamed: (NSString*)name;
-- (NSArray*)rawRowsWithStoredProcedureNamed: (NSString*)name
-				  arguments: (NSDictionary*)args;
-- (NSDictionary*)executeStoredProcedureNamed: (NSString*)name
-				   arguments: (NSDictionary*)args;
-- (id)objectFromRawRow: (NSDictionary*)row
-	   entityNamed: (NSString*)name;
+- (NSArray *)rawRowsForEntityNamed: (NSString *)name
+		   qualifierFormat: (NSString *)format, ...;
+- (NSArray *)rawRowsMatchingValue: (id)value
+			   forKey: (NSString *)key
+		      entityNamed: (NSString *)name;
+- (NSArray *)rawRowsMatchingValues: (NSDictionary *)values
+		       entityNamed: (NSString *)name;
+- (NSArray *)rawRowsWithSQL: (NSString *)sqlString
+		 modelNamed: (NSString *)name;
+- (NSArray *)rawRowsWithStoredProcedureNamed: (NSString *)name
+				   arguments: (NSDictionary *)args;
+- (NSDictionary *)executeStoredProcedureNamed: (NSString *)name
+				    arguments: (NSDictionary *)args;
+- (id)objectFromRawRow: (NSDictionary *)row
+	   entityNamed: (NSString *)name;
 
-- (EODatabaseContext*)databaseContextForModelNamed: (NSString*)name;
-- (void)connectWithModelNamed: (NSString*)name
-connectionDictionaryOverrides: (NSDictionary*)overrides;
+- (EODatabaseContext *)databaseContextForModelNamed: (NSString *)name;
+- (void)connectWithModelNamed: (NSString *)name
+connectionDictionaryOverrides: (NSDictionary *)overrides;
 
 - (id)createAndInsertInstanceOfEntityNamed: (NSString *)entityName;
 
-- (NSDictionary*)primaryKeyForObject: (id)object;
-- (NSDictionary*)destinationKeyForSourceObject: (id)object
-			     relationshipNamed: (NSString*)name;
+- (NSDictionary *)primaryKeyForObject: (id)object;
+- (NSDictionary *)destinationKeyForSourceObject: (id)object
+			      relationshipNamed: (NSString *)name;
 
 - (id)localInstanceOfObject: (id)object;
-- (NSArray*)localInstancesOfObjects: (NSArray*)objects;
+- (NSArray *)localInstancesOfObjects: (NSArray *)objects;
 
-- (EOModelGroup*)modelGroup;
-- (EOEntity*)entityNamed: (NSString*)name;
-- (EOEntity*)entityForClass: (Class)classObject;
-- (EOEntity*)entityForObject: (id)obj;
+- (EOModelGroup *)modelGroup;
+- (EOEntity *)entityNamed: (NSString *)name;
+- (EOEntity *)entityForClass: (Class)classObject;
+- (EOEntity *)entityForObject: (id)obj;
 
 @end
 
@@ -124,8 +124,8 @@ connectionDictionaryOverrides: (NSDictionary*)overrides;
 
 @interface EOObjectStoreCoordinator (EOModelGroup)
 
-- (id) modelGroup;
-- (void) setModelGroup: (EOModelGroup*)modelGroup;
+- (id)modelGroup;
+- (void)setModelGroup: (EOModelGroup *)modelGroup;
 
 @end
 

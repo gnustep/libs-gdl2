@@ -1,5 +1,5 @@
-/* 
-   EODetailDataSource.m
+/* -*-objc-*-
+   EODetailDataSource.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
 
@@ -44,13 +44,13 @@
 + (EODetailDataSource *)detailDataSourceWithMasterDataSource: (EODataSource *)master 
                                                    detailKey: (NSString *)detailKey;
 
-- initWithMasterClassDescription: (EOClassDescription *)masterClassDescription
-               detailKey: (NSString *)detailKey;
+- (id)initWithMasterClassDescription: (EOClassDescription *)masterClassDescription
+			   detailKey: (NSString *)detailKey;
 
-- initWithMasterDataSource: (EODataSource *)master
-		 detailKey: (NSString *)detailKey;
+- (id)initWithMasterDataSource: (EODataSource *)master
+		     detailKey: (NSString *)detailKey;
 
-- (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver;
+- (id)initWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver;
 
 - (EODataSource *)masterDataSource;
 
@@ -59,9 +59,9 @@
 - (EOClassDescription *)classDescriptionForObjects;
 
 - (void)qualifyWithRelationshipKey: (NSString *)key
-			  ofObject: masterObject;
+			  ofObject: (id)masterObject;
 - (NSString *)detailKey;
-- (void)setDetailKey:(NSString *)detailKey;
+- (void)setDetailKey: (NSString *)detailKey;
 - (id)masterObject;
 
 - (EOEditingContext *)editingContext;

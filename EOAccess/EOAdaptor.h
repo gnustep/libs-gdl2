@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOAdaptor.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -85,7 +85,7 @@ GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 + (NSArray *)availableAdaptorNames;
 - (NSArray *)prototypeAttributes;
 
-- initWithName:(NSString *)name;
+- (id)initWithName: (NSString *)name;
 
 /* Getting an adaptor's name */
 - (NSString *)name;
@@ -95,8 +95,8 @@ GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 - (NSArray *)contexts;
 
 /* Setting the model */
-- (void)setModel: (EOModel*)aModel;//Not in EOFD
-- (EOModel*)model;//Not in EOFD
+- (void)setModel: (EOModel *)model;//Not in EOFD
+- (EOModel *)model;//Not in EOFD
 
 /* Checking connection status */
 - (BOOL)hasOpenChannels;
@@ -110,7 +110,7 @@ GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 - (BOOL)isDroppedConnectionException: (NSException *)exception;
 
 /* Setting connection information */
-- (void)setConnectionDictionary: (NSDictionary*)aDictionary;
+- (void)setConnectionDictionary: (NSDictionary *)dictionary;
 - (NSDictionary *)connectionDictionary;
 - (void)assertConnectionDictionaryIsValid;
 
@@ -131,10 +131,10 @@ GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 
 /* Setting the delegate */
 - (id)delegate;
-- (void)setDelegate: delegate;
+- (void)setDelegate: (id)delegate;
 
-- (BOOL) isValidQualifierType: (NSString *)attribute
-			model: (EOModel *)model;
+- (BOOL)isValidQualifierType: (NSString *)attribute
+		       model: (EOModel *)model;
 
 @end /* EOAdaptor */
 

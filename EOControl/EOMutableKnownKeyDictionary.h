@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOMultipleKnownKeyDictionary.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -52,27 +52,27 @@
   NSString **_keys;
 }
 
-+ (EOMKKDInitializer*)initializerFromKeyArray:(NSArray*)keys;
-+ (id)newWithKeyArray: (NSArray*)keys;
-+ (id)newWithKeyArray: (NSArray*)keys
-		 zone: (NSZone*)zone;
++ (EOMKKDInitializer *)initializerFromKeyArray: (NSArray *)keys;
++ (id)newWithKeyArray: (NSArray *)keys;
++ (id)newWithKeyArray: (NSArray *)keys
+		 zone: (NSZone *)zone;
 
-- (id)initWithKeys: (NSArray*)keys;
-- (void) dealloc;
-- (NSString*)description;
-- (unsigned int) count;
-- (void) setObject: (id)object
-          forIndex: (unsigned int)index
-        dictionary: (NSMutableDictionary*)dictionary;
-- (id) objectForIndex: (unsigned int)index
-           dictionary: (NSDictionary*)dictionary;
-- (unsigned int) indexForKey: (id)key;
-- (id) arrayMappingForKeys: (id)keys;
-- (id) subsetMappingForSourceDictionaryInitializer: (EOMKKDInitializer*)initialize
-                                        sourceKeys: (NSArray*)sourceKeys
-                                   destinationKeys: (NSArray*)destinationKeys;
-- (id) subsetMappingForSourceDictionaryInitializer: (id)param0;
-- (id*) keys;
+- (id)initWithKeys: (NSArray *)keys;
+- (void)dealloc;
+- (NSString *)description;
+- (unsigned int)count;
+- (void)setObject: (id)object
+	 forIndex: (unsigned int)index
+       dictionary: (NSMutableDictionary *)dictionary;
+- (id)objectForIndex: (unsigned int)index
+	  dictionary: (NSDictionary *)dictionary;
+- (unsigned int)indexForKey: (id)key;
+- (id)arrayMappingForKeys: (id)keys;
+- (id)subsetMappingForSourceDictionaryInitializer: (EOMKKDInitializer *)init
+				       sourceKeys: (NSArray *)sourceKeys
+				  destinationKeys: (NSArray *)destinationKeys;
+- (id)subsetMappingForSourceDictionaryInitializer: (id)param0;
+- (id *)keys;
 - (BOOL)hasKey: (id)key;
 
 @end
@@ -87,10 +87,10 @@
   NSString **_keys;
 }
 
-- (id) initWithTarget: (EOMutableKnownKeyDictionary*)target;
-- (void) dealloc;
-- (NSString*)description;
-- (id) nextObject;
+- (id)initWithTarget: (EOMutableKnownKeyDictionary *)target;
+- (void)dealloc;
+- (NSString *)description;
+- (id)nextObject;
 
 @end
 
@@ -103,11 +103,11 @@
 }
 
 +(id)newInstanceWithKeyCount: (unsigned int)keyCount
-           sourceDescription: (EOMKKDInitializer*)source
-      destinationDescription: (EOMKKDInitializer*)destination
-                        zone: (NSZone*)zone;
-- (void) dealloc;
-- (NSString*)description;
+           sourceDescription: (EOMKKDInitializer *)source
+      destinationDescription: (EOMKKDInitializer *)destination
+                        zone: (NSZone *)zone;
+- (void)dealloc;
+- (NSString *)description;
 
 @end
 
@@ -118,10 +118,10 @@
   int _destinationOffsetForArrayIndex[1];
 }
 + (id)newInstanceWithKeyCount: (unsigned int)keyCount
-       destinationDescription: (EOMKKDInitializer*)destination
-			 zone: (NSZone*)zone;
-- (void) dealloc;
-- (NSString*)description;
+       destinationDescription: (EOMKKDInitializer *)destination
+			 zone: (NSZone *)zone;
+- (void)dealloc;
+- (NSString *)description;
 
 @end
 
@@ -135,43 +135,43 @@
 
 + (id)dictionaryFromDictionary: (NSDictionary *)dict
                  subsetMapping: (EOMKKDSubsetMapping *)subsetMapping;
-+ (id)newDictionaryFromDictionary: (NSDictionary*)dict
-		    subsetMapping: (EOMKKDSubsetMapping*)subsetMapping
-			     zone: (NSZone*)zone;
-+ (id)newDictionaryWithObjects: (id*)objects
++ (id)newDictionaryFromDictionary: (NSDictionary *)dict
+		    subsetMapping: (EOMKKDSubsetMapping *)subsetMapping
+			     zone: (NSZone *)zone;
++ (id)newDictionaryWithObjects: (id *)objects
 		  arrayMapping: (id)mapping
-			  zone: (NSZone*)zone;
-+ (id)newWithInitializer: (EOMKKDInitializer*)initializer
-		 objects: (id*)objects
-		    zone: (NSZone*)zone;
-+ (id)dictionaryWithObjects: (NSArray*)objects
-		    forKeys: (NSArray*)keys;
+			  zone: (NSZone *)zone;
++ (id)newWithInitializer: (EOMKKDInitializer *)initializer
+		 objects: (id *)objects
+		    zone: (NSZone *)zone;
++ (id)dictionaryWithObjects: (NSArray *)objects
+		    forKeys: (NSArray *)keys;
 
-+ (EOMKKDInitializer*)initializerFromKeyArray: (NSArray*)keys;
-+ (id) dictionaryWithInitializer: (EOMKKDInitializer*)initializer;
-+ (id)newWithInitializer: (EOMKKDInitializer*)initializer;
-+ (id)newWithInitializer: (EOMKKDInitializer*)initializer
-		    zone: (NSZone*)zone;
-+ (id) dictionaryWithInitializer: (EOMKKDInitializer*)initializer;
++ (EOMKKDInitializer *)initializerFromKeyArray: (NSArray *)keys;
++ (id)dictionaryWithInitializer: (EOMKKDInitializer *)initializer;
++ (id)newWithInitializer: (EOMKKDInitializer *)initializer;
++ (id)newWithInitializer: (EOMKKDInitializer *)initializer
+		    zone: (NSZone *)zone;
++ (id)dictionaryWithInitializer: (EOMKKDInitializer *)initializer;
 
-- (id)initWithInitializer: (EOMKKDInitializer*)initializer;
-- (id) initWithInitializer: (EOMKKDInitializer*)initializer
-                   objects: (id*)objects;
-- (id) initWithObjects: (id*)objects
-               forKeys: (id*)keys
-                 count: (unsigned int)count;
-- (void) dealloc;
-- (unsigned int) count;
-- (id) objectForKey: (id)key;
-- (void) setObject: (id)object
-            forKey: (NSString*)key;
-- (void) removeObjectForKey: (NSString*)key;
-- (BOOL) containsObjectsNotIdenticalTo: (id)object;
-- (void) addEntriesFromDictionary: (NSDictionary*)dictionary;
-- (NSEnumerator*) keyEnumerator;
-- (EOMKKDInitializer*) eoMKKDInitializer;
-- (NSMutableDictionary*)extraData;
-- (BOOL)hasKey:(id)key;
+- (id)initWithInitializer: (EOMKKDInitializer *)initializer;
+- (id)initWithInitializer: (EOMKKDInitializer *)initializer
+		  objects: (id *)objects;
+- (id)initWithObjects: (id *)objects
+	      forKeys: (id *)keys
+		count: (unsigned int)count;
+- (void)dealloc;
+- (unsigned int)count;
+- (id)objectForKey: (id)key;
+- (void)setObject: (id)object
+	   forKey: (NSString *)key;
+- (void)removeObjectForKey: (NSString *)key;
+- (BOOL)containsObjectsNotIdenticalTo: (id)object;
+- (void)addEntriesFromDictionary: (NSDictionary *)dictionary;
+- (NSEnumerator *)keyEnumerator;
+- (EOMKKDInitializer *)eoMKKDInitializer;
+- (NSMutableDictionary *)extraData;
+- (BOOL)hasKey: (id)key;
 - (NSString *)debugDescription;
 
 @end

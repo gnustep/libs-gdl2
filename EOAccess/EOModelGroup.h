@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOModelGroup.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -30,6 +30,8 @@
 #include <GNUstepBase/GCObject.h>
 
 #include <EOControl/EOObjectStoreCoordinator.h>
+
+#include <EOAccess/EODefines.h>
 
 
 @class NSArray;
@@ -79,7 +81,7 @@
 
 - (void)addModel: (EOModel *)model;
 
-- (EOModel*)addModelWithFile: (NSString *)path;
+- (EOModel *)addModelWithFile: (NSString *)path;
 
 - (void)removeModel: (EOModel *)model;
 
@@ -97,13 +99,12 @@
 - (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)fetchSpecName 
                                       entityNamed: (NSString *)entityName;
  
-- (EOStoredProcedure *)storedProcedureNamed: (NSString *)aName;
+- (EOStoredProcedure *)storedProcedureNamed: (NSString *)name;
 
 @end
 
-// Notifications:
-extern NSString *EOModelAddedNotification;
-extern NSString *EOModelInvalidatedNotification;
+GDL2ACCESS_EXPORT NSString *EOModelAddedNotification;
+GDL2ACCESS_EXPORT NSString *EOModelInvalidatedNotification;
 
 
 @interface NSObject (EOModelGroupClassDelegation)

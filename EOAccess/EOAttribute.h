@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOAttribute.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -115,8 +115,8 @@ typedef enum {
 }
 
 /** returns an autoreleased attribute owned by onwer and built from propertyList **/
-+ (id) attributeWithPropertyList: (NSDictionary *)propertyList
-                           owner: (id)owner;
++ (id)attributeWithPropertyList: (NSDictionary *)propertyList
+			  owner: (id)owner;
 
 /* Accessing the entity */
 - (NSString *)name;
@@ -208,7 +208,7 @@ typedef enum {
 
 - (void)setDocComment: (NSString *)docComment;
 
-- (id)_normalizeDefinition: (EOExpressionArray*)definition
+- (id)_normalizeDefinition: (EOExpressionArray *)definition
                       path: (id)path;
 
 @end
@@ -280,7 +280,7 @@ typedef enum {
 
 @interface NSObject (EOCustomClassArchiving)
 
-+ objectWithArchiveData: (NSData *)data;
++ (id)objectWithArchiveData: (NSData *)data;
 - (NSData *)archiveData;
 
 @end

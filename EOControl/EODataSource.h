@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EODataSource.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -44,23 +44,18 @@
 @interface EODataSource : NSObject 
 
 - (id)createObject;
-
-- (void)insertObject: object;
-
-- (void)deleteObject: object;
-
+- (void)insertObject: (id)object;
+- (void)deleteObject: (id)object;
 - (NSArray *)fetchObjects;
 
 - (EOEditingContext *)editingContext;
 
-- (void)qualifyWithRelationshipKey: (NSString *)key ofObject: sourceObject;
-
+- (void)qualifyWithRelationshipKey: (NSString *)key ofObject: (id)sourceObject;
 - (EODataSource *)dataSourceQualifiedByKey: (NSString *)key;
 
 - (EOClassDescription *)classDescriptionForObjects;
 
 - (NSArray *)qualifierBindingKeys;
-
 - (void)setQualifierBindings: (NSDictionary *)bindings;
 - (NSDictionary *)qualifierBindings;
 

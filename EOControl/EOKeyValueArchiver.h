@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOKeyValueArchiver.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -48,10 +48,6 @@
   id _delegate;
 }
 
-- (id) init;
-
-- (void)dealloc;
-
 - (void)encodeObject: (id)object
               forKey: (NSString *)key;
 
@@ -64,12 +60,12 @@
 - (void)encodeInt: (int)intValue
            forKey: (NSString *)key;
 
-- (void) _encodeDictionary: (id)dictionary
-		    forKey: (id)key;
-- (void) _encodeObjects: (id)objects
-		 forKey: (id)key;
-- (void) _encodeValue: (id)value
-	       forKey: (id)key;
+- (void)_encodeDictionary: (id)dictionary
+		   forKey: (id)key;
+- (void)_encodeObjects: (id)objects
+		forKey: (id)key;
+- (void)_encodeValue: (id)value
+	      forKey: (id)key;
 
 - (NSDictionary *)dictionary;
 
@@ -107,7 +103,7 @@ referenceToEncodeForObject: (id)object;
 
 - (int)decodeIntForKey: (NSString *)key;
 
-- (BOOL) isThereValueForKey: (NSString *)key;
+- (BOOL)isThereValueForKey: (NSString *)key;
 
 - (void)ensureObjectAwake: (id)object;
 
@@ -120,10 +116,10 @@ referenceToEncodeForObject: (id)object;
 - (void)setDelegate: (id)delegate;
 - (id)delegate;
 
-- (id) _findTypeForPropertyListDecoding: (id)param0;
-- (id) _dictionaryForPropertyList: (NSDictionary*)propList;
-- (id) _objectsForPropertyList: (NSArray*)propList;
-- (id) _objectForPropertyList: (NSDictionary*)propList;
+- (id)_findTypeForPropertyListDecoding: (id)param0;
+- (id)_dictionaryForPropertyList: (NSDictionary *)propList;
+- (id)_objectsForPropertyList: (NSArray *)propList;
+- (id)_objectForPropertyList: (NSDictionary *)propList;
 
 @end
 
@@ -136,13 +132,13 @@ objectForReference: (id)keyPath;
 
 @protocol EOKeyValueArchiving
 
-- (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver;
+- (id)initWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver;
 
 - (void)encodeWithKeyValueArchiver: (EOKeyValueArchiver *)archiver;
 
 @end
 
-@interface NSObject(EOKeyValueArchivingAwakeMethods) 
+@interface NSObject(EOKeyValueArchivingAwakeMethods)
 
 - (void)finishInitializationWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver;
 

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOObserver.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -44,6 +44,7 @@
 @end
 
 @protocol EOObserving <NSObject>
+
 - (void)objectWillChange: (id)subject;
 
 @end
@@ -90,7 +91,7 @@ typedef enum {
 @interface EODelayedObserver : NSObject <EOObserving>
 {
   @public
-    EODelayedObserver *_next;   // linked list.  Nil if not on list.
+    EODelayedObserver *_next;   /* Linked List.  */
 }
 
 - (void)objectWillChange: (id)subject;
@@ -99,14 +100,13 @@ typedef enum {
 
 - (EODelayedObserverQueue *)observerQueue;
 
-// Must be implemented by subclasses
-- (void)subjectChanged;
+- (void)subjectChanged; /* Subclass responsibility.  */
 
 - (void)discardPendingNotification;
 
 @end
 
-// used with NSRunLoop's performSelector:target:argument:order:modes:
+/* To be used with NSRunLoop's performSelector:target:argument:order:modes: */
 enum
 {
   EOFlushDelayedObserversRunLoopOrdering = 400000
@@ -115,7 +115,8 @@ enum
 
 @interface EODelayedObserverQueue : NSObject
 {
-  EODelayedObserver *_queue[EOObserverNumberOfPriorities];  // lists for each priority
+  /* Lists per priority.  */
+  EODelayedObserver *_queue[EOObserverNumberOfPriorities]; 
   unsigned _highestNonEmptyQueue;
   BOOL _haveEntryInNotificationQueue;
   NSArray *_modes;
@@ -141,9 +142,9 @@ enum
   EOObserverPriority _priority;
 }
 
-- initWithTarget: (id)target
-	  action: (SEL)action
-	priority: (EOObserverPriority)priority;
+- (id)initWithTarget: (id)target
+	      action: (SEL)action
+	    priority: (EOObserverPriority)priority;
 
 @end
 

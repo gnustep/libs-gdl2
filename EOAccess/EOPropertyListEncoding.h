@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOPropertyListEncoding.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -41,7 +41,7 @@
 
 @protocol EOPropertyListEncoding
 
-- initWithPropertyList: (NSDictionary *)propertyList owner: (id)owner;
+- (id)initWithPropertyList: (NSDictionary *)propertyList owner: (id)owner;
 
 - (void)awakeWithPropertyList: (NSDictionary *)propertyList;
 

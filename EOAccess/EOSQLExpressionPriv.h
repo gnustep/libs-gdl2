@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOSQLExpression.h
 
    Copyright (C) 2002 Free Software Foundation, Inc.
@@ -37,15 +37,15 @@
 @interface EOSQLExpression (EOSQLExpressionPrivate)
 
 - (EOEntity *)_rootEntityForExpression;
-- (id) _aliasForRelationshipPath: (id)param0;
-- (id) _flattenRelPath: (id)param0
-                entity: (id)param1;
-- (NSString*) _sqlStringForJoinSemantic: (EOJoinSemantic)joinSemantic
+- (id)_aliasForRelationshipPath: (id)param0;
+- (id)_flattenRelPath: (id)param0
+	       entity: (id)param1;
+- (NSString *)_sqlStringForJoinSemantic: (EOJoinSemantic)joinSemantic
 			  matchSemantic: (int)param1;
-- (id) _aliasForRelatedAttribute: (id)param0
-                relationshipPath: (id)param1;
-- (id) _entityForRelationshipPath: (id)param0
-                           origin: (id)param1;
+- (id)_aliasForRelatedAttribute: (id)param0
+	       relationshipPath: (id)param1;
+- (id)_entityForRelationshipPath: (id)param0
+			  origin: (id)param1;
 
 @end
 

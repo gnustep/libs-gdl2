@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOAttributePriv.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -37,12 +37,12 @@
 @end
 
 @interface EOAttribute (EOAttributePrivate2)
-- (BOOL) _hasAnyOverrides;
-- (void) _resetPrototype;
-- (void) _updateFromPrototype;
-- (void) _setOverrideForKeyEnum: (int)keyEnum;
-- (BOOL) _isKeyEnumOverriden: (int)param0;
-- (BOOL) _isKeyEnumDefinedByPrototype: (int)param0;
+- (BOOL)_hasAnyOverrides;
+- (void)_resetPrototype;
+- (void)_updateFromPrototype;
+- (void)_setOverrideForKeyEnum: (int)keyEnum;
+- (BOOL)_isKeyEnumOverriden: (int)param0;
+- (BOOL)_isKeyEnumDefinedByPrototype: (int)param0;
 @end
 
 #endif  /* __EOAttributePriv_h__ */

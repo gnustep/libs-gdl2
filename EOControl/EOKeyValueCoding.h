@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOKeyValueCoding.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -158,7 +158,7 @@
 - (id)valueForKey: (NSString *)key;
 - (id)storedValueForKey: (NSString *)key;
 - (id)valueForKeyPath: (NSString *)keyPath;
-- (id)storedValueForKeyPath: (NSString*)keyPath;
+- (id)storedValueForKeyPath: (NSString *)keyPath;
 @end
 
 
@@ -168,18 +168,18 @@
  * See documentation or source file for details on how it differs.
  */
 - (void)takeValue: (id)value 
-           forKey: (NSString*)key;
+           forKey: (NSString *)key;
 @end
 
 
 @interface NSObject (EOKVCGDL2Additions)
 /* These are hooks for EOGenericRecord KVC implementaion. */
-- (void)smartTakeValue: (id)anObject 
-                forKey: (NSString *)aKey;
-- (void)smartTakeValue: (id)anObject 
-            forKeyPath: (NSString *)aKeyPath;
+- (void)smartTakeValue: (id)object 
+                forKey: (NSString *)key;
+- (void)smartTakeValue: (id)object 
+            forKeyPath: (NSString *)keyPath;
 
-- (void)takeStoredValue: value 
+- (void)takeStoredValue: (id)value 
              forKeyPath: (NSString *)key;
 - (id)storedValueForKeyPath: (NSString *)key;
 

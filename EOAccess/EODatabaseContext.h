@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EODatabaseContext.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -76,8 +76,8 @@ struct _EOTransactionScope;
 */
   NSMutableArray *_registeredChannels;
   NSMapTable *_dbOperationsByGlobalID;
-  EOObjectStoreCoordinator *_coordinator;	// not retained
-  EOEditingContext *_editingContext;		// not retained
+  EOObjectStoreCoordinator *_coordinator;	/* unretained */
+  EOEditingContext *_editingContext;		/* unretained */
   id *_lockedObjects;//void*
 /*TO ADD    unsigned int _currentGeneration;
     unsigned int _concurentFetches;
@@ -108,7 +108,7 @@ struct _EOTransactionScope;
     unsigned int ignoreEntityCaching:1;
     unsigned int _reserved:29;
   } _flags;
-  id _delegate; // not retained
+  id _delegate; /* unretained */
   struct {
     unsigned int willRunLoginPanelToOpenDatabaseChannel:1;
     unsigned int newPrimaryKey:1;
@@ -129,7 +129,7 @@ struct _EOTransactionScope;
 
 + (EODatabaseContext *)databaseContextWithDatabase: (EODatabase *)database;
 
-- initWithDatabase: (EODatabase *)database;
+- (id)initWithDatabase: (EODatabase *)database;
 
 + (EODatabaseContext *)registeredDatabaseContextForModel: (EOModel *)model
                                           editingContext: (EOEditingContext *)editingContext;
@@ -168,7 +168,7 @@ struct _EOTransactionScope;
          entityNamed: (NSString *)entityName
       editingContext: (EOEditingContext *)editingContext;
 
-- (id) entityForGlobalID: (EOGlobalID *)globalID;
+- (id)entityForGlobalID: (EOGlobalID *)globalID;
 
 - (id)faultForGlobalID: (EOGlobalID *)globalID
         editingContext: (EOEditingContext *)context;
@@ -184,19 +184,19 @@ struct _EOTransactionScope;
 - (NSArray *)objectsForSourceGlobalID: (EOGlobalID *)globalID
                      relationshipName: (NSString *)name
                        editingContext: (EOEditingContext *)context;
-- (void)_registerSnapshot: (NSArray*)snapshot
-        forSourceGlobalID: (EOGlobalID*)globalID
-         relationshipName: (NSString*)name
-           editingContext: (EOEditingContext*)context;
+- (void)_registerSnapshot: (NSArray *)snapshot
+        forSourceGlobalID: (EOGlobalID *)globalID
+         relationshipName: (NSString *)name
+           editingContext: (EOEditingContext *)context;
 
-- (void)refaultObject: object
+- (void)refaultObject: (id)object
          withGlobalID: (EOGlobalID *)globalID
        editingContext: (EOEditingContext *)context;
 
 - (void)saveChangesInEditingContext: (EOEditingContext *)context;
 
 - (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
-                            editingContext:(EOEditingContext *)context;
+                            editingContext: (EOEditingContext *)context;
 
 - (BOOL)isObjectLockedWithGlobalID: (EOGlobalID *)gid
                     editingContext: (EOEditingContext *)context;
@@ -212,7 +212,7 @@ struct _EOTransactionScope;
 
 @interface EODatabaseContext (EOCooperatingObjectStoreSupport)
 
-- (BOOL)ownsGlobalID:(EOGlobalID *)globalID;
+- (BOOL)ownsGlobalID: (EOGlobalID *)globalID;
 
 - (BOOL)ownsObject: (id)object;
 
@@ -230,7 +230,7 @@ It's invoked after prepareForSaveWithCoordinator:editingContext: and before owns
 **/
 - (void)recordChangesInEditingContext;
 
-- (void)recordUpdateForObject: object
+- (void)recordUpdateForObject: (id)object
                       changes: (NSDictionary *)changes;
 
 - (void)performChanges;
@@ -239,58 +239,58 @@ It's invoked after prepareForSaveWithCoordinator:editingContext: and before owns
 
 - (void)rollbackChanges;
 
-- (NSDictionary *)valuesForKeys: (NSArray *)keys object: object;
+- (NSDictionary *)valuesForKeys: (NSArray *)keys object: (id)object;
 
--(void)relayPrimaryKey: (NSDictionary*)pk
+-(void)relayPrimaryKey: (NSDictionary *)pk
                 object: (id)object
-                entity: (EOEntity*)entity;
+                entity: (EOEntity *)entity;
 
--(void)nullifyAttributesInRelationship: (EORelationship*)relationship
+-(void)nullifyAttributesInRelationship: (EORelationship *)relationship
                           sourceObject: (id)sourceObject
-                    destinationObjects: (NSArray*)destinationObjects;
--(void)nullifyAttributesInRelationship: (EORelationship*)relationship
+                    destinationObjects: (NSArray *)destinationObjects;
+-(void)nullifyAttributesInRelationship: (EORelationship *)relationship
                           sourceObject: (id)sourceObject
                      destinationObject: (id)destinationObject;
--(void)relayAttributesInRelationship: (EORelationship*)relationship
+-(void)relayAttributesInRelationship: (EORelationship *)relationship
                         sourceObject: (id)sourceObject
-                  destinationObjects: (NSArray*)destinationObjects;
--(NSDictionary*)relayAttributesInRelationship: (EORelationship*)relationship
-                                 sourceObject: (id)sourceObject
-                            destinationObject: (id)destinationObject;
+                  destinationObjects: (NSArray *)destinationObjects;
+-(NSDictionary *)relayAttributesInRelationship: (EORelationship *)relationship
+				  sourceObject: (id)sourceObject
+			     destinationObject: (id)destinationObject;
 
-- (id) databaseOperationForObject: (id)param0;
-- (id) databaseOperationForGlobalID: (id)param0;
-- (void) recordDatabaseOperation: (id)param0;
-- (void) recordDeleteForObject: (id)param0;
-- (void) recordInsertForObject: (id)param0;
+- (id)databaseOperationForObject: (id)param0;
+- (id)databaseOperationForGlobalID: (id)param0;
+- (void)recordDatabaseOperation: (id)param0;
+- (void)recordDeleteForObject: (id)param0;
+- (void)recordInsertForObject: (id)param0;
 
-- (void) createAdaptorOperationsForDatabaseOperation: (EODatabaseOperation*)dbOpe
-                                          attributes: (NSArray*)attributes;
-- (void) createAdaptorOperationsForDatabaseOperation: (EODatabaseOperation*)dbOpe;
-- (NSArray*) orderAdaptorOperations;
+- (void)createAdaptorOperationsForDatabaseOperation: (EODatabaseOperation *)dbOpe
+					 attributes: (NSArray *)attributes;
+- (void)createAdaptorOperationsForDatabaseOperation: (EODatabaseOperation *)dbOpe;
+- (NSArray *)orderAdaptorOperations;
 
-- (NSArray*) entitiesOnWhichThisEntityDepends: (EOEntity *)entity;
--(NSArray*)entityNameOrderingArrayForEntities: (NSArray *)entities;
+- (NSArray *)entitiesOnWhichThisEntityDepends: (EOEntity *)entity;
+- (NSArray *)entityNameOrderingArrayForEntities: (NSArray *)entities;
 
-- (BOOL) isValidQualifierTypeForAttribute: (EOAttribute*)attribute;
-- (id) lockingNonQualifiableAttributes: (NSArray*)attributes;
-- (NSArray*) lockingAttributesForAttributes: (NSArray*)attributes
-                                     entity: (EOEntity*)enity;
-- (NSArray*) primaryKeyAttributesForAttributes: (NSArray*)attributes
-                                        entity: (EOEntity*)entity;
-- (EOQualifier*) qualifierForLockingAttributes: (NSArray*)attributes
-			  primaryKeyAttributes: (NSArray*)primaryKeyAttributes
-					entity: (EOEntity*)entity
-				      snapshot: (NSDictionary*)snapshot;
-- (void) insertEntity: (EOEntity*)entity
-    intoOrderingArray: (NSMutableArray*)orderingArray
-     withDependencies: (NSDictionary*)dependencies
-        processingSet: (NSMutableSet*)processingSet;
-- (void) processSnapshotForDatabaseOperation: (EODatabaseOperation*)dbOpe;
+- (BOOL)isValidQualifierTypeForAttribute: (EOAttribute *)attribute;
+- (id)lockingNonQualifiableAttributes: (NSArray *)attributes;
+- (NSArray *)lockingAttributesForAttributes: (NSArray *)attributes
+                                     entity: (EOEntity *)enity;
+- (NSArray *)primaryKeyAttributesForAttributes: (NSArray *)attributes
+                                        entity: (EOEntity *)entity;
+- (EOQualifier *)qualifierForLockingAttributes: (NSArray *)attributes
+			  primaryKeyAttributes: (NSArray *)primaryKeyAttributes
+					entity: (EOEntity *)entity
+				      snapshot: (NSDictionary *)snapshot;
+- (void)insertEntity: (EOEntity *)entity
+   intoOrderingArray: (NSMutableArray *)orderingArray
+    withDependencies: (NSDictionary *)dependencies
+       processingSet: (NSMutableSet *)processingSet;
+- (void)processSnapshotForDatabaseOperation: (EODatabaseOperation *)dbOpe;
 
-- (NSDictionary*) valuesToWriteForAttributes: (NSArray*)attributes
-                                      entity: (EOEntity*)entity
-                               changedValues: (NSDictionary*)changedValues;
+- (NSDictionary *)valuesToWriteForAttributes: (NSArray *)attributes
+				      entity: (EOEntity *)entity
+			       changedValues: (NSDictionary *)changedValues;
 
 @end
 
@@ -335,7 +335,7 @@ Only searches locally (in the transaction scope), not in the EODatabase. **/
 - (NSDictionary *)localSnapshotForGlobalID: (EOGlobalID *)gid;
 
 - (NSArray *)localSnapshotForSourceGlobalID: (EOGlobalID *)gid
-                           relationshipName:(NSString *)name;
+                           relationshipName: (NSString *)name;
 
 - (void)forgetSnapshotForGlobalID: (EOGlobalID *)gid;
 - (void)forgetSnapshotsForGlobalIDs: (NSArray *)gids;
@@ -348,16 +348,16 @@ Only searches locally (in the transaction scope), not in the EODatabase. **/
 - (BOOL)isObjectLockedWithGlobalID: (EOGlobalID *)globalID;
 - (void)forgetAllLocks;
 - (void)forgetLocksForObjectsWithGlobalIDs: (NSArray *)gids;
-- (void) _rollbackTransaction;
-- (void) _commitTransaction;
-- (void) _beginTransaction;
-- (EODatabaseChannel*) _obtainOpenChannel;
-- (BOOL) _openChannelWithLoginPanel:(id)param0;
-- (void) _forceDisconnect;
-- (void)initializeObject:(id)object
-                     row:(NSDictionary*)row
-                  entity:(EOEntity*)entity
-          editingContext:(EOEditingContext*)context;
+- (void)_rollbackTransaction;
+- (void)_commitTransaction;
+- (void)_beginTransaction;
+- (EODatabaseChannel *)_obtainOpenChannel;
+- (BOOL)_openChannelWithLoginPanel: (id)param0;
+- (void)_forceDisconnect;
+- (void)initializeObject: (id)object
+                     row: (NSDictionary *)row
+                  entity: (EOEntity *)entity
+          editingContext: (EOEditingContext *)context;
 
 @end
 
@@ -368,7 +368,6 @@ Only searches locally (in the transaction scope), not in the EODatabase. **/
 
 @end
 
-// Notifications:
 GDL2ACCESS_EXPORT NSString *EODatabaseChannelNeededNotification;
 
 

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOModelExtensions.h
 
    Copyright (C) 2001 Free Software Foundation, Inc.
@@ -76,7 +76,7 @@
 
 @interface NSMutableAttributedString (_EOModelerErrorConstruction)
 
-+ (NSMutableAttributedString *)mutableAttributedStringWithBoldSubstitutionsWithFormat:(NSString *)format, ...;
++ (NSMutableAttributedString *)mutableAttributedStringWithBoldSubstitutionsWithFormat: (NSString *)format, ...;
 
 @end
 

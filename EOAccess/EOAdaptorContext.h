@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOAdaptorContext.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -77,17 +77,17 @@ typedef enum {
 
 + (EOAdaptorContext *)adaptorContextWithAdaptor: (EOAdaptor *)adaptor;
 
-- initWithAdaptor: (EOAdaptor *)adaptor;
+- (id)initWithAdaptor: (EOAdaptor *)adaptor;
 
-- (EOAdaptor*)adaptor;
+- (EOAdaptor *)adaptor;
 
 - (EOAdaptorChannel *)createAdaptorChannel;	// override
 
 - (BOOL)hasOpenChannels;
 - (BOOL)hasBusyChannels;
 
-- delegate;
-- (void)setDelegate:aDelegate;
+- (id)delegate;
+- (void)setDelegate: (id)delegate;
 
 - (void)handleDroppedConnection;
 
@@ -119,21 +119,21 @@ typedef enum {
 
 @interface EOAdaptorContext(Private)
 
-- (void)_channelDidInit: aChannel;
-- (void)_channelWillDealloc: aChannel;
+- (void)_channelDidInit: (id)channel;
+- (void)_channelWillDealloc: (id)channel;
 
 @end
 
 
 @interface NSObject (EOAdaptorContextDelegation)
 
-- (BOOL)adaptorContextShouldConnect: context;
-- (BOOL)adaptorContextShouldBegin: context;
-- (void)adaptorContextDidBegin: context;
-- (BOOL)adaptorContextShouldCommit: context;
-- (void)adaptorContextDidCommit: context;
-- (BOOL)adaptorContextShouldRollback: context;
-- (void)adaptorContextDidRollback: context;
+- (BOOL)adaptorContextShouldConnect: (id)context;
+- (BOOL)adaptorContextShouldBegin: (id)context;
+- (void)adaptorContextDidBegin: (id)context;
+- (BOOL)adaptorContextShouldCommit: (id)context;
+- (void)adaptorContextDidCommit: (id)context;
+- (BOOL)adaptorContextShouldRollback: (id)context;
+- (void)adaptorContextDidRollback: (id)context;
 
 @end /* NSObject(EOAdaptorContextDelegate) */
 

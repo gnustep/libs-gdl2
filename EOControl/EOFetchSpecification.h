@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOFetchSpecification.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -33,6 +33,7 @@
 #include <Foundation/Foundation.h>
 #endif
 
+#include <EOControl/EODefines.h>
 
 @class NSArray;
 @class NSDictionary;
@@ -60,20 +61,18 @@
     unsigned refreshesRefetchedObjects:1;
     unsigned promptsAfterFetchLimit:1;
     unsigned allVariablesRequiredFromBindings:1;
-    unsigned :26; //padding
+    unsigned reserved:26;
   }_flags;
 }
 
 + (EOFetchSpecification *)fetchSpecification;
 
-- init;
-
-- initWithEntityName: (NSString *)entityName
-           qualifier: (EOQualifier *)qualifier
-       sortOrderings: (NSArray *)sortOrderings
-        usesDistinct: (BOOL)usesDistinct
-              isDeep: (BOOL)isDeep
-               hints: (NSDictionary *)hints;
+- (id)initWithEntityName: (NSString *)entityName
+	       qualifier: (EOQualifier *)qualifier
+	   sortOrderings: (NSArray *)sortOrderings
+	    usesDistinct: (BOOL)usesDistinct
+		  isDeep: (BOOL)isDeep
+		   hints: (NSDictionary *)hints;
 
 - (EOFetchSpecification *)fetchSpecificationByApplyingBindings: (id)bindings;
 
@@ -98,10 +97,10 @@
                                              sortOrderings: (NSArray *)sortOrderings
                                               usesDistinct: (BOOL)usesDistinct;
 
-- copyWithZone:(NSZone *)zone;
+- (id)copyWithZone: (NSZone *)zone;
 
-- (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver*)unarchiver;
-- (void) encodeWithKeyValueArchiver: (EOKeyValueArchiver*)archiver;
+- (id)initWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver;
+- (void)encodeWithKeyValueArchiver: (EOKeyValueArchiver *)archiver;
 
 - (void)setEntityName: (NSString *)entityName;
 - (NSString *)entityName;
@@ -154,13 +153,9 @@
 
 @end
 
-
-
-extern NSString *EOPrefetchingRelationshipHintKey;
-
-extern NSString *EOFetchLimitHintKey;
-
-extern NSString *EOPromptsAfterFetchLimitHintKey;
+GDL2CONTROL_EXPORT NSString *EOPrefetchingRelationshipHintKey;
+GDL2CONTROL_EXPORT NSString *EOFetchLimitHintKey;
+GDL2CONTROL_EXPORT NSString *EOPromptsAfterFetchLimitHintKey;
 
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOAccessFault.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -39,7 +39,7 @@
 @class NSString;
 
 
-@interface EOAccessGenericFaultHandler:EOFaultHandler
+@interface EOAccessGenericFaultHandler : EOFaultHandler
 {
   unsigned int _generation;
   EOAccessGenericFaultHandler *_next;
@@ -55,7 +55,7 @@
 @end
 
 
-@interface EOAccessFaultHandler:EOAccessGenericFaultHandler
+@interface EOAccessFaultHandler : EOAccessGenericFaultHandler
 {
   EOKeyGlobalID *gid;
   EODatabaseContext *databaseContext;
@@ -66,9 +66,9 @@
 					 databaseContext: (EODatabaseContext *)dbcontext
 					  editingContext: (EOEditingContext *)ec;
 
-- initWithGlobalID: (EOKeyGlobalID *)globalID
-   databaseContext: (EODatabaseContext *)dbcontext
-    editingContext: (EOEditingContext *)ec;
+- (id)initWithGlobalID: (EOKeyGlobalID *)globalID
+       databaseContext: (EODatabaseContext *)dbcontext
+	editingContext: (EOEditingContext *)ec;
 
 - (EOKeyGlobalID *)globalID;
 - (EODatabaseContext *)databaseContext;
@@ -77,7 +77,7 @@
 @end
 
 
-@interface EOAccessArrayFaultHandler:EOAccessGenericFaultHandler
+@interface EOAccessArrayFaultHandler : EOAccessGenericFaultHandler
 {
   EOKeyGlobalID *sgid;
   NSString *relationshipName;
@@ -91,10 +91,10 @@
 							 databaseContext: (EODatabaseContext *)dbcontext
 							  editingContext: (EOEditingContext *)ec;
 
-- initWithSourceGlobalID: (EOKeyGlobalID *)sourceGID
-	relationshipName: (NSString *)relationshipName
-	 databaseContext: (EODatabaseContext *)dbcontext
-	  editingContext: (EOEditingContext *)ec;
+- (id)initWithSourceGlobalID: (EOKeyGlobalID *)sourceGID
+	    relationshipName: (NSString *)relationshipName
+	     databaseContext: (EODatabaseContext *)dbcontext
+	      editingContext: (EOEditingContext *)ec;
 
 - (EOKeyGlobalID *)sourceGlobalID;
 - (NSString *)relationshipName;
@@ -106,8 +106,8 @@
 
 @interface NSObject (EOAccessFaultUnableToFaultToOne)
 
-- (void)unableToFaultObject:(id)object
-	    databaseContext:(EODatabaseContext *)context;
+- (void)unableToFaultObject: (id)object
+	    databaseContext: (EODatabaseContext *)context;
 
 @end
 

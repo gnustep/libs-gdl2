@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOObjectStoreCoordinator.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -29,6 +29,8 @@
 
 #include <EOControl/EOObjectStore.h>
 
+#include <EOControl/EODefines.h>
+
 
 @class NSArray;
 @class NSMutableArray;
@@ -40,13 +42,11 @@
 @class EOModelGroup;
 
 
-@interface EOObjectStoreCoordinator:EOObjectStore
+@interface EOObjectStoreCoordinator : EOObjectStore
 {
   NSMutableArray *_stores;
   NSDictionary *_userInfo;
 }
-
-- init;
 
 - (void)addCooperatingObjectStore: (EOCooperatingObjectStore *)store;
 
@@ -54,13 +54,13 @@
 
 - (NSArray *)cooperatingObjectStores;
 
-- (void)forwardUpdateForObject: object changes: (NSDictionary *)changes;
+- (void)forwardUpdateForObject: (id)object changes: (NSDictionary *)changes;
 
-- (NSDictionary *)valuesForKeys: (NSArray *)keys object: object;
+- (NSDictionary *)valuesForKeys: (NSArray *)keys object: (id)object;
 
 - (EOCooperatingObjectStore *)objectStoreForGlobalID: (EOGlobalID *)gloablID;
 
-- (EOCooperatingObjectStore *)objectStoreForObject: object;
+- (EOCooperatingObjectStore *)objectStoreForObject: (id)object;
 
 - (EOCooperatingObjectStore *)objectStoreForFetchSpecification: (EOFetchSpecification *)fetchSpecification;
 
@@ -73,14 +73,14 @@
 @end
 
 
-// Notifications:
-extern NSString *EOCooperatingObjectStoreWasAdded;
-extern NSString *EOCooperatingObjectStoreWasRemoved;
+/* Notifications */
+GDL2CONTROL_EXPORT NSString *EOCooperatingObjectStoreWasAdded;
+GDL2CONTROL_EXPORT NSString *EOCooperatingObjectStoreWasRemoved;
 
-extern NSString *EOCooperatingObjectStoreNeeded;
+GDL2CONTROL_EXPORT NSString *EOCooperatingObjectStoreNeeded;
 
 
-@interface EOCooperatingObjectStore:EOObjectStore
+@interface EOCooperatingObjectStore : EOObjectStore
 
 - (BOOL)ownsGlobalID: (EOGlobalID *)globalID;
 
@@ -90,18 +90,19 @@ extern NSString *EOCooperatingObjectStoreNeeded;
 
 - (BOOL)handlesFetchSpecification: (EOFetchSpecification *)fetchSpecification;
 
-- (void)prepareForSaveWithCoordinator: (EOObjectStoreCoordinator *)coordinator editingContext:(EOEditingContext *)context;
+- (void)prepareForSaveWithCoordinator: (EOObjectStoreCoordinator *)coordinator
+		       editingContext: (EOEditingContext *)context;
 
 - (void)recordChangesInEditingContext;
 
-- (void)recordUpdateForObject:object changes: (NSDictionary *)changes;
+- (void)recordUpdateForObject: (id)object changes: (NSDictionary *)changes;
 
 - (void)performChanges;
 
 - (void)commitChanges;
 - (void)rollbackChanges;
 
-- (NSDictionary *)valuesForKeys: (NSArray *)keys object: object;
+- (NSDictionary *)valuesForKeys: (NSArray *)keys object: (id)object;
 
 @end
 

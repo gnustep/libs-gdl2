@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EONSAddOns.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -50,35 +50,35 @@ GDL2CONTROL_EXPORT BOOL
 GSUseStrictWO451Compatibility(NSString *key);
 
 @interface NSObject (NSObjectPerformingSelector)
-- (NSArray*)resultsOfPerformingSelector: (SEL)sel
-                  withEachObjectInArray: (NSArray*)array;
-- (NSArray*)resultsOfPerformingSelector: (SEL)sel
-                  withEachObjectInArray: (NSArray*)array
-                          defaultResult: (id)defaultResult;
+- (NSArray *)resultsOfPerformingSelector: (SEL)sel
+                   withEachObjectInArray: (NSArray *)array;
+- (NSArray *)resultsOfPerformingSelector: (SEL)sel
+                   withEachObjectInArray: (NSArray *)array
+                           defaultResult: (id)defaultResult;
 @end
 
 @interface NSArray (NSArrayPerformingSelector)
 - (id)firstObject;
-- (NSArray*)resultsOfPerformingSelector: (SEL)sel;
-- (NSArray*)resultsOfPerformingSelector: (SEL)sel
-                          defaultResult: (id)defaultResult;
-- (NSArray*)resultsOfPerformingSelector: (SEL)sel
-                             withObject: (id)obj1;
-- (NSArray*)resultsOfPerformingSelector: (SEL)sel
-                             withObject: (id)obj1
-                          defaultResult: (id)defaultResult;
-- (NSArray*)resultsOfPerformingSelector: (SEL)sel
-                             withObject: (id)obj1
-                             withObject: (id)obj2;
-- (NSArray*)resultsOfPerformingSelector: (SEL)sel
-                             withObject: (id)obj1
-                             withObject: (id)obj2
-                          defaultResult: (id)defaultResult;
-- (NSArray*)arrayExcludingObjectsInArray: (NSArray*)array;
-- (NSArray*)arrayExcludingObject: (id)object;
-- (NSArray*)arrayByReplacingObject: (id)object1
-                        withObject: (id)object2;
-- (BOOL)containsIdenticalObjectsWithArray: (NSArray*)array;
+- (NSArray *)resultsOfPerformingSelector: (SEL)sel;
+- (NSArray *)resultsOfPerformingSelector: (SEL)sel
+                           defaultResult: (id)defaultResult;
+- (NSArray *)resultsOfPerformingSelector: (SEL)sel
+                              withObject: (id)obj1;
+- (NSArray *)resultsOfPerformingSelector: (SEL)sel
+                              withObject: (id)obj1
+                           defaultResult: (id)defaultResult;
+- (NSArray *)resultsOfPerformingSelector: (SEL)sel
+                              withObject: (id)obj1
+                              withObject: (id)obj2;
+- (NSArray *)resultsOfPerformingSelector: (SEL)sel
+                              withObject: (id)obj1
+                              withObject: (id)obj2
+                           defaultResult: (id)defaultResult;
+- (NSArray *)arrayExcludingObjectsInArray: (NSArray *)array;
+- (NSArray *)arrayExcludingObject: (id)object;
+- (NSArray *)arrayByReplacingObject: (id)object1
+                         withObject: (id)object2;
+- (BOOL)containsIdenticalObjectsWithArray: (NSArray *)array;
 
 @end
 
@@ -109,14 +109,14 @@ GSUseStrictWO451Compatibility(NSString *key);
 @interface NSObject (PerformSelect3)
 /**
  * Causes the receiver to execute the method implementation corresponding
- * to aSelector and returns the result.<br />
+ * to selector and returns the result.<br />
  * The method must be one which takes three arguments and returns an object.
  * <br />Raises NSInvalidArgumentException if given a null selector.
  */
-- (id) performSelector: (SEL)aSelector
-            withObject: (id) object1
-            withObject: (id) object2
-            withObject: (id) object3;
+- (id)performSelector: (SEL)selector
+           withObject: (id)object1
+           withObject: (id)object2
+           withObject: (id)object3;
 
 @end
 #endif /* __EONSAddOns_h__ */

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOSQLQualifier.h
 
    Copyright (C) 2000-2002 Free Software Foundation, Inc.
@@ -51,7 +51,8 @@
 
 - (NSString *)sqlStringForSQLExpression: (EOSQLExpression *)sqlExpression;
 
-/** Returns an equivalent EOQualifier with object references replaced by foreign key references. **/
+/** Returns an equivalent EOQualifier yet having the object references
+    replaced by foreign key references. **/
 - (EOQualifier *)schemaBasedQualifierWithRootEntity: (EOEntity *)entity;
 
 @end
@@ -69,9 +70,6 @@
 @end
 
 
-//
-// Finally, declare the EOSQLQualifier class.
-//
 @interface EOSQLQualifier : EOQualifier <EOQualifierSQLGeneration> 
 {
   EOEntity *_entity;
@@ -87,12 +85,11 @@
 
 - (id)initWithEntity: (EOEntity *)entity 
      qualifierFormat: (NSString *)qualifierFormat, ...;
-// This is the designated initializer for EOSQLQualifier.
 
 @end
 
 @interface NSString (NSStringSQLExpression)
-- (NSString *) valueForSQLExpression: (EOSQLExpression *)sqlExpression;
+- (NSString *)valueForSQLExpression: (EOSQLExpression *)sqlExpression;
 @end
 
 #endif

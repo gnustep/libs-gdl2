@@ -1,4 +1,5 @@
-/* debug.h - debug
+/* -*-objc-*-
+   debug.h - debug
    Copyright (C) 1999, 2002, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
@@ -273,7 +274,7 @@ GDL2CONTROL_EXPORT void EOFLogAssertGood_(const char* file,int line,
 #endif
 
 #ifndef NSEmitTODO
-#define NSEmitTODO();	NSLog(@"DVLP WARNING %s (%d): TODO",(char*)__FILE__,(int)__LINE__);
+#define NSEmitTODO();	NSLog(@"DVLP WARNING %s (%d): TODO",(char *)__FILE__,(int)__LINE__);
 #endif
 
 #endif // _EODebug_h__

@@ -1,3 +1,9 @@
+2004-04-17  David Ayers  <d.ayers@inode.at>
+
+	* */*.h: Format declarations consistently.  Add -*-objc-*
+	shabang line.  Replace remaining extern declarations with
+	GDL2*_EXPORT.
+	
 2004-04-16  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOModel.m ([EOModel writeToFile:]) Set path (and

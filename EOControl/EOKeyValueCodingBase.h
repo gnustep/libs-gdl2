@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOKeyValueCodingBase.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.

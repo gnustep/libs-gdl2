@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOGenericRecord.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -49,28 +49,23 @@
   EOMutableKnownKeyDictionary *dictionary;
 }
 
-// Initializing new instances
+/* Initializing new instances.  */
 
-- initWithEditingContext: (EOEditingContext *)context
-        classDescription: (EOClassDescription *)classDesc
-                globalID: (EOGlobalID *)globalID;
+- (id)initWithEditingContext: (EOEditingContext *)context
+	    classDescription: (EOClassDescription *)classDesc
+		    globalID: (EOGlobalID *)globalID;
 
-#if !FOUNDATION_HAS_KVC
-- (id)valueForKey: (NSString *)key;
-- (void)takeValue: (id)value
-           forKey: (NSString *)key;
-#endif
-
-+ (void)eoCalculateAllSizeWith: (NSMutableDictionary*)dict;
-- (unsigned int)eoCalculateSizeWith: (NSMutableDictionary*)dict;
++ (void)eoCalculateAllSizeWith: (NSMutableDictionary *)dict;
+- (unsigned int)eoCalculateSizeWith: (NSMutableDictionary *)dict;
 + (unsigned int)eoCalculateSizeWith: (NSMutableDictionary *)dict
 			   forArray: (NSArray *)array;
 
 - (NSString *)debugDictionaryDescription;
 
-/** should returns an array of property names to exclude from entity 
-instanceDictionaryInitializer.
-You can override this to exclude properties manually handled by derived object **/
+/** should return an array of property names
+    to exclude from entity instanceDictionaryInitializer.
+    You can override this to exclude properties manually
+    handled by derived object.  **/
 + (NSArray *)_instanceDictionaryInitializerExcludedPropertyNames;
 
 @end /* EOGenericRecord */

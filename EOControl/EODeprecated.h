@@ -1,4 +1,4 @@
-/**
+/** -*-objc-*-
    EODeprecated.h
 
    Copyright (C) 2003 Free Software Foundation, Inc.
@@ -39,32 +39,32 @@
 
 @interface NSObject (EODeprecated)
 /** Deprecated. GDL2 doesn't cache key bindungs.*/
-+ (void) flushClassKeyBindings;
++ (void)flushClassKeyBindings;
 @end
 
 @interface EOClassDescription (EODeprecated)
 /** Deprecated. Use +setClassDelegate. */
-+ (void) setDelegate:(id)delegate;
++ (void)setDelegate: (id)delegate;
 /** Deprecated. Use +classDelegate. */
-+ (id) delegate;
++ (id)delegate;
 @end
 
 /** Deprecated. Use NSUndoManager. */
 @interface EOUndoManager : NSUndoManager
 
 /** Deprecated. Use -removeAllActionsWithTarget:. */
-- (void) forgetAllWithTarget: (id)param0;
+- (void)forgetAllWithTarget: (id)param0;
 
 /** Deprecated. Use -removeAllActionsWithTarget:. */
-- (void) forgetAll;
+- (void)forgetAll;
 
 /** Deprecated. Use -registerUndoWithTarget:selector:object:. */
-- (void) registerUndoWithTarget: (id)param0
-                       selector: (SEL)param1
-                            arg: (id)param2;
+- (void)registerUndoWithTarget: (id)param0
+		      selector: (SEL)param1
+			   arg: (id)param2;
 
 /** Deprecated. Use -enableUndoRegistration. */
-- (void) reenableUndoRegistration; 
+- (void)reenableUndoRegistration; 
 
 @end
 

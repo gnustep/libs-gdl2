@@ -1,4 +1,4 @@
-/**
+/* -*-objc-*-
    EOArrayDataSource.h
 
    Copyright (C) 2003 Free Software Foundation, Inc.
@@ -42,10 +42,10 @@
   EOClassDescription    *_classDescription;
 }
 
-- (id) initWithClassDescription: (EOClassDescription *)classDescription
-                 editingContext: (EOEditingContext *)context;
+- (id)initWithClassDescription: (EOClassDescription *)classDescription
+		editingContext: (EOEditingContext *)context;
 
-- (void) setArray: (NSArray *)array;
+- (void)setArray: (NSArray *)array;
 
 @end
 

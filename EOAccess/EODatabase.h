@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EODatabase.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -66,9 +66,9 @@ GDL2ACCESS_EXPORT NSString *EOGeneralDatabaseException;
 
 + (EODatabase *)databaseWithModel: (EOModel *)model;
 
-- initWithAdaptor: (EOAdaptor *)adaptor;
+- (id)initWithAdaptor: (EOAdaptor *)adaptor;
 
-- initWithModel: (EOModel *)model;
+- (id)initWithModel: (EOModel *)model;
 
 - (NSArray *)registeredContexts;
 
@@ -99,11 +99,11 @@ GDL2ACCESS_EXPORT NSString *EOGeneralDatabaseException;
 
 - (void)recordSnapshot: (NSDictionary *)snapshot forGlobalID: (EOGlobalID *)gid;
 
-- (NSDictionary *)snapshotForGlobalID:(EOGlobalID *)gid;
+- (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid;
 
-- (void)recordSnapshot:(NSArray *)gids
-     forSourceGlobalID:(EOGlobalID *)gid
-      relationshipName:(NSString *)name;
+- (void)recordSnapshot: (NSArray *)gids
+     forSourceGlobalID: (EOGlobalID *)gid
+      relationshipName: (NSString *)name;
 
 - (NSArray *)snapshotForSourceGlobalID: (EOGlobalID *)gid
 		      relationshipName: (NSString *)name;

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOKeyGlobalID.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -49,14 +49,14 @@
 - (unsigned)keyCount;
 - (NSArray *)keyValuesArray;
 
-- (BOOL)isEqual: other;
+- (BOOL)isEqual: (id)other;
 - (unsigned)hash;
 
-- (void)encodeWithCoder: (NSCoder *)aCoder;
-- (id)initWithCoder: (NSCoder *)aDecoder;
+- (void)encodeWithCoder: (NSCoder *)coder;
+- (id)initWithCoder: (NSCoder *)decoder;
 
-- (BOOL) isFinal;
-- (NSString*)description;
+- (BOOL)isFinal;
+- (NSString *)description;
 - (BOOL)areKeysAllNulls;
 
 @end

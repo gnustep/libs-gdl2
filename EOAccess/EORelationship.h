@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EORelationship.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -99,7 +99,7 @@ typedef enum {
   GCMutableArray *_componentRelationships;//Used ????
 }
 
-+ (id) relationshipWithPropertyList: (NSDictionary *)propertyList
++ (id)relationshipWithPropertyList: (NSDictionary *)propertyList
                               owner: (id)owner;
 
 - (NSString *)name;
@@ -116,7 +116,7 @@ typedef enum {
 
 - (BOOL)isCompound;
 
-- (BOOL) isParentRelationship;
+- (BOOL)isParentRelationship;
 
 - (NSArray *)sourceAttributes;
 
@@ -125,7 +125,7 @@ typedef enum {
 - (NSArray *)joins;
 
 - (EOJoinSemantic)joinSemantic;
-- (NSString*)joinSemanticString;
+- (NSString *)joinSemanticString;
 
 - (NSArray *)componentRelationships;
 
@@ -152,7 +152,7 @@ typedef enum {
 - (EOQualifier *)qualifierWithSourceRow: (NSDictionary *)sourceRow;
 
 /** Accessing documentation comments **/
-- (NSString*)docComment;
+- (NSString *)docComment;
 @end
 
 
@@ -163,7 +163,7 @@ typedef enum {
 - (void)setEntity: (EOEntity *)entity;
 - (void)setToMany: (BOOL)yn;
 - (void)setPropagatesPrimaryKey: (BOOL)yn;
-- (void)setIsBidirectional:(BOOL)yn;
+- (void)setIsBidirectional: (BOOL)yn;
 - (void)setOwnsDestination: (BOOL)yn;
 - (void)addJoin: (EOJoin *)join;
 - (void)removeJoin: (EOJoin *)join;
@@ -188,8 +188,8 @@ typedef enum {
 
 @interface EORelationship (EORelationshipPrivate)
 
-/*+ (EORelationship*)relationshipFromPropertyList: (id)propertyList
-	model: (EOModel*)model;
+/*+ (EORelationship *)relationshipFromPropertyList: (id)propertyList
+	model: (EOModel *)model;
 - (void)replaceStringsWithObjects;
 - (void)initFlattenedRelationship;
 
@@ -197,42 +197,42 @@ typedef enum {
 
 - (void)setCreateMutableObjects: (BOOL)flag;
 - (BOOL)createsMutableObjects;
-- (void)setInverseRelationship: (EORelationship*)relationship;
+- (void)setInverseRelationship: (EORelationship *)relationship;
 @end /* EORelationship (EORelationshipPrivate) */
 
 @interface EORelationship (EORelationshipXX)
 
-- (NSArray*) _intermediateAttributes;
-- (EORelationship*) lastRelationship;
-- (EORelationship*) firstRelationship;
-- (id) intermediateEntity;
-- (BOOL) isMultiHop;
-- (void) _setSourceToDestinationKeyMap: (id)param0;
-- (id) qualifierForDBSnapshot: (id)param0;
-- (id) primaryKeyForTargetRowFromSourceDBSnapshot: (id)param0;
-- (NSString*)relationshipPath;
+- (NSArray *)_intermediateAttributes;
+- (EORelationship *)lastRelationship;
+- (EORelationship *)firstRelationship;
+- (id)intermediateEntity;
+- (BOOL)isMultiHop;
+- (void)_setSourceToDestinationKeyMap: (id)param0;
+- (id)qualifierForDBSnapshot: (id)param0;
+- (id)primaryKeyForTargetRowFromSourceDBSnapshot: (id)param0;
+- (NSString *)relationshipPath;
 - (BOOL)isToManyToOne;
-- (NSDictionary*)_sourceToDestinationKeyMap;
+- (NSDictionary *)_sourceToDestinationKeyMap;
 - (BOOL)foreignKeyInDestination;
 @end
 
 @interface EORelationship (EORelationshipPrivate2)
-- (BOOL) isPropagatesPrimaryKeyPossible;
-- (id) qualifierOmittingAuxiliaryQualifierWithSourceRow: (id)param0;
-- (id) auxiliaryQualifier;
-- (void) setAuxiliaryQualifier: (id)param0;
-- (id) _foreignKeyForSourceRow: (NSDictionary*)row;
-- (EOMKKDSubsetMapping*) _sourceRowToForeignKeyMapping;
-- (NSArray*) _sourceAttributeNames;
-- (EOJoin*) joinForAttribute: (EOAttribute*)attribute;
-- (void) _flushCache;
-- (EOExpressionArray*) _definitionArray;
-- (NSString*) _stringFromDeleteRule: (EODeleteRule)deleteRule;
-- (EODeleteRule) _deleteRuleFromString: (NSString*)deleteRuleString;
-- (NSDictionary*) _rightSideKeyMap;
-- (NSDictionary*) _leftSideKeyMap;
-- (EORelationship*)_substitutionRelationshipForRow: (NSDictionary*)row;
-- (void) _joinsChanged;
+- (BOOL)isPropagatesPrimaryKeyPossible;
+- (id)qualifierOmittingAuxiliaryQualifierWithSourceRow: (id)param0;
+- (id)auxiliaryQualifier;
+- (void)setAuxiliaryQualifier: (id)param0;
+- (id)_foreignKeyForSourceRow: (NSDictionary *)row;
+- (EOMKKDSubsetMapping *)_sourceRowToForeignKeyMapping;
+- (NSArray *)_sourceAttributeNames;
+- (EOJoin *)joinForAttribute: (EOAttribute *)attribute;
+- (void)_flushCache;
+- (EOExpressionArray *)_definitionArray;
+- (NSString *)_stringFromDeleteRule: (EODeleteRule)deleteRule;
+- (EODeleteRule)_deleteRuleFromString: (NSString *)deleteRuleString;
+- (NSDictionary *)_rightSideKeyMap;
+- (NSDictionary *)_leftSideKeyMap;
+- (EORelationship *)_substitutionRelationshipForRow: (NSDictionary *)row;
+- (void)_joinsChanged;
 @end
 
 #endif /* __EORelationship_h__ */

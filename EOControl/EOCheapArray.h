@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOCheapArray.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -43,17 +43,17 @@
   unsigned int _refcount;
 }
 
-- (id) initWithArray: (id)array;
-- (id) initWithObjects: (id*)objects
-                 count: (unsigned int)count;
-- (void) dealloc;
-- (void) release;
-- (unsigned int) retainCount;
-- (id) retain;
-- (id) objectAtIndex: (unsigned int)index;
-//- (id) copyWithZone: (NSZone*)zone;
-- (unsigned int) count;
-//- (BOOL) containsObject: (id)obejct;
+- (id)initWithArray: (id)array;
+- (id)initWithObjects: (id *)objects
+		count: (unsigned int)count;
+- (void)dealloc;
+- (void)release;
+- (unsigned int)retainCount;
+- (id)retain;
+- (id)objectAtIndex: (unsigned int)index;
+//- (id)copyWithZone: (NSZone *)zone;
+- (unsigned int)count;
+//- (BOOL)containsObject: (id)obejct;
 
 @end
 
@@ -67,28 +67,28 @@
   id _immutableCopy;
 }
 
-- (id) initWithCapacity: (unsigned int)capacity;
-- (id) initWithObjects: (id*)objects
-                 count: (unsigned int)count;
-- (id) initWithArray: (NSArray*)array;
-- (void) dealloc;
-- (id) shallowCopy;
-- (void) _setCopy: (id)param0;
-- (void) _mutate;
-- (unsigned int) count;
-- (id) objectAtIndex: (unsigned int)index;
-- (void) addObject: (id)object;
-- (void) insertObject: (id)object
-              atIndex: (unsigned int)index;
-- (void) removeLastObject;
-- (void) removeObjectAtIndex: (unsigned int)index;
-- (void) replaceObjectAtIndex: (unsigned int)index
-                   withObject: (id)object;
-//- (BOOL) containsObject: (id)object;
-//- (unsigned int) indexOfObjectIdenticalTo: (id)object;
-//- (void) removeAllObjects;
-- (void) exchangeObjectAtIndex: (unsigned int)index1
-             withObjectAtIndex: (unsigned int)index2;
+- (id)initWithCapacity: (unsigned int)capacity;
+- (id)initWithObjects: (id *)objects
+		count: (unsigned int)count;
+- (id)initWithArray: (NSArray *)array;
+- (void)dealloc;
+- (id)shallowCopy;
+- (void)_setCopy: (id)param0;
+- (void)_mutate;
+- (unsigned int)count;
+- (id)objectAtIndex: (unsigned int)index;
+- (void)addObject: (id)object;
+- (void)insertObject: (id)object
+	     atIndex: (unsigned int)index;
+- (void)removeLastObject;
+- (void)removeObjectAtIndex: (unsigned int)index;
+- (void)replaceObjectAtIndex: (unsigned int)index
+		  withObject: (id)object;
+//- (BOOL)containsObject: (id)object;
+//- (unsigned int)indexOfObjectIdenticalTo: (id)object;
+//- (void)removeAllObjects;
+- (void)exchangeObjectAtIndex: (unsigned int)index1
+	    withObjectAtIndex: (unsigned int)index2;
 @end
 
 

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOExpressionArray.h
 
    Copyright (C) 1996 Free Software Foundation, Inc.
@@ -46,7 +46,7 @@
 
 @protocol EOExpressionContext <NSObject>
 
-- (NSString *)expressionValueForAttribute: (EOAttribute *)anAttribute;
+- (NSString *)expressionValueForAttribute: (EOAttribute *)attribute;
 - (NSString *)expressionValueForAttributePath: (NSArray *)path;
 
 @end
@@ -66,15 +66,15 @@
   } _flags;
 }
 
-+ (EOExpressionArray*)expressionArray;
-+ (EOExpressionArray*)expressionArrayWithPrefix: (NSString *)prefix
++ (EOExpressionArray *)expressionArray;
++ (EOExpressionArray *)expressionArrayWithPrefix: (NSString *)prefix
                                           infix: (NSString *)infix
                                          suffix: (NSString *)suffix;
 
 /* Initializing instances */
-- initWithPrefix: (NSString *)prefix
-           infix: (NSString *)infix
-          suffix: (NSString *)suffix;
+- (id)initWithPrefix: (NSString *)prefix
+	       infix: (NSString *)infix
+	      suffix: (NSString *)suffix;
 
 - (NSString *)prefix;
 - (NSString *)infix;
@@ -85,12 +85,12 @@
 - (EOAttribute *)realAttribute;
 
 /* Accessing the components */
-- (void)setPrefix: (NSString*)prefix;
-- (void)setInfix: (NSString*)infix;
-- (void)setSuffix: (NSString*)suffix;
+- (void)setPrefix: (NSString *)prefix;
+- (void)setInfix: (NSString *)infix;
+- (void)setSuffix: (NSString *)suffix;
 
 /* Checking contents */
-- (BOOL)referencesObject: (id)anObject;
+- (BOOL)referencesObject: (id)object;
 
 - (NSString *)expressionValueForContext: (id<EOExpressionContext>)ctx;
 
@@ -98,13 +98,13 @@
                                 entity: (EOEntity *)entity
 				replacePropertyReferences: (BOOL)flag;*/
 
-- (NSString*)valueForSQLExpression: (EOSQLExpression *)sqlExpression;
+- (NSString *)valueForSQLExpression: (EOSQLExpression *)sqlExpression;
 
 @end /* EOExpressionArray */
 
 
 @interface NSObject (EOExpression)
-- (NSString*)expressionValueForContext: (id<EOExpressionContext>)context;
+- (NSString *)expressionValueForContext: (id<EOExpressionContext>)context;
 @end
 
 

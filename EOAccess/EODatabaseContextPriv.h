@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EODatabaseContextPriv.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -36,38 +36,40 @@
 
 @interface EODatabaseContext (EODatabaseContextPrivate)
 
-- (void) _fireArrayFault: (id)object;
-- (void) _fireFault: (id)object;
-- (void) _addBatchForGlobalID: (EOKeyGlobalID *)globalID
-			fault: (EOFault *)fault;
-- (void) _removeBatchForGlobalID: (EOKeyGlobalID *)globalID
-			   fault: (EOFault *)fault;
-- (void) _addToManyBatchForSourceGlobalID: (EOKeyGlobalID *)globalID
-			 relationshipName: (NSString *)relationshipName
-				    fault: (EOFault *)fault;
+- (void)_fireArrayFault: (id)object;
+- (void)_fireFault: (id)object;
+- (void)_addBatchForGlobalID: (EOKeyGlobalID *)globalID
+		       fault: (EOFault *)fault;
+- (void)_removeBatchForGlobalID: (EOKeyGlobalID *)globalID
+			  fault: (EOFault *)fault;
+- (void)_addToManyBatchForSourceGlobalID: (EOKeyGlobalID *)globalID
+			relationshipName: (NSString *)relationshipName
+				   fault: (EOFault *)fault;
 
-/*- (void)_batchToOne: (id)fault
+/*
+- (void)_batchToOne: (id)fault
 	withHandler: (EOAccessFaultHandler *)handler;
 - (void)_batchToMany: (id)fault
-withHandler: (EOAccessArrayFaultHandler *)handler;*/
+	 withHandler: (EOAccessArrayFaultHandler *)handler;
+*/
 
 @end
 
 
 @interface EODatabaseContext (EODatabaseContextPrivate2)
 
-- (void) _verifyNoChangesToReadonlyEntity: (EODatabaseOperation*)dbOpe;
-- (EOGlobalID*) _globalIDForObject: (id)object;
-- (id) _primaryKeyForObject: (id)object;
-- (NSDictionary*)_primaryKeyForObject: (id)object
-                       raiseException: (BOOL)raiseException;
-- (id) _currentCommittedSnapshotForObject: (id)object;
-- (id) _addDatabaseContextStateToException: (id)param0;
-- (id) _databaseContextState;
-- (void) _cleanUpAfterSave;
-- (void) _assertValidStateWithSelector: (SEL)sel;
-- (BOOL) _shouldGeneratePrimaryKeyForEntityName: (NSString*)entityName;
-- (void) _buildPrimaryKeyGeneratorListForEditingContext: (EOEditingContext*)context;
+- (void)_verifyNoChangesToReadonlyEntity: (EODatabaseOperation *)dbOpe;
+- (EOGlobalID *)_globalIDForObject: (id)object;
+- (id)_primaryKeyForObject: (id)object;
+- (NSDictionary *)_primaryKeyForObject: (id)object
+			raiseException: (BOOL)raiseException;
+- (id)_currentCommittedSnapshotForObject: (id)object;
+- (id)_addDatabaseContextStateToException: (id)param0;
+- (id)_databaseContextState;
+- (void)_cleanUpAfterSave;
+- (void)_assertValidStateWithSelector: (SEL)sel;
+- (BOOL)_shouldGeneratePrimaryKeyForEntityName: (NSString *)entityName;
+- (void)_buildPrimaryKeyGeneratorListForEditingContext: (EOEditingContext *)context;
 
 @end
 

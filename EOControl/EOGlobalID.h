@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOGlobalID.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -48,7 +48,8 @@
 GDL2CONTROL_EXPORT NSString *EOGlobalIDChangedNotification;
 
 @interface EOGlobalID : NSObject <NSCopying>
-- (BOOL)isEqual:other;
+
+- (BOOL)isEqual: (id)other;
 - (unsigned)hash;
 
 - (BOOL)isTemporary;
@@ -68,14 +69,12 @@ enum {
 
 + (EOTemporaryGlobalID *)temporaryGlobalID;
 + (void)assignGloballyUniqueBytes: (unsigned char *)buffer;
-    // < Sequence [2], ProcessID [2] , Time [4], IP Addr [4] >
-
-- init;
+/* Sequence (2) - ProcessID (2) - Time (4) - IP (4) */
 
 - (BOOL)isTemporary;
 
-- (void)encodeWithCoder: (NSCoder *)aCoder;
-- (id)initWithCoder: (NSCoder *)aDecoder;
+- (void)encodeWithCoder: (NSCoder *)coder;
+- (id)initWithCoder: (NSCoder *)decoder;
 
 @end
 

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOUndoManager.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -36,12 +36,12 @@
 
 @interface EOUndoManager : NSUndoManager
 
-- (void) forgetAllWithTarget: (id)param0;
-- (void) forgetAll;
-- (void) registerUndoWithTarget: (id)param0
-                       selector: (SEL)param1
-                            arg: (id)param2;
-- (void) reenableUndoRegistration;
+- (void)forgetAllWithTarget: (id)param0;
+- (void)forgetAll;
+- (void)registerUndoWithTarget: (id)param0
+		      selector: (SEL)param1
+			   arg: (id)param2;
+- (void)reenableUndoRegistration;
 
 @end
 

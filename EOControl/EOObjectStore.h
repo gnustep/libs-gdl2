@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOObjectStore.h
 
    Copyright (C) 2000, 2003 Free Software Foundation, Inc.
@@ -65,13 +65,13 @@
 		     relationshipName: (NSString *)name
 		       editingContext: (EOEditingContext *)context;
 
-- (void)refaultObject: object
+- (void)refaultObject: (id)object
 	 withGlobalID: (EOGlobalID *)globalID
        editingContext: (EOEditingContext *)context;
 
 - (void)saveChangesInEditingContext: (EOEditingContext *)context;
 
-- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
+- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpec
 			    editingContext: (EOEditingContext *)context;
 
 - (BOOL)isObjectLockedWithGlobalID: (EOGlobalID *)gid
@@ -83,8 +83,8 @@
 - (void)invalidateAllObjects;
 - (void)invalidateObjectsWithGlobalIDs: (NSArray *)globalIDs;
 
-- (id) propertiesForObjectWithGlobalID: (EOGlobalID *)gid
-			editingContext: (EOEditingContext *)context;
+- (id)propertiesForObjectWithGlobalID: (EOGlobalID *)gid
+		       editingContext: (EOEditingContext *)context;
 @end
 
 

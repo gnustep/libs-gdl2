@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOFault.h
 
    Copyright (C) 1996-2000 Free Software Foundation, Inc.
@@ -88,11 +88,11 @@
 - (Class)superclass;
 - (Class)class;
 
-- (BOOL)isKindOfClass: (Class)aclass;
-- (BOOL)isMemberOfClass: (Class)aclass;
+- (BOOL)isKindOfClass: (Class)aClass;
+- (BOOL)isMemberOfClass: (Class)aClass;
 - (BOOL)conformsToProtocol: (Protocol *)protocol;
 - (BOOL)respondsToSelector: (SEL)sel;
-- (NSMethodSignature *)methodSignatureForSelector: (SEL)aSelector;
+- (NSMethodSignature *)methodSignatureForSelector: (SEL)selector;
 
 - (id)retain;
 - (void)release;
@@ -110,7 +110,7 @@
 - (void)dealloc;
 
 - (NSZone *)zone;
-- (BOOL)isProxy; // Always NO.
+- (BOOL)isProxy;
 
 - (id)self;
 
@@ -118,8 +118,8 @@
 - (void)doesNotRecognizeSelector: (SEL)sel;
 - (void)forwardInvocation: (NSInvocation *)invocation;
 
-- gcSetNextObject: (id)anObject;
-- gcSetPreviousObject: (id)anObject;
+- (id)gcSetNextObject: (id)object;
+- (id)gcSetPreviousObject: (id)object;
 - (id)gcNextObject;
 - (id)gcPreviousObject;
 - (BOOL)gcAlreadyVisited;
@@ -137,8 +137,9 @@
 {
   gcInfo	gc;
 
-  Class _targetClass;  // the first 8 bytes of
-  void *_extraData;    // the faulted object
+  Class _targetClass; /* Cached class of original object.  */
+  void *_extraData;   /* Cached memory contents of original object
+			 overwritten by fault handler reference.  */
 
   unsigned _extraRefCount;
 
@@ -155,7 +156,7 @@
 - (BOOL)decrementExtraRefCountWasZero;
 - (unsigned)extraRefCount;
 
-- (NSString *)descriptionForObject: object;
+- (NSString *)descriptionForObject: (id)object;
 
 - (Class)classForFault: (id)fault;
 
@@ -174,8 +175,8 @@
 
 // Garbage Collector
 
-- gcSetNextObject: (id)anObject;
-- gcSetPreviousObject: (id)anObject;
+- (id)gcSetNextObject: (id)object;
+- (id)gcSetPreviousObject: (id)object;
 - (id)gcNextObject;
 - (id)gcPreviousObject;
 - (BOOL)gcAlreadyVisited;

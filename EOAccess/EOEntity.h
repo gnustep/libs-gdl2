@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOEntity.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -134,16 +134,16 @@
 - (NSString *)description;
 
 /* Accessing the name */
-- (NSString*)name;
+- (NSString *)name;
 
 /* Accessing the model */
-- (EOModel*)model;
+- (EOModel *)model;
 
 /* Accessing external information */
-- (NSString*)externalName;
+- (NSString *)externalName;
 
 /* Accessing the external query */
-- (NSString*)externalQuery;
+- (NSString *)externalQuery;
 
 /* Getting the qualifier */
 - (EOQualifier *)restrictingQualifier;
@@ -157,7 +157,7 @@
 - (BOOL)cachesObjects;
 
 /* Accessing the enterprise object class */
-- (NSString*)className; 
+- (NSString *)className; 
 
 -(Class)_classForInstances;
 
@@ -188,10 +188,10 @@
 
 /* Getting primary keys and snapshot for row */
 - (NSDictionary *)primaryKeyForRow: (NSDictionary *)row;
-- (BOOL)isValidAttributeUsedForLocking: (EOAttribute *)anAttribute;
-- (BOOL)isValidPrimaryKeyAttribute: (EOAttribute *)anAttribute;
+- (BOOL)isValidAttributeUsedForLocking: (EOAttribute *)attribute;
+- (BOOL)isValidPrimaryKeyAttribute: (EOAttribute *)attribute;
 - (BOOL)isPrimaryKeyValidInObject: (id)object;
-- (BOOL)isValidClassProperty: aProp;
+- (BOOL)isValidClassProperty: (id)property;
 
 /** Accessing the user dictionary **/
 - (NSDictionary *)userInfo;
@@ -211,22 +211,22 @@
 
 @interface EOEntity (EOKeyGlobalID)
 - (EOGlobalID *)globalIDForRow: (NSDictionary *)row;
-- (id) globalIDForRow: (NSDictionary*)row
-              isFinal: (BOOL)isFinal;
+- (id)globalIDForRow: (NSDictionary *)row
+	     isFinal: (BOOL)isFinal;
 - (NSDictionary *)primaryKeyForGlobalID: (EOKeyGlobalID *)gid;
-- (Class)classForObjectWithGlobalID: (EOKeyGlobalID*)globalID;
+- (Class)classForObjectWithGlobalID: (EOKeyGlobalID *)globalID;
 @end
 
 
 @interface EOEntity (EOEntityEditing)
 
-- (BOOL)setClassProperties: (NSArray*)properties;
-- (BOOL)setPrimaryKeyAttributes: (NSArray*)keys;
-- (BOOL)setAttributesUsedForLocking: (NSArray*)attributes;
-- (NSException *)validateName: (NSString *) name;
-- (void)setName: (NSString*)name;
-- (void)setExternalName: (NSString*)name;
-- (void)setExternalQuery: (NSString*)query;
+- (BOOL)setClassProperties: (NSArray *)properties;
+- (BOOL)setPrimaryKeyAttributes: (NSArray *)keys;
+- (BOOL)setAttributesUsedForLocking: (NSArray *)attributes;
+- (NSException *)validateName: (NSString *)name;
+- (void)setName: (NSString *)name;
+- (void)setExternalName: (NSString *)name;
+- (void)setExternalQuery: (NSString *)query;
 - (void)setRestrictingQualifier: (EOQualifier *)qualifier;
 - (void)setReadOnly: (BOOL)flag;
 - (void)setCachesObjects: (BOOL)yn;
@@ -241,10 +241,10 @@
                      withName: (NSString *)name;
 - (void)removeFetchSpecificationNamed: (NSString *)name;
 
-- (void)setClassName: (NSString*)name;
-- (void)setUserInfo: (NSDictionary*)dictionary;
-- (void) _setInternalInfo: (NSDictionary*)dictionary;
-- (void) setDocComment:(NSString *)docComment;
+- (void)setClassName: (NSString *)name;
+- (void)setUserInfo: (NSDictionary *)dictionary;
+- (void)_setInternalInfo: (NSDictionary *)dictionary;
+- (void)setDocComment: (NSString *)docComment;
 
 - (void)addSubEntity: (EOEntity *)child;
 - (void)removeSubEntity: (EOEntity *)child;
@@ -257,7 +257,7 @@
 
 @interface EOEntity (EOModelReferentialIntegrity)
 
-- (BOOL)referencesProperty:property;
+- (BOOL)referencesProperty: (id)property;
 - (NSArray *)externalModelsReferenced;
 
 @end
@@ -276,16 +276,16 @@ GDL2ACCESS_EXPORT NSString *EONextPrimaryKeyProcedureOperation;
 
 @interface EOEntity (MethodSet11)
 - (NSException *)validateObjectForDelete: (id)object;
-- (id) classPropertyAttributeNames;
-- (id) classPropertyToManyRelationshipNames;
-- (id) classPropertyToOneRelationshipNames;
-- (id) qualifierForDBSnapshot: (id)param0;
-- (EOAttribute*) attributeForPath: (NSString*)path;
-- (EORelationship*) relationshipForPath: (NSString*)path;
-- (void) _addAttributesToFetchForRelationshipPath: (NSString*)path
-                                             atts: (NSMutableDictionary*)atts;
-- (id) dbSnapshotKeys;
-- (NSArray*) flattenedAttributes;
+- (id)classPropertyAttributeNames;
+- (id)classPropertyToManyRelationshipNames;
+- (id)classPropertyToOneRelationshipNames;
+- (id)qualifierForDBSnapshot: (id)param0;
+- (EOAttribute *)attributeForPath: (NSString *)path;
+- (EORelationship *)relationshipForPath: (NSString *)path;
+- (void)_addAttributesToFetchForRelationshipPath: (NSString *)path
+					    atts: (NSMutableDictionary *)atts;
+- (id)dbSnapshotKeys;
+- (NSArray *)flattenedAttributes;
 @end
 
 @interface EOEntity (EOStoredProcedures)
@@ -309,61 +309,61 @@ GDL2ACCESS_EXPORT NSString *EONextPrimaryKeyProcedureOperation;
 @end
 
 @interface EOEntity (EOEntityHidden)
-- (NSDictionary*)attributesByName;
-- (NSDictionary*)relationshipsByName;
-- (NSArray*) _allFetchSpecifications;
-- (NSDictionary*) _fetchSpecificationDictionary;
-- (void) _loadEntity;
-- (id) parentRelationship;
-- (int) _numberOfRelationships;
-- (BOOL) _hasReadOnlyAttributes;
-- (NSArray*) writableDBSnapshotKeys;
-- (NSArray*) rootAttributesUsedForLocking;
-- (BOOL) isSubEntityOf:(id)param0;
-- (id) initObject: (id)param0
-   editingContext: (id)param1
-         globalID: (id)param2;
-- (id) allocBiggestObjectWithZone:(NSZone*)zone;
-- (Class) _biggestClass;
-- (NSArray*) relationshipsPlist;
-- (id) rootParent;
-- (void) _setParent: (id)param0;
-- (NSArray*) _hiddenRelationships;
-- (NSArray*) _propertyNames;
-- (id) _flattenAttribute: (id)param0
-        relationshipPath: (id)param1
-       currentAttributes: (id)param2;
-- (NSString*) snapshotKeyForAttributeName: (NSString*)attributeName;
-- (id) _flattenedAttNameToSnapshotKeyMapping;
-- (EOMKKDSubsetMapping*) _snapshotToAdaptorRowSubsetMapping;
-- (EOMutableKnownKeyDictionary*) _dictionaryForPrimaryKey;
-- (EOMutableKnownKeyDictionary*) _dictionaryForProperties;
-- (EOMutableKnownKeyDictionary*) _dictionaryForInstanceProperties;
-- (NSArray*) _relationshipsToFaultForRow: (NSDictionary*)row;
-- (NSArray*) _classPropertyAttributes;
-- (NSArray*) _attributesToSave;
-- (NSArray*) _attributesToFetch;
-- (EOMKKDInitializer*) _adaptorDictionaryInitializer;
-- (EOMKKDInitializer*) _snapshotDictionaryInitializer;
-- (EOMKKDInitializer*) _primaryKeyDictionaryInitializer;
-- (EOMKKDInitializer*) _propertyDictionaryInitializer;
-- (EOMKKDInitializer*) _instanceDictionaryInitializer;
-- (void) _setModel: (EOModel*)model;
-- (void) _setIsEdited;
-- (NSArray*) _classPropertyAttributes;
+- (NSDictionary *)attributesByName;
+- (NSDictionary *)relationshipsByName;
+- (NSArray *)_allFetchSpecifications;
+- (NSDictionary *)_fetchSpecificationDictionary;
+- (void)_loadEntity;
+- (id)parentRelationship;
+- (int)_numberOfRelationships;
+- (BOOL)_hasReadOnlyAttributes;
+- (NSArray *)writableDBSnapshotKeys;
+- (NSArray *)rootAttributesUsedForLocking;
+- (BOOL)isSubEntityOf: (id)param0;
+- (id)initObject: (id)param0
+  editingContext: (id)param1
+	globalID: (id)param2;
+- (id)allocBiggestObjectWithZone: (NSZone *)zone;
+- (Class)_biggestClass;
+- (NSArray *)relationshipsPlist;
+- (id)rootParent;
+- (void)_setParent: (id)param0;
+- (NSArray *)_hiddenRelationships;
+- (NSArray *)_propertyNames;
+- (id)_flattenAttribute: (id)param0
+       relationshipPath: (id)param1
+      currentAttributes: (id)param2;
+- (NSString *)snapshotKeyForAttributeName: (NSString *)attributeName;
+- (id)_flattenedAttNameToSnapshotKeyMapping;
+- (EOMKKDSubsetMapping *)_snapshotToAdaptorRowSubsetMapping;
+- (EOMutableKnownKeyDictionary *)_dictionaryForPrimaryKey;
+- (EOMutableKnownKeyDictionary *)_dictionaryForProperties;
+- (EOMutableKnownKeyDictionary *)_dictionaryForInstanceProperties;
+- (NSArray *)_relationshipsToFaultForRow: (NSDictionary *)row;
+- (NSArray *)_classPropertyAttributes;
+- (NSArray *)_attributesToSave;
+- (NSArray *)_attributesToFetch;
+- (EOMKKDInitializer *)_adaptorDictionaryInitializer;
+- (EOMKKDInitializer *)_snapshotDictionaryInitializer;
+- (EOMKKDInitializer *)_primaryKeyDictionaryInitializer;
+- (EOMKKDInitializer *)_propertyDictionaryInitializer;
+- (EOMKKDInitializer *)_instanceDictionaryInitializer;
+- (void)_setModel: (EOModel *)model;
+- (void)_setIsEdited;
+- (NSArray *)_classPropertyAttributes;
 @end
 
-@interface EOEntityClassDescription:EOClassDescription
+@interface EOEntityClassDescription : EOClassDescription
 {
     EOEntity *_entity;
     unsigned int extraRefCount;
 }
 
 /** returns an autoreleased entity class description for entity entity **/
-+ (EOEntityClassDescription*)entityClassDescriptionWithEntity: (EOEntity *)entity;
++ (EOEntityClassDescription *)entityClassDescriptionWithEntity: (EOEntity *)entity;
 
 /** initialize with entity **/
-- initWithEntity: (EOEntity *)entity;
+- (id)initWithEntity: (EOEntity *)entity;
 
 /** returns entity **/
 - (EOEntity *)entity;
@@ -371,7 +371,7 @@ GDL2ACCESS_EXPORT NSString *EONextPrimaryKeyProcedureOperation;
 /** returns a new autoreleased mutable dictionary to store properties 
 returns nil if there's no key in the instanceDictionaryInitializer
 **/
-- (EOMutableKnownKeyDictionary*) dictionaryForInstanceProperties;
+- (EOMutableKnownKeyDictionary *)dictionaryForInstanceProperties;
 @end
 
 @interface NSString (EODatabaseNameConversion)

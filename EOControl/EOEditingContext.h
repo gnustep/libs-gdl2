@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOEditingContext.h
 
    Copyright (C) 2000-2002 Free Software Foundation, Inc.
@@ -37,6 +37,8 @@
 #include <EOControl/EOObjectStore.h>
 #include <EOControl/EOObserver.h>
 
+#include <EOControl/EODefines.h>
+
 
 @class NSArray;
 @class NSMutableArray;
@@ -70,9 +72,9 @@
     unsigned registeredForCallback:1;
     unsigned propagatesDeletesAtEndOfEvent:1;
     unsigned ignoreChangeNotification:1;
-    unsigned exhaustiveValidation:1;//    unsigned stopsValidation:1;
+    unsigned exhaustiveValidation:1; /* unsigned stopsValidation:1; */
     unsigned autoLocking:1;
-    unsigned processingChanges:1;//    unsigned savingChanges:1;
+    unsigned processingChanges:1;    /* unsigned savingChanges:1; */
     unsigned skipInvalidateOnDealloc:1;
     unsigned useCommittedSnapshot:1;
     unsigned registeredUndoTransactionID:1;
@@ -100,30 +102,27 @@
 + (void)setInstancesRetainRegisteredObjects: (BOOL)flag;
 + (BOOL)instancesRetainRegisteredObjects;
 
-- initWithParentObjectStore:(EOObjectStore *)parentObjectStore;
+- (id)initWithParentObjectStore: (EOObjectStore *)parentObjectStore;
 
 - (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification;
 
 - (void)insertObject: (id)object;
-- (void)insertObject: object
+- (void)insertObject: (id)object
         withGlobalID: (EOGlobalID *)gid;
 - (void)_insertObject: (id)object
          withGlobalID: (EOGlobalID *)gid;
 
--(void)setLevelsOfUndo:(int)levels;
+-(void)setLevelsOfUndo: (int)levels;
 
 - (void)deleteObject: (id)object;
-
 - (void)lockObject: (id)object;
 
 - (BOOL)hasChanges;
-
 - (void)saveChanges;
-
 - (void)revert;
 
 - (id)objectForGlobalID: (EOGlobalID *)globalID;
-- (EOGlobalID *)globalIDForObject: object;
+- (EOGlobalID *)globalIDForObject: (id)object;
 
 - (void)setDelegate: (id)delegate;
 - (id)delegate;
@@ -136,7 +135,7 @@
 - (void)setUndoManager: (NSUndoManager *)undoManager;
 - (NSUndoManager *)undoManager;
 
-- (void) _observeUndoManagerNotifications;
+- (void)_observeUndoManagerNotifications;
 
 - (void)objectWillChange: (id)object;
 
@@ -145,7 +144,7 @@
 
 - (void)forgetObject: (id)object;
 
-- (void) registerUndoForModifiedObject: (id)object;
+- (void)registerUndoForModifiedObject: (id)object;
 
 - (NSArray *)registeredObjects;
 
@@ -153,19 +152,19 @@
 - (NSArray *)insertedObjects;
 - (NSArray *)deletedObjects;
 
-- (void) _processDeletedObjects;
-- (void) _processOwnedObjectsUsingChangeTable: (NSHashTable*)changeTable
-                                  deleteTable: (NSHashTable*)deleteTable;
-- (void) propagatesDeletesUsingTable: (NSHashTable*)deleteTable;
-- (void) validateDeletesUsingTable: (NSHashTable*)deleteTable;
-- (BOOL) validateTable: (NSHashTable*)table
-          withSelector: (SEL)sel
-        exceptionArray: (NSMutableArray**)exceptionArray
-  continueAfterFailure: (BOOL)continueAfterFailure;
+- (void)_processDeletedObjects;
+- (void)_processOwnedObjectsUsingChangeTable: (NSHashTable *)changeTable
+				 deleteTable: (NSHashTable *)deleteTable;
+- (void)propagatesDeletesUsingTable: (NSHashTable *)deleteTable;
+- (void)validateDeletesUsingTable: (NSHashTable *)deleteTable;
+- (BOOL)validateTable: (NSHashTable *)table
+	 withSelector: (SEL)sel
+       exceptionArray: (NSMutableArray**)exceptionArray
+ continueAfterFailure: (BOOL)continueAfterFailure;
 
 
 - (void)processRecentChanges;
-- (void) _registerClearStateWithUndoManager;
+- (void)_registerClearStateWithUndoManager;
 
 - (BOOL)propagatesDeletesAtEndOfEvent;
 - (void)setPropagatesDeletesAtEndOfEvent: (BOOL)propagatesDeletesAtEndOfEvent;
@@ -229,7 +228,7 @@ modified state of the object.**/
                      relationshipName: (NSString *)name
                        editingContext: (EOEditingContext *)context;
 
-- (void)refaultObject: object
+- (void)refaultObject: (id)object
 	 withGlobalID: (EOGlobalID *)globalID
        editingContext: (EOEditingContext *)context;
 
@@ -244,18 +243,17 @@ modified state of the object.**/
 - (BOOL)isObjectLockedWithGlobalID: (EOGlobalID *)gid
                     editingContext: (EOEditingContext *)context;
 
-- (void) clearOriginalSnapshotForObject: (id)object;
+- (void)clearOriginalSnapshotForObject: (id)object;
 
 @end
 
-// used with NSRunLoop's performSelector:target:argument:order:modes:
+/* To be used with NSRunLoop's performSelector:target:argument:order:modes:  */
 enum {
     EOEditingContextFlushChangesRunLoopOrdering	= 300000
 };
 
-extern NSString *EOObjectsChangedInEditingContextNotification;
-
-extern NSString *EOEditingContextDidSaveChangesNotification;
+GDL2CONTROL_EXPORT NSString *EOObjectsChangedInEditingContextNotification;
+GDL2CONTROL_EXPORT NSString *EOEditingContextDidSaveChangesNotification;
 
 
 @interface NSObject (EOEditingContext)
@@ -264,9 +262,9 @@ extern NSString *EOEditingContextDidSaveChangesNotification;
 
 @end
 
-//
-// Delegation methods
-//
+/*
+ * Methods implemented by the delegate.
+ */
 @interface NSObject (EOEditingContextDelegation)
 
 - (BOOL)editingContext: (EOEditingContext *)editingContext
@@ -285,16 +283,16 @@ shouldInvalidateObject: (id)object
 - (NSArray *)editingContext: (EOEditingContext *)editingContext
 shouldFetchObjectsDescribedByFetchSpecification: (EOFetchSpecification *)fetchSpecification;
 
-- (BOOL) editingContext: (EOEditingContext *)editingContext
+- (BOOL)editingContext: (EOEditingContext *)editingContext
 shouldMergeChangedObject: (id)object;
 
 - (void)didMergeChangedObjectsInEditingContext: (EOEditingContext *)editingContext;
 
 @end
 
-//
-// EOEditors informal protocol
-//
+/*
+ * Informal protocol for EOEditors.
+ */
 @interface NSObject (EOEditors)
 
 - (BOOL)editorHasChangesForEditingContext: (EOEditingContext *)editingContext;
@@ -303,9 +301,9 @@ shouldMergeChangedObject: (id)object;
 
 @end
 
-//
-// EOMessageHandler informal protocol
-//
+/*
+ * Informal protocol for EOMessageHandlers.
+ */
 @interface NSObject (EOMessageHandlers)
 
 - (void)editingContext: (EOEditingContext *)editingContext
@@ -349,26 +347,30 @@ shouldContinueFetchingWithCurrentObjectCount: (unsigned)count
 - (void)undo: (id)sender;
 - (void)redo: (id)sender;
 
-//Private
--(NSString*)objectsDescription;
--(NSString*)unprocessedDescription;
+/*
+ * Private
+ */
+-(NSString *)objectsDescription;
+-(NSString *)unprocessedDescription;
 
 @end
 
-@interface EOEditingContext(EOMultiThreaded) <NSLocking>
+@interface EOEditingContext (EOMultiThreaded) <NSLocking>
 
 + (void)setEOFMultiThreadedEnabled: (BOOL)flag;
 - (void)lock;
 - (void)unlock;
-- (BOOL) tryLock;
+- (BOOL)tryLock;
 
 @end
 
-// Informations
-@interface EOEditingContext(EOEditingContextInfo)
+/*
+ * Information
+ */
+@interface EOEditingContext (EOEditingContextInfo)
 
-- (NSDictionary*)unprocessedInfo;
-- (NSDictionary*)pendingInfo;
+- (NSDictionary *)unprocessedInfo;
+- (NSDictionary *)pendingInfo;
 
 @end
 

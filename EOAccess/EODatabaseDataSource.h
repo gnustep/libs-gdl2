@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EODatabaseDataSource.m
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -54,11 +54,11 @@
   } _flags;
 }
 
-- initWithEditingContext: (EOEditingContext *)anEditingContext
-	      entityName: (NSString *)anEntityName;
-- initWithEditingContext: (EOEditingContext *)editingContext
-	      entityName: (NSString *)entityName
-  fetchSpecificationName: (NSString *)fetchName;
+- (id)initWithEditingContext: (EOEditingContext *)editingContext
+		  entityName: (NSString *)entityName;
+- (id)initWithEditingContext: (EOEditingContext *)editingContext
+		  entityName: (NSString *)entityName
+      fetchSpecificationName: (NSString *)fetchName;
 
 - (EOEntity *)entity;
 

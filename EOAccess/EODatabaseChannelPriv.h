@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EODatabaseChannelPriv.h
 
    Copyright (C) 2002 Free Software Foundation, Inc.
@@ -33,16 +33,16 @@
 
 
 @interface EODatabaseChannel (EODatabaseChannelPrivate)
-- (NSArray*) _propertiesToFetch;
+- (NSArray *)_propertiesToFetch;
 - (void)_setCurrentEntityAndRelationshipWithFetchSpecification: (EOFetchSpecification *)fetch;
 -(void)_selectWithFetchSpecification: (EOFetchSpecification *)fetch
                       editingContext: (EOEditingContext *)context;
-- (void) _buildNodeList: (id)param0
-             withParent: (id)param1;
-- (id) currentEditingContext;
-- (void) _cancelInternalFetch;
-- (void) _closeChannel;
-- (void) _openChannel;
+- (void)_buildNodeList: (id)param0
+	    withParent: (id)param1;
+- (id)currentEditingContext;
+- (void)_cancelInternalFetch;
+- (void)_closeChannel;
+- (void)_openChannel;
 @end
 
 #endif /* __EODatabaseChannelPriv_h__ */

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOSQLExpression.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -91,8 +91,10 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 				 qualifier: (EOQualifier *)qualifier
 				    entity: (EOEntity *)entity;
 
+/* The endity parameter is typed to 'id' for signature compatibility
+   with EOF.  Note that only EOEntity * objects should be passed.  */
 + (EOSQLExpression *)deleteStatementWithQualifier: (EOQualifier *)qualifier
-					   entity: entity;
+					   entity: (id)entity;
 
 + (EOSQLExpression *)selectStatementForAttributes: (NSArray *)attributes
 					     lock: (BOOL)yn
@@ -101,7 +103,7 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 
 + (id)sqlExpressionWithEntity: (EOEntity *)entity;
 
-- initWithEntity: (EOEntity *)entity;
+- (id)initWithEntity: (EOEntity *)entity;
 
 - (NSMutableDictionary *)aliasesByRelationshipPath;
 - (EOEntity *)entity;
@@ -112,7 +114,7 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 - (NSMutableString *)orderByString;
 - (NSString *)whereClauseString;
 - (NSString *)statement;
-- (void)setStatement:(NSString *)statement;
+- (void)setStatement: (NSString *)statement;
 - (NSString *)lockClause;
 
 - (NSString *)tableListWithRootEntity: (EOEntity *)entity;
@@ -175,9 +177,7 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 			 value: (NSString *)value;
 
 + (NSString *)formatStringValue: (NSString *)string;
-
 + (NSString *)formatValue: (id)value forAttribute: (EOAttribute *)attribute;
-
 + (NSString *)formatSQLString: (NSString *)sqlString
 		       format: (NSString *)format;
 
@@ -199,15 +199,10 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 - (BOOL)useAliases;
 
 - (NSString *)sqlStringForSchemaObjectName: (NSString *)name;
-
 - (NSString *)sqlStringForAttributeNamed: (NSString *)name;
-
 - (NSString *)sqlStringForSelector: (SEL)selector value: (id)value;
-
 - (NSString *)sqlStringForValue: (id)value attributeNamed: (NSString *)string;
-
-- (NSString *)sqlStringForAttribute: (EOAttribute *)anAttribute;
-
+- (NSString *)sqlStringForAttribute: (EOAttribute *)attribute;
 - (NSString *)sqlStringForAttributePath: (NSArray *)path;
 
 - (void)appendItem: (NSString *)itemString
@@ -219,17 +214,15 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 
 
 - (NSMutableDictionary *)bindVariableDictionaryForAttribute: (EOAttribute *)attribute
-						      value: value;
+						      value: (id)value;
 
 - (BOOL)shouldUseBindVariableForAttribute: (EOAttribute *)att;
-
 - (BOOL)mustUseBindVariableForAttribute: (EOAttribute *)att;
 
 + (BOOL)useBindVariables;
 + (void)setUseBindVariables: (BOOL)yn;
 
 - (NSArray *)bindVariableDictionaries;
-
 - (void)addBindVariableDictionary: (NSMutableDictionary *)binding;
 
 @end

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOAttribute+GSDoc.h <title></title>
 
    Copyright (C) 2000-2002 Free Software Foundation, Inc.

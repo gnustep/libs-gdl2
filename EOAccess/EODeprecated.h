@@ -1,4 +1,4 @@
-/*
+/* -*-objc-*-
  EODeprecated.h
 
  Copyright (C) 2002 Free Software Foundation, Inc.

@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOAdaptorChannel.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -91,7 +91,7 @@
 + (EOAdaptorChannel *)adaptorChannelWithAdaptorContext: (EOAdaptorContext *)adaptorContext;
 
 /* Initializing an adaptor context */
-- initWithAdaptorContext: (EOAdaptorContext *)adaptorContext;
+- (id)initWithAdaptorContext: (EOAdaptorContext *)adaptorContext;
 
 /* Getting the adaptor context */
 - (EOAdaptorContext *)adaptorContext;
@@ -117,7 +117,7 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 /* Fetching rows */
 - (void)selectAttributes: (NSArray *)attributes
       fetchSpecification: (EOFetchSpecification *)fetchSpecification
-		    lock: (BOOL)aLockFlag
+		    lock: (BOOL)lockFlag
 		  entity: (EOEntity *)entity;
 
 - (void)lockRowComparingAttributes: (NSArray *)atts
@@ -150,11 +150,11 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 - (void)addStoredProceduresNamed: (NSArray *)storedProcedureNames
 			 toModel: (EOModel *)model;
 
-- (void)setDebugEnabled:(BOOL)yn;
+- (void)setDebugEnabled: (BOOL)yn;
 - (BOOL)isDebugEnabled;
 
 - (id)delegate;
-- (void)setDelegate:(id)delegate;
+- (void)setDelegate: (id)delegate;
 
 - (NSMutableDictionary *)dictionaryWithObjects: (id *)objects
 				 forAttributes: (NSArray *)attributes
@@ -182,50 +182,50 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 
 @interface NSObject (EOAdaptorChannelDelegation)
 
-- (NSArray *)adaptorChannel: channel
+- (NSArray *)adaptorChannel: (id)channel
       willPerformOperations: (NSArray *)operations;
 
-- (NSException *)adaptorChannel: channel
+- (NSException *)adaptorChannel: (id)channel
 	   didPerformOperations: (NSArray *)operations
 		      exception: (NSException *)exception;
 
-- (BOOL)adaptorChannel: channel
+- (BOOL)adaptorChannel: (id)channel
 shouldSelectAttributes: (NSArray *)attributes
     fetchSpecification: (EOFetchSpecification *)fetchSpecification
 		  lock: (BOOL)flag
 		entity: (EOEntity *)entity;
 
-- (void)adaptorChannel: channel
+- (void)adaptorChannel: (id)channel
    didSelectAttributes: (NSArray *)attributes
     fetchSpecification: (EOFetchSpecification *)fetchSpecification
 		  lock: (BOOL) flag
 		entity: (EOEntity *)entity;
 
-- (void)adaptorChannelWillFetchRow: channel;
+- (void)adaptorChannelWillFetchRow: (id)channel;
 
-- (void)adaptorChannel: channel didFetchRow: (NSMutableDictionary *)row;
+- (void)adaptorChannel: (id)channel didFetchRow: (NSMutableDictionary *)row;
 
-- (void)adaptorChannelDidChangeResultSet: channel;
+- (void)adaptorChannelDidChangeResultSet: (id)channel;
 
-- (void)adaptorChannelDidFinishFetching: channel;
+- (void)adaptorChannelDidFinishFetching: (id)channel;
 
-- (BOOL)adaptorChannel: channel
-    shouldEvaluateExpression: (EOSQLExpression *)expression;
+- (BOOL)adaptorChannel: (id)channel
+shouldEvaluateExpression: (EOSQLExpression *)expression;
 
-- (void)adaptorChannel: channel
-    didEvaluateExpression: (EOSQLExpression *)expression;
+- (void)adaptorChannel: (id)channel
+ didEvaluateExpression: (EOSQLExpression *)expression;
 
-- (NSDictionary *)adaptorChannel: channel
+- (NSDictionary *)adaptorChannel: (id)channel
     shouldExecuteStoredProcedure: (EOStoredProcedure *)procedure
 		      withValues: (NSDictionary *)values;
 
-- (void)adaptorChannel: channel
+- (void)adaptorChannel: (id)channel
 didExecuteStoredProcedure: (EOStoredProcedure *)procedure
 	    withValues: (NSDictionary *)values;
 
-- (NSDictionary *)adaptorChannelShouldConstructStoredProcedureReturnValues: channel;
+- (NSDictionary *)adaptorChannelShouldConstructStoredProcedureReturnValues: (id)channel;
 
-- (NSDictionary *)adaptorChannel: channel
+- (NSDictionary *)adaptorChannel: (id)channel
 shouldReturnValuesForStoredProcedure: (NSDictionary *)returnValues;
 
 @end /* NSObject(EOAdaptorChannelDelegation) */

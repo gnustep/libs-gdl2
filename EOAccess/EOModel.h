@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOModel.h
 
    Copyright (C) 2000-2002 Free Software Foundation, Inc.
@@ -79,7 +79,7 @@
 + (EOModel *)model;
 
 /** Getting the filename **/
-- (NSString*)path;
+- (NSString *)path;
 
 /** Getting the name **/
 - (NSString *)name;
@@ -87,7 +87,7 @@
 - (NSString *)adaptorClassName;
 
 /** Using entities **/
-- (EOEntity *)entityNamed: (NSString*)name;
+- (EOEntity *)entityNamed: (NSString *)name;
 - (NSArray *)entities;
 - (NSArray *)entityNames;
 
@@ -96,7 +96,7 @@
 - (NSArray *)storedProcedures;
 
 /** Getting an object's entity **/
-- (EOEntity *)entityForObject: object;
+- (EOEntity *)entityForObject: (id)object;
 
 /** Accessing the connection dictionary **/
 - (NSDictionary *)connectionDictionary;
@@ -105,7 +105,7 @@
 - (NSDictionary *)userInfo;
 
 /** Accessing documentation comments **/ 
-- (NSString*)docComment;
+- (NSString *)docComment;
 
 - (EOModelGroup *)modelGroup;
 
@@ -116,15 +116,15 @@
 @interface EOModel (EOModelFileAccess)
 
 + (EOModel *)modelWithContentsOfFile: (NSString *)path;
-- initWithContentsOfFile: (NSString *)path;
+- (id)initWithContentsOfFile: (NSString *)path;
 - (void)writeToFile: (NSString *)path;
 
 @end
 
 @interface EOModel (EOModelPropertyList) <EOPropertyListEncoding>
 
-- (id) initWithTableOfContentsPropertyList: (NSDictionary *)tableOfContents
-                                      path: (NSString *)path;
+- (id)initWithTableOfContentsPropertyList: (NSDictionary *)tableOfContents
+				     path: (NSString *)path;
 - (void)encodeTableOfContentsIntoPropertyList: (NSMutableDictionary *)propertyList;
 
 - (void)encodeIntoPropertyList: (NSMutableDictionary *)propertyList;
@@ -174,7 +174,7 @@
 - (void)loadAllModelObjects;
 
 /* Checking references */
-- (NSArray *)referencesToProperty: property; 
+- (NSArray *)referencesToProperty: (id)property; 
 - (NSArray *)externalModelsReferenced;
 
 @end

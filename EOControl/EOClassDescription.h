@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    EOClassDescription.h
 
    Copyright (C) 2000 Free Software Foundation, Inc.
@@ -35,6 +35,7 @@
 #include <Foundation/Foundation.h>
 #endif
 
+#include <EOControl/EODefines.h>
 
 @class NSDictionary;
 @class NSFormatter;
@@ -65,7 +66,9 @@ typedef enum
 + (void)setClassDelegate: (id)delegate;
 + (id)classDelegate;
 
-// Must be implemented by subclasses.
+/*
+ * Subclass responsibility.
+ */
 - (NSString *)entityName;
 
 - (id)createInstanceWithEditingContext: (EOEditingContext *)editingContext
@@ -86,10 +89,10 @@ fromFetchInEditingContext: (EOEditingContext *)editingContext;
 - (NSArray *)toManyRelationshipKeys;
 
 /** returns a new autoreleased mutable dictionary to store properties **/
-- (NSMutableDictionary*) dictionaryForInstanceProperties;
+- (NSMutableDictionary *)dictionaryForInstanceProperties;
 
 - (EORelationship *)relationshipNamed: (NSString *)relationshipName;
-- (EORelationship *)anyRelationshipNamed: (NSString *)relationshipNamed;
+- (EORelationship *)anyRelationshipNamed: (NSString *)relationshipName;
 
 - (NSString *)inverseForRelationshipKey: (NSString *)relationshipKey;
 
@@ -103,7 +106,7 @@ fromFetchInEditingContext: (EOEditingContext *)editingContext;
 
 - (NSString *)displayNameForKey: (NSString *)key;
 
-- (NSString *)userPresentableDescriptionForObject: (id)anObject;
+- (NSString *)userPresentableDescriptionForObject: (id)object;
 
 - (NSException *)validateValue: (id *)valueP forKey: (NSString *)key;
 
@@ -116,9 +119,9 @@ fromFetchInEditingContext: (EOEditingContext *)editingContext;
 
 @interface NSObject (EOInitialization)
 
-- initWithEditingContext: (EOEditingContext *)ec
-	classDescription: (EOClassDescription *)classDesc
-		globalID: (EOGlobalID *)globalID;
+- (id)initWithEditingContext: (EOEditingContext *)editingContext
+	    classDescription: (EOClassDescription *)classDescription
+		    globalID: (EOGlobalID *)globalID;
 
 @end
 
@@ -149,12 +152,9 @@ fromFetchInEditingContext: (EOEditingContext *)editingContext;
 
 @end
 
-// Notifications:
-
-extern NSString *EOClassDescriptionNeededNotification;
-extern NSString *EOClassDescriptionNeededForClassNotification;
-
-extern NSString *EOClassDescriptionNeededForEntityNameNotification;
+GDL2CONTROL_EXPORT NSString *EOClassDescriptionNeededNotification;
+GDL2CONTROL_EXPORT NSString *EOClassDescriptionNeededForClassNotification;
+GDL2CONTROL_EXPORT NSString *EOClassDescriptionNeededForEntityNameNotification;
 
 
 @interface NSArray (EOShallowCopy)
@@ -187,21 +187,25 @@ extern NSString *EOClassDescriptionNeededForEntityNameNotification;
 
 @interface NSObject (EOKeyRelationshipManipulation)
 
-- (void)addObject: object toPropertyWithKey: (NSString *)key;
+- (void)addObject: (id)object toPropertyWithKey: (NSString *)key;
 
-- (void)removeObject: object fromPropertyWithKey: (NSString *)key;
+- (void)removeObject: (id)object fromPropertyWithKey: (NSString *)key;
 
-- (void)addObject: object toBothSidesOfRelationshipWithKey: (NSString *)key;
-- (void)removeObject: object
+- (void)addObject: (id)object 
+toBothSidesOfRelationshipWithKey: (NSString *)key;
+
+- (void)removeObject: (id)object
 fromBothSidesOfRelationshipWithKey: (NSString *)key;
 
 @end
 
-// Validation exceptions (with name EOValidationException)
-extern NSString *EOValidationException;
-extern NSString *EOAdditionalExceptionsKey;
-extern NSString *EOValidatedObjectUserInfoKey;
-extern NSString *EOValidatedPropertyUserInfoKey;
+/*
+ * Validation exceptions (with name EOValidationException)
+ */
+GDL2CONTROL_EXPORT NSString *EOValidationException;
+GDL2CONTROL_EXPORT NSString *EOAdditionalExceptionsKey;
+GDL2CONTROL_EXPORT NSString *EOValidatedObjectUserInfoKey;
+GDL2CONTROL_EXPORT NSString *EOValidatedPropertyUserInfoKey;
 
 @interface NSException (EOValidationError)
 
@@ -214,7 +218,7 @@ extern NSString *EOValidatedPropertyUserInfoKey;
 @interface NSObject (EOClassDescriptionClassDelegate)
 
 - (BOOL)shouldPropagateDeleteForObject: (id)object
-		      inEditingContext: (EOEditingContext *)ec
+		      inEditingContext: (EOEditingContext *)editingContext
 		    forRelationshipKey: (NSString *)key;
 
 @end
@@ -230,7 +234,7 @@ extern NSString *EOValidatedPropertyUserInfoKey;
 @end
 
 @interface NSObject (_EOEditingContext)
-- (EOEditingContext*)editingContext;
+- (EOEditingContext *)editingContext;
 @end
 
 #endif
