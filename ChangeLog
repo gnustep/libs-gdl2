@@ -6,6 +6,13 @@
 	* EOControl/EOKeyValueCoding.m: Add EOTargetObjectUserInfoKey and
 	EOUnknownUserInfoKey.
 	([NSObject +flushAllKeyBindings]): Add method.
+	* GNUmakefile: Remove setting of GNUSTEP_MAKEFILES.
+	* EOAccess/GNUmakefile: Ditto.
+	* EOAdaptors/GNUmakefile.in: Ditto.
+	* EOAdaptors/Postgres95/GNUmakefile.in: Ditto.
+	* EOControl/GNUmakefile: Ditto.
+	* EOModeler/GNUmakefile: Ditto.
+	* Tools/GNUmakefile: Ditto.
 
 2003-04-18  Mirko Viviani  <mirko@objectlab.org>
 
