@@ -51,17 +51,24 @@ static NSString *someString = @"wwwwwwww";
 
 
 
-float vfmaxf (int n,float aFloat,...)
+static float
+vfmaxf (int n, float aFloat, ...)
 {
   float champion=0.0; 
   va_list list;
+
   if (n == 0)
-    return 0;
+    {
+      return 0;
+    }
+
   va_start(list,aFloat);
   champion = aFloat;
+
   while (n > 1) 
     {
       float contender;
+
       contender = (float)va_arg(list,double);
       //printf("%f vs %f ",contender,champion); 
       // fmaxf is c99 or i'd use it.. 
@@ -69,6 +76,7 @@ float vfmaxf (int n,float aFloat,...)
       //printf("champion: %f\n",champion); 
       n--; 
     }
+
   va_end(list);
   return champion;
 }
@@ -76,11 +84,13 @@ float vfmaxf (int n,float aFloat,...)
 
 
 @implementation Postgres95LoginPanel : EOLoginPanel
+
 - (void) dealloc
 {
-  RELEASE(_databases);
-  RELEASE(_win);
+  DESTROY(_databases);
+  DESTROY(_win);
 }
+
 - (id)init
 {
   if ((self = [super init]))
@@ -235,6 +245,7 @@ float vfmaxf (int n,float aFloat,...)
 			     rect1.size.width,
 			     rect2.size.width,
 			     rect3.size.width);
+
       maxLabelHeight = vfmaxf(3,
 			      rect1.size.height,
 			      rect2.size.height,
@@ -267,13 +278,11 @@ float vfmaxf (int n,float aFloat,...)
 	                  [databaseLabel frame].size.height + (spacer*3);
       [userNameLabel setFrame:tempRect];
       
-      
-      
-       userNameField = [[NSTextField alloc] initWithFrame:
-                    NSMakeRect([userNameLabel frame].origin.x +
-			       [userNameLabel frame].size.width+spacer,
-                               [userNameLabel frame].origin.y,
-			       0,0)];
+      tempRect = NSMakeRect([userNameLabel frame].origin.x +
+			    [userNameLabel frame].size.width+spacer,
+			    [userNameLabel frame].origin.y,
+			    0,0);
+      userNameField = [[NSTextField alloc] initWithFrame: tempRect];
        
       [userNameField setStringValue:someString];
       [userNameField sizeToFit];
@@ -282,26 +291,25 @@ float vfmaxf (int n,float aFloat,...)
       [userNameField setAction:@selector(ok:)];
       
       maxFieldWidth=[userNameField frame].size.width; 
-      passwdField = [[NSSecureTextField alloc] 
-		      initWithFrame:
-			NSMakeRect([passwdLabel frame].origin.x +
-				     [passwdLabel frame].size.width + spacer,
-				   [passwdLabel frame].origin.y,
-				   0,
-				   0)];
+
+      tempRect = NSMakeRect([passwdLabel frame].origin.x +
+			    [passwdLabel frame].size.width + spacer,
+			    [passwdLabel frame].origin.y,
+			    0, 0);
+      passwdField = [[NSSecureTextField alloc] initWithFrame: tempRect];
 
       [passwdField setStringValue:someString];
       [passwdField sizeToFit]; 
       [passwdField setStringValue:@""];
       [passwdField setTarget:self];
       [passwdField setAction:@selector(self:)];
-      
-      databaseField = [[NSTextField alloc]
-			initWithFrame:
-			  NSMakeRect([databaseLabel frame].origin.x +
-				     [databaseLabel frame].size.width + spacer,
-				     [databaseLabel frame].origin.y,
-				     0,0)]; 
+
+      tempRect = NSMakeRect([databaseLabel frame].origin.x +
+			    [databaseLabel frame].size.width + spacer,
+			    [databaseLabel frame].origin.y,
+			    0,0); 
+      databaseField = [[NSTextField alloc] initWithFrame: tempRect];
+
       [databaseField setStringValue:someString];
       [databaseField sizeToFit];
       [databaseField setStringValue:@""];
@@ -324,14 +332,13 @@ float vfmaxf (int n,float aFloat,...)
 				   (maxLabelHeight*3)+
 				   maxButtonHeight + (spacer *5)));
        
-       tempRect.origin.x = (screenSize.width/2) - (tempRect.size.width/2),
-       tempRect.origin.y = (screenSize.height/2) - (tempRect.size.height/2),
+      tempRect.origin.x = (screenSize.width/2) - (tempRect.size.width/2);
+      tempRect.origin.y = (screenSize.height/2) - (tempRect.size.height/2);
 
-       _win = [[NSWindow alloc]
-                  initWithContentRect: tempRect 
-                            styleMask: NSTitledWindowMask
-                              backing: NSBackingStoreRetained
-                                defer: YES];
+      _win = [[NSWindow alloc] initWithContentRect: tempRect 
+			       styleMask: NSTitledWindowMask
+			       backing: NSBackingStoreRetained
+			       defer: YES];
       [_win setTitle: windowTitle];
       [_win setDelegate:self];
       rect1 = [NSWindow contentRectForFrameRect:[_win frame]
@@ -395,6 +402,7 @@ float vfmaxf (int n,float aFloat,...)
   EOAdaptorChannel  *channel;
   NSArray *databaseNames = nil;
   BOOL exceptionOccured = NO;
+
   aMod = [EOModel new];
   [aMod   setName: @"AvailableDatabases"];
   [aMod   setAdaptorName: @"Postgres95"];
