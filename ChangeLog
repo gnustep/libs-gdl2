@@ -1,3 +1,13 @@
+2004-05-07  David Ayers  <d.ayers@inode.at>
+	    Alexander Malmberg <alexander@malmberg.org>
+
+	* EOControl/EONSAddOns.h/m
+	([NSString initialCapitalizedString]): New method.
+	* EOControl/EOKeyValueCoding.m
+	([NSArray-valueForKey:]): Allow ommitting keys for computational
+	key paths.  Correct key capitalization.  Update documentation.
+	([NSArray-valueForKeyPath]): Ditto.
+	
 2004-04-23  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.m ([EOAdaptor availableAdaptorNames]):

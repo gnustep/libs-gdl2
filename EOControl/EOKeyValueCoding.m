@@ -191,7 +191,8 @@ initialize(void)
  * returned by invoking [NSObject-valueForKey:]
  * for each item in the receiver, substituting EONull for nil.
  * Keys formated like "@function.someKey" are resolved by invoking
- * [NSArray-computeFuncionWithKey:] "someKey" on the reviever.
+ * [NSArray-computeFuncionWithKey:] "someKey" on the receiver.
+ * If the key is omitted, the function will be called with nil.
  * The following functions are supported by default:
  * <list>
  *  <item>@sum   -> -computeSumForKey:</item>
@@ -200,10 +201,12 @@ initialize(void)
  *  <item>@min   -> -computeMinForKey:</item>
  *  <item>@count -> -computeCountForKey:</item>
  * </list>
- * As a special case the @count function does not require a key,
- * in fact, any key supplied is ignored.
- * As another special case the key "count" is not forwarded to each object
- * of the receiver but returns the number of objects of the receiver.<br/>
+ * Computational components generally expect a key to be passed to
+ * the function.  This is not mandatory in which case 'nil' will be supplied.
+ * (i.e. you may use "@myFuncWhichCanHandleNil" as a key.)
+ * As a special case the key "count" does not actually invoke
+ * computeCountForKey: on receiver but returns the number of objects of 
+ * the receiver.<br/>
  * There is no special handling of EONull.  Therefore expect exceptions
  * on EONull not responding to decimalValue and compare: when the are
  * used with this mechanism. 
@@ -222,21 +225,32 @@ initialize(void)
   else if ([key hasPrefix:@"@"])
     {
       NSString *selStr;
+      NSString *attrStr;
       SEL       sel;
       NSRange   r;
 
       r = [key rangeOfString:@"."];
-      NSAssert(r.location!=NSNotFound,
-	       @"Invalid computational key structure");
-      r.length   = r.location - 1; /* set length of key (w/o @) */
-      r.location = 1;              /* remove leading '@' */
-      selStr = [NSString stringWithFormat: @"compute%@ForKey:",
-		   [[key substringWithRange: r] capitalizedString]];
-      sel = NSSelectorFromString(selStr);
-      NSAssert(sel!=NULL,@"Invalid computational key");
+      if (r.location == NSNotFound)
+	{
+	  r.length   = [key length] - 1; /* set length of key (w/o @) */
+	  r.location = 1;                /* remove leading '@' */
+	  attrStr = nil;
+	}
+      else
+	{
+	  r.length  = r.location - 1;    /* set length of key (w/o @) */
+	  r.location = 1;                /* remove leading '@' */
+                                         /* skip located '.' */
+	  attrStr = [key substringFromIndex: NSMaxRange(r) + 1];
+	}
 
-      result = [self performSelector: sel               /* skip located '.' */
-		     withObject: [key substringFromIndex: NSMaxRange(r) + 1]];
+      selStr = [NSString stringWithFormat: @"compute%@ForKey:",
+		   [[key substringWithRange: r] initialCapitalizedString]];
+      sel = NSSelectorFromString(selStr);
+      NSAssert1(sel!=NULL, @"Invalid computational key %@", selStr);
+
+      result = [self performSelector: sel
+		     withObject: attrStr];
     }
   else
     {
@@ -253,19 +267,17 @@ initialize(void)
  * EOKeyValueCoding protocol<br/>
  * Returns the object returned by invoking [NSObject-valueForKeyPath:]
  * on the object returned by invoking [NSObject-valueForKey:]
- * on the reciever with the first key component supplied by the key path,
+ * on the receiver with the first key component supplied by the key path,
  * with rest of the key path.<br/>
  * If the first component starts with "@", the first component includes the key
  * of the computational key component and as the form "@function.key".
  * If there is only one key component, this method invokes 
  * [NSObject-valueForKey:] in the receiver with that component.
- * All computational components are expected to specifiy a key with the
- * exception of @count, in which case the key maybe omitted.
  * Unlike the reference implementation GDL2 allows you to continue the keyPath
- * in a meaningfull way after @count but the path must then contain a key as
+ * in a meaningful way after @count but the path must then contain a key as
  * the computational key structure implies.
  * (i.e. you may use "@count.self.decimalValue") The actual key "self" is
- * infact ignored during the computation, but the formal structure must be
+ * in fact ignored during the computation, but the formal structure must be
  * maintained.<br/>
  * It should be mentioned that the reference implementation
  * would return the result of "@count" independent
@@ -281,15 +293,14 @@ initialize(void)
 
   EOFLOGObjectFnStartCond(@"EOKVC");
   r = [keyPath rangeOfString: @"."];
-  if ([keyPath hasPrefix: @"@"] == YES &&
-      [keyPath isEqualToString: @"@count"] == NO)
+  if ([keyPath hasPrefix: @"@"] == YES
+      && [keyPath isEqualToString: @"@count"] == NO
+      && r.location != NSNotFound)
     {
       NSRange rr;
       unsigned length;
 
       length = [keyPath length];
-      NSAssert1(r.location!=NSNotFound && length > r.location,
-		@"invalid computational keyPath:%@", keyPath);
 
       rr.location = NSMaxRange(r);
       rr.length   = length - rr.location;

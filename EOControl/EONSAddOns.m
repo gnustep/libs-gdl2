@@ -54,6 +54,7 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 #endif
+#include <GNUstepBase/Unicode.h>
 #include <GNUstepBase/GSLock.h>
 
 #include <EOControl/EONSAddOns.h>
@@ -516,6 +517,22 @@ GSUseStrictWO451Compatibility (NSString *key)
     }
 
   return version;
+}
+@end
+
+@implementation NSString (Extensions)
+- (NSString *)initialCapitalizedString
+{
+  unichar *chars;
+  unsigned int length = [self length];
+
+  chars = objc_malloc(length * sizeof(unichar));
+  [self getCharacters: chars];
+  chars[0]=uni_toupper(chars[0]);
+
+  return AUTORELEASE([[NSString alloc] initWithCharactersNoCopy: chars
+				       length: length
+				       freeWhenDone: YES]);
 }
 @end
 

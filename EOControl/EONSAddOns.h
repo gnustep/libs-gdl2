@@ -94,6 +94,10 @@ GSUseStrictWO451Compatibility(NSString *key);
 - (int)parsedFirstVersionSubstring;
 @end
 
+@interface NSString (Extensions)
+- (NSString *)initialCapitalizedString;
+@end
+
 //Ayers: Review
 /* Do not rely on these.  */
 @interface NSString (StringToNumber)
