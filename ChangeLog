@@ -1,5 +1,9 @@
 2002-12-04  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
+	* EOControl/EOKeyValueCoding.m ([NSArray -valueForKeyPath:]): 
+	implemented the case of invoking an aggregate function using a simple
+	key.
+
 	* EOControl/EOGenericRecord.m ([EOGenericRecord
 	-_infoForInstanceVariableNamed:retType:retSize:retOffset:]): renamed
 	GSObjCFindInstanceVariable in GSFindInstanceVariable

@@ -345,47 +345,47 @@ static char rcsId[] = "$Id$";
         {
 	  NSMutableString *selString = [NSMutableString stringWithCapacity: 10];
           NSArray *pathArray = [keyPath componentsSeparatedByString: @"."];
+	  NSString *fn = [pathArray objectAtIndex:0];
+	  NSString *key = nil;
+	  SEL computeSelector;
+	  char l;
 
-          if ([pathArray count] == 1)
-            {
-            }
-          else
-            {
-              NSString* fn= [pathArray objectAtIndex:0];
-              NSString* key=nil;
-              SEL computeSelector;
-              char l;
-              str=[fn cString];
-              l = str[1];
+	  str = [fn cString];
+	  l = str[1];
                             
-              if (islower(l))
-                l = toupper(l);
+	  if (islower(l))
+	    l = toupper(l);
               
-              [selString appendString: @"compute"];
-              [selString appendString: [NSString stringWithCString: &l
-						 length: 1]];
-              [selString appendString: [NSString stringWithCString: &str[2]]];
-              [selString appendString: @"ForKey:"];
+	  [selString appendString: @"compute"];
+	  [selString appendString: [NSString stringWithCString: &l
+					     length: 1]];
+	  [selString appendString: [NSString stringWithCString: &str[2]]];
+	  [selString appendString: @"ForKey:"];
 
-              computeSelector = NSSelectorFromString(selString);
-              if ([pathArray count] > 1)
-                key = [pathArray objectAtIndex: 1];
+	  computeSelector = NSSelectorFromString(selString);
 
-              result = [self performSelector: computeSelector
+	  if ([pathArray count] > 1)
+	    {
+	      key = [pathArray objectAtIndex: 1];
+
+	      result = [self performSelector: computeSelector
 			     withObject: key];
+	    }
+	  else
+	    result = [self performSelector: computeSelector
+			   withObject: @""];
 
-              if (result && [pathArray count] > 2)
-                {
-                  NSArray *rightKeyPathArray
-		    = [pathArray subarrayWithRange:
-				   NSMakeRange(2, [pathArray count] - 2)];
-                  NSString *rightKeyPath
-		    = [rightKeyPathArray componentsJoinedByString: @"."];
+	  if (result && [pathArray count] > 2)
+	    {
+	      NSArray *rightKeyPathArray
+		= [pathArray subarrayWithRange:
+			       NSMakeRange(2, [pathArray count] - 2)];
+	      NSString *rightKeyPath
+		= [rightKeyPathArray componentsJoinedByString: @"."];
 
-                  result = [result valueForKeyPath: rightKeyPath];
-                }
-            }
-        }
+	      result = [result valueForKeyPath: rightKeyPath];
+	    }
+	}
     }
   else if ([keyPath isEqualToString: @"count"]) //Special case: Apple Doc is wrong; here we return -count
     {
