@@ -301,12 +301,17 @@ RCS_ID("$Id$")
                              detailKey: detailKey];
 }
 
-- (void)insertObject: object
+/**
+ * Overrides superclasses implementation but doesn't do anything
+ * useful.  You must insert the object into the editing context
+ * manually.
+ */
+- (void)insertObject: (id)object
 {
-  [_editingContext insertObject: object];
+
 }
 
-- (void)deleteObject: object
+- (void)deleteObject: (id)object
 {
   [_editingContext deleteObject: object];
 }
