@@ -65,8 +65,8 @@ RCS_ID("$Id$")
 #include <EOControl/EOObjectStoreCoordinator.h>
 #include <EOControl/EONull.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
 
+#include "EOPrivate.h"
 #include "EOEntityPriv.h"
 
 @implementation EOSQLQualifier
@@ -272,7 +272,7 @@ RCS_ID("$Id$")
     {
       initialized=YES;
 
-      GDL2PrivInit();
+      GDL2_EOAccessPrivateInit();
     };
 };
 

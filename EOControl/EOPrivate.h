@@ -1,5 +1,5 @@
 /* -*-objc-*-
-   EOPriv.h
+   EOPrivate.h
 
    Copyright (C) 2005 Free Software Foundation, Inc.
 
@@ -24,13 +24,17 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-#ifndef __EOPriv_h__
-#define __EOPriv_h__
+#ifndef __EOControl_EOPrivate_h__
+#define __EOControl_EOPrivate_h__
 
-#include <EOControl/EODefines.h>
+#include "EODefines.h"
 
 @class NSNumber;
 @class EONull;
+@class EOMutableKnownKeyDictionary;
+@class EOMKKDInitializer;
+@class EOEditingContext;
+@class EOGlobalID;
 
 typedef unsigned int (*GDL2IMP_UINT)(id, SEL, ...);
 typedef BOOL (*GDL2IMP_BOOL)(id, SEL, ...);
@@ -51,9 +55,7 @@ GDL2CONTROL_EXPORT Class GDL2NSDataClass;
 GDL2CONTROL_EXPORT Class GDL2EOFaultClass;
 GDL2CONTROL_EXPORT Class GDL2MKKDClass;
 GDL2CONTROL_EXPORT Class GDL2EOMKKDInitializerClass;
-GDL2CONTROL_EXPORT Class GDL2EODatabaseContextClass;
 GDL2CONTROL_EXPORT Class GDL2EOEditingContextClass;
-GDL2CONTROL_EXPORT Class GDL2EOAttributeClass;
 
 // ==== Selectors ====
 GDL2CONTROL_EXPORT SEL GDL2_newSEL;
@@ -89,12 +91,9 @@ GDL2CONTROL_EXPORT SEL GDL2_takeValueForKeySEL;
 GDL2CONTROL_EXPORT SEL GDL2_validateValueForKeySEL;
 
 // ---- GDL2 Selectors ----
-GDL2CONTROL_EXPORT SEL GDL2_snapshotForGlobalIDSEL;
-GDL2CONTROL_EXPORT SEL GDL2_snapshotForGlobalIDSEL;
 GDL2CONTROL_EXPORT SEL GDL2_recordObjectGlobalIDSEL;
 GDL2CONTROL_EXPORT SEL GDL2_objectForGlobalIDSEL;
 GDL2CONTROL_EXPORT SEL GDL2_globalIDForObjectSEL;
-GDL2CONTROL_EXPORT SEL GDL2__globalIDForObjectSEL;
 
 // ---- Dictionary Selectors ----
 GDL2CONTROL_EXPORT SEL GDL2_objectForKeySEL;
@@ -129,13 +128,9 @@ GDL2CONTROL_EXPORT GDL2IMP_BOOL GDL2MKKD_hasKeyIMP;
 GDL2CONTROL_EXPORT GDL2IMP_UINT GDL2MKKD_indexForKeyIMP;
 GDL2CONTROL_EXPORT GDL2IMP_UINT GDL2EOMKKDInitializer_indexForKeyIMP;
 
-GDL2CONTROL_EXPORT IMP GDL2EODatabaseContext_snapshotForGlobalIDIMP;
-
 GDL2CONTROL_EXPORT IMP GDL2EOEditingContext_recordObjectGlobalIDIMP;
 GDL2CONTROL_EXPORT IMP GDL2EOEditingContext_objectForGlobalIDIMP;
 GDL2CONTROL_EXPORT IMP GDL2EOEditingContext_globalIDForObjectIMP;
-
-GDL2CONTROL_EXPORT IMP GDL2EODatabaseContext__globalIDForObjectIMP;
 
 GDL2CONTROL_EXPORT IMP GDL2NSMutableArray_arrayWithCapacityIMP;
 GDL2CONTROL_EXPORT IMP GDL2NSMutableArray_arrayWithArrayIMP;
@@ -426,5 +421,22 @@ static inline BOOL GDL2RespondsToSelectorWithImpPtr(id object,GDL2IMP_BOOL* impP
     return NO;
 };
 
-#endif /* __EOPriv_h__ */
 
+// ==== EOMultipleKnownKeyDictionary ====
+
+/** mkkkd can be a NSMutableKnownKey or another kind of dictionary **/
+GDL2CONTROL_EXPORT id EOMKKD_objectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,NSString* key);
+GDL2CONTROL_EXPORT void EOMKKD_setObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,id anObject,NSString* key);
+GDL2CONTROL_EXPORT void EOMKKD_removeObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,NSString* key);
+GDL2CONTROL_EXPORT BOOL EOMKKD_hasKeyWithImpPtr(NSDictionary* mkkd,GDL2IMP_BOOL* impPtr,NSString* key);
+
+GDL2CONTROL_EXPORT unsigned int EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,GDL2IMP_UINT* impPtr,NSString* key);
+GDL2CONTROL_EXPORT unsigned int EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,GDL2IMP_UINT* impPtr,NSString* key);
+
+// ==== EOEditingContext ====
+
+GDL2CONTROL_EXPORT id EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext* edContext,IMP* impPtr,EOGlobalID* gid);
+EOGlobalID* EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object);
+GDL2CONTROL_EXPORT id EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object,EOGlobalID* gid);
+
+#endif /* __EOControl_EOPrivate_h__ */

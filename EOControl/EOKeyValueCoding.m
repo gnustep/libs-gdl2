@@ -68,9 +68,10 @@ RCS_ID("$Id$")
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
-#include <EOControl/EOPriv.h>
 
 #include <GNUstepBase/GSObjCRuntime.h>
+
+#include "EOPrivate.h"
 
 static BOOL    strictWO;
 static BOOL initialized=NO;

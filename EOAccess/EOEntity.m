@@ -70,7 +70,6 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EONull.h>
-#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EOCheapArray.h>
@@ -83,6 +82,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOStoredProcedure.h>
 #include <EOAccess/EOExpressionArray.h>
 
+#include "EOPrivate.h"
 #include "EOEntityPriv.h"
 #include "EOAttributePriv.h"
 
@@ -106,7 +106,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
     {
       initialized=YES;
 
-      GDL2PrivInit();
+      GDL2_EOAccessPrivateInit();
     };
 };
 

@@ -71,7 +71,6 @@ RCS_ID("$Id$")
 #include <EOControl/EOFetchSpecification.h>
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOKeyValueCoding.h>
-#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EOCheapArray.h>
 #include <EOControl/EONSAddOns.h>
@@ -96,6 +95,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOAccessFault.h>
 #include <EOAccess/EOExpressionArray.h>
 
+#include "EOPrivate.h"
 #include "EOEntityPriv.h"
 #include "EOAccessFaultPriv.h"
 #include "EODatabaseContextPriv.h"
@@ -132,7 +132,7 @@ static Class _contextClass = Nil;
     {
       initialized=YES;
 
-      GDL2PrivInit();
+      GDL2_EOAccessPrivateInit();
 
       _contextClass = GDL2EODatabaseContextClass;
 
@@ -7393,50 +7393,3 @@ If the object has been just inserted, the dictionary is empty.
 }
 
 @end
-
-NSDictionary* EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,EOGlobalID* gid)
-{
-  if (dbContext)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(dbContext)==GDL2EODatabaseContextClass
-              && GDL2EODatabaseContext_snapshotForGlobalIDIMP)
-            imp=GDL2EODatabaseContext_snapshotForGlobalIDIMP;
-          else
-            imp=[dbContext methodForSelector:GDL2_snapshotForGlobalIDSEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(dbContext,GDL2_snapshotForGlobalIDSEL,gid);
-    }
-  else
-    return nil;
-};
-
-EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,id object)
-{
-  if (dbContext)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(dbContext)==GDL2EODatabaseContextClass
-              && GDL2EODatabaseContext__globalIDForObjectIMP)
-            imp=GDL2EODatabaseContext__globalIDForObjectIMP;
-          else
-            imp=[dbContext methodForSelector:GDL2__globalIDForObjectSEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(dbContext,GDL2__globalIDForObjectSEL,object);
-    }
-  else
-    return nil;
-};
-

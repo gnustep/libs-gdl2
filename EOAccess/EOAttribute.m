@@ -66,7 +66,6 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EOObserver.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
@@ -77,6 +76,7 @@ RCS_ID("$Id$")
 
 #include <string.h>
 
+#include "EOPrivate.h"
 #include "EOEntityPriv.h"
 #include "EOAttributePriv.h"
 
@@ -90,7 +90,7 @@ RCS_ID("$Id$")
     {
       initialized=YES;
 
-      GDL2PrivInit();
+      GDL2_EOAccessPrivateInit();
     }
 }
 

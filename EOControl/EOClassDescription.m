@@ -68,8 +68,9 @@ RCS_ID("$Id$")
 #include <EOControl/EOCheapArray.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
+
+#include "EOPrivate.h"
 
 // NOTE: (stephane@sente.ch) Should we subclass NSClassDescription?
 

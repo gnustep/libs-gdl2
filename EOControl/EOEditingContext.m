@@ -54,7 +54,8 @@ RCS_ID("$Id$")
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODeprecated.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
+
+#include "EOPrivate.h"
 
 @class EOEntityClassDescription;
 
@@ -3802,82 +3803,3 @@ static BOOL usesContextRelativeEncoding = NO;
   NSDeallocateObject (self);
 }
 @end
-
-id
-EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext *edContext,
-					     IMP              *impPtr,
-					     EOGlobalID       *gid)
-{
-  if (edContext)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(edContext)==GDL2EOEditingContextClass
-              && GDL2EOEditingContext_objectForGlobalIDIMP)
-            imp=GDL2EOEditingContext_objectForGlobalIDIMP;
-          else
-            imp=[edContext methodForSelector:GDL2_objectForGlobalIDSEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(edContext,GDL2_objectForGlobalIDSEL,gid);
-    }
-  else
-    return nil;
-};
-
-EOGlobalID *
-EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext *edContext,
-					     IMP              *impPtr,
-					     id object)
-{
-  if (edContext)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(edContext)==GDL2EOEditingContextClass
-              && GDL2EOEditingContext_globalIDForObjectIMP)
-            imp=GDL2EOEditingContext_globalIDForObjectIMP;
-          else
-            imp=[edContext methodForSelector:GDL2_globalIDForObjectSEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(edContext,GDL2_globalIDForObjectSEL,object);
-    }
-  else
-    return nil;
-};
-
-id
-EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext  *edContext,
-						IMP               *impPtr,
-						id                 object,
-						EOGlobalID        *gid)
-{
-  if (edContext)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(edContext)==GDL2EOEditingContextClass
-              && GDL2EOEditingContext_recordObjectGlobalIDIMP)
-            imp=GDL2EOEditingContext_recordObjectGlobalIDIMP;
-          else
-            imp=[edContext methodForSelector:GDL2_recordObjectGlobalIDSEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(edContext,GDL2_recordObjectGlobalIDSEL,object,gid);
-    }
-  else
-    return nil;
-};

@@ -63,7 +63,6 @@ RCS_ID("$Id$")
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
-#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
@@ -78,6 +77,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOExpressionArray.h>
 #include <EOAccess/EOSchemaGeneration.h>
 
+#include "EOPrivate.h"
 #include "EOEntityPriv.h"
 #include "EOAttributePriv.h"
 #include "EOSQLExpressionPriv.h"
@@ -100,7 +100,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   static BOOL initialized=NO;
   if (!initialized)
     {
-      GDL2PrivInit();
+      GDL2_EOAccessPrivateInit();
     };
 };
 

@@ -52,7 +52,8 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyValueCoding.h>
 #include <EOControl/EOKeyValueArchiver.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
+
+#include "EOPrivate.h"
 
 @implementation EOSortOrdering
 

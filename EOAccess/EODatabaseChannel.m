@@ -63,7 +63,6 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EOObjectStore.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EODatabaseChannel.h>
 #include <EOAccess/EODatabaseContext.h>
@@ -80,6 +79,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOSQLExpression.h>
 #include <EOAccess/EOSQLQualifier.h>
 
+#include "EOPrivate.h"
 #include "EOEntityPriv.h"
 #include "EODatabaseContextPriv.h"
 #include "EODatabaseChannelPriv.h"
@@ -92,7 +92,7 @@ RCS_ID("$Id$")
   if (!initialized)
     {
       initialized=YES;
-      GDL2PrivInit();
+      GDL2_EOAccessPrivateInit();
       [[NSNotificationCenter defaultCenter]
         addObserver: self
         selector: @selector(_registerDatabaseChannel:)

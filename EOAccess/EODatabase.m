@@ -57,7 +57,6 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EONull.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAccessFault.h>
 #include <EOAccess/EOAdaptor.h>
@@ -66,6 +65,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EODatabase.h>
 #include <EOAccess/EODatabaseContext.h>
 
+#include "EOPrivate.h"
 /* TODO
 
    Controllare il resultCache, ad ogni forget/invalidate deve essere
@@ -90,7 +90,7 @@ static NSMutableArray *databaseInstances;
     {
       initialized=YES;
 
-      GDL2PrivInit();
+      GDL2_EOAccessPrivateInit();
 
       // THREAD
       databaseInstances = [NSMutableArray new];

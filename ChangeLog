@@ -1,6 +1,43 @@
 2005-02-20  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAccessFault.m: Include NSThread.h.
+
+	* EOControl/EOPriv.h/m: Split into...
+	* EOControl/EOPrivat.h/m: ... and ...
+	* EOAccess/EOPrivat.h/m: ... files.
+	* EOAccess/EOAdaptorChannel.m: Include new privat header.
+	* EOAccess/EOAttribute.m, EOAccess/EODatabase.m,
+	* EOAccess/EODatabaseChannel.m, EOAccess/EOEntity.m,
+	* EOAccess/EORelationship.m, EOAccess/EOSQLExpression.m,
+	* EOAccess/EOSQLQualifier.m, EOAccess/EOUtilities.m: Ditto.
+	(+initialize): Call new private function.
+	* EOAccess/EODatabaseContext.m: Ditto.
+	(EODatabaseContext_snapshotForGlobalIDWithImpPtr)
+	(EODatabaseContext_globalIDForObjectWithImpPtr): Move to
+	EOPrivate.m.
+	* EOAccess/EODatabaseContextPriv.h:
+	(EODatabaseContext_snapshotForGlobalIDWithImpPtr)
+	(EODatabaseContext_globalIDForObjectWithImpPtr): Move to
+	EOPrivate.h.
+	* EOAccess/GNUmakefile: Compile EOPrivate.m.
+
+	* EOControl/EOClassDescription.m, EOControl/EOGenericRecord.m
+	* EOControl/EOKeyGlobalID.m, EOControl/EOKeyValueCoding.m
+	* EOControl/EOKeyValueQualifier.m, EOControl/EONSAddOns.m
+	* EOControl/EOSortOrdering.m: Include new private header.
+	* EOControl/EOEditingContext.h/m: Ditto.
+	(EOEditingContext_objectForGlobalIDWithImpPtr)
+	(EOEditingContext_recordObjectGlobalIDWithImpPtr): Move to
+	EOPrivate.h/m.
+	* EOControl/EOMutableKnownKeyDictionary.h/m: Include new private
+	header.
+	(EOMKKD_objectForKeyWithImpPtr, EOMKKD_setObjectForKeyWithImpPtr)
+	(EOMKKD_removeObjectForKeyWithImpPtr, EOMKKD_hasKeyWithImpPtr)
+	(EOMKKD_indexForKeyWithImpPtr)
+	(EOMKKDInitializer_indexForKeyWithImpPtr): Move to EOPrivate.m
+	* EOControl/EOFault.m: (+isFault:): Update comment.
+	* EOControl/GNUmakefile: Build EOPrivate.m instead of EOPriv.m.
+	Do not install private header.
 	
 2005-02-19  David Ayers  <d.ayers@inode.at>
 

@@ -172,7 +172,7 @@ static Class EOFaultClass = NULL;
 
 + (BOOL)isFault: (id)object
 {
-  //See also EOControl/EOPriv.h
+  //See also EOPrivat.h
 //  NSDebugFLLog(@"gsdb",@"object=%p",object);
 
   if (object == nil)

@@ -1,5 +1,5 @@
 /** 
-   EOPriv.m <title>EOPriv: various definitions</title>
+   EOPrivate.m <title>EOPrivate: various definitions</title>
 
    Copyright (C) 2005 Free Software Foundation, Inc.
 
@@ -41,10 +41,11 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #endif
 
-#include <EOControl/EOPriv.h>
+#include <EOControl/EOEditingContext.h>
 #include <EOControl/EOFault.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
-#include <EOAccess/EODatabaseContext.h>
+
+#include "EOPrivate.h"
 
 // ==== Classes ====
 Class GDL2NSArrayClass=Nil;
@@ -61,9 +62,7 @@ Class GDL2NSDataClass=Nil;
 Class GDL2EOFaultClass=Nil;
 Class GDL2MKKDClass=Nil;
 Class GDL2EOMKKDInitializerClass=Nil;
-Class GDL2EODatabaseContextClass=Nil;
 Class GDL2EOEditingContextClass=Nil;
-Class GDL2EOAttributeClass=Nil;
 
 // ==== Selectors ====
 SEL GDL2_newSEL=NULL;
@@ -99,11 +98,9 @@ SEL GDL2_takeValueForKeySEL=NULL;
 SEL GDL2_validateValueForKeySEL=NULL;
 
 // ---- GDL2 Selectors ----
-SEL GDL2_snapshotForGlobalIDSEL=NULL;
 SEL GDL2_recordObjectGlobalIDSEL=NULL;
 SEL GDL2_objectForGlobalIDSEL=NULL;
 SEL GDL2_globalIDForObjectSEL=NULL;
-SEL GDL2__globalIDForObjectSEL=NULL;
 
 // ---- Dictionary Selectors ----
 SEL GDL2_objectForKeySEL=NULL;
@@ -138,12 +135,9 @@ GDL2IMP_BOOL GDL2MKKD_hasKeyIMP=NULL;
 GDL2IMP_UINT GDL2MKKD_indexForKeyIMP=NULL;
 GDL2IMP_UINT GDL2EOMKKDInitializer_indexForKeyIMP=NULL;
 
-IMP GDL2EODatabaseContext_snapshotForGlobalIDIMP=NULL;
 IMP GDL2EOEditingContext_recordObjectGlobalIDIMP=NULL;
 IMP GDL2EOEditingContext_objectForGlobalIDIMP=NULL;
 IMP GDL2EOEditingContext_globalIDForObjectIMP=NULL;
-
-IMP GDL2EODatabaseContext__globalIDForObjectIMP=NULL;
 
 IMP GDL2NSMutableArray_arrayWithCapacityIMP=NULL;
 IMP GDL2NSMutableArray_arrayWithArrayIMP=NULL;
@@ -179,9 +173,7 @@ void GDL2PrivInit()
       GDL2EOFaultClass = [EOFault class];
       GDL2MKKDClass = [EOMutableKnownKeyDictionary class];
       GDL2EOMKKDInitializerClass = [EOMKKDInitializer class];
-      GDL2EODatabaseContextClass = [EODatabaseContext class];
       GDL2EOEditingContextClass = [EOEditingContext class];
-      GDL2EOAttributeClass = [EOAttribute class];
 
       // ==== Selectors ====
       GDL2_newSEL=@selector(new);
@@ -217,12 +209,9 @@ void GDL2PrivInit()
       GDL2_validateValueForKeySEL=@selector(validateValue:forKey:);
 
       // ---- GDL2 Selectors ----
-      GDL2_snapshotForGlobalIDSEL=@selector(snapshotForGlobalID:);
-      GDL2_snapshotForGlobalIDSEL=@selector(snapshotForGlobalID:);
       GDL2_recordObjectGlobalIDSEL=@selector(recordObject:globalID:);
       GDL2_objectForGlobalIDSEL=@selector(objectForGlobalID:);
       GDL2_globalIDForObjectSEL=@selector(globalIDForObject:);
-      GDL2__globalIDForObjectSEL=@selector(_globalIDForObject:);
 
       // ---- Dictionary Selectors ----
       GDL2_objectForKeySEL=@selector(objectForKey:);
@@ -275,13 +264,9 @@ void GDL2PrivInit()
       GDL2MKKD_indexForKeyIMP=(GDL2IMP_UINT)[GDL2MKKDClass instanceMethodForSelector:GDL2_indexForKeySEL];
       GDL2EOMKKDInitializer_indexForKeyIMP=(GDL2IMP_UINT)[GDL2EOMKKDInitializerClass instanceMethodForSelector:GDL2_indexForKeySEL];
 
-      GDL2EODatabaseContext_snapshotForGlobalIDIMP=[GDL2EODatabaseContextClass instanceMethodForSelector:GDL2_snapshotForGlobalIDSEL];
-
       GDL2EOEditingContext_recordObjectGlobalIDIMP==[GDL2EOEditingContextClass instanceMethodForSelector:GDL2_recordObjectGlobalIDSEL];
       GDL2EOEditingContext_objectForGlobalIDIMP=[GDL2EOEditingContextClass instanceMethodForSelector:GDL2_objectForGlobalIDSEL];
       GDL2EOEditingContext_globalIDForObjectIMP=[GDL2EOEditingContextClass instanceMethodForSelector:GDL2_globalIDForObjectSEL];
-
-      GDL2EODatabaseContext__globalIDForObjectIMP=[GDL2EODatabaseContextClass instanceMethodForSelector:GDL2__globalIDForObjectSEL];
 
       GDL2NSMutableArray_arrayWithCapacityIMP=[GDL2NSMutableArrayClass 
                                                 methodForSelector:GDL2_arrayWithCapacitySEL];
@@ -306,3 +291,239 @@ void GDL2PrivInit()
 
     };
 }
+
+/* EOMultipleKnownKeyDictionary */
+
+id
+EOMKKD_objectForKeyWithImpPtr(NSDictionary* mkkd,
+			      IMP* impPtr,
+			      NSString* key)
+{
+  if (mkkd)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_objectForKeyIMP)
+            imp=GDL2MKKD_objectForKeyIMP;
+          else
+            imp=[mkkd methodForSelector:GDL2_objectForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(mkkd,GDL2_objectForKeySEL,key);
+    }
+  else
+    return nil;
+};
+
+void
+EOMKKD_setObjectForKeyWithImpPtr(NSDictionary* mkkd,
+				 IMP* impPtr,
+				 id anObject,
+				 NSString* key)
+{
+  if (mkkd)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_setObjectForKeyIMP)
+            imp=GDL2MKKD_setObjectForKeyIMP;
+          else
+            imp=[mkkd methodForSelector:GDL2_setObjectForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      (*imp)(mkkd,GDL2_setObjectForKeySEL,anObject,key);
+    };
+};
+
+void
+EOMKKD_removeObjectForKeyWithImpPtr(NSDictionary* mkkd,
+				    IMP* impPtr,
+				    NSString* key)
+{
+  if (mkkd)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_removeObjectForKeyIMP)
+            imp=GDL2MKKD_removeObjectForKeyIMP;
+          else
+            imp=[mkkd methodForSelector:GDL2_removeObjectForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      (*imp)(mkkd,GDL2_removeObjectForKeySEL,key);
+    };
+};
+
+BOOL 
+EOMKKD_hasKeyWithImpPtr(NSDictionary* mkkd,
+			GDL2IMP_BOOL* impPtr,
+			NSString* key)
+{
+  if (mkkd)
+    {
+      GDL2IMP_BOOL imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_hasKeyIMP)
+            imp=GDL2MKKD_hasKeyIMP;
+          else
+            imp=(GDL2IMP_BOOL)[mkkd methodForSelector:GDL2_hasKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(mkkd,GDL2_hasKeySEL,key);
+    }
+  else
+    return NO;
+};
+
+unsigned int 
+EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,
+			     GDL2IMP_UINT* impPtr,
+			     NSString* key)
+{
+  if (mkkd)
+    {
+      GDL2IMP_UINT imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_indexForKeyIMP)
+            imp=GDL2MKKD_indexForKeyIMP;
+          else
+            imp=(GDL2IMP_UINT)[mkkd methodForSelector:GDL2_indexForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(mkkd,GDL2_indexForKeySEL,key);
+    }
+  else
+    return 0;
+};
+
+unsigned int
+EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,
+					GDL2IMP_UINT* impPtr,
+					NSString* key)
+{
+  if (mkkdInit)
+    {
+      GDL2IMP_UINT imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkdInit)==GDL2EOMKKDInitializerClass
+              && GDL2EOMKKDInitializer_indexForKeyIMP)
+            imp=GDL2EOMKKDInitializer_indexForKeyIMP;
+          else
+            imp=(GDL2IMP_UINT)[mkkdInit methodForSelector:GDL2_indexForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(mkkdInit,GDL2_indexForKeySEL,key);
+    }
+  else
+    return 0;
+};
+
+/* EOEditingContext */
+
+id
+EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext *edContext,
+					     IMP              *impPtr,
+					     EOGlobalID       *gid)
+{
+  if (edContext)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(edContext)==GDL2EOEditingContextClass
+              && GDL2EOEditingContext_objectForGlobalIDIMP)
+            imp=GDL2EOEditingContext_objectForGlobalIDIMP;
+          else
+            imp=[edContext methodForSelector:GDL2_objectForGlobalIDSEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(edContext,GDL2_objectForGlobalIDSEL,gid);
+    }
+  else
+    return nil;
+};
+
+EOGlobalID *
+EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext *edContext,
+					     IMP              *impPtr,
+					     id object)
+{
+  if (edContext)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(edContext)==GDL2EOEditingContextClass
+              && GDL2EOEditingContext_globalIDForObjectIMP)
+            imp=GDL2EOEditingContext_globalIDForObjectIMP;
+          else
+            imp=[edContext methodForSelector:GDL2_globalIDForObjectSEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(edContext,GDL2_globalIDForObjectSEL,object);
+    }
+  else
+    return nil;
+};
+
+id
+EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext  *edContext,
+						IMP               *impPtr,
+						id                 object,
+						EOGlobalID        *gid)
+{
+  if (edContext)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(edContext)==GDL2EOEditingContextClass
+              && GDL2EOEditingContext_recordObjectGlobalIDIMP)
+            imp=GDL2EOEditingContext_recordObjectGlobalIDIMP;
+          else
+            imp=[edContext methodForSelector:GDL2_recordObjectGlobalIDSEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(edContext,GDL2_recordObjectGlobalIDSEL,object,gid);
+    }
+  else
+    return nil;
+};

@@ -63,7 +63,6 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EOObserver.h>
 #include <EOControl/EOFault.h>
-#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EOKeyValueCoding.h>
@@ -73,6 +72,8 @@ RCS_ID("$Id$")
 #endif
 
 #include <limits.h>
+
+#include "EOPrivate.h"
 
 @interface NSObject (EOCalculateSize)
 - (unsigned int)eoGetSize;

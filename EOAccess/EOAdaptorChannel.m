@@ -53,7 +53,6 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #endif
 
-#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EOFetchSpecification.h>
 #include <EOControl/EONSAddOns.h>
@@ -67,6 +66,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOSQLExpression.h>
 #include <EOAccess/EODatabaseOperation.h>
 
+#include "EOPrivate.h"
 #include "EOEntityPriv.h"
 
 

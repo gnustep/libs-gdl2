@@ -54,7 +54,6 @@ RCS_ID("$Id$")
 #endif
 
 #include <EOControl/EOObserver.h>
-#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
@@ -67,6 +66,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOJoin.h>
 #include <EOAccess/EOExpressionArray.h>
 
+#include "EOPrivate.h"
 #include "EOAttributePriv.h"
 #include "EOEntityPriv.h"
 

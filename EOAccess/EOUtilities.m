@@ -57,7 +57,6 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EOGenericRecord.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EORelationship.h>
@@ -74,6 +73,7 @@ RCS_ID("$Id$")
 
 #include <EOAccess/EOUtilities.h>
 
+#include "EOPrivate.h"
 
 static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 static NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";

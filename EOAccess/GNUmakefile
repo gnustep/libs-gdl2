@@ -57,7 +57,8 @@ EODatabaseChannel.m \
 EODatabaseContext.m \
 EOAccessFault.m \
 EODatabaseDataSource.m \
-EOUtilities.m
+EOUtilities.m \
+EOPrivate.m
 
 libgnustep-db2_HEADER_FILES_DIR = .
 libgnustep-db2_HEADER_FILES_INSTALL_DIR = /EOAccess

@@ -61,7 +61,8 @@ RCS_ID("$Id$")
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EONull.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
+
+#include "EOPrivate.h"
 
 /*
   This declaration is needed by the compiler to state that

@@ -53,11 +53,11 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #endif
 
-#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
 
+#include "EOPrivate.h"
 
 @implementation EOMKKDInitializer
 
@@ -1006,137 +1006,3 @@ RCS_ID("$Id$")
 }
 
 @end
-
-id EOMKKD_objectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,NSString* key)
-{
-  if (mkkd)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_objectForKeyIMP)
-            imp=GDL2MKKD_objectForKeyIMP;
-          else
-            imp=[mkkd methodForSelector:GDL2_objectForKeySEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(mkkd,GDL2_objectForKeySEL,key);
-    }
-  else
-    return nil;
-};
-
-void EOMKKD_setObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,id anObject,NSString* key)
-{
-  if (mkkd)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_setObjectForKeyIMP)
-            imp=GDL2MKKD_setObjectForKeyIMP;
-          else
-            imp=[mkkd methodForSelector:GDL2_setObjectForKeySEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      (*imp)(mkkd,GDL2_setObjectForKeySEL,anObject,key);
-    };
-};
-
-void EOMKKD_removeObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,NSString* key)
-{
-  if (mkkd)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_removeObjectForKeyIMP)
-            imp=GDL2MKKD_removeObjectForKeyIMP;
-          else
-            imp=[mkkd methodForSelector:GDL2_removeObjectForKeySEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      (*imp)(mkkd,GDL2_removeObjectForKeySEL,key);
-    };
-};
-
-BOOL EOMKKD_hasKeyWithImpPtr(NSDictionary* mkkd,GDL2IMP_BOOL* impPtr,NSString* key)
-{
-  if (mkkd)
-    {
-      GDL2IMP_BOOL imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_hasKeyIMP)
-            imp=GDL2MKKD_hasKeyIMP;
-          else
-            imp=(GDL2IMP_BOOL)[mkkd methodForSelector:GDL2_hasKeySEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(mkkd,GDL2_hasKeySEL,key);
-    }
-  else
-    return NO;
-};
-
-unsigned int EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,GDL2IMP_UINT* impPtr,NSString* key)
-{
-  if (mkkd)
-    {
-      GDL2IMP_UINT imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_indexForKeyIMP)
-            imp=GDL2MKKD_indexForKeyIMP;
-          else
-            imp=(GDL2IMP_UINT)[mkkd methodForSelector:GDL2_indexForKeySEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(mkkd,GDL2_indexForKeySEL,key);
-    }
-  else
-    return 0;
-};
-
-unsigned int EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,GDL2IMP_UINT* impPtr,NSString* key)
-{
-  if (mkkdInit)
-    {
-      GDL2IMP_UINT imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (GSObjCClass(mkkdInit)==GDL2EOMKKDInitializerClass
-              && GDL2EOMKKDInitializer_indexForKeyIMP)
-            imp=GDL2EOMKKDInitializer_indexForKeyIMP;
-          else
-            imp=(GDL2IMP_UINT)[mkkdInit methodForSelector:GDL2_indexForKeySEL];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(mkkdInit,GDL2_indexForKeySEL,key);
-    }
-  else
-    return 0;
-};

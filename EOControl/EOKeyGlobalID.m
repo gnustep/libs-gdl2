@@ -53,7 +53,8 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
-#include <EOControl/EOPriv.h>
+
+#include "EOPrivate.h"
 
 
 @implementation EOKeyGlobalID
