@@ -148,17 +148,6 @@ GDL2_ActivateAllGDL2Categories(void)
 }
 
 
-@implementation NSString (ShellPattern)
-/** returns YES is string contain shell pattern characters,
-NO otherwise **/
-- (BOOL)hasShellPatternCharacter
-{
-  NSRange r=[self rangeOfCharacterFromSet:GDL2_shellPatternCharacterSet];
-  return (r.length>0 ? YES : NO);
-};
-
-@end
-
 @implementation NSObject (NSObjectPerformingSelector)
 
 - (NSArray*)resultsOfPerformingSelector: (SEL)sel
@@ -201,7 +190,7 @@ NO otherwise **/
                         object,
                         sel_get_name(sel));
 
-              [results addObject: result]; //TODO What to do if nil ??
+              [results addObject: result];
             }
         }
       NS_HANDLER
@@ -210,7 +199,7 @@ NO otherwise **/
                     object,
                     [object class],
                     NSStringFromSelector(sel));
-          NSLog(@"%@ (%@)",localException,[localException reason]);
+          NSLog(@"%@ %@",localException,[localException userInfo]);
           [localException raise];
         }
       NS_ENDHANDLER;

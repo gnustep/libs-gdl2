@@ -1107,7 +1107,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   unsigned attributeKeyCount;
   unsigned toOneRelationshipKeyCount;
   unsigned toManyRelationshipKeyCount;
-  undigned i;
+  unsigned i;
 
   EOFLOGObjectFnStart();
 

@@ -118,12 +118,6 @@ GDL2_ActivateAllGDL2Categories(void);
 -(unsigned long long)unsignedLongLongValue;
 @end
 
-@interface NSString (ShellPattern)
-/** returns YES is string contain shell pattern characters,
-NO otherwise **/
-- (BOOL)hasShellPatternCharacter;
-@end
-
 @interface NSObject (PerformSelect3)
 /**
  * Causes the receiver to execute the method implementation corresponding

@@ -2,6 +2,9 @@
 
 	* EOControl/EOClassDescription.m ([NSObject-snapshot]):
 	Return valid dictionary for EONull.
+
+	* EOControl/EONSAddOns.h/m ([NSString-hasShellPatternCharacter]):
+	Remove.
 	
 2005-02-15  David Ayers  <d.ayers@inode.at>
 
