@@ -56,8 +56,7 @@ RCS_ID("$Id$")
 		    keyCount: (unsigned)count
 			zone: (NSZone *)zone
 {
-  EOKeyGlobalID *gid = [[[EOKeyGlobalID allocWithZone: zone] init]
-			 autorelease];
+  EOKeyGlobalID *gid = AUTORELEASE([[EOKeyGlobalID allocWithZone: zone] init]);
   int i;
 
   ASSIGN(gid->_entityName, entityName);
