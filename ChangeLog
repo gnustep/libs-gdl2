@@ -1,3 +1,10 @@
+2002-11-27  Richard Frith-Macdonald <rfm@gnu.org>
+
+	* EOAccess/EOModel.h:
+	* EOAccess/EOModel.m:  Appplied David Ayers patch for programmatic
+	model manipulation.  Fixed typo. Use NSFileManager rather than
+	mkdir(). Tidied some use of autorelease for memory efficiency etc.
+
 2002-11-26  Manuel Guesdon  <mguesdon@orange-concept.com>
 
 	* EOAccess/EOEntity.m:

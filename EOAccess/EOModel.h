@@ -115,7 +115,7 @@
 
 - (id) initWithTableOfContentsPropertyList: (NSDictionary *)tableOfContents
                                       path: (NSString *)path;
-- (void)encodeTableOfContentsInfoPropertyList: (NSMutableDictionary *)propertyList;
+- (void)encodeTableOfContentsIntoPropertyList: (NSMutableDictionary *)propertyList;
 
 - (void)encodeIntoPropertyList: (NSMutableDictionary *)propertyList;
 - (void)awakeWithPropertyList: (NSDictionary *)propertyList;
@@ -176,14 +176,5 @@
 @end
 
 extern NSString *EOEntityLoadedNotification;
-
-@interface EOModel (EOModelPrivate)
-
-- (void)setCreateMutableObjects: (BOOL)flag;
-- (BOOL)createsMutableObjects;
-- (EOEntity *)_verifyBuiltEntityObject: (id)entity
-                                 named: (NSString *)name;
-
-@end /* EOModel (EOModelPrivate) */
 
 #endif /* __EOModel_h__ */

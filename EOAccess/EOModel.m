@@ -34,44 +34,54 @@
 
 static char rcsId[] = "$Id$";
 
-#import <Foundation/Foundation.h>
+#include <Foundation/Foundation.h>
 
-#import <Foundation/NSBundle.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSBundle.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSFileManager.h>
+#include <Foundation/NSValue.h>
 
-#import <Foundation/NSException.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOEntityPriv.h>
+#include <EOAccess/EOStoredProcedure.h>
+#include <EOAccess/EOModelGroup.h>
+#include <EOAccess/EOAccessFault.h>
 
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOEntityPriv.h>
-#import <EOAccess/EOStoredProcedure.h>
-#import <EOAccess/EOModelGroup.h>
-#import <EOAccess/EOAccessFault.h>
-
-#import <EOControl/EOGenericRecord.h>
-#import <EOControl/EOFault.h>
-#import <EOControl/EOKeyGlobalID.h>
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOObserver.h>
-#import <EOControl/EONSAddOns.h>
-#import <EOControl/EODebug.h>
-
-#include <sys/stat.h>
+#include <EOControl/EOGenericRecord.h>
+#include <EOControl/EOFault.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOObserver.h>
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EODebug.h>
 
 
 NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
+@interface EOModel (EOModelPrivate)
+
++ (NSString *) _formatModelPath: (NSString *)path checkFileSystem: (BOOL)chkFS;
+
+- (void) setCreateMutableObjects: (BOOL)flag;
+- (BOOL) createsMutableObjects;
+- (EOEntity *) _verifyBuiltEntityObject: (id)entity
+                                  named: (NSString *)name;
+
+@end /* EOModel (EOModelPrivate) */
+
 
 @implementation EOModel
 
-+ (EOModel *)model
++ (EOModel*) model
 {
-  return [[[self alloc] init] autorelease];
+  return AUTORELEASE([[self alloc] init]);
 }
 
-+ (NSString *)findPathForModelNamed: (NSString *)modelName
++ (NSString*) findPathForModelNamed: (NSString *)modelName
 {
   NSString *modelPath = nil;
   NSString *tmpModelName = nil;
@@ -137,7 +147,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
                 {
                   int i;
 
-                  for(i = 0; !modelPath && paths[i]; i++)
+                  for (i = 0; !modelPath && paths[i]; i++)
                     {
                       NSDebugMLLog(@"gsdb", @"Trying path:%@", paths[i]);
 
@@ -173,6 +183,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   if ((self = [super init]))
     {
       // Turbocat
+      _version = 2;
       _flags.createsMutableObjects = YES;
       
       _entitiesByName = [GCMutableDictionary new];
@@ -208,7 +219,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return self;
 }
 
-- (void)dealloc
+- (void) dealloc
 {
   [NSNotificationCenter removeObserver: self];
 
@@ -229,7 +240,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   [super dealloc];
 }
 
-- (void)gcDecrementRefCountOfContainedObjects
+- (void) gcDecrementRefCountOfContainedObjects
 {
   EOFLOGObjectFnStart();
 
@@ -250,7 +261,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   EOFLOGObjectFnStop();
 }
 
-- (BOOL)gcIncrementRefCountOfContainedObjects
+- (BOOL) gcIncrementRefCountOfContainedObjects
 {
   if (![super gcIncrementRefCountOfContainedObjects])
     return NO;
@@ -270,74 +281,32 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return YES;
 }
 
-/*Mirko:
-- (void)_registerClassDescForClass:(NSNotification *)notification
-{
-  EOEntityClassDescription *classDesc = nil;
-  Class aClass = [notification object];
-  int i;
-
-  if (_entitiesByClass == NULL)
-    return;
-
-  for (i = 0; ((Class *)_entitiesByClass)[i]; i = i + 2)
-    {
-      if(aClass == ((Class *)_entitiesByClass)[i])
-	{
-          classDesc = [EOEntityClassDescription entityClassDescriptionWithEntity: ((EOEntity **)_entitiesByClass)[i+1]];
-
-	  [EOClassDescription registerClassDescription:classDesc
-			      forClass:aClass];
-
-	  return;
-	}
-    }
-}
-
-- (void)_registerClassDescForEntityName:(NSNotification *)notification
-{
-  EOEntityClassDescription *classDesc;
-  NSString *entityName = [notification object];
-  EOEntity *entity;
-
-  entity = [self entityNamed:entityName];
-
-  if (entity)
-    {
-      classDesc = [EOEntityClassDescription entityClassDescriptionWithEntity: entity];
-
-      [EOClassDescription registerClassDescription: classDesc
-			  forClass: NSClassFromString([entity className])];
-    }
-}
-*/
-
-- (NSString *)path
+- (NSString*) path
 {
   return _path;
 }
 
-- (NSString *)name
+- (NSString*) name
 {
   return _name;
 }
 
-- (NSString *)adaptorName
+- (NSString*) adaptorName
 {
   return _adaptorName;
 }
 
-- (NSString *)adaptorClassName
+- (NSString*) adaptorClassName
 {
   return _adaptorClassName;
 }
 
-- (float)version
+- (float) version
 {
   return _version;
 }
 
-- (EOEntity *)entityNamed:(NSString *)name
+- (EOEntity*) entityNamed: (NSString *)name
 {
   EOEntity *entity = nil;
 
@@ -350,7 +319,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return entity;
 }
 
-- (NSArray*)entities
+- (NSArray*) entities
 {
   //TODO revoir ?
   if (!_entities)
@@ -358,19 +327,19 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       NSArray *entityNames = [self entityNames];
 
       ASSIGN(_entities,
-	     [self resultsOfPerformingSelector: @selector(entityNamed:)
-		   withEachObjectInArray: entityNames]);
+	[self resultsOfPerformingSelector: @selector(entityNamed:)
+	  withEachObjectInArray: entityNames]);
     }
 
   return _entities;
 }
 
-- (NSArray *)entityNames
+- (NSArray*) entityNames
 {
   return [_entitiesByName allKeys];
 }
 
-- (NSArray *)storedProcedureNames
+- (NSArray*) storedProcedureNames
 {
 
   NSEnumerator *stEnum;
@@ -385,7 +354,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return stNames;
 }
 
-- (EOStoredProcedure *)storedProcedureNamed: (NSString *)name
+- (EOStoredProcedure*) storedProcedureNamed: (NSString *)name
 {
   NSEnumerator *stEnum;
   EOStoredProcedure *st;
@@ -400,7 +369,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return nil;
 }
 
-- (NSArray *)storedProcedures
+- (NSArray*) storedProcedures
 {
   //TODO revoir ?
   if (!_storedProcedures)
@@ -425,7 +394,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return _storedProcedures;
 }
 
-- (EOEntity *)entityForObject: object
+- (EOEntity*) entityForObject: (id)object
 {
   EOEntity *entity = nil;
   NSString *entityName = nil;
@@ -440,7 +409,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
   else
     {
-      //  if([object isKindOfClass:[EOGenericRecord class]])
+      //  if ([object isKindOfClass:[EOGenericRecord class]])
       //    return [object entity];      
       entityName = [object entityName];
     }
@@ -451,27 +420,51 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return entity;
 }
 
-- (NSDictionary *)connectionDictionary
+- (NSDictionary*) connectionDictionary
 {
   return _connectionDictionary;
 }
 
-- (NSDictionary *)userInfo
+- (NSDictionary*) userInfo
 {
   return _userInfo;
 }
 
-- (NSString *)docComment
+- (NSString*) description
+{
+  NSMutableDictionary *descdict;
+  id obj;
+
+  descdict = [[NSMutableDictionary alloc] initWithCapacity: 6];
+  obj = [self name];
+  if (obj) [descdict setObject: obj forKey: @"name"];
+  obj = [self adaptorName];
+  if (obj) [descdict setObject: obj forKey: @"adaptorName"];
+  obj = [self connectionDictionary];
+  if (obj) [descdict setObject: obj forKey: @"connectionDictionary"];
+  obj = [self userInfo];
+  if (obj) [descdict setObject: obj forKey: @"userInfo"];
+  obj = [self entities];
+  if (obj) [descdict setObject: obj forKey: @"entities"];
+  obj = [self storedProcedures];
+  if (obj) [descdict setObject: obj forKey: @"storedProcedures"];
+
+  obj = [descdict description];
+  RELEASE(descdict);
+  return obj;
+}
+
+- (NSString*) docComment
 {
   return _docComment;
 }
 
-- (EOModelGroup *)modelGroup
+- (EOModelGroup*) modelGroup
 {
   return _group;
 }
 
-+ (float)version
++ (float) version
 {
   return 2;
 }
@@ -481,77 +474,52 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 @implementation EOModel (EOModelFileAccess)
 
-+ (EOModel *)modelWithContentsOfFile: (NSString *)path
++ (EOModel*) modelWithContentsOfFile: (NSString *)path
 {
-  return [[[self alloc] initWithContentsOfFile: path] autorelease];
+  return AUTORELEASE([[self alloc] initWithContentsOfFile: path]);
 }
 
 - (id) initWithContentsOfFile: (NSString *)path
 {
   NS_DURING
     {
-      NSDictionary *propList = nil;
-      NSString *completePath = [[self class] findPathForModelNamed: path];
+      NSString *name = nil;
+      NSString *modelPath = nil;
       NSString *indexPath = nil;
+      NSString *fileContents = nil;
+      NSDictionary *propList = nil;
 
-      NSDebugMLLog(@"gsdb", @"path=%@", path);
-      NSDebugMLLog(@"gsdb", @"completePath=%@", completePath);
+      path = [path stringByStandardizingPath];
+      modelPath = [isa _formatModelPath: path checkFileSystem: YES];
+      NSAssert1(modelPath!=nil, @"Model does not exist at path %@",
+                path );
+      name = [[modelPath lastPathComponent] stringByDeletingPathExtension];
+      [self setName: name];
 
-      if ([[completePath pathExtension] isEqualToString: @"eomodeld"])
-        indexPath = [completePath stringByAppendingPathComponent:
-				    @"index.eomodeld"];
+      if ([[modelPath pathExtension] isEqualToString: @"eomodeld"])
+        {
+          indexPath =
+              [modelPath stringByAppendingPathComponent: @"index.eomodeld"];
+        }
       else
-        indexPath = completePath;
+        {
+          indexPath = modelPath;
+        }
 
-      NSDebugMLLog(@"gsdb", @"path=%@ completePath=%@ indexPath=%@",
-		   path, completePath, indexPath);
-
-      propList = [[NSString stringWithContentsOfFile: indexPath] propertyList];
+      fileContents = [NSString stringWithContentsOfFile: indexPath];
+      propList = [fileContents propertyList];
       NSDebugMLLog(@"gsdb", @"propList=%@", propList);
+      NSAssert1(propList!=nil, @"Model at path %@ is invalid", indexPath);
 
-      if (!propList)
-        {
-          NSLog(@"Loading model (path=%@ \n index path=%@) failed",
-                path,
-                indexPath);
-
-          //Try loading directly from path
-          if ([[path pathExtension] isEqualToString: @"eomodeld"])
-            indexPath = [path stringByAppendingPathComponent:
-				@"index.eomodeld"];
-          else
-            indexPath = path;
-
-          NSDebugMLLog(@"gsdb", @"path=%@ completePath=%@ indexPath=%@",
-		       path, completePath, indexPath);
-
-          propList = [[NSString stringWithContentsOfFile: indexPath] propertyList];
-
-          NSDebugMLLog(@"gsdb", @"propList=%@", propList);
-        }
-
-      //TODO test it
-      NSAssert2(propList, @"Loading model (path=%@ \n index path=%@) failed",
-                path,
-                indexPath);
-
-      //what to do if it fail ?
-      if ((self = [self initWithTableOfContentsPropertyList: propList
-			path: path]))
-        {
-        }
-      else
-        {
-          NSEmitTODO();  
-          return [self notImplemented: _cmd]; //TODO
-        }
+      self = [self initWithTableOfContentsPropertyList: propList
+                   path: modelPath];
+      NSAssert2(self!=nil,@"Failed to initialize with path %@ and plist %@",
+                modelPath,
+                propList);
     }
   NS_HANDLER
     {
       NSLog(@"exception in EOModel initWithContentsOfFile:");
-      NSLog(@"exception=%@", localException);
-/*      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In EOModel initWithContentsOfFile:");*/
       NSLog(@"exception=%@", localException);
       [localException raise];
     }
@@ -560,33 +528,36 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return self;
 }
 
-- (void)writeToFile: (NSString *)path
+- (void) writeToFile: (NSString *)path
 {
-  NSMutableDictionary *pList;
-  NSDictionary *entityPList;
-  NSEnumerator *entityEnum;
+  NSFileManager		*mgr = [NSFileManager defaultManager];
+  NSMutableDictionary	*pList;
+  NSDictionary		*attributes;
+  NSDictionary		*entityPList;
+  NSEnumerator		*entityEnum;
 
   path = [path stringByStandardizingPath];
   path = [[path stringByDeletingPathExtension]
-	   stringByAppendingPathExtension: @"eomodeld"];
+    stringByAppendingPathExtension: @"eomodeld"];
 
   pList = [NSMutableDictionary dictionaryWithCapacity: 10];
 
   [self encodeIntoPropertyList: pList];
 
-  mkdir([path cString], S_IRWXU | S_IRWXG | S_IRWXO);
+  attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+    [NSNumber numberWithUnsignedLong: 0777], NSFilePosixPermissions,
+    nil];
+  [mgr createDirectoryAtPath: path attributes: attributes];
 
-  entityEnum = [[pList objectForKey:@"entities"] objectEnumerator];
+  entityEnum = [[pList objectForKey: @"entities"] objectEnumerator];
   while ((entityPList = [entityEnum nextObject]))
     {
       NSString *fileName;
-      NSArray *entityArray;
 
       fileName = [path stringByAppendingPathComponent:
 			 [NSString stringWithFormat: @"%@.plist",
 				   [entityPList objectForKey: @"name"]]];
-      entityArray = [NSArray arrayWithObject: entityPList];
-      [entityArray writeToFile: fileName atomically: YES];
+      [entityPList writeToFile: fileName atomically: YES];
     }
 
   {
@@ -595,8 +566,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     fileName = [path stringByAppendingPathComponent: @"index.eomodeld"];
 
     [pList removeAllObjects];
-    [self encodeTableOfContentsInfoPropertyList: pList];
-    [pList writeToFile:fileName atomically: YES];
+    [self encodeTableOfContentsIntoPropertyList: pList];
+    [pList writeToFile: fileName atomically: YES];
   }
 }
 
@@ -612,35 +583,36 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     {
       if ((self = [self init]))
         {
+          NSString *name;
           NSString *versionString = nil;
-          NSArray *entities = nil;
+          NSArray  *entities = nil;
           int i, count = 0;
 
-          [self _setPath: path];
-          _name = [[EOModel findPathForModelNamed: _path] retain];
-
           NSDebugMLLog(@"gsdb", @"tableOfContents=%@", tableOfContents);
-          NSAssert1(_name, @"No name for model (path=%@)", path);          
 
-          [self setName: _name];//??
+	  /* The call to _setPath: also sets the name implicitly. */
+          [self _setPath: [isa _formatModelPath: path checkFileSystem: YES]];
+          NSDebugMLLog(@"gsdb", @"name=%@ path=%@", _name, _path);
+
           versionString = [tableOfContents objectForKey: @"EOModelVersion"];
-
           if (versionString)
             _version = [versionString floatValue];
+          else
+            _version = 0; // dayers: is this correct?
 
           ASSIGN(_connectionDictionary,
-		 [tableOfContents objectForKey: @"connectionDictionary"]);
+                 [tableOfContents objectForKey: @"connectionDictionary"]);
           ASSIGN(_adaptorName, [tableOfContents objectForKey: @"adaptorName"]);
           ASSIGN(_userInfo, [tableOfContents objectForKey: @"userInfo"]);
 
           if (!_userInfo)
             {
               ASSIGN(_userInfo,
-		     [tableOfContents objectForKey:@"userDictionary"]);
+                     [tableOfContents objectForKey:@"userDictionary"]);
             }
 
           ASSIGN(_internalInfo,
-		 [tableOfContents objectForKey: @"internalInfo"]);
+                 [tableOfContents objectForKey: @"internalInfo"]);
           ASSIGN(_docComment,[tableOfContents objectForKey:@"docComment"]);
 
           //VERIFY
@@ -648,7 +620,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
             {
               NSMutableDictionary *markSP = [NSMutableDictionary dictionary];
               NSArray *storedProcedures = [tableOfContents
-					    objectForKey: @"storedProcedures"];
+                                           objectForKey: @"storedProcedures"];
               EOStoredProcedure *sp = nil;
               NSEnumerator *enumerator = nil;
 
@@ -662,10 +634,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
                   fileName = [NSString stringWithFormat: @"%@.storedProcedure",
                                        [[storedProcedures objectAtIndex: i]
-					 objectForKey: @"name"]];	  
+                                         objectForKey: @"name"]];	  
                   plist = [[NSString stringWithContentsOfFile:
                                        [_name stringByAppendingPathComponent:
-						fileName]]
+                                                fileName]]
                             propertyList];	  
 
                   [markSP setObject: plist
@@ -687,16 +659,13 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
           for (i = 0; i < count; i++)
             {
               [self _addFakeEntityWithPropertyList:
-		      [entities objectAtIndex: i]];
+                      [entities objectAtIndex: i]];
             }
         }
     }
   NS_HANDLER
     {
       NSLog(@"exception in EOModel initWithTableOfContentsPropertyList:path:");
-      NSLog(@"exception=%@", localException);
-/*      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In EOModel initWithTableOfContentsPropertyList:path:");*/
       NSLog(@"exception=%@", localException);
       [localException raise];
     }
@@ -705,12 +674,14 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return self;
 }
 
-- (void)encodeTableOfContentsInfoPropertyList: (NSMutableDictionary *)propertyList
+- (void) encodeTableOfContentsIntoPropertyList:
+  (NSMutableDictionary *)propertyList
 {
   int i, count;
   NSMutableArray *entitiesArray;
 
-  [propertyList setObject: [[NSNumber numberWithFloat: [isa version]] stringValue]
+  [propertyList setObject:
+    [[NSNumber numberWithFloat: [isa version]] stringValue]
 		forKey: @"EOModelVersion"];
 
   if (_adaptorName)
@@ -761,10 +732,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
       if (![propertyList isKindOfClass: [NSDictionary class]])
         [NSException raise: NSInvalidArgumentException
-                     format: @"%@ -- %@ 0x%x: must not be kind of NSDictionary class",
-                     NSStringFromSelector(_cmd),
-                     NSStringFromClass([self class]),
-                     self];
+	  format: @"%@ -- %@ 0x%x: must not be kind of NSDictionary class",
+	  NSStringFromSelector(_cmd),
+	  NSStringFromClass([self class]),
+	  self];
 
       if ((self = [self init]))
         {
@@ -881,10 +852,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     {
       NSLog(@"exception in EOModel initWithPropertyList:owner:");
       NSLog(@"exception=%@", localException);
-/*      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In EOModel initWithPropertyList:owner:");
-*/
-      NSLog(@"exception=%@", localException);
       [localException raise];
     }
   NS_ENDHANDLER;
@@ -904,20 +871,20 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 			     stringValue]
 		forKey: @"EOModelVersion"];
 
-  if(_name)
+  if (_name)
     [propertyList setObject: _name forKey: @"name"];
-  if(_adaptorName)
+  if (_adaptorName)
     [propertyList setObject: _adaptorName forKey: @"adaptorName"];
   if (_adaptorClassName) 
     [propertyList setObject: _adaptorClassName forKey: @"adaptorClassName"];
-  if(_connectionDictionary)
+  if (_connectionDictionary)
     [propertyList setObject: _connectionDictionary
 		  forKey: @"connectionDictionary"];
-  if(_userInfo)
+  if (_userInfo)
     [propertyList setObject: _userInfo forKey: @"userInfo"];
-  if(_internalInfo)
+  if (_internalInfo)
     [propertyList setObject: _internalInfo forKey: @"internalInfo"];
-  if(_docComment)
+  if (_docComment)
     [propertyList setObject: _docComment forKey: @"docComment"];
 
   count = [_entities count];
@@ -1044,37 +1011,36 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   EOFLOGObjectFnStop();
 }
 
-- (void)_resetPrototypeCache
+- (void) _resetPrototypeCache
 {
   // TODO
   [self notImplemented: _cmd];
 }
 
-- (BOOL)isPrototypesEntity: (id)param0
+- (BOOL) isPrototypesEntity: (id)param0
 {
   // TODO
   [self notImplemented: _cmd];
   return NO;
 }
 
-- (id)_instantiatedEntities
+- (id) _instantiatedEntities
 {
   // TODO
   [self notImplemented: _cmd];
   return nil;
 }
 
-
-- (void)_setPath: (NSString*)path
+- (void) _setPath: (NSString*)path
 {
   //OK
   [self loadAllModelObjects];
   [self willChange];
   ASSIGN(_path,path);
-  [self setName: [path stringByDeletingPathExtension]];//VERIFY
+  [self setName: [[path lastPathComponents] stringByDeletingPathExtension]];
 }
 
-- (EOEntity*)_entityForClass: (Class)aClass
+- (EOEntity*) _entityForClass: (Class)aClass
 {
   NSString *className;
   EOEntity *entity;
@@ -1112,25 +1078,25 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return entity;
 }
 
-- (id)_childrenForEntityNamed: (id)param0
+- (id) _childrenForEntityNamed: (id)param0
 {
   // TODO [self notImplemented:_cmd];
   return nil;
 }
 
-- (void)_registerChild: (id)param0
+- (void) _registerChild: (id)param0
              forParent: (id)param1
 {
   // TODO [self notImplemented:_cmd];
 }
 
-- (void)_setInheritanceLinks: (id)param0
+- (void) _setInheritanceLinks: (id)param0
 {
   // TODO
   [self notImplemented: _cmd];
 }
 
-- (void)_removeEntity: (id)entity
+- (void) _removeEntity: (id)entity
 {
   //should be ok
   NSString *entityName = nil;
@@ -1155,7 +1121,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   DESTROY(_entities);
 }
 
-- (EOEntity*)_addEntityWithPropertyList: (NSDictionary*)propertyList
+- (EOEntity*) _addEntityWithPropertyList: (NSDictionary*)propertyList
 {
   //OK
   id children = nil;
@@ -1187,7 +1153,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return entity;
 }
 
-- (void)_addFakeEntityWithPropertyList: (NSDictionary*)propertyList
+- (void) _addFakeEntityWithPropertyList: (NSDictionary*)propertyList
 {
   //OK
   NSString *entityName;
@@ -1208,7 +1174,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   DESTROY(_entities); //To force rebuild
 }
 
-- (id)_addEntity: (EOEntity*)entity
+- (id) _addEntity: (EOEntity*)entity
 {
   //Seems OK
   NSString *entityClassName;
@@ -1230,9 +1196,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 }
 
 //entity can be a EOEntity or an entity PList
-- (void)_setEntity: (id)entity
-     forEntityName: (NSString*)entityName
-         className: (NSString*)className
+- (void) _setEntity: (id)entity
+      forEntityName: (NSString*)entityName
+	  className: (NSString*)className
 {
   NSAssert(entityName, @"No entity name");
   NSAssert(className, @"No class name");
@@ -1253,7 +1219,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 @implementation EOModel (EOModelEditing)
 
-- (void)setName: (NSString *)name
+- (void) setName: (NSString *)name
 {
   if (![name isEqualToString: _name])
     {
@@ -1272,29 +1238,29 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
 }
 
-- (void)setAdaptorName: (NSString *)adaptorName
+- (void) setAdaptorName: (NSString *)adaptorName
 {
   ASSIGN(_adaptorName, adaptorName);
 }
 
-- (void)setConnectionDictionary: (NSDictionary *)connectionDictionary
+- (void) setConnectionDictionary: (NSDictionary *)connectionDictionary
 {
   ASSIGN(_connectionDictionary, connectionDictionary);
 }
 
-- (void)setUserInfo: (NSDictionary *)userInfo
+- (void) setUserInfo: (NSDictionary *)userInfo
 {
   [self willChange];
   ASSIGN(_userInfo, userInfo);
 }
 
-- (void)setDocComment: (NSString *)docComment
+- (void) setDocComment: (NSString *)docComment
 {
   [self willChange];
   ASSIGN(_docComment, docComment);
 }
 
-- (void)addEntity: (EOEntity *)entity
+- (void) addEntity: (EOEntity *)entity
 {
   NSString *entityName = [entity name];
 //  void *entitiesClass;
@@ -1313,20 +1279,13 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     [(GCMutableArray *)_entities addObject: entity];
   else
     {
-      _entities = [[[_entities autorelease] mutableCopy] autorelease];
-      [(GCMutableArray *)_entities addObject: entity];
-      _entities = [_entities copy];
+      id	e = [[GCMutableArray alloc] initWithArray: _entities];
+
+      [e addObject: entity];
+      ASSIGNCOPY(_entities, e);
+      RELEASE(e);
     }
 
-/*
-  count = [_entities count];
-
-  entitiesClass = calloc(count, sizeof(id));
-  memcpy(entitiesClass, _entitiesByClass, sizeof(Class)*(count-1));
-  ((Class *)entitiesClass)[count-1] = [entity class];
-  free(_entitiesByClass);
-  _entitiesByClass = entitiesClass;
-*/
   NSAssert(_entitiesByClass, @"No _entitiesByClass");
 
   className = [entity className];
@@ -1342,30 +1301,13 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   [entity setModel: self];
 }
 
-- (void)removeEntity: (EOEntity *)entity
+- (void) removeEntity: (EOEntity *)entity
 {
-//  unsigned int entityIndex = [_entities indexOfObject:entity];
   NSString *className = nil;
-//  void *entitiesClass=NULL;
-//  int count;
 
   [entity setModel: nil];
   [_entitiesByName removeObjectForKey: [entity name]];
 
-/*  count = [_entities count]-1;
-  if(count)
-    {
-      entitiesClass = calloc(count, sizeof(id));
-      if(entityIndex)
-	memcpy(entitiesClass, _entitiesByClass, sizeof(id)*entityIndex);
-      if(count > entityIndex)
-	memcpy(&((int *)entitiesClass)[entityIndex],
-	       &((int *)_entitiesByClass)[entityIndex+1],
-	       sizeof(id)*(count-entityIndex));
-    }
-  free(_entitiesByClass);
-  _entitiesByClass = entitiesClass;
-*/
   NSAssert(_entitiesByClass, @"No _entitiesByClass");
 
   className = [entity className];
@@ -1376,19 +1318,21 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     [(GCMutableArray *)_entities removeObject: entity];
   else
     {
-      _entities = [[_entities autorelease] mutableCopy];
-      [(GCMutableArray *)_entities removeObject: entity];
-      _entities = [[_entities autorelease] copy];
+      id	e = [[GCMutableArray alloc] initWithArray: _entities];
+
+      [e removeObject: entity];
+      ASSIGNCOPY(_entities, e);
+      RELEASE(e);
     }
 }
 
-- (void)removeEntityAndReferences: (EOEntity *)entity;
+- (void) removeEntityAndReferences: (EOEntity *)entity;
 {
   [self removeEntity: entity];
   // TODO;
 }
 
-- (void)addStoredProcedure: (EOStoredProcedure *)storedProcedure
+- (void) addStoredProcedure: (EOStoredProcedure *)storedProcedure
 {
   if ([self storedProcedureNamed: [storedProcedure name]])
     [NSException raise: NSInvalidArgumentException
@@ -1409,9 +1353,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
 }
 
-- (void)removeStoredProcedure: (EOStoredProcedure *)storedProcedure
+- (void) removeStoredProcedure: (EOStoredProcedure *)storedProcedure
 {
-  if([self createsMutableObjects])
+  if ([self createsMutableObjects])
     [(GCMutableArray *)_storedProcedures removeObject: storedProcedure];
   else
     {
@@ -1421,7 +1365,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
 }
 
-- (void)setModelGroup: (EOModelGroup *)group
+- (void) setModelGroup: (EOModelGroup *)group
 {
   EOFLOGObjectFnStart();
 
@@ -1431,7 +1375,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   EOFLOGObjectFnStop();
 }
 
-- (void)loadAllModelObjects
+- (void) loadAllModelObjects
 {
   NSArray *storedProcedures = [self storedProcedures];
   //TODO something if storedProcedures ?
@@ -1441,7 +1385,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   [self willChange];
 }
 
-- (NSArray *)referencesToProperty: property
+- (NSArray *) referencesToProperty: property
 {
   // TODO
   [self notImplemented: _cmd];
@@ -1449,7 +1393,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return nil;
 }
 
-- (NSArray *)externalModelsReferenced
+- (NSArray *) externalModelsReferenced
 {
   // TODO;
   [self notImplemented: _cmd];
@@ -1462,7 +1406,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 @implementation EOModel (EOModelBeautifier)
 
-- (void)beautifyNames
+- (void) beautifyNames
 {
   NSArray  *listItems;
   NSString *newString = [NSString string];
@@ -1517,8 +1461,77 @@ letter of each embedded word other than the first, which is upper case. Thus,
 @end
 
 @implementation EOModel (EOModelPrivate)
+/**
+ * Returns a string that can be uses as a model path to load or save
+ * the model.  If chkFS is YES, then the path is searched.  If path
+ * does not include a path extension then first .eomodeld checked.  If that
+ * fails then .eomodel is searched.  Call this method to format the path
+ * provided before saving the model with chkFS NO.  Call this method to
+ * format the path provided before loading a model with chkFS YES.
+ */
++ (NSString *) _formatModelPath: (NSString *)path checkFileSystem: (BOOL)chkFS
+{
+  NSFileManager *fileManager;
+  NSString *lastPathComponent = nil;
+  NSString *pathExtension = nil;
+  NSString *searchPath = path;
+  NSString *returnPath = path;
 
-- (void)setCreateMutableObjects: (BOOL)flag
+  lastPathComponent = [path lastPathComponent];
+  pathExtension = [lastPathComponent pathExtension];
+
+  if ([lastPathComponent isEqualToString: @"index.eomodeld"] == NO)
+    {
+      if ([pathExtension isEqualToString: @"eomodeld"] == NO)
+	{
+	  searchPath =
+	      [searchPath stringByAppendingPathExtension: @"eomodeld"];
+	}
+      searchPath =
+	  [searchPath stringByAppendingPathComponent: @"index.eomodeld"];
+    }
+        
+  searchPath = [searchPath stringByStandardizingPath];
+
+  if (chkFS==YES)
+    {
+      fileManager = [NSFileManager defaultManager];
+
+      if ([fileManager fileExistsAtPath: searchPath] == YES)
+        {
+          returnPath = searchPath;
+	}
+      else
+        {
+	  searchPath = path;
+          if ([pathExtension isEqualToString: @"eomodel"] == NO)
+	    {
+	      searchPath =
+		  [searchPath stringByAppendingPathComponent: @"eomodel"];
+	    }
+	  searchPath = [searchPath stringByStandardizingPath];
+	  if ([fileManager fileExistsAtPath: searchPath] == YES)
+	    {
+	      returnPath = searchPath;
+	    }
+	}
+      NSAssert1(returnPath!=nil,@"No valid Model found at path:%@", path);
+    }
+  else 
+    {
+      returnPath = searchPath;
+    }
+
+  lastPathComponent = [returnPath lastPathComponent];
+  if ([lastPathComponent isEqualToString: @"index.eomodeld"] == YES)
+    {
+      returnPath = [returnPath stringByDeletingLastPathComponent];
+    }
+
+  return returnPath;
+}
+
+- (void) setCreateMutableObjects: (BOOL)flag
 {
   if (_flags.createsMutableObjects != flag)
     {
@@ -1531,15 +1544,15 @@ letter of each embedded word other than the first, which is upper case. Thus,
     }
 }
 
-- (BOOL)createsMutableObjects
+- (BOOL) createsMutableObjects
 {
   return _flags.createsMutableObjects;
 }
 
-- (EOEntity *)_verifyBuiltEntityObject: (id)entity
-                                 named: (NSString*)name
+- (EOEntity *) _verifyBuiltEntityObject: (id)entity
+				  named: (NSString*)name
 {
-  if (![entity isKindOfClass: [EOEntity class]])
+  if ([entity isKindOfClass: [EOEntity class]] == NO)
     {
       [EOObserverCenter suppressObserverNotification];
 
@@ -1558,7 +1571,7 @@ letter of each embedded word other than the first, which is upper case. Thus,
           NSAssert1(name, @"No name for entity %@", entity);
           NSDebugMLLog(@"gsdb", @"[self path]=%@", [self path]);
 
-          basePath = [[self class] findPathForModelNamed: [self path]]; 
+          basePath = [self path]; 
           [[entity retain] autorelease]; //so it won't be lost in _removeEntity
 
           NSDebugMLLog(@"gsdb", @"basePath =%@", basePath);
