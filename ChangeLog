@@ -1,3 +1,13 @@
+2003-03-08  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAdaptors/Postgres95/Postgres95Channel.h
+	([Postgres95Channel describeDatabaseNames]): Declare method.
+	([Postgres95Channel userNameIsAdministrative:]): Ditto.
+
+	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.m
+	([Postgres95LoginPanel init]): Added parentheses to assignment
+	to quiet compiler warning.
+	
 2003-03-08  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/Postgres95Adaptor.m

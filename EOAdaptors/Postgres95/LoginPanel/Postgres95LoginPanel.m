@@ -39,7 +39,7 @@ static BOOL insideModalLoop;
 }
 - (id)init
 {
-  if (self = [super init])
+  if ((self = [super init]))
     {
       NSTableColumn *tableColumn;
       float spacer = 3.0;

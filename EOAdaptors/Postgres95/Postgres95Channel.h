@@ -69,6 +69,10 @@
 - (void)_describeResults;
 - (void)_readServerVersion;
 
+/* Extensions for login panel */
+- (NSArray *)describeDatabaseNames;
+- (BOOL)userNameIsAdministrative:(NSString*)userName;
+
 /* Private methods */
 - (char*)_readBinaryDataRow: (Oid)oid length: (int*)length zone: (NSZone*)zone;
 - (Oid)_insertBinaryData: (NSData*)binaryData forAttribute: (EOAttribute*)attr;
