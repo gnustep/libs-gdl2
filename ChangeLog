@@ -5,6 +5,8 @@
 
 	* EOControl/EONSAddOns.h/m ([NSString-hasShellPatternCharacter]):
 	Remove.
+	* EOControl/EOPriv.h/m (GDL2_shellPatternCharacterSet): Remove.
+	(GDL2PrivInit): Remove usage of GDL2_shellPatternCharacterSet.
 	
 2005-02-15  David Ayers  <d.ayers@inode.at>
 

@@ -158,8 +158,6 @@ NSNumber* GDL2NSNumberBool_No=nil;
 
 EONull* GDL2EONull=nil;
 
-NSCharacterSet* GDL2_shellPatternCharacterSet=nil;
-
 // ==== Init Method ====
 void GDL2PrivInit()
 {
@@ -306,6 +304,5 @@ void GDL2PrivInit()
 
       ASSIGN(GDL2EONull,[EONull null]);
 
-      ASSIGN(GDL2_shellPatternCharacterSet,([NSCharacterSet characterSetWithCharactersInString:@"*?%_"]));
     };
 }

@@ -147,7 +147,6 @@ GDL2CONTROL_EXPORT IMP GDL2NSMutableDictionary_dictionaryWithCapacityIMP;
 GDL2CONTROL_EXPORT NSNumber* GDL2NSNumberBool_Yes;
 GDL2CONTROL_EXPORT NSNumber* GDL2NSNumberBool_No;
 GDL2CONTROL_EXPORT EONull* GDL2EONull;
-GDL2CONTROL_EXPORT NSCharacterSet* GDL2_shellPatternCharacterSet;
 
 // ==== Init Method ====
 GDL2CONTROL_EXPORT void GDL2PrivInit();
