@@ -34,7 +34,7 @@
 #include <Foundation/Foundation.h>
 #endif
 
-#include <gnustep/base/GCObject.h>
+#include <GNUstepBase/GCObject.h>
 
 #include <EOControl/EOClassDescription.h>
 

@@ -51,13 +51,13 @@ RCS_ID("$Id$")
 #endif
 
 #ifndef GNUSTEP
-#include <gnustep/base/GNUstep.h>
+#include <GNUstepBase/GNUstep.h>
 #endif
 
 #include <EOControl/EOQualifier.h>
 #include <EOControl/EODebug.h>
 
-#include <gnustep/base/GSObjCRuntime.h>
+#include <GNUstepBase/GSObjCRuntime.h>
 
 
 @implementation NSNumber (EOQualifierExtras)

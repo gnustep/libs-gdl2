@@ -27,7 +27,7 @@
 #ifndef __EOModelGroup_h__
 #define __EOModelGroup_h__
 
-#include <gnustep/base/GCObject.h>
+#include <GNUstepBase/GCObject.h>
 
 #include <EOControl/EOObjectStoreCoordinator.h>
 

@@ -1,3 +1,8 @@
+2003-08-25  Matt Rice  <ratmice@yahoo.com>
+
+	* *.h/m:  Updated to new header layout.
+	* Tools/eoutil.m:  Added missing include.
+
 2003-08-23  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOKeyValueCoding.h/m: Rewritten and documented.

@@ -60,8 +60,8 @@ RCS_ID("$Id$")
 #endif
 
 #ifndef GNUSTEP
-#include <gnustep/base/GNUstep.h>
-#include <gnustep/base/GSCategories.h>
+#include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSCategories.h>
 #endif
 
 #include <EOControl/EOKeyValueCoding.h>
@@ -69,7 +69,7 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
 
-#include <gnustep/base/GSObjCRuntime.h>
+#include <GNUstepBase/GSObjCRuntime.h>
 
 static EONull *null = nil;
 static SEL     oaiSel;

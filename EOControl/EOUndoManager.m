@@ -36,7 +36,7 @@
 RCS_ID("$Id$")
 
 #ifndef GNUSTEP
-#include <gnustep/base/GNUstep.h>
+#include <GNUstepBase/GNUstep.h>
 #endif
 
 #include <EOControl/EODeprecated.h>

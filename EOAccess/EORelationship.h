@@ -27,7 +27,7 @@
 #ifndef __EORelationship_h__
 #define __EORelationship_h__
 
-#include <gnustep/base/GCObject.h>
+#include <GNUstepBase/GCObject.h>
 
 #include <EOControl/EOClassDescription.h>
 

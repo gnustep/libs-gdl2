@@ -48,12 +48,13 @@ RCS_ID("$Id$")
 #include <Foundation/NSFileHandle.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/NSProcessInfo.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
 
 #ifndef GNUSTEP
-#include <gnustep/base/GNUstep.h>
+#include <GNUstepBase/GNUstep.h>
 #endif
 
 #include <EOControl/EOControl.h>

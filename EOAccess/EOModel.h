@@ -33,7 +33,7 @@
 #else
 #include <Foundation/Foundation.h>
 #endif
-#include <gnustep/base/GCObject.h>
+#include <GNUstepBase/GCObject.h>
 
 #include <EOAccess/EODefines.h>
 #include <EOAccess/EOPropertyListEncoding.h>

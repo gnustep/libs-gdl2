@@ -64,10 +64,10 @@ RCS_ID("$Id$")
 #endif
 
 #ifndef GNUSTEP
-#include <gnustep/base/GNUstep.h>
+#include <GNUstepBase/GNUstep.h>
 #endif
 
-#include <gnustep/base/Unicode.h>
+#include <GNUstepBase/Unicode.h>
 
 
 #include <EOControl/EONSAddOns.h>

@@ -27,7 +27,7 @@
 #ifndef __EOStoredProcedure_h__
 #define __EOStoredProcedure_h__
 
-#include <gnustep/base/GCObject.h>
+#include <GNUstepBase/GCObject.h>
 
 #include <EOAccess/EOPropertyListEncoding.h>
 
