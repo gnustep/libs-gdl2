@@ -32,7 +32,6 @@
 	([Postgres95SQLExpression dropTableStatementsForEntityGroup:]): 
 	Ditto.
 	([Postgres95SQLExpression tableListWithRootEntity:]): Ditto.
-	
 
 	* EOAdaptors/Postgres95/Postgres95Channel.m: Define 
 	EOAdaptorDebugLog convinience macro and use it throughout the file.
