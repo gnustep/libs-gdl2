@@ -76,6 +76,7 @@ RCS_ID("$Id$")
 
 
 static EOObjectStore *defaultParentStore = nil;
+static NSTimeInterval defaultFetchLag = 3600.0;
 
 //Notifications
 NSString *EOObjectsChangedInEditingContextNotification = @"EOObjectsChangedInEditingContextNotification";
@@ -88,6 +89,16 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
     {
       defaultParentStore = [EOObjectStoreCoordinator defaultCoordinator];
     }
+}
+
++ (NSTimeInterval)defaultFetchTimestampLag
+{
+  return defaultFetchLag;
+}
+
++ (void)setDefaultFetchTimestampLag: (NSTimeInterval)lag
+{
+  defaultFetchLag = lag;
 }
 
 + (void)setInstancesRetainRegisteredObjects: (BOOL)flag

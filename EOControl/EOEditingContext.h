@@ -99,6 +99,9 @@
   NSAutoreleasePool * _lockPool;
 }
 
++ (void)setDefaultFetchTimestampLag: (NSTimeInterval)lag;
++ (NSTimeInterval)defaultFetchTimestampLag;
+
 + (void)setInstancesRetainRegisteredObjects: (BOOL)flag;
 + (BOOL)instancesRetainRegisteredObjects;
 

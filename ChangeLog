@@ -1,3 +1,9 @@
+2005-01-27  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOEditingContext.h/m
+	(setDefaultFetchTimestampLag:, defaultFetchTimestampLag):
+	Implemented.
+	
 2005-01-26  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOUtilities.m (NSObjectNotAvailableException): 

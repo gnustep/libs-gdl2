@@ -190,7 +190,7 @@ GDL2_ActivateAllGDL2Categories(void)
                         object,
                         sel_get_name(sel));
 
-              [results addObject: result]; //TODO What to do if nil ??
+              [results addObject: result];
             }
         }
       NS_HANDLER
