@@ -72,7 +72,7 @@ RCS_ID("$Id$")
  */
 
 NSString *EOGeneralDatabaseException = @"EOGeneralDatabaseException";
-
+NSTimeInterval EODistantPastTimeInterval = -603979776.0;
 
 @implementation EODatabase
 
@@ -449,6 +449,13 @@ static NSMutableArray *databaseInstances;
 }
 
 - (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid
+{
+  return [self snapshotForGlobalID: gid
+	       after: EODistantPastTimeInterval];
+}
+
+- (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid
+				after: (NSTimeInterval)ti
 {
   //seems OK
   NSDictionary *snapshot = nil;

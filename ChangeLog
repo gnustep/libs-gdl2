@@ -1,5 +1,11 @@
 2005-01-27  David Ayers  <d.ayers@inode.at>
 
+	* EOAccess/EODatabase.h/m:(EODistantPastTimeInterval): Added
+	global variable.
+	(snapshotForGlobalID:after:): Implemented.
+	
+2005-01-27  David Ayers  <d.ayers@inode.at>
+
 	* EOControl/EOEditingContext.h/m
 	(setDefaultFetchTimestampLag:, defaultFetchTimestampLag):
 	Implemented.

@@ -53,6 +53,8 @@
 
 GDL2ACCESS_EXPORT NSString *EOGeneralDatabaseException;
 
+GDL2ACCESS_EXPORT NSTimeInterval EODistantPastTimeInterval; 
+
 
 @interface EODatabase : NSObject
 {
@@ -99,6 +101,8 @@ GDL2ACCESS_EXPORT NSString *EOGeneralDatabaseException;
 
 - (void)recordSnapshot: (NSDictionary *)snapshot forGlobalID: (EOGlobalID *)gid;
 
+- (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid
+                                after: (NSTimeInterval)ti;
 - (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid;
 
 - (void)recordSnapshot: (NSArray *)gids
