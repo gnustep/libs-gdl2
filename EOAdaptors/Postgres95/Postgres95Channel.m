@@ -1335,7 +1335,6 @@ each key
 		   @"bad response from server"];
     }
 
-  [_oidToTypeName removeAllObjects];
   count = PQntuples(_pgResult);
 
   for (i = 0; i < count; i++)

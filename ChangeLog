@@ -1,8 +1,12 @@
-2003-06-21  David Ayers  <d.ayers@inode.at>
+2003-06-22  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOFault.m ([EOFault -respondsToSelector:]): Adapt to
 	current GSObjCRuntime API.
 	* EOControl/EOUndoManager.h: Correct includes.
+	* EOAdaptors/Postgres95/Postgres95Channel.m
+	([Postgres95Channel -describeTableNames]): Removed incorrect code
+	left by copy and paste action.  Reported by Markus Hitter
+	<mah@jumping.de>
 
 2003-06-01  David Ayers  <d.ayers@inode.at>
 
