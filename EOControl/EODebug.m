@@ -1,6 +1,6 @@
 /* EODebug.m - <title>debug</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -35,6 +35,7 @@ RCS_ID("$Id$")
 
 #import <Foundation/NSThread.h>
 #import <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSDebug.h>
 
 #include <unistd.h>
 

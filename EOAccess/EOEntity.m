@@ -3323,6 +3323,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   EOFLOGObjectFnStop();
 }
 
+//DESTROY v later because it may be still in use
+#define AUTORELEASE_SETNIL(v) { AUTORELEASE(v); v=nil; }
 - (void) _setIsEdited
 {
   EOFLOGObjectLevelArgs(@"EOEntity", @"START entity name=%@", [self name]);
@@ -3339,64 +3341,64 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyNames: void:%p [%p] %s",
 			(void*)nil, (void*)_classPropertyNames,
 			(_classPropertyNames ? "Not NIL" : "NIL"));
-  DESTROY(_classPropertyNames);
+  AUTORELEASE_SETNIL(_classPropertyNames);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_primaryKeyAttributeNames: %p %s",
 			(void*)_primaryKeyAttributeNames,
 			(_primaryKeyAttributeNames ? "Not NIL" : "NIL"));
-  DESTROY(_primaryKeyAttributeNames);
+  AUTORELEASE_SETNIL(_primaryKeyAttributeNames);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyAttributeNames: %p %s",
 			_classPropertyAttributeNames,
 			(_classPropertyAttributeNames ? "Not NIL" : "NIL"));
-  DESTROY(_classPropertyAttributeNames);
+  AUTORELEASE_SETNIL(_classPropertyAttributeNames);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyToOneRelationshipNames: %p %s",
 			_classPropertyToOneRelationshipNames,
 			(_classPropertyToOneRelationshipNames ? "Not NIL" : "NIL"));
-  DESTROY(_classPropertyToOneRelationshipNames);
+  AUTORELEASE_SETNIL(_classPropertyToOneRelationshipNames);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyToManyRelationshipNames: %p %s",
 			_classPropertyToManyRelationshipNames,
 			(_classPropertyToManyRelationshipNames ? "Not NIL" : "NIL"));
-  DESTROY(_classPropertyToManyRelationshipNames);
+  AUTORELEASE_SETNIL(_classPropertyToManyRelationshipNames);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesToFetch: %p %s",
 			_attributesToFetch,
 			(_attributesToFetch ? "Not NIL" : "NIL"));
-  DESTROY(_attributesToFetch);
+  AUTORELEASE_SETNIL(_attributesToFetch);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_dbSnapshotKeys: %p %s",
 			_dbSnapshotKeys, (_dbSnapshotKeys ? "Not NIL" : "NIL"));
-  DESTROY(_dbSnapshotKeys);
+  AUTORELEASE_SETNIL(_dbSnapshotKeys);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesToSave: %p %s",
 			_attributesToSave, (_attributesToSave ? "Not NIL" : "NIL"));
-  DESTROY(_attributesToSave);
+  AUTORELEASE_SETNIL(_attributesToSave);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_propertiesToFault: %p %s",
 			_propertiesToFault, (_propertiesToFault ? "Not NIL" : "NIL"));
-  DESTROY(_propertiesToFault);
+  AUTORELEASE_SETNIL(_propertiesToFault);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_adaptorDictionaryInitializer: %p %s",
 			_adaptorDictionaryInitializer,
 			(_adaptorDictionaryInitializer ? "Not NIL" : "NIL"));
-  DESTROY(_adaptorDictionaryInitializer);
+  AUTORELEASE_SETNIL(_adaptorDictionaryInitializer);
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"_snapshotDictionaryInitializer: %p %s",
 			_snapshotDictionaryInitializer,
 			(_snapshotDictionaryInitializer ? "Not NIL" : "NIL"));
-  DESTROY(_snapshotDictionaryInitializer);
+  AUTORELEASE_SETNIL(_snapshotDictionaryInitializer);
 
   EOFLOGObjectLevelArgs(@"EOEntity",@"_primaryKeyDictionaryInitializer: %p %s",
 			_primaryKeyDictionaryInitializer,
 			(_primaryKeyDictionaryInitializer ? "Not NIL" : "NIL"));
-  DESTROY(_primaryKeyDictionaryInitializer);
+  AUTORELEASE_SETNIL(_primaryKeyDictionaryInitializer);
 
   EOFLOGObjectLevelArgs(@"EOEntity",@"_propertyDictionaryInitializer: %p %s",
 			_propertyDictionaryInitializer,
 			(_propertyDictionaryInitializer ? "Not NIL" : "NIL"));
-  DESTROY(_propertyDictionaryInitializer);
+  AUTORELEASE_SETNIL(_propertyDictionaryInitializer);
 
   //TODO call _flushCache on each attr
   NSAssert4(!_attributesToFetch

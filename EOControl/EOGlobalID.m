@@ -1,7 +1,7 @@
 /** 
    EOGlobalID.m <title>EOGlobalID</title>
 
-   Copyright (C) 2000-2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2003 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
    Date: February 2000
@@ -44,11 +44,21 @@ RCS_ID("$Id$")
 #include <time.h>
 #include <unistd.h>
 
+#import <EOAccess/EODatabaseContext.h>
+
 
 NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 
 
 @implementation EOGlobalID
+
++ (void)initialize
+{
+  if (self == [EOGlobalID class])
+    {
+      [EODatabaseContext class]; // Insure correct initialization.
+    }
+}
 
 - (BOOL)isEqual: other
 {

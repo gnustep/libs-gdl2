@@ -90,11 +90,11 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 
       [self setName: [propertyList objectForKey: @"name"]];
 
-      NSDebugMLLog(@"gsdb", @"Attribute parent=%p %@",
+      EOFLOGObjectLevelArgs(@"gsdb", @"Attribute parent=%p %@",
 		   owner, [(EOEntity *)owner name]);
 
       [self setParent: owner];
-//      NSDebugMLLog(@"gsdb", @"Attribute Entity=%@", [self entity]);
+//      EOFLOGObjectLevel(@"gsdb", @"Attribute Entity=%@", [self entity]);
 
       tmpString = [propertyList objectForKey: @"prototypeName"];
       if (tmpString)
@@ -214,13 +214,13 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
       if (tmpString)
         [self setDocComment: tmpString];
 
-      NSDebugMLLog(@"gsdb", @"Attribute name=%@", _name);
+      EOFLOGObjectLevelArgs(@"gsdb", @"Attribute name=%@", _name);
 
       tmpString = [propertyList objectForKey: @"isReadOnly"];
-      NSDebugMLLog(@"gsdb", @"tmpString=%@", tmpString);
+      EOFLOGObjectLevelArgs(@"gsdb", @"tmpString=%@", tmpString);
 
       [self setReadOnly: [tmpString isEqual: @"Y"]];
-      NSDebugMLLog(@"gsdb", @"tmpString=%@", tmpString);
+      EOFLOGObjectLevelArgs(@"gsdb", @"tmpString=%@", tmpString);
     }
 
   return self;
@@ -242,7 +242,8 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
   if (columnName)
     [self setColumnName: columnName];
 
-  NSDebugMLLog(@"gsdb", @"Attribute %@ awakeWithPropertyList:%@", self, propertyList);
+  EOFLOGObjectLevelArgs(@"gsdb", @"Attribute %@ awakeWithPropertyList:%@", 
+                        self, propertyList);
 }
 
 - (void)encodeIntoPropertyList: (NSMutableDictionary *)propertyList
@@ -388,11 +389,11 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
   NSString *definition = nil;
 
 //  EOFLOGObjectFnStart();
-//  NSDebugMLLog(@"gsdb",@"_definitionArray:%@",_definitionArray);
+//  EOFLOGObjectLevel(@"gsdb",@"_definitionArray:%@",_definitionArray);
 
   definition=[_definitionArray valueForSQLExpression: nil];
 
-//  NSDebugMLLog(@"gsdb",@"definition:%@",definition);
+//  EOFLOGObjectLevel(@"gsdb",@"definition:%@",definition);
 //  EOFLOGObjectFnStop();
 
   return definition;
@@ -538,7 +539,7 @@ A Flattened attribute is also a derived attributes.
 {
   NSString *value=nil;
 
-//  NSDebugMLLog(@"gsdb",@"EOAttribute %p",self);
+//  EOFLOGObjectLevel(@"gsdb",@"EOAttribute %p",self);
   NSEmitTODO();  //TODO
 
   if (_definitionArray)

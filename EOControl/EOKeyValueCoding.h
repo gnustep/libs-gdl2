@@ -36,10 +36,15 @@
 
 
 @interface NSObject (EOKVCPAdditions2)
+- (void)smartTakeValue: (id)anObject 
+                forKey: (NSString *)aKey;
+- (void)smartTakeValue: (id)anObject 
+            forKeyPath: (NSString *)aKeyPath;
 - (void)takeStoredValue: value 
              forKeyPath: (NSString *)key;
 - (void)takeStoredValuesFromDictionary: (NSDictionary *)dictionary;
 - (NSDictionary *)valuesForKeyPaths: (NSArray *)keyPaths;
+- (NSDictionary *)storedValuesForKeyPaths: (NSArray *)keyPaths;
 @end
 
 

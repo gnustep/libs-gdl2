@@ -45,9 +45,19 @@ RCS_ID("$Id$")
 #import <EOControl/EODebug.h>
 #import <EOControl/EONSAddOns.h>
 #import <EOControl/EOQualifier.h>
+#import <EOAccess/EODatabaseContext.h>
 
 
 @implementation EOFetchSpecification
+
++ (void)initialize
+{
+  if (self == [EOFetchSpecification class])
+    {
+      [EODatabaseContext class];  // Insure correct initialization.
+    }
+}
+
 
 + (EOFetchSpecification *)fetchSpecification
 {
@@ -119,12 +129,6 @@ RCS_ID("$Id$")
   return nil;
 }
 
-+ (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
-                                      entityNamed: (NSString *)entityName
-{
-  return nil;
-}
-
 + (EOFetchSpecification *)fetchSpecificationWithEntityName: (NSString *)name
                                                  qualifier: (EOQualifier *)qualifier
                                              sortOrderings: (NSArray *)sortOrderings
@@ -138,6 +142,36 @@ RCS_ID("$Id$")
 	      hints: nil] autorelease];
 }
 
++ (EOFetchSpecification *)fetchSpecificationWithEntityName: (NSString *)name
+                                                 qualifier: (EOQualifier *)qualifier
+                                             sortOrderings: (NSArray *)sortOrderings
+                                              usesDistinct: (BOOL)usesDistinct
+                                                    isDeep: (BOOL)isDeep
+                                                     hints: (NSDictionary *)hints
+{
+    return [[[EOFetchSpecification alloc]
+	      initWithEntityName: name
+	      qualifier: qualifier
+	      sortOrderings: sortOrderings
+	      usesDistinct: usesDistinct
+	      isDeep: isDeep
+	      hints: hints] autorelease];
+}
+
+
++ (EOFetchSpecification *)fetchSpecificationWithEntityName: (NSString *)name
+                                                 qualifier: (EOQualifier *)qualifier
+                                             sortOrderings: (NSArray *)sortOrderings
+                                              usesDistinct: (BOOL)usesDistinct
+{
+    return [[[EOFetchSpecification alloc]
+	      initWithEntityName: name
+	      qualifier: qualifier
+	      sortOrderings: sortOrderings
+	      usesDistinct: usesDistinct
+	      isDeep: YES
+	      hints: nil] autorelease];
+}
 
 - (id) copyWithZone: (NSZone *)zone
 {

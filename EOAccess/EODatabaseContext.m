@@ -1,7 +1,7 @@
 /** 
    EODatabaseContext.m  <title>EODatabaseContext Class</title>
 
-   Copyright (C) 2000-2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2003 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
    Date: June 2000
@@ -104,19 +104,17 @@ NSString *EOFailedDatabaseOperationKey = @"EOFailedDatabaseOperationKey";
 
 static Class _contextClass = Nil;
 
-+ (void)load
-{
-  [[NSNotificationCenter defaultCenter]
-    addObserver: self
-    selector: @selector(_registerDatabaseContext:)
-    name: EOCooperatingObjectStoreNeeded
-    object: nil];
-}
-
 + (void)initialize
 {
   if (!_contextClass)
-    _contextClass = [EODatabaseContext class];
+    {
+      _contextClass = [EODatabaseContext class];
+      [[NSNotificationCenter defaultCenter]
+        addObserver: self
+        selector: @selector(_registerDatabaseContext:)
+        name: EOCooperatingObjectStoreNeeded
+        object: nil];
+    }
 }
 
 + (EODatabaseContext*)databaseContextWithDatabase: (EODatabase *)database

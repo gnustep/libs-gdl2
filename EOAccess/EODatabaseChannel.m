@@ -1,7 +1,7 @@
 /** 
    EODatabaseChannel.m <title>EODatabaseChannel</title>
 
-   Copyright (C) 2000-2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2003 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
    Date: June 2000
@@ -68,13 +68,16 @@ RCS_ID("$Id$")
 
 @implementation EODatabaseChannel
 
-+ (void)load
++ (void)initialize
 {
-  [[NSNotificationCenter defaultCenter]
-    addObserver: self
-    selector: @selector(_registerDatabaseChannel:)
-    name: EODatabaseChannelNeededNotification
-    object: nil];
+  if (self == [EODatabaseChannel class])
+    {
+      [[NSNotificationCenter defaultCenter]
+        addObserver: self
+        selector: @selector(_registerDatabaseChannel:)
+        name: EODatabaseChannelNeededNotification
+        object: nil];
+    }
 }
 
 + (void)_registerDatabaseChannel: (NSNotification *)notification
@@ -137,7 +140,7 @@ RCS_ID("$Id$")
   int i = 0;
   int count = [relationships count];
 
-  NSDebugMLLog(@"gsdb", @"relationships=%@", relationships);
+  EOFLOGObjectLevelArgs(@"gsdb", @"relationships=%@", relationships);
 
   for (i = 0; i < count; i++)
     {
@@ -147,15 +150,15 @@ RCS_ID("$Id$")
       EOEntity *entity = [relationship entity];
       EOModel *entityModel = [entity model];
 
-      NSDebugMLLog(@"gsdb", @"relationship=%@", relationship);
-      NSDebugMLLog(@"gsdb", @"destinationEntity=%@", [destinationEntity name]);
+      EOFLOGObjectLevelArgs(@"gsdb", @"relationship=%@", relationship);
+      EOFLOGObjectLevelArgs(@"gsdb", @"destinationEntity=%@", [destinationEntity name]);
 
       NSAssert2(destinationEntity, @"No destinationEntity in relationship: %@ of entity %@",
                 relationship, [entity name]); //TODO: flattened relationship
 
-      NSDebugMLLog(@"gsdb", @"entity=%@", [entity name]);
-      NSDebugMLLog(@"gsdb", @"destinationEntityModel=%p", destinationEntityModel);
-      NSDebugMLLog(@"gsdb", @"entityModel=%p", entityModel);
+      EOFLOGObjectLevelArgs(@"gsdb", @"entity=%@", [entity name]);
+      EOFLOGObjectLevelArgs(@"gsdb", @"destinationEntityModel=%p", destinationEntityModel);
+      EOFLOGObjectLevelArgs(@"gsdb", @"entityModel=%p", entityModel);
 
       //If different: try to add destinationEntityModel
       if (destinationEntityModel != entityModel)
@@ -214,42 +217,42 @@ RCS_ID("$Id$")
   entityName = [fetch entityName];
   database = [_databaseContext database];
 
-  NSDebugMLLog(@"gsdb", @"database=%@", database);
+  EOFLOGObjectLevelArgs(@"gsdb", @"database=%@", database);
 
   entity = [database entityNamed: entityName];
 
-  NSDebugMLLog(@"gsdb", @"entity name=%@", [entity name]);
+  EOFLOGObjectLevelArgs(@"gsdb", @"entity name=%@", [entity name]);
 
   qualifier=[fetch qualifier];
 
-  NSDebugMLLog(@"gsdb", @"qualifier=%@", qualifier);
+  EOFLOGObjectLevelArgs(@"gsdb", @"qualifier=%@", qualifier);
 
   schemaBasedQualifier =
     [(id<EOQualifierSQLGeneration>)qualifier
 				   schemaBasedQualifierWithRootEntity: entity];
 
-  NSDebugMLLog(@"gsdb", @"schemaBasedQualifier=%@", schemaBasedQualifier);
-  NSDebugMLLog(@"gsdb", @"qualifier=%@", qualifier);
+  EOFLOGObjectLevelArgs(@"gsdb", @"schemaBasedQualifier=%@", schemaBasedQualifier);
+  EOFLOGObjectLevelArgs(@"gsdb", @"qualifier=%@", qualifier);
 
   if (schemaBasedQualifier && schemaBasedQualifier != qualifier)
     {
       EOFetchSpecification *newFetch = nil;
 
-      NSDebugMLLog(@"gsdb", @"fetch=%@", fetch);
+      EOFLOGObjectLevelArgs(@"gsdb", @"fetch=%@", fetch);
       //howto avoid copy of uncopiable qualifiers (i.e. those who contains uncopiable key or value)
 
-      NSDebugMLLog(@"gsdb", @"fetch=%@", fetch);
+      EOFLOGObjectLevelArgs(@"gsdb", @"fetch=%@", fetch);
 
       newFetch = [[fetch copy] autorelease];
-      NSDebugMLLog(@"gsdb", @"newFetch=%@", newFetch);
+      EOFLOGObjectLevelArgs(@"gsdb", @"newFetch=%@", newFetch);
 
       [newFetch setQualifier: schemaBasedQualifier];
-      NSDebugMLLog(@"gsdb", @"newFetch=%@", newFetch);
+      EOFLOGObjectLevelArgs(@"gsdb", @"newFetch=%@", newFetch);
 
       fetch = newFetch;
     }
 
-  NSDebugMLLog(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
+  EOFLOGObjectLevelArgs(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
 	       NSStringFromSelector(_cmd),
 	       NSStringFromClass([self class]),
 	       self,
@@ -296,7 +299,7 @@ RCS_ID("$Id$")
 
       row = [_adaptorChannel fetchRowWithZone: NULL];
 
-      NSDebugMLLog(@"gsdb", @"row=%@", row);
+      EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);
       //NSDebugMLog(@"TEST attributesToFetch=%@", [_currentEntity attributesToFetch]);
 
       if (!row)
@@ -320,12 +323,12 @@ RCS_ID("$Id$")
           gid = [_currentEntity globalIDForRow: row
 				isFinal: YES];//OK
 
-          NSDebugMLLog(@"gsdb", @"gid=%@", gid);
+          EOFLOGObjectLevelArgs(@"gsdb", @"gid=%@", gid);
           //NSDebugMLog(@"TEST attributesToFetch=%@",[_currentEntity attributesToFetch]);
 
           object = [_currentEditingContext objectForGlobalID: gid]; //OK //nil
 
-          NSDebugMLLog(@"gsdb", @"object=%@", object);
+          EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
 
           if (object)
             isObjectNew = NO;
@@ -334,16 +337,16 @@ RCS_ID("$Id$")
 
           snapshot = [_databaseContext snapshotForGlobalID: gid]; //OK
 
-          NSDebugMLLog(@"gsdb", @"snapshot=%@", snapshot);
+          EOFLOGObjectLevelArgs(@"gsdb", @"snapshot=%@", snapshot);
           //NSDebugMLog(@"TEST attributesToFetch=%@", [_currentEntity attributesToFetch]);
 
           if (snapshot)
             {
-              NSDebugMLLog(@"gsdb", @"_delegateRespondsTo.shouldUpdateSnapshot=%d",
+              EOFLOGObjectLevelArgs(@"gsdb", @"_delegateRespondsTo.shouldUpdateSnapshot=%d",
                            (int)_delegateRespondsTo.shouldUpdateSnapshot);
-              NSDebugMLLog(@"gsdb", @"[self isLocking]=%d",
+              EOFLOGObjectLevelArgs(@"gsdb", @"[self isLocking]=%d",
                            (int)[self isLocking]);
-              NSDebugMLLog(@"gsdb", @"[self isRefreshingObjects]=%d",
+              EOFLOGObjectLevelArgs(@"gsdb", @"[self isRefreshingObjects]=%d",
                            (int)[self isRefreshingObjects]);
 
               //mirko:
@@ -357,8 +360,8 @@ RCS_ID("$Id$")
                                               globalID: gid
                                               databaseChannel: self])))
                 { // TODO delegate not correct !
-                  NSDebugMLLog(@"gsdb", @"Updating Snapshot=%@", snapshot);
-                  NSDebugMLLog(@"gsdb", @"row=%@", row);                  
+                  EOFLOGObjectLevelArgs(@"gsdb", @"Updating Snapshot=%@", snapshot);
+                  EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);                  
 
                   [_databaseContext recordSnapshot: row
                                     forGlobalID: gid];
@@ -368,7 +371,7 @@ RCS_ID("$Id$")
           else
             {
               //NSDebugMLog(@"TEST attributesToFetch=%@", [_currentEntity attributesToFetch]);
-              NSDebugMLLog(@"gsdb", @"database class=%@", [database class]);
+              EOFLOGObjectLevelArgs(@"gsdb", @"database class=%@", [database class]);
 
               NSAssert(database, @"No database-context database");
 
@@ -376,7 +379,7 @@ RCS_ID("$Id$")
                         forGlobalID: gid];
             }
 
-          NSDebugMLLog(@"gsdb", @"[self isRefreshingObjects]=%d",
+          EOFLOGObjectLevelArgs(@"gsdb", @"[self isRefreshingObjects]=%d",
                        (int)[self isRefreshingObjects]);
 
           //From mirko
@@ -399,7 +402,7 @@ RCS_ID("$Id$")
 					      zone: NULL];
 
               //NSDebugMLog(@"TEST attributesToFetch=%@", [_currentEntity attributesToFetch]);
-              NSDebugMLLog(@"gsdb", @"object=%@", object);
+              EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
               NSAssert1(object, @"No Object. entityClassDescripton=%@", entityClassDescripton);
 
               [_currentEditingContext recordObject: object
@@ -430,7 +433,7 @@ RCS_ID("$Id$")
 
               NS_DURING
                 {
-                  NSDebugMLLog(@"gsdb", @"Initialize %p", object);
+                  EOFLOGObjectLevelArgs(@"gsdb", @"Initialize %p", object);
 
                   [_currentEditingContext initializeObject: object
                                           withGlobalID: gid
@@ -629,26 +632,26 @@ RCS_ID("$Id$")
       EOAdaptor *adaptor = nil;
       Class expressionClass = Nil;
 
-      NSDebugMLLog(@"gsdb", @"customQueryExpressionHint=%@", customQueryExpressionHint);
+      EOFLOGObjectLevelArgs(@"gsdb", @"customQueryExpressionHint=%@", customQueryExpressionHint);
 
       adaptorContext = [_databaseContext adaptorContext];
 
-      NSDebugMLLog(@"gsdb", @"adaptorContext=%p", adaptorContext);
+      EOFLOGObjectLevelArgs(@"gsdb", @"adaptorContext=%p", adaptorContext);
 
       adaptor = [adaptorContext adaptor];
 
-      NSDebugMLLog(@"gsdb", @"adaptor=%p", adaptor);
-      NSDebugMLLog(@"gsdb", @"adaptor=%@", adaptor);
-      NSDebugMLLog(@"gsdb", @"adaptor class=%@", [adaptor class]);
+      EOFLOGObjectLevelArgs(@"gsdb", @"adaptor=%p", adaptor);
+      EOFLOGObjectLevelArgs(@"gsdb", @"adaptor=%@", adaptor);
+      EOFLOGObjectLevelArgs(@"gsdb", @"adaptor class=%@", [adaptor class]);
 
       //TODO VERIFY
       expressionClass = [adaptor expressionClass];
-      NSDebugMLLog(@"gsdb", @"expressionClass=%@", expressionClass);
+      EOFLOGObjectLevelArgs(@"gsdb", @"expressionClass=%@", expressionClass);
 
       customQueryExpression = [expressionClass expressionForString:
 						 customQueryExpressionHint];
 
-      NSDebugMLLog(@"gsdb", @"customQueryExpression=%@", customQueryExpression);
+      EOFLOGObjectLevelArgs(@"gsdb", @"customQueryExpression=%@", customQueryExpression);
     }
 
   [self setCurrentEditingContext: context]; //OK even if customQueryExpressionHintKey
@@ -659,7 +662,7 @@ RCS_ID("$Id$")
   if (!customQueryExpressionHint)
     {
       subEntities = [entity subEntities];
-      NSDebugMLLog(@"gsdb", @"subEntities=%@", subEntities);
+      EOFLOGObjectLevelArgs(@"gsdb", @"subEntities=%@", subEntities);
       
       //Strange
       {
@@ -725,7 +728,7 @@ RCS_ID("$Id$")
 
       NSAssert([propertiesToFetch count] > 0, @"No properties to fetch");
 
-      NSDebugMLLog(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
+      EOFLOGObjectLevelArgs(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
 		   NSStringFromSelector(_cmd),
 		   NSStringFromClass([self class]),
 		   self,
@@ -737,7 +740,7 @@ RCS_ID("$Id$")
                        entity: entity];
     }
 
-  NSDebugMLLog(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
+  EOFLOGObjectLevelArgs(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
 	       NSStringFromSelector(_cmd),
 	       NSStringFromClass([self class]),
 	       self,
@@ -779,7 +782,7 @@ RCS_ID("$Id$")
 
   attributesToFetch = [_currentEntity attributesToFetch];//done
 
-  NSDebugMLLog(@"gsdb",@"[_adaptorChannel class]: %@",[_adaptorChannel class]);
+  EOFLOGObjectLevelArgs(@"gsdb",@"[_adaptorChannel class]: %@",[_adaptorChannel class]);
   [_adaptorChannel selectAttributes:attributesToFetch
 		   fetchSpecification:fetch
 		   lock:_isLocking

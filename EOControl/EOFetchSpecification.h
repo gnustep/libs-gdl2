@@ -82,6 +82,17 @@
                                                  qualifier: (EOQualifier *)qualifier
                                              sortOrderings: (NSArray *)sortOrderings;
 
++ (EOFetchSpecification *)fetchSpecificationWithEntityName: (NSString *)name
+                                                 qualifier: (EOQualifier *)qualifier
+                                             sortOrderings: (NSArray *)sortOrderings
+                                              usesDistinct: (BOOL)usesDistinct
+                                                    isDeep: (BOOL)isDeep
+                                                     hints: (NSDictionary *)hints;
+
++ (EOFetchSpecification *)fetchSpecificationWithEntityName: (NSString *)name
+                                                 qualifier: (EOQualifier *)qualifier
+                                             sortOrderings: (NSArray *)sortOrderings
+                                              usesDistinct: (BOOL)usesDistinct;
 
 - copyWithZone:(NSZone *)zone;
 

@@ -933,6 +933,7 @@ infinite loop in description **/
 {
   EOGenericRecord *record = nil;
   NSHashEnumerator hashEnum;
+  NSAutoreleasePool *arp=nil;
 
   EOFLOGClassFnStart();
   //NSDebugMLog(@"CALCULATE START");
@@ -941,11 +942,16 @@ infinite loop in description **/
 
   NS_DURING
     {
+      arp = [NSAutoreleasePool new];
       hashEnum = NSEnumerateHashTable(allGenericRecords);
  
       while ((record = (EOGenericRecord*)NSNextHashEnumeratorItem(&hashEnum)))
         {
-          [record eoCalculateSizeWith: dict];
+          if ([EOFault isFault:record])
+            [EOFault eoCalculateSizeWith: dict
+                     forFault: record];
+          else
+            [record eoCalculateSizeWith: dict];
         }
 
       NSEndHashTableEnumeration(&hashEnum);
@@ -954,12 +960,18 @@ infinite loop in description **/
     {
       NSDebugMLog(@"%@ (%@)", localException, [localException reason]);
 
+      RETAIN(localException);
+      DESTROY(arp);
+      AUTORELEASE(localException);
+
       [allGenericRecordsLock unlock];
 
       NSDebugMLog(@"CALCULATE STOPEXC");
       [localException raise];
     }
   NS_ENDHANDLER;
+
+  DESTROY(arp);
 
   [allGenericRecordsLock unlock];
 
@@ -1182,8 +1194,8 @@ infinite loop in description **/
         totalSize,
         totalSize / 1024,
         totalNb,
-        (int)(totalSize / totalNb),
-        (int)(totalSize / totalNb / 1024)];
+        (int)(totalNb!=0 ? (totalSize / totalNb) : 0),
+        (int)(totalNb!=0 ? (totalSize / totalNb / 1024) : 0)];
 
   EOFLOGClassFnStop();
 

@@ -1684,7 +1684,10 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
   if (!exception)
     {
       NSEmitTODO(); //TODO
-      [self notImplemented:_cmd]; //TODO
+      NSDebugMLog(@"relationship=%@ valueP=%p",self,valueP);
+      if (valueP)
+        NSDebugMLog(@"*valueP=%@",*valueP);
+      //[self notImplemented:_cmd]; //TODO
     }
 
   EOFLOGObjectFnStop();
@@ -1980,10 +1983,10 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 - (BOOL)foreignKeyInDestination
 {
-  NSArray *destAttributes;
-  NSArray *primaryKeyAttributes;
-  int destAttributesCount;
-  int primaryKeyAttributesCount;
+  NSArray *destAttributes = nil;
+  NSArray *primaryKeyAttributes = nil;
+  int destAttributesCount = nil;
+  int primaryKeyAttributesCount = nil;
   BOOL foreignKeyInDestination = NO;
 
   EOFLOGObjectFnStart();

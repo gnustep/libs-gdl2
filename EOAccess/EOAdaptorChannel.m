@@ -171,10 +171,10 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
   BOOL isEqual = YES;
 
   EOFLOGObjectFnStart();
-  NSDebugMLLog(@"gsdb", @"attrs=%@", attrs);
-  NSDebugMLLog(@"gsdb", @"entity=%@", entity);
-  NSDebugMLLog(@"gsdb", @"qualifier=%@" ,qualifier);
-  NSDebugMLLog(@"gsdb", @"snapshot=%@", snapshot);
+  EOFLOGObjectLevelArgs(@"gsdb", @"attrs=%@", attrs);
+  EOFLOGObjectLevelArgs(@"gsdb", @"entity=%@", entity);
+  EOFLOGObjectLevelArgs(@"gsdb", @"qualifier=%@" ,qualifier);
+  EOFLOGObjectLevelArgs(@"gsdb", @"snapshot=%@", snapshot);
 
   if (attrs)
     attributes = [[attrs mutableCopy] autorelease];
@@ -196,7 +196,7 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
 
   row = [self fetchRowWithZone: NULL];
 
-  NSDebugMLLog(@"gsdb", @"row=%@", row);
+  EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);
 
   if(row == nil || [self fetchRowWithZone: NULL] != nil)
     {
@@ -401,23 +401,23 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
                                                            @selector(name)]];
         };
 
-      NSDebugMLLog(@"gsdb",
+      EOFLOGObjectLevelArgs(@"gsdb",
                    @"\ndictionaryWithObjects:forAttributes:zone: attributes=%@ objects=%p\n",
                    attributes,objects);
       NSAssert(initializer,@"No initializer");
           
-      NSDebugMLLog(@"gsdb", @"initializer=%@", initializer);
+      EOFLOGObjectLevelArgs(@"gsdb", @"initializer=%@", initializer);
       
       dict = [[[EOMutableKnownKeyDictionary allocWithZone: zone]
                 initWithInitializer:initializer] autorelease];
       
-      NSDebugMLLog(@"gsdb", @"dict=%@", dict);
+      EOFLOGObjectLevelArgs(@"gsdb", @"dict=%@", dict);
 
       for(i = 0; i < count; i++)
         {
           EOAttribute *attribute = (EOAttribute *)[attributes objectAtIndex: i];
           
-          NSDebugMLLog(@"gsdb", @"Attribute=%@ value=%@", attribute, objects[i]);
+          EOFLOGObjectLevelArgs(@"gsdb", @"Attribute=%@ value=%@", attribute, objects[i]);
           
           [dict setObject: objects[i]
                 forKey: [attribute name]];
@@ -474,14 +474,14 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
 //2fois
 //...
 
-  NSDebugMLLog(@"gsdb", @"adaptorOperation=%@", adaptorOperation);
+  EOFLOGObjectLevelArgs(@"gsdb", @"adaptorOperation=%@", adaptorOperation);
 
   entity = [adaptorOperation entity];
   operator = [adaptorOperation adaptorOperator];
   changedValues = [adaptorOperation changedValues];
 
-  NSDebugMLLog(@"gsdb", @"ad op: %d %@", operator, [entity name]);
-  NSDebugMLLog(@"gsdb", @"ad op: %@ %@", [adaptorOperation changedValues], [adaptorOperation qualifier]);
+  EOFLOGObjectLevelArgs(@"gsdb", @"ad op: %d %@", operator, [entity name]);
+  EOFLOGObjectLevelArgs(@"gsdb", @"ad op: %@ %@", [adaptorOperation changedValues], [adaptorOperation qualifier]);
 
   NS_DURING
     switch(operator)

@@ -1,3 +1,58 @@
+2003-01-31  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAccess/EOAdaptorChannel.m:
+		o replaced NSDebugMLLog by EOFLOGObjectLevel/EOFLOGObjectLevelArgs
+	* EOAccess/EOAttribute.m:
+		o replaced NSDebugMLLog by EOFLOGObjectLevel/EOFLOGObjectLevelArgs
+	* EOAccess/EODatabaseChannel.m:
+		o replaced NSDebugMLLog by EOFLOGObjectLevel/EOFLOGObjectLevelArgs
+		o Move registration for EODatabaseChannelNeddedNotification 
+			from +load to +initialize. (David Ayers <d.ayers@inode.at>)
+	* EOAccess/EODatabaseContext.m:
+		o Move registration for EODatabaseChannelNeddedNotification 
+			from +load to +initialize. (David Ayers <d.ayers@inode.at>)
+	* EOAccess/EOEntity.m:
+		o in - (void) _setIsEdited, autorelease instead of destroy
+	* EOAccess/EORelationship.m
+		o -validateValue: don't raise not implemented exception
+		o initialize variables in -foreignKeyInDestination
+	* EOAccess/EOSQLExpression.m:
+		o added NSAsserts
+		o use anyRelationshipNamed: instead of relationshipNamed: to 
+			find hidden relationships
+	* EOControl/EOClassDescription.m
+		o -displayNameForKey: use -stringWithCapacity instead 
+			of +alloc -initWithCapacity (missing autorelease)
+		o -validationExceptionWithFormat: initialize variables
+		o -aggregateExceptionWithExceptions: initialize variables
+		o -aggregateExceptionWithExceptions: autorelease copied value
+		o -exceptionAddingEntriesToUserInfo: initialize variables
+		o -exceptionAddingEntriesToUserInfo: autorelease copied userInfo
+		o -snapshot autorelease copied value
+		o -updateFromSnapshot: autorelease copied value
+	* EOControl/EOFetchSpecification.h:
+		o added +fetchSpecificationWithEntityName:qualifier:sortOrderings:usesDistinct:isDeep:hints:
+		o added +fetchSpecificationWithEntityName:qualifier:sortOrderings:usesDistinct:
+	* EOControl/EOFetchSpecification.m:
+		o added +fetchSpecificationWithEntityName:qualifier:sortOrderings:usesDistinct:isDeep:hints:
+		o added +fetchSpecificationWithEntityName:qualifier:sortOrderings:usesDistinct:
+		o removed +fetchSpecificationNamed:entityNamed: (implemented in EOUtilities)
+		o Insure that EODatabaseContext is initialized early. (David Ayers <d.ayers@inode.at>)
+	* EOControl/EOGenericRecord.m
+		o in -eoFormatSizeDictionary: handle /0
+		o in +eoCalculateAllSizeWith: don't de-fault objects
+		o in +eoCalculateAllSizeWith: manage a local autorelease pool
+	* EOControl/EOKeyValueCoding.h:
+		o added -smartTakeValue:forKey:
+		o -smartTakeValue:forKeyPath:
+		o -storedValuesForKeyPaths:
+	* EOControl/EOGlobalID.m:
+		o Insure that EODatabaseContext is initialized early. (David Ayers <d.ayers@inode.at>)
+	* EOControl/EOQualifier.m:
+		o +operatorSelectorForString:]): Parse 'doesContain' instead of
+			'contains' (David Ayers <d.ayers@inode.at>)
+	* EOControl/EODebug.m:
+		o include NSDebug.h
+	
 2003-01-21  David Ayers <d.ayers@inode.at>
 
 	* EOControl/EOQualifier.m ([EOQualifier +allQualifierOperators]): 

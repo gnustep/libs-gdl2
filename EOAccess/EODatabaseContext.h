@@ -30,6 +30,7 @@
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSHashTable.h>
+#import <Foundation/NSMapTable.h>
 #import <Foundation/NSLock.h>
 
 #import <EOControl/EOObjectStoreCoordinator.h>
@@ -47,7 +48,6 @@
 @class EODatabase;
 @class EODatabaseChannel;
 @class EODatabaseOperation;
-
 
 typedef enum {
   EOUpdateWithOptimisticLocking,

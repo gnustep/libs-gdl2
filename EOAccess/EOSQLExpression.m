@@ -347,6 +347,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 				currentEntity, [currentEntity name],
 				externalName);
 
+          NSAssert1([externalName length]>0,@"No external name for entity %@",
+                    [currentEntity name]);
+
 	  [entitiesString appendString: externalName];
 
 	  if (_useAliases)
@@ -366,9 +369,19 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	      
 	  while ((relationshipString = [defEnum nextObject]))
 	    {
-	      currentEntity = [[currentEntity
-				 relationshipNamed: relationshipString]
-				destinationEntity];
+              // use anyRelationshipNamed: to find hidden relationship too
+              EORelationship *relationship=[currentEntity 
+                                             anyRelationshipNamed: relationshipString];
+
+              NSAssert2(relationship,@"No relationship named %@ in entity %@",
+                        relationshipString,
+                        [currentEntity name]);
+
+              NSAssert2(currentEntity,@"No destination entity. Entity %@ relationship = %@",
+                        [currentEntity name],
+                        relationship);
+
+	      currentEntity = [relationship destinationEntity];
 	    }
 
           externalName = [currentEntity externalName];
@@ -377,6 +390,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 				@"entity %p named %@: externalName=%@",
 				currentEntity, [currentEntity name],
 				externalName);
+
+          NSAssert1([externalName length]>0,@"No external name for entity %@",
+                    [currentEntity name]);
 
 	  [entitiesString appendString: externalName];
 
@@ -1792,13 +1808,25 @@ else if([anAttribute isDerived] == YES)
 
                   while ((relationshipString = [defEnum nextObject]))
                     {
+                      // use anyRelationshipNamed: to find hidden relationship too
+                      EORelationship *relationship=[currentEntity
+                                                     anyRelationshipNamed: relationshipString];
+
                       EOFLOGObjectLevelArgs(@"EOSQLExpression",
 					    @"relationshipString=%@",
 					    relationshipString);
 
-                      currentEntity = [[currentEntity
-                                         relationshipNamed: relationshipString]
-                                        destinationEntity];
+                      NSAssert2(relationship,
+                                @"No relationship named %@ in entity %@",
+                                relationshipString,
+                                [currentEntity name]);
+
+                      NSAssert2(currentEntity,
+                                @"No destination entity. Entity %@ relationship = %@",
+                                [currentEntity name],
+                                relationship);
+
+                      currentEntity = [relationship destinationEntity];
                     } // TODO entity
                 }
 
@@ -2212,6 +2240,7 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
       NSString *relPath = nil;
       NSString *part = [pathElements objectAtIndex: i];
 
+      // use anyRelationshipNamed: to find hidden relationship too
       relationship = [entity anyRelationshipNamed: part];
 
       NSAssert2(relationship,

@@ -294,8 +294,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 - (NSString *)displayNameForKey: (NSString *)key
 {
   const char *s, *ckey = [key cString];
-  NSMutableString *str = [[NSMutableString alloc] initWithCapacity:
-						    [key length]];
+  NSMutableString *str = [NSMutableString stringWithCapacity:[key length]];
   char c;
   BOOL init = NO;
 
@@ -1012,7 +1011,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
           NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
 		       snapshot, key, value, value);
 
-          value = [value shallowCopy];
+          value = [[value shallowCopy] autorelease];
           NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
 		       snapshot, key, value, value);
 
@@ -1052,7 +1051,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 	val = nil;
 
       if ([val isKindOfClass: [NSArray class]])
-	val = [[[val shallowCopy] autorelease] mutableCopy];
+	val = [[[[val shallowCopy] autorelease] mutableCopy] autorelease];
 
       [self takeStoredValue: val forKey: key];
     }
@@ -1515,8 +1514,8 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 
 + (NSException *)validationExceptionWithFormat: (NSString *)format, ...
 {
-  NSException *exp;
-  NSString *aName;
+  NSException *exp = nil;
+  NSString *aName = nil;
   va_list args;
 
   va_start(args, format);
@@ -1540,14 +1539,14 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
     exp = [subexceptions objectAtIndex: 0];
   else if ([subexceptions count] > 1)
     {
-      NSString *aName, *aReason;
-      NSMutableDictionary *aUserInfo;
+      NSString *aName = nil, *aReason = nil;
+      NSMutableDictionary *aUserInfo = nil;
 
       exp = [subexceptions objectAtIndex: 0];
 
       aName     = [exp name];
       aReason   = [exp reason];
-      aUserInfo = [[exp userInfo] mutableCopy];
+      aUserInfo = [[[exp userInfo] mutableCopy] autorelease];
 
       [aUserInfo setObject: subexceptions
 		 forKey: EOAdditionalExceptionsKey];
@@ -1562,13 +1561,13 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 
 - (NSException *)exceptionAddingEntriesToUserInfo: (NSDictionary *)additions
 {
-  NSException *exp;
-  NSString *aName, *aReason;
-  NSMutableDictionary *aUserInfo;
+  NSException *exp = nil;
+  NSString *aName = nil, *aReason = nil;
+  NSMutableDictionary *aUserInfo = nil;
 
   aName     = [self name];
   aReason   = [self reason];
-  aUserInfo = [[self userInfo] mutableCopy];
+  aUserInfo = [[[self userInfo] mutableCopy] autorelease];
 
   [aUserInfo setObject: [additions allValues]
 	     forKey: EOValidatedObjectUserInfoKey];

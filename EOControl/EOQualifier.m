@@ -695,7 +695,7 @@ static Class whichQualifier(const char **cFormat, const char **s)
     return EOQualifierOperatorNotEqual;
   else if ([string isEqualToString: @"!="])
     return EOQualifierOperatorNotEqual;
-  else if ([string isEqualToString: @"contains"])
+  else if ([string isEqualToString: @"doesContain"])
     return EOQualifierOperatorContains;
   else if ([string isEqualToString: @"like"])
     return EOQualifierOperatorLike;
