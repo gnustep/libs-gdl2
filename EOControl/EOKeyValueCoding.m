@@ -80,6 +80,14 @@ RCS_ID("$Id$")
 {
 }
 
+- (void) unableToSetNullForKey: (NSString *)key
+{
+  [NSException raise: NSInvalidArgumentException
+	       format: @"%@ -- %@ 0x%x: Given nil value to set for key \"%@\"",
+	       NSStringFromSelector(_cmd), NSStringFromClass([self class]), 
+	       self, key];
+}
+
 /** if key is a bidirectional rel, use addObject:toBothSidesOfRelationship otherwise call  takeValue:forKey: **/
 - (void)smartTakeValue: (id)anObject 
                 forKey: (NSString *)aKey

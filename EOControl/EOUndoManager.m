@@ -35,7 +35,7 @@
 
 RCS_ID("$Id$")
 
-#include <EOControl/EODepricated.h>
+#include <EOControl/EODeprecated.h>
 #include <EOControl/EODebug.h>
 
 

@@ -89,7 +89,7 @@ EODatabaseDataSource.h \
 EOSchemaGeneration.h \
 EOUtilities.h \
 EODefines.h \
-EODepricated.h \
+EODeprecated.h \
 EOAccess.h \
 
 

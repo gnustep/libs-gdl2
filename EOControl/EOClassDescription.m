@@ -1,7 +1,7 @@
 /** 
    EOClassDescription.m <title>EOClassDescription Class</title>
 
-   Copyright (C) 2000 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
    Date: February 2000
@@ -64,15 +64,27 @@ RCS_ID("$Id$")
 
 // NOTE: (stephane@sente.ch) Should we subclass NSClassDescription?
 
+/*
+   d.ayers@inode.at:  Yes, once we wish to support code written for
+   for EOF > WO4.5. No, for now because we don't have direct access
+   to the NSMapTable of base/Foundation so we would loose efficiency
+   and gain no real benefit.
+*/
+
 @interface NSObject (SupressCompilerWarnings)
 +(id)defaultGroup;
 @end
 
 @implementation EOClassDescription
 
-NSString *EOClassDescriptionNeededNotification = @"EOClassDescriptionNeededNotification";
-NSString *EOClassDescriptionNeededForClassNotification = @"EOClassDescriptionNeededForClassNotification";
-NSString *EOClassDescriptionNeededForEntityNameNotification = @"EOClassDescriptionNeededForEntityNameNotification";
+NSString *EOClassDescriptionNeededNotification 
+      = @"EOClassDescriptionNeededNotification";
+
+NSString *EOClassDescriptionNeededForClassNotification 
+      = @"EOClassDescriptionNeededForClassNotification";
+
+NSString *EOClassDescriptionNeededForEntityNameNotification
+      = @"EOClassDescriptionNeededForEntityNameNotification";
 
 NSString *EOValidationException = @"EOValidationException";
 NSString *EOAdditionalExceptionsKey = @"EOAdditionalExceptionsKey";
@@ -172,29 +184,14 @@ static id classDelegate = nil;
 
       if (!classDescription)
         {
-          NSLog(@"Warning: No class description for entity named: %@", entityName);
+          NSLog(@"Warning: No class description for entity named: %@",
+		entityName);
         }
     }
 
   EOFLOGObjectFnStop();
 
   return classDescription;
-}
-
-+ (void)setDelegate: (id)delegate
-{
-  EOFLOGObjectFnStart();
-
-  NSDebugMLLog(@"gsdb", @"delegate %p=%@", delegate, delegate);
-
-  [EOClassDescription setClassDelegate: delegate];
-
-  EOFLOGObjectFnStop();
-}
-
-+ (id)delegate
-{
-  return [EOClassDescription classDelegate];
 }
 
 + (void)invalidateClassDescriptionCache
@@ -343,7 +340,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   if (s != ckey)
     [str appendString: [NSString stringWithCString: ckey length: s - ckey]];
 
-  return [[key mutableCopy] autorelease];
+  return AUTORELEASE([key copy]);
 }
 
 - (NSString *)entityName
@@ -505,29 +502,34 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 				 fromPropertyWithKey:inverseKey];
                   */
 		}
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray, toManyArray);
+              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
+			   toManyArray, toManyArray);
 	      break;
 
 	    case EODeleteRuleCascade:
               //OK
               EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleCascade");
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray, toManyArray);
+              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
+			   toManyArray, toManyArray);
 
 	      while ((destination = [toManyArray lastObject]))
 		{
-                  NSDebugMLLog(@"gsdb", @"destination %p=%@", destination, destination);
+                  NSDebugMLLog(@"gsdb", @"destination %p=%@",
+			       destination, destination);
 
                   [object removeObject: destination
                           fromBothSidesOfRelationshipWithKey: key];
 		  [context deleteObject: destination];
 		  [destination propagateDeleteWithEditingContext: context];
 		}
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray, toManyArray);
+              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
+			   toManyArray, toManyArray);
 	      break;
 
 	    case EODeleteRuleDeny:
               EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleDeny");
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray, toManyArray);
+              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
+			   toManyArray, toManyArray);
 	      if ([toManyArray count] > 0)
 		{
 		  // TODO don't know how to do yet, if raise an exception
@@ -611,6 +613,25 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 @end
 
+@implementation EOClassDescription (Deprecated)
+
++ (void)setDelegate: (id)delegate
+{
+  EOFLOGObjectFnStart();
+
+  NSDebugMLLog(@"gsdb", @"delegate %p=%@", delegate, delegate);
+
+  [EOClassDescription setClassDelegate: delegate];
+
+  EOFLOGObjectFnStop();
+}
+
++ (id)delegate
+{
+  return [EOClassDescription classDelegate];
+}
+
+@end
 
 @implementation NSObject (EOInitialization)
 
@@ -1032,7 +1053,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
           NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
 		       snapshot, key, value, value);
 
-          value = [[value shallowCopy] autorelease];
+          value = AUTORELEASE([value shallowCopy]);
           NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
 		       snapshot, key, value, value);
 
@@ -1072,7 +1093,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 	val = nil;
 
       if ([val isKindOfClass: [NSArray class]])
-	val = [[[[val shallowCopy] autorelease] mutableCopy] autorelease];
+	val = AUTORELEASE([AUTORELEASE([val shallowCopy]) mutableCopy]);
 
       [self takeStoredValue: val forKey: key];
     }
@@ -1268,7 +1289,7 @@ toPropertyWithKey: (NSString *)key
                       NSMutableArray *relArray;
 
                       if (val)
-                        relArray = [[val mutableCopy] autorelease];
+                        relArray = AUTORELEASE([val mutableCopy]);
                       else
                         relArray = [NSMutableArray arrayWithCapacity: 10];
 
@@ -1367,7 +1388,7 @@ toPropertyWithKey: (NSString *)key
 
 		  if (val)
 		    {
-		      relArray = [[val mutableCopy] autorelease];
+		      relArray = AUTORELEASE([val mutableCopy]);
 
 		      [relArray removeObject: object];
 		      [self takeValue: relArray
@@ -1541,8 +1562,8 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 
   va_start(args, format);
 
-  aName = [[[NSString alloc] initWithFormat: format arguments: args]
-	    autorelease];
+  aName = AUTORELEASE([[NSString alloc] initWithFormat: format
+					arguments: args]);
   exp = [NSException exceptionWithName: EOValidationException
 		     reason: aName
 		     userInfo: nil];
@@ -1567,7 +1588,7 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 
       aName     = [exp name];
       aReason   = [exp reason];
-      aUserInfo = [[[exp userInfo] mutableCopy] autorelease];
+      aUserInfo = AUTORELEASE([[exp userInfo] mutableCopy]);
 
       [aUserInfo setObject: subexceptions
 		 forKey: EOAdditionalExceptionsKey];
@@ -1588,7 +1609,7 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 
   aName     = [self name];
   aReason   = [self reason];
-  aUserInfo = [[[self userInfo] mutableCopy] autorelease];
+  aUserInfo = AUTORELEASE([[self userInfo] mutableCopy]);
 
   [aUserInfo setObject: [additions allValues]
 	     forKey: EOValidatedObjectUserInfoKey];

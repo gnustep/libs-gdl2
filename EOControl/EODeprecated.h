@@ -38,32 +38,32 @@
 #include <EOControl/EOFetchSpecification.h>
 
 @interface NSObject (EODeprecated)
-/** Depricated. GDL2 doesn't cache key bindungs.*/
+/** Deprecated. GDL2 doesn't cache key bindungs.*/
 + (void) flushClassKeyBindings;
 @end
 
 @interface EOClassDescription (EODeprecated)
-/** Depricated. Use +setClassDelegate. */
+/** Deprecated. Use +setClassDelegate. */
 + (void) setDelegate:(id)delegate;
-/** Depricated. Use +classDelegate. */
+/** Deprecated. Use +classDelegate. */
 + (id) delegate;
 @end
 
-/** Depricated. Use NSUndoManager. */
+/** Deprecated. Use NSUndoManager. */
 @interface EOUndoManager : NSUndoManager
 
-/** Depricated. Use -removeAllActionsWithTarget:. */
+/** Deprecated. Use -removeAllActionsWithTarget:. */
 - (void) forgetAllWithTarget: (id)param0;
 
-/** Depricated. Use -removeAllActionsWithTarget:. */
+/** Deprecated. Use -removeAllActionsWithTarget:. */
 - (void) forgetAll;
 
-/** Depricated. Use -registerUndoWithTarget:selector:object:. */
+/** Deprecated. Use -registerUndoWithTarget:selector:object:. */
 - (void) registerUndoWithTarget: (id)param0
                        selector: (SEL)param1
                             arg: (id)param2;
 
-/** Depricated. Use -enableUndoRegistration. */
+/** Deprecated. Use -enableUndoRegistration. */
 - (void) reenableUndoRegistration; 
 
 @end

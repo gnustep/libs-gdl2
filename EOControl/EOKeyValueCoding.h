@@ -52,6 +52,7 @@
 #endif
 - (NSDictionary *)valuesForKeyPaths: (NSArray *)keyPaths;
 - (NSDictionary *)storedValuesForKeyPaths: (NSArray *)keyPaths;
+- (void)unableToSetNullForKey: (NSString *)key;
 @end
 
 #if NeXT_Foundation_LIBRARY

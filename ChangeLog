@@ -1,3 +1,27 @@
+2003-04-01  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EODeprecated.h:  Replaces EODepricated.h.
+	The original post was correct.  Sorry!
+	* EOAccess/EODeprecated.h:  Ditto.
+	* EOAccess/GNUmakefile: Ditto.
+	* EOControl/EOUndoManager: Ditto.
+
+	* EOControl/EOClassDescription: Added some comments.  Tidied line
+	breakage.
+	([EOClassDescription +delegete]): Moved to category named Deprecated.
+	([EOClassDescription +setDelegate:]): Ditto.
+	([EOClassDescription -displayNameForKey:]): Use AUTORELEASE macro.
+	([NSObject -snapshot]): Ditto.
+	([NSObject -updateFromSnapshot]): Ditto.
+	([NSObject -addObject:toPropertyWithKey:]): Ditto.
+	([NSObject -removeObject:fromPropertyWithKey:]): Ditto.
+	([NSException +validateExceptionWithFormat:]): Ditto.
+	([NSException +aggregateExceptionWithExceptions:]): Ditto.
+	([NSException -exceptionAddingEntriesToUserInfo:]): Ditto.
+	* EOControl/EOKeyValueCoding.h/m:
+	([NSObject unableToSetNullForKey:]): Implemented.
+	
+
 2003-03-31  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOFault.m ([EOFault respondsToSelector:]): Replaced
