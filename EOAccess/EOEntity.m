@@ -2559,8 +2559,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
   if (!_classDescription)
     {
-      _classDescription = [EOEntityClassDescription
-			    entityClassDescriptionWithEntity: self];
+      _classDescription = [[EOEntityClassDescription
+			     entityClassDescriptionWithEntity: self] retain];
 
 //NO ? NotifyCenter addObserver:EOEntityClassDescription selector:_eoNowMultiThreaded: name:NSWillBecomeMultiThreadedNotification object:nil
     }

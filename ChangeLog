@@ -1,5 +1,8 @@
 2002-12-08  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
+	* EOAccess/EOEntity.m ([EOEntity -classDescriptionForInstances]):
+	retain newly created classDescription.
+
 	* EOAccess/EOAdaptor.m ([EOAdaptor -isValidQualifierType:model:]):
 	implemented.
 
