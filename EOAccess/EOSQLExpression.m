@@ -44,6 +44,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSString.h>
 #include <Foundation/NSSet.h>
 #include <Foundation/NSUtilities.h>
+#include <Foundation/NSNotification.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSUserDefaults.h>
 #include <Foundation/NSDebug.h>
@@ -63,6 +64,7 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
 
+#include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOAttributePriv.h>
@@ -2483,6 +2485,126 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 
 @implementation EOSQLExpression (EOSchemaGeneration)
 
++ (NSArray *)_administrativeDatabaseStatementsForSelector:(SEL) sel
+					    forEntityGroup:(NSArray *)group
+{
+  EOEntity     *entity;
+  EOModel      *model;
+  NSDictionary *connDict;
+  NSDictionary *admDict;
+  NSArray      *stmts;
+  NSString     *notifName;
+  NSMutableDictionary  *notifDict;
+
+  entity = [group lastObject];
+  model = [entity model];
+  connDict = [model connectionDictionary];
+
+  notifDict = (id)[NSMutableDictionary dictionaryWithCapacity: 2];
+  [notifDict setObject: model forKey: EOModelKey];
+  notifName = EOAdministrativeConnectionDictionaryNeededNotification;
+  [[NSNotificationCenter defaultCenter] postNotificationName: notifName
+					object: notifDict];
+  admDict = [notifDict objectForKey: EOAdministrativeConnectionDictionaryKey];
+
+  if (admDict == nil && [admDict count] == 0)
+    {
+      EOAdaptor    *adaptor;
+      EOLoginPanel *panel;
+
+      adaptor = [EOAdaptor adaptorWithModel: model];
+      panel = [[adaptor class] sharedLoginPanelInstance];
+      admDict = [panel administrativeConnectionDictionaryForAdaptor: adaptor];
+    }
+
+  stmts = [self performSelector: sel 
+		withObject: connDict 
+		withObject: admDict];
+
+  return stmts;
+}
+
++ (NSArray *)_dropDatabaseStatementsForEntityGroups: (NSArray *)entityGroups
+{
+  NSMutableArray *cumStmts;
+  NSArray *stmts;
+  NSArray *group;
+  unsigned i,n;
+  SEL sel;
+
+  sel = @selector(dropDatabaseStatementsForConnectionDictionary:administrativeConnectionDictionary:);
+
+  n = [entityGroups count];
+  cumStmts = [NSMutableArray arrayWithCapacity: n];
+
+  for (i=0; i<n; i++)
+    {
+      EOSQLExpression *expr;
+      unsigned j,m;
+
+      group = [entityGroups objectAtIndex: i];
+      stmts = [self _administrativeDatabaseStatementsForSelector: sel
+		    forEntityGroup: group];
+      for (j=0, m=[stmts count]; j<m; j++)
+	{
+	  NSArray  *rawStmts;
+	  NSString *stmt;
+
+	  rawStmts = [cumStmts valueForKey:@"statement"];
+	  expr = [stmts objectAtIndex: j];
+	  stmt = [expr statement];
+
+	  if ([rawStmts containsObject: stmt] == NO)
+	    {
+	      [cumStmts addObject: expr];
+	    }
+	}
+    }
+
+  return [NSArray arrayWithArray: cumStmts];
+}
+
++ (NSArray *)_createDatabaseStatementsForEntityGroups: (NSArray *)entityGroups
+{
+  NSMutableArray *cumStmts;
+  NSArray *stmts;
+  NSArray *group;
+  unsigned i,n;
+  SEL sel;
+
+  sel = @selector(createDatabaseStatementsForConnectionDictionary:administrativeConnectionDictionary:);
+
+  n = [entityGroups count];
+  cumStmts = [NSMutableArray arrayWithCapacity: n];
+
+  for (i=0; i<n; i++)
+    {
+      EOSQLExpression *expr;
+      unsigned j,m;
+
+      group = [entityGroups objectAtIndex: i];
+      stmts = [self _administrativeDatabaseStatementsForSelector: sel
+		    forEntityGroup: group];
+
+      for (j=0, m=[stmts count]; j<m; j++)
+	{
+	  NSArray  *rawStmts;
+	  NSString *stmt;
+
+	  rawStmts = [cumStmts valueForKey:@"statement"];
+	  expr = [stmts objectAtIndex: j];
+	  stmt = [expr statement];
+
+	  if ([rawStmts containsObject: stmt] == NO)
+	    {
+	      [cumStmts addObject: expr];
+	    }
+	}
+    }
+
+  return [NSArray arrayWithArray: cumStmts];
+}
+
 + (NSArray *)foreignKeyConstraintStatementsForRelationship: (EORelationship *)relationship
 {
   NSMutableArray *array, *sourceColumns, *destColumns;
@@ -2884,6 +3006,10 @@ struct _schema
      @selector(dropPrimaryKeySupportStatementsForEntityGroups:)},
     {EODropTablesKey             , @"YES",
      @selector(dropTableStatementsForEntityGroups:)},
+    {EODropDatabaseKey , @"NO",
+     @selector(_dropDatabaseStatementsForEntityGroups:)},
+    {EOCreateDatabaseKey , @"NO",
+     @selector(_createDatabaseStatementsForEntityGroups:)},
     {EOCreateTablesKey           , @"YES",
      @selector(createTableStatementsForEntityGroups:)},
     {EOCreatePrimaryKeySupportKey, @"YES",
@@ -2927,9 +3053,10 @@ struct _schema
 
       if ([value isEqual: @"YES"] == YES)
 	{
-	  [array addObjectsFromArray:
-		   [self performSelector: defaults[i].selector
-			 withObject: groups]];
+	  NSArray *stmts;
+	  stmts = [self performSelector: defaults[i].selector
+			withObject: groups];
+	  [array addObjectsFromArray: stmts];
 	}
     }
 

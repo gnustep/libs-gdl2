@@ -86,6 +86,13 @@ RCS_ID("$Id$")
 
 NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
 
+NSString *EOAdministrativeConnectionDictionaryNeededNotification 
+  = @"EOAdministrativeConnectionDictionaryNeededNotification";
+NSString *EOAdaptorKey = @"EOAdaptorKey";
+NSString *EOModelKey = @"EOModelKey";
+NSString *EOConnectionDictionaryKey = "EOConnectionDictionaryKey";
+NSString *EOAdministrativeConnectionDictionaryKey 
+  = @"EOAdministrativeConnectionDictionaryKey";
 
 @implementation EOAdaptor
 
@@ -256,9 +263,25 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
 
 + (EOLoginPanel *)sharedLoginPanelInstance
 {
-  // TODO
-  [self notImplemented: _cmd];
-  return nil;
+  static EOLoginPanel *panel = nil;
+
+  if (panel == nil
+      && NSClassFromString(@"NSApplication") != nil)
+    {
+      NSBundle *adaptorFramework;
+      NSBundle *loginBundle;
+      NSString *path;
+      Class     loginClass;
+	  
+      adaptorFramework = [NSBundle bundleForClass: self];
+      path = [adaptorFramework pathForResource: @"LoginPanel"
+			       ofType: @"bundle"];
+      loginBundle = [NSBundle bundleWithPath: path];
+      loginClass = [loginBundle principalClass];
+      panel = [loginClass new];
+    }
+  
+  return panel;
 }
 
 + (NSArray *)availableAdaptorNames

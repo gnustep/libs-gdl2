@@ -187,5 +187,12 @@ fetchedValueForValue: (id)value
 
 @end /* NSObject (EOAdaptorDelegate) */
 
+/* GDL2 Extensions */
+GDL2ACCESS_EXPORT NSString *EOAdministrativeConnectionDictionaryNeededNotification;
+GDL2ACCESS_EXPORT NSString *EOAdaptorKey;
+GDL2ACCESS_EXPORT NSString *EOModelKey;
+GDL2ACCESS_EXPORT NSString *EOConnectionDictionaryKey;
+GDL2ACCESS_EXPORT NSString *EOAdministrativeConnectionDictionaryKey;
+
 
 #endif /* __EOAdaptor_h__*/

@@ -1,3 +1,16 @@
+2003-02-22  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAdaptor.h/m: New globals for GDL2 specific
+	administrative key handling.
+	([EOAdaptor sharedLoginPanelInstance]): Implemented.
+	* EOAccess/EOSQLExpression.m ([EOSQLExpression
+	_administrativeDatabaseStatementsForSelector:forEntityGroup:],
+	[EOSQLExpression _dropDatabaseStatementsForEntityGroups:],
+	[EOSQLExpression _createDatabaseStatementsForEntityGroups:]):
+	Implemented new private support methods.
+	([EOSQLExpression schemaCreationStatementsForEntities:options:]):
+	Added support for EODropDatabaseKey and EOCreateDatabaseKey.
+
 2003-02-19  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/Makefile.postamble: Remove obsolete dependency and
