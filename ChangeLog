@@ -1,3 +1,8 @@
+2003-02-25  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOModel.m ([EOModel beautifyNames]): Remove log and 
+	reformat comments. 
+
 2003-02-23  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.m ([EOAdaptor sharedLoginPanelInstance]):

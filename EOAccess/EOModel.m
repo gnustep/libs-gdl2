@@ -1503,11 +1503,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   EOFLOGObjectFnStartOrCond2(@"ModelingClasses", @"EOModel");
   
   /* Makes the receiver's name conform to a standard convention. 
-Names that conform to this style are all lower-case except for the initial 
-letter of each embedded word other than the first, which is upper case. Thus, 
-"NAME" becomes "name", and "FIRST_NAME" becomes "firstName". */
-  
-  NSLog(@"EOModel : beautifyNames is called");
+     Names that conform to this style are all lower-case except 
+     for the initial letter of each embedded word other than the 
+     first, which is upper case. Thus, "NAME" becomes "name", and 
+     "FIRST_NAME" becomes "firstName". */
   
   if ((_name) && ([_name length] > 0))
     {
