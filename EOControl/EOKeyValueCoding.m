@@ -850,7 +850,7 @@ initialize(void)
 					mutableCopy] autorelease];
       NSMutableString *key = [NSMutableString string];
 
-      int keyPathArrayCount=[keyPathArray count];
+      unsigned keyPathArrayCount = [keyPathArray count];
 
       //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
 

@@ -461,25 +461,29 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
           strcpy(buf, "_get");
           [aKey getCString: &buf[4]];
           lo = buf[4];
-          hi = islower(lo) ? toupper(lo) : lo;
+          hi = toupper(lo);
           buf[4] = hi;
 
           // test _getKey
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [_getKey] name=%s",
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				@"A aKey=%@ Method [_getKey] name=%s",
                                 aKey, buf);
-          sel = sel_get_any_uid(buf);
+          sel = GSSelectorFromName(buf);
 
-          if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+          if (sel == 0 || 
+	      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
               // test _key
               buf[3]='_';
               buf[4]=lo;
 
-              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"B aKey=%@ Method [_key] name=%s",
+              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				    @"B aKey=%@ Method [_key] name=%s",
                                     aKey, &buf[3]);
-              sel = sel_get_any_uid(&buf[3]);
+              sel = GSSelectorFromName(&buf[3]);
               
-              if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+              if (sel == 0 ||
+		  GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                 {
                   sel = 0;
                 }
@@ -493,7 +497,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                   buf[3]='_';
                   buf[4]=lo;
 
-                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Instance [_key] name=%s",
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+					@"C aKey=%@ Instance [_key] name=%s",
                                         aKey, &buf[3]);
                   /*if ([self _infoForInstanceVariableNamed:&buf[3]
                             stringName: nil
@@ -508,7 +513,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                                                         &off)==NO) // retOffset
                     {
                       // key
-                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Instance [key] name=%s",
+                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+					    @"C aKey=%@ Instance [key] name=%s",
                                             aKey, &buf[4]);
                       /*[self _infoForInstanceVariableNamed:&buf[4]
                             stringName: aKey
@@ -530,19 +536,23 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                   buf[3]='t';
                   buf[4]=hi;
                   
-                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"E aKey=%@ Method [getKey] name=%s",
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+					@"E aKey=%@ Method [getKey] name=%s",
                                         aKey, &buf[1]);
-                  sel = sel_get_any_uid(&buf[1]);
-                  if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+                  sel = GSSelectorFromName(&buf[1]);
+                  if (sel == 0 || 
+		      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                     {
                       // test key
                       buf[4]=lo;
 
-                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"F aKey=%@ Method [key] name=%s",
+                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+					    @"F aKey=%@ Method [key] name=%s",
                                             aKey, &buf[4]);
-                      sel = sel_get_any_uid(&buf[4]);
+                      sel = GSSelectorFromName(&buf[4]);
                       
-                      if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+                      if (sel == 0 ||
+			  GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                         {
                           sel = 0;
                         }
@@ -608,7 +618,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
           strcpy(buf, "_set");
           [aKey getCString: &buf[4]];
           lo = buf[4];
-          hi = islower(lo) ? toupper(lo) : lo;
+          hi = toupper(lo);
           buf[4] = hi;
           buf[size+4] = ':';
           buf[size+5] = '\0';
@@ -616,12 +626,14 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
           // test _setKey:          
           type = NULL;
 
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [_setKey] name=%s",
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				@"A aKey=%@ Method [_setKey] name=%s",
                                 aKey, buf);
 
-          sel = sel_get_any_uid(buf);
+          sel = GSSelectorFromName(buf);
 
-          if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+          if (sel == 0 || 
+	      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
               sel = 0;
               
@@ -632,7 +644,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                   buf[4] = lo;
                   buf[size+4] = '\0';
 
-                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"B aKey=%@ Instance [_key] name=%s",
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+					@"B aKey=%@ Instance [_key] name=%s",
                                         aKey, &buf[3]);
                   
                   /*if ([self _infoForInstanceVariableNamed:&buf[3]
@@ -650,7 +663,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                     {
                       // Test key
                       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-                                            @"C aKey=%@ Instance [_key] name=%s", aKey, &buf[4]);
+                                            @"C aKey=%@ Instance [_key] name=%s",
+					    aKey, &buf[4]);
                       
                       /*[self _infoForInstanceVariableNamed: &buf[4]
                             stringName: aKey
@@ -673,12 +687,14 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                   buf[4] = hi;
                   buf[size+4] = ':';
 
-                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"D aKey=%@ Method [setKey:] name=%s",
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+					@"D aKey=%@ Method [setKey:] name=%s",
                                         aKey, &buf[1]);
                   
-                  sel = sel_get_any_uid(&buf[1]);
+                  sel = GSSelectorFromName(&buf[1]);
                   
-                  if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+                  if (sel == 0 || 
+		      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                     {
                       sel = 0;
                     }
@@ -687,7 +703,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
           
           EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
                                 @"class=%@ aKey=%@ sel=%@ offset=%u",
-                                selfClass, aKey, NSStringFromSelector(sel), off);
+                                selfClass, aKey, NSStringFromSelector(sel),
+				off);
           
           [self _setValueForKey: aKey
                 object: anObject
@@ -768,7 +785,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
       strcpy(buf, "_set");
       [aKey getCString: &buf[4]];
       lo = buf[4];
-      hi = islower(lo) ? toupper(lo) : lo;
+      hi = toupper(lo);
       buf[4] = hi;
       buf[size+4] = ':';
       buf[size+5] = '\0';
@@ -776,18 +793,21 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
       type = NULL;
 
       //Try setKey:
-      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [setKey:] name=%s",
+      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+			    @"A aKey=%@ Method [setKey:] name=%s",
                             aKey, &buf[1]);
-      sel = sel_get_any_uid(&buf[1]);
+      sel = GSSelectorFromName(&buf[1]);
 
       if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
         {
           // Try _setKey:
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"B aKey=%@ Method [_setKey:] name=%s",
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				@"B aKey=%@ Method [_setKey:] name=%s",
                                 aKey, buf);
-	  sel = sel_get_any_uid(buf);
+	  sel = GSSelectorFromName(buf);
 
-          if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+          if (sel == 0 ||
+	      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
               sel = 0;
 
@@ -798,7 +818,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 		  buf[3] = '_';
 		  buf[4] = lo;
                   
-                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Instance [_key] name=%s",
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+					@"C aKey=%@ Instance [_key] name=%s",
                                         aKey, &buf[3]);
                   /*if ([self _infoForInstanceVariableNamed: &buf[3]
                             stringName: nil
@@ -813,7 +834,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                                                         &off)==NO) // retOffset
                     {
                       // Test key                      
-                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"D aKey=%@ Instance [key] name=%s",
+                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+					    @"D aKey=%@ Instance [key] name=%s",
                                             aKey, &buf[4]);
                       /*[self _infoForInstanceVariableNamed: &buf[4]
                             stringName: aKey
@@ -874,43 +896,50 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
       strcpy(buf, "_get");
       [aKey getCString: &buf[4]];
       lo = buf[4];
-      hi = islower(lo) ? toupper(lo) : lo;
+      hi = toupper(lo);
       buf[4] = hi;
 
       // Test getKey
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [getKey] name=%s",
                             aKey, &buf[1]);
-      sel = sel_get_any_uid(&buf[1]);
+      sel = GSSelectorFromName(&buf[1]);
 
-      if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+      if (sel == 0 || 
+	  GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
         {
           //Test key
 	  buf[4] = lo;
 
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"B aKey=%@ Method [key] name=%s",
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				@"B aKey=%@ Method [key] name=%s",
                                 aKey, &buf[4]);
-	  sel = sel_get_any_uid(&buf[4]);
+	  sel = GSSelectorFromName(&buf[4]);
 
-          if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+          if (sel == 0 ||
+	      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
               //Test _getKey
 	      buf[4] = hi;
 
-              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Method [_getKey] name=%s",
+              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				    @"C aKey=%@ Method [_getKey] name=%s",
                                     aKey, buf);
-	      sel = sel_get_any_uid(buf);
+	      sel = GSSelectorFromName(buf);
               
-              if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+              if (sel == 0 ||
+		  GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                 {
                   // Test _key
 		  buf[3] = '_';
 		  buf[4] = lo;
 
-                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Method [_key] name=%s",
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+					@"C aKey=%@ Method [_key] name=%s",
                                         aKey, &buf[3]);
-                  sel = sel_get_any_uid(&buf[3]);
+                  sel = GSSelectorFromName(&buf[3]);
 
-                  if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+                  if (sel == 0 ||
+		      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                     {
                       sel = 0;
                     }
@@ -924,7 +953,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
           buf[3] = '_';
           buf[4] = lo;
           
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"D aKey=%@ Instance [_key] name=%s",
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				@"D aKey=%@ Instance [_key] name=%s",
                                 aKey, &buf[3]);
           /*if ([self _infoForInstanceVariableNamed: &buf[3]
                     stringName: nil
@@ -940,7 +970,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
             {
               // Test key
               
-              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"E aKey=%@ Instance [key] name=%s",
+              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				    @"E aKey=%@ Instance [key] name=%s",
                                     aKey, &buf[4]);
               /*[self _infoForInstanceVariableNamed:  &buf[4]
                     stringName: aKey

@@ -13,6 +13,13 @@
 	GDL2ObjectAtIndexWithImp.
 	([EOMKKDInitializer-subsetMappingForSourceDictionaryInitializer:
 	sourceKeys:destinationKeys:]): Ditto.
+
+	* EOControl/EOGenericRecord.m (-storedValueForKey:)
+	(-takeStoredValue:forKey:, -takeValue:forKey:, valueForKey):
+	Use GSSelectorFromName instead of sel_get_any_uid.  Omit test
+	to islower.  Format according to coding standards.
+	* EOControl/EOKeyValueCoding.m (-takeValue:forKeyPath:isSmart:)
+	Use unsigned for index bookkeeping.
 	
 2005-02-15  David Ayers  <d.ayers@inode.at>
 
