@@ -497,7 +497,7 @@ static Class whichQualifier(const char **cFormat, const char **s)
       EOFLOGObjectLevelArgs(@"EOQualifier",
 			    @"leftKey=%@ operatorSelector=%s rightKey=%@ class=%@",
 			    leftKey,
-			    GSObjCSelectorName(operatorSelector),
+			    GSNameFromSelector(operatorSelector),
 			    rightKey,
 			    isKeyValue?@"EOKeyValueQualifier":@"EOKeyComparisonQualifier");
 

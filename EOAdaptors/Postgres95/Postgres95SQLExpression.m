@@ -303,7 +303,6 @@ RCS_ID("$Id$")
   return sqlString;
 }
 
-
 + (NSArray *)dropTableStatementsForEntityGroup:(NSArray *)entityGroup
 {
   // We redefine this method to add the CASCADE: it is needed to delete

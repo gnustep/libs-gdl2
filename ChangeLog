@@ -1,3 +1,12 @@
+2003-05-22  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOClassDescription.m
+	([EOClassDescription +classDescriptionForClass:): Replaced
+	deprecated GSObjCName() with GSNameFromClass().
+	* EOControl/EOQualifier.m
+	([EOQualifier +qualifierWithQualifierFormat:varargList:]): Replaced
+	deprecated GSObjCSelectorName() with GSNameFromSelector().
+
 2003-05-20  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOFault.m ([EOFault respondsToSelector:]): Temporarily

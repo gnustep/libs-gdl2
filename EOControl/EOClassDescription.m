@@ -154,7 +154,7 @@ static id classDelegate = nil;
 
   NSDebugMLLog(@"gsdb", @"aClass=%@", aClass);
   NSAssert(aClass, @"No class");
-  NSDebugMLLog(@"gsdb", @"class name=%s", GSObjCName(aClass));
+  NSDebugMLLog(@"gsdb", @"class name=%s", GSNameFromClass(aClass));
 
   classDescription = NSMapGet(classDescriptionForClass, aClass);  
 
