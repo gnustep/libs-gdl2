@@ -1385,11 +1385,11 @@ each key
               else if ([externalName isEqual: @"float8"])
                 valueClass = @"NSNumber", valueType = @"d";
               else if ([externalName isEqual: @"int2"])
-                valueClass = @"NSNumber", valueType = @"i";
+                valueClass = @"NSNumber", valueType = @"s";
               else if ([externalName isEqual: @"int4"])
                 valueClass = @"NSNumber", valueType = @"i";
-              else if ([externalName isEqual: @"int8"])
-                valueClass = @"NSNumber", valueType = @"l";
+              else if ([externalName isEqual: @"int8"] || [externalName isEqual: @"bigint"])
+                valueClass = @"NSNumber", valueType = @"u";
               else if ([externalName isEqual: @"oid"])
                 valueClass = @"NSNumber", valueType = @"l";
               else if ([externalName isEqual: @"varchar"])

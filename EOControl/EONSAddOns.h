@@ -103,4 +103,29 @@ GDL2GlobalRecursiveLock();
 - (int)parsedFirstVersionSubstring;
 @end
 
+//Ayers: Review
+/* Do not rely on these.  */
+@interface NSString (StringToNumber)
+-(unsigned int)unsignedIntValue;
+-(short)shortValue;
+-(unsigned short)unsignedShortValue;
+-(long)longValue;
+-(unsigned long)unsignedLongValue;
+-(long long)longLongValue;
+-(unsigned long long)unsignedLongLongValue;
+@end
+
+@interface NSObject (PerformSelect3)
+/**
+ * Causes the receiver to execute the method implementation corresponding
+ * to aSelector and returns the result.<br />
+ * The method must be one which takes three arguments and returns an object.
+ * <br />Raises NSInvalidArgumentException if given a null selector.
+ */
+- (id) performSelector: (SEL)aSelector
+            withObject: (id) object1
+            withObject: (id) object2
+            withObject: (id) object3;
+
+@end
 #endif /* __EONSAddOns_h__ */

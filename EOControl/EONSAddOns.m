@@ -623,3 +623,95 @@ static NSRecursiveLock *rlock = nil;
 
 @end
 
+@implementation NSString (StringToNumber)
+-(unsigned int)unsignedIntValue
+{
+  long v=atol([self lossyCString]);
+  if (v<0 || v >UINT_MAX)
+    {
+      [NSException raise: NSInvalidArgumentException
+                   format: @"%ld is not an unsigned int",v];
+    };
+  return (unsigned int)v;
+};
+-(short)shortValue
+{
+  int v=atoi([self lossyCString]);
+  if (v<SHRT_MIN || v>SHRT_MAX)
+    {
+      [NSException raise: NSInvalidArgumentException
+                   format: @"%d is not a short",v];
+    };
+  return (short)v;
+};
+-(unsigned short)unsignedShortValue;
+{
+  int v=atoi([self lossyCString]);
+  if (v<0 || v>USHRT_MAX)
+    {
+      [NSException raise: NSInvalidArgumentException
+                   format: @"%d is not an unsigned short",v];
+    };
+  return (unsigned short)v;
+};
+
+-(long)longValue
+{
+  return atol([self lossyCString]);
+};
+
+-(unsigned long)unsignedLongValue;
+{
+  long long v=atoll([self lossyCString]);
+  if (v<0 || v>ULONG_MAX)
+    {
+      [NSException raise: NSInvalidArgumentException
+                   format: @"%lld is not an unsigned long",v];
+    };
+  return (unsigned long)v;
+};
+
+-(long long)longLongValue
+{
+  long long v=atoll([self lossyCString]);
+  return v;
+};
+
+-(unsigned long long)unsignedLongLongValue
+{
+  return strtoull([self lossyCString],NULL,10);
+};
+
+@end
+
+@implementation NSObject (PerformSelect3)
+//Ayers: Review (Do we really need this?)
+/**
+ * Causes the receiver to execute the method implementation corresponding
+ * to aSelector and returns the result.<br />
+ * The method must be one which takes three arguments and returns an object.
+ * <br />Raises NSInvalidArgumentException if given a null selector.
+ */
+- (id) performSelector: (SEL)aSelector
+            withObject: (id) object1
+            withObject: (id) object2
+            withObject: (id) object3
+{
+  IMP msg;
+
+  if (aSelector == 0)
+    [NSException raise: NSInvalidArgumentException
+                format: @"%@ null selector given", NSStringFromSelector(_cmd)];
+  
+  msg = get_imp(GSObjCClass(self), aSelector);
+  if (!msg)
+    {
+      [NSException raise: NSGenericException
+                  format: @"invalid selector passed to %s", sel_get_name(_cmd)];
+      return nil;
+    }
+
+  return (*msg)(self, aSelector, object1, object2, object3);
+}
+
+@end

@@ -1317,6 +1317,36 @@ return nexexp
                         if ([[self valueType] isEqualToString: @"i"] == YES)
                           *valueP = [NSNumber numberWithInt:
 						[*valueP intValue]];
+                        else if ([_valueType isEqualToString: @"I"] == YES)
+                          *valueP = [NSNumber numberWithUnsignedInt:
+						[*valueP unsignedIntValue]];
+                        else if ([_valueType isEqualToString: @"c"] == YES)
+                          *valueP = [NSNumber numberWithChar:
+						[*valueP intValue]];
+                        else if ([_valueType isEqualToString: @"C"] == YES)
+                          *valueP = [NSNumber numberWithUnsignedChar:
+						[*valueP unsignedIntValue]];
+                        else if ([_valueType isEqualToString: @"s"] == YES)
+                          *valueP = [NSNumber numberWithShort:
+						[*valueP shortValue]];
+                        else if ([_valueType isEqualToString: @"S"] == YES)
+                          *valueP = [NSNumber numberWithUnsignedShort:
+						[*valueP unsignedShortValue]];
+                        else if ([_valueType isEqualToString: @"l"] == YES)
+                          *valueP = [NSNumber numberWithLong:
+						[*valueP longValue]];
+                        else if ([_valueType isEqualToString: @"L"] == YES)
+                          *valueP = [NSNumber numberWithUnsignedLong:
+						[*valueP unsignedLongValue]];
+                        else if ([_valueType isEqualToString: @"u"] == YES)
+                          *valueP = [NSNumber numberWithLongLong:
+						[*valueP longLongValue]];
+                        else if ([_valueType isEqualToString: @"U"] == YES)
+                          *valueP = [NSNumber numberWithUnsignedLongLong:
+						[*valueP unsignedLongLongValue]];
+                        else if ([_valueType isEqualToString: @"f"] == YES)
+                          *valueP = [NSNumber numberWithFloat:
+						[*valueP floatValue]];
                         else
                           *valueP = [NSNumber numberWithDouble:
                                                  [*valueP doubleValue]];

@@ -1,3 +1,22 @@
+2003-11-28  Manuel Guesdon  <mguesdon@orange-concept.com>
+	
+	* EOAccess/EOAttribute.m:
+		o introducing new number types: 
+		('u' for long long / int8 and 'U' for unsigned long long)
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m:
+		o added int8, bigint
+	* EOAdaptors/Postgres95/Postgres95Channel.m:
+		o handling bigint
+		o fixed types for int2 and int8
+	* EOAdaptors/Postgres95/Postgres95Values.m:
+		o added missing number types
+		o introducing new number types: 
+		('u' for long long / int8 and 'U' for unsigned long long)
+	* EOControl/EONSAddOns.h/m
+		o added number accessors for NSString
+		o added NSObject
+		  -performSelector:withObject:withObject:withObject:
+	
 2003-10-24  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EONSAddOns.h (GDL2_BUFFER): Added experimental macro.

@@ -1,7 +1,7 @@
 /** 
    Postgres95Values.m
 
-   Copyright (C) 2000-2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2003 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it
    Date: February 2000
@@ -54,6 +54,7 @@ RCS_ID("$Id$")
 
 
 #include <EOAccess/EOAttribute.h>
+#include <EOControl/EONSAddOns.h>
 
 #include <Postgres95EOAdaptor/Postgres95Adaptor.h>
 #include <Postgres95EOAdaptor/Postgres95Channel.h>
@@ -121,6 +122,26 @@ For efficiency reasons, the returned value is NOT autoreleased !
     value = [[NSDecimalNumber alloc] initWithString: str];
   else if ([[attribute valueType] isEqualToString: @"i"])
     value = [[NSNumber alloc] initWithInt: [str intValue]];
+  else if ([[attribute valueType] isEqualToString: @"I"])
+    value = [[NSNumber alloc] initWithUnsignedInt: [str unsignedIntValue]];
+  else if ([[attribute valueType] isEqualToString: @"c"])
+    value = [[NSNumber alloc] initWithChar: [str intValue]];
+  else if ([[attribute valueType] isEqualToString: @"C"])
+    value = [[NSNumber alloc] numberWithUnsignedChar: [str unsignedIntValue]];
+  else if ([[attribute valueType] isEqualToString: @"s"])
+    value = [[NSNumber alloc] initWithShort: [str shortValue]];
+  else if ([[attribute valueType] isEqualToString: @"S"])
+    value = [[NSNumber alloc] initWithUnsignedShort: [str unsignedShortValue]];
+  else if ([[attribute valueType] isEqualToString: @"l"])
+    value = [[NSNumber alloc] initWithLong: [str longValue]];
+  else if ([[attribute valueType] isEqualToString: @"L"])
+    value = [[NSNumber alloc] initWithUnsignedLong: [str unsignedLongValue]];
+  else if ([[attribute valueType] isEqualToString: @"u"])
+    value = [[NSNumber alloc] initWithLongLong: [str longLongValue]];
+  else if ([[attribute valueType] isEqualToString: @"U"])
+    value = [[NSNumber alloc] initWithUnsignedLongLong: [str unsignedLongLongValue]];
+  else if ([[attribute valueType] isEqualToString: @"f"])
+    value = [[NSNumber alloc] initWithFloat: [str floatValue]];
   else
     value = [[NSNumber alloc] initWithDouble: [str doubleValue]];
 
