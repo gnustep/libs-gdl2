@@ -1,6 +1,10 @@
 2002-11-28  Richard Frith-Macdonald <rfm@gnu.org>
 
 	* EOAccess/EOEntity.m:  Patch by David Ayers.
+	* EOAccess/EOExpressionArray.m: Update for latest GSObjCRuntime stuff.
+	* EOControl/EOGenericRecord.m: ditto
+	* Tools/Makefile.preamble: Fix library lookup for link
+
 
 2002-11-27  Richard Frith-Macdonald <rfm@gnu.org>
 

@@ -43,7 +43,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSDate.h>
 #import <Foundation/NSException.h>
 
-#include <gnustep/base/behavior.h>
+#include <gnustep/base/GSObjCRuntime.h>
 
 #import <EOAccess/EOAccess.h>
 #import <EOAccess/EOEntity.h>
@@ -52,14 +52,14 @@ static char rcsId[] = "$Id$";
 
 @implementation EOExpressionArray
 
-+ (void)initialize
++ (void) initialize
 {
   static BOOL initialized = NO;
 
   if (!initialized)
     {
       initialized = YES;
-      behavior_class_add_class(self, [GCArray class]);
+      GSObjCAddClassBehavior(self, [GCArray class]);
     }
 }
 
