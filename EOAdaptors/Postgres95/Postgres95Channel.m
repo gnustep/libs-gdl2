@@ -50,6 +50,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSUtilities.h>
 #include <Foundation/NSException.h>
+#include <Foundation/NSAutoreleasePool.h>
 #include <Foundation/NSDebug.h>
 #else
 #include <Foundation/Foundation.h>
@@ -1705,7 +1706,7 @@ each key
 	  [dstAttribNames addObject: dstAttribName];
 
 	  srcAttrib = [srcEntity attributeNamed: srcAttribName];
-	  dstAttrib = [srcEntity attributeNamed: dstAttribName];
+	  dstAttrib = [dstEntity attributeNamed: dstAttribName];
 
 	  join 
 	    = AUTORELEASE([[EOJoin alloc] initWithSourceAttribute: srcAttrib

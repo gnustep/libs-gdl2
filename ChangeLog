@@ -1,3 +1,10 @@
+2003-02-26  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAdaptors/Postgres95/Postgres95Channel.m: Added missing 
+	include.
+	([Postgres95Channel _describeForeignKeysForEntity:forModel:]):
+	Fix typo to unsure using correct entity.
+
 2003-02-25  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOCheapArray.m ([EOCheapArray dealloc]): Replace
