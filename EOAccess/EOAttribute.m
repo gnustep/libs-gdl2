@@ -739,9 +739,16 @@ static Class NSCalendarDateClass;
       if (!exc && *s == '$')
 	exc++;
       
+      if (exc)
+        return [NSException exceptionWithName: NSInvalidArgumentException
+			reason: [NSString stringWithFormat:@"%@ -- %@ 0x%x: argument \"%@\" contains invalid char '%c'",
+					  NSStringFromSelector(_cmd),
+					  NSStringFromClass([self class]),
+					  self,
+					  name,
+					  *p]
+			userInfo: nil];
       if ([[self entity] attributeNamed:name])
-	exc++;
-      else if ([[self entity] relationshipNamed:name])
 	exc++;
       else if ((storedProcedures = [[[self entity] model] storedProcedures]))
         {
@@ -768,16 +775,18 @@ static Class NSCalendarDateClass;
             }
         }
     }
-  
-  if (exc)
-    return [NSException exceptionWithName: NSInvalidArgumentException
-			reason: [NSString stringWithFormat:@"%@ -- %@ 0x%x: argument \"%@\" contains invalid chars",
-					  NSStringFromSelector(_cmd),
-					  NSStringFromClass([self class]),
-					  self,
-					  name]
-			userInfo: nil];
 
+  if (exc)
+    {
+      return [NSException exceptionWithName: NSInvalidArgumentException
+                         reason: [NSString stringWithFormat: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+                                 NSStringFromSelector(_cmd),
+                                 NSStringFromClass([self class]),
+                                 self,
+                                 name]
+                        userInfo: nil];
+    }
+  
   return nil;
 }
 

@@ -1223,6 +1223,16 @@ relationships. Nil if none" **/
         }
       if (!exc && *s == '$')
         exc++;
+  
+    if (exc)
+      return [NSException exceptionWithName: NSInvalidArgumentException
+                         reason: [NSString stringWithFormat: @"%@ -- %@ 0x%x: argument \"%@\" contains invalid char '%c'", 
+					  NSStringFromSelector(_cmd),
+					  NSStringFromClass([self class]),
+					  self,
+                                         name,
+					 *p]
+                        userInfo: nil];
       
       if ([[self entity] anyAttributeNamed: name])
         exc++;
@@ -1254,15 +1264,17 @@ relationships. Nil if none" **/
     }
 
   if (exc)
-    return [NSException exceptionWithName: NSInvalidArgumentException
-                        reason: [NSString stringWithFormat: @"%@ -- %@ 0x%x: argument \"%@\" contains invalid chars", 
-					  NSStringFromSelector(_cmd),
-					  NSStringFromClass([self class]),
-					  self,
-                                         name]
+    {
+      return [NSException exceptionWithName: NSInvalidArgumentException
+                         reason: [NSString stringWithFormat: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+                                 NSStringFromSelector(_cmd),
+                                 NSStringFromClass([self class]),
+                                 self,
+                                 name]
                         userInfo: nil];
-  else
-    return nil;
+    }
+
+  return nil;
 }
 
 - (void)setToMany: (BOOL)flag

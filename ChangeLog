@@ -1,3 +1,17 @@
+2005-02-02  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/EOEntity.m (-setName:): Validate the new name and remove
+	the checks from here.
+	(-validateName): Don't check if an attribute or a relationship with
+	the name exist.  Check if an entity of the same name exists.
+	Return an exception with a valid reason in all cases.
+	* EOAccess/EOAttribute.m (validateName): Return an exception with a 
+	valid reason in all cases.  Don't check if a relationship with the
+	name exists.
+	* EOAccess/EOAttribute.m (validateName): Return an exception with a 
+	valid reason in all cases.  Don't check if a attribute with the
+	name exists.
+
 2005-01-27  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EODatabase.h/m:(EODistantPastTimeInterval): Added

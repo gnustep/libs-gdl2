@@ -1874,18 +1874,8 @@ createInstanceWithEditingContext:globalID:zone:
 - (void)setName: (NSString *)name
 {
   if (name && [name isEqual: _name]) return;
-
-  if (name 
-      && [name isEqual: _name] == NO 
-      && [_model entityNamed: name] != nil)
-    {
-      [NSException raise: NSInvalidArgumentException
-		   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
-		   NSStringFromSelector(_cmd),
-		   NSStringFromClass([self class]),
-		   self,
-		   name];
-    }
+  
+  [[self validateName: name] raise];
 
   [self willChange];
   ASSIGNCOPY(_name, name);
@@ -2200,8 +2190,17 @@ createInstanceWithEditingContext:globalID:zone:
         }
       if (!exc && *s == '$') exc++;
       
-      if ([self attributeNamed: name]) exc++;
-      else if ([self relationshipNamed: name]) exc++;
+      if (exc)
+        return [NSException exceptionWithName: NSInvalidArgumentException
+			  reason: [NSString stringWithFormat:@"%@ -- %@ 0x%x: argument \"%@\" contains invalid char '%c'",
+					    NSStringFromSelector(_cmd),
+					    NSStringFromClass([self class]),
+					    self,
+					    name,
+					    *p]
+			  userInfo: nil];
+
+      if ([_model entityNamed: name]) exc++;
       else if ((storedProcedures = [[self model] storedProcedures]))
         {
 	  NSEnumerator *stEnum = [storedProcedures objectEnumerator];
@@ -2226,17 +2225,19 @@ createInstanceWithEditingContext:globalID:zone:
             }
         }
     }
-
-    if (exc)
+    
+  if (exc)
+    {
       return [NSException exceptionWithName: NSInvalidArgumentException
-			  reason: [NSString stringWithFormat:@"%@ -- %@ 0x%x: argument \"%@\" contains invalid chars",
-					    NSStringFromSelector(_cmd),
-					    NSStringFromClass([self class]),
-					    self,
-					    name]
-			  userInfo: nil];
-    else
-      return nil;
+                  	 reason: [NSString stringWithFormat: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+			 	 NSStringFromSelector(_cmd),
+				 NSStringFromClass([self class]),
+				 self,
+				 name]
+			userInfo: nil];
+    }
+  
+  return nil;
 }
 
 - (void)addSubEntity: (EOEntity *)child
