@@ -313,7 +313,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSAssert(name,@"No entityt name");
 
   entity = [_entitiesByName objectForKey: name];
-  if (entiry != nil)
+  if (entity != nil)
     {
       entity = [self _verifyBuiltEntityObject: entity
 					named: name];
