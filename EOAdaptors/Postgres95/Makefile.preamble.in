@@ -45,7 +45,10 @@ ADDITIONAL_OBJCFLAGS =
 ADDITIONAL_CFLAGS = 
 
 # Additional include directories the compiler should search
-ADDITIONAL_INCLUDE_DIRS = -I../.. @POSTGRES_INCLUDES@
+ADDITIONAL_INCLUDE_DIRS = \
+	-I../../EOControl/$(GNUSTEP_TARGET_DIR) \
+	-I../.. \
+	@POSTGRES_INCLUDES@
 
 # Libraries linked to the framework
 LIBRARIES_DEPEND_UPON = @POSTGRES_LIBS@

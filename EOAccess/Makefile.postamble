@@ -33,7 +33,7 @@
 #
 
 # Things to do before compiling
-before-all::
+# before-all::
 
 # Things to do after compiling
 # after-all::

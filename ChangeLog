@@ -1,3 +1,18 @@
+2003-02-19  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/Makefile.postamble: Remove obsolete dependency and
+	target.  Add dependancy and targets for target specific config.h
+	file.
+	* EOAccess/Makefile.preamble: Add include option for target
+	specific config.h file.
+	* EOAdaptors/Postgres95/Makefile.preamble.in: Ditto.
+	* EOModeler/Makefile.preamble: Ditto.
+	* Tools/Makefile.preamble: Ditto.
+	* EOAccess/Makefile.postamble: Comment empty target.
+	
+	* EOControl/EODebug.m (EOFLogC_): Log thread in a portable
+	fashion.
+
 2003-02-14  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/Postgres95Channel.m

@@ -62,18 +62,9 @@ void EOFLogC_(const char *file, int line, const char *string)
 
   if ([NSThread isMultiThreaded])
     {
-      NSThread *t = [NSThread currentThread];
-
-      fprintf(stderr,"TID=");
-#if 0
-      if (t && t->_thread_id)
-	fprintf(stderr,"%p [%ld] (%d) ",(void*)t->_thread_id,(long)t->_thread_id,(int)getpid());
-      else
-#endif
-	{
-	  void *tid = (void*)objc_thread_id();
-	  fprintf(stderr, "%p [%ld] (%d) ", tid, (long)tid, (int)getpid());
-	}
+      fprintf(stderr, "%s PID=(%d) ",
+	      [[GSCurrentThread() description] cString],
+	      (int)getpid());
     }
 
   fprintf(stderr, "File %s: %d. ", file, line);
@@ -82,7 +73,9 @@ void EOFLogC_(const char *file, int line, const char *string)
   len = strlen(string);
 
   if (len <= 0 || string[len-1] != '\n')
-	fprintf(stderr, "\n");
+    {
+      fprintf(stderr, "\n");
+    }
 
   fflush(stderr);
 }
