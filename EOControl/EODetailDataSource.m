@@ -268,4 +268,14 @@ static char rcsId[] = "$Id$";
   [coder encodeObject: _masterClassDescriptionName];
 }
 
+- (NSString*) description
+{
+  return [NSString stringWithFormat: @"<%s %p : masterDataSource=%@ masterObject=%@ detailKey=%@ masterClassDescriptionName=%@>",
+		   object_get_class_name(self),
+		   (void*)self,
+		   _masterDataSource,
+                   _masterObject,
+                   _detailKey,
+                   _masterClassDescriptionName];
+}
 @end

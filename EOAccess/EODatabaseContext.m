@@ -2032,7 +2032,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
     {
       id object = [insertedObjects objectAtIndex: i];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p",object);
+      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%@",object);
 
       if ([self ownsObject:object])
         {
@@ -2449,7 +2449,7 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                                         destinationObjects: newValues];
                                 }
                             }
-                          else
+                          else // To One
                             {
                               //id destinationObject=[object storedValueForKey:relationshipName];
 
@@ -2784,13 +2784,16 @@ but not owned by this context to the coordinator.
   EOFLOGObjectFnStart();
 
   dbOpe = [self databaseOperationForObject: object];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p dbOpe=%@", 
+                        object,dbOpe);
 
   [dbOpe setDatabaseOperator: EODatabaseInsertOperator];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p dbOpe=%@", 
+                        object, dbOpe);
 
   snapshot = [dbOpe dbSnapshot]; //TODO: sowhat
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshot=%@", snapshot);
+  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p snapshot=%@", 
+                        object, snapshot);
 
 //call snapshot count
 
@@ -3124,8 +3127,8 @@ Raises an exception is the adaptor is unable to perform the operations.
                       if (primaryKeyDiffs)
                         {
                           NSEmitTODO();
-                          NSLog(@"primaryKeyDiffs=%@", primaryKeyDiffs);
-                          [self notImplemented: _cmd]; //TODO: if primaryKeyDiffs
+                          NSAssert3(NO,@"primaryKeyDiffs=%@ dbOpe=%@ object=%@",
+                                    primaryKeyDiffs,dbOpe,[dbOpe object]); //TODO: if primaryKeyDiffs
                         }
 
                       if (databaseOperator == EODatabaseInsertOperator)
@@ -6342,6 +6345,7 @@ _numLocked = 0;
   //NEAR OK
   NSDictionary *pk = nil;
   EOEntity *entity = nil;
+  NSArray *pkNames = nil;
   BOOL shouldGeneratePrimaryKey = NO;
 
   EOFLOGObjectFnStart();
@@ -6354,25 +6358,22 @@ _numLocked = 0;
   EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p shouldGeneratePrimaryKey=%d",
                         object,shouldGeneratePrimaryKey);
 
+/*
   if (shouldGeneratePrimaryKey)
+*/
     {
+
       BOOL isPKValid = NO;
       EOGlobalID *gid = [self _globalIDForObject: object]; //OK
-
       EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
-/*NO      NSAssert2([gid isKindOfClass:[EOKeyGlobalID class]],
-                @"%@ is not an EOKeyGlobalID, it's a %@",
-                gid,
-                [gid class]);
-*/
-      pk = [entity primaryKeyForGlobalID: (EOKeyGlobalID*)gid]; //OK
 
+      pk = [entity primaryKeyForGlobalID: (EOKeyGlobalID*)gid]; //OK
       EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p pk=%@",
                             object,pk);
 
       {
         NSDictionary *pk2 = nil;
-        NSArray *pkNames = [entity primaryKeyAttributeNames];
+        pkNames = [entity primaryKeyAttributeNames];
 
         pk2 = [self valuesForKeys: pkNames
 		    object: object];
@@ -6406,8 +6407,10 @@ _numLocked = 0;
       isPKValid = [entity isPrimaryKeyValidInObject: pk];
       EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p isPKValid=%d",
                             object,isPKValid);
-
       if (isPKValid == NO)
+        pk = nil;
+
+      if (isPKValid == NO && shouldGeneratePrimaryKey)
         {
           pk = nil;
 
@@ -6484,14 +6487,84 @@ _numLocked = 0;
                          NSStringFromClass([self class]),
                          self, object];
         }
-      {
-        EODatabaseOperation *dbOpe = [self databaseOperationForObject: object];
-        NSMutableDictionary *newRow = [dbOpe newRow]; 
-
-        [newRow addEntriesFromDictionary: pk];//VERIFY Here we replace previous key
-      }
     }
+/*
+  else // !shouldGeneratePrimaryKey
+*/
+  if (!pk)
+    {
+      // MG
+      // Here we'll find if there is a "parent" objects which relay pk
+      // I'm not sure if we could do it here but it's handle this case:
+      //    object is a new child of a previous existing object.
+      //	if we don't generate it's pk here, the chld object 
+      //	will relay it's pk to parent which is not good
+      NSDictionary *objectSnapshot=nil;
+      NSArray *relationships=nil;
+      int i=0;
+      int relationshipsCount=0;
 
+      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%@", object);
+
+      // get object snapshot
+      objectSnapshot = [object snapshot];      
+      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"objectSnapshot=%@",
+                            objectSnapshot);
+
+      // Get object relationships
+      relationships = [entity relationships];      
+      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"relationships=%@",
+                            relationships);
+      
+      relationshipsCount = [relationships count];
+      
+      for (i = 0; i < relationshipsCount; i++)
+        {
+          EORelationship *inverseRelationship = nil;
+
+          EORelationship *relationship = [relationships objectAtIndex: i];
+          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
+                                relationship);
+
+          inverseRelationship = [relationship inverseRelationship];
+          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"inverseRelationship=%@",
+                                inverseRelationship);
+          
+          // if there's inverse relationship with propagates primary key
+          if ([inverseRelationship propagatesPrimaryKey])
+            {
+              NSString *relationshipName= [relationship name];
+              NSDictionary *relationshipValuePK = nil;
+
+              // get object value for the relationship
+              id relationshipValue=[objectSnapshot valueForKey:relationshipName];
+              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationshipValue=%@",
+                                    relationshipValue);
+
+              // get relationshipValue pk
+              relationshipValuePK = [self _primaryKeyForObject:relationshipValue];
+              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationshipValuePK=%@",
+                                    relationshipValuePK);
+
+              // force object to relay pk now !
+              [self relayPrimaryKey: relationshipValuePK
+                    object: relationshipValue
+                    entity: [_database entityForObject: relationshipValue]];
+            };
+        };
+      pk = [self valuesForKeys: pkNames
+                 object: object];
+      if (![entity isPrimaryKeyValidInObject: pk])
+        pk=nil;
+    };
+  if (pk)
+    {
+      EODatabaseOperation *dbOpe = [self databaseOperationForObject: object];
+      NSMutableDictionary *newRow = [dbOpe newRow]; 
+      
+      [newRow addEntriesFromDictionary: pk];//VERIFY Here we replace previous key
+    }
+  
   EOFLOGObjectFnStop();
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"pk=%@", pk);
@@ -6585,11 +6658,17 @@ _numLocked = 0;
             {
               EORelationship *relationship = [relationships objectAtIndex:
 							      iRelationship];
+              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"test entity: %@ relationship=%@",
+                                    [entity name],
+                                    relationship);
 
               if ([relationship propagatesPrimaryKey])
                 {
                   EOEntity *destinationEntity = [relationship
 						  destinationEntity];
+                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"test entity: %@ destinationEntity=%@",
+                                        [entity name],
+                                        [destinationEntity name]);
 
                   if (destinationEntity)
                     {

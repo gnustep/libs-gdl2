@@ -1,3 +1,11 @@
+2002-11-30  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAccess/EODatabaseContext.m
+		o logs
+		o changes in _primaryKeyForObject: to handle 
+		inserted "child" of already existing object case
+	* EOControl/EODetailDataSource.m:
+		o implemented -description
+
 2002-11-28  Richard Frith-Macdonald <rfm@gnu.org>
 
 	* EOAccess/EOEntity.m:  Patch by David Ayers.
