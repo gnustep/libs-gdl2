@@ -54,7 +54,6 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
@@ -66,10 +65,7 @@ RCS_ID("$Id$")
 #include "Postgres95Values.h"
 
 #include "Postgres95Compatibility.h"
-
-static SEL postgres95FormatSEL=NULL;
-
-static IMP NSCalendarDatePostgres95FormatIMP=NULL;
+#include "Postgres95Private.h"
 
 /* These methods are undocumented but exist in GDL2 and WO4.5. 
    Ayers: Review (Don't rely on them) */
@@ -90,12 +86,7 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
   static BOOL initialized=NO;
   if (!initialized)
     {
-      GDL2PrivInit();
-
-      postgres95FormatSEL=@selector(postgres95Format);
-
-      NSCalendarDatePostgres95FormatIMP=[GDL2NSCalendarDateClass 
-                                          methodForSelector:postgres95FormatSEL];
+      PSQLA_PrivInit();
     };
 };
 
@@ -176,32 +167,36 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
           else
             {
               NSDecimalNumber* decimalValue=nil;
-              if ([value isKindOfClass: GDL2NSDecimalNumberClass] == NO)
+              if ([value isKindOfClass: PSQLA_NSDecimalNumberClass] == NO)
                 {
-                  if ([value isKindOfClass: GDL2NSStringClass] == YES)
+                  if ([value isKindOfClass: PSQLA_NSStringClass] == YES)
                     {
-                      decimalValue=[NSDecimalNumber decimalNumberWithString:value];
+                      decimalValue
+			= AUTORELEASE([PSQLA_alloc(NSDecimalNumber) initWithString:value]);
                       EOFLOGObjectLevelArgs(@"EOSQLExpression",
                                             @"float case - value [%@]=%@ ==> decimalValue=%@",
                                             value,[value class],decimalValue);
                     }
                   else if ([value respondsToSelector: @selector(doubleValue)])
                     {
-                      decimalValue=(NSDecimalNumber*)[[[NSDecimalNumber alloc]initWithDouble:[value doubleValue]] autorelease];
+                      decimalValue
+			= AUTORELEASE([PSQLA_alloc(NSDecimalNumber) initWithDouble:[value doubleValue]]);
                       EOFLOGObjectLevelArgs(@"EOSQLExpression",
                                             @"float case - value [%@]=%@ ==> decimalValue=%@",
                                             value,[value class],decimalValue);
                     }
                   else if ([value respondsToSelector: @selector(floatValue)])
                     {
-                      decimalValue=(NSDecimalNumber*)[[[NSDecimalNumber alloc]initWithFloat:[value floatValue]] autorelease];
+                      decimalValue
+			= AUTORELEASE([PSQLA_alloc(NSDecimalNumber) initWithFloat:[value floatValue]]);
                       EOFLOGObjectLevelArgs(@"EOSQLExpression",
                                             @"float case - value [%@]=%@ ==> decimalValue=%@",
                                             value,[value class],decimalValue);
                     }
                   else if ([value respondsToSelector: @selector(intValue)])
                     {
-                      decimalValue=(NSDecimalNumber*)[[[NSDecimalNumber alloc]initWithInt:[value intValue]] autorelease];
+                      decimalValue
+			= AUTORELEASE([PSQLA_alloc(NSDecimalNumber) initWithInt:[value intValue]]);
                       EOFLOGObjectLevelArgs(@"EOSQLExpression",
                                             @"float case - value [%@]=%@ ==> decimalValue=%@",
                                             value,[value class],decimalValue);
@@ -238,7 +233,7 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
 			    @"BOOL case - value=%@ class=%@",
 			    value, [value class]);          
 
-      if ([value isKindOfClass: GDL2NSNumberClass] == YES)
+      if ([value isKindOfClass: PSQLA_NSNumberClass] == YES)
         {
           BOOL boolValue = [value boolValue];
 
@@ -298,16 +293,17 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
 		    value, value, [value class]);
         }
       // Value can also be a string...
-      if ([value isKindOfClass: GDL2NSDateClass])
+      if ([value isKindOfClass: PSQLA_NSDateClass])
         {
-          NSString *format = (*NSCalendarDatePostgres95FormatIMP)
-            (GDL2NSCalendarDateClass,postgres95FormatSEL);
+	  NSString *format;
 
-          formatted = [NSString stringWithFormat: @"'%@'",
-                                [value
-                                  descriptionWithCalendarFormat:format
-                                  timeZone: nil
-                                  locale: nil]];
+	  format = [value descriptionWithCalendarFormat: 
+			    PSQLA_postgresCalendarFormat
+			  timeZone: nil
+			  locale: nil];
+
+          formatted = [NSString stringWithFormat: @"'%@'", format];
+                                  
         }
       else
         formatted = [NSString stringWithFormat: @"'%@'",value];
@@ -791,9 +787,10 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
   else
     {
       const char *s, *p, *init = [pattern cString];
+      NSString *tmp;
       NSMutableString *str = [NSMutableString stringWithCapacity:
                                                 patternLength];
-      IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
+      IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
       
       for (s = p = init; *s; s++)
         {
@@ -801,49 +798,60 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
             {
             case '*':
               if (s != p)
-                GDL2AppendStringWithImp(str,appendStringIMP,
-                                        GDL2StringWithCStringAndLength(p,s-p));
+		{
+		  tmp = [(PSQLA_alloc(NSString)) initWithCString: p
+						 length: s-p];
+		  PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+		  [tmp release];
+		}
               [str appendString: @"%"];
               p = s+1;
               break;
             case '?':
               if (s != p)
-                GDL2AppendStringWithImp(str,appendStringIMP,
-                                        GDL2StringWithCStringAndLength(p,s-p));
-              (*appendStringIMP)(str,GDL2_appendStringSEL,@"_");
+		{
+		  tmp = [(PSQLA_alloc(NSString)) initWithCString: p
+						 length: s-p];
+		  PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+		  [tmp release];
+		}
+              (*appendStringIMP)(str,@selector(appendString:),@"_");
               p = s+1;
               break;
             case '%':
               if (s != p)
-                GDL2AppendStringWithImp(str,appendStringIMP,
-                                        GDL2StringWithCStringAndLength(p,s-p));
-              
+		{
+		  tmp = [(PSQLA_alloc(NSString)) initWithCString: p
+						 length: s-p];
+		  PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+		  [tmp release];
+		}
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  (*appendStringIMP)(str,GDL2_appendStringSEL,@"%]");
+                  (*appendStringIMP)(str,@selector(appendString:),@"%]");
                   p = s+2; s++;
                 }
               else
                 {
-                  (*appendStringIMP)(str,GDL2_appendStringSEL,@"[%]");
+                  (*appendStringIMP)(str,@selector(appendString:),@"[%]");
                   p = s+1;
                 }
               break;
 /*Postgresql doesn't want [_] but want _
             case '_':
               if (s != p)
-                (*appendStringIMP)(str,GDL2_appendStringSEL,
+                (*appendStringIMP)(str,@selector(appendString:),
                                    (*stringWithCString_lengthIMP)
-                                   (GDL2NSStringClass,GDL2_stringWithCString_lengthSEL,p,s-p));
+                                   (PSQLA_NSStringClass,PSQLA_stringWithCString_lengthSEL,p,s-p));
               
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  (*appendStringIMP)(str,GDL2_appendStringSEL,@"_]");
+                  (*appendStringIMP)(str,@selector(appendString:),@"_]");
                   p = s+2; p++;
                 }
               else
                 {
-                  (*appendStringIMP)(str,GDL2_appendStringSEL,@"[_]");
+                  (*appendStringIMP)(str,@selector(appendString:),@"[_]");
                   p = s+1;
                 }
               break;
@@ -852,7 +860,7 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
         }
       
       if (*p)
-        (*appendStringIMP)(str,GDL2_appendStringSEL,[NSString stringWithCString:p]);
+        (*appendStringIMP)(str,@selector(appendString:),[NSString stringWithCString:p]);
 
       sqlPattern=str;
     };
@@ -867,9 +875,10 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
                      withEscapeCharacter: (unichar)escapeCharacter
 {
   const char *s, *p, *init = [pattern cString];
+  NSString *tmp;
   NSMutableString *str = [NSMutableString stringWithCapacity:
 					    [pattern length]];
-  IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
+  IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
 
   for (s = p = init; *s; s++)
     {
@@ -877,49 +886,60 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
         {
 	case '*':
 	  if (s != p)
-            GDL2AppendStringWithImp(str,appendStringIMP,
-                                    GDL2StringWithCStringAndLength(p,s-p));
-	  GDL2AppendStringWithImp(str,appendStringIMP,@"%");
+	    {
+	      tmp = [(PSQLA_alloc(NSString)) initWithCString: p
+					     length: s-p];
+	      PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+	      [tmp release];
+	    }
+	  PSQLA_AppendStringWithImp(str,appendStringIMP,@"%");
 	  p = s+1;
 	  break;
 	case '?':
 	  if (s != p)
-            GDL2AppendStringWithImp(str,appendStringIMP,
-                                    GDL2StringWithCStringAndLength(p,s-p));
-	  GDL2AppendStringWithImp(str,appendStringIMP,@"_");
+	    {
+	      tmp = [(PSQLA_alloc(NSString)) initWithCString: p
+					     length: s-p];
+	      PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+	      [tmp release];
+	    }
+	  PSQLA_AppendStringWithImp(str,appendStringIMP,@"_");
 	  p = s+1;
 	  break;
 	case '%':
 	  if (s != p)
-            GDL2AppendStringWithImp(str,appendStringIMP,
-                                    GDL2StringWithCStringAndLength(p,s-p));
-	  
+	    {
+	      tmp = [(PSQLA_alloc(NSString)) initWithCString: p
+					     length: s-p];
+	      PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+	      [tmp release];
+	    }
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      GDL2AppendStringWithImp(str,appendStringIMP,@"%]");
+	      PSQLA_AppendStringWithImp(str,appendStringIMP,@"%]");
 	      p = s+2; s++;
 	    }
 	  else
 	    {
-	      GDL2AppendStringWithImp(str,appendStringIMP,@"[%]");
+	      PSQLA_AppendStringWithImp(str,appendStringIMP,@"[%]");
 	      p = s+1;
 	    }
 	  break;
 /*Postgresql doesn't want [_] but want _
 	case '_':
 	  if (s != p)
-	    GDL2AppendStringWithImp(str,appendStringIMP,
+	    PSQLA_AppendStringWithImp(str,appendStringIMP,
             (*stringWithCString_lengthIMP)
-            (GDL2NSStringClass,GDL2_stringWithCString_lengthSEL,p,s-p));
+            (PSQLA_NSStringClass,PSQLA_stringWithCString_lengthSEL,p,s-p));
 	  
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      GDL2AppendStringWithImp(str,appendStringIMP,@"_]");
+	      PSQLA_AppendStringWithImp(str,appendStringIMP,@"_]");
 	      p = s+2; p++;
 	    }
 	  else
 	    {
-	      GDL2AppendStringWithImp(str,appendStringIMP,@"[_]");
+	      PSQLA_AppendStringWithImp(str,appendStringIMP,@"[_]");
 	      p = s+1;
 	    }
 	  break;
@@ -928,7 +948,7 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
     }
 
   if (*p)
-    GDL2AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString:p]);
+    PSQLA_AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString:p]);
 
   return str;
 }

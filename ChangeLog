@@ -1,3 +1,43 @@
+2005-02-19  David Ayers  <d.ayers@inode.at>
+
+	* EOAdaptors/Postgres95/Postgres95Private.m/h: New files
+	based on EOControl/EOPriv.m/h.
+	* EOAdaptors/Postgres95/GNUmakefile.in: Build Postgres95Private.m.
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m: Do not depend on
+	EOControl/EOPriv.m/h but on own private files.
+	(+assignExternalInfoForEntity): Use objectAtIndex: instead of
+	enumerator for speed.
+	* EOAdaptors/Postgres95/Postgres95Channel.m: (+initialize)
+	(-lowLevelResultFieldNames:, -fetchRowWithZone:)
+	(-insertRow:forEntity:, -_describeResults, -describeTableNames)
+	(-updateValues:inRowsDescribedByQualifier:entity:)
+	(-_describeBasicEntityWithName:forModel:)
+	(-_describeForeignKeysForEntity:forModel:)
+	(-primaryKeyForNewRowWithEntity:): Do not depend on
+	EOControl/EOPriv.m/h but on own private files.  Improve
+	optimizations.
+	(pgResultDictionary): Simplify unused static local be reverting
+	optimizations.
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m:
+	(+initialize, +formatValue:forAttribute:)
+	(+sqlPatternFromShellPattern:)
+	(+sqlPatternFromShellPattern:withEscapeCharacter:): Do not depend
+	on EOControl/EOPriv.m/h but on own private files.  Improve
+	optimizations.
+	* EOAdaptors/Postgres95/Postgres95Values.h/m
+	(Postgres95CalendarFormat, Postgres95ValuesClass)
+	(Postgres95Values_newValueForBytesLengthAttributeSEL)
+	(Postgres95Values_newValueForBytesLengthAttributeIMP)
+	(Postgres95Values_newValueForBytesLengthAttribute): Remove.
+	([NSCalendarDate+setPostgres95Format:]): Remove.
+	([NSCalendarDate+postgres95Format]): Deprecate.
+	(LPSQLA_StringDefaultCStringEncoding): New local static.
+	(+initialize, +newValueForNumberType:length:attribute:)
+	(+newValueForCharactersType:length:attribute:)
+	(+newValueForDateType:length:attribute:):  Do not depend on
+	EOControl/EOPriv.m/h but on own private files.  Improve
+	optimizations.
+	
 2005-02-18  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOModel.m (-addEntity:, -setName:): Call -willChange:

@@ -67,7 +67,6 @@ RCS_ID("$Id$")
 #include <EOControl/EOFetchSpecification.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
@@ -78,6 +77,7 @@ RCS_ID("$Id$")
 #include <Postgres95EOAdaptor/Postgres95Context.h>
 #include <Postgres95EOAdaptor/Postgres95Values.h>
 
+#include "Postgres95Private.h"
 
 static void __dummy_function_used_for_linking(void)
 {
@@ -99,39 +99,53 @@ pgResultDictionary(PGresult *pgResult)
   NSMutableArray *fields;
   NSMutableArray *tuples;
   ExecStatusType statusType;
-  IMP fieldsAO=NULL; // addObject:
-  IMP tuplesAO=NULL; // addObject:
 
   nfields = PQnfields(pgResult);
   ntuples = PQntuples(pgResult);
 
-  fields = GDL2MutableArrayWithCapacity(nfields);
-  tuples = GDL2MutableArrayWithCapacity(ntuples);
+  fields = [NSMutableArray arrayWithCapacity: nfields];
+  tuples = [NSMutableArray arrayWithCapacity: ntuples];
 
   for (i = 1; i <= nfields; i++)
     {
-      char *fname;
-      fname = PQfname(pgResult, i);
-      GDL2AddObjectWithImpPtr(fields,&fieldsAO,
-                              [NSDictionary dictionaryWithObjectsAndKeys:
-                                              [NSS_SWF:@"%s",  fname], @"PQfname",
-                                            [NSS_SWF:@"%d",  PQfnumber(pgResult, fname)], @"PQfnumber",
-                                            [NSS_SWF:@"%ud", PQftype(pgResult, i)], @"PQftype",
-                                            [NSS_SWF:@"%d",  PQfsize(pgResult, i)], @"PQfsize",
-                                            [NSS_SWF:@"%d",  PQfmod(pgResult, i)], @"PQfmod",
-                                            nil]);
+      NSString *fname;
+      NSNumber *fnumber;
+      NSNumber *ftype;
+      NSNumber *fsize;
+      NSNumber *fmod;
+      NSDictionary *dict;
+      char *cfname;
+
+      cfname = PQfname(pgResult, i);
+
+      fname = [NSString stringWithCString: cfname];
+      fnumber = [NSNumber numberWithInt: PQfnumber(pgResult, cfname)];
+      ftype = [NSNumber numberWithUnsignedInt: PQftype(pgResult, i)];
+      fsize = [NSNumber numberWithInt: PQfsize(pgResult, i)];
+      fmod = [NSNumber numberWithInt: PQfmod(pgResult, i)];
+
+      dict = [NSDictionary dictionaryWithObjectsAndKeys:
+			     fname, @"PQfname",
+			   fnumber, @"PQfnumber",
+			   ftype, @"PQftype",
+			   fsize, @"PQfsize",
+			   fmod, @"PQfmod",
+			   nil];
+
+      [fields addObject: dict];
     }
 
   for (i = 1; i <= ntuples; i++)
     {
-      IMP tupleSOFK=NULL; // setObject:forKey:
       NSMutableDictionary *tuple;
-      tuple = GDL2MutableDictionaryWithCapacity(nfields);
+      tuple = [NSMutableDictionary dictionaryWithCapacity: nfields];
       for (j = 1; j <= nfields; j++)
 	{
 	  NSString *tupleInfo;
 	  NSString *tupleKey;
-	  tupleKey = [NSS_SWF:@"%s", PQfname(pgResult, j)];
+
+	  tupleKey = [NSString stringWithCString: PQfname(pgResult, j)];
+
 	  if (PQgetisnull(pgResult, i, j))
 	    {
 	      tupleInfo = @"NULL";
@@ -142,9 +156,9 @@ pgResultDictionary(PGresult *pgResult)
 	      fmt = [NSS_SWF: @"%%%ds", PQgetlength(pgResult, i, j)];
 	      tupleInfo = [NSS_SWF: fmt, PQgetvalue(pgResult, i, j)];
 	    }
-	  GDL2SetObjectForKeyWithImpPtr(tuple,&tupleSOFK,tupleInfo,tupleKey);
+	  [tuple setObject: tupleInfo forKey: tupleKey];
 	}
-      GDL2AddObjectWithImpPtr(tuples,&tuplesAO,tuple);
+      [tuples addObject: tuple];
     }
 
   statusType = PQresultStatus(pgResult);
@@ -173,7 +187,7 @@ pgResultDictionary(PGresult *pgResult)
   if (!initialized)
     {
       Class aClass=Nil;
-      GDL2PrivInit();
+      PSQLA_PrivInit();
 
       aClass=[Postgres95Values class]; // Force Initialize;      
     };
@@ -342,16 +356,19 @@ pgResultDictionary(PGresult *pgResult)
 - (NSArray*)lowLevelResultFieldNames: (PGresult*)res
 {
   int nb = PQnfields(res);
-  NSMutableArray *names = GDL2MutableArrayWithCapacity(nb);
+  NSMutableArray *names 
+    = AUTORELEASE([PSQLA_alloc(NSMutableArray) initWithCapacity: nb]);
   int i;
   IMP namesAO=NULL; //addObject:
 
   for (i = 0; i < nb; i++)
     {
       char *szName = PQfname(res,i);
-      NSString *name = GDL2StringWithCString(szName);
-
-      GDL2AddObjectWithImpPtr(names,&namesAO,name);
+      unsigned length = szName ? strlen(szName) : 0;
+      NSString *name = [(PSQLA_alloc(NSString)) initWithCString: szName
+						length: length];
+      PSQLA_AddObjectWithImpPtr(names,&namesAO,name);
+      RELEASE(name);
     }
 
   return names;
@@ -430,7 +447,7 @@ zone:zone
 
           for (i = 0; i < count; i++)
             {
-              EOAttribute *attr = GDL2ObjectAtIndexWithImpPtr(_attributes,&attributesOAI,i);
+              EOAttribute *attr = PSQLA_ObjectAtIndexWithImpPtr(_attributes,&attributesOAI,i);
               int length = 0;
               const char *string = NULL;
 
@@ -438,7 +455,7 @@ zone:zone
 
               if (PQgetisnull(_pgResult, _currentResultRow, i))
                 {
-                  values[i] = RETAIN(GDL2EONull); //to be compatible with others returned values
+                  values[i] = RETAIN(PSQLA_EONull); //to be compatible with others returned values
                 }
               else
                 {
@@ -455,18 +472,25 @@ zone:zone
                           string = [self _readBinaryDataRow: (Oid)atol(string)
                                          length:&length zone: zone];
                           //For efficiency reasons, the returned value is NOT autoreleased !
-                          values[i] = Postgres95Values_newValueForBytesLengthAttribute(string,length,attr);
+                          values[i] = PSQLA_Postgres95Values_newValueForBytesLengthAttribute(string,length,attr);
                         }
                       else
                         {
-                          //For efficiency reasons, the returned value is NOT autoreleased !
-                          values[i] = [GDL2NSNumber_alloc() initWithLong: atol(string)];
+                          // The documentatin states that for efficiency
+			  // reasons, the returned value is NOT autoreleased
+			  // yet in the case of GNUstep-base it would be more
+			  // efficient if the numberWithLong: method would be
+			  // used as we could often skip alloc / dealloc
+			  // and get a cached value.  We could use it and
+			  // send retain, or we could start maintaing our
+			  // own cache.
+                          values[i] = [PSQLA_alloc(NSNumber) initWithLong: atol(string)];
                         }
                     }
                   else
                     {
                       //For efficiency reasons, the returned value is NOT autoreleased !
-                      values[i] = Postgres95Values_newValueForBytesLengthAttribute(string,length,attr);
+                      values[i] = PSQLA_Postgres95Values_newValueForBytesLengthAttribute(string,length,attr);
                     }
                 }
 
@@ -788,7 +812,7 @@ each key
 */
 
   enumerator = [row keyEnumerator];
-  while ((attrName = GDL2NextObjectWithImpPtr(enumerator,&attrEnumNO)))
+  while ((attrName = PSQLA_NextObjectWithImpPtr(enumerator,&attrEnumNO)))
     {
       EOAttribute *attribute = nil;
       NSString *externalType = nil;
@@ -802,7 +826,7 @@ each key
       if (!attribute)
 	return; //???????????
 
-      value = GDL2ObjectForKeyWithImpPtr(row,&rowOFK,attrName);
+      value = PSQLA_ObjectForKeyWithImpPtr(row,&rowOFK,attrName);
       NSDebugMLLog(@"gsdb", @"value=%@", value);
 
       externalType = [attribute externalType];
@@ -811,7 +835,7 @@ each key
       /* Insert the binary value into the binaryDataRow dictionary */
       if ([externalType isEqual: @"inversion"])
         {
-	  id binValue = GDL2ObjectForKeyWithImpPtr(nrow,&nrowOFK,attrName);
+	  id binValue = PSQLA_ObjectForKeyWithImpPtr(nrow,&nrowOFK,attrName);
 	  Oid binOid = [self _insertBinaryData: binValue 
 			     forAttribute: attribute];
 	  value = [NSNumber numberWithLong: binOid];
@@ -822,7 +846,7 @@ each key
           // [[adaptorContext adaptor] databaseEncoding]
         }
 
-      GDL2SetObjectForKeyWithImpPtr(nrow,&nrowSOFK,value,attrName);
+      PSQLA_SetObjectForKeyWithImpPtr(nrow,&nrowSOFK,value,attrName);
     }
   
   NSDebugMLLog(@"gsdb", @"nrow=%@", nrow);
@@ -1053,7 +1077,7 @@ each key
       invAttributes = AUTORELEASE([[NSMutableArray alloc] initWithCapacity: [mrow count]]);
 
       enumerator = [values keyEnumerator];
-      while ((attrName = GDL2NextObjectWithImpPtr(enumerator,&valueEnumNO)))
+      while ((attrName = PSQLA_NextObjectWithImpPtr(enumerator,&valueEnumNO)))
         {
           attr = [entity attributeNamed: attrName];
           externalType = [attr externalType];
@@ -1065,8 +1089,8 @@ each key
 			      [values objectForKey:attrName]]
                 forKey:attrName];
 */
-          GDL2SetObjectForKeyWithImpPtr(mrow,&mrowSOFK,
-                                        GDL2ObjectForKeyWithImpPtr(values,&valuesOFK,attrName),
+          PSQLA_SetObjectForKeyWithImpPtr(mrow,&mrowSOFK,
+                                        PSQLA_ObjectForKeyWithImpPtr(values,&valuesOFK,attrName),
                                         attrName);
 
           if ([externalType isEqual: @"inversion"])
@@ -1107,7 +1131,7 @@ each key
           // Update the large objects and modify the row to update with Oid's
 
           enumerator = [invAttributes objectEnumerator];          
-          while ((attr = GDL2NextObjectWithImpPtr(enumerator,&invAttributesNO)))
+          while ((attr = PSQLA_NextObjectWithImpPtr(enumerator,&invAttributesNO)))
             {
               Oid oldOid;
               Oid newOid;
@@ -1119,7 +1143,7 @@ each key
               oldOid = [[dbRow objectForKey:attrName] longValue];
               newOid = [self _updateBinaryDataRow: oldOid data: data];
 
-              GDL2SetObjectForKeyWithImpPtr(mrow,&mrowSOFK,
+              PSQLA_SetObjectForKeyWithImpPtr(mrow,&mrowSOFK,
                                             [NSNumber numberWithUnsignedLong: newOid],
                                             attrName);
             }
@@ -1377,13 +1401,12 @@ each key
 
   if (colsNumber == 0)
     {
-      [self setAttributesToFetch: GDL2Array()];
+      [self setAttributesToFetch: PSQLA_NSArray];
     }
   else if (!_attributes) //??
     {
       int i;
       id *attributes = NULL;      
-      IMP attributeNewIMP=[GDL2EOAttributeClass methodForSelector:GDL2_newSEL];
       IMP origAttributesOAI=NULL;
       IMP oidToTypeNameOFK=NULL;
 
@@ -1391,7 +1414,8 @@ each key
 
       for (i = 0; i < colsNumber; i++)
         {
-          EOAttribute *attribute = AUTORELEASE(((*attributeNewIMP)(GDL2EOAttributeClass,GDL2_newSEL)));
+	  EOAttribute *attribute 
+	    = AUTORELEASE([PSQLA_alloc(EOAttribute) init]);
           NSString *externalType;
           NSString *valueClass = @"NSString";
           NSString *valueType = nil;
@@ -1399,7 +1423,7 @@ each key
           if (_origAttributes)
             {
               EOAttribute *origAttr = (EOAttribute *)
-                GDL2ObjectAtIndexWithImpPtr(_origAttributes,&origAttributesOAI,i);
+                PSQLA_ObjectAtIndexWithImpPtr(_origAttributes,&origAttributesOAI,i);
 
               [attribute setName: [origAttr name]];
               [attribute setColumnName: [origAttr columnName]];
@@ -1412,7 +1436,7 @@ each key
               NSNumber *externalTypeNumber;
 	      externalTypeNumber 
 		= [NSNumber numberWithLong: PQftype(_pgResult, i)];
-              externalType = GDL2ObjectForKeyWithImpPtr(_oidToTypeName,
+              externalType = PSQLA_ObjectForKeyWithImpPtr(_oidToTypeName,
                                                         &oidToTypeNameOFK,externalTypeNumber);
               
               if (!externalType)
@@ -1511,13 +1535,14 @@ each key
     }
 
   count = PQntuples(_pgResult);
-  results=GDL2MutableArrayWithCapacity(count);
+  results= AUTORELEASE([PSQLA_alloc(NSMutableArray) initWithCapacity: count]);
 
   for (i = 0; i < count; i++)
     {
       char *oid = PQgetvalue(_pgResult, i, 0);
 
-      GDL2AddObjectWithImpPtr(results,&resultsAO,[NSString stringWithUTF8String: oid]);
+      PSQLA_AddObjectWithImpPtr(results,&resultsAO,
+				[NSString stringWithUTF8String: oid]);
     }
 
   PQclear(_pgResult);
@@ -1588,13 +1613,18 @@ each key
 
   if (count>0)
     {
-      IMP attributeNewIMP=NULL;[GDL2EOAttributeClass methodForSelector:GDL2_newSEL];  
       for (n = 0; n < count; n++)
         {
           NSString *columnName;
           NSString *externalType;
+	  char *name;
+	  unsigned length;
+
+	  name = PQgetvalue(_pgResult,n,1);
+	  length = name ? strlen(name) : 0;
           
-          externalType = GDL2StringWithCString(PQgetvalue(_pgResult,n,1));
+          externalType = [(PSQLA_alloc(NSString)) initWithCString: name
+						  length: length];
           
           //TODO optimize ?
           if ([externalType isEqual: @"bool"])
@@ -1626,14 +1656,22 @@ each key
           else if ([externalType isEqual: @"text"])
             valueClass = @"NSString", valueType = nil;
           
-          attribute = AUTORELEASE(((*attributeNewIMP)(GDL2EOAttributeClass,GDL2_newSEL)));
-          columnName = GDL2StringWithCString(PQgetvalue(_pgResult, n, 0));
+	  name = PQgetvalue(_pgResult, n, 0);
+	  length = name ? strlen(name) : 0;
+          columnName = [(PSQLA_alloc(NSString)) initWithCString: name
+						length: length];
+
+	  attribute = [PSQLA_alloc(EOAttribute) init];
           [attribute setName: columnName];
           [attribute setColumnName: columnName];
           [attribute setExternalType: externalType];
           [attribute setValueType: valueType];
           [attribute setValueClassName: valueClass];
           [entity addAttribute: attribute];
+
+	  RELEASE(externalType);
+	  RELEASE(attribute);
+	  RELEASE(columnName);
         }
     };
 
@@ -1648,7 +1686,8 @@ each key
   _pgResult = PQexec(_pgConn,[stmt cString]);
   if (PQntuples(_pgResult))
     {
-      NSString *pkAttNum = GDL2StringWithCString(PQgetvalue(_pgResult,0,0));
+      NSString *pkAttNum 
+	= [NSString stringWithCString: PQgetvalue(_pgResult,0,0)];
       pkAttNum = [pkAttNum stringByReplacingString:@" "
                            withString: @", "];
 
@@ -1662,23 +1701,31 @@ each key
  
       if (PQntuples(_pgResult))
 	{
-	  NSArray *pkeys = GDL2Array();
+	  NSMutableArray *pkeys;
           count = PQntuples(_pgResult);
+	  pkeys = [PSQLA_alloc(NSMutableArray) initWithCapacity: count];
 	  for (k = 0; k < count; k++)
 	    {
-	      const char *cName;
+	      //TODO: Optimize, it's probably faster to use a mutable
+	      // string here instead of alloc/dealloing new strings.
 	      NSString *name;
+	      const char *cName;
+	      unsigned length;
 
 	      cName = PQgetvalue(_pgResult,k,0);
-	      name  = GDL2StringWithCString(cName);
+	      length = cName ? strlen(cName) : 0;
+	      name  = [(PSQLA_alloc(NSString)) initWithCString: cName
+					       length: length];
 	      attribute = [entity attributeNamed: name];
 	      NSDebugMLLog(@"adaptor", @"pk(%d) name: %@", k, name); 
 
-	      pkeys = [pkeys arrayByAddingObject: attribute];
+	      [pkeys addObject: attribute];
+	      RELEASE(name);
 	    }
 
 	  NSDebugMLLog(@"adaptor", @"pkeys %@", pkeys);
 	  [entity setPrimaryKeyAttributes: pkeys];
+	  RELEASE(pkeys);
 	}
     }
   /* </primary key stuff> */
@@ -1715,8 +1762,13 @@ each key
       EORelationship *relationship;
       NSSet          *dstPKSet;
       NSMutableSet   *dstAttribNames;
+      char           *name;
+      unsigned        length;
 
-      fkString = GDL2StringWithCString(PQgetvalue(_pgResult,i,0));
+      name = PQgetvalue(_pgResult,i,0);
+      length = name ? strlen(name) : 0;
+      fkString = AUTORELEASE([(PSQLA_alloc(NSString)) initWithCString: name
+						      length: length]);
       NSDebugMLLog(@"adaptor", @"foreign key: %@\n",fkString);
 
       fkComp = [fkString componentsSeparatedByString: @"\\000"];
@@ -1955,12 +2007,12 @@ each key
     }
   else
     {
+      EOAttribute *attr;
       string = PQgetvalue(_pgResult, _currentResultRow, 0);
       length = PQgetlength(_pgResult, _currentResultRow, 0);
       
-      pkValue = AUTORELEASE(Postgres95Values_newValueForBytesLengthAttribute(string,
-                                                                             length,
-                                                                             [_pkAttributeArray objectAtIndex: 0]));
+      attr = [_pkAttributeArray objectAtIndex: 0];
+      pkValue = AUTORELEASE(PSQLA_Postgres95Values_newValueForBytesLengthAttribute(string,length,attr));
 
       NSAssert(pkValue, @"no pk value");
       key = [[entity primaryKeyAttributeNames] objectAtIndex: 0];

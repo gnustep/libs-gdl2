@@ -44,7 +44,8 @@ Postgres95Adaptor.m \
 Postgres95Context.m \
 Postgres95Channel.m \
 Postgres95SQLExpression.m \
-Postgres95Values.m
+Postgres95Values.m \
+Postgres95Private.m
 
 Postgres95EOAdaptor_HEADER_FILES = \
 Postgres95Adaptor.h \

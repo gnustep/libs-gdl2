@@ -35,7 +35,6 @@
 
 RCS_ID("$Id$")
 
-
 #ifdef GNUSTEP
 #include <Foundation/NSData.h>
 #include <Foundation/NSDate.h>
@@ -57,25 +56,21 @@ RCS_ID("$Id$")
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOAttributePriv.h>
 #include <EOControl/EONSAddOns.h>
-#include <EOControl/EOPriv.h>
 
 #include "Postgres95EOAdaptor/Postgres95Adaptor.h"
 #include "Postgres95EOAdaptor/Postgres95Channel.h"
 #include "Postgres95EOAdaptor/Postgres95Values.h"
 
 #include "Postgres95Compatibility.h"
+#include "Postgres95Private.h"
+
+#include <stdlib.h>
 
 void __postgres95_values_linking_function (void)
 {
 }
 
-Class Postgres95ValuesClass=Nil;
-
-static SEL postgres95FormatSEL=NULL;
-SEL Postgres95Values_newValueForBytesLengthAttributeSEL=NULL;
-
-static IMP GDL2NSCalendarDate_postgres95FormatIMP=NULL;
-IMP Postgres95Values_newValueForBytesLengthAttributeIMP=NULL;
+static NSStringEncoding LPSQLA_StringDefaultCStringEncoding;
 
 @implementation Postgres95Values
 
@@ -84,19 +79,10 @@ IMP Postgres95Values_newValueForBytesLengthAttributeIMP=NULL;
   static BOOL initialized=NO;
   if (!initialized)
     {
-      GDL2PrivInit();
+      PSQLA_PrivInit();
 
-      ASSIGN(Postgres95ValuesClass,([Postgres95Values class]));
-
-      postgres95FormatSEL=@selector(postgres95Format);
-      Postgres95Values_newValueForBytesLengthAttributeSEL=@selector(newValueForBytes:length:attribute:);
-
-      GDL2NSCalendarDate_postgres95FormatIMP=[GDL2NSCalendarDateClass 
-                                          methodForSelector:postgres95FormatSEL];
-
-      Postgres95Values_newValueForBytesLengthAttributeIMP=[Postgres95ValuesClass
-                                                            methodForSelector:Postgres95Values_newValueForBytesLengthAttributeSEL];
-    };
+      LPSQLA_StringDefaultCStringEncoding = [NSString defaultCStringEncoding];
+    }
 };
 
 + (id)newValueForBytes: (const void *)bytes
@@ -147,9 +133,9 @@ to strlen(bytes)
       && [externalType isEqualToString: @"bool"])
     {
       if (((char *)bytes)[0] == 't' && ((char *)bytes)[1] == 0)
-	value=RETAIN(GDL2NSNumberBool_Yes);
+	value=RETAIN(PSQLA_NSNumberBool_Yes);
       else if (((char *)bytes)[0] == 'f' && ((char *)bytes)[1] == 0)
-	value=RETAIN(GDL2NSNumberBool_No);
+	value=RETAIN(PSQLA_NSNumberBool_No);
       else
         NSAssert1(NO,@"Bad boolean: %@",[NSString stringWithCString:bytes
                                                   length:length]);
@@ -158,12 +144,13 @@ to strlen(bytes)
     {
       Class valueClass=[attribute _valueClass];
 
-      if (valueClass==GDL2NSDecimalNumberClass)
+      if (valueClass==PSQLA_NSDecimalNumberClass)
         {
-          NSString* str = [GDL2NSString_alloc() initWithCString:bytes
-                                             length:length];
+	  //TODO: Optimize without creating NSString instance
+          NSString* str = [PSQLA_alloc(NSString) initWithCString:bytes
+				                 length:length];
           
-          value = [GDL2NSDecimalNumber_alloc() initWithString: str];
+          value = [PSQLA_alloc(NSDecimalNumber) initWithString: str];
 
           RELEASE(str);
         }
@@ -173,41 +160,41 @@ to strlen(bytes)
           switch(valueTypeChar)
             {
             case 'i':
-              value = [GDL2NSNumber_alloc() initWithInt: atoi(bytes)];
+              value = [PSQLA_alloc(NSNumber) initWithInt: atoi(bytes)];
               break;
             case 'I':
-              value = [GDL2NSNumber_alloc() initWithUnsignedInt:(unsigned int)atol(bytes)];
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedInt:(unsigned int)atol(bytes)];
               break;
             case 'c':
-              value = [GDL2NSNumber_alloc() initWithChar: atoi(bytes)];
+              value = [PSQLA_alloc(NSNumber) initWithChar: atoi(bytes)];
               break;
             case 'C':
-              value = [GDL2NSNumber_alloc() initWithUnsignedChar: (unsigned char)atoi(bytes)];
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedChar: (unsigned char)atoi(bytes)];
               break;
             case 's':
-              value = [GDL2NSNumber_alloc() initWithShort: (short)atoi(bytes)];
+              value = [PSQLA_alloc(NSNumber) initWithShort: (short)atoi(bytes)];
               break;
             case 'S':
-              value = [GDL2NSNumber_alloc() initWithUnsignedShort: (unsigned short)atoi(bytes)];
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedShort: (unsigned short)atoi(bytes)];
               break;
             case 'l':
-              value = [GDL2NSNumber_alloc() initWithLong: atol(bytes)];
+              value = [PSQLA_alloc(NSNumber) initWithLong: atol(bytes)];
               break;
             case 'L':
-              value = [GDL2NSNumber_alloc() initWithUnsignedLong:strtoul(bytes,NULL,10)];
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedLong:strtoul(bytes,NULL,10)];
               break;
             case 'u':
-              value = [GDL2NSNumber_alloc() initWithLongLong:atoll(bytes)];
+              value = [PSQLA_alloc(NSNumber) initWithLongLong:atoll(bytes)];
               break;
             case 'U':
-              value = [GDL2NSNumber_alloc() initWithUnsignedLongLong:strtoull(bytes,NULL,10)];
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedLongLong:strtoull(bytes,NULL,10)];
               break;
             case 'f':
-              value = [GDL2NSNumber_alloc() initWithFloat: strtof(bytes,NULL)];
+              value = [PSQLA_alloc(NSNumber) initWithFloat: strtof(bytes,NULL)];
               break;
             case 'd':
             case '\0':
-              value = [GDL2NSNumber_alloc() initWithDouble: strtod(bytes,NULL)];
+              value = [PSQLA_alloc(NSNumber) initWithDouble: strtod(bytes,NULL)];
               break;
             default:
               NSAssert2(NO,@"Unknown attribute valueTypeChar: %c for attribute: %@",
@@ -228,7 +215,7 @@ For efficiency reasons, the returned value is NOT autoreleased !
 {
   return [attribute newValueForBytes: bytes
 		    length: length
-		    encoding: GDL2StringDefaultCStringEncoding()];
+		    encoding: LPSQLA_StringDefaultCStringEncoding];
 }
 
 /**
@@ -266,17 +253,16 @@ For efficiency reasons, the returned value is NOT autoreleased !
                 attribute: (EOAttribute *)attribute
 {
   id date=nil;
-  NSString *str = [GDL2NSString_alloc() initWithCString:(const char *)bytes
-                                     length:length];
-  NSString *format = (*GDL2NSCalendarDate_postgres95FormatIMP)
-    (GDL2NSCalendarDateClass,postgres95FormatSEL);
+  NSString *str = [PSQLA_alloc(NSString) initWithCString:(const char *)bytes
+                                         length:length];
 
-  NSDebugMLLog(@"gsdb",@"str=%@ format=%@",str,format);  
+  NSDebugMLLog(@"gsdb",@"str=%@ format=%@",str,PSQLA_postgresCalendarFormat);  
 
-  date = [GDL2NSCalendarDate_alloc() initWithString: str
-                                  calendarFormat: format];
+  date = [PSQLA_alloc(NSCalendarDate) initWithString: str
+	       calendarFormat: PSQLA_postgresCalendarFormat];
 
-  NSDebugMLLog(@"gsdb",@"str=%@ d=%@ dtz=%@ format=%@",str,date,[date timeZone],format);  
+  NSDebugMLLog(@"gsdb",@"str=%@ d=%@ dtz=%@ format=%@",
+	       str,date,[date timeZone],PSQLA_postgresCalendarFormat);  
 
   //We may have some 'invalid' date so it's better to stop here
   NSAssert2(date,
@@ -373,51 +359,18 @@ if ([type isEqual:@"bytea"])
 @end // NSData (Postgres95ValueCreation)
 
 */
+
 @implementation NSCalendarDate (Postgres95ValueCreation)
-/*
-- stringValueForPostgres95Type:(NSString*)type
-  attribute:(EOAttribute*)attribute
-{
-    NSString* externalType = [attribute externalType];
-	if (!CALENDAR_FORMAT)
-	  [NSCalendarDate setPostgres95Format:[NSString stringWithCString:"%b %d %Y %I:%M%p %Z"]];
-  
-    if ([externalType isEqualToString:@"abstime"]) {
-	id tz = [attribute serverTimeZone];
-	id date;
-
-	if (tz) {
-	    date = [[self copy] autorelease];
-	    [date setTimeZone:tz];
-	}
-	else
-	    date = self;
-
-	return [NSString stringWithFormat:@"'%@'",
-		    [date descriptionWithCalendarFormat:CALENDAR_FORMAT]];
-    }
-
-    THROW([[DataTypeMappingNotSupportedException alloc]
-	    initWithFormat:@"Postgres95 cannot map NSCalendarDate in "
-			    @"attribute %@ to external type %@",
-			    [attribute name], externalType]);
-    return nil;
-}
-*/
 
 + (NSString*)postgres95Format
 {
-  return @"%Y-%m-%d %H:%M:%S%z";
-}
-
-+ (void)setPostgres95Format: (NSString*)dateFormat
-{
   NSLog(@"%@ - is deprecated.  The adaptor always uses ISO format.",
         NSStringFromSelector(_cmd));
+  return PSQLA_postgresCalendarFormat;
 }
 
-
 @end // NSCalendarDate (Postgres95ValueCreation)
+
 
 /*
 @implementation EONull (Postgres95ValueCreation)

@@ -63,7 +63,6 @@ RCS_ID("$Id$")
 
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
-#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAccess.h>
 #include <EOAccess/EOAttribute.h>
@@ -77,6 +76,7 @@ RCS_ID("$Id$")
 #include <Postgres95EOAdaptor/Postgres95SQLExpression.h>
 #include <Postgres95EOAdaptor/Postgres95Values.h>
 
+#include "Postgres95Private.h"
 
 NSString *Postgres95Exception = @"Postgres95Exception";
 static int pgConnTotalAllocated = 0;
@@ -243,12 +243,18 @@ static NSString *internalTypeNames[] = {
 
 + (void)assignExternalInfoForEntity: (EOEntity *)entity
 {
-  NSEnumerator *attributeEnumerator = [[entity attributes] objectEnumerator];
+  NSArray *attributes = [entity attributes];
   EOAttribute *attribute = nil;
-  IMP enumNO = NULL;
+  IMP arrayOAI = NULL;
+  static SEL selfAEIFA_SEL = @selector(assignExternalInfoForAttribute:);
+  IMP selfAEIFA_IMP = [self methodForSelector: selfAEIFA_SEL];
+  unsigned i, c;
 
-  while ((attribute = GDL2NextObjectWithImpPtr(attributeEnumerator,&enumNO)))
-    [self assignExternalInfoForAttribute: attribute];
+  for (i=0, c=[attributes count]; i < c; i++)
+    {
+      attribute = PSQLA_ObjectAtIndexWithImpPtr(attributes, &arrayOAI, i);
+      selfAEIFA_IMP(self, selfAEIFA_SEL, attribute);
+    }
 }
 
 /* Inherited methods */
