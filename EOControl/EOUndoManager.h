@@ -24,7 +24,11 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-#import <Foundation/NSUndoManager.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSUndoManager.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
 
 @interface EOUndoManager : NSUndoManager

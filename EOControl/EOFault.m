@@ -313,9 +313,6 @@ static Class EOFaultClass = NULL;
 {
   Class class;
   BOOL respondsToSelector;
-  /* Ayers 2003-05-20: This declaration is a temporary hack
-     until a more consistent set of function is in place in GSObjCRuntime.h */
-  extern IMP GSObjCGetMethod(Class class, SEL sel);
 
   NSDebugFLLog(@"gsdb", @"START self=%p", self);
 
@@ -323,7 +320,7 @@ static Class EOFaultClass = NULL;
   NSDebugFLLog(@"gsdb", @"class=%@ aSelector=%@", class,
 	       NSStringFromSelector(aSelector));
 
-  respondsToSelector = (GSObjCGetMethod(class, aSelector) != (IMP)0);
+  respondsToSelector = (GSGetInstanceMethod(class, aSelector) != (IMP)0);
   NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
 
   return respondsToSelector;

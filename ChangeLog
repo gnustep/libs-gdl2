@@ -1,3 +1,9 @@
+2003-06-21  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOFault.m ([EOFault -respondsToSelector:]): Adapt to
+	current GSObjCRuntime API.
+	* EOControl/EOUndoManager.h: Correct includes.
+
 2003-06-01  David Ayers  <d.ayers@inode.at>
 
 	* gdl2.make.in:  Set GDL2 as auxiliary preprocessor flag.
