@@ -37,7 +37,7 @@ GDL2_SUBMINOR_VERSION = @SUBMINOR_VERSION@
 
 
 # Additional flags to pass to the preprocessor
-AUXILIARY_CPPFLAGS += -DGDL2
+AUXILIARY_CPPFLAGS += -DGDL2=1
 
 # Additional libraries for the linker
 AUXILIARY_TOOL_LIBS += -lgnustep-db2 -lgnustep-db2control
