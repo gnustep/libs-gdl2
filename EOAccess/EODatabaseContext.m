@@ -6008,6 +6008,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   //really near ok
   NSArray *relationships = nil;
   NSArray *classPropertyAttributeNames = nil;
+  EONull *null = [EONull null];
   int i, count = 0;
 
   EOFLOGObjectFnStart();
@@ -6026,7 +6027,11 @@ Raises an exception is the adaptor is unable to perform the operations.
       id value = nil;
 
       EOFLOGObjectLevelArgs(@"EODatabaseContext", @"key=%@", key);
-      value = [row objectForKey: key];                                             
+      value = [row objectForKey: key];
+
+      if (value == null)
+	value = nil;
+
       EOFLOGObjectLevelArgs(@"EODatabaseContext", @"value=%@", value);
 
       [object takeStoredValue: value

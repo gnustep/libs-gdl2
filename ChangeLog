@@ -1,3 +1,10 @@
+2002-12-29  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext -initializeObject:
+	row:entity:editingContext:]): set nil instead of EONull
+
+	* EOControl/EONull.m: included config.h
+
 2002-12-17  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOAccess/EOEntity.m ([EOEntityClassDescription
