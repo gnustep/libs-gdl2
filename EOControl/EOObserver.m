@@ -226,31 +226,40 @@ static id lastObject;
 
 /**
  * Returns an array of observers that have been registered of object.
+ * Note that this class is considered 'final' and that for efficiency
+ * the observers are accessed directly internally, thus overriding this
+ * method could lead to unexpected results.  In other words, if you
+ * must subclass then you should override all methods that access
+ * the internal map if this method is overridden to use a different
+ * store.
  */
 + (NSArray *)observersForObject: (id)object
 {
-  return NSMapGet(observersMap, object);
+  return AUTORELEASE([(id)NSMapGet(observersMap, object) copy]);
 }
 
 /**
- * Returns the first observer of the objects as determined by
- * [+observersForObject:] that match [-isKindOfClass:] of the targetClass.
+ * Returns the first observer of the object that matches [-isKindOfClass:] 
+ * of the targetClass.
  */
 + (id)observerForObject: (id)object ofClass: (Class)targetClass
 {
   NSArray *observersArray;
 
-  observersArray = [self observersForObject: object];
+  observersArray = NSMapGet(observersMap, object);
 
   if (observersArray)
     {
-      NSEnumerator *obsEnum;
+      unsigned i, count;
       id observer;
 
-      obsEnum = [observersArray objectEnumerator];
-      while ((observer = [obsEnum nextObject]))
-	if ([observer isKindOfClass: targetClass])
-	  return observer;
+      count = [observersArray count];
+      for (i = 0; i < count; i++)
+	{
+	  observer = [observersArray objectAtIndex: i];
+	  if ([observer isKindOfClass: targetClass])
+	    return observer;
+	}
     }
 
   return nil;

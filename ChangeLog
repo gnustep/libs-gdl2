@@ -3,6 +3,12 @@
 	* EOAccess/EOEntity.m ([EOEntityClassDescription
 	awakeObject:fromInsertionInEditingContext:]): Only process class
 	properties.  Remove inactive code.  Document.
+
+	* EOControl/EOObserver.m ([EOObserverCenter observersForObject:]):
+	Document as final.  Return immutable copy if observers.
+	([EOObserverCenter observerForObject:ofClass:]): Revert to using
+	internal map.  Avoid allocating spurious enumerator.  Update
+	documentation.
 	
 2004-09-26  David Ayers  <d.ayers@inode.at>
 
