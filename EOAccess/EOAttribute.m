@@ -81,6 +81,28 @@ RCS_ID("$Id$")
 
 @implementation EOAttribute
 
+static EONull *null = nil;
+static Class NSStringClass;
+static Class NSNumberClass;
+static Class NSDecimalNumberClass;
+static Class NSDataClass;
+static Class NSDateClass;
+static Class NSCalendarDateClass;
+
++ (void)initialize
+{
+  if (null == nil)
+    {
+      null = [EONull null];
+      NSStringClass = [NSString class];
+      NSNumberClass = [NSNumber class];
+      NSDecimalNumberClass = [NSDecimalNumber class];
+      NSDataClass = [NSData class];
+      NSDateClass = [NSDate class];
+      NSCalendarDateClass = [NSCalendarDate class];
+    }
+}
+
 + (id) attributeWithPropertyList: (NSDictionary *)propertyList
                            owner: (id)owner
 {
@@ -185,7 +207,7 @@ RCS_ID("$Id$")
       tmpString = [propertyList objectForKey: @"parameterDirection"];
       if (tmpString)
         {
-	  if ([tmpString isKindOfClass: [NSNumber class]])
+	  if ([tmpString isKindOfClass: NSNumberClass])
 	    {
 	      [self setParameterDirection: [tmpString intValue]];
 	    }
@@ -1034,7 +1056,7 @@ return nexexp
   NSData *value = nil;
   Class valueClass = [self _valueClass];
 
-  if (valueClass != Nil && valueClass != [NSData class])
+  if (valueClass != Nil && valueClass != NSDataClass)
     {
       switch (_argumentType)
         {
@@ -1090,7 +1112,7 @@ return nexexp
   id value = nil;
   Class valueClass = [self _valueClass];
 
-  if (valueClass != Nil && valueClass != [NSString class])
+  if (valueClass != Nil && valueClass != NSStringClass)
     {
       switch (_argumentType)
         {
@@ -1135,7 +1157,7 @@ return nexexp
 }
 
 /**
- * Returns an NSCalanderDate object
+ * Returns an NSCalendarDate object
  * from the supplied time information. 
  * The Adaptor calls this method during value creation
  * when fetching objects from the database. 
@@ -1154,7 +1176,7 @@ return nexexp
   NSCalendarDate *date;
 
   //For efficiency reasons, the returned value is NOT autoreleased !
-  date = [[NSCalendarDate allocWithZone: zone]
+  date = [[NSCalendarDateClass allocWithZone: zone]
 	   initWithYear: year
 	   month: month
 	   day: day
@@ -1178,43 +1200,70 @@ return nexexp
   return _valueFactoryMethod;
 }
 
+/**
+ * Depending on -adaptorValueType this method checks whether the value
+ * is a NSNumber, NSString, NSData or NSDate instance respectively.
+ * If not, it attempts to retrieve the -adaptorValueConversionMethod
+ * which should be used to convert the value accordingly.  If none
+ * has been specified and the -adaptorValueType is EOAdaptorBytesType,
+ * it tries to convert the value by invoking -archiveData.
+ * The EONull instance is not converted.
+ * Returns the converted value.
+ * Note: This implementation currently raises if -adaptorValueType is of
+ * an unknown type or if conversion is necessary but not possible.  This
+ * maybe contrary to the reference implementation but it seems like useful
+ * behavior.  If this is causing problems please submit a bug report.
+ */
 - (id)adaptorValueByConvertingAttributeValue: (id)value
 {
-  id adaptorValue = nil;
-  SEL convMethod = NULL;
+  BOOL convert = NO;
+  EOAdaptorValueType adaptorValueType = [self adaptorValueType];
 
-  convMethod = [self adaptorValueConversionMethod];
-
-  if (convMethod)
+  switch (adaptorValueType)
     {
-      //TODO-VERIFY
-      adaptorValue = [value performSelector: convMethod];
-    }
-  else
-    {
-      //TODO-VERIFY
-      EOAdaptorValueType adaptorValueType = [self adaptorValueType];
-
-      switch (adaptorValueType)
-        {
+        case EOAdaptorNumberType:
+	  convert = [value isKindOfClass: NSNumberClass] ? NO : YES;
+        case EOAdaptorCharactersType:
+	  convert = [value isKindOfClass: NSStringClass] ? NO : YES;
         case EOAdaptorBytesType:
-          adaptorValue = [value archiveData];
-          break;
-
-        default:
-          if ([value isKindOfClass: [NSNumber class]] == YES ||
-	      [value isKindOfClass: [NSString class]] == YES ||
-	      [value isKindOfClass: [NSDate class]] == YES ||
-	      [value isKindOfClass: [NSData class]] == YES ||
-	      [value isKindOfClass: [[EONull null] class]] == YES)
-            adaptorValue = value;
-          else
-            adaptorValue = value;
-          break;
-        }
+	  convert = [value isKindOfClass: NSDataClass] ? NO : YES;
+        case EOAdaptorDateType:
+	  convert = [value isKindOfClass: NSDateClass] ? NO : YES;
+	default:
+	  [NSException raise: NSInvalidArgumentException
+		       format: @"Illegal adaptorValueType: %d", 
+		       adaptorValueType];
     }
 
-  return adaptorValue;
+  convert = (value == null) ? NO : convert;
+  
+  if (convert)
+    {
+      SEL sel;
+      sel = [self adaptorValueConversionMethod];
+
+      if (sel == 0)
+	{
+	  if (adaptorValueType == EOAdaptorBytesType)
+	    {
+	      value = [value archiveData];
+	    }
+	  else
+	    {
+	      /* This exception might not be conformant, but seems helpful.  */
+	      [NSException raise: NSInvalidArgumentException
+			   format: @"Value of class: %@ needs conversion "
+			   @"yet no conversion method specified.", 
+			   NSStringFromClass([value class])];
+	    }
+	}
+      else
+	{
+	  value = [value performSelector: sel];
+	}
+    }
+
+  return value;
 }
 
 - (NSString *)adaptorValueConversionMethodName
@@ -1229,9 +1278,9 @@ return nexexp
 
 - (EOAdaptorValueType)adaptorValueType
 {
-  Class adaptorClasses[] = { [NSNumber class], 
-                             [NSString class],
-			     [NSDate class] };
+  Class adaptorClasses[] = { NSNumberClass, 
+                             NSStringClass,
+			     NSDateClass };
   EOAdaptorValueType values[] = { EOAdaptorNumberType,
                                   EOAdaptorCharactersType,
 				  EOAdaptorDateType };
@@ -1312,9 +1361,9 @@ return nexexp
 
             if ([*valueP isKindOfClass: valueClass] == NO)
               {
-                if ([*valueP isKindOfClass: [NSString class]])
+                if ([*valueP isKindOfClass: NSStringClass])
                   {
-                    if (valueClass == [NSNumber class])
+                    if (valueClass == NSNumberClass)
                       {
                         if ([[self valueType] isEqualToString: @"i"] == YES)
                           *valueP = [NSNumber numberWithInt:
@@ -1353,24 +1402,24 @@ return nexexp
                           *valueP = [NSNumber numberWithDouble:
                                                  [*valueP doubleValue]];
                       }
-                    else if (valueClass == [NSDecimalNumber class])
+                    else if (valueClass == NSDecimalNumberClass)
                       *valueP = [NSDecimalNumber
 				  decimalNumberWithString: *valueP];
                   
-                    else if (valueClass == [NSData class])
+                    else if (valueClass == NSDataClass)
                       *valueP = [*valueP
 				  dataUsingEncoding: NSASCIIStringEncoding
 				  allowLossyConversion: YES];
                   
-                    else if (valueClass == [NSCalendarDate class])
-                      *valueP = [[[NSCalendarDate alloc]
+                    else if (valueClass == NSCalendarDateClass)
+                      *valueP = [[[NSCalendarDateClass alloc]
 				   initWithString: *valueP]
 				  autorelease];
                   }
               }
             else
               {
-                if ([*valueP isKindOfClass: [NSString class]])
+                if ([*valueP isKindOfClass: NSStringClass])
                   {
 		    unsigned width = [self width];
 
@@ -1383,7 +1432,7 @@ return nexexp
 					    length: width];
                       }
                   }
-                else if ([*valueP isKindOfClass: [NSNumber class]])
+                else if ([*valueP isKindOfClass: NSNumberClass])
                   {
                     // TODO ??
                   }
