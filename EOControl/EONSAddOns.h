@@ -36,6 +36,16 @@
 
 #include <EOControl/EODefines.h>
 
+/**
+ * This define is experimental.  Expect it to be replaced.
+ */
+#define GDL2_BUFFER(ID, SIZE, TYPE) \
+  unsigned ID##_size = (SIZE); \
+  TYPE ID##_obuf[(ID##_size) <= GS_MAX_OBJECTS_FROM_STACK ? (ID##_size) : 0]; \
+  TYPE *ID##_base = ((ID##_size) <= GS_MAX_OBJECTS_FROM_STACK) ? ID##_obuf \
+    : ( TYPE *)GSAutoreleasedBuffer((ID##_size) * sizeof( TYPE )); \
+  TYPE *ID = ID##_base;
+
 @class NSLock;
 @class NSRecursiveLock;
 

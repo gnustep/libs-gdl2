@@ -41,6 +41,7 @@ RCS_ID("$Id$")
 #ifndef NeXT_Foundation_LIBRARY
 #include <Foundation/NSDictionary.h>
 #include <Foundation/NSSet.h>
+#include <Foundation/NSScanner.h>
 #include <Foundation/NSUtilities.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSValue.h>
@@ -55,10 +56,10 @@ RCS_ID("$Id$")
 #endif
 
 #include <EOControl/EOQualifier.h>
+#include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 
 #include <GNUstepBase/GSObjCRuntime.h>
-
 
 @implementation NSNumber (EOQualifierExtras)
 
@@ -682,7 +683,8 @@ static Class whichQualifier(const char **cFormat, const char **s)
 
 + (NSArray *)allQualifierOperators
 { // rivedere
-  return [NSArray arrayWithObjects:@"=", @"!=", @"<=", @"<", @">=", @">", @"doesContain", @"like", @"caseInsensitiveLike", nil];
+  return [NSArray arrayWithObjects: @"=", @"!=", @"<=", @"<", @">=", @">",
+		  @"doesContain", @"like", @"caseInsensitiveLike", nil];
 }
 
 + (NSArray *)relationalQualifierOperators
@@ -955,24 +957,112 @@ static Class whichQualifier(const char **cFormat, const char **s)
 
 @implementation NSString (EORelationalSelectors)
 
+static NSCharacterSet *isLikeWildCardSet = nil;
+static NSString *isLikeWildCardTokenQ = @"?";
+static NSString *isLikeWildCardTokenS = @"*";
+
+static inline BOOL
+_isLike (NSString *self, NSString *regExpr, BOOL isCaseSensative)
+{
+  NSScanner *regExScanner;
+  NSScanner *valueScanner;
+  NSString *scanned;
+  unsigned c = 0;
+  unsigned i = 0;
+  GDL2_BUFFER (tokens, [regExpr cStringLength], id);
+
+  if ([self isEqual: regExpr])
+    {
+      return YES;
+    }
+
+  if (isLikeWildCardSet == nil)
+    isLikeWildCardSet 
+      = [[NSCharacterSet characterSetWithCharactersInString: @"?*"] retain];
+
+  regExScanner = [NSScanner scannerWithString: regExpr];
+  valueScanner = [NSScanner scannerWithString: self];
+  [valueScanner setCaseSensitive: isCaseSensative];
+
+  while ([regExScanner isAtEnd] == NO)
+    {
+      if ([regExScanner scanUpToCharactersFromSet: isLikeWildCardSet
+			intoString: &scanned])
+	{
+	  tokens[c++] = scanned;
+	}
+      if ([regExScanner isAtEnd] == NO)
+	{
+	  if ([regExScanner scanCharactersFromSet: isLikeWildCardSet
+			    intoString: &scanned])
+	    {
+	      char *cScanned;
+
+	      for (cScanned = [scanned cString]; *cScanned != 0; cScanned++)
+		{
+		  if (*cScanned == '?' 
+		      && tokens[c - 1] != isLikeWildCardTokenS)
+		    {
+		      tokens[c++] = isLikeWildCardTokenQ; 
+		    }
+		  else if (*cScanned == '*'
+		      && tokens[c - 1] != isLikeWildCardTokenS)
+		    {
+		      tokens[c++] = isLikeWildCardTokenS;
+		    }
+		}
+	    }
+	}
+    }
+
+  for (i = 0; i < c; i++)
+    {
+      if (tokens[i] == isLikeWildCardTokenQ)
+	{
+	  if ([valueScanner isAtEnd])
+	    {
+	      return NO;
+	    }
+	  [valueScanner setScanLocation: [valueScanner scanLocation] + 1];
+	}
+      else if (tokens[i] == isLikeWildCardTokenS)
+	{
+	  if (i == c - 1)
+	    {
+	      return YES;
+	    }
+	  [valueScanner scanUpToString: tokens[i + 1]
+			intoString: 0];
+	}
+      else
+	{
+	  if ([valueScanner isAtEnd])
+	    {
+	      return NO;
+	    }
+	  if ([valueScanner scanString: tokens[i] intoString: 0] == NO)
+	    {
+	      return NO;
+	    }
+	}
+    }
+  
+  return [valueScanner isAtEnd];
+}
+
 - (BOOL)isLike: (NSString *)object
 {
-  NSEmitTODO();  //TODO
-  return [self isEqual: object] == NSOrderedSame;
+  return _isLike(self, object, YES);
 }
 
 - (BOOL)isCaseInsensitiveLike: (NSString *)object
 {
-  NSEmitTODO();  //TODO
-  return [[self uppercaseString]
-	   isEqual: [object uppercaseString]] == NSOrderedSame;
+  return _isLike(self, object, NO);
 }
 
 @end
 
 @implementation NSArray (EOQualifierExtras)
-
-#define MAX_STACK_OBJECTS 20
 
 - (NSArray *)filteredArrayUsingQualifier: (EOQualifier *)qualifier
 {
@@ -981,30 +1071,25 @@ static Class whichQualifier(const char **cFormat, const char **s)
   if (max != 0)
     {
       unsigned  i;
-      id        obj[max>MAX_STACK_OBJECTS?0:max];
-      id       *objPStart;
-      id       *objP;
-      id        anObject;
+      id        object;
       SEL       oaiSEL = @selector(objectAtIndex:);
       IMP       oaiIMP = [self methodForSelector:oaiSEL];
       SEL       ewoSEL = @selector(evaluateWithObject:);
       BOOL      (*ewoIMP)(id, SEL, id);
+      GDL2_BUFFER(objP, max, id);
 
       ewoIMP = (BOOL (*)(id, SEL, id))[qualifier methodForSelector:ewoSEL];
 
-      objPStart = objP = (max > MAX_STACK_OBJECTS)?
-	GSAutoreleasedBuffer(sizeof(id)*max):obj;
-
       for(i=0; i < max; i++)
 	{
-	  anObject = (*oaiIMP)(self, oaiSEL, i);
+	  object = (*oaiIMP)(self, oaiSEL, i);
 
-	  if((*ewoIMP)(qualifier, ewoSEL, anObject))
+	  if((*ewoIMP)(qualifier, ewoSEL, object))
 	    {
-	      *objP++=anObject;
+	      *objP++=object;
 	    }
 	}
-      return [NSArray arrayWithObjects: objPStart count: objP - objPStart];
+      return [NSArray arrayWithObjects: objP_base count: objP - objP_base];
     }
   else
     {
@@ -1012,6 +1097,5 @@ static Class whichQualifier(const char **cFormat, const char **s)
     }
 }
 
-#undef MAX_STACK_OBJECTS
 
 @end

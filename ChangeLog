@@ -1,3 +1,13 @@
+2003-10-24  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EONSAddOns.h (GDL2_BUFFER): Added experimental macro.
+	* EOControl/EOQualifier.m (_isLike): New static function to
+	implement -isLike: and -isCaseInsensitiveLike:.
+	(-[NSString isLike:]): Implemented.
+	(-[NSString isCaseInsensitiveLike:]): Ditto.
+	(-[NSArray filteredArrayUsingQualifier:]): Adapted to use
+	experimental GDL2_BUFFER macro.
+
 2003-10-23  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOFetchSpecification.m
