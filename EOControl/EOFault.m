@@ -383,13 +383,6 @@ typedef struct {
   return [self description];
 }
 
-- (NSString *)descriptionWithLocale: (NSDictionary *)locale
-			     indent: (unsigned)level
-				 to: (id<GNUDescriptionDestination>)output;
-{
-  return [self description];
-}
-
 - (NSString *)eoDescription
 {
   return [self description];

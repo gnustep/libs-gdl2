@@ -1,3 +1,11 @@
+2002-11-16  Richard Frith-macdonald <rfm@gnu.org>
+
+	* EOAccess/EOExpressionArray.m: Correct reference to obsolete
+	behavior function call (removed from public api a few years back
+	and recently removed from internal code too).
+	* EOControl/EOFault.m: Remove GNU property list method no longer
+	used/nneeded.
+
 2002-11-14  Manuel Guesdon  <mguesdon@orange-concept.com>
 
 	* EOAcces/EODatabaseDataSource.m:

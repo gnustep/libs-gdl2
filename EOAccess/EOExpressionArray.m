@@ -61,7 +61,7 @@ static char rcsId[] = "$Id$";
   if (!initialized)
     {
       initialized = YES;
-      class_add_behavior(self, [GCArray class]);
+      behavior_class_add_class(self, [GCArray class]);
     }
 }
 
