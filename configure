@@ -2376,7 +2376,7 @@ fi;
   libs_temp=$LIBS
 
   CPPFLAGS="$CPPFLAGS -I/usr/local/include -I/usr/local/pgsql/include \
-                      -I/usr/include/pgsql"
+                      -I/usr/include/pgsql -I/usr/include/postgresql"
   LIBS="$LIBS -L/usr/local/lib -L/usr/local/pgsql/lib -L/usr/pgsql/lib"
 
   if test "$pgsql_incdir" != "no"; then
@@ -2620,7 +2620,7 @@ echo "${ECHO_T}$VERSION" >&6
 #--------------------------------------------------------------------
 # Write the Makefiles
 #--------------------------------------------------------------------
-ac_config_files="$ac_config_files gdl2.make EOAdaptors/GNUmakefile EOAdaptors/Postgres95/GNUmakefile EOAdaptors/Postgres95/Makefile.preamble"
+ac_config_files="$ac_config_files gdl2.make EOAdaptors/GNUmakefile EOAdaptors/Postgres95/GNUmakefile EOAdaptors/Postgres95/config.mak"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3095,7 +3095,7 @@ do
   "gdl2.make" ) CONFIG_FILES="$CONFIG_FILES gdl2.make" ;;
   "EOAdaptors/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES EOAdaptors/GNUmakefile" ;;
   "EOAdaptors/Postgres95/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES EOAdaptors/Postgres95/GNUmakefile" ;;
-  "EOAdaptors/Postgres95/Makefile.preamble" ) CONFIG_FILES="$CONFIG_FILES EOAdaptors/Postgres95/Makefile.preamble" ;;
+  "EOAdaptors/Postgres95/config.mak" ) CONFIG_FILES="$CONFIG_FILES EOAdaptors/Postgres95/config.mak" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

@@ -1,3 +1,20 @@
+2003-03-06  David Ayers  <d.ayers@inode.at>
+
+	* configure.ac: Replace generation of
+	EOAdaptors/Postgres95/Makefile.preamble with
+	EOAdaptors/Postgres95/config.mak.
+	* configure: Regenerate.
+	* EOAdaptors/Postgres95/Makefile.postamble: Replace removal of
+	EOAdaptors/Postgres95/Makefile.preamble with
+	EOAdaptors/Postgres95/config.mak.
+	* EOAdaptors/Postgres95/Makefile.preamble: New file replacing...
+	* EOAdaptors/Postgres95/Makefile.preamble.in: ...this file.
+	* EOAdaptors/Postgres95/config.mak.in: New file.
+
+	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile: Correct comment
+	identifier.  Include config.mak and other potential makefiles.
+	
+
 2003-03-06  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOAdaptor.m

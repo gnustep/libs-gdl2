@@ -36,25 +36,24 @@
 #
 
 # Additional flags to pass to the preprocessor
-ADDITIONAL_CPPFLAGS = 
+ADDITIONAL_CPPFLAGS += 
 
 # Additional flags to pass to the Objective-C compiler
-ADDITIONAL_OBJCFLAGS = 
+ADDITIONAL_OBJCFLAGS += 
 
 # Additional flags to pass to the C compiler
-ADDITIONAL_CFLAGS = 
+ADDITIONAL_CFLAGS += 
 
 # Additional include directories the compiler should search
-ADDITIONAL_INCLUDE_DIRS = \
+ADDITIONAL_INCLUDE_DIRS += \
 	-I../../EOControl/$(GNUSTEP_TARGET_DIR) \
-	-I../.. \
-	@POSTGRES_INCLUDES@
+	-I../..
 
 # Libraries linked to the framework
-LIBRARIES_DEPEND_UPON = @POSTGRES_LIBS@
+LIBRARIES_DEPEND_UPON +=
 
 # Additional library directories the linker should search
-ADDITIONAL_LIB_DIRS = @POSTGRES_LIB_DIRS@
+ADDITIONAL_LIB_DIRS +=
 
 #
 # Flags dealing with installing and uninstalling
@@ -62,3 +61,5 @@ ADDITIONAL_LIB_DIRS = @POSTGRES_LIB_DIRS@
 
 # Additional directories to be created during installation
 ADDITIONAL_INSTALL_DIRS = 
+
+include config.mak

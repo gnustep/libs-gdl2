@@ -67,5 +67,5 @@ AC_SUBST(GCC_VERSION)
 #--------------------------------------------------------------------
 # Write the Makefiles
 #--------------------------------------------------------------------
-AC_CONFIG_FILES([gdl2.make EOAdaptors/GNUmakefile EOAdaptors/Postgres95/GNUmakefile EOAdaptors/Postgres95/Makefile.preamble])
+AC_CONFIG_FILES([gdl2.make EOAdaptors/GNUmakefile EOAdaptors/Postgres95/GNUmakefile EOAdaptors/Postgres95/config.mak])
 AC_OUTPUT
