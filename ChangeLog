@@ -1,5 +1,8 @@
 2003-08-05  David Ayers  <d.ayers@inode.at>
 
+	* EOControl/EOObjectStoreCoordinator.m ([EOObjectStoreCoordinator
+	+initialize]): Insure EODatabaseContext is setup to receive
+	notifications.
 	* EOControl/EOKeyGlobalID.m ([EOKeyGlobalID
 	+globalIDWithEntityName:keys:keyCount:zone:]): Use AUTORELEASE
 	instead of autorelease.

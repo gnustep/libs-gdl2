@@ -61,6 +61,17 @@ NSString *EOCooperatingObjectStoreWasRemoved = @"EOCooperatingObjectStoreWasRemo
 NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 
 
++ (void) initialize
+{
+  if (self == [EOObjectStoreCoordinator class])
+    {
+      Class cls = NSClassFromString(@"EODatabaseContext");
+
+      if (cls != Nil)
+	[cls class]; // Insure correct initialization.
+    }
+}
+
 - init
 {
   self = [super init];
@@ -359,10 +370,10 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
         }
       
       count = [_stores count];
-
       for (i = 0; i < count; i++)
         {
-          // Contructs a list of EODatabaseOperations for all changes in the EditingContext
+          // Contructs a list of EODatabaseOperations
+	  // for all changes in the EditingContext
           objectStore = [_stores objectAtIndex: i];
           [objectStore recordChangesInEditingContext];
         }
