@@ -425,7 +425,8 @@ RCS_ID("$Id$")
               EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
               NSAssert1(object, @"No Object. entityClassDescripton=%@", entityClassDescripton);
 
-              EOEditingContext_recordObjectGlobalIDWithImpPtr(_currentEditingContext,NULL,object,gid);
+              EOEditingContext_recordObjectGlobalIDWithImpPtr(_currentEditingContext,
+							      NULL,object,gid);
             }
           else if (object && [EOFault isFault: object])
             {

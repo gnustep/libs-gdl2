@@ -39,7 +39,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSCoder.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
-#include <Foundation/NSNull.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -51,6 +50,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOKeyValueCoding.h>
 #include <EOControl/EOKeyValueArchiver.h>
+#include <EOControl/EONull.h>
 #include <EOControl/EODebug.h>
 
 #include "EOPrivate.h"

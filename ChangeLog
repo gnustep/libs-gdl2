@@ -1,3 +1,13 @@
+2005-03-02  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOKeyValueCoding.h/m: (-setNilValueForKey:):
+	Override NSObject's category to invoke -unableToSetNullForKey:.
+
+	* EOControl/EOSortOrdering.m: Include EONull.h instead of
+	NSNull.h.
+
+	* EOAccess/EODatabaseChannel.m: Update formatting,
+	
 2005-02-22  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.m (-hasOpenChannels): Make safe for

@@ -109,6 +109,11 @@ initialize(void)
   [self unableToSetNullForKey: key];
 }
 
+- (void) setNilValueForKey: (NSString *)key
+{
+  [self unableToSetNullForKey: key];
+}
+
 /* See EODeprecated.h. */
 + (void) flushClassKeyBindings
 {
