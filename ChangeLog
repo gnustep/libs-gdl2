@@ -1,5 +1,7 @@
 2003-05-22  David Ayers  <d.ayers@inode.at>
 
+	* config/postgres.m4: Added /usr/include/postgresql to include
+	search path.
 	* EOControl/EOClassDescription.m
 	([EOClassDescription +classDescriptionForClass:): Replaced
 	deprecated GSObjCName() with GSNameFromClass().

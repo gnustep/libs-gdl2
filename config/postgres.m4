@@ -12,7 +12,7 @@ AC_ARG_WITH(pgsql-library,
   libs_temp=$LIBS
 
   CPPFLAGS="$CPPFLAGS -I/usr/local/include -I/usr/local/pgsql/include \
-                      -I/usr/include/pgsql"
+                      -I/usr/include/pgsql -I/usr/include/postgresql"
   LIBS="$LIBS -L/usr/local/lib -L/usr/local/pgsql/lib -L/usr/pgsql/lib"
 
   if test "$pgsql_incdir" != "no"; then
