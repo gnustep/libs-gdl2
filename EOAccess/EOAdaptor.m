@@ -136,12 +136,9 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   //OK
   NSBundle *bundle = [NSBundle mainBundle];
   NSString *adaptorBundlePath;
-  NSMutableArray *paths;
+  NSArray *paths;
   Class adaptorClass;
   NSString *adaptorClassName;
-  NSProcessInfo *pInfo;
-  NSDictionary *env;
-  NSMutableString *user, *local, *system;
   int i, count;
 
   /* Check error */
@@ -163,45 +160,17 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   /* Look in standard paths */
   if (!adaptorBundlePath)
     {
+      SEL      sel = @selector(stringByAppendingPathComponent:);
       /*
-	The path of where to search for the adaptor files
-	is based upon environment variables.
-	GDL_ADAPTORS_PATH
-	GNUSTEP_USER_ROOT
-	GNUSTEP_LOCAL_ROOT
-	GNUSTEP_SYSTEM_ROOT
+	The path of where to search for the adaptor files.
       */
-      pInfo = [NSProcessInfo processInfo];
-      env = [pInfo environment];
-      paths = [NSMutableArray array];
 
-      user = AUTORELEASE([[env objectForKey: @"GNUSTEP_USER_ROOT"] 
-			   mutableCopy]);
-      [user appendString: @"/Libraries/Frameworks"];
+      paths 
+	= NSSearchPathForDirectoriesInDomains(NSAllLibrariesDirectory,
+					      NSAllDomainsMask, NO);
 
-      if (user)
-	[paths addObject: user];
-
-      local = AUTORELEASE([[env objectForKey: @"GNUSTEP_LOCAL_ROOT"]
-			    mutableCopy]);
-      [local appendString: @"/Libraries/Frameworks"];
-
-      if (local)
-	[paths addObject: local];
-
-      local = AUTORELEASE([[env objectForKey: @"GNUSTEP_LOCAL_ROOT"]
-         mutableCopy]);
-      [local appendString: @"/Library/Frameworks"];
-
-      if (local)
-	[paths addObject: local];
-
-      system = AUTORELEASE([[env objectForKey: @"GNUSTEP_SYSTEM_ROOT"]
-		  mutableCopy]);
-      [system appendString: @"/Libraries/Frameworks"];
-
-      if (system)
-	[paths addObject: system];
+      paths = [paths resultsOfPerformingSelector: sel
+		     withObject: @"Frameworks"];
 
       /* Loop through the paths and check each one */
       for(i = 0, count = [paths count]; i < count; i++)
