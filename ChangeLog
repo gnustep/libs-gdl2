@@ -2,6 +2,8 @@
 
 	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble:
 	Don't remove GNUmakefile on distclean.
+	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile: Add include
+	directive for local GDL2 headers.
 
 2003-03-08  Matt Rice  <ratmice@yahoo.com>
 

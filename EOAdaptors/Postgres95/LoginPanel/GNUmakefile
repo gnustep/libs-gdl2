@@ -28,7 +28,7 @@ include $(GNUSTEP_MAKEFILES)/common.make
 BUNDLE_NAME=LoginPanel
 LoginPanel_OBJC_FILES = Postgres95LoginPanel.m
 LoginPanel_PRINCIPAL_CLASS = Postgres95LoginPanel
-ADDITIONAL_INCLUDE_DIRS = -I..
+ADDITIONAL_INCLUDE_DIRS = -I.. -I../../..
 LoginPanel_COPY_INTO_DIR = ../Postgres95EOAdaptor.framework/Resources
 
 include ../config.mak
