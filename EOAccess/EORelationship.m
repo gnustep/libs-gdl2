@@ -73,7 +73,25 @@ RCS_ID("$Id$")
 
 @implementation EORelationship
 
-- init
++ (void)initialize
+{
+  static BOOL initialized = NO;
+  if (!initialized)
+    {
+      initialized = YES;
+
+      GDL2_EOAccessPrivateInit();
+    }
+}
+
++ (id) relationshipWithPropertyList: (NSDictionary *)propertyList
+                              owner: (id)owner
+{
+  return AUTORELEASE([[self alloc] initWithPropertyList: propertyList
+				   owner: owner]);
+}
+
+- (id)init
 {
 //OK
   if ((self = [super init]))
@@ -183,13 +201,6 @@ RCS_ID("$Id$")
 - (unsigned)hash
 {
   return [_name hash];
-}
-
-+ (id) relationshipWithPropertyList: (NSDictionary *)propertyList
-                              owner: (id)owner
-{
-  return [[[self alloc] initWithPropertyList: propertyList
-                        owner: owner] autorelease];
 }
 
 - (id) initWithPropertyList: (NSDictionary *)propertyList
@@ -1722,8 +1733,17 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 @end
 
-@implementation EORelationship(EORelationshipValueMapping)
+@implementation EORelationship (EORelationshipValueMapping)
 
+/**
+ * If the reciever is a manditory relationship, this method
+ * returns an exception if the value pointed to by VALUEP is
+ * either nil or the EONull instance for to-one relationships
+ * or an empty NSArray for to-many relationships.  Otherwise
+ * it returns nil.  EOClassDescription adds further information
+ * to this exception before it gets passed to the application or
+ * user.
+ */
 - (NSException *)validateValue: (id*)valueP
 {
   //OK
@@ -1737,7 +1757,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
     {
       BOOL isToMany = [self isToMany];
 
-      if ((isToMany == NO && *valueP == nil)
+      if ((isToMany == NO && _isNilOrEONull(*valueP))
 	  || (isToMany == YES && [*valueP count] == 0))
         {
           EOEntity *destinationEntity = [self destinationEntity];
@@ -1748,29 +1768,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 				   [self name],
 				   [entity name],
 				   [destinationEntity name]];
-          /* //TODO userinfo:
-            userInfo {
-            EOValidatedObjectUserInfoKey = {
-            ...
-            }; 
-            }; 
-            EOValidatedPropertyUserInfoKey = quotationPlace; 
-            }EOValidatedObjectUserInfoKey={
-            ...
-            }; 
-            }
-            EOValidatedPropertyUserInfoKey=quotationPlace            
-          */
         }
-    }
-
-  if (!exception)
-    {
-      NSEmitTODO(); //TODO
-      NSDebugMLog(@"relationship=%@ valueP=%p",self,valueP);
-      if (valueP)
-        NSDebugMLog(@"*valueP=%@",*valueP);
-      //[self notImplemented:_cmd]; //TODO
     }
 
   EOFLOGObjectFnStop();

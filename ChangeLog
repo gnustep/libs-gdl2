@@ -5,6 +5,11 @@
 	(-forgetSnapshotsForGlobalIDs:): Ditto.
 	(-_commitTransaction, -_beginTransaction): Ditto.
 	(-_rollbackTransaction): Implement.
+
+	* EOAccess/EORelationship.m (validateValue:): Document.  Remove
+	unnecessary comments and code.  Handle EONulls.
+	(+initialize): Implement.
+	(+relationshipWithPropertyList:owner:): Move to top.
 	
 2005-03-03  Matt Rice  <ratmice@yahoo.com>
             David Ayers  <d.ayers@inode.at>
