@@ -1346,7 +1346,7 @@ validateTable:(NSHashTable*)table
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"unprocessed: %@",
 			[self unprocessedDescription]);
 
-  validateForDelete = [self validateTable: _unprocessedDeletes
+  validateForDelete = [self validateTable: _deletedObjects
 			    withSelector: @selector(validateForDelete)
 			    exceptionArray: &exceptions
 			    continueAfterFailure: NO];
@@ -1370,7 +1370,7 @@ validateTable:(NSHashTable*)table
     }
   else
     {
-      BOOL validateForInsert = [self validateTable: _unprocessedInserts
+      BOOL validateForInsert = [self validateTable: _insertedObjects
 				     withSelector: @selector(validateForInsert)
 				     exceptionArray: &exceptions
 				     continueAfterFailure: NO];
@@ -1395,7 +1395,7 @@ validateTable:(NSHashTable*)table
       else
         {
           BOOL validateForUpdate
-	    = [self validateTable: _unprocessedInserts
+	    = [self validateTable: _changedObjects
 		    withSelector: @selector(validateForUpdate)
 		    exceptionArray: &exceptions
 		    continueAfterFailure: NO];

@@ -1,3 +1,9 @@
+2004-05-14  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOEditingContext.m 
+	(-[EOEditingContext validateChangesForSave]):  Use processed
+	changes instead of unprocessed changes.
+	
 2004-05-12  Matt Rice  <ratmice@yahoo.com>
 
 	* EOControl/EOQualifier.h: Add NSMutableSet class declaration.
