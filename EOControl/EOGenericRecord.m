@@ -181,8 +181,8 @@ static const char _c_id[2] = { _C_ID, NULL };
 //used to allow derived object implementation
 - (BOOL)_infoForInstanceVariableNamed: (NSString*)name
                               retType: (const char**)type
-                              retSize: (unsigned*)size
-                            retOffset: (unsigned*)offset
+                              retSize: (unsigned int*)size
+                            retOffset: (int*)offset
 {
   BOOL ok;
 
@@ -192,7 +192,7 @@ static const char _c_id[2] = { _C_ID, NULL };
             retSize:size
             retOffset:offset];
 */
-  ok = GSInstanceVariableInfo(self, name, type, size, offset);
+  ok = GSFindInstanceVariable(self, [name cString], type, size, offset);
 
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			@"Super InstanceVar named %@:%s",

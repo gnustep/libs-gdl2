@@ -313,8 +313,11 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSAssert(name,@"No entityt name");
 
   entity = [_entitiesByName objectForKey: name];
-  entity = [self _verifyBuiltEntityObject: entity
-                 named: name];
+  if (entiry != nil)
+    {
+      entity = [self _verifyBuiltEntityObject: entity
+					named: name];
+    }
 
   return entity;
 }
@@ -1036,8 +1039,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   //OK
   [self loadAllModelObjects];
   [self willChange];
-  ASSIGN(_path,path);
-  [self setName: [[path lastPathComponents] stringByDeletingPathExtension]];
+  ASSIGN(_path, path);
+  [self setName: [[path lastPathComponent] stringByDeletingPathExtension]];
 }
 
 - (EOEntity*) _entityForClass: (Class)aClass

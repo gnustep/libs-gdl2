@@ -4,6 +4,7 @@
 	* EOAccess/EOModel.m:  Appplied David Ayers patch for programmatic
 	model manipulation.  Fixed typo. Use NSFileManager rather than
 	mkdir(). Tidied some use of autorelease for memory efficiency etc.
+	* EOControl/EOGenericRecord.m: update to use GSFindInstanceVariable()
 
 2002-11-26  Manuel Guesdon  <mguesdon@orange-concept.com>
 
