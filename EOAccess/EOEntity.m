@@ -277,15 +277,17 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           // load entity's FetchSpecifications
           {
-            NSDictionary *plist;
+            NSDictionary *plist = nil;
             NSString *fileName;
             
             fileName = [NSString stringWithFormat: @"%@.fspec", _name];
-            plist = [[NSString stringWithContentsOfFile:
-				 [[(EOModel *)owner path]
-				   stringByAppendingPathComponent: fileName]]
-		      propertyList];
- 	  
+
+	    if ([[NSFileManager defaultManager] fileExistsAtPath: fileName])
+	      plist = [[NSString stringWithContentsOfFile:
+				   [[(EOModel *)owner path]
+				     stringByAppendingPathComponent: fileName]]
+			propertyList];
+
             if (plist) 
               {
                 EOKeyValueUnarchiver *unarchiver;

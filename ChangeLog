@@ -1,5 +1,8 @@
 2002-12-04  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
+	* EOAccess/EOEntity.m ([EOEntity -initWithPropertyList:owner:]): read
+	<entityName>.fspec only if exists.
+
 	* EOControl/EOKeyValueCoding.m ([NSArray -valueForKeyPath:]): 
 	implemented the case of invoking an aggregate function using a simple
 	key.
