@@ -154,10 +154,14 @@ GDL2CONTROL_EXPORT void GDL2PrivInit();
 
 // ==== IMP Helpers ====
 
-#define _isNilOrEONull(v)	\
-        (isNilOrEONull(v))
-
-//	(((v)==nil || (v)==GDL2EONull) ? YES : NO)
+static inline BOOL
+_isNilOrEONull(id obj) __attribute__ ((unused));
+static inline BOOL
+_isNilOrEONull(id obj)
+{
+  if (GDL2EONull == nil) GDL2PrivInit();
+  return (obj == nil || obj == GDL2EONull) ? YES : NO;
+}
 
 //See also EOControl/EOFault.m
 #define _isFault(v)	\

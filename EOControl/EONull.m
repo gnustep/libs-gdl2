@@ -71,28 +71,9 @@ RCS_ID("$Id$")
 @end
 
 
-@implementation NSObject (EONull)
-
-- (BOOL)isEONull
-{  
-  return ((id)self == [NSNull null]);
-}
-
-- (BOOL)isNotEONull
-{
-  return ![self isEONull];
-}
-
-@end
-
-BOOL isNilOrEONull(id v)
-{
-  return ((!v) || [v isEONull]);
-}
-
 /*
  * We keep this class to support NSClassFromString() which
- * scripting libraries my depend on.  Note that this is
+ * scripting libraries may depend on.  Note that this is
  * not a fail-safe implementation.  You should rely on
  * [EONull+null] and pointer comparison.  Do not rely on
  * [obj isKindOfClass: NSClassFromString(@"EONull")]

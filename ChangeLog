@@ -23,6 +23,9 @@
 	(-updatedObjects, -insertedObjects, -deletedObjects): Reimplement.
 	(-unprocessedObjects, -unprocessedInfo, -pendingInfo)
 	(-hasUnprocessedChanges): Remove.
+	* EOControl/EONull.h/m ([NSObject isEONull], [NSObject isNotEONull])
+	(isNilOrEONull): Remove.
+	* EOControl/EOPriv.h (_isNilOrEONull): Make static inline function.
 	
 2005-02-13  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOControl/EOClassDescription.m:

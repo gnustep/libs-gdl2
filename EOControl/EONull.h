@@ -43,13 +43,5 @@
 - (NSString *)sqlString;
 @end
 
-@interface NSObject (EONullTest)
-- (BOOL)isEONull;
-- (BOOL)isNotEONull;
-@end
-
-GDL2CONTROL_EXPORT BOOL isNilOrEONull(id v);
-
-
 #endif /* __EONull_h__ */
 
