@@ -1,3 +1,32 @@
+2005-02-13  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOControl/EOClassDescription.m:
+		o use IMPs
+		o avoid NSString build in -addObject:toPropertyWithKey: 
+		o avoid NSString build in -removeObject:fromPropertyWithKey:
+	* EOAccess/EODatabaseContext.m:
+		o added and use EODatabaseContext_globalIDForObjectWithImpPtr
+		o use IMPs
+	* EOAccess/EOEntity.m:
+		o use IMPs
+	* EOAccess/EOAttribute.m:
+		o use IMPs
+		o optimized -validateValue
+	* EOAccess/EODatabaseContextPriv.h:
+		o added EODatabaseContext_globalIDForObjectWithImpPtr
+	* EOControl/EOPriv.[hm]:
+		o added more helpers	
+	* EOControl/EOEditingContext.m:
+		o use IMPs
+	* EOControl/EOGenericRecord.m:
+		o use IMPs in descriptions
+	* EOAdaptors/Postgres95Values.m:
+		o use GDL2StringDefaultCStringEncoding() in 
+		+newValueForCharactersType:length:attribute:
+	* EOAdaptors/Postgres95Channel.m:
+		o IMP optimizations
+	* EOAdaptors/Postgres95Adaptor.m:
+		o IMP optimizations
+	
 2005-02-11  Manuel Guesdon  <mguesdon@orange-concept.com>
 
 	* EOAccess/EOAdaptor.m:

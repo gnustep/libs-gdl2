@@ -46,6 +46,11 @@ RCS_ID("$Id$")
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOAccess/EODatabaseContext.h>
 
+// ==== Classes ====
+Class GDL2NSArrayClass=Nil;
+Class GDL2NSMutableArrayClass=Nil;
+Class GDL2NSDictionaryClass=Nil;
+Class GDL2NSMutableDictionaryClass=Nil;
 Class GDL2NSStringClass=Nil;
 Class GDL2NSNumberClass=Nil;
 Class GDL2NSDecimalNumberClass=Nil;
@@ -60,38 +65,71 @@ Class GDL2EODatabaseContextClass=Nil;
 Class GDL2EOEditingContextClass=Nil;
 Class GDL2EOAttributeClass=Nil;
 
+// ==== Selectors ====
 SEL GDL2_newSEL=NULL;
 SEL GDL2_allocWithZoneSEL=NULL;
+
+// ---- String Selectors ----
 SEL GDL2_isEqualToStringSEL=NULL;
 SEL GDL2_appendStringSEL=NULL;
 SEL GDL2_stringWithCString_lengthSEL=NULL;
 SEL GDL2_stringWithCStringSEL=NULL;
+SEL GDL2_defaultCStringEncodingSEL=NULL;
+
+// ---- Data Selectors ----
+SEL GDL2_dataWithBytes_lengthSEL=NULL;
+
+// ---- Array Selectors ----
 SEL GDL2_addObjectSEL=NULL;
 SEL GDL2_objectAtIndexSEL=NULL;
 SEL GDL2_indexOfObjectIdenticalToSEL=NULL;
-SEL GDL2_nextObjectSEL=NULL;
-SEL GDL2_takeStoredValueForKeySEL=NULL;
-SEL GDL2_snapshotForGlobalIDSEL=NULL;
-SEL GDL2_objectForKeySEL=NULL;
-SEL GDL2_respondsToSelectorSEL=NULL;
-SEL GDL2_setObjectForKeySEL=NULL;
-SEL GDL2_removeObjectForKeySEL=NULL;
-SEL GDL2_hasKeySEL=NULL;
-SEL GDL2_indexForKeySEL=NULL;
+SEL GDL2_lastObjectSEL=NULL;
+SEL GDL2_arrayWithCapacitySEL=NULL;
+SEL GDL2_arrayWithArraySEL=NULL;
+SEL GDL2_arraySEL=NULL;
 
+// ---- Enumerator Selectors ----
+SEL GDL2_nextObjectSEL=NULL;
+
+// ---- KVC Selectors ----
+SEL GDL2_storedValueForKeySEL=NULL;
+SEL GDL2_takeStoredValueForKeySEL=NULL;
+SEL GDL2_valueForKeySEL=NULL;
+SEL GDL2_takeValueForKeySEL=NULL;
+SEL GDL2_validateValueForKeySEL=NULL;
+
+// ---- GDL2 Selectors ----
+SEL GDL2_snapshotForGlobalIDSEL=NULL;
 SEL GDL2_recordObjectGlobalIDSEL=NULL;
 SEL GDL2_objectForGlobalIDSEL=NULL;
 SEL GDL2_globalIDForObjectSEL=NULL;
+SEL GDL2__globalIDForObjectSEL=NULL;
 
+// ---- Dictionary Selectors ----
+SEL GDL2_objectForKeySEL=NULL;
+SEL GDL2_setObjectForKeySEL=NULL;
+SEL GDL2_removeObjectForKeySEL=NULL;
+SEL GDL2_dictionaryWithCapacitySEL=NULL;
+
+// ---- NSObject Selectors ----
+SEL GDL2_respondsToSelectorSEL=NULL;
+
+// ---- KMKKD Selectors ----
+SEL GDL2_hasKeySEL=NULL;
+SEL GDL2_indexForKeySEL=NULL;
+
+// ==== IMPs ====
 IMP GDL2NSAutoreleasePool_newIMP=NULL;
 IMP GDL2NSNumber_allocWithZoneIMP=NULL;
 IMP GDL2NSDecimalNumber_allocWithZoneIMP=NULL;
 IMP GDL2NSString_allocWithZoneIMP=NULL;
 IMP GDL2NSCalendarDate_allocWithZoneIMP=NULL;
 IMP GDL2NSData_allocWithZoneIMP=NULL;
+IMP GDL2NSData_dataWithBytes_lengthIMP=NULL;
 
 IMP GDL2NSString_stringWithCString_lengthIMP=NULL;
 IMP GDL2NSString_stringWithCStringIMP=NULL;
+GDL2IMP_NSStringEncoding GDL2NSString_defaultCStringEncodingIMP=NULL;
 
 IMP GDL2MKKD_objectForKeyIMP=NULL;
 IMP GDL2MKKD_setObjectForKeyIMP=NULL;
@@ -105,6 +143,16 @@ IMP GDL2EOEditingContext_recordObjectGlobalIDIMP=NULL;
 IMP GDL2EOEditingContext_objectForGlobalIDIMP=NULL;
 IMP GDL2EOEditingContext_globalIDForObjectIMP=NULL;
 
+IMP GDL2EODatabaseContext__globalIDForObjectIMP=NULL;
+
+IMP GDL2NSMutableArray_arrayWithCapacityIMP=NULL;
+IMP GDL2NSMutableArray_arrayWithArrayIMP=NULL;
+IMP GDL2NSMutableArray_arrayIMP=NULL;
+IMP GDL2NSArray_arrayIMP=NULL;
+
+IMP GDL2NSMutableDictionary_dictionaryWithCapacityIMP=NULL;
+
+// ==== Constants ====
 NSNumber* GDL2NSNumberBool_Yes=nil;
 NSNumber* GDL2NSNumberBool_No=nil;
 
@@ -112,12 +160,17 @@ EONull* GDL2EONull=nil;
 
 NSCharacterSet* GDL2_shellPatternCharacterSet=nil;
 
-
+// ==== Init Method ====
 void GDL2PrivInit()
 {
   static BOOL initialized=NO;
   if (!initialized)
     {
+      // ==== Classes ====
+      GDL2NSArrayClass=[NSArray class];
+      GDL2NSMutableArrayClass=[NSMutableArray class];
+      GDL2NSDictionaryClass=[NSDictionary class];
+      GDL2NSMutableDictionaryClass=[NSMutableDictionary class];
       GDL2NSStringClass=[NSString class];
       GDL2NSNumberClass=[NSNumber class];
       GDL2NSDecimalNumberClass=[NSDecimalNumber class];
@@ -132,52 +185,90 @@ void GDL2PrivInit()
       GDL2EOEditingContextClass = [EOEditingContext class];
       GDL2EOAttributeClass = [EOAttribute class];
 
+      // ==== Selectors ====
       GDL2_newSEL=@selector(new);
       GDL2_allocWithZoneSEL=@selector(alloc);
+
+      // ---- String Selectors ----
       GDL2_isEqualToStringSEL=@selector(isEqualToString:);
       GDL2_appendStringSEL=@selector(appendString:);
       GDL2_stringWithCString_lengthSEL=@selector(stringWithCString:length:);
       GDL2_stringWithCStringSEL=@selector(stringWithCString:);
+      GDL2_defaultCStringEncodingSEL=@selector(defaultCStringEncoding);
+
+      // ---- Data Selectors ----
+      GDL2_dataWithBytes_lengthSEL=@selector(dataWithBytes:length:);
+
+      // ---- Array Selectors ----
       GDL2_addObjectSEL=@selector(addObject:);
       GDL2_objectAtIndexSEL=@selector(objectAtIndex:);
       GDL2_indexOfObjectIdenticalToSEL=@selector(indexOfObjectIdenticalTo:);
+      GDL2_lastObjectSEL=@selector(lastObject);
+      GDL2_arrayWithCapacitySEL=@selector(arrayWithCapacity:);
+      GDL2_arrayWithArraySEL=@selector(arrayWithArray:);
+      GDL2_arraySEL=@selector(array);
+
+      // ---- Enumerator Selectors ----
       GDL2_nextObjectSEL=@selector(nextObject);
+
+      // ---- KVC Selectors ----
+      GDL2_storedValueForKeySEL=@selector(storedValueForKey:);
       GDL2_takeStoredValueForKeySEL=@selector(takeStoredValue:forKey:);
+      GDL2_valueForKeySEL=@selector(valueForKey:);
+      GDL2_takeValueForKeySEL=@selector(takeValue:forKey:);
+      GDL2_validateValueForKeySEL=@selector(validateValue:forKey:);
+
+      // ---- GDL2 Selectors ----
       GDL2_snapshotForGlobalIDSEL=@selector(snapshotForGlobalID:);
-      GDL2_objectForKeySEL=@selector(objectForKey:);
-      GDL2_setObjectForKeySEL=@selector(setObject:forKey:);
-      GDL2_removeObjectForKeySEL=@selector(removeObjectForKey:);
-      GDL2_respondsToSelectorSEL=@selector(respondsToSelector:);
-      GDL2_hasKeySEL=@selector(hasKey:);
-      GDL2_indexForKeySEL=@selector(indexForKey:);
       GDL2_snapshotForGlobalIDSEL=@selector(snapshotForGlobalID:);
       GDL2_recordObjectGlobalIDSEL=@selector(recordObject:globalID:);
       GDL2_objectForGlobalIDSEL=@selector(objectForGlobalID:);
       GDL2_globalIDForObjectSEL=@selector(globalIDForObject:);
+      GDL2__globalIDForObjectSEL=@selector(_globalIDForObject:);
 
-      GDL2NSAutoreleasePool_newIMP=[GDL2NSAutoreleasePoolClass 
-                                     methodForSelector:GDL2_newSEL];
+      // ---- Dictionary Selectors ----
+      GDL2_objectForKeySEL=@selector(objectForKey:);
+      GDL2_setObjectForKeySEL=@selector(setObject:forKey:);
+      GDL2_removeObjectForKeySEL=@selector(removeObjectForKey:);
+      GDL2_dictionaryWithCapacitySEL=@selector(dictionaryWithCapacity:);
 
-      GDL2NSNumber_allocWithZoneIMP=[GDL2NSNumberClass 
-                              methodForSelector:GDL2_allocWithZoneSEL];
+      // ---- NSObject Selectors ----
+      GDL2_respondsToSelectorSEL=@selector(respondsToSelector:);
 
-      GDL2NSDecimalNumber_allocWithZoneIMP=[GDL2NSDecimalNumberClass
-                                     methodForSelector:GDL2_allocWithZoneSEL];
+      // ---- KMKKD Selectors ----
+      GDL2_hasKeySEL=@selector(hasKey:);
+      GDL2_indexForKeySEL=@selector(indexForKey:);
 
-      GDL2NSString_allocWithZoneIMP=[GDL2NSStringClass 
-                              methodForSelector:GDL2_allocWithZoneSEL];
+      // ==== IMPs ====
+      GDL2NSAutoreleasePool_newIMP=
+        [GDL2NSAutoreleasePoolClass methodForSelector:GDL2_newSEL];
 
-      GDL2NSCalendarDate_allocWithZoneIMP=[GDL2NSCalendarDateClass 
-                                    methodForSelector:GDL2_allocWithZoneSEL];
+      GDL2NSNumber_allocWithZoneIMP=
+        [GDL2NSNumberClass methodForSelector:GDL2_allocWithZoneSEL];
 
-      GDL2NSData_allocWithZoneIMP=[GDL2NSDataClass 
-                                    methodForSelector:GDL2_allocWithZoneSEL];
+      GDL2NSDecimalNumber_allocWithZoneIMP=
+        [GDL2NSDecimalNumberClass methodForSelector:GDL2_allocWithZoneSEL];
+
+      GDL2NSString_allocWithZoneIMP=
+        [GDL2NSStringClass methodForSelector:GDL2_allocWithZoneSEL];
+
+      GDL2NSCalendarDate_allocWithZoneIMP=
+        [GDL2NSCalendarDateClass methodForSelector:GDL2_allocWithZoneSEL];
+
+      GDL2NSData_allocWithZoneIMP=
+        [GDL2NSDataClass methodForSelector:GDL2_allocWithZoneSEL];
+
+      GDL2NSData_dataWithBytes_lengthIMP=
+        [GDL2NSDataClass methodForSelector:GDL2_dataWithBytes_lengthSEL];
 
       GDL2NSString_stringWithCString_lengthIMP=
         [GDL2NSStringClass methodForSelector:GDL2_stringWithCString_lengthSEL];
 
       GDL2NSString_stringWithCStringIMP=
         [GDL2NSStringClass methodForSelector:GDL2_stringWithCStringSEL];
+
+      GDL2NSString_defaultCStringEncodingIMP=
+        (GDL2IMP_NSStringEncoding)[GDL2NSStringClass methodForSelector:GDL2_defaultCStringEncodingSEL];
 
       GDL2MKKD_objectForKeyIMP=[GDL2MKKDClass instanceMethodForSelector:GDL2_objectForKeySEL];
       GDL2MKKD_setObjectForKeyIMP=[GDL2MKKDClass instanceMethodForSelector:GDL2_setObjectForKeySEL];
@@ -192,6 +283,24 @@ void GDL2PrivInit()
       GDL2EOEditingContext_objectForGlobalIDIMP=[GDL2EOEditingContextClass instanceMethodForSelector:GDL2_objectForGlobalIDSEL];
       GDL2EOEditingContext_globalIDForObjectIMP=[GDL2EOEditingContextClass instanceMethodForSelector:GDL2_globalIDForObjectSEL];
 
+      GDL2EODatabaseContext__globalIDForObjectIMP=[GDL2EODatabaseContextClass instanceMethodForSelector:GDL2__globalIDForObjectSEL];
+
+      GDL2NSMutableArray_arrayWithCapacityIMP=[GDL2NSMutableArrayClass 
+                                                methodForSelector:GDL2_arrayWithCapacitySEL];
+
+      GDL2NSMutableArray_arrayWithArrayIMP=[GDL2NSMutableArrayClass 
+                                             methodForSelector:GDL2_arrayWithArraySEL];
+
+      GDL2NSMutableArray_arrayIMP=[GDL2NSMutableArrayClass 
+                                    methodForSelector:GDL2_arraySEL];
+
+      GDL2NSArray_arrayIMP=[GDL2NSArrayClass 
+                             methodForSelector:GDL2_arraySEL];
+
+      GDL2NSMutableDictionary_dictionaryWithCapacityIMP=[GDL2NSMutableDictionaryClass 
+                                    methodForSelector:GDL2_dictionaryWithCapacitySEL];
+
+      // ==== Constants ====
       ASSIGN(GDL2NSNumberBool_Yes,[GDL2NSNumberClass numberWithBool:YES]);
       ASSIGN(GDL2NSNumberBool_No,[GDL2NSNumberClass numberWithBool:NO]);
 

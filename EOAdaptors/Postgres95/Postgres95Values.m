@@ -69,8 +69,13 @@ void __postgres95_values_linking_function (void)
 {
 }
 
+Class Postgres95ValuesClass=Nil;
+
 static SEL postgres95FormatSEL=NULL;
+SEL Postgres95Values_newValueForBytesLengthAttributeSEL=NULL;
+
 static IMP GDL2NSCalendarDate_postgres95FormatIMP=NULL;
+IMP Postgres95Values_newValueForBytesLengthAttributeIMP=NULL;
 
 @implementation Postgres95Values
 
@@ -81,10 +86,16 @@ static IMP GDL2NSCalendarDate_postgres95FormatIMP=NULL;
     {
       GDL2PrivInit();
 
+      ASSIGN(Postgres95ValuesClass,([Postgres95Values class]));
+
       postgres95FormatSEL=@selector(postgres95Format);
+      Postgres95Values_newValueForBytesLengthAttributeSEL=@selector(newValueForBytes:length:attribute:);
 
       GDL2NSCalendarDate_postgres95FormatIMP=[GDL2NSCalendarDateClass 
                                           methodForSelector:postgres95FormatSEL];
+
+      Postgres95Values_newValueForBytesLengthAttributeIMP=[Postgres95ValuesClass
+                                                            methodForSelector:Postgres95Values_newValueForBytesLengthAttributeSEL];
     };
 };
 
@@ -222,7 +233,7 @@ For efficiency reasons, the returned value is NOT autoreleased !
 {
   return [attribute newValueForBytes: bytes
 		    length: length
-		    encoding: [NSString defaultCStringEncoding]];//TODO OPTIM
+		    encoding: GDL2StringDefaultCStringEncoding()];
 }
 
 /**

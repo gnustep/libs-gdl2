@@ -63,6 +63,7 @@ RCS_ID("$Id$")
 
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAccess.h>
 #include <EOAccess/EOAttribute.h>
@@ -243,9 +244,10 @@ static NSString *internalTypeNames[] = {
 + (void)assignExternalInfoForEntity: (EOEntity *)entity
 {
   NSEnumerator *attributeEnumerator = [[entity attributes] objectEnumerator];
-  EOAttribute *attribute;
+  EOAttribute *attribute = nil;
+  IMP enumNO = NULL;
 
-  while ((attribute = [attributeEnumerator nextObject]))
+  while ((attribute = GDL2NextObjectWithImpPtr(attributeEnumerator,&enumNO)))
     [self assignExternalInfoForAttribute: attribute];
 }
 

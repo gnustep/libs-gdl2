@@ -1033,25 +1033,25 @@ infinite loop in description **/
   NSString *key = nil;
   id obj = nil;
   IMP ofkIMP=NULL;
+  IMP enumNO=NULL;
+  IMP dictSOFK=NULL;
 
   toManyKeys = [classDescription toManyRelationshipKeys];
   toOneKeys = [classDescription toOneRelationshipKeys];
   dict = [NSMutableDictionary dictionaryWithCapacity: [dictionary count]];
 
-  while ((key = [enumerator nextObject]))
+  while ((key = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
     {
       obj = EOMKKD_objectForKeyWithImpPtr(dictionary,&ofkIMP,key);
       if (!obj)
-        [dict setObject: @"(null)"
-              forKey: key];
+        GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
       else
         {
           // print out only simple values
           if ([toManyKeys containsObject: key] == NO
 	      && [toOneKeys containsObject: key] == NO)
             {
-              [dict setObject: obj
-                    forKey: key];
+              GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,obj,key);
             }
         }
     }
@@ -1072,27 +1072,29 @@ infinite loop in description **/
   NSString *key = nil;
   id obj = nil;
   IMP ofkIMP=NULL;
+  IMP enumNO=NULL;
+  IMP dictSOFK=NULL;
 
   toManyKeys = [classDescription toManyRelationshipKeys];
   toOneKeys = [classDescription toOneRelationshipKeys];
 
   dict = [NSMutableDictionary dictionaryWithCapacity: [dictionary count]];
 
-  while ((key = [enumerator nextObject]))
+  while ((key = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
     {
       obj = EOMKKD_objectForKeyWithImpPtr(dictionary,&ofkIMP,key);
 
       if (!obj)
-        [dict setObject: @"(null)"
-              forKey: key];
+        GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
       else if (_isFault(obj) == YES)
         {
-          [dict setObject: [obj description]
-                forKey: key];
+          GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,
+                                        [obj description],key);
         }
       else if (obj==GDL2EONull)
-        [dict setObject: @"(null)"
-              forKey: key];
+        {
+          GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
+        }
       else
         {
           if ([toManyKeys containsObject: key] != NO)
@@ -1100,11 +1102,13 @@ infinite loop in description **/
               NSEnumerator *toManyEnum;
               NSMutableArray *array;
               id rel;
+              IMP toManyEnumNO=NULL;
+              IMP arrayAO=NULL;
               
-              array = [NSMutableArray arrayWithCapacity: 8];
+              array = GDL2MutableArrayWithCapacity(8);
               toManyEnum = [obj objectEnumerator];
               
-              while ((rel = [toManyEnum nextObject]))
+              while ((rel = GDL2NextObjectWithImpPtr(toManyEnum,&toManyEnumNO)))
                 {
                   NSString* relDescr=nil;
                   // Avoid infinit loop
@@ -1113,30 +1117,31 @@ infinite loop in description **/
                   else
                     relDescr=[rel description];
                   
-                  [array addObject:
-                           [NSString
-                             stringWithFormat: @"<%@ %p>",
-                             relDescr, NSStringFromClass([rel class])]];
+                  GDL2AddObjectWithImpPtr(array,&arrayAO,
+                                          [NSString
+                                            stringWithFormat: @"<%@ %p>",
+                                            relDescr, NSStringFromClass([rel class])]);
                 }
               
-              [dict setObject: [NSString stringWithFormat:
-                                           @"<%p %@ : %@>",
-                                         obj, [obj class], array]
-                    forKey: key];
+              GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,
+                                            [NSString stringWithFormat:
+                                                        @"<%p %@ : %@>",
+                                                      obj, [obj class], array],
+                                            key);
             }
           else if ([toOneKeys containsObject: key] != NO)
             {
-              [dict setObject: [NSString
-                                 stringWithFormat: @"<%p %@: classDescription=%@>",
-                                 obj,
-                                 NSStringFromClass([obj class]),
-                                 [(EOGenericRecord *)obj classDescription]]
-                    forKey: key];
+              GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,
+                                            [NSString
+                                              stringWithFormat: @"<%p %@: classDescription=%@>",
+                                              obj,
+                                              NSStringFromClass([obj class]),
+                                              [(EOGenericRecord *)obj classDescription]],
+                                            key);
             }
           else
             {
-              [dict setObject: obj
-                    forKey: key];
+              GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,obj,key);
             }
         }
     }

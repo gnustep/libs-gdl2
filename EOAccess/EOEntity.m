@@ -1171,9 +1171,10 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   //VERIFY
   if (!attr)
     {
+      IMP enumNO=NULL;
       attrEnum = [[self primaryKeyAttributes] objectEnumerator];
 
-      while ((attr = [attrEnum nextObject]))
+      while ((attr = GDL2NextObjectWithImpPtr(attrEnum,&enumNO)))
         {
 	  if ([[attr name] isEqual: attributeName])
 	    return attr;
@@ -1366,10 +1367,11 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   if (!rel)
     {
       EORelationship *tmpRel = nil;
+      IMP enumNO=NULL;
 
       relEnum = [_hiddenRelationships objectEnumerator];
 
-      while (!rel && (tmpRel = [relEnum nextObject]))
+      while (!rel && (tmpRel = GDL2NextObjectWithImpPtr(relEnum,&enumNO)))
         {
 	  if ([[tmpRel name] isEqual: relationshipNamed])
 	    rel = tmpRel;
@@ -1646,18 +1648,22 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   else
     {
       //Seems OK
-      NSMutableArray *array = [NSMutableArray arrayWithCapacity: count];
+      NSMutableArray *array = GDL2MutableArrayWithCapacity(count);
+      IMP pkanOAI=NULL;
+      IMP rowOFK=NULL;
+      IMP arrayAO=NULL;
       int i;
 
       for (i = 0; i < count; i++)
 	{
-	  NSString *key = [primaryKeyAttributeNames objectAtIndex: i];
-          id value = [row objectForKey: key];
+	  NSString *key = GDL2ObjectAtIndexWithImpPtr(primaryKeyAttributeNames,&pkanOAI,i);
+          id value = GDL2ObjectForKeyWithImpPtr(row,&rowOFK,key);
 
-	  [array addObject: [EOKeyValueQualifier qualifierWithKey: key
-						 operatorSelector:
-						   EOQualifierOperatorEqual
-						 value: value]];
+	  GDL2AddObjectWithImpPtr(array,&arrayAO,
+                                  [EOKeyValueQualifier qualifierWithKey: key
+                                                       operatorSelector:
+                                                         EOQualifierOperatorEqual
+                                                       value: value]);
 	}
 
       qualifier = [EOAndQualifier qualifierWithQualifierArray: array];
@@ -1693,20 +1699,23 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   NSMutableDictionary *dict = nil;
   int i, count;
   NSArray *primaryKeyAttributes = [self primaryKeyAttributes];
+  IMP pkaOAI=NULL;
+  IMP rowOFK=NULL;
+  IMP dictSOFK=NULL;
 
   count = [primaryKeyAttributes count];
   dict = [NSMutableDictionary dictionaryWithCapacity: count];
 
   for (i = 0; i < count; i++)
     {
-      EOAttribute *attr = [primaryKeyAttributes objectAtIndex: i];
-      id value = [row objectForKey: [attr name]];
+      EOAttribute *attr = GDL2ObjectAtIndexWithImpPtr(primaryKeyAttributes,&pkaOAI,i);
+      NSString* attrName = [attr name];
+      id value = GDL2ObjectForKeyWithImpPtr(row,&rowOFK,attrName);
 
       if (!value)
         value = GDL2EONull;
 
-      [dict setObject: value
-	    forKey: [attr name]];
+      GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,value,attrName);
     }
 
   return dict;
@@ -1714,7 +1723,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 - (BOOL)isValidAttributeUsedForLocking: (EOAttribute *)anAttribute
 {
-  if (!([anAttribute isKindOfClass: [EOAttribute class]]
+  if (!([anAttribute isKindOfClass: GDL2EOAttributeClass]
 	&& [[self attributesByName] objectForKey: [anAttribute name]]))
     return NO;
 
@@ -1726,7 +1735,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 - (BOOL)isValidPrimaryKeyAttribute: (EOAttribute *)anAttribute
 {
-  if (!([anAttribute isKindOfClass: [EOAttribute class]]
+  if (!([anAttribute isKindOfClass: GDL2EOAttributeClass]
 	&& [[self attributesByName] objectForKey: [anAttribute name]]))
     return NO;
 
@@ -1743,18 +1752,20 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   id value = nil;
   int i, count;
   BOOL isValid = YES;
+  IMP pkanOAI=NULL;
+  IMP objectVFK=NULL;
 
   primaryKeyAttributeNames = [self primaryKeyAttributeNames];
   count = [primaryKeyAttributeNames count];
 
   for (i = 0; isValid && i < count; i++)
     {
-      key = [primaryKeyAttributeNames objectAtIndex: i];
+      key = GDL2ObjectAtIndexWithImpPtr(primaryKeyAttributeNames,&pkanOAI,i);
 
       NS_DURING
 	{
-          value = [object valueForKey: key];
-          if (value == nil || value == GDL2EONull || value == [NSNull null])
+          value = GDL2ValueForKeyWithImpPtr(object,&objectVFK,key);
+          if (_isNilOrEONull(value))
             isValid = NO;
 	}
       NS_HANDLER
@@ -1771,7 +1782,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 {
   id thePropertyName;
 
-  if (!([aProperty isKindOfClass: [EOAttribute class]]
+  if (!([aProperty isKindOfClass: GDL2EOAttributeClass]
 	|| [aProperty isKindOfClass: [EORelationship class]]))
     return NO;
 
@@ -1849,6 +1860,8 @@ createInstanceWithEditingContext:globalID:zone:
 
           if (gidkeyValues)
             {
+              IMP pkanOAI=NULL;
+              IMP dfpkSOFK=NULL;
               dictionaryForPrimaryKey = [self _dictionaryForPrimaryKey];
 
               NSAssert1(dictionaryForPrimaryKey,
@@ -1859,10 +1872,10 @@ createInstanceWithEditingContext:globalID:zone:
 
               for (i = 0; i < count; i++)
                 {
-                  id key = [primaryKeyAttributeNames objectAtIndex: i];
+                  id key = GDL2ObjectAtIndexWithImpPtr(primaryKeyAttributeNames,&pkanOAI,i);
 
-                  [dictionaryForPrimaryKey setObject: gidkeyValues[i]
-                                           forKey: key];
+                  GDL2SetObjectForKeyWithImpPtr(dictionaryForPrimaryKey,&dfpkSOFK,
+                                                gidkeyValues[i],key);
                 }
             }
         }
@@ -2287,16 +2300,19 @@ createInstanceWithEditingContext:globalID:zone:
   NSEnumerator *enumerator;
   EORelationship *rel;
   EOAttribute *attr;
+  IMP enumNO=NULL;
 
   enumerator = [[self attributes] objectEnumerator];
-  while ((attr = [enumerator nextObject]))
+  enumNO=NULL;
+  while ((attr = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
     {
       if ([attr isFlattened] && [[attr realAttribute] isEqual: property])
 	return YES;
     }
 
   enumerator = [[self relationships] objectEnumerator];
-  while ((rel = [enumerator nextObject]))
+  enumNO=NULL;
+  while ((rel =  GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
     {
       if ([rel referencesProperty: property])
 	return YES;
@@ -2612,13 +2628,19 @@ createInstanceWithEditingContext:globalID:zone:
 {
   NSArray *array = [self attributesUsedForLocking];
   int i, n = [array count];
-  NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity: n];
+  NSMutableDictionary *dict = GDL2MutableDictionaryWithCapacity(n);
+  IMP arrayOAI=NULL;
+  IMP dictSOFK=NULL;
+  IMP aRowOFK=NULL;
     
   for (i = 0; i < n; i++)
     {
-      id key = [(EOAttribute *)[array objectAtIndex: i] name];
+      id key = [(EOAttribute *)GDL2ObjectAtIndexWithImpPtr(array,&arrayOAI,i) 
+                               name];
 
-      [dict setObject: [aRow objectForKey:key] forKey: key];
+      GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,
+                                    GDL2ObjectForKeyWithImpPtr(aRow,&aRowOFK,key),
+                                    key);
     }
 
   return dict;
@@ -2676,18 +2698,23 @@ createInstanceWithEditingContext:globalID:zone:
   {
     id keyArray[count];
     int i;
+    IMP rowOFK=NULL;
+    IMP pkanOAI=NULL;
 
     memset(keyArray, 0, sizeof(id) * count);
 
     for (i = 0; i < count; i++)
-      keyArray[i] = [row objectForKey:
-			   [primaryKeyAttributeNames objectAtIndex: i]];
+      {
+        keyArray[i] = GDL2ObjectForKeyWithImpPtr(row,&rowOFK,
+                                                 GDL2ObjectAtIndexWithImpPtr(primaryKeyAttributeNames,
+                                                                             &pkanOAI,i));
 
-    globalID = [EOKeyGlobalID globalIDWithEntityName: [self name]
-			      keys: keyArray
-			      keyCount: count
-			      zone: [self zone]];
-  }
+        globalID = [EOKeyGlobalID globalIDWithEntityName: [self name]
+                                  keys: keyArray
+                                  keyCount: count
+                                  zone: [self zone]];
+      }
+  };
 
   //NSEmitTODO();  //TODO
   //TODO isFinal  ??
@@ -2905,12 +2932,15 @@ createInstanceWithEditingContext:globalID:zone:
 - (NSArray*) writableDBSnapshotKeys
 {
   //OK
-  NSMutableArray *writableDBSnapshotKeys = [NSMutableArray array];
+  NSArray *writableDBSnapshotKeys=nil;
 
   if (![self isReadOnly])
     {
       NSArray *attributesToFetch = [self _attributesToFetch];
       int i, count = [attributesToFetch count];
+      IMP atfOAI=NULL;
+      IMP sAO=NULL;
+      NSMutableArray* tmpArray=GDL2MutableArrayWithCapacity(count);
 
       NSAssert3(!attributesToFetch
 		|| [attributesToFetch isKindOfClass: [NSArray class]],
@@ -2921,12 +2951,15 @@ createInstanceWithEditingContext:globalID:zone:
 
       for (i = 0; i < count; i++)
         {
-          EOAttribute *attribute = [attributesToFetch objectAtIndex: i];
+          EOAttribute *attribute = GDL2ObjectAtIndexWithImpPtr(attributesToFetch,&atfOAI,i);
 
           if (![attribute isReadOnly])
-            [writableDBSnapshotKeys addObject: [attribute name]];
+            GDL2AddObjectWithImpPtr(tmpArray,&sAO,[attribute name]);
         }
+      writableDBSnapshotKeys=tmpArray;
     }
+  else
+    writableDBSnapshotKeys=GDL2Array();
 
   return writableDBSnapshotKeys;
 }
@@ -2934,16 +2967,28 @@ createInstanceWithEditingContext:globalID:zone:
 - (NSArray*) rootAttributesUsedForLocking
 {
   //OK ?
-  NSMutableArray *rootAttributesUsedForLocking = [NSMutableArray array];
+  NSArray *rootAttributesUsedForLocking = nil;
   NSArray *attributesUsedForLocking = [self attributesUsedForLocking];
-  int i, count = [attributesUsedForLocking count];
+  int count = [attributesUsedForLocking count];
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      EOAttribute *attribute = [attributesUsedForLocking objectAtIndex: i];
-      if (![attribute isDerived])
-        [rootAttributesUsedForLocking addObject: attribute];
+      int i=0;
+      NSMutableArray *tmpArray = GDL2MutableArrayWithCapacity(count);
+      IMP auflOAI=NULL;
+      IMP tAO=NULL;
+
+      for (i = 0; i < count; i++)
+        {
+          EOAttribute *attribute = GDL2ObjectAtIndexWithImpPtr(attributesUsedForLocking,
+                                                               &auflOAI,i);
+          if (![attribute isDerived])
+            GDL2AddObjectWithImpPtr(tmpArray,&tAO,attribute);
+        }
+      rootAttributesUsedForLocking=tmpArray;
     }
+  else
+    rootAttributesUsedForLocking=GDL2Array();
 
   return rootAttributesUsedForLocking;
 }
@@ -3206,18 +3251,30 @@ returns nil if there's no key in the instanceDictionaryInitializer
 {
   //OK
   //IMPROVE We can improve this by caching the result....
-  NSMutableArray *classPropertyAttributes = [NSMutableArray array];
+
+  NSArray *classPropertyAttributes = nil;
   //Get classProperties (EOAttributes + EORelationships)
   NSArray *classProperties = [self classProperties];
-  int i, count = [classProperties count];
+  int count = [classProperties count];
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      id object = [classProperties objectAtIndex: i];
+      int i=0;
+      NSMutableArray *tmpArray = GDL2MutableArrayWithCapacity(count);
+      IMP cpOAI=NULL;
+      IMP tAO=NULL;
 
-      if ([object isKindOfClass: [EOAttribute class]])
-        [classPropertyAttributes addObject: object];
+      for (i = 0; i < count; i++)
+        {
+          id object = GDL2ObjectAtIndexWithImpPtr(classProperties,&cpOAI,i);
+          
+          if ([object isKindOfClass: GDL2EOAttributeClass])
+            GDL2AddObjectWithImpPtr(tmpArray,&tAO,object);
+        }
+      classPropertyAttributes = tmpArray;
     }
+  else
+    classPropertyAttributes=GDL2Array();
 
   return classPropertyAttributes;
 }
@@ -3231,9 +3288,9 @@ returns nil if there's no key in the instanceDictionaryInitializer
 
   if (!_attributesToSave)
     {
-      NSMutableArray *attributesToSave = [GCMutableArray array];
       NSArray *attributesToFetch = [self _attributesToFetch];
       int i, count = [attributesToFetch count];
+      NSMutableArray *attributesToSave = [GCMutableArray arrayWithCapacity:count];
 
       NSAssert3(!attributesToFetch
 		|| [attributesToFetch isKindOfClass: [NSArray class]],
@@ -3315,7 +3372,7 @@ returns nil if there's no key in the instanceDictionaryInitializer
                                         @"propertyName=%@ - property=%@",
                                         propertyName, property);
                   
-                  if ([property isKindOfClass: [EOAttribute class]])
+                  if ([property isKindOfClass: GDL2EOAttributeClass])
                     {
 		      EOAttribute *attribute = property;
 
@@ -3333,7 +3390,7 @@ returns nil if there's no key in the instanceDictionaryInitializer
                               [(EORelationship*)property relationshipPath]
                         atts: attributesDict];
                     }
-                  else if ([property isKindOfClass: [EOAttribute class]])
+                  else if ([property isKindOfClass: GDL2EOAttributeClass])
                     {
                       [attributesDict setObject: property
                                       forKey: propertyName];
@@ -3570,24 +3627,35 @@ returns nil if there's no key in the instanceDictionaryInitializer
   NSMutableArray *sourceAttributeNames = [NSMutableArray array];
   NSMutableArray *destinationAttributeNames = [NSMutableArray array];
   NSArray *joins;
-  int i, count = 0;
+  int count = 0;
 
   //use path,not only one element ?
   rel = [self relationshipNamed: path];
   joins = [rel joins];
   count = [joins count];
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      EOJoin *join = [joins objectAtIndex: i];
-      EOAttribute *sourceAttribute = [join sourceAttribute];
-      EOAttribute *destinationAttribute =
-	[self _mapAttribute:sourceAttribute 
-	      toDestinationAttributeInLastComponentOfRelationshipPath: path];
+      int i=0;
+      IMP joinsOAI=NULL;
+      IMP sanAO=NULL;
+      IMP danAO=NULL;
 
-      [sourceAttributeNames addObject: [sourceAttribute name]];
-      [destinationAttributeNames addObject: [destinationAttribute name]];
-    }
+      for (i = 0; i < count; i++)
+        {
+          EOJoin *join = GDL2ObjectAtIndexWithImpPtr(joins,&joinsOAI,i);
+          EOAttribute *sourceAttribute = [join sourceAttribute];
+          EOAttribute *destinationAttribute =
+            [self _mapAttribute:sourceAttribute 
+                  toDestinationAttributeInLastComponentOfRelationshipPath: path];
+          
+          GDL2AddObjectWithImpPtr(sourceAttributeNames,&sanAO,
+                                  [sourceAttribute name]);
+
+          GDL2AddObjectWithImpPtr(destinationAttributeNames,&danAO,
+                                  [destinationAttribute name]);
+        }
+    };
 
   keyMap = [NSDictionary dictionaryWithObjectsAndKeys:
 			   sourceAttributeNames, @"sourceKeys",
@@ -3666,17 +3734,25 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
   if (relationship)
     {
       NSArray *joins = [relationship joins];
-      int i, count = [joins count];
+      int count = [joins count];
 
-      for(i = 0; i < count; i++)
+      if (count>0)
         {
-          EOJoin *join = [joins objectAtIndex: i];
-          EOAttribute *sourceAttribute = [join sourceAttribute];
-          EOAttribute *destinationAttribute = [join destinationAttribute];
-
-          [sourceKeys addObject: [sourceAttribute name]];
-          [destinationKeys addObject: [destinationAttribute name]];
-        }
+          int i=0;
+          IMP joinsOAI=NULL;
+          IMP skAO=NULL;
+          IMP dkAO=NULL;
+          
+          for(i = 0; i < count; i++)
+            {
+              EOJoin *join = GDL2ObjectAtIndexWithImpPtr(joins,&joinsOAI,i);
+              EOAttribute *sourceAttribute = [join sourceAttribute];
+              EOAttribute *destinationAttribute = [join destinationAttribute];
+              
+              GDL2AddObjectWithImpPtr(sourceKeys,&skAO,[sourceAttribute name]);
+              GDL2AddObjectWithImpPtr(destinationKeys,&dkAO,[destinationAttribute name]);
+            }
+        };
     }
 
   return [NSDictionary dictionaryWithObjectsAndKeys:
@@ -3744,20 +3820,20 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
   //Should be OK
   if (!_classPropertyAttributeNames)
     {
+      int i=0;
       NSArray *classProperties = [self classProperties];
-      int i, count = [classProperties count];
-      Class attrClass = [EOAttribute class];
+      int count = [classProperties count];
 
       _classPropertyAttributeNames = [NSMutableArray new]; //or GC ?
-
+      
       for (i = 0; i < count; i++)
         {
           EOAttribute *property = [classProperties objectAtIndex: i];
-
-          if ([property isKindOfClass: attrClass])
+          
+          if ([property isKindOfClass: GDL2EOAttributeClass])
             [(NSMutableArray*)_classPropertyAttributeNames
-			      addObject: [property name]];
-        }
+                              addObject: [property name]];
+        };
 
       EOFLOGObjectLevelArgs(@"EOEntity", @"_classPropertyAttributeNames=%@",
 			    _classPropertyAttributeNames);
@@ -3841,16 +3917,23 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
   else
     {
       NSArray *joins = [rel joins];
-      int i, count = [joins count];
+      int count = [joins count];
 
-      for (i = 0; i < count; i++)
+      if (count>0)
         {
-          EOJoin *join = [joins objectAtIndex: i];
-          EOAttribute *attribute = [join sourceAttribute];
+          int i=0;
+          IMP joinsOAI=NULL;
+          IMP attributesSOFK=NULL;
 
-          [attributes setObject: attribute
-                      forKey: [attribute name]];
-        }
+          for (i = 0; i < count; i++)
+            {
+              EOJoin *join = GDL2ObjectAtIndexWithImpPtr(joins,&joinsOAI,i);
+              EOAttribute *attribute = [join sourceAttribute];
+              
+              GDL2SetObjectForKeyWithImpPtr(attributes,&attributesSOFK,
+                                            attribute,[attribute name]);
+            }
+        };
     }
 }
 
@@ -3886,9 +3969,9 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 - (NSArray*) flattenedAttributes
 {
   //OK
-  NSMutableArray *flattenedAttributes = [NSMutableArray array];
+  NSArray *flattenedAttributes = nil;
   NSArray *attributesToFetch = [self _attributesToFetch];
-  int i, count = [attributesToFetch count];
+  int count = [attributesToFetch count];
 
   NSAssert3(!attributesToFetch
 	    || [attributesToFetch isKindOfClass: [NSArray class]],
@@ -3897,13 +3980,24 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
             [attributesToFetch class],
             attributesToFetch);
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      EOAttribute *attribute = [attributesToFetch objectAtIndex: i];
+      int i=0;
+      IMP atfOAI=NULL;
+      IMP tAO=NULL;
+      NSMutableArray* tmpArray=GDL2MutableArrayWithCapacity(count);
 
-      if ([attribute isFlattened])
-        [flattenedAttributes addObject: attribute];
+      for (i = 0; i < count; i++)
+        {
+          EOAttribute *attribute = GDL2ObjectAtIndexWithImpPtr(attributesToFetch,&atfOAI,i);
+
+          if ([attribute isFlattened])
+            GDL2AddObjectWithImpPtr(tmpArray,&tAO,attribute);
+        };
+      flattenedAttributes=tmpArray;
     }
+  else
+    flattenedAttributes=GDL2Array();
 
   return flattenedAttributes;
 }
@@ -3932,6 +4026,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 
   if (s)
     {
+      IMP eaAO=NULL;
       pool = [NSAutoreleasePool new];
       NS_DURING
         {
@@ -3956,8 +4051,8 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 			&& *s != '.' && *s != '#' && *s != '$')
                       break;
               
-                  objectToken = [NSString stringWithCString:start
-                                          length: (unsigned)(s - start)];
+                  objectToken = GDL2StringWithCStringAndLength(start,
+                                                               (unsigned)(s - start));
               
                   EOFLOGObjectLevelArgs(@"EOEntity", @"objectToken: '%@'",
 					objectToken);
@@ -3973,7 +4068,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
                   EOFLOGObjectLevelArgs(@"EOEntity", @"addObject I Token: '%@'",
 					objectToken);
 
-                  [expressionArray addObject: objectToken];
+                  GDL2AddObjectWithImpPtr(expressionArray,&eaAO,objectToken);
                 }
           
               /* Determines an O token. */
@@ -4002,13 +4097,13 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 
               if (s != start)
                 {
-                  objectToken = [NSString stringWithCString: start
-                                          length: (unsigned)(s - start)];
+                  objectToken = GDL2StringWithCStringAndLength(start,
+                                                               (unsigned)(s - start));
 
                   EOFLOGObjectLevelArgs(@"EOEntity", @"addObject O Token: '%@'",
 					objectToken);
 
-                  [expressionArray addObject: objectToken];
+                  GDL2AddObjectWithImpPtr(expressionArray,&eaAO,objectToken);
                 }
             }
         }
@@ -4349,6 +4444,10 @@ fromInsertionInEditingContext: (EOEditingContext *)context
   NSArray *classProperties;
   EORelationship *relationship;
   int i, count;
+  IMP relOAI=NULL;
+  IMP objectSVFK=NULL;
+  IMP objectTSVFK=NULL;
+  IMP objectVFK=NULL;
 
   EOFLOGObjectFnStart();
 
@@ -4361,15 +4460,15 @@ fromInsertionInEditingContext: (EOEditingContext *)context
 
   for (i = 0; i < count; i++)
     {
-      relationship = [relationships objectAtIndex: i];
+      relationship = GDL2ObjectAtIndexWithImpPtr(relationships,&relOAI,i);
 
       if ([classProperties containsObject: relationship])
 	{
 	  if ([relationship isToMany])
 	    {
 	      NSString *name = [relationship name];
-	      id relationshipValue 
-		= [object storedValueForKey: name];
+	      id relationshipValue = 
+                GDL2StoredValueForKeyWithImpPtr(object,&objectSVFK,name);
 
 	      /* We put a value only if there's not already one */
 	      if (relationshipValue == nil)
@@ -4377,8 +4476,9 @@ fromInsertionInEditingContext: (EOEditingContext *)context
 		  /* [Ref: Assigns empty arrays to to-many 
 		     relationship properties of newly inserted 
 		     enterprise objects] */
-		  [object takeStoredValue: [EOCheapCopyMutableArray array]
-			  forKey: name];
+		  GDL2TakeStoredValueForKeyWithImpPtr(object,&objectTSVFK,
+                                                      [EOCheapCopyMutableArray array],
+                                                      name);
 		}
 	    }
 	  else
@@ -4387,7 +4487,7 @@ fromInsertionInEditingContext: (EOEditingContext *)context
 		{
 		  NSString *name = [relationship name];
 		  id relationshipValue 
-		    = [object valueForKey: name];
+                    = GDL2ValueForKeyWithImpPtr(object,&objectVFK,name);
 
 		  if (relationshipValue == nil)
 		    {

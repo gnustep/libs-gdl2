@@ -43,6 +43,9 @@
 
 extern NSString *Postgres95CalendarFormat;
 
+extern Class Postgres95ValuesClass;
+extern SEL Postgres95Values_newValueForBytesLengthAttributeSEL;
+extern IMP Postgres95Values_newValueForBytesLengthAttributeIMP;
 
 @interface Postgres95Values:NSObject
 {
@@ -78,4 +81,10 @@ extern NSString *Postgres95CalendarFormat;
 
 @end
 
+#define Postgres95Values_newValueForBytesLengthAttribute(bytes,length,attribute) \
+	(*Postgres95Values_newValueForBytesLengthAttributeIMP)(Postgres95ValuesClass,	\
+                                                               Postgres95Values_newValueForBytesLengthAttributeSEL,	\
+                                                               (const void *)(bytes),	\
+                                                               (int)(length),	\
+                                                               (EOAttribute*)(attribute))
 #endif /* __Postgres95Values_h__ */

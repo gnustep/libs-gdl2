@@ -831,6 +831,8 @@ _mergeValueForKey(id obj, id value,
   EOGlobalID *tempGID;
   EOGlobalID *gid = nil;
   id object = nil;
+  IMP enumNO=NULL; // nextObject
+  IMP userInfoOFK=NULL; // objectForKey:
 
   EOFLOGObjectFnStart();
 
@@ -840,11 +842,11 @@ _mergeValueForKey(id obj, id value,
   NSAssert(_objectsByGID, @"_objectsByGID does not exist!");
   NSAssert(_globalIDsByObject, @"_globalIDsByObject does not exist!");
 
-  while ((tempGID = [enumerator nextObject]))
+  while ((tempGID = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
     {
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"tempGID=%@", tempGID);
 
-      gid = [userInfo objectForKey: tempGID];
+      gid = GDL2ObjectForKeyWithImpPtr(userInfo,&userInfoOFK,tempGID);
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
 
       object = NSMapGet(_objectsByGID, tempGID);
@@ -1492,6 +1494,7 @@ _mergeValueForKey(id obj, id value,
       EOGlobalID *globalID;
       id obj;
       IMP selfGlobalIDForObjectIMP = NULL;
+      IMP currEnumNO=NULL;
       
       _flags.processingChanges = YES;
 
@@ -1719,7 +1722,8 @@ _mergeValueForKey(id obj, id value,
         }
 
       currEnum = [cumulativeChanges objectEnumerator];
-      while ((obj = [currEnum nextObject]))
+      currEnumNO=NULL;
+      while ((obj = GDL2NextObjectWithImpPtr(currEnum,&currEnumNO)))
         {
           if ([consolidatedInserts containsObject: obj])
             {
@@ -1745,7 +1749,8 @@ _mergeValueForKey(id obj, id value,
       /* Register deleted and changed objects for undo
          that have not already been registered.  */
       currEnum = [deletedAndChanged objectEnumerator];
-      while ((obj = [currEnum nextObject]))
+      currEnumNO=NULL;
+      while ((obj = GDL2NextObjectWithImpPtr(currEnum,&currEnumNO)))
         {
           [self registerUndoForModifiedObject: obj];
         }
@@ -2440,6 +2445,7 @@ _mergeValueForKey(id obj, id value,
   NSEnumerator *enumerator = nil;
   id object = nil;
   int which;
+  IMP enumNO=NULL; // nextObject
 
   EOFLOGObjectFnStart();
 
@@ -2463,7 +2469,8 @@ _mergeValueForKey(id obj, id value,
     }
 
   enumerator = [NSAllHashTableObjects(_deletedObjects) objectEnumerator];
-  while ((object = [enumerator nextObject]))
+  enumNO=NULL;
+  while ((object = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
     {
       [self forgetObject: object];
       [object clearProperties];
@@ -2477,10 +2484,11 @@ _mergeValueForKey(id obj, id value,
   {
     EOGlobalID *gid=nil;
     IMP objectForGlobalIDIMP=NULL;
+    IMP enumNO=NO;
 
     enumerator = [[_snapshotsByGID allKeys] objectEnumerator];
 
-    while ((gid = [enumerator nextObject]))
+    while ((gid = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
       {
         id ofgid=EOEditingContext_objectForGlobalIDWithImpPtr(self,&objectForGlobalIDIMP,gid);
         id snapshot=[ofgid snapshot];
@@ -2516,6 +2524,7 @@ _mergeValueForKey(id obj, id value,
 
   NS_DURING
     {        
+      IMP enumNO=NULL; // nextObject
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			    [self unprocessedDescription]);
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
@@ -2523,7 +2532,7 @@ _mergeValueForKey(id obj, id value,
 
       enumerator = [_editors objectEnumerator];
 
-      while ((object = [enumerator nextObject]))
+      while ((object = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
         [object editingContextWillSaveChanges: self];
       
       if (_delegateRespondsTo.willSaveChanges)
@@ -2608,9 +2617,10 @@ _mergeValueForKey(id obj, id value,
   NSEnumerator *enumerator;
   EOGlobalID *gid=nil;
   IMP objectForGlobalIDIMP=NULL;
+  IMP enumNO=NULL; // nextObject
 
   enumerator = [_eventSnapshotsByGID keyEnumerator];
-  while ((gid = [enumerator nextObject]))
+  while ((gid = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
     {
       id ofgid=EOEditingContext_objectForGlobalIDWithImpPtr(self,&objectForGlobalIDIMP,gid);
       [ofgid updateFromSnapshot: [_eventSnapshotsByGID objectForKey: gid]];
@@ -3075,6 +3085,7 @@ modified state of the object.**/
   NSEnumerator *objsEnum;
   id obj = nil;
   IMP globalIDForObjectIMP=NULL;
+  IMP enumNO=NULL; // nextObject
 
   [self processRecentChanges];
 
@@ -3086,7 +3097,7 @@ modified state of the object.**/
 
   objsEnum = [objs objectEnumerator];
 
-  while ((obj = [objsEnum nextObject]))
+  while ((obj = GDL2NextObjectWithImpPtr(objsEnum,&enumNO)))
     {
       EOGlobalID* gid=EOEditingContext_globalIDForObjectWithImpPtr(self,&globalIDForObjectIMP,obj);
       [self refaultObject: obj
@@ -3352,11 +3363,13 @@ modified state of the object.**/
           id object, localObject;
           IMP objectForGlobalIDIMP=NULL;
           IMP globalIDForObjectIMP=NULL;
+          IMP enumNO=NULL; // nextObject
 
           objects = [context insertedObjects];
           
           objsEnum = [objects objectEnumerator];
-          while ((object = [objsEnum nextObject]))
+          enumNO=NULL;
+          while ((object = GDL2NextObjectWithImpPtr(objsEnum,&enumNO)))
             {
               gid=EOEditingContext_globalIDForObjectWithImpPtr(context,&globalIDForObjectIMP,object);
               
@@ -3376,7 +3389,8 @@ modified state of the object.**/
           objects = [context updatedObjects];
           
           objsEnum = [objects objectEnumerator];
-          while ((object = [objsEnum nextObject]))
+          enumNO=NULL;
+          while ((object = GDL2NextObjectWithImpPtr(objsEnum,&enumNO)))
             {
               gid=EOEditingContext_globalIDForObjectWithImpPtr(context,&globalIDForObjectIMP,object);
               localObject = EOEditingContext_objectForGlobalIDWithImpPtr(self,&objectForGlobalIDIMP,gid);
@@ -3387,7 +3401,8 @@ modified state of the object.**/
           objects = [context deletedObjects];
           
           objsEnum = [objects objectEnumerator];
-          while ((object = [objsEnum nextObject]))
+          enumNO=NULL;
+          while ((object = GDL2NextObjectWithImpPtr(objsEnum,&enumNO)))
             {
               gid=EOEditingContext_globalIDForObjectWithImpPtr(context,&globalIDForObjectIMP,object);
               localObject = EOEditingContext_objectForGlobalIDWithImpPtr(self,&objectForGlobalIDIMP,gid);

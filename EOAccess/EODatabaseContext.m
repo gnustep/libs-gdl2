@@ -351,12 +351,13 @@ static Class _contextClass = Nil;
 
   if (model && editingContext)
     { 
+      IMP enumNO=NULL; // nextObject
       edObjectStore = (EOObjectStoreCoordinator *)[editingContext rootObjectStore];
       cooperatingObjectStores = [edObjectStore cooperatingObjectStores];	// get all EODatabaseContexts
 
       storeEnum = [cooperatingObjectStores objectEnumerator];
 
-      while ((coObjectStore = [storeEnum nextObject]))
+      while ((coObjectStore = GDL2NextObjectWithImpPtr(storeEnum,&enumNO)))
 	{
 	  if ([coObjectStore isKindOfClass: [EODatabaseContext class]])
 	    {
@@ -488,13 +489,14 @@ static Class _contextClass = Nil;
 {
   NSEnumerator *channelsEnum;
   NSValue *channel = nil;
+  IMP enumNO=NULL; // nextObject
 
   channelsEnum = [_registeredChannels objectEnumerator];
 
   NSDebugMLLog(@"EODatabaseContext",@"REGISTERED CHANNELS nb=%d",
 	       [_registeredChannels count]);
 
-  while ((channel = [channelsEnum nextObject]))
+  while ((channel = GDL2NextObjectWithImpPtr(channelsEnum,&enumNO)))
     {
       if ([(EODatabaseChannel *)[channel nonretainedObjectValue]
                                isFetchInProgress] == NO)
@@ -599,6 +601,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 {
   NSEnumerator *channelsEnum = [_registeredChannels objectEnumerator];
   EODatabaseChannel *channel = nil;
+  IMP enumNO=NULL; // nextObject
 
   _delegate = delegate;
 
@@ -625,7 +628,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   _delegateRespondsTo.shouldFetchArrayFault = 
     [delegate respondsToSelector: @selector(databaseContext:shouldFetchArrayFault:)];
 
-  while ((channel = [channelsEnum nextObject]))
+  while ((channel = GDL2NextObjectWithImpPtr(channelsEnum,&enumNO)))
     [channel setDelegate: delegate];
 }
 
@@ -1271,6 +1274,7 @@ userInfo = {
   if ([objsArray count] > 0)
     {
       IMP globalIDForObjectIMP=NULL;
+      IMP enumNO=NULL; // nextObject
 
       qualArray = [NSMutableArray arrayWithCapacity: 5];
 
@@ -1280,8 +1284,8 @@ userInfo = {
 		       @"relationship %@ isFlattened", relationship);
 
           relEnum = [[relationship componentRelationships] objectEnumerator];
-
-          while ((relationship = [relEnum nextObject]))
+          enumNO=NULL;
+          while ((relationship = GDL2NextObjectWithImpPtr(relEnum,&enumNO)))
             {
               // TODO rebuild object array for relationship path
               
@@ -1292,7 +1296,8 @@ userInfo = {
         }
       
       objEnum = [objsArray objectEnumerator];
-      while ((obj = [objEnum nextObject]))
+      enumNO=NULL;
+      while ((obj = GDL2NextObjectWithImpPtr(objEnum,&enumNO)))
         {
           EOGlobalID* gid=nil;
           relObj = [obj storedValueForKey: [relationship name]];
@@ -1350,6 +1355,7 @@ userInfo = {
 
   if (!array)
     {
+      IMP enumNO=NULL; // nextObject
       array = [NSMutableArray arrayWithCapacity: 8];
 
       entityName = [fetch entityName];//OK
@@ -1935,9 +1941,10 @@ userInfo = {
 
       relationshipKeyPathEnum = [[fetch prefetchingRelationshipKeyPaths]
                                   objectEnumerator];
-
-      while ((relationshipKeyPath = [relationshipKeyPathEnum nextObject]))
+      enumNO=NULL;
+      while ((relationshipKeyPath = GDL2NextObjectWithImpPtr(relationshipKeyPathEnum,&enumNO)))
         {
+          IMP rkeyEnumNO=NULL; // nextObject
           NSArray *relationshipKeyArray = [relationshipKeyPath
                                             componentsSeparatedByString: @"."];
           NSEnumerator *relationshipKeyEnum;
@@ -1946,7 +1953,7 @@ userInfo = {
           NSString *relationshipKey;
 
           relationshipKeyEnum = [relationshipKeyArray objectEnumerator];
-          while ((relationshipKey = [relationshipKeyEnum nextObject]))
+          while ((relationshipKey = GDL2NextObjectWithImpPtr(relationshipKeyEnum,&rkeyEnumNO)))
             {
               relationship = [currentEntity relationshipNamed: relationshipKey];
               currentEntity = [relationship destinationEntity];
@@ -1997,6 +2004,7 @@ userInfo = {
 
   if ([self isObjectLockedWithGlobalID: gid] == NO)
     {
+      IMP enumNO=NULL; // nextObject
       snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid);
 
       if (_delegateRespondsTo.shouldLockObject == YES &&
@@ -2031,7 +2039,8 @@ userInfo = {
       lockAttributes = [NSMutableArray arrayWithCapacity: 8];
 
       attrsEnum = [primaryKeyAttributes objectEnumerator];
-      while ((attribute = [attrsEnum nextObject]))
+      enumNO=NULL;
+      while ((attribute = GDL2NextObjectWithImpPtr(attrsEnum,&enumNO)))
 	{
 	  NSString *name = [attribute name];
 
@@ -2040,7 +2049,8 @@ userInfo = {
 	}
 
       attrsEnum = [attrsUsedForLocking objectEnumerator];
-      while ((attribute = [attrsEnum nextObject]))
+      enumNO=NULL;
+      while ((attribute = GDL2NextObjectWithImpPtr(attrsEnum,&enumNO)))
 	{
 	  NSString *name = [attribute name];
 
@@ -2130,10 +2140,11 @@ userInfo = {
 
   if (_delegateRespondsTo.shouldInvalidateObject == YES)
     {
+      IMP enumNO=NULL; // nextObject
       array = [NSMutableArray array];
       enumerator = [globalIDs objectEnumerator];
 
-      while ((gid = [enumerator nextObject]))
+      while ((gid = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
 	{
 	  if ([_delegate databaseContext: self
 			 shouldInvalidateObjectWithGlobalID: gid
@@ -2410,6 +2421,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
 
 - (void)recordChangesInEditingContext
 {
+  IMP selfGIDFO=NULL; // _globalIDForObject:
   int which = 0;
   NSArray *objects[3] = {nil, nil, nil};
 
@@ -2756,7 +2768,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                                iValue++)
                                             {
                                               id aValue = GDL2ObjectAtIndexWithImp(relationshipSnapshotValue,svObjectAtIndexIMP,iValue);
-                                              EOGlobalID *aValueGID = [self _globalIDForObject: aValue];
+                                              EOGlobalID *aValueGID = EODatabaseContext_globalIDForObjectWithImpPtr(self,&selfGIDFO,aValue);
                                               
                                               NSDebugMLLog(@"EODatabaseContext",
                                                            @"YYYY valuesGIDs=%@",
@@ -4158,7 +4170,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 	 NSDebugMLLog(@"EODatabaseContext", @"dictionary=%@ ",
 		      [object debugDictionaryDescription]);
 
-       gid = [self _globalIDForObject: object]; //OK
+       gid = EODatabaseContext_globalIDForObjectWithImpPtr(self,NULL,object);
        NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
        databaseOpe = [self databaseOperationForGlobalID: gid]; //OK
@@ -5398,6 +5410,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   NSDictionary *dbSnapshot = nil;
   NSEnumerator *attrNameEnum = nil;
   id attrName = nil;
+  IMP enumNO=NULL; // nextObject
 
   EOFLOGObjectFnStart();
 
@@ -5411,8 +5424,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 	       dbSnapshot, dbSnapshot);
 
   attrNameEnum = [newRow keyEnumerator];
-
-  while ((attrName = [attrNameEnum nextObject]))
+  enumNO=NULL;
+  while ((attrName = GDL2NextObjectWithImpPtr(attrNameEnum,&enumNO)))
     {
       EOAttribute *attribute = [entity attributeNamed: attrName];
       id newRowValue = nil;
@@ -5541,30 +5554,34 @@ Raises an exception is the adaptor is unable to perform the operations.
   NSString* relationshipName = nil;
   IMP globalIDForObjectIMP=NULL;
   IMP toManySnapArrayObjectAtIndexIMP=NULL;
+  IMP objsEnumNO=NULL;
+  IMP objectsOAI=NULL;
 
-  qualifierArray = [NSMutableArray array];
-  valuesArray = [NSMutableArray array];
-  toManySnapshotArray = [NSMutableArray array];
+  qualifierArray = GDL2MutableArray();
+  valuesArray = GDL2MutableArray();
+  toManySnapshotArray = GDL2MutableArray();
   toManySnapArrayObjectAtIndexIMP=[toManySnapshotArray methodForSelector: GDL2_objectAtIndexSEL];
   relationshipName = [relationship name];
 
   objsEnum = [objects objectEnumerator];
-  while ((object = [objsEnum nextObject]))
+  objsEnumNO=NULL;
+  while ((object = GDL2NextObjectWithImpPtr(objsEnum,&objsEnumNO)))
     {
-      values = [NSMutableDictionary dictionaryWithCapacity: 4];
+      IMP joinsEnumNO=NO;
+      values = GDL2MutableDictionaryWithCapacity(4);
 
       fault = [object valueForKey: relationshipName];
       [EOFault clearFault: fault];
 
       joinsEnum = [[relationship joins] objectEnumerator];
-      while ((join = [joinsEnum nextObject]))
+      while ((join = GDL2NextObjectWithImpPtr(joinsEnum,&joinsEnumNO)))
 	{
 	  [values setObject: [object valueForKey: [[join sourceAttribute] name]]
 		  forKey: [[join destinationAttribute] name]];
 	}
 
       [valuesArray addObject: values];
-      [toManySnapshotArray addObject: [NSMutableArray array]];
+      [toManySnapshotArray addObject: GDL2MutableArray()];
 
       [qualifierArray addObject: [EOQualifier qualifierToMatchAllValues:
 						values]];
@@ -5590,18 +5607,22 @@ Raises an exception is the adaptor is unable to perform the operations.
       IMP oaiIMP=[valuesArray methodForSelector: GDL2_objectAtIndexSEL];
 
       objsEnum = [array objectEnumerator];
-      while ((object = [objsEnum nextObject]))
+      objsEnumNO=NULL;
+      while ((object = GDL2NextObjectWithImpPtr(objsEnum,&objsEnumNO)))
         {
+          IMP objectVFK=NULL; // valueForKey:
           for (i = 0; i < count; i++)
             {
+              IMP keyEnumNO=NULL; // nextObject
+              IMP valuesOFK=NULL; // objectForKey:
               equal = YES;
               values = GDL2ObjectAtIndexWithImp(valuesArray,oaiIMP,i);
 
               keyEnum = [values keyEnumerator];
-              while ((key = [keyEnum nextObject]))
+              while ((key = GDL2NextObjectWithImpPtr(keyEnum,&keyEnumNO)))
                 {
-                  if ([[object valueForKey: key]
-                        isEqual: [values objectForKey:key]] == NO)
+                  if ([GDL2ValueForKeyWithImpPtr(object,&objectVFK,key)
+                        isEqual: GDL2ObjectForKeyWithImpPtr(values,&valuesOFK,key)] == NO)
                     {
                       equal = NO;
                       break;
@@ -5613,7 +5634,7 @@ Raises an exception is the adaptor is unable to perform the operations.
                   EOGlobalID* gid = nil;
                   id snapshot = GDL2ObjectAtIndexWithImp(toManySnapshotArray,toManySnapArrayObjectAtIndexIMP,i);
                   
-                  [[[objects objectAtIndex: i] valueForKey: relationshipName]
+                  [[GDL2ObjectAtIndexWithImpPtr(objects,&objectsOAI,i) valueForKey: relationshipName]
                     addObject: object];
                   
                   gid=EOEditingContext_globalIDForObjectWithImpPtr(editingContext,&globalIDForObjectIMP,object);
@@ -5635,7 +5656,7 @@ Raises an exception is the adaptor is unable to perform the operations.
           id snapshot = GDL2ObjectAtIndexWithImp(toManySnapshotArray,toManySnapArrayObjectAtIndexIMP,i);
           EOGlobalID* gid=EOEditingContext_globalIDForObjectWithImpPtr(editingContext,
                                                                        &globalIDForObjectIMP,
-                                                                       [objects objectAtIndex: i]);
+                                                                       GDL2ObjectAtIndexWithImpPtr(objects,&objectsOAI,i));
           [_database recordSnapshot: snapshot
                      forSourceGlobalID: gid
                      relationshipName: relationshipName];
@@ -6914,7 +6935,7 @@ Raises an exception is the adaptor is unable to perform the operations.
     {
 
       BOOL isPKValid = NO;
-      EOGlobalID *gid = [self _globalIDForObject: object]; //OK
+      EOGlobalID *gid = EODatabaseContext_globalIDForObjectWithImpPtr(self,NULL,object);
       NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
 
@@ -6934,11 +6955,12 @@ Raises an exception is the adaptor is unable to perform the operations.
           {
             //merge pk2 into pk
             NSEnumerator *pk2Enum = [pk2 keyEnumerator];
+            IMP pk2EnumNO=NULL; // nextObject
             NSMutableDictionary *realPK 
 	      = [NSMutableDictionary dictionaryWithDictionary: pk];//revoir
             id key = nil;
 
-            while ((key = [pk2Enum nextObject]))
+            while ((key = GDL2NextObjectWithImpPtr(pk2Enum,&pk2EnumNO)))
               {
                 [realPK setObject: [pk2 objectForKey: key]
                         forKey: key];
@@ -7395,3 +7417,27 @@ NSDictionary* EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext*
   else
     return nil;
 };
+
+EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,id object)
+{
+  if (dbContext)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(dbContext)==GDL2EODatabaseContextClass
+              && GDL2EODatabaseContext__globalIDForObjectIMP)
+            imp=GDL2EODatabaseContext__globalIDForObjectIMP;
+          else
+            imp=[dbContext methodForSelector:GDL2__globalIDForObjectSEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(dbContext,GDL2__globalIDForObjectSEL,object);
+    }
+  else
+    return nil;
+};
+

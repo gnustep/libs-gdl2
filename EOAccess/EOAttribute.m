@@ -1136,8 +1136,7 @@ return nexexp
       switch (_argumentType)
         {
 	case EOFactoryMethodArgumentIsNSString:
-	  value = [GDL2NSString_alloc() initWithData: [NSData dataWithBytes: bytes
-                                                               length: length]
+	  value = [GDL2NSString_alloc() initWithData: GDL2DataWithBytesAndLength(bytes,length)
                                      encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
 
 	  value = [(id)valueClass performSelector: _valueFactoryMethod
@@ -1169,7 +1168,7 @@ return nexexp
     
   if(!value)
     value = [GDL2NSString_alloc()
-                               initWithData: [NSData dataWithBytes: bytes length: length]
+                               initWithData: GDL2DataWithBytesAndLength(bytes,length)
                                encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
   
   return value;
@@ -1408,42 +1407,58 @@ return nexexp
                   {
                     if (valueClass == GDL2NSNumberClass)
                       {
-                        if ([[self valueType] isEqualToString: @"i"] == YES)
-                          *valueP = [NSNumber numberWithInt:
-						[*valueP intValue]];
-                        else if ([_valueType isEqualToString: @"I"] == YES)
-                          *valueP = [NSNumber numberWithUnsignedInt:
+                        char valueTypeChar=[self _valueTypeChar];
+                        switch(valueTypeChar)
+                          {
+                          case 'i':
+                            *valueP = [NSNumber numberWithInt:
+                                                  [*valueP intValue]];
+                            break;
+                            case 'I':
+                              *valueP = [NSNumber numberWithUnsignedInt:
+                                                    [*valueP unsignedIntValue]];
+                              break;
+                          case 'c':
+                            *valueP = [NSNumber numberWithChar:
+                                                  [*valueP intValue]];
+                            break;
+                          case 'C':
+                            *valueP = [NSNumber numberWithUnsignedChar:
 						[*valueP unsignedIntValue]];
-                        else if ([_valueType isEqualToString: @"c"] == YES)
-                          *valueP = [NSNumber numberWithChar:
-						[*valueP intValue]];
-                        else if ([_valueType isEqualToString: @"C"] == YES)
-                          *valueP = [NSNumber numberWithUnsignedChar:
-						[*valueP unsignedIntValue]];
-                        else if ([_valueType isEqualToString: @"s"] == YES)
-                          *valueP = [NSNumber numberWithShort:
-						[*valueP shortValue]];
-                        else if ([_valueType isEqualToString: @"S"] == YES)
-                          *valueP = [NSNumber numberWithUnsignedShort:
-						[*valueP unsignedShortValue]];
-                        else if ([_valueType isEqualToString: @"l"] == YES)
-                          *valueP = [NSNumber numberWithLong:
-						[*valueP longValue]];
-                        else if ([_valueType isEqualToString: @"L"] == YES)
-                          *valueP = [NSNumber numberWithUnsignedLong:
-						[*valueP unsignedLongValue]];
-                        else if ([_valueType isEqualToString: @"u"] == YES)
-                          *valueP = [NSNumber numberWithLongLong:
-						[*valueP longLongValue]];
-                        else if ([_valueType isEqualToString: @"U"] == YES)
-                          *valueP = [NSNumber numberWithUnsignedLongLong:
-						[*valueP unsignedLongLongValue]];
-                        else if ([_valueType isEqualToString: @"f"] == YES)
-                          *valueP = [NSNumber numberWithFloat:
-						[*valueP floatValue]];
-                        else
-                          *valueP = [NSNumber numberWithDouble:
-                                                 [*valueP doubleValue]];
+                            break;
+                          case 's':
+                            *valueP = [NSNumber numberWithShort:
+                                                  [*valueP shortValue]];
+                            break;
+                          case 'S':
+                            *valueP = [NSNumber numberWithUnsignedShort:
+                                                  [*valueP unsignedShortValue]];
+                            break;
+                          case 'l':
+                            *valueP = [NSNumber numberWithLong:
+                                                  [*valueP longValue]];
+                            break;
+                          case 'L':
+                            *valueP = [NSNumber numberWithUnsignedLong:
+                                                  [*valueP unsignedLongValue]];
+                            break;
+                          case 'u':
+                            *valueP = [NSNumber numberWithLongLong:
+                                                  [*valueP longLongValue]];
+                            break;
+                          case 'U':
+                            *valueP = [NSNumber numberWithUnsignedLongLong:
+                                                  [*valueP unsignedLongLongValue]];
+                            break;
+                          case 'f':
+                            *valueP = [NSNumber numberWithFloat:
+                                                  [*valueP floatValue]];
+                            break;
+                          default:
+                            *valueP = [NSNumber numberWithDouble:
+                                                  [*valueP doubleValue]];
+                            break;
+                          };
                       }
                     else if (valueClass == GDL2NSDecimalNumberClass)
                       *valueP = [NSDecimalNumber
