@@ -49,9 +49,9 @@ ADDITIONAL_INCLUDE_DIRS = -I..
 
 # Additional LDFLAGS to pass to the linker
 ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lFoundationExt_d -lgnustep-db2_d -lgnustep-db2control_d
+	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lgnustep-db2_d -lgnustep-db2control_d
 else
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lFoundationExt -lgnustep-db2 -lgnustep-db2control
+	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lgnustep-db2 -lgnustep-db2control
 endif
 
 # Additional library directories the linker should search
