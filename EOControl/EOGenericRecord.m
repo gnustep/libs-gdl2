@@ -213,7 +213,7 @@ static const char _c_id[2] = { _C_ID, 0 };
             retSize:size
             retOffset:offset];
 */
-  ok = GSFindInstanceVariable(self, [name cString], type, size, offset);
+  ok = GSObjCFindVariable(self, [name cString], type, size, offset);
 
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			@"Super InstanceVar named %@:%s",
@@ -279,7 +279,7 @@ static const char _c_id[2] = { _C_ID, 0 };
             size:size
             offset:offset];*/
 
-      value = GSGetValue(self, aKey, sel, type, size, offset);
+      value = GSObjCGetValue(self, aKey, sel, type, size, offset);
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value %p (class=%@)",
 			    value, [value class]);
     }
@@ -320,7 +320,7 @@ static const char _c_id[2] = { _C_ID, 0 };
            size:size
            offset:offset];
 */
-    GSSetValue(self, aKey, anObject, sel, type, size, offset);
+    GSObjCSetValue(self, aKey, anObject, sel, type, size, offset);
 
   EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
 }

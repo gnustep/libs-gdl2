@@ -140,7 +140,7 @@ static Class EOFaultClass = NULL;
 
 + (BOOL)respondsToSelector: (SEL)sel
 {
-  return (GSGetInstanceMethod(self, sel) != (GSMethod)0);
+  return (GSGetMethod(self, sel, NO, YES) != (GSMethod)0);
 }
 
 
@@ -326,7 +326,8 @@ static Class EOFaultClass = NULL;
   NSDebugFLLog(@"gsdb", @"class=%@ aSelector=%@", class,
 	       NSStringFromSelector(aSelector));
 
-  respondsToSelector = (GSGetInstanceMethod(class, aSelector) != (GSMethod)0);
+  respondsToSelector 
+    = (GSGetMethod(class, aSelector, YES, YES) != (GSMethod)0);
   NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
 
   return respondsToSelector;

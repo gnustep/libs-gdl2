@@ -21,7 +21,19 @@
 
 	* EOAccess/EOStoredProcedure.m
 	(-[initWithPropertyList:]): Make return type explicit.
-	
+
+	* EOControl/EOGenericRecord.m
+	(-[_infoForInstanceVariableNamed:retType:retSize:retOffset:]):
+	Replace usage of deprecated GSFindInstanceVariable with
+	GSObjCFindVariable.
+	(-[_getValueForKey:selector:type:size:offset:]): Replace
+	usage of deprecated GSGetValue with GSObjCGetValue.
+	(-[_setValueForKey:object:selector:type:size:offset:]): Replace
+	usage of deprecated GSSetValue with GSObjCSetValue.
+
+	* EOControl/EOFault.m (+/-[respondsToSelector:]): Replace usage
+	of deprecated GSGetInstanceMethod with GSGetMethod.
+		
 2004-06-23  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAccessFault.m: Include privat headers locally.
