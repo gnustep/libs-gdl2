@@ -1703,7 +1703,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       NS_DURING
 	{
           value = [object valueForKey: key];
-          if (value == nil || value == [EONull null])
+          if (value == nil || value == [EONull null] || value == [NSNull null])
             isValid = NO;
 	}
       NS_HANDLER

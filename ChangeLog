@@ -1,3 +1,8 @@
+2002-12-07  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOEntity.m ([EOEntity -isPrimaryKeyValidInObject:]): check for NSNull
+	objects.
+
 2002-12-06  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOAccess/EOUtilities.h: added prototype.
