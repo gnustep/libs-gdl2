@@ -1,3 +1,7 @@
+2003-03-06  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/Makefile.preamble:  Fix --disable-flattend.
+
 2003-02-26  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EODebug.h: Include missing header for non-*-gnu-*.
