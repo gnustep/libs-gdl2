@@ -38,6 +38,7 @@
 #import <EOControl/EOKeyValueArchiver.h>
 #import <EOControl/EOGlobalID.h>
 #import <EOControl/EOKeyGlobalID.h>
+#import <EOControl/EOUndoManager.h>
 #import <EOControl/EOObjectStore.h>
 #import <EOControl/EOObjectStoreCoordinator.h>
 #import <EOControl/EOFault.h>

@@ -47,12 +47,14 @@ RCS_ID("$Id$")
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSUtilities.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOAccess.h>
 
 #import <EOControl/EONull.h>
 #import <EOControl/EOQualifier.h>
 #import <EOControl/EOFetchSpecification.h>
+#import <EOControl/EODebug.h>
 
 #import <Postgres95EOAdaptor/Postgres95Channel.h>
 #import <Postgres95EOAdaptor/Postgres95Context.h>

@@ -41,6 +41,7 @@ RCS_ID("$Id$")
 #import <Foundation/NSValue.h>
 #import <Foundation/NSDecimalNumber.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOAccess.h>
 #import <EOAccess/EOAttribute.h>

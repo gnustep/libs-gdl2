@@ -50,12 +50,15 @@ RCS_ID("$Id$")
 #import <Foundation/NSDate.h>
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOAccess.h>
 #import <EOAccess/EOAttribute.h>
 #import <EOAccess/EOExpressionArray.h>
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOModel.h>
+
+#import <EOControl/EODebug.h>
 
 #import <Postgres95EOAdaptor/Postgres95Adaptor.h>
 #import <Postgres95EOAdaptor/Postgres95Context.h>
@@ -360,7 +363,6 @@ static NSString *internalTypeNames[] = {
   pg_pwd = (char*)[[_connectionDictionary objectForKey: @"password"]
                     cString]; 
 
-  NSLog(@"%s %s %s %s %s", pg_host, pg_port, pg_database, pg_user, pg_pwd);
   NSDebugMLog(@"%s %s %s %s %s", pg_host, pg_port, pg_database, pg_user, pg_pwd);
 
   // Try to connect to the Postgres95 server

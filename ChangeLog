@@ -1,3 +1,26 @@
+2003-01-16  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOObserver.m: Added implementation for EODelayedObserver
+	and EODelayedObserverQueue.
+
+2003-01-16  David Ayers <d.ayers@inode.at>
+
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m:
+	Added import of NSDebug.h/EODebug.h
+	Removed NSLog of connection information
+
+	* EOAdaptors/Postgres95/Postgres95Channel.m
+	* EOAdaptors/Postgres95/Postgres95Context.m
+	* EOAdaptors/Postgres95/Postgres95Expression.m
+	* EOAdaptors/Postgres95/Postgres95Value.m:
+	Added import of NSDebug.h/EODebug.h
+
+	* EOControl/EOControl.h:
+	Added import of EOUndoManager.h
+
+	* EOControl/EOObserver.m:
+	Added empty implementation for EOObserverProxy
+
 2002-12-31  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOControl/EOFault.m ([EOFault -editingContext]): simplified.

@@ -39,6 +39,7 @@ RCS_ID("$Id$")
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSEnumerator.h>
+#import <Foundation/NSRunLoop.h>
 #import <Foundation/NSDebug.h>
 
 #import <EOControl/EOClassDescription.h>
@@ -221,6 +222,204 @@ static id lastObject;
 + (void)removeOmniscientObserver: (id <EOObserving>)observer
 {
   [omniscientObservers removeObject: observer];
+}
+
+@end
+
+
+@implementation EODelayedObserver
+
+- (void)objectWillChange: (id)subject
+{
+  [[EODelayedObserverQueue defaultObserverQueue] enqueueObserver: self];
+}
+
+- (EOObserverPriority)priority
+{
+  return EOObserverPriorityThird;
+}
+
+- (EODelayedObserverQueue *)observerQueue
+{
+  return [EODelayedObserverQueue defaultObserverQueue];
+}
+
+- (void)subjectChanged
+{
+}
+
+- (void)discardPendingNotification
+{
+  [[EODelayedObserverQueue defaultObserverQueue] dequeueObserver: self];
+}
+
+@end
+
+
+static EODelayedObserverQueue *observerQueue;
+
+
+@implementation EODelayedObserverQueue
+
++ (EODelayedObserverQueue *)defaultObserverQueue
+{
+  if (!observerQueue)
+    observerQueue = [[self alloc] init];
+
+  return observerQueue;
+}
+
+- init
+{
+  if ((self == [super init]))
+    {
+      ASSIGN(_modes, [NSArray arrayWithObject: NSDefaultRunLoopMode]);
+    }
+
+  return self;
+}
+
+- (void)_notifyObservers
+{
+  [self notifyObserversUpToPriority: EOObserverPrioritySixth];
+}
+
+- (void)enqueueObserver: (EODelayedObserver *)observer
+{
+  EOObserverPriority priority = [observer priority];
+
+  if (priority == EOObserverPriorityImmediate)
+    [observer subjectChanged];
+  else
+    {
+      if (_queue[priority])
+	{
+	  EODelayedObserver *obj = _queue[priority];
+
+	  while (YES)
+	    {
+	      if (obj == observer)
+		return;
+
+	      obj = obj->_next;
+
+	      if (!obj)
+		{
+		  obj->_next = observer;
+
+		  if (priority > _highestNonEmptyQueue)
+		    {
+		      _highestNonEmptyQueue = priority;
+		      _haveEntryInNotificationQueue = YES;
+		    }
+
+		  break;;
+		}
+	    }
+	}
+      else
+	_queue[priority] = observer;
+
+      [[NSRunLoop currentRunLoop]
+	performSelector: @selector(_notifyObservers)
+	target: self
+	argument: nil
+	order: EOFlushDelayedObserversRunLoopOrdering
+	modes: _modes];
+    }
+}
+
+- (void)dequeueObserver: (EODelayedObserver *)observer
+{
+  EOObserverPriority priority;
+  EODelayedObserver *obj, *last = nil;
+
+  if (!observer)
+    return;
+
+  priority = [observer priority];
+  obj = _queue[priority];
+
+  while (obj)
+    {
+      if (obj == observer)
+	{
+	  if (last)
+	    last->_next = obj->_next;
+	  else
+	    _queue[priority] = obj->_next;
+
+
+	  if (!_queue[priority])
+	    {
+	      int i = priority;
+
+	      if (priority >= _highestNonEmptyQueue)
+		{
+		  for (; i > EOObserverPriorityImmediate; --i)
+		    {
+		      if (_queue[priority])
+			{
+			  _highestNonEmptyQueue = priority;
+			  break;
+			}
+		    }
+		}
+
+	      if (priority == EOObserverPriorityFirst
+		  || i == EOObserverPriorityImmediate)
+		{
+		  _highestNonEmptyQueue = EOObserverPriorityImmediate;
+		  _haveEntryInNotificationQueue = NO;
+		}
+	    }
+
+	  return;
+	}
+
+      last = obj;
+      obj = obj->_next;
+    }
+}
+
+- (void)notifyObserversUpToPriority: (EOObserverPriority)priority
+{
+  int i = _highestNonEmptyQueue;
+
+  for (; i > EOObserverPriorityImmediate; i--)
+    {
+      EODelayedObserver *observer = _queue[i];
+
+      while (observer)
+	{
+	  [observer subjectChanged];
+
+	  observer = observer->_next;
+	}
+    }
+}
+
+- (void)setRunLoopModes: (NSArray *)modes
+{
+  ASSIGN(_modes, modes);
+}
+
+- (NSArray *)runLoopModes
+{
+  return _modes;
+}
+
+@end
+
+
+@implementation EOObserverProxy
+
+- initWithTarget: (id)target
+	  action: (SEL)action
+	priority: (EOObserverPriority)priority
+{
+  NSEmitTODO();
+  return [self notImplemented: _cmd]; //TODO
 }
 
 @end
