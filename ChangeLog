@@ -1,5 +1,11 @@
 2002-12-04  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
+	* EOModeler/EOModelExtensions.m ([EOEntity -classAttributes]): 
+	([EOEntity -classScalarAttributes]): 
+	([EOEntity -classNonScalarAttributes]): 
+	([EOEntity -classToManyRelationships]): 
+	([EOEntity -classToOneRelationships]): fixed to use class properties.
+
 	* EOAccess/EOEntity.m ([EOEntity -initWithPropertyList:owner:]): read
 	<entityName>.fspec only if exists.
 

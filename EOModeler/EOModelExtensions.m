@@ -52,7 +52,7 @@
 
 - (NSArray *)classScalarAttributes
 {
-  NSEnumerator *enumerator = [[self attributes] objectEnumerator];
+  NSEnumerator *enumerator = [[self classProperties] objectEnumerator];
   EOAttribute  *attr;
   NSMutableArray *array;
 
@@ -62,7 +62,7 @@
 
   while((attr = [enumerator nextObject]))
     {
-      if([attr isScalar] == YES)
+      if([attr isKindOfClass: [EOAttribute class]] && [attr isScalar] == YES)
 	[array addObject:attr];
     }
 
@@ -73,7 +73,7 @@
 
 - (NSArray *)classNonScalarAttributes
 {
-  NSEnumerator *enumerator = [[self attributes] objectEnumerator];
+  NSEnumerator *enumerator = [[self classProperties] objectEnumerator];
   EOAttribute  *attr;
   NSMutableArray *array;
 
@@ -83,7 +83,7 @@
 
   while((attr = [enumerator nextObject]))
     {
-      if([attr isScalar] == NO)
+      if([attr isKindOfClass: [EOAttribute class]] && [attr isScalar] == NO)
 	[array addObject:attr];
     }
 
@@ -94,7 +94,7 @@
 
 - (NSArray *)classToManyRelationships
 {
-  NSEnumerator *enumerator = [[self relationships] objectEnumerator];
+  NSEnumerator *enumerator = [[self classProperties] objectEnumerator];
   EORelationship *relationship;
   NSMutableArray *array;
 
@@ -104,7 +104,8 @@
 
   while((relationship = [enumerator nextObject]))
     {
-      if([relationship isToMany] == YES)
+      if([relationship isKindOfClass: [EORelationship class]]
+	 && [relationship isToMany] == YES)
 	[array addObject:relationship];
     }
 
@@ -115,7 +116,7 @@
 
 - (NSArray *)classToOneRelationships
 {
-  NSEnumerator *enumerator = [[self relationships] objectEnumerator];
+  NSEnumerator *enumerator = [[self classProperties] objectEnumerator];
   EORelationship *relationship;
   NSMutableArray *array;
 
@@ -125,7 +126,8 @@
 
   while((relationship = [enumerator nextObject]))
     {
-      if([relationship isToMany] == NO)
+      if([relationship isKindOfClass: [EORelationship class]]
+	 && [relationship isToMany] == NO)
 	[array addObject:relationship];
     }
 
