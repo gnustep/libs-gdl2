@@ -92,6 +92,15 @@
 
 	([NSObject-dealloc]): Added hack to automagically deregister
 	objects fromm the editing context and association mappings.
+
+	* EOControl/EOFetchSpecification.h/m 
+	(allVariablesRequiredFromBindings): Rename to
+	requiresAllQualifierBindingVariables.
+	(-setRequiresAllQualifierBindingVariables:)
+	(-requiresAllQualifierBindingVariables): Implement.
+	(-setAllVariablesRequiredFromBindings:)
+	(-allVariablesRequiredFromBindings): Deprecate.
+	Update various setter methods to make them promotion safe.
 	
 2005-02-02  Matt Rice  <ratmice@yahoo.com>
 

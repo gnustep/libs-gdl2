@@ -283,7 +283,7 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
         [unarchiver decodeBoolForKey: @"refreshesRefetchedObjects"];
       _flags.promptsAfterFetchLimit = 
         [unarchiver decodeBoolForKey: @"promptsAfterFetchLimit"];
-      _flags.allVariablesRequiredFromBindings = 
+      _flags.requiresAllQualifierBindingVariables = 
         [unarchiver decodeBoolForKey: @"requiresAllQualifierBindingVariables"];
     }
 
@@ -306,21 +306,21 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
             forKey:@"prefetchingRelationshipKeyPaths"];
   [archiver encodeInt:_fetchLimit
             forKey:@"fetchLimit"];
-  [archiver encodeBool:_flags.usesDistinct
+  [archiver encodeBool:_flags.usesDistinct ? YES : NO
             forKey:@"usesDistinct"];
-  [archiver encodeBool:_flags.isDeep
+  [archiver encodeBool:_flags.isDeep ? YES : NO
             forKey:@"isDeep"];
-  [archiver encodeBool:_flags.locksObjects
+  [archiver encodeBool:_flags.locksObjects ? YES : NO
             forKey:@"locksObjects"];
-  [archiver encodeBool:_flags.refreshesRefetchedObjects
+  [archiver encodeBool:_flags.refreshesRefetchedObjects ? YES : NO
             forKey:@"refreshesRefetchedObjects"];
-  [archiver encodeBool:_flags.promptsAfterFetchLimit
+  [archiver encodeBool:_flags.promptsAfterFetchLimit ? YES : NO
             forKey:@"promptsAfterFetchLimit"];
-  [archiver encodeBool:_flags.refreshesRefetchedObjects
+  [archiver encodeBool:_flags.refreshesRefetchedObjects ? YES : NO
             forKey:@"refreshesRefetchedObjects"];
-  [archiver encodeBool:_flags.promptsAfterFetchLimit
+  [archiver encodeBool:_flags.promptsAfterFetchLimit ? YES : NO
             forKey:@"promptsAfterFetchLimit"];
-  [archiver encodeBool:_flags.allVariablesRequiredFromBindings
+  [archiver encodeBool:_flags.requiresAllQualifierBindingVariables ? YES : NO
             forKey:@"requiresAllQualifierBindingVariables"];
 }
 
@@ -354,7 +354,7 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
   [desc appendString: [NSString stringWithFormat: @"promptsAfterFetchLimit = %s;\n", 
 				_flags.promptsAfterFetchLimit ? "YES" : "NO"]];
   [desc appendString: [NSString stringWithFormat: @"requiresAllQualifierBindingVariables = %s;\n", 
-				_flags.allVariablesRequiredFromBindings ? "YES" : "NO"]];
+				_flags.requiresAllQualifierBindingVariables ? "YES" : "NO"]];
   [desc appendString: @"}"];
 
   return desc;
@@ -392,10 +392,10 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
   return _qualifier;
 }
 
-- (void)setUsesDistinct: (BOOL)usesDistinct
+- (void)setUsesDistinct: (BOOL)flag
 {
   [self willChange];
-  _flags.usesDistinct = usesDistinct;
+  _flags.usesDistinct = flag ? YES : NO;
 }
 
 - (BOOL)usesDistinct
@@ -406,7 +406,7 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
 - (void)setIsDeep: (BOOL)isDeep
 {
   [self willChange];
-  _flags.isDeep = isDeep;
+  _flags.isDeep = isDeep ? YES : NO;
 }
 
 - (BOOL)isDeep
@@ -417,7 +417,7 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
 - (void)setLocksObjects: (BOOL)locksObjects
 {
   [self willChange];  
-  _flags.locksObjects = locksObjects;
+  _flags.locksObjects = locksObjects ? YES : NO;
 }
 
 - (BOOL)locksObjects
@@ -428,7 +428,7 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
 - (void)setRefreshesRefetchedObjects: (BOOL)refreshesRefetchedObjects
 {
   [self willChange];  
-  _flags.refreshesRefetchedObjects = refreshesRefetchedObjects;
+  _flags.refreshesRefetchedObjects = refreshesRefetchedObjects ? YES : NO;
 }
 
 - (BOOL)refreshesRefetchedObjects
@@ -450,7 +450,7 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
 - (void)setPromptsAfterFetchLimit: (BOOL)promptsAfterFetchLimit
 {
   [self willChange];  
-  _flags.promptsAfterFetchLimit = promptsAfterFetchLimit;
+  _flags.promptsAfterFetchLimit = promptsAfterFetchLimit ? YES : NO;
 }
 
 - (BOOL)promptsAfterFetchLimit
@@ -458,14 +458,14 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
   return _flags.promptsAfterFetchLimit;
 }
 
-- (void)setAllVariablesRequiredFromBindings: (BOOL)allVariablesRequired
+- (void)setRequiresAllQualifierBindingVariables: (BOOL)flag
 {
-  _flags.allVariablesRequiredFromBindings = allVariablesRequired;
+  _flags.requiresAllQualifierBindingVariables = flag ? YES : NO;
 }
 
-- (BOOL)allVariablesRequiredFromBindings
+- (BOOL)requiresAllQualifierBindingVariables
 {
-  return _flags.allVariablesRequiredFromBindings;
+  return _flags.requiresAllQualifierBindingVariables;
 }
 
 - (void)setPrefetchingRelationshipKeyPaths: (NSArray *)prefetchingRelationshipKeys
@@ -574,16 +574,20 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
   ASSIGN(_rawAttributeKeys, rawRowKeyPaths);
 }
 
-- (BOOL)requiresAllQualifierBindingVariables
+@end
+
+@implementation EOFetchSpecification (deprecated)
+- (BOOL)allVariablesRequiredFromBindings
 {
-  NSDebugMLLog(@"gsdb", @"self=%p", self);
-  return _flags.allVariablesRequiredFromBindings;
+  NSLog(@"DEPRECATED: Use requiresAllQualifierBindingVariables");
+  return [self requiresAllQualifierBindingVariables];
 }
 
-- (void)setRequiresAllQualifierBindingVariables: (BOOL)flag
+- (void)setAllVariablesRequiredFromBindings: (BOOL)flag
 {
-  [self willChange];  
-  [self notImplemented: _cmd];
+  NSLog(@"DEPRECATED: Use setRequiresAllQualifierBindingVariables:");
+  [self setRequiresAllQualifierBindingVariables: flag];
 }
 
 @end
+

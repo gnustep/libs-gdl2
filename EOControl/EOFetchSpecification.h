@@ -60,7 +60,7 @@
     unsigned locksObjects:1;
     unsigned refreshesRefetchedObjects:1;
     unsigned promptsAfterFetchLimit:1;
-    unsigned allVariablesRequiredFromBindings:1;
+    unsigned requiresAllQualifierBindingVariables:1;
     unsigned reserved:26;
   }_flags;
 }
@@ -127,8 +127,8 @@
 - (void)setPromptsAfterFetchLimit: (BOOL)promptsAfterFetchLimit;
 - (BOOL)promptsAfterFetchLimit;
 
-- (void)setAllVariablesRequiredFromBindings: (BOOL)allVariablesRequired;
-- (BOOL)allVariablesRequiredFromBindings;
+- (void)setRequiresAllQualifierBindingVariables: (BOOL)flag;
+- (BOOL)requiresAllQualifierBindingVariables;
 
 - (void)setPrefetchingRelationshipKeyPaths: (NSArray *)prefetchingRelationshipKeys;
 - (NSArray *)prefetchingRelationshipKeyPaths;
@@ -145,9 +145,6 @@
 
 - (NSArray *)rawRowKeyPaths;
 - (void)setRawRowKeyPaths: (NSArray *)rawRowKeyPaths;
-
-- (BOOL)requiresAllQualifierBindingVariables;
-- (void)setRequiresAllQualifierBindingVariables: (BOOL)flag;
 
 @end
 
