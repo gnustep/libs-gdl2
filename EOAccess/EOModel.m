@@ -661,7 +661,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     {
       if ((self = [self init]))
         {
-          NSString *name;
           NSString *versionString = nil;
           NSArray  *entities = nil;
           int i, count = 0;
@@ -1039,6 +1038,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
         }
       else
         {
+          Class entityClass=Nil;
           classDescription = [entity classDescriptionForInstances];
           EOFLOGObjectLevelArgs(@"gsdb", @"classDescription=%@",
 				classDescription);
@@ -1046,8 +1046,11 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
           entityClassName = [entity className];
           EOFLOGObjectLevelArgs(@"gsdb",@"entityClassName=%@",entityClassName);
 
+          entityClass=NSClassFromString(entityClassName);
+          NSAssert1(entityClass,@"No entity class named '%@'",entityClassName);
+
           [EOClassDescription registerClassDescription: classDescription
-                              forClass: NSClassFromString(entityClassName)];
+                              forClass: entityClass];
 
           /*      classDescription = [[EOClassDescription new] autorelease];
                   EOFLOGObjectLevelArgs(@"gsdb",
@@ -1064,8 +1067,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       //OK
       EOClassDescription *classDescription;
       NSString *entityName = [notification object];
-      EOEntity *entity;
-      NSString *entityClassName;
+      EOEntity *entity = nil;
+      NSString *entityClassName = nil;
+      Class entityClass = Nil;
 
       EOFLOGObjectLevelArgs(@"gsdb", @"notification=%@", notification);
       EOFLOGObjectLevelArgs(@"gsdb", @"entityName=%@", entityName);
@@ -1081,8 +1085,11 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       entityClassName = [entity className];
       EOFLOGObjectLevelArgs(@"gsdb", @"entityClassName=%@", entityClassName);
 
+      entityClass=NSClassFromString(entityClassName);
+      NSAssert1(entityClass,@"No entity class named '%@'",entityClassName);
+
       [EOClassDescription registerClassDescription: classDescription
-                          forClass: NSClassFromString(entityClassName)];//??
+                          forClass:entityClass];//??
     }
   else if ([notificationName
 	     isEqualToString: EOClassDescriptionNeededNotification])
@@ -1464,9 +1471,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 - (void) loadAllModelObjects
 {
-  NSArray *storedProcedures = [self storedProcedures];
+  //Ayers: Review
+  //NSArray *storedProcedures = [self storedProcedures];
   //TODO something if storedProcedures ?
-  NSArray *entities = [self entities];
+  //NSArray *entities = [self entities];
 
   //TODO something if entities ?
   [self willChange];

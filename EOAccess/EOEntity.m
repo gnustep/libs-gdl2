@@ -532,6 +532,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   DESTROY(_snapshotDictionaryInitializer);
   DESTROY(_primaryKeyDictionaryInitializer);
   DESTROY(_propertyDictionaryInitializer);
+  DESTROY(_instanceDictionaryInitializer);
   DESTROY(_snapshotToAdaptorRowSubsetMapping);
   DESTROY(_classForInstances);
 
@@ -930,6 +931,36 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 {
   return _className;
 } 
+
+-(Class)_classForInstances
+{
+  EOFLOGObjectFnStart();
+
+  if (!_classForInstances)
+    {
+      NSString *className = nil;
+      Class objectClass = Nil;
+
+      className = [self className];
+      EOFLOGObjectLevelArgs(@"EOEntity", @"className=%@", className);
+
+      objectClass = NSClassFromString(className);
+
+      if (!objectClass)
+        {
+          NSLog(@"Error: No class named %@", className);
+        }
+      else
+        {
+          EOFLOGObjectLevelArgs(@"EOEntity", @"objectClass=%@", objectClass);
+          ASSIGN(_classForInstances, objectClass);
+        }
+    }
+
+  EOFLOGObjectFnStop();
+
+  return _classForInstances;
+}
 
 - (NSArray *)attributesUsedForLocking
 {
@@ -3067,6 +3098,38 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return dictionaryForProperties;
 }
 
+/** returns a new autoreleased mutable dictionary to store properties 
+returns nil if there's no key in the instanceDictionaryInitializer
+**/
+- (EOMutableKnownKeyDictionary*) _dictionaryForInstanceProperties
+{
+  //OK
+  EOMKKDInitializer *instanceDictionaryInitializer = nil;
+  EOMutableKnownKeyDictionary *dictionaryForProperties = nil;
+
+  EOFLOGObjectFnStart();
+
+  instanceDictionaryInitializer = [self _instanceDictionaryInitializer];
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"instanceDictionaryInitializer=%@",
+			instanceDictionaryInitializer);
+
+  // No need to build the dictionary if there's no key.
+  // The only drawback I see is if someone use extraData feature of MKK dictionary
+  if ([instanceDictionaryInitializer count]>0)
+    {      
+      dictionaryForProperties = [EOMutableKnownKeyDictionary
+                                  dictionaryWithInitializer:
+                                    instanceDictionaryInitializer];
+    };
+  EOFLOGObjectLevelArgs(@"EOEntity", @"dictionaryForProperties=%@",
+			dictionaryForProperties);
+
+  EOFLOGObjectFnStop();
+
+  return dictionaryForProperties;
+}
+
 - (NSArray*) _relationshipsToFaultForRow: (NSDictionary*)row
 {
   NSMutableArray *rels = [NSMutableArray array];
@@ -3391,6 +3454,55 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return _propertyDictionaryInitializer;
 }
 
+- (EOMKKDInitializer*) _instanceDictionaryInitializer
+{
+  //OK
+  // If not already built, built it
+  if (!_instanceDictionaryInitializer)
+    {
+      // Get class properties (EOAttributes + EORelationships)
+      NSArray *classProperties = [self classProperties];
+      NSArray* excludedPropertyNames=nil;
+      NSArray *classPropertyNames = nil;
+      Class classForInstances = [self _classForInstances];
+
+      classPropertyNames = [classProperties resultsOfPerformingSelector: @selector(name)];
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"entity %@ classPropertyNames=%@",
+                            [self name], classPropertyNames);
+
+      excludedPropertyNames = [classForInstances 
+                                _instanceDictionaryInitializerExcludedPropertyNames];
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"entity %@ excludedPropertyNames=%@",
+                            [self name], excludedPropertyNames);
+
+      if ([excludedPropertyNames count]>0)
+        {
+          NSMutableArray* mutableClassPropertyNames=[classPropertyNames mutableCopy];
+          [mutableClassPropertyNames removeObjectsInArray:excludedPropertyNames];
+          classPropertyNames=AUTORELEASE(mutableClassPropertyNames);
+        };
+      
+      EOFLOGObjectLevelArgs(@"EOEntity", @"entity %@ classPropertyNames=%@",
+                            [self name], classPropertyNames);
+      
+      NSAssert1([classProperties count] > 0,
+                @"No classProperties in entity %@", [self name]);
+      NSAssert1([classPropertyNames count] > 0,
+                @"No classPropertyNames in entity %@", [self name]);
+      
+      //Build the multiple known key initializer
+      _instanceDictionaryInitializer = [EOMKKDInitializer
+                                         newWithKeyArray: classPropertyNames];
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"_instanceDictionaryInitializer=%@",
+                            _instanceDictionaryInitializer);
+    }
+
+  return _instanceDictionaryInitializer;
+}
+
 - (void) _setModel: (EOModel *)model
 {
   EOFLOGObjectFnStart();
@@ -3481,6 +3593,11 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 			(_propertyDictionaryInitializer ? "Not NIL" : "NIL"));
   AUTORELEASE_SETNIL(_propertyDictionaryInitializer);
 
+  EOFLOGObjectLevelArgs(@"EOEntity",@"_instanceDictionaryInitializer: %p %s",
+			_instanceDictionaryInitializer,
+			(_instanceDictionaryInitializer ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_instanceDictionaryInitializer);
+
   //TODO call _flushCache on each attr
   NSAssert4(!_attributesToFetch
 	    || [_attributesToFetch isKindOfClass: [NSArray class]],
@@ -3549,32 +3666,17 @@ createInstanceWithEditingContext:globalID:zone:
 */
   return gid;
 }
-                                                          
+
 -(Class)classForObjectWithGlobalID: (EOKeyGlobalID*)globalID
 {
   //near OK
+  Class classForInstances = _classForInstances;
   EOFLOGObjectFnStart();
 
   //TODO:use globalID ??
-  if (!_classForInstances)
+  if (!classForInstances)
     {
-      NSString *className;
-      Class objectClass;
-
-      className = [self className];
-      EOFLOGObjectLevelArgs(@"EOEntity", @"className=%@", className);
-
-      objectClass = NSClassFromString(className);
-
-      if (!objectClass)
-        {
-          NSLog(@"Error: No class named %@", className);
-        }
-      else
-        {
-          EOFLOGObjectLevelArgs(@"EOEntity", @"objectClass=%@", objectClass);
-          ASSIGN(_classForInstances, objectClass);
-        }
+      classForInstances = [self _classForInstances];
     }
 
   EOFLOGObjectFnStop();
@@ -3736,10 +3838,11 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 
 - (NSDictionary *)_keyMapForRelationshipPath: (NSString *)path
 {
+  //Ayers: Review
   //NearOK
   NSMutableArray *sourceKeys = [NSMutableArray array];
   NSMutableArray *destinationKeys = [NSMutableArray array];
-  NSArray *attributesToFetch = [self _attributesToFetch]; //Use It !!
+  //NSArray *attributesToFetch = [self _attributesToFetch]; //Use It !!
   EORelationship *relationship = [self anyRelationshipNamed: path]; //?? iterate on path ? //TODO
 
   NSEmitTODO();  //TODO
@@ -3833,12 +3936,18 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
                   objectToken = [NSString stringWithCString:start
                                           length: (unsigned)(s - start)];
               
+                  EOFLOGObjectLevelArgs(@"EOEntity", @"objectToken: '%@'",
+					objectToken);
+
                   expr = [self _parsePropertyName: objectToken];
+
+                  EOFLOGObjectLevelArgs(@"EOEntity", @"expr: '%@'",
+					expr);
 
                   if (expr)
                     objectToken = expr;
 
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"addObject:%@",
+                  EOFLOGObjectLevelArgs(@"EOEntity", @"addObject I Token: '%@'",
 					objectToken);
 
                   [expressionArray addObject: objectToken];
@@ -3873,7 +3982,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
                   objectToken = [NSString stringWithCString: start
                                           length: (unsigned)(s - start)];
 
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"addObject:%@",
+                  EOFLOGObjectLevelArgs(@"EOEntity", @"addObject O Token: '%@'",
 					objectToken);
 
                   [expressionArray addObject: objectToken];
@@ -3917,7 +4026,6 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 
 - (EOExpressionArray*) _parseRelationshipPath: (NSString*)path
 {
-  //Near OK quotationPlace.quotationPlaceLabels
   EOEntity *entity = self;
   EOExpressionArray *expressionArray = nil;
   NSArray *components = nil;
@@ -3981,22 +4089,23 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
         }
       else
         {
-          NSDebugMLog(@"self %p name=%@: relationship \"%@\" used in \"%@\" doesn't exist in entity %@",
+          NSDebugMLog(@"self %p name=%@: relationship \"%@\" used in \"%@\" doesn't exist in entity \"%@\"",
 		      self,
                       [self name],
-                      path,
                       part,
-                      entity);
+                      path,
+                      [entity name]);
 
           //EOF don't throw exception. But we do !
           [NSException raise: NSInvalidArgumentException
-                       format: @"%@ -- %@ 0x%x: relationship \"%@\" used in \"%@\" doesn't exist in entity %@",
+                       format: @"%@ -- %@ 0x%x: entity name=%@: relationship \"%@\" used in \"%@\" doesn't exist in entity \"%@\"",
                        NSStringFromSelector(_cmd),
                        NSStringFromClass([self class]),
                        self,
-                       path,
+                       [self name],
                        part,
-                       entity];
+                       path,
+                       [entity name]];
         }
     }
   EOFLOGObjectLevelArgs(@"EOEntity", @"self=%p expressionArray=%@",
@@ -4426,10 +4535,11 @@ if someone has an example of EOF creating an object here without propagatesPrima
 
 - (NSString *)inverseForRelationshipKey: (NSString *)relationshipKey
 {
+  //Ayers: Review
   //Near OK
   NSString *inverseName = nil;
   EORelationship *relationship = [_entity relationshipNamed: relationshipKey];
-  EOEntity *parentEntity = [_entity parentEntity];
+  //EOEntity *parentEntity = [_entity parentEntity];
   //TODO what if parentEntity
   EORelationship *inverseRelationship = [relationship inverseRelationship];
 
@@ -4518,4 +4628,33 @@ if someone has an example of EOF creating an object here without propagatesPrima
   return exception;
 }
 
+/** returns a new autoreleased mutable dictionary to store properties 
+returns nil if there's no key in the instanceDictionaryInitializer
+**/
+- (EOMutableKnownKeyDictionary*) dictionaryForInstanceProperties
+{
+  EOMutableKnownKeyDictionary* dict = nil;
+
+  EOFLOGObjectFnStart();
+
+  NSAssert(_entity,@"No entity");
+
+  dict = [_entity _dictionaryForInstanceProperties];
+
+  EOFLOGObjectFnStop();
+
+  return dict;
+};
 @end
+
+
+@implementation NSObject (EOEntity)
+/** should returns a set of property names to exclude from entity 
+instanceDictionaryInitializer **/
++ (NSArray *)_instanceDictionaryInitializerExcludedPropertyNames
+{
+  // default implementation returns nil
+  return nil;
+};
+@end
+

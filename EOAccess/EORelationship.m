@@ -366,6 +366,10 @@ RCS_ID("$Id$")
                             _entity);
 
                   destinationEntity = [self destinationEntity];
+                  NSAssert3(destinationEntity,@"No destination entity for relationship named '%@' in entity named '%@': %@",
+                            [self name],
+                            [[self entity]name],
+                            self);
                   destinationAttributeName = [joinPList
 					       objectForKey:
 						 @"destinationAttribute"];
@@ -832,6 +836,7 @@ to know what to-many mean :-)  **/
 - (BOOL)isReciprocalToRelationship: (EORelationship *)relationship
 {
   //Should be OK
+  //Ayers: Review
   BOOL isReciprocal = NO;
   EOEntity *entity;
   EOEntity *relationshipDestinationEntity = nil;
@@ -890,8 +895,18 @@ to know what to-many mean :-)  **/
             }
           else
             {
+              //Just do nothing and try another relationship.
+              // Is it the good way ?
+              /*
               NSEmitTODO(); //TODO
+              NSDebugMLog(@"entity %p name=%@ self name=%@ relationship name=%@ relationshipDestinationEntity %p name=%@",
+                          entity, [entity name],
+                          [self name],
+                          [relationship name],
+                          relationshipDestinationEntity,
+                          [relationshipDestinationEntity name]);
               [self notImplemented: _cmd]; //TODO
+              */
             }
         }
       else

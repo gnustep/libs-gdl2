@@ -12,7 +12,7 @@
 		o added missing number types
 		o introducing new number types: 
 		('u' for long long / int8 and 'U' for unsigned long long)
-	* EOControl/EONSAddOns.h/m
+	* EOControl/EONSAddOns.m/.h
 		o added number accessors for NSString
 		o added NSObject
 		  -performSelector:withObject:withObject:withObject:
@@ -22,6 +22,23 @@
 		  with more than one attribute for PK)
 	* EOAccess/EODatabaseContextPriv.h
 		o added -_primaryKeyForObject:raiseException:
+	* EOAccess/EOEntity.m/.h:
+		o added _instanceDictionaryInitializer. 
+		  Permit to have a restricted dictionary initializer 
+		  (i.e. propertyDictionaryInitializer minus instance 
+			object ivars).
+		o added NSObject 
+		  +_instanceDictionaryInitializerExcludedPropertyNames
+		o more information in log/exception in _parseRelationshipPath
+		o added -_instanceDictionaryInitializer
+		o added - _dictionaryForInstanceProperties
+		o added -_classForInstances
+	* EOAccess/EOModel.m:
+		o added asserts
+		o clean warnings
+	* EOAccess/EORelationship.m:
+		o asserts
+		o fix in -isReciprocalToRelationship:
 	
 2003-10-24  David Ayers  <d.ayers@inode.at>
 

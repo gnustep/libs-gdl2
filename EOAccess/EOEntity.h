@@ -85,6 +85,7 @@
   EOMKKDInitializer* _snapshotDictionaryInitializer;
   EOMKKDInitializer* _primaryKeyDictionaryInitializer;
   EOMKKDInitializer* _propertyDictionaryInitializer;
+  EOMKKDInitializer* _instanceDictionaryInitializer;
   EOMKKDSubsetMapping* _snapshotToAdaptorRowSubsetMapping;
 
   Class _classForInstances;
@@ -157,6 +158,8 @@
 
 /* Accessing the enterprise object class */
 - (NSString*)className; 
+
+-(Class)_classForInstances;
 
 /* Accessing attributes */
 - (EOAttribute *)attributeNamed: (NSString *)attributeName;
@@ -335,6 +338,7 @@ GDL2ACCESS_EXPORT NSString *EONextPrimaryKeyProcedureOperation;
 - (EOMKKDSubsetMapping*) _snapshotToAdaptorRowSubsetMapping;
 - (EOMutableKnownKeyDictionary*) _dictionaryForPrimaryKey;
 - (EOMutableKnownKeyDictionary*) _dictionaryForProperties;
+- (EOMutableKnownKeyDictionary*) _dictionaryForInstanceProperties;
 - (NSArray*) _relationshipsToFaultForRow: (NSDictionary*)row;
 - (NSArray*) _classPropertyAttributes;
 - (NSArray*) _attributesToSave;
@@ -343,6 +347,7 @@ GDL2ACCESS_EXPORT NSString *EONextPrimaryKeyProcedureOperation;
 - (EOMKKDInitializer*) _snapshotDictionaryInitializer;
 - (EOMKKDInitializer*) _primaryKeyDictionaryInitializer;
 - (EOMKKDInitializer*) _propertyDictionaryInitializer;
+- (EOMKKDInitializer*) _instanceDictionaryInitializer;
 - (void) _setModel: (EOModel*)model;
 - (void) _setIsEdited;
 - (NSArray*) _classPropertyAttributes;
@@ -363,6 +368,10 @@ GDL2ACCESS_EXPORT NSString *EONextPrimaryKeyProcedureOperation;
 /** returns entity **/
 - (EOEntity *)entity;
 
+/** returns a new autoreleased mutable dictionary to store properties 
+returns nil if there's no key in the instanceDictionaryInitializer
+**/
+- (EOMutableKnownKeyDictionary*) dictionaryForInstanceProperties;
 @end
 
 @interface NSString (EODatabaseNameConversion)
@@ -374,6 +383,12 @@ GDL2ACCESS_EXPORT NSString *EONextPrimaryKeyProcedureOperation;
                           separatorString: (NSString *)separatorString
                                useAllCaps: (BOOL)allCaps;
 
+@end
+
+@interface NSObject (EOEntity)
+/** should returns an array of property names to exclude from entity 
+instanceDictionaryInitializer **/
++ (NSArray *)_instanceDictionaryInitializerExcludedPropertyNames;
 @end
 
 #endif /* __EOEntity_h__ */
