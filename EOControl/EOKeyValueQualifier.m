@@ -116,27 +116,27 @@ operatorSelector: (SEL)selector
 
   if (sel_eq(_selector, EOQualifierOperatorEqual) == YES)
     {
-      return [key compare: _value] == NSOrderedSame;
+      return [(NSString *)key compare: _value] == NSOrderedSame;
     }
   else if (sel_eq(_selector, EOQualifierOperatorNotEqual) == YES)
     {
-      return [key compare: _value] != NSOrderedSame;
+      return [(NSString *)key compare: _value] != NSOrderedSame;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThan) == YES)
     {
-      return [key compare: _value] == NSOrderedAscending;
+      return [(NSString *)key compare: _value] == NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThan) == YES)
     {
-      return [key compare: _value] == NSOrderedDescending;
+      return [(NSString *)key compare: _value] == NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
     {
-      return [key compare: _value] != NSOrderedDescending;
+      return [(NSString *)key compare: _value] != NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
     {
-      return [key compare: _value] != NSOrderedAscending;
+      return [(NSString *)key compare: _value] != NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorContains) == YES)
     {

@@ -62,12 +62,12 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 
 - (void)dealloc
 {
-  NSDebugMLog(@"dealloc coordinator");
+  NSDebugMLog(@"dealloc coordinator", "");
   DESTROY(_stores);
   DESTROY(_userInfo);
 
   [super dealloc];
-  NSDebugMLog(@"dealloc coordinator end");
+  NSDebugMLog(@"dealloc coordinator end", "");
 }
 
 - (void)addCooperatingObjectStore: (EOCooperatingObjectStore *)store

@@ -47,8 +47,12 @@ RCS_ID("$Id$")
 #import <EOControl/EOCheapArray.h>
 #import <EOControl/EODebug.h>
 
+#include <gnustep/base/objc-gnu2next.h>
+
 
 //?? #define NOT_FOUND_CLASS_DESCRIPTION ([NSObject class]) //we use NSObject class as a "not found" value*******
+// NOTE: (stephane@sente.ch) Should we subclass NSClassDescription?
+
 @implementation EOClassDescription
 
 

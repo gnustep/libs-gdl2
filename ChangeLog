@@ -1,3 +1,60 @@
+2003-02-04  Stephane Corthesy	<stephane@sente.ch>
+
+	* Tools/eoutil.m: implemented.
+
+	* EOAndQualifier.m: replaced autorelease by AUTORELEASE
+	* EOClassDescription.m: added #include <gnustep/base/objc-gnu2next.h>
+	and note about subclassing NSClassDescription
+	* EOEditingContext.m: removed EOAccess inclusion; note that we need to
+	rewrite -faultForRawRow:entityNamed:editingContext: to break dependency
+	to EOAccess
+	* EOFault.m: implemented +doesNotRecognizeSelector:
+	* EOFaultHandler.m: added #include <objc/objc-class.h> and #include
+	<objc/Protocol.h>
+	* EOFetchSpecification.m: added #import <Foundation/NSDictionary.h>
+	* EOGenericRecord.h: declaration of -valueForKey: and
+	-takeValue:forKey: needs to be done only when !FOUNDATION_HAS_KVC
+	* EOGenericRecord.m: removed #import <EOAccess/EOEntity.h> and #import
+	<EOAccess/EORelationship.h>; added #include <objc/objc-class.h>;
+	declared +eoCalculateSizeWith:forArray:; corrected +initialize (doesn't
+	return a value); renamed +removeDestoyedObject: to
+	+removeDestroyedObject:; modified
+	-initWithEditingContext:classDescription:globalID: to no longer depend
+	on EOAccess via EOEntity; some methods need to be implemented only when
+	!FOUNDATION_HAS_KVC (else they are already correctly implemented in
+	NSObject), some others only when FOUNDATION_HAS_KVC
+	(-handleQueryWithUnboundKey: and handleTakeValue:forUnboundKey:); in
+	-smartTakeValue:forKey:, removed dependency to EOAccess via
+	EORelationship; corrected problem with macro NSDebugMLog, which should
+	be replaced by other macro anyway; modified -eoCalculateSizeWith: to no
+	longer depend on EOAccess via EOEntity
+	* EOGlobalID.m: added #include <stdio.h> and #include <string.h>; added
+	cast in +assignGloballyUniqueBytes:
+	* EOKeyComparisonQualifier.m: added casts
+	* EOKeyGlobalID.m: replaced retain by RETAIN
+	* EOKeyValueCoding.h: removed #import
+	<EOControl/EOKeyValueCodingBase.h>; added - (id)storedValueForKeyPath:
+	(NSString *)key; declared some methods only when !FOUNDATION_HAS_KVC;
+	declared hidden methods for MacOS X.
+	* EOKeyValueCoding.m: added #include <ctype.h>; implemented some
+	methods only when !FOUNDATION_HAS_KVC; corrected problem with macros
+	NSDebugMLog/NSWarnLog, which should be replaced by other macro anyway;
+	declared -[NSMutableDictionary(EOKeyValueCodingPrivate)
+	takeValue:forKeyPath:isSmart:]; corrected zombie in
+	-[NSMutableDictionary(EOKeyValueCoding) takeValue:forKeyPath:isSmart:]
+	* EOKeyValueQualifier: added casts
+	* EOMutableKnownKeyDictionary.m: added #warning about missing method;
+	moved method implementation to avoid warning
+	* EONSAddOns.m: added casts
+	* EOObjectStoreCoordinator.m: corrected problem with macro NSDebugMLog,
+	which should be replaced by other macro anyway
+	* EOQualifier.m: added #include <gnustep/base/GSObjCRuntime.h>;
+	corrected problem with macro NSDebugLog, which should be replaced by
+	other macro anyway; replaced retain by RETAIN; in -doesContain:, no
+	need to test against NSMutableArray class
+	* EOSortOrdering.m: replaced retain by RETAIN; avoid autoreleased
+	objects; replaced mutableCopy by initWithArray:copyItems:
+
 2003-02-03  Stephane Corthesy	<stephane@sente.ch>
 
 	* Postgres95Adaptor.m: made some changes to externalTypeNames (needs

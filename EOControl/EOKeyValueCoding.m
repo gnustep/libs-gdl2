@@ -55,6 +55,7 @@ RCS_ID("$Id$")
 #import <Foundation/NSDebug.h>
 
 #include <objc/objc-api.h>
+#include <ctype.h>
 
 #import <EOControl/EOKeyValueCoding.h>
 #import <EOControl/EONSAddOns.h>
@@ -145,6 +146,7 @@ RCS_ID("$Id$")
   return obj;
 }
 
+#if !FOUNDATION_HAS_KVC
 - (void)takeStoredValuesFromDictionary: (NSDictionary *)dictionary
 {
   NSEnumerator *keyEnum;
@@ -167,6 +169,7 @@ RCS_ID("$Id$")
 
   EOFLOGObjectFnStopCond(@"EOKVC");
 }
+#endif /* !FOUNDATION_HAS_KVC */
 
 - (NSDictionary *)storedValuesForKeyPaths: (NSArray *)keyPaths
 {
@@ -315,7 +318,7 @@ RCS_ID("$Id$")
       if (warnedCount == NO)
         {
           warnedCount = YES;
-          NSWarnLog(@"use of special 'count' key may works differently with only foundation base");
+          NSWarnLog(@"use of special 'count' key may works differently with only foundation base", "");
         }
       result = [super valueForKey: key];
     }
@@ -396,7 +399,7 @@ RCS_ID("$Id$")
       if (warnedCount == NO)
         {
           warnedCount = YES;
-          NSWarnLog(@"use of special 'count' key may works differently with only foundation base");
+          NSWarnLog(@"use of special 'count' key may works differently with only foundation base", "");
         }
       result = [super valueForKeyPath: keyPath];
     }
@@ -518,6 +521,7 @@ RCS_ID("$Id$")
 
 @implementation NSDictionary (EOKeyValueCoding)
 
+#if !FOUNDATION_HAS_KVC
 - (id)valueForKey:(NSString *)key
 {
   id value;
@@ -536,7 +540,7 @@ RCS_ID("$Id$")
           if (warnedAllValues == NO)
             {
               warnedAllValues = YES;
-              NSWarnLog(@"use of special 'allValues' key works differently with only foundation base");
+              NSWarnLog(@"use of special 'allValues' key works differently with only foundation base", "");
             }
 
           value = [self allValues];
@@ -547,7 +551,7 @@ RCS_ID("$Id$")
           if (warnedAllKeys == NO)
             {
               warnedAllKeys = YES;
-              NSWarnLog(@"use of special 'allKeys' key works differently with only foundation base");
+              NSWarnLog(@"use of special 'allKeys' key works differently with only foundation base", "");
             }
 
           value = [self allKeys];
@@ -558,7 +562,7 @@ RCS_ID("$Id$")
           if (warnedCount == NO)
             {
               warnedCount = YES;
-              NSWarnLog(@"use of special 'count' key works differently with only foundation base");
+              NSWarnLog(@"use of special 'count' key works differently with only foundation base", "");
             }
 
           value = [NSNumber numberWithInt: [self count]];
@@ -681,6 +685,7 @@ RCS_ID("$Id$")
 
   return value;
 }
+#endif /* !FOUNDATION_HAS_KVC */
 
 - (id)storedValueForKeyPath: (NSString*)keyPath
 {
@@ -768,8 +773,15 @@ RCS_ID("$Id$")
 @end
 
 
+@interface NSMutableDictionary(EOKeyValueCodingPrivate)
+- (void)takeValue: (id)value
+       forKeyPath: (NSString *)keyPath
+          isSmart: (BOOL)smartFlag;
+@end
+
 @implementation NSMutableDictionary (EOKeyValueCoding)
 
+#if !FOUNDATION_HAS_KVC
 - (void)takeValue: (id)value 
            forKey: (NSString *)key
 {
@@ -797,6 +809,7 @@ RCS_ID("$Id$")
 
   EOFLOGObjectFnStopCond(@"EOKVC");
 }
+#endif /* !FOUNDATION_HAS_KVC */
 
 - (void)smartTakeValue: (id)value 
             forKeyPath: (NSString*)keyPath
@@ -806,6 +819,7 @@ RCS_ID("$Id$")
         isSmart:YES];
 }
 
+#if !FOUNDATION_HAS_KVC
 - (void)takeValue: (id)value
        forKeyPath: (NSString *)keyPath
 {
@@ -813,6 +827,7 @@ RCS_ID("$Id$")
         forKeyPath:keyPath
         isSmart:NO];
 }
+#endif /* !FOUNDATION_HAS_KVC */
 
 - (void)takeValue: (id)value
        forKeyPath: (NSString *)keyPath
@@ -837,7 +852,7 @@ RCS_ID("$Id$")
 
           //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
 
-          tmpKey = [keyPathArray objectAtIndex: 0];
+          tmpKey = RETAIN([keyPathArray objectAtIndex: 0]);
           //EOFLOGObjectLevelArgs(@"EOKVC", @"tmpKey=%@", tmpKey);
 
           [keyPathArray removeObjectAtIndex: 0];
@@ -846,12 +861,14 @@ RCS_ID("$Id$")
             [key appendString: @"."];
           if ([tmpKey hasSuffix: @"'"])
             {
-              tmpKey = [tmpKey stringByDeletingSuffix: @"'"];
+              ASSIGN(tmpKey, [tmpKey stringByDeletingSuffix: @"'"]);
               [key appendString: tmpKey];
               break;
             }
           else
 	    [key appendString: tmpKey];
+
+          RELEASE(tmpKey);
 
           //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@", key);
         }

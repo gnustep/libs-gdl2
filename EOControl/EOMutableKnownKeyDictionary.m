@@ -472,6 +472,7 @@ RCS_ID("$Id$")
 + (id)dictionaryFromDictionary: (NSDictionary *)dict
 		 subsetMapping: (EOMKKDSubsetMapping *)subsetMapping
 {
+#warning (stephane@sente.ch) Method is really not implemented!
   return [[self newDictionaryFromDictionary: dict
                 subsetMapping: subsetMapping
                 zone: NULL] autorelease];
@@ -517,14 +518,6 @@ RCS_ID("$Id$")
 
 
 @implementation EOMutableKnownKeyDictionary
-
-+ (id)dictionaryFromDictionary: (NSDictionary *)dict
-		 subsetMapping: (EOMKKDSubsetMapping *)subsetMapping
-{
-  return [[self newDictionaryFromDictionary: dict
-                subsetMapping: subsetMapping
-                zone: NULL] autorelease];
-}
 
 + (id)newDictionaryFromDictionary: (NSDictionary*)dict
 		    subsetMapping: (EOMKKDSubsetMapping*)subsetMapping
@@ -582,6 +575,14 @@ RCS_ID("$Id$")
   EOFLOGObjectLevel(@"EOMKKD", @"END");
 
   return newDict;
+}
+
++ (id)dictionaryFromDictionary: (NSDictionary *)dict
+                       subsetMapping: (EOMKKDSubsetMapping *)subsetMapping
+{
+  return [[self newDictionaryFromDictionary: dict
+		subsetMapping: subsetMapping
+		zone: NULL] autorelease];
 }
 
 + (id)newDictionaryWithObjects: (id*)objects

@@ -49,6 +49,12 @@ RCS_ID("$Id$")
 #import <EOControl/EOFault.h>
 #import <EOControl/EODebug.h>
 
+#ifndef GNU_RUNTIME
+#include <objc/objc-class.h>
+#endif
+
+#include <objc/Protocol.h>
+
 
 BOOL __isGCEnabled(Class class_)
 {

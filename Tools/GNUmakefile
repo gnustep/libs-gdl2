@@ -32,7 +32,7 @@ include $(GNUSTEP_MAKEFILES)/common.make
 include ../Version
 
 # The library to be compiled
-TOOL_NAME=gdlgsdoc
+TOOL_NAME=gdlgsdoc eoutil
 
 LIBRARIES_DEPEND_UPON=-lgnustep-base -lgnustep-db2control -lgnustep-db2
 
@@ -79,6 +79,11 @@ gdl2gsdoc_AGSDOC_FLAGS = \
 	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
 	}' -Up gdl2gsdoc
+
+
+eoutil_OBJC_FILES = eoutil.m
+
+eoutil_HEADER_FILES = 
 
 
 -include Makefile.preamble

@@ -48,7 +48,8 @@ RCS_ID("$Id$")
 #import <EOControl/EONSAddOns.h>
 #import <EOControl/EODebug.h>
 
-#import <EOAccess/EOEntity.h>
+
+@class EOEntityClassDescription;
 
 
 @implementation EOEditingContext
@@ -2487,6 +2488,7 @@ modified state of the object.**/
 
   classDesc = (id)[EOClassDescription classDescriptionForEntityName:
 					entityName];
+#warning (stephane@sente.ch) ERROR: trying to use EOEntity/EOEntityDescription which are defined in EOAccess
   globalID = [[classDesc entity] globalIDForRow: row];
   object = [self objectForGlobalID: globalID];
 

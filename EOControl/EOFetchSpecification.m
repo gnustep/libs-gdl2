@@ -36,6 +36,7 @@
 RCS_ID("$Id$")
 
 #import <Foundation/NSCoder.h>
+#import <Foundation/NSDictionary.h>
 #import <Foundation/NSValue.h>
 #import <Foundation/NSDebug.h>
 

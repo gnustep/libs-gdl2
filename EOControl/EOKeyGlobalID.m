@@ -160,7 +160,7 @@ RCS_ID("$Id$")
   self = [super init];
 
   [coder decodeValueOfObjCType: @encode(unsigned short) at: &_keyCount];
-  _entityName = [[coder decodeObject] retain];
+  _entityName = RETAIN([coder decodeObject]);
 
   _keyValues = NSZoneMalloc([coder objectZone], _keyCount);
   [coder decodeArrayOfObjCType: @encode(id) count: _keyCount at: _keyValues];

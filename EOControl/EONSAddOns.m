@@ -422,7 +422,7 @@ RCS_ID("$Id$")
 
 - (NSComparisonResult)eoCompareOnName: (id)object
 {
-  return [[self name] compare: [object name]];
+  return [(NSString *)[(id)self name] compare: [object name]];
 }
 
 @end

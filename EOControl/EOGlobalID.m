@@ -41,6 +41,8 @@ RCS_ID("$Id$")
 #import <EOControl/EOGlobalID.h>
 #import <EOControl/EODebug.h>
 
+#include <stdio.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -114,7 +116,7 @@ static unsigned long sequenceRev = 0;
            sequence-- % 0xff, 
            getpid() % 0xff, 
            (unsigned int)time( NULL ) % 0xffff,
-           sequenceRev++ % 0xffff);
+           (unsigned int)sequenceRev++ % 0xffff);
 
   if (sequence == 0)
     sequence = 65535;

@@ -118,7 +118,7 @@ typedef struct {
 
 + (BOOL)isKindOfClass: (Class)aClass
 {
-  if(aClass == [EOFault class])
+  if (aClass == [EOFault class])
     return YES;
 
   return NO;
@@ -126,8 +126,12 @@ typedef struct {
 
 + (void)doesNotRecognizeSelector: (SEL)sel
 {
-  return;
-  [self notImplemented: _cmd];
+  [NSException raise: NSInvalidArgumentException
+	       format: @"%@ -- %@ 0x%x: selector \"%@\" not recognized",
+	       NSStringFromSelector(_cmd),
+	       NSStringFromClass([self class]),
+	       self,
+	       NSStringFromSelector(sel)];
 }
 
 + (BOOL)respondsToSelector: (SEL)sel

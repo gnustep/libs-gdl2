@@ -51,9 +51,11 @@
         classDescription: (EOClassDescription *)classDesc
                 globalID: (EOGlobalID *)globalID;
 
+#if !FOUNDATION_HAS_KVC
 - (id)valueForKey: (NSString *)key;
 - (void)takeValue: (id)value
            forKey: (NSString *)key;
+#endif
 
 + (void)eoCalculateAllSizeWith: (NSMutableDictionary*)dict;
 - (unsigned int)eoCalculateSizeWith: (NSMutableDictionary*)dict;

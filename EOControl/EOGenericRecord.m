@@ -49,9 +49,6 @@ RCS_ID("$Id$")
 
 #import <gnustep/base/GSObjCRuntime.h>
 
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EORelationship.h>
-
 #import <EOControl/EOClassDescription.h>
 #import <EOControl/EOGenericRecord.h>
 #import <EOControl/EONull.h>
@@ -60,6 +57,10 @@ RCS_ID("$Id$")
 #import <EOControl/EOMutableKnownKeyDictionary.h>
 #import <EOControl/EODebug.h>
 #import <EOControl/EOKeyValueCoding.h>
+
+#ifndef GNU_RUNTIME
+#include <objc/objc-class.h>
+#endif
 
 
 @interface NSObject (EOCalculateSize)
@@ -84,6 +85,11 @@ RCS_ID("$Id$")
 			   forFault: (id)object;
 @end
 
+@interface EOGenericRecord(EOCalculateSize)
++ (unsigned int)eoCalculateSizeWith: (NSMutableDictionary *)dict
+                           forArray: (NSArray *)array;
+@end
+
 
 static NSHashTable *allGenericRecords = NULL;
 static NSRecursiveLock *allGenericRecordsLock = nil;  
@@ -93,14 +99,13 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 
 + (void) initialize
 {
-  if ([[super superclass] initialize])
+  [[super superclass] initialize];
+
+  if (self == [EOGenericRecord class] && !allGenericRecords)
     {
-      if (self == [EOGenericRecord class])
-        {
-          allGenericRecords = NSCreateHashTable(NSNonOwnedPointerHashCallBacks,
-						1000);
-          allGenericRecordsLock = [NSRecursiveLock new];
-        }
+      allGenericRecords = NSCreateHashTable(NSNonOwnedPointerHashCallBacks,
+					    1000);
+      allGenericRecordsLock = [NSRecursiveLock new];
     }
 }
 
@@ -111,7 +116,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
   [allGenericRecordsLock unlock];
 }
 
-+ (void)removeDestoyedObject: (EOGenericRecord *)o
++ (void)removeDestroyedObject: (EOGenericRecord *)o
 {
   [allGenericRecordsLock lock];
   NSHashRemove(allGenericRecords, o);
@@ -134,7 +139,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 {
   if ((self = [self init]))
     {
-      EOEntity *entity = nil;
+      NSMutableArray *classPropertyNames = nil;
       EOMutableKnownKeyDictionary *entityMKKD = nil;
 
       if (!classDesc)
@@ -151,14 +156,25 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 
       ASSIGN(classDescription, classDesc);
 
-      entity = [(EOEntityClassDescription*)classDesc entity];
-      NSAssert(entity, @"No entity");
+      // Get class properties (attributes + relationships)
+      classPropertyNames = [[NSMutableArray alloc]
+			     initWithArray: [classDesc attributeKeys]];
+      [classPropertyNames addObjectsFromArray:
+			    [classDesc toOneRelationshipKeys]];
+      [classPropertyNames addObjectsFromArray:
+			    [classDesc toManyRelationshipKeys]];
 
-      entityMKKD = [entity _dictionaryForProperties];
+      NSAssert1([classPropertyNames count] > 0,
+                @"No classPropertyNames in %@", classDesc);
+
+      entityMKKD = [EOMutableKnownKeyDictionary
+                  dictionaryWithInitializer:
+          [[EOMKKDInitializer newWithKeyArray: classPropertyNames] autorelease]];
 
       ASSIGN(dictionary,entityMKKD);
       EOFLOGObjectLevelArgs(@"EOGenericRecord", @"Record %p: dictionary=%@",
 			    self, dictionary);
+      [classPropertyNames release];
     }
 
   return self;
@@ -170,7 +186,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 			@"Deallocate EOGenericRecord %p (dict=%p)",
 			self, dictionary);
 
-  [[self class] removeDestoyedObject: self];
+  [[self class] removeDestroyedObject: self];
 
   DESTROY(classDescription);
   DESTROY(dictionary);
@@ -182,6 +198,8 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 {
   return classDescription;
 }
+
+#if !FOUNDATION_HAS_KVC
 
 static const char _c_id[2] = { _C_ID, NULL };
 
@@ -601,17 +619,21 @@ static const char _c_id[2] = { _C_ID, NULL };
 
   EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
 }
+#endif /* !FOUNDATION_HAS_KVC */
 
 /** if key is a bidirectional rel, use addObject:toBothSidesOfRelationship otherwise call  takeValue:forKey: **/
 - (void)smartTakeValue: (id)anObject 
                 forKey: (NSString *)aKey
 {
-  EORelationship *rel = [classDescription relationshipNamed: aKey];
+  BOOL	isToMany = [[classDescription toManyRelationshipKeys]
+		     containsObject: aKey];
 
   //NSDebugMLog(@"aKey=%@ rel=%@ anObject=%@", aKey, rel, anObject);
   //NSDebugMLog(@"[rel isBidirectional]=%d", [rel isBidirectional]);
 
-  if (rel && [rel isBidirectional])
+    if ((isToMany
+	 || [[classDescription toOneRelationshipKeys] containsObject: aKey])
+	&& [classDescription inverseForRelationshipKey: aKey] != nil)
     {
       if (isNilOrEONull(anObject))
         {
@@ -619,7 +641,7 @@ static const char _c_id[2] = { _C_ID, NULL };
 
           if (isNilOrEONull(oldObj))
             {
-              if (![rel isToMany])
+              if (!isToMany)
                 [self takeValue: anObject
                       forKey: aKey];
             }
@@ -636,6 +658,7 @@ static const char _c_id[2] = { _C_ID, NULL };
           forKey: aKey];
 }
 
+#if !FOUNDATION_HAS_KVC
 - (void) takeValue: (id)anObject forKey: (NSString*)aKey
 {
   SEL		sel;
@@ -788,6 +811,54 @@ static const char _c_id[2] = { _C_ID, NULL };
   return value;
 }
 
+#else /* FOUNDATION_HAS_KVC */
+
+- (id) handleQueryWithUnboundKey: (NSString *)key
+{
+  id value;
+
+  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
+  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+			@"Unbound key named %@",
+			key);
+
+  if (![dictionary hasKey: key])
+    return [super handleQueryWithUnboundKey: key];
+
+  value = [dictionary objectForKey: key];
+
+  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value %p (class=%@)",
+			value, [value class]);
+  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
+  return value;
+}
+
+- (void) handleTakeValue: (id)value forUnboundKey: (NSString *)key
+{
+  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
+  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+			@"Unbound key named %@",
+			key);
+
+  [self willChange];
+
+  if (![dictionary hasKey:key])
+    [super handleTakeValue:value forUnboundKey: key];
+
+  if (value)
+    [dictionary setObject: value
+		forKey: key];
+  else
+//        [dictionary setObject: [EONull null]
+//                       forKey: key];
+    [dictionary removeObjectForKey: key];
+
+  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+}
+
+#endif /* FOUNDATION_HAS_KVC */
+
 
 /** used in -decription for self toOne or toMany objects to avoid
 infinite loop in description **/
@@ -901,7 +972,7 @@ infinite loop in description **/
 				     stringWithFormat: @"<%p %@: classDescription=%@>",
 				     obj,
 				     NSStringFromClass([obj class]),
-				     [obj classDescription]]
+				     [(EOGenericRecord *)obj classDescription]]
                         forKey: key];
                 }
             }
@@ -967,7 +1038,7 @@ infinite loop in description **/
 
       [allGenericRecordsLock unlock];
 
-      NSDebugMLog(@"CALCULATE STOPEXC");
+      NSDebugMLog(@"CALCULATE STOPEXC", "");
       [localException raise];
     }
   NS_ENDHANDLER;
@@ -1017,8 +1088,12 @@ infinite loop in description **/
 
       //NSDebugMLog(@"classDescription=%@", classDescription);
 
-      props = [[(EOEntityClassDescription *)classDescription entity]
-		classPropertyNames];
+      // Get class properties (attributes + relationships)
+      props = [NSMutableArray arrayWithArray: [classDescription attributeKeys]];
+      [(NSMutableArray *)props addObjectsFromArray:
+			   [classDescription toOneRelationshipKeys]];
+      [(NSMutableArray *)props addObjectsFromArray:
+			   [classDescription toManyRelationshipKeys]];
       size += [self eoGetSize];
       size += [dictionary eoGetSize];
 

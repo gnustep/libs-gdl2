@@ -122,19 +122,19 @@ RCS_ID("$Id$")
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThan) == YES)
     {
-      return [leftKey compare: rightKey] == NSOrderedAscending;
+      return [(NSObject *)leftKey compare: rightKey] == NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThan) == YES)
     {
-      return [leftKey compare: rightKey] == NSOrderedDescending;
+      return [(NSObject *)leftKey compare: rightKey] == NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
     {
-      return [leftKey compare: rightKey] != NSOrderedDescending;
+      return [(NSObject *)leftKey compare: rightKey] != NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
     {
-      return [leftKey compare: rightKey] != NSOrderedAscending;
+      return [(NSObject *)leftKey compare: rightKey] != NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorContains) == YES)
     {

@@ -65,7 +65,7 @@ RCS_ID("$Id$")
   self = [super init];
 
   [coder decodeValueOfObjCType: @encode(SEL) at: &_selector];
-  _key = [[coder decodeObject] retain];
+  _key = RETAIN([coder decodeObject]);
 
   return self;
 }
@@ -129,12 +129,17 @@ RCS_ID("$Id$")
     return self;
   else
     {
-      NSMutableArray *sortedArray = [[self mutableCopy] autorelease];
+      NSMutableArray *sortedArray = [[NSMutableArray alloc]
+				      initWithArray: self copyItems: NO];
+      NSArray *result;
 
       [sortedArray sortUsingKeyOrderArray: orderArray];
 
       // make array immutable but don't copy as mutable arrays copy deep
-      return [NSArray arrayWithArray: sortedArray];
+      result = [NSArray arrayWithArray: sortedArray];
+      [sortedArray release];
+
+      return result;
     }
 }
 
@@ -275,18 +280,18 @@ RCS_ID("$Id$")
 
   if (count > 1) 
     {
-      EOSortOrdering *order;
-      NSEnumerator   *orderEnum;
+      int i, max;
       //NSString *key;
-      
-      orderEnum = [orderArray objectEnumerator];
-      if ((order = [orderEnum nextObject]))
-        {
+
+      max = [orderArray count];
+      for (i = 0; i < max; i++)
+	{
+          EOSortOrdering *order = [orderArray objectAtIndex: i];
           //id a, b;
-          
+
           [self _sortUsingKeyOrder: order
                 fromIndex: 0
-                count: [self count]];
+                count: count];
 #if 0
           key = [order key];
           

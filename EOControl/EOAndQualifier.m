@@ -51,7 +51,7 @@ RCS_ID("$Id$")
 
 + (EOQualifier *)qualifierWithQualifierArray: (NSArray *)array
 {
-  return [[[self alloc] initWithQualifierArray: array] autorelease];
+  return AUTORELEASE([[self alloc] initWithQualifierArray: array]);
 }
 
 + (EOQualifier *)qualifierWithQualifiers: (EOQualifier *)qualifiers, ...
@@ -70,7 +70,7 @@ RCS_ID("$Id$")
 
   va_end(ap);
 
-  return [[[self alloc] initWithQualifierArray: qualArray] autorelease];
+  return AUTORELEASE([[self alloc] initWithQualifierArray: qualArray]);
 }
 
 - (id) initWithQualifiers: (EOQualifier *)qualifiers, ...

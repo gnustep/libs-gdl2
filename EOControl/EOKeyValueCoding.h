@@ -32,8 +32,6 @@
 #import <Foundation/NSKeyValueCoding.h>
 #import <Foundation/NSDictionary.h>
 
-#import <EOControl/EOKeyValueCodingBase.h>
-
 
 @interface NSObject (EOKVCPAdditions2)
 - (void)smartTakeValue: (id)anObject 
@@ -42,11 +40,19 @@
             forKeyPath: (NSString *)aKeyPath;
 - (void)takeStoredValue: value 
              forKeyPath: (NSString *)key;
+- (id)storedValueForKeyPath: (NSString *)key;
+#if !FOUNDATION_HAS_KVC
 - (void)takeStoredValuesFromDictionary: (NSDictionary *)dictionary;
+#endif
 - (NSDictionary *)valuesForKeyPaths: (NSArray *)keyPaths;
 - (NSDictionary *)storedValuesForKeyPaths: (NSArray *)keyPaths;
 @end
 
+#if NeXT_Foundation_LIBRARY
+@interface NSObject (MacOSXRevealed)
+- (void)takeStoredValuesFromDictionary: (NSDictionary *)dictionary;
+@end
+#endif
 
 @interface NSArray (EOKeyValueCoding)
 - (id)valueForKey: (NSString *)key;
@@ -61,6 +67,7 @@
 
 
 
+#if !FOUNDATION_HAS_KVC
 @interface NSDictionary (EOKeyValueCoding)
 - (id)valueForKey: (NSString *)key;
 @end
@@ -70,6 +77,7 @@
 - (void)takeValue: (id)value 
            forKey: (NSString*)key;
 @end
+#endif
 
 extern NSString *EOUnknownKeyException;
 extern NSString *EOTargetObjectUserInfoKey;

@@ -49,6 +49,8 @@ RCS_ID("$Id$")
 #import <EOControl/EOQualifier.h>
 #import <EOControl/EODebug.h>
 
+#include <gnustep/base/GSObjCRuntime.h>
+
 
 @implementation NSNumber (EOQualifierExtras)
 
@@ -127,7 +129,7 @@ static NSString *getOperator(const char **cFormat, const char **s)
     {
       while (**s && !isalnum(**s) && !isspace(**s) && **s != '%' && **s != '\'')
         {
-	  NSDebugLog(@"avoid gcc 3.1.1 bug which optimizes to segfault");
+	  NSDebugLog(@"avoid gcc 3.1.1 bug which optimizes to segfault", "");
 	  (*s)++;
         }
 
@@ -811,7 +813,7 @@ static Class whichQualifier(const char **cFormat, const char **s)
 {
   if ((self = [super init]))
     {
-      _key = [[coder decodeObject] retain];
+      _key = RETAIN([coder decodeObject]);
     }
 
   return self;
@@ -873,13 +875,12 @@ static Class whichQualifier(const char **cFormat, const char **s)
 
 - (BOOL)isNotEqualTo: (id)object
 {
-  return ([self isEqual: object] ? NO : YES);
+  return ([self isEqualTo: object] ? NO : YES);
 }
 
 - (BOOL)doesContain: (id)object
 {
-  if ([self isKindOfClass: [NSArray class]]
-      || [self isKindOfClass: [NSMutableArray class]])
+  if ([self isKindOfClass: [NSArray class]])
     return [(NSArray *)self containsObject: object];
 
   return NO;
