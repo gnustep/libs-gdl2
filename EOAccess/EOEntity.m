@@ -1882,7 +1882,7 @@ createInstanceWithEditingContext:globalID:zone:
                  self,
                  name];
 
-  ASSIGN(_name, name);
+  ASSIGNCOPY(_name, name);
   [_model _updateCache];
 }
 
@@ -1893,7 +1893,7 @@ createInstanceWithEditingContext:globalID:zone:
 			self, [self name], name);
 
   [self willChange];
-  ASSIGN(_externalName,name);
+  ASSIGNCOPY(_externalName,name);
   [self _setIsEdited];
 }
 
@@ -1901,7 +1901,7 @@ createInstanceWithEditingContext:globalID:zone:
 {
   //OK
   [self willChange];
-  ASSIGN(_externalQuery, query);
+  ASSIGNCOPY(_externalQuery, query);
   [self _setIsEdited];
 }
 
@@ -2095,7 +2095,7 @@ createInstanceWithEditingContext:globalID:zone:
       NSLog(@"Entity %@ has no class name. Use EOGenericRecord", [self name]);
       name = @"EOGenericRecord";
     }
-  ASSIGN(_className, name);
+  ASSIGNCOPY(_className, name);
 
   [self _setIsEdited];
 }
@@ -2353,7 +2353,7 @@ createInstanceWithEditingContext:globalID:zone:
 {
   //OK
   [self willChange];
-  ASSIGN(_docComment, docComment);
+  ASSIGNCOPY(_docComment, docComment);
   [self _setIsEdited];
 }
 @end

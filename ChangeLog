@@ -1,4 +1,10 @@
-2004-05-07  Simon Stapleton  <simon@tufty.co.uk>
+2004-09-24  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOEntity.m (-[setName:],-[setExternalName:])
+	(-[setExternalQuery:],-[setClassName:],-[setDocComment]): Use
+	ASSIGNCOPY instead of ASSIGN to deal with mutable strings.
+	
+2004-09-09  Simon Stapleton  <simon@tufty.co.uk>
 	    David Ayers  <d.ayers@inode.at>
 
 	* config.h.in (HAVE_DECL_PQFREEMEM, HAVE_DECL_PQUNESCAPEBYTEA):
