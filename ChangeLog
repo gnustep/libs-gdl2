@@ -1,3 +1,14 @@
+2004-04-15  David Ayers  <d.ayers@inode.at>
+
+	* TODO: Start tracking major TODO's until formal auditing is
+	available.
+
+	* EOAccess/EODatabase.m
+	* EOControl/EOGlobalID.h: Added documentation about
+	EOGlobalIDChangedNotification semantics.
+
+	* EOControl/EOSortOrdering.m: Removed superfluous define.
+	
 2004-04-12  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble:

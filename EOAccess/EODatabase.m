@@ -392,6 +392,14 @@ static NSMutableArray *databaseInstances;
 }
 
 //"Receive EOGlobalIDChangedNotification notification"
+/*
+  This method is currently only intended to replace EOTemporaryGlobalIDs
+  with corresponding EOKeyGlobalIDs.  Since the globalIDs within
+  the _toManySnapshots can only contain EOKeyGlobalIDs from fetched
+  data, they need not be searched yet.  This may change if we add support
+  to allow mutable primary key class attributes or recordToManySnapshots:
+  ever gets called with EOTemporaryGlobalIDs for some obscure reasons.
+ */
 - (void)_globalIDChanged: (NSNotification *)notification
 {
   NSDictionary *snapshot = nil;

@@ -1,3 +1,27 @@
+EOControl:
+	Headers/Classes:
+		EOAggregateEvent
+		EOEvent
+		EOEventCenter
+		EOMultiReaderLock
+		EOSharedEditingContext
+EOAccess:
+	Headers/Categories:
+		EOGenericRecord (category)
+		EOSchemaSynchronization
+
+EOInterface: All
+
+EOModel creation Application.
+
+Documentation:
+	API Documentation
+	Tutorials
+
+Examples:
+
+Adaptors:
+
 o Implement databaseFailedToFetchObject mechanism.
         Cf Developper's guide p 121
 o Implement to-one PK to Foreign Key support

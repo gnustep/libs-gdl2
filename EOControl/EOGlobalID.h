@@ -35,6 +35,16 @@
 
 #include <EOControl/EODefines.h>
 
+/**
+ * This notification is intended to allow EOTemporaryGlobalIDs
+ * to be replaced with the corresponding EOKeyGlobalIDs.  In theory 
+ * one could interpret this as a mechanism to allow primary key
+ * attributes to be mutable class properties.  Even though EOF also posts
+ * this notification in that case, it fails to consistently propagate
+ * the new value through relationships.  GDL2 may attempt to correct
+ * that shortcoming in the future, but it may have serious performance
+ * implications.
+ */
 GDL2CONTROL_EXPORT NSString *EOGlobalIDChangedNotification;
 
 @interface EOGlobalID : NSObject <NSCopying>

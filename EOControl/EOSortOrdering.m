@@ -53,8 +53,6 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyValueArchiver.h>
 #include <EOControl/EODebug.h>
 
-#define EONull NSNull
-
 @implementation EOSortOrdering
 
 /**
