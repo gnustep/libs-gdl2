@@ -347,16 +347,5 @@ static NSMutableArray *_associationClasses = nil;
   return reply;
 }
 
-- (NSString *)debugDescription
-{
-  NSLog(@"self:%p", self);
-  /*
-  NSLog(@"_end1:%p", &_end1);
-  NSLog(@"_end2:%p", &_end2);
-  */
-  NSLog(@"dGM :%p", &_displayGroupMap);
-  NSLog(@"dGKM:%p", &_displayGroupKeyMap);
-  return nil;
-}
 @end
 

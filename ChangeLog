@@ -1,3 +1,14 @@
+2004-10-16  David Ayers  <d.ayers@inode.at>
+
+	* EOInterface/EOActionAssociation.h/m: New files.
+	* EOInterface/EOActionInsertionAssociation.h/m: Ditto.
+	* EOInterface/EOColumnAssociation.h/m: Ditto.
+	* EOInterface/EOTableViewAssociation.m: Ditto.
+	* EOInterface/EOInterface.h: Added new headers.
+	* EOInterface/GNUmakefile: Use new files.
+	* EOInterface/EOAssociation.m: (-[debugDescription]): Remove debug
+	method.
+	
 2004-10-15  David Ayers  <d.ayers@inode.at>
 
 	* EOInterface/EOAssociation.h/m: New files.

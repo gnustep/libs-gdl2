@@ -27,7 +27,10 @@
 #ifndef __EOInterface_h__
 #define __EOInterface_h__
 
+#include <EOInterface/EOActionAssociation.h>
+#include <EOInterface/EOActionInsertionAssociation.h>
 #include <EOInterface/EOAssociation.h>
+#include <EOInterface/EOColumnAssociation.h>
 #include <EOInterface/EODisplayGroup.h>
 
 #endif /* __EOInterface_h__ */
