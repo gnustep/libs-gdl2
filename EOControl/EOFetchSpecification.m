@@ -55,6 +55,13 @@ RCS_ID("$Id$")
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EOQualifier.h>
 
+@interface NSObject (EOAccess)
+ /* EOEntity.h */
+- (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)fetchSpecName;
+ /* EOModelGroup */
+- (id)entityNamed:(NSString *)entityName;
++ (id)defaultGroup;
+@end
 
 @implementation EOFetchSpecification
 
@@ -143,6 +150,12 @@ RCS_ID("$Id$")
 + (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
                                       entityNamed: (NSString *)entityName
 {
+  Class modelGroupClass = GSClassFromName("EOModelGroup");
+  if (modelGroupClass != Nil)
+    {
+      return [[[modelGroupClass defaultGroup] entityNamed: entityName] 
+	       fetchSpecificationNamed: name];
+    }
   return nil;
 }
 

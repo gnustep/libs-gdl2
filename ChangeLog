@@ -1,3 +1,9 @@
+2003-10-23  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOFetchSpecification.m
+	(-[EOFetchSpecification fetchSpecificationNamed:entityNamed:]}:
+	Implemented upon bug report by Philip Moetteli.
+
 2003-09-29  Philip Moetteli  <Philip.Moetteli@tele2.ch>
 
 	* EOControl/EOClassDescription.m
