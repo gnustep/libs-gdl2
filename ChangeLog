@@ -1,7 +1,22 @@
+2002-12-08  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOAdaptor.m ([EOAdaptor -isValidQualifierType:model:]):
+	implemented.
+
+	* EOControl/GNUmakefile (libgnustep-db2control_HEADER_FILES): removed
+	GCObject.h
+
+	* EOAccess/EODatabaseContext.m: 
+	* EOAccess/EORelationship.m:
+	* EOAccess/EOEntity.m:
+	* EOControl/EOMutableKnownKeyDictionary.m:
+	* EOControl/EOEditingContext.m: replaced EOFLOGObjectLevelArgs with
+	EOFLOGObjectLevel in absence of args. (fixed problems with gcc 2.95)
+
 2002-12-07  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
-	* EOAccess/EOEntity.m ([EOEntity -isPrimaryKeyValidInObject:]): check for NSNull
-	objects.
+	* EOAccess/EOEntity.m ([EOEntity -isPrimaryKeyValidInObject:]): check
+	for NSNull objects.
 
 2002-12-06  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 

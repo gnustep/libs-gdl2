@@ -623,6 +623,13 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   [self notImplemented: _cmd];
 }
 
+- (BOOL) isValidQualifierType: (EOAttribute *)attribute
+			model: (EOModel *)model
+{
+  [self subclassResponsibility: _cmd];
+  return NO;
+}
+
 @end /* EOAdaptor */
 
 

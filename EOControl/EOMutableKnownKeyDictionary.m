@@ -577,7 +577,7 @@ static char rcsId[] = "$Id$";
     newDict = [self newWithInitializer: subsetMapping->_destinationDescription
 		    zone: zone];
 
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"END");
+  EOFLOGObjectLevel(@"EOMKKD", @"END");
 
   return newDict;
 }
@@ -656,7 +656,7 @@ static char rcsId[] = "$Id$";
       int count;
 
       NSAssert(initializer, @"No Initializer");
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"suite");
+      EOFLOGObjectLevel(@"EOMKKD", @"suite");
 
       ASSIGN(_MKKDInitializer, initializer);
 
@@ -698,7 +698,7 @@ static char rcsId[] = "$Id$";
         }
     }
 
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"END");
+  EOFLOGObjectLevel(@"EOMKKD", @"END");
 
   return self;
 }
@@ -722,7 +722,7 @@ static char rcsId[] = "$Id$";
 						count: count] autorelease];
 
       NSAssert(initializer, @"No Initializer");
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"suite");
+      EOFLOGObjectLevel(@"EOMKKD", @"suite");
 
       ASSIGN(_MKKDInitializer, initializer);
 

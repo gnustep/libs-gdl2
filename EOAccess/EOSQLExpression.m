@@ -674,7 +674,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_joinClauseString=%@",
 			_joinClauseString);
 
-  rootEntity=[self _rootEntityForExpression];
+  rootEntity = [self _rootEntityForExpression];
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"rootEntity=%@",
 			[rootEntity name]);
 

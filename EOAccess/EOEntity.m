@@ -532,13 +532,13 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       [_model gcDecrementRefCount];
 
       where = 2;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"attributes gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"attributes gcDecrementRefCount");
       if (!_flags.attributesIsLazy)
         [(id)_attributes gcDecrementRefCount];
 
       where = 3;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"propertiesToFault gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"propertiesToFault gcDecrementRefCount");
       [(id)_attributesByName gcDecrementRefCount];
 
       where = 4;
@@ -568,30 +568,30 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       [(id)_attributesToSave gcDecrementRefCount];
 
       where = 6;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"propertiesToFault gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"propertiesToFault gcDecrementRefCount");
       [(id)_propertiesToFault gcDecrementRefCount];
 
       where = 7;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"rrelationships gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"rrelationships gcDecrementRefCount");
       if (!_flags.relationshipsIsLazy)
         [(id)_relationships gcDecrementRefCount];
 
       where = 8;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"relationshipsByName gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"relationshipsByName gcDecrementRefCount");
       [(id)_relationshipsByName gcDecrementRefCount];
 
       where = 9;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"primaryKeyAttributes gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"primaryKeyAttributes gcDecrementRefCount");
       if (!_flags.primaryKeyAttributesIsLazy)
         [(id)_primaryKeyAttributes gcDecrementRefCount];
 
       where = 10;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"classProperties gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"classProperties gcDecrementRefCount");
       if (!_flags.classPropertiesIsLazy)
         [(id)_classProperties gcDecrementRefCount];
 
@@ -603,15 +603,15 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
         [(id)_attributesUsedForLocking gcDecrementRefCount];
 
       where = 12;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"subEntities gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"subEntities gcDecrementRefCount");
       [(id)_subEntities gcDecrementRefCount];
 
       where = 13;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"dbSnapshotKeys gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"dbSnapshotKeys gcDecrementRefCount");
       [(id)_dbSnapshotKeys gcDecrementRefCount];
 
       where = 14;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"_parent gcDecrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"_parent gcDecrementRefCount");
       [_parent gcDecrementRefCount];
     }
   NS_HANDLER
@@ -650,22 +650,22 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   NS_DURING
     {
       where = 1;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"model gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"model gcIncrementRefCount");
       [_model gcIncrementRefCount];
 
       where = 2;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"attributes gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"attributes gcIncrementRefCount");
       if (!_flags.attributesIsLazy)
         [(id)_attributes gcIncrementRefCount];
 
       where = 3;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"attributesByName gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"attributesByName gcIncrementRefCount");
       [(id)_attributesByName gcIncrementRefCount];
 
       where = 4;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"attributesToFetch gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"attributesToFetch gcIncrementRefCount");
       NSAssert3(!_attributesToFetch
 		|| [_attributesToFetch isKindOfClass: [NSArray class]],
                 @"entity %@ attributesToFetch is not an NSArray but a %@\n%@",
@@ -683,69 +683,69 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                 _attributesToFetch);
 
       where = 5;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"attributesToSave gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"attributesToSave gcIncrementRefCount");
       [(id)_attributesToSave gcIncrementRefCount];
 
       where = 6;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"propertiesToFault gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"propertiesToFault gcIncrementRefCount");
       [(id)_propertiesToFault gcIncrementRefCount];
 
       where = 7;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"relationships gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"relationships gcIncrementRefCount");
       if (!_flags.relationshipsIsLazy)
         [(id)_relationships gcIncrementRefCount];
 
       where = 8;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"relationshipsByName gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"relationshipsByName gcIncrementRefCount");
       [(id)_relationshipsByName gcIncrementRefCount];
 
       where = 9;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"primaryKeyAttributes gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"primaryKeyAttributes gcIncrementRefCount");
       if (!_flags.primaryKeyAttributesIsLazy)
         [(id)_primaryKeyAttributes gcIncrementRefCount];
 
       where = 10;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"classProperties gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"classProperties gcIncrementRefCount");
       if (!_flags.classPropertiesIsLazy)
         [(id)_classProperties gcIncrementRefCount];
 
       where = 11;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"attributesUsedForLocking gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity",
+			@"attributesUsedForLocking gcIncrementRefCount");
       if (!_flags.attributesUsedForLockingIsLazy)
         [(id)_attributesUsedForLocking gcIncrementRefCount];
 
       where = 12;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"subEntities gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"subEntities gcIncrementRefCount");
       [(id)_subEntities gcIncrementRefCount];
 
       where = 13;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"dbSnapshotKeys gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"dbSnapshotKeys gcIncrementRefCount");
       [(id)_dbSnapshotKeys gcIncrementRefCount];
 
       where = 14;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"parent gcIncrementRefCount");
+      EOFLOGObjectLevel(@"EOEntity", @"parent gcIncrementRefCount");
       [_parent gcIncrementRefCount];
 
       where = 15;
       [_model gcIncrementRefCountOfContainedObjects];
 
       where = 16;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"attributes gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"attributes gcIncrementRefCountOfContainedObjects");
       if (!_flags.attributesIsLazy)
         [(id)_attributes gcIncrementRefCountOfContainedObjects];
 
       where = 17;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"attributesByName gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"attributesByName gcIncrementRefCountOfContainedObjects");
       [(id)_attributesByName gcIncrementRefCountOfContainedObjects];
 
       where = 18;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"attributesToFetch gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"attributesToFetch gcIncrementRefCountOfContainedObjects");
       [(id)_attributesToFetch gcIncrementRefCountOfContainedObjects];
 
       where = 19;
@@ -754,25 +754,25 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       [(id)_attributesToSave gcIncrementRefCountOfContainedObjects];
 
       where = 20;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"propertiesToFault gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"propertiesToFault gcIncrementRefCountOfContainedObjects");
       [(id)_propertiesToFault gcIncrementRefCountOfContainedObjects];
 
       where = 21;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"rrelationships gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"rrelationships gcIncrementRefCountOfContainedObjects");
       if (!_flags.relationshipsIsLazy)
         [(id)_relationships gcIncrementRefCountOfContainedObjects];
 
       where = 22;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"relationshipsByName gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"relationshipsByName gcIncrementRefCountOfContainedObjects");
       [(id)_relationshipsByName gcIncrementRefCountOfContainedObjects];
 
       where = 23;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"primaryKeyAttributes gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"primaryKeyAttributes gcIncrementRefCountOfContainedObjects");
       if (!_flags.primaryKeyAttributesIsLazy)
         [(id)_primaryKeyAttributes gcIncrementRefCountOfContainedObjects];
 
       where = 24;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"classProperties gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"classProperties gcIncrementRefCountOfContainedObjects");
       if (!_flags.classPropertiesIsLazy)
         [(id)_classProperties gcIncrementRefCountOfContainedObjects];
 
@@ -783,15 +783,15 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
         [(id)_attributesUsedForLocking gcIncrementRefCountOfContainedObjects];
 
       where = 26;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"subEntities gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"subEntities gcIncrementRefCountOfContainedObjects");
       [(id)_subEntities gcIncrementRefCountOfContainedObjects];
 
       where = 27;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"dbSnapshotKeys gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"dbSnapshotKeys gcIncrementRefCountOfContainedObjects");
       [(id)_dbSnapshotKeys gcIncrementRefCountOfContainedObjects];
 
       where = 28;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"_parent gcIncrementRefCountOfContainedObjects");
+      EOFLOGObjectLevel(@"EOEntity", @"_parent gcIncrementRefCountOfContainedObjects");
       [_parent gcIncrementRefCountOfContainedObjects];
 
       where = 29;
@@ -1197,7 +1197,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                                         forKey: relationshipName];
                 }
 
-              EOFLOGObjectLevelArgs(@"EOEntity", @"Rels added");
+              EOFLOGObjectLevel(@"EOEntity", @"Rels added");
 
               [self _setIsEdited];//To Clean Buffers
               relNames = [_relationships
@@ -2667,7 +2667,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
     }
   else
     {
-      EOFLOGObjectLevelArgs(@"EOEntity", @"Will Rebuild attributes");
+      EOFLOGObjectLevel(@"EOEntity", @"Will Rebuild attributes");
 
       [self attributes]; //To rebuild
 

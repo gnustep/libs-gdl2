@@ -119,6 +119,9 @@ extern NSString *EOGeneralAdaptorException;
 - (id)delegate;
 - (void)setDelegate: delegate;
 
+- (BOOL) isValidQualifierType: (EOAttribute *)attribute
+			model: (EOModel *)model;
+
 @end /* EOAdaptor */
 
 

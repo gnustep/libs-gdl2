@@ -98,23 +98,23 @@ static char rcsId[] = "$Id$";
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@", self);
 
-  EOFLOGObjectLevelArgs(@"EORelationship",
-			@"definitionArray gcDecrementRefCount");
+  EOFLOGObjectLevel(@"EORelationship",
+		    @"definitionArray gcDecrementRefCount");
   [(id)_definitionArray gcDecrementRefCount];
 
-  EOFLOGObjectLevelArgs(@"EORelationship",
-			@"_inverseRelationship gcDecrementRefCount");
+  EOFLOGObjectLevel(@"EORelationship",
+		    @"_inverseRelationship gcDecrementRefCount");
   [_inverseRelationship gcDecrementRefCount];
 
-  EOFLOGObjectLevelArgs(@"EORelationship",
-			@"_hiddenInverseRelationship gcDecrementRefCount");
+  EOFLOGObjectLevel(@"EORelationship",
+		    @"_hiddenInverseRelationship gcDecrementRefCount");
   [_hiddenInverseRelationship gcDecrementRefCount];
 
-  EOFLOGObjectLevelArgs(@"EORelationship", @"_entity gcDecrementRefCount");
+  EOFLOGObjectLevel(@"EORelationship", @"_entity gcDecrementRefCount");
   [_entity gcDecrementRefCount];
 
-  EOFLOGObjectLevelArgs(@"EORelationship",
-			@"_destination gcDecrementRefCount");
+  EOFLOGObjectLevel(@"EORelationship",
+		    @"_destination gcDecrementRefCount");
   [_destination gcDecrementRefCount];
 
   EOFLOGObjectLevelArgs(@"EORelationship",
@@ -1000,7 +1000,7 @@ relationships. Nil if none" **/
   EOFLOGObjectFnStart();
 
   NSAssert([self isFlattened], @"Not Flatten Relationship");
-  EOFLOGObjectLevelArgs(@"EORelationship", @"add joins");
+  EOFLOGObjectLevel(@"EORelationship", @"add joins");
 
   count = [_definitionArray count];
 
@@ -1030,11 +1030,11 @@ relationships. Nil if none" **/
   [inverseRelationship setName: name]; 
   [inverseRelationship setDefinition: invDefinition]; 
 
-  EOFLOGObjectLevelArgs(@"EORelationship", @"add inverse rel");
+  EOFLOGObjectLevel(@"EORelationship", @"add inverse rel");
 
   [(NSMutableArray*)[[self destinationEntity] _hiddenRelationships]
 		    addObject: inverseRelationship]; //not very clean !!!
-  EOFLOGObjectLevelArgs(@"EORelationship", @"set inverse rel");
+  EOFLOGObjectLevel(@"EORelationship", @"set inverse rel");
 
   [inverseRelationship setInverseRelationship: self];
 
@@ -1066,7 +1066,7 @@ relationships. Nil if none" **/
   joins = [self joins];
   count = [joins count];
 
-  EOFLOGObjectLevelArgs(@"EORelationship", @"add joins");
+  EOFLOGObjectLevel(@"EORelationship", @"add joins");
 
   for (i = 0; i < count; i++)
     {
@@ -1080,12 +1080,12 @@ relationships. Nil if none" **/
       [inverseRelationship addJoin: inverseJoin];
     }
 
-  EOFLOGObjectLevelArgs(@"EORelationship",@"add inverse rel");
+  EOFLOGObjectLevel(@"EORelationship",@"add inverse rel");
 
   [(NSMutableArray*)[[self destinationEntity] _hiddenRelationships]
 		    addObject: inverseRelationship]; //not very clean !!!
 
-  EOFLOGObjectLevelArgs(@"EORelationship", @"set inverse rel");
+  EOFLOGObjectLevel(@"EORelationship", @"set inverse rel");
 
   [inverseRelationship setInverseRelationship: self];
 
@@ -1454,9 +1454,9 @@ relationships. Nil if none" **/
                 [self _flushCache];
                 [self willChange];
 
-                EOFLOGObjectLevelArgs(@"EORelationship", @"really add");
+                EOFLOGObjectLevel(@"EORelationship", @"really add");
                 EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-			     _joins, [_joins class]);
+				      _joins, [_joins class]);
 
                 if ([self createsMutableObjects])
                   {
@@ -1466,7 +1466,7 @@ relationships. Nil if none" **/
                     [(GCMutableArray *)_joins addObject: join];      
 
                     EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-				 _joins, [_joins class]);
+					  _joins, [_joins class]);
 
                     //NO: will be recomputed      [(GCMutableArray *)_sourceAttributes addObject:[join sourceAttribute]];
                     //NO: will be recomputed      [(GCMutableArray *)_destinationAttributes addObject:[join destinationAttribute]];
@@ -1480,7 +1480,7 @@ relationships. Nil if none" **/
                       _joins = [[GCArray arrayWithObject: join] retain];
 
                     EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-				 _joins, [_joins class]);
+					  _joins, [_joins class]);
 
                     /*NO: will be recomputed      _sourceAttributes = [[[_sourceAttributes autorelease]
                       arrayByAddingObject:[join sourceAttribute]]
@@ -1492,7 +1492,8 @@ relationships. Nil if none" **/
                     */
                   }
 
-                EOFLOGObjectLevelArgs(@"EORelationship", @"added");
+                EOFLOGObjectLevel(@"EORelationship", @"added");
+
                 [self _joinsChanged];
                 [_entity _setIsEdited];
             }

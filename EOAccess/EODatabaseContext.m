@@ -752,7 +752,7 @@ classPropertyNames = [entity classPropertyNames];
         editingContext: context
         isComplete: isFinal];//??
   
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"Record Object");
+  EOFLOGObjectLevel(@"EODatabaseContext", @"Record Object");
 
   [context recordObject: object
 	   globalID: globalID];
@@ -1360,8 +1360,8 @@ userInfo = {
                 {
                   [_adaptorContext beginTransaction];
 
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					@"BEGAN TRANSACTION FLAG==>YES");
+                  EOFLOGObjectLevel(@"EODatabaseContext",
+				    @"BEGAN TRANSACTION FLAG==>YES");
 
                   _flags.beganTransaction = YES;
                 }
@@ -1389,10 +1389,10 @@ userInfo = {
                   [cache addObject: gid];
                 }
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"Finished fetch");
+              EOFLOGObjectLevel(@"EODatabaseContext", @"Finished fetch");
               [channel cancelFetch];
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"setResultCache");
+              EOFLOGObjectLevel(@"EODatabaseContext", @"setResultCache");
               [_database setResultCache: cache
                          forEntityNamed: entityName];
             }
@@ -1511,8 +1511,8 @@ userInfo = {
                 {
                   [_adaptorContext beginTransaction];
 
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					@"BEGAN TRANSACTION FLAG==>YES");
+                  EOFLOGObjectLevel(@"EODatabaseContext",
+				    @"BEGAN TRANSACTION FLAG==>YES");
                   _flags.beganTransaction = YES;
                 }
 
@@ -1527,13 +1527,14 @@ userInfo = {
                   [channel selectObjectsWithFetchSpecification: fetch
                            editingContext: context];//OK
 
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"[channel isFetchInProgress]=%s",
+                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					@"[channel isFetchInProgress]=%s",
 					([channel isFetchInProgress] ? "YES" : "NO"));
 
                   limit = [fetch fetchLimit];//OK
                   promptsAfterFetchLimit = [fetch promptsAfterFetchLimit];
 
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"Will Fetch");
+                  EOFLOGObjectLevel(@"EODatabaseContext", @"Will Fetch");
 
                   NS_DURING
                     {                  
@@ -1544,8 +1545,8 @@ userInfo = {
 
                       while ((obj = [channel fetchObject]))
                         {
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"fetched an object");
+                          EOFLOGObjectLevel(@"EODatabaseContext",
+					    @"fetched an object");
                           EOFLOGObjectLevelArgs(@"EODatabaseContext",
 						@"FETCH OBJECT object=%@\n\n",
 						obj);
@@ -1572,8 +1573,8 @@ userInfo = {
                                 continue;
                             }
 
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"AFTER FETCH");
+                          EOFLOGObjectLevel(@"EODatabaseContext",
+					    @"AFTER FETCH");
                           [array addObject: obj];
                           EOFLOGObjectLevelArgs(@"EODatabaseContext",
 						@"array count=%d",
@@ -1601,25 +1602,27 @@ userInfo = {
                           else 
                             autoreleaseStep--;
 
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"WILL FETCH NEXT OBJECT");
+                          EOFLOGObjectLevel(@"EODatabaseContext",
+					    @"WILL FETCH NEXT OBJECT");
                           EOFLOGObjectLevelArgs(@"EODatabaseContext",
 						@"[channel isFetchInProgress]=%s",
 						([channel isFetchInProgress] ? "YES" : "NO"));
                         }
               
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"finished fetch");
+                      EOFLOGObjectLevel(@"EODatabaseContext",
+					@"finished fetch");
                       EOFLOGObjectLevelArgs(@"EODatabaseContext",
 					    @"array=%@", array);
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"step 0 channel is busy=%d",
+                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					    @"step 0 channel is busy=%d",
                                             (int)[channel isFetchInProgress]);
 
                       [channel cancelFetch]; //OK
 
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"step 1 channel is busy=%d",
+                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					    @"step 1 channel is busy=%d",
                                             (int)[channel isFetchInProgress]);
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"array=%@",
+                      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"array=%@",
                                             array);
 
                       //TODO
@@ -1652,7 +1655,8 @@ userInfo = {
                   NS_ENDHANDLER;
                 }
             }
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",@"step 2 channel is busy=%d",
+          EOFLOGObjectLevelArgs(@"EODatabaseContext",
+				@"step 2 channel is busy=%d",
                                 (int)[channel isFetchInProgress]);
         }
 
@@ -1796,8 +1800,8 @@ userInfo = {
 	{
 	  [[[channel adaptorChannel] adaptorContext] beginTransaction];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"BEGAN TRANSACTION FLAG==>YES");
+          EOFLOGObjectLevel(@"EODatabaseContext",
+			    @"BEGAN TRANSACTION FLAG==>YES");
 
 	  _flags.beganTransaction = YES;
 	}
@@ -2902,8 +2906,8 @@ Raises an exception is the adaptor is unable to perform the operations.
           if ([_adaptorContext transactionNestingLevel] == 0) //??
             [_adaptorContext  beginTransaction];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"BEGAN TRANSACTION FLAG==>YES");
+          EOFLOGObjectLevel(@"EODatabaseContext",
+			    @"BEGAN TRANSACTION FLAG==>YES");
 
 	  _flags.beganTransaction = YES;
         }
@@ -2917,8 +2921,8 @@ Raises an exception is the adaptor is unable to perform the operations.
                                               adaptorChannel: adaptorChannel];
       NS_DURING
         {
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"performAdaptorOperations:");
+          EOFLOGObjectLevel(@"EODatabaseContext",
+			    @"performAdaptorOperations:");
           EOFLOGObjectLevelArgs(@"EODatabaseContext",
 				@"self=%p preparingForSave=%d beganTransaction=%d",
 				self,
@@ -2932,8 +2936,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 				self,
 				(int)_flags.preparingForSave,
 				(int)_flags.beganTransaction);
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"after performAdaptorOperations:");
+          EOFLOGObjectLevel(@"EODatabaseContext",
+			    @"after performAdaptorOperations:");
         }
       NS_HANDLER
 	{
@@ -3099,8 +3103,8 @@ Raises an exception is the adaptor is unable to perform the operations.
           EOGlobalID *gid = nil;
           EODatabaseOperation *dbOpe = nil;
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"BEGAN TRANSACTION FLAG==>NO");
+          EOFLOGObjectLevel(@"EODatabaseContext",
+			    @"BEGAN TRANSACTION FLAG==>NO");
 
           _flags.beganTransaction = NO;
           [_adaptorContext commitTransaction]; //adaptorcontext transactionDidCommit
@@ -3227,7 +3231,7 @@ Raises an exception is the adaptor is unable to perform the operations.
         }
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"call _cleanUpAfterSave");
+  EOFLOGObjectLevel(@"EODatabaseContext", @"call _cleanUpAfterSave");
 
   [self _cleanUpAfterSave];//OK for update
 
@@ -3236,8 +3240,8 @@ Raises an exception is the adaptor is unable to perform the operations.
       //from mirko. seems ok
       if (gidChangedUserInfo)
         {
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"post EOGlobalIDChangedNotification");
+          EOFLOGObjectLevel(@"EODatabaseContext",
+			    @"post EOGlobalIDChangedNotification");
 
           [[NSNotificationCenter defaultCenter]
             postNotificationName: EOGlobalIDChangedNotification
@@ -3245,8 +3249,8 @@ Raises an exception is the adaptor is unable to perform the operations.
             userInfo: gidChangedUserInfo];
         }
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"post EOObjectsChangedInStoreNotification");
+      EOFLOGObjectLevel(@"EODatabaseContext",
+			@"post EOObjectsChangedInStoreNotification");
 
       [[NSNotificationCenter defaultCenter]
 	postNotificationName: @"EOObjectsChangedInStoreNotification"
@@ -3271,8 +3275,8 @@ Raises an exception is the adaptor is unable to perform the operations.
     {
       [_adaptorContext rollbackTransaction];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"BEGAN TRANSACTION FLAG==>NO");
+      EOFLOGObjectLevel(@"EODatabaseContext",
+			@"BEGAN TRANSACTION FLAG==>NO");
 
       _flags.beganTransaction = NO;
 
@@ -3302,7 +3306,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   EOFLOGObjectFnStart();
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p keys=%@",
-                        object,keys);
+                        object, keys);
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p (class=%@)",
 			object, [object class]);
 
@@ -3330,7 +3334,7 @@ Raises an exception is the adaptor is unable to perform the operations.
     }
   else
     {
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"No object");
+      EOFLOGObjectLevel(@"EODatabaseContext", @"No object");
       values = [NSDictionary dictionary];
     }
 
@@ -3762,8 +3766,8 @@ Raises an exception is the adaptor is unable to perform the operations.
     }
   else
     {
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"No _dbOperationsByGlobalID");
+      EOFLOGObjectLevel(@"EODatabaseContext",
+			@"No _dbOperationsByGlobalID");
     }
 
   EOFLOGObjectFnStop();
@@ -3801,7 +3805,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 }
 
 - (EODatabaseOperation*)databaseOperationForObject: (id)object
- {
+{
    //OK
    EODatabaseOperation *databaseOpe = nil;
    EOGlobalID *gid = nil;
@@ -3903,7 +3907,12 @@ Raises an exception is the adaptor is unable to perform the operations.
 				     key, value);
 
                if (!value)
-                 value = [EONull null];
+		 {
+		   value = [EONull null];
+
+		   [[[entity attributeNamed: key] validateValue: &value]
+		     raise];
+		 }
 
                EOFLOGObjectLevelArgs(@"EODatabaseContext", @"key=%@ value=%@",
 				     key, value);
@@ -3932,10 +3941,11 @@ Raises an exception is the adaptor is unable to perform the operations.
                EOFLOGObjectLevelArgs(@"EODatabaseContext", @"key=%@ value=%@",
 				     key, value);
 
-               NSAssert1(value,@"No value for %@",key);
+	       //               NSAssert1(value,@"No value for %@",key);
 
-               [newRow setObject: value
-                       forKey: key];
+	       if (value)
+		 [newRow setObject: value
+			 forKey: key];
              }
 
            EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRow=%@", newRow);
@@ -4908,6 +4918,9 @@ Raises an exception is the adaptor is unable to perform the operations.
             {
               if (![self isValidQualifierTypeForAttribute: attribute])
                 {
+		  NSLog(@"Invalid externalType for attribute '%@' of entity named '%@' - model '%@'",
+			[attribute name], [[attribute entity] name],
+			[[[attribute entity] model] name]);
                   NSEmitTODO();
                   [self notImplemented: _cmd]; //TODO
                 }
@@ -4928,7 +4941,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
                   if (!value)
                     {
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"NO VALUE");
+                      EOFLOGObjectLevel(@"EODatabaseContext", @"NO VALUE");
                     }
 
                   NSAssert3(value, @"no value for %@ in %p %@", snapName,
@@ -5201,7 +5214,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 	    }
 	}
     }
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"** 3");
+  EOFLOGObjectLevel(@"EODatabaseContext",@"** 3");
 //==> see _registerSnapshot:forSourceGlobalID:relationshipName:editingContext:
 
   for (i = 0; i < count; i++)
@@ -5210,7 +5223,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 		 [editingContext globalIDForObject: [objects objectAtIndex: i]]
 	       relationshipName: [relationship name]];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"** 4");
+  EOFLOGObjectLevel(@"EODatabaseContext", @"** 4");
 }
 
 @end
@@ -6128,7 +6141,7 @@ Raises an exception is the adaptor is unable to perform the operations.
             }
         }
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"TakeStoredValue");
+      EOFLOGObjectLevel(@"EODatabaseContext", @"TakeStoredValue");
 
       [object takeStoredValue: relObject
               forKey: relName];
@@ -6460,8 +6473,8 @@ _numLocked = 0;
 
                       if (_flags.beganTransaction == NO)
                         {
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"BEGAN TRANSACTION FLAG==>NO");
+                          EOFLOGObjectLevel(@"EODatabaseContext",
+					    @"BEGAN TRANSACTION FLAG==>NO");
                           _flags.beganTransaction = YES;
                         }
                     }

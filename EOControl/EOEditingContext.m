@@ -338,11 +338,11 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
           RETAIN(snapshot);
 
           [_snapshotsByGID removeObjectForKey: tempGID];
-          EOFLOGObjectLevelArgs(@"EOEditingContext", @"After Remove");
+          EOFLOGObjectLevel(@"EOEditingContext", @"After Remove");
 
           [_snapshotsByGID setObject: snapshot
                            forKey: gid];          
-          EOFLOGObjectLevelArgs(@"EOEditingContext", @"After SetObject");
+          EOFLOGObjectLevel(@"EOEditingContext", @"After SetObject");
 
           AUTORELEASE(snapshot);
         }
@@ -715,8 +715,8 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			    [self objectsDescription]);
       //on inserted objects
-      EOFLOGObjectLevelArgs(@"EOEditingContext",
-			    @"process _unprocessedInserts");
+      EOFLOGObjectLevel(@"EOEditingContext",
+			@"process _unprocessedInserts");
 
       unprocessedInsertsArray = NSAllHashTableObjects(_unprocessedInserts);
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"unprocessedInsertsArray=%@",
@@ -746,8 +746,8 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
         }
       
       //on deleted or updated
-      EOFLOGObjectLevelArgs(@"EOEditingContext",
-			    @"process _unprocessedDeletes");
+      EOFLOGObjectLevel(@"EOEditingContext",
+			@"process _unprocessedDeletes");
 
       unprocessedDeletesArray = NSAllHashTableObjects(_unprocessedDeletes);
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"unprocessedDeletesArray=%@",
@@ -777,8 +777,8 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
         }
 
       //Changes
-      EOFLOGObjectLevelArgs(@"EOEditingContext",
-			    @"process _unprocessedChanges");
+      EOFLOGObjectLevel(@"EOEditingContext",
+			@"process _unprocessedChanges");
 
       unprocessedChangesArray = NSAllHashTableObjects(_unprocessedChanges);
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"unprocessedChangesArray=%@",
@@ -1926,11 +1926,11 @@ validateTable:(NSHashTable*)table
       
       _flags.ignoreChangeNotification = YES;
 
-      EOFLOGObjectLevelArgs(@"EOEditingContext",
-			    @"_objectStore saveChangesInEditingContext");
+      EOFLOGObjectLevel(@"EOEditingContext",
+			@"_objectStore saveChangesInEditingContext");
 
       [_objectStore saveChangesInEditingContext: self];
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"self didSaveChanges");
+      EOFLOGObjectLevel(@"EOEditingContext", @"self didSaveChanges");
 
       [self didSaveChanges];
 
@@ -2169,8 +2169,8 @@ validateTable:(NSHashTable*)table
 ////////
       if (NSHashInsertIfAbsent(_unprocessedChanges, object)) //The object is already here
 	{
-          EOFLOGObjectLevelArgs(@"EOEditingContext",
-				@"_enqueueEndOfEventNotification");
+          EOFLOGObjectLevel(@"EOEditingContext",
+			    @"_enqueueEndOfEventNotification");
           [self _enqueueEndOfEventNotification];
 
           /*
@@ -2188,8 +2188,8 @@ validateTable:(NSHashTable*)table
           //???????????
           EOGlobalID *gid = [self globalIDForObject: object];
 
-          EOFLOGObjectLevelArgs(@"EOEditingContext",
-				@"insert into xxsnapshotsByGID");
+          EOFLOGObjectLevel(@"EOEditingContext",
+			    @"insert into xxsnapshotsByGID");
 
 	  [_eventSnapshotsByGID setObject: [object snapshot]
 				forKey: gid];
@@ -2218,7 +2218,7 @@ validateTable:(NSHashTable*)table
   NSAssert(object, @"No Object");
   NSAssert(globalID, @"No GlobalID");
   
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"insertInto _objectsById");
+  EOFLOGObjectLevel(@"EOEditingContext", @"insertInto _objectsById");
   NSMapInsert(_objectsById, object, globalID);
 
   //TODO: delete
@@ -2234,11 +2234,11 @@ validateTable:(NSHashTable*)table
     NSAssert1(aGID2, @"Object %p recorded but can't retrieve it with globalIDForObject: !", object);
   }
 
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"insertInto _objectsByGID");
+  EOFLOGObjectLevel(@"EOEditingContext", @"insertInto _objectsByGID");
 
   NSMapInsert(_objectsByGID, globalID, object);
 
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"addObserver");
+  EOFLOGObjectLevel(@"EOEditingContext", @"addObserver");
 
   [EOObserverCenter addObserver: self
                     forObject: object];

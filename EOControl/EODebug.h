@@ -183,7 +183,7 @@ extern void EOFLogAssertGood_(const char* file,int line,NSObject* object);
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg( \
         self, _cmd, __FILE__, __LINE__, format); \
-    NSLog(fmt, ##  args); [tmpPool release]; }} while (0)
+    NSLog(fmt, ## args); [tmpPool release]; }} while (0)
 
 #define EOFLOGObject(format) \
   do { \
