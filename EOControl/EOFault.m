@@ -47,6 +47,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSString.h>
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSInvocation.h>
+#include <Foundation/NSThread.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
 #else
@@ -58,6 +59,8 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSObjCRuntime.h>
 #include <GNUstepBase/GSCategories.h>
 #endif
+
+#include <objc/Protocol.h>
 
 #include <EOControl/EOFault.h>
 #include <EOControl/EOKeyGlobalID.h>
@@ -427,16 +430,16 @@ static Class EOFaultClass = NULL;
 - (void)dealloc
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Dealloc EOFault %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Dealloc EOFault %p. %@",
+              (void*)self,GSCurrentThread());
 #endif
   [EOFaultClass clearFault: self];
   NSDebugMLog(@"EOFault dealloc self=%p",self);
   if (![EOFaultClass isFault:self]) // otherwise, this loop. 
     [self dealloc];
 #ifdef DEBUG
-  NSDebugFLog(@"Stop Dealloc EOFault %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Stop Dealloc EOFault %p. %@",
+              (void*)self,GSCurrentThread());
 #endif
 }
 

@@ -148,8 +148,8 @@ RCS_ID("$Id$")
 - (id) autorelease
 {
 #ifdef DEBUG
-  NSDebugFLog(@"autorelease EOCheapCopyArray %p. ThreadID=%p [super retainCount]=%d",
-              (void*)self,(void*)objc_thread_id(),[super retainCount]);
+  NSDebugFLog(@"autorelease EOCheapCopyArray %p. %@ [super retainCount]=%d",
+              (void*)self,GSCurrentThread(),[super retainCount]);
 #endif
   return [super autorelease];
 }
@@ -157,8 +157,8 @@ RCS_ID("$Id$")
 - (void) release
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Release EOCheapCopyArray %p. ThreadID=%p [super retainCount]=%d",
-              (void*)self,(void*)objc_thread_id(),[super retainCount]);
+  NSDebugFLog(@"Release EOCheapCopyArray %p. %@ [super retainCount]=%d",
+              (void*)self,GSCurrentThread(),[super retainCount]);
 #endif
   [super release];
 }
@@ -166,8 +166,8 @@ RCS_ID("$Id$")
 - (unsigned int) retainCount
 {
 #ifdef DEBUG
-  NSDebugFLog(@"retainCount EOCheapCopyArray %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"retainCount EOCheapCopyArray %p. %@",
+              (void*)self,GSCurrentThread());
 #endif
   return [super retainCount];
 
@@ -176,8 +176,8 @@ RCS_ID("$Id$")
 - (id) retain
 {
 #ifdef DEBUG
-  NSDebugFLog(@"retain EOCheapCopyArray %p. ThreadID=%p, [super retainCount]=%d",
-              (void*)self,(void*)objc_thread_id(),[super retainCount]);
+  NSDebugFLog(@"retain EOCheapCopyArray %p. %@, [super retainCount]=%d",
+              (void*)self,GSCurrentThread(),[super retainCount]);
 #endif
   return [super retain];
 }
@@ -276,16 +276,16 @@ RCS_ID("$Id$")
   NSDeallocateObject(self);
 
 #ifdef DEBUG
-  NSDebugFLog(@"Stop Dealloc EOCheapCopyMutableArray %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Stop Dealloc EOCheapCopyMutableArray %p. %@",
+              (void*)self,GSCurrentThread());
 #endif
 }
 
 - (id) shallowCopy
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Start shallowCopy EOCheapCopyMutableArray %p. ThreadID=%p immutableCopy=%p",
-              (void*)self,(void*)objc_thread_id(),_immutableCopy);
+  NSDebugFLog(@"Start shallowCopy EOCheapCopyMutableArray %p. %@ immutableCopy=%p",
+              (void*)self,GSCurrentThread(),_immutableCopy);
 #endif
   //OK
   if (!_immutableCopy)
@@ -299,8 +299,8 @@ RCS_ID("$Id$")
   RETAIN(_immutableCopy); // Because copy return a not autoreleased object. Retain for request caller
 
 #ifdef DEBUG
-  NSDebugFLog(@"Stop shallowCopy EOCheapCopyMutableArray %p. ThreadID=%p immutableCopy=%p",
-              (void*)self,(void*)objc_thread_id(),_immutableCopy);
+  NSDebugFLog(@"Stop shallowCopy EOCheapCopyMutableArray %p. %@ immutableCopy=%p",
+              (void*)self,GSCurrentThread(),_immutableCopy);
 #endif
   return _immutableCopy;
 }

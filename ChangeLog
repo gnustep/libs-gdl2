@@ -1,3 +1,20 @@
+2003-02-26  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EODebug.h: Include missing header for non-*-gnu-*.
+	* EOAccess/EOAdaptor
+	([EOAdaptor _performAdministativeStatementsForSelect:
+	connectionDictionary:administrativeConnectionDictionary]):
+	Add cast to silence warning.
+	* EOControl/EOCheapArray.m ([EOCheapArray autorelease]):
+	Replace objc_thread_id with GSCurrentThread.
+	([EOCheapArray release]): Ditto.
+	([EOCheapArray retainCount]): Ditto.
+	([EOCheapArray retain]): Ditto.
+	([EOCheapArray dealloc]): Ditto.
+	([EOCheapArray shallowCopy]): Ditto.
+	* EOControl/EOFault.m: Include missing header.
+	([EOFault dealloc]): Replace objc_thread_id with GSCurrentThread.
+
 2003-02-26  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/Postgres95Channel.m: Added missing 

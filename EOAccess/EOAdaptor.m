@@ -365,9 +365,9 @@ NSString *EOAdministrativeConnectionDictionaryKey
       NSArray          *stmts;
       int i;
 
-      stmts = [[self expressionClass] performSelector: sel
-				      withObject: connDict
-				      withObject: admConnDict];
+      stmts = [(id)[self expressionClass] performSelector: sel
+					  withObject: connDict
+					  withObject: admConnDict];
 
       /*TODO: check if we need a model. */
       admAdaptor = [EOAdaptor adaptorWithName: [self name]];
