@@ -49,11 +49,13 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSInvocation.h>
 #import <Foundation/NSLock.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSDebug.h>
 
 #include <objc/objc-api.h>
 
 #import <EOControl/EOFault.h>
 #import <EOControl/EOKeyGlobalID.h>
+#import <EOControl/EODebug.h>
 
 #import <EOAccess/EODatabaseContext.h>
 

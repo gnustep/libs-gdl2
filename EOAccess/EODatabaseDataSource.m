@@ -42,6 +42,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSString.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSCoder.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EODatabaseDataSource.h>
 #import <EOAccess/EOEntity.h>
@@ -56,6 +57,7 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOKeyValueArchiver.h>
 #import <EOControl/EODataSource.h>
 #import <EOControl/EODetailDataSource.h>
+#import <EOControl/EODebug.h>
 
 
 @implementation EODatabaseDataSource

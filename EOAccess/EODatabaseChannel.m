@@ -61,6 +61,7 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOClassDescription.h>
 #import <EOControl/EOGlobalID.h>
 #import <EOControl/EOObjectStore.h>
+#import <EOControl/EODebug.h>
 
 
 @implementation EODatabaseChannel

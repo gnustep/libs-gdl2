@@ -38,11 +38,15 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSUtilities.h>
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSUserDefaults.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOAdaptor.h>
 #import <EOAccess/EOAdaptorPriv.h>
 #import <EOAccess/EOAdaptorContext.h>
 #import <EOAccess/EOAdaptorChannel.h>
+
+#import <EOControl/EODebug.h>
+
 
 NSString *EOAdaptorContextBeginTransactionNotification = @"EOAdaptorContextBeginTransactionNotofication";
 NSString *EOAdaptorContextCommitTransactionNotification = @"EOAdaptorContextCommitTransactionNotofication";

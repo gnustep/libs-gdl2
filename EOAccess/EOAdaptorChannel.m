@@ -46,6 +46,7 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOMutableKnownKeyDictionary.h>
 #import <EOControl/EOFetchSpecification.h>
 #import <EOControl/EONSAddOns.h>
+#import <EOControl/EODebug.h>
 
 
 NSString *EOAdaptorOperationsKey = @"EOAdaptorOperationsKey";

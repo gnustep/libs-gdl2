@@ -35,12 +35,15 @@ static char rcsId[] = "$Id$";
 
 #import <Foundation/NSString.h>
 #import <Foundation/NSUtilities.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOAttribute.h>
 #import <EOAccess/EORelationship.h>
 #import <EOAccess/EOJoin.h>
+
+#import <EOControl/EODebug.h>
 
 
 @implementation EOJoin

@@ -44,6 +44,7 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EONull.h>
 #import <EOControl/EOUndoManager.h>
 #import <EOControl/EONSAddOns.h>
+#import <EOControl/EODebug.h>
 
 #import <EOAccess/EOEntity.h>
 

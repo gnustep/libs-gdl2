@@ -48,6 +48,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSDecimalNumber.h>
 #import <Foundation/NSValue.h>
 #import <Foundation/NSCalendarDate.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOEntity.h>
@@ -60,6 +61,7 @@ static char rcsId[] = "$Id$";
 
 #import <EOControl/EONull.h>
 #import <EOControl/EOObserver.h>
+#import <EOControl/EODebug.h>
 
 
 @implementation EOAttribute

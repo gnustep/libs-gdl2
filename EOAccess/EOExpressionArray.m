@@ -43,12 +43,16 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSValue.h>
 #import <Foundation/NSDate.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSDebug.h>
 
 #import <gnustep/base/GSObjCRuntime.h>
 
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOExpressionArray.h>
 #import <EOAccess/EORelationship.h>
+
+#import <EOControl/EODebug.h>
+
 
 
 @implementation EOExpressionArray

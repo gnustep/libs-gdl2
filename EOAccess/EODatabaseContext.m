@@ -46,6 +46,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSData.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOAdaptor.h>
 #import <EOAccess/EOAdaptorChannel.h>
@@ -80,6 +81,7 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOCheapArray.h>
 #import <EOControl/EONSAddOns.h>
 #import <EOControl/EONull.h>
+#import <EOControl/EODebug.h>
 
 
 #define _LOCK_BUFFER 128

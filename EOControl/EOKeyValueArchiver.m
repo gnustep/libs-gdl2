@@ -36,6 +36,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/Foundation.h>
 
 #import <EOControl/EOKeyValueArchiver.h>
+#import <EOControl/EODebug.h>
 
 
 @interface EOKeyValueArchivingContainer : NSObject

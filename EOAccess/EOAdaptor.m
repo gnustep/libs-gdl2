@@ -54,6 +54,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSFileManager.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOAdaptor.h>
 #import <EOAccess/EOAdaptorPriv.h>

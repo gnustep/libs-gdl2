@@ -36,11 +36,13 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSObject.h>
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSNotification.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOControl/EOClassDescription.h>
 #import <EOControl/EOKeyValueCoding.h>
 #import <EOControl/EONull.h>
 #import <EOControl/EOObserver.h>
+#import <EOControl/EODebug.h>
 
 
 @implementation NSObject (EOObserver)

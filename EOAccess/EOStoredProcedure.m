@@ -34,6 +34,7 @@
 static char rcsId[] = "$Id$";
 
 #import <Foundation/NSException.h>
+#import <Foundation/NSDebug.h>
 
 #import <gnustep/base/GCObject.h>
 

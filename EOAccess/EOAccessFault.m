@@ -38,12 +38,14 @@ static char rcsId[] = "$Id$";
 #endif
 
 #import <Foundation/NSException.h>
+#import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOAccessFault.h>
 #import <EOAccess/EOAccessFaultPriv.h>
 #import <EOAccess/EODatabaseContext.h>
 
 #import <EOControl/EOCheapArray.h>
+#import <EOControl/EODebug.h>
 
 
 NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAvailableException";

@@ -36,6 +36,7 @@ static char rcsId[] = "$Id$";
 
 #import <EOControl/EOObjectStoreCoordinator.h>
 #import <EOControl/EOEditingContext.h>
+#import <EOControl/EODebug.h>
 
 #import <EOAccess/EODatabaseContext.h>
 #import <EOAccess/EOModelGroup.h>

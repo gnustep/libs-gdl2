@@ -37,6 +37,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSString.h>
 
 #import <EOControl/EOGlobalID.h>
+#import <EOControl/EODebug.h>
 
 #include <time.h>
 #include <unistd.h>

@@ -39,11 +39,13 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSObjCRuntime.h>
-
+#import <Foundation/NSDebug.h>
 #import <Foundation/NSException.h>
+
 #import <gnustep/base/GCObject.h>
 
 #import <EOControl/EOFault.h>
+#import <EOControl/EODebug.h>
 
 
 BOOL __isGCEnabled(Class class_)

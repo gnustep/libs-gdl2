@@ -42,6 +42,8 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSLock.h>
 #import <Foundation/NSValue.h>
 #import <Foundation/NSHashTable.h>
+#import <Foundation/NSDebug.h>
+
 #import <gnustep/base/GSObjCRuntime.h>
 
 #import <EOAccess/EOEntity.h>
