@@ -11,6 +11,9 @@
 	* EOAdaptors/Postgres95/Postgres95Values.m
 	(newValueForBytes:length:attribute:): Remove reference to
 	EOAdaptorUnknownType.
+
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m
+	(externalNameQuoteCharacter): Remove.
 	
 2005-02-14  David Ayers  <d.ayers@inode.at>
 

@@ -383,14 +383,6 @@ static IMP NSCalendarDatePostgres95FormatIMP=NULL;
   return formatted;
 }
 
-- (NSString *)externalNameQuoteCharacter
-{
-  if ([EOSQLExpression useQuotedExternalNames])
-    return @"'";
-  else
-    return @"";
-}
-
 - (NSString *)lockClause
 {
   return @"FOR UPDATE";
