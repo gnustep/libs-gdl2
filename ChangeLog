@@ -1,4 +1,10 @@
-2005-02-00  David Ayers  <d.ayers@inode.at>
+2005-02-08  Matt Rice  <ratmice@yahoo.com>
+
+	* EOControl/EOEditingContext.m (-_globalIDChanged:): Add key
+	to the snapshot dict before removing the temporary gid. Assert
+	that the temporary gid and the new gid are not equal.
+
+2005-02-08  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOModel.m (-init): Initialize _storedProcedures.
 	(-storedProcedureNames): Simplify.

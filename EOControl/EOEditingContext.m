@@ -801,9 +801,10 @@ _mergeValueForKey(id obj, id value,
 
       if (snapshot)
         {
-          [_snapshotsByGID removeObjectForKey: tempGID];
+          NSAssert(gid != tempGID, @"gid and temporary gid are the same");
           [_snapshotsByGID setObject: snapshot
-                           forKey: gid];          
+                           forKey: gid];
+          [_snapshotsByGID removeObjectForKey: tempGID];
         }
       else if (object)
         {
