@@ -1,3 +1,9 @@
+2004-09-28  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOEntity.m ([EOEntityClassDescription
+	awakeObject:fromInsertionInEditingContext:]): Only process class
+	properties.  Remove inactive code.  Document.
+	
 2004-09-26  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOObserver.m: Update includes.  Document classes and

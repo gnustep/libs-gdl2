@@ -4313,155 +4313,83 @@ fromFetchInEditingContext: (EOEditingContext *)context
   EOFLOGObjectFnStop();
 }
 
+/**
+ * Overrides [EOClassDescription-awakeObject:fromInsertionInEditingContext:]
+ * to initialize the class property relationships.  The toMany relationships
+ * properties are initialized with a mutable array, while toOne relationships
+ * which propagate the primary key of the object get instantiated with a
+ * freshly initialzed instance.  Whether a relationship is manditory or not
+ * is irrelevant at this point.
+ */
 - (void)awakeObject: (id)object
-fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
+fromInsertionInEditingContext: (EOEditingContext *)context
 {
-  //near OK
+  NSArray *relationships;
+  NSArray *classProperties;
+  EORelationship *relationship;
+  int i, count;
+
   EOFLOGObjectFnStart();
+
   [super awakeObject: object
-         fromInsertionInEditingContext: anEditingContext];
-  {
-    NSArray *relationships = [_entity relationships];
-    NSArray *classProperties = [_entity classProperties];//TODO use it !
-    int i, count = [relationships count];
+         fromInsertionInEditingContext: context];
 
-    for (i = 0; i < count; i++)
-      {
-        EORelationship *relationship = [relationships objectAtIndex: i];
-        BOOL isToMany = [relationship isToMany];
+  relationships = [_entity relationships];
+  classProperties = [_entity classProperties];
+  count = [relationships count];
 
-        if (isToMany)
-          {
-            // We put a value only if there's not already one
-            NSString* relationshipName=[relationship name];
-            id relationshipValue = [object storedValueForKey:relationshipName];
-            if (relationshipValue == nil)
-              {
-                //Put an empty mutable array [Ref: Assigns empty arrays to to-many 
-                // relationship properties of newly inserted enterprise objects]
-                [object takeStoredValue: [EOCheapCopyMutableArray array]
-                        forKey: [relationship name]];
-              }
-          }
-        else //??
-          {
-/* Manuel 
-My (old) tests show that we create 1: object not on mandatory property but on propagatesPrimaryKey one *only*
-if someone has an example of EOF creating an object here without propagatesPrimaryKey, please send it to me.
-*/
-#if 1
-            BOOL propagatesPrimaryKey = [relationship propagatesPrimaryKey];
+  for (i = 0; i < count; i++)
+    {
+      relationship = [relationships objectAtIndex: i];
 
-            if (propagatesPrimaryKey)
-              {
-                int classPropIndex = [classProperties
-				       indexOfObjectIdenticalTo: relationship];
+      if ([classProperties containsObject: relationship])
+	{
+	  if ([relationship isToMany])
+	    {
+	      NSString *name = [relationship name];
+	      id relationshipValue 
+		= [object storedValueForKey: name];
 
-                if (classPropIndex == NSNotFound)
-                  {
-		    NSEmitTODO(); //TODO
-                    [self notImplemented: _cmd]; //TODO gid
-                  }
-                else
-                  {
-                    NSString *relationshipName = [relationship name];
-                    id relationshipValue = [object valueForKey:
-						     relationshipName];//nil
+	      /* We put a value only if there's not already one */
+	      if (relationshipValue == nil)
+		{
+		  /* [Ref: Assigns empty arrays to to-many 
+		     relationship properties of newly inserted 
+		     enterprise objects] */
+		  [object takeStoredValue: [EOCheapCopyMutableArray array]
+			  forKey: name];
+		}
+	    }
+	  else
+	    {
+	      if ([relationship propagatesPrimaryKey])
+		{
+		  NSString *name = [relationship name];
+		  id relationshipValue 
+		    = [object valueForKey: name];
 
-                    if (relationshipValue)
-                      {
-                        //Do nothing ??
-			NSEmitTODO();  //TODO
-                        [self notImplemented: _cmd];//TODO??
-                      }
-                    else
-                      {
-                        EOEntity *relationshipDestinationEntity =
-			  [relationship destinationEntity];
-                        EOClassDescription *classDescription =
-			  [relationshipDestinationEntity
-			    classDescriptionForInstances];
+		  if (relationshipValue == nil)
+		    {
+		      EOEntity *destinationEntity 
+			= [relationship destinationEntity];
+		      EOClassDescription *classDescription
+			= [destinationEntity classDescriptionForInstances];
 
-                        relationshipValue = [classDescription
-					      createInstanceWithEditingContext:
-						anEditingContext
-					      globalID: nil
-					      zone: NULL];
+		      relationshipValue 
+			= [classDescription createInstanceWithEditingContext:
+					      context
+					    globalID: nil
+					    zone: NULL];
 
-                        [object addObject: relationshipValue
-                                toBothSidesOfRelationshipWithKey:
-				  relationshipName];
+		      [object addObject: relationshipValue
+			      toBothSidesOfRelationshipWithKey: name];
 
-                        [anEditingContext insertObject: relationshipValue];
-                        /*
-                          //Mirko code 
-                          EOEntity *entityTo;
-                    
-                          objectTo = [object storedValueForKey:[relationship name]];
-                          entityTo = [relationship destinationEntity];
-                    
-                          if ([relationship isMandatory] == YES && objectTo == nil)
-                          {
-                          EODatabaseOperation *opTo;
-                          EOGlobalID *gidTo;
-                    
-                          objectTo = [[entityTo classDescriptionForInstances]
-                          createInstanceWithEditingContext:context
-                          globalID:nil
-                          zone:NULL];
-                    
-                          gidTo = [entityTo globalIDForRow:newPK];
-                    
-                          opTo = [self _dbOperationWithGlobalID:gidTo
-                          object:objectTo
-                          entity:entityTo
-                          operator:EODatabaseInsertOperator];
-                          }
-                    
-                          if (objectTo && [entityTo
-                          isPrimaryKeyValidInObject:objectTo] == NO)
-                          {
-                          pk = AUTORELEASE([[[entityTo primaryKeyAttributeNames] mutableCopy]);
-                          [pk removeObjectsInArray:[entityTo classPropertyNames]];
-                    
-                          pkObj = AUTORELEASE([newPK mutableCopy]);
-                          [pkObj removeObjectsForKeys:pk];
-                    
-                          [objectTo takeStoredValuesFromDictionary:pkObj];
-                          }
-                        */
-                      }
-                  }
-              }
-#else
-            // We'll put only mandatory values
-            if ([relationship isMandatory])
-	      {
-                NSString* relationshipName=[relationship name];
-		id objectTo = [object storedValueForKey:relationshipName];
-
-                // We put a value only if there's not already one
-		if (objectTo == nil)
-		  {
-		    EOEntity *entityTo=nil;
-
-                    entityTo = [relationship destinationEntity];
-                    objectTo = [[entityTo classDescriptionForInstances]
-				 createInstanceWithEditingContext:
-				   anEditingContext
-				 globalID: nil
-				 zone: NULL];
-
-                    [anEditingContext insertObject: objectTo];
-
-                    [object addObject: objectTo
-			    toBothSidesOfRelationshipWithKey:relationshipName];
-		  }
-	      }
-#endif
-          }
-      }
-  }
+		      [context insertObject: relationshipValue];
+		    }
+		}
+	    }
+	}
+    }
   EOFLOGObjectFnStop();
 }
 
