@@ -3,6 +3,9 @@
 	* EOAccess/EOEntity.m: Remove unnecessary include.
 	(-setClassProperties:, -setPrimaryKeyAttributes:)
 	(-setAttributesUsedForLocking:): Remove unnecessary casts.
+
+	* EOAccess/EODatabaseContext.m:
+	(-_currentCommittedSnapshotForObject:): Fix crash in logging.
 	
 2005-02-16  David Ayers  <d.ayers@inode.at>
 

@@ -2493,7 +2493,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
                   
                   // Get a dictionary of object properties+PK+relationships CURRENT values 
                   snapshot = [object snapshot]; //OK for Update+Insert
-                      
+		  
                   NSDebugMLLog(@"EODatabaseContext", @"snapshot %p: %@",
                                snapshot, snapshot);
                   NSDebugMLLog(@"EODatabaseContext",
@@ -7348,7 +7348,7 @@ If the object has been just inserted, the dictionary is empty.
       snapshot = [_editingContext committedSnapshotForObject: object];//OK
       NSDebugMLLog(@"EODatabaseContext",
                    @"snapshot %p=%@",
-                   snapshot);
+                   snapshot, snapshot);
       break;
 
     case EODatabaseInsertOperator:
@@ -7368,7 +7368,7 @@ If the object has been just inserted, the dictionary is empty.
 
   NSDebugMLLog(@"EODatabaseContext",
                @"snapshot %p=%@",
-               snapshot);
+               snapshot, snapshot);
 
   EOFLOGObjectFnStop();
 
