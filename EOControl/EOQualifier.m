@@ -180,12 +180,17 @@ static NSString *getOperator(const char **cFormat, const char **s)
   return operator;
 }
         
-static id getKey(const char **cFormat, const char **s, BOOL *isKeyValue,
-		 va_list *args)
+static id
+getKey(const char **cFormat, 
+       const char **s,
+       BOOL *isKeyValue,
+       va_list *args)
 {
-  NSMutableString *key, *classString = nil;
+  NSMutableString *key;
+  NSString *classString = nil;
   char quoteChar;
   BOOL quoted = NO;
+  BOOL literalNumber = NO;
 
   while (**s && isspace(**s))
     (*s)++;
@@ -199,7 +204,7 @@ static id getKey(const char **cFormat, const char **s, BOOL *isKeyValue,
 	  while (**s && **s != ')')
 	    (*s)++;
 
-	  if (!*s); //TODO exception
+	  NSCAssert(*s, @"Illegal Qualifer format missing bracket.");
 
 	  classString = [NSString stringWithCString: *cFormat
 				  length: *s - *cFormat];
@@ -241,15 +246,25 @@ static id getKey(const char **cFormat, const char **s, BOOL *isKeyValue,
     {
       key = [NSMutableString stringWithCapacity:8];
 
+      if (classString == nil 
+	  && (isdigit(**s) || (**s == '-' && isdigit(*(*s+1)))))
+	{
+	  classString = @"NSNumber";
+	  literalNumber = YES;
+	}
+	
       while (**s && (isalnum(**s) || **s == '@' || **s == '#' || **s == '_'
-		     || **s == '$' || **s == '%' || **s == '.'))
+		     || **s == '$' || **s == '%' || **s == '.' || **s == '-'))
         {
 	  if (**s == '%')
 	    {
 	      const char *argString;
 	      NSString *argObj;
-	      //float argFloat;
-	      double argFloat; // `float' is promoted to `double' when passed through `...' (so you should pass `double' not `float' to `va_arg')
+	      double argFloat; 
+	      /* 'float' is promoted to 'double' when passed through '...'
+		 (so you should pass 'double' not 'float' to `va_arg')
+		 Ayers: I believe the compiler should does promotion implicitly
+		 but there are buggy compilers so cast to be safe.  */
 
 	      int argInt;
 
@@ -371,7 +386,7 @@ static id getKey(const char **cFormat, const char **s, BOOL *isKeyValue,
 
   if (isKeyValue)
     {
-      *isKeyValue = quoted;
+      *isKeyValue = (quoted || literalNumber);
 
       if (classString)
         {
