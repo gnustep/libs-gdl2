@@ -1,7 +1,7 @@
 /**
    EOEntity.m <title>EOEntity Class</title>
 
-   Copyright (C) 2000 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2002, 2003 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
    Date: February 2000
@@ -91,14 +91,14 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 + (EOEntity *)entity
 {
-  return [[[self alloc] init] autorelease];
+  return AUTORELEASE([[self alloc] init]);
 }
 
 + (EOEntity *)entityWithPropertyList: (NSDictionary *)propertyList
 			       owner: (id)owner
 {
-  return [[[self alloc] initWithPropertyList: propertyList
-			owner: owner] autorelease];
+  return AUTORELEASE([[self alloc] initWithPropertyList: propertyList
+				   owner: owner]);
 }
 
 - (id) initWithPropertyList: (NSDictionary*)propertyList
@@ -312,11 +312,10 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                 NSEnumerator *variablesEnum;
                 id fetchSpecName;
 
-                unarchiver = [[[EOKeyValueUnarchiver alloc]
-				initWithDictionary:
-				  [NSDictionary dictionaryWithObject: plist
-						forKey: @"fspecs"]]
-			       autorelease];
+                unarchiver = AUTORELEASE([[EOKeyValueUnarchiver alloc]
+			       initWithDictionary:
+			       [NSDictionary dictionaryWithObject: plist
+					     forKey: @"fspecs"]]);
 
                 variables = [unarchiver decodeObjectForKey: @"fspecs"];
                 //NSLog(@"fspecs variables:%@",variables);
@@ -2030,7 +2029,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   if ([self createsMutableObjects])
     [(GCMutableArray *)_attributes addObject: attribute];
   else
-    _attributes = RETAIN([[_attributes autorelease]
+    _attributes = RETAIN([AUTORELEASE(_attributes)
 		     arrayByAddingObject: attribute]);
 
   if (_attributesByName == nil)
@@ -2055,9 +2054,13 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 	[(GCMutableArray *)_attributes removeObject: attribute];
       else
         {
-          _attributes = [[GCMutableArray alloc] initWithArray:[_attributes autorelease] copyItems:NO];
+          _attributes
+	    = [[GCMutableArray alloc] initWithArray:AUTORELEASE(_attributes)
+				      copyItems:NO];
 	  [(GCMutableArray *)_attributes removeObject: attribute];
-      _attributes = [[GCArray alloc] initWithArray:[_attributes autorelease] copyItems:NO];
+	  _attributes 
+	    = [[GCArray alloc] initWithArray:AUTORELEASE(_attributes)
+			       copyItems:NO];
         }
       [_attributesByName removeObjectForKey: [attribute name]];
       [self _setIsEdited];//To clean caches
@@ -2087,8 +2090,14 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   if ([self createsMutableObjects])
     [(GCMutableArray *)_relationships addObject: relationship];
   else
-    _relationships = RETAIN([[_relationships autorelease]
-			arrayByAddingObject: relationship]);
+    _relationships = RETAIN([AUTORELEASE(_relationships)
+					arrayByAddingObject: relationship]);
+    
+  if (_relationshipsByName == nil)
+    {
+      _relationshipsByName = [GCMutableDictionary new];
+    }
+  [_relationshipsByName setObject: relationship forKey: relationshipName];
   
   [relationship setEntity: self];
   [self _setIsEdited];//To clean caches
@@ -2109,9 +2118,13 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 	[(GCMutableArray *)_relationships removeObject: relationship];
       else
         {
-          _relationships = [[GCMutableArray alloc] initWithArray:[_relationships autorelease] copyItems:NO];
+          _relationships
+	    = [[GCMutableArray alloc] initWithArray:AUTORELEASE(_relationships)
+				      copyItems:NO];
 	  [(GCMutableArray *)_relationships removeObject: relationship];
-	  _relationships = [[GCArray alloc] initWithArray:[_relationships autorelease] copyItems:NO];
+	  _relationships
+	    = [[GCArray alloc] initWithArray:AUTORELEASE(_relationships)
+			       copyItems:NO];
         }
       [self _setIsEdited];//To clean caches
     }
@@ -2633,13 +2646,21 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
   if (_flags.createsMutableObjects)
     {
-      _attributes = [[GCMutableArray alloc] initWithArray:[_attributes autorelease] copyItems:NO];
-      _relationships = [[GCMutableArray alloc] initWithArray:[_relationships autorelease] copyItems:NO];
+      _attributes
+	= [[GCMutableArray alloc] initWithArray:AUTORELEASE(_attributes)
+				  copyItems:NO];
+      _relationships
+	= [[GCMutableArray alloc] initWithArray:AUTORELEASE(_relationships)
+				  copyItems:NO];
     }
   else
     {
-      _attributes = [[GCArray alloc] initWithArray:[_attributes autorelease] copyItems:NO];
-      _relationships = [[GCArray alloc] initWithArray:[_relationships autorelease] copyItems:NO];
+      _attributes
+	= [[GCArray alloc] initWithArray:AUTORELEASE(_attributes)
+			   copyItems:NO];
+      _relationships
+	= [[GCArray alloc] initWithArray:AUTORELEASE(_relationships)
+			   copyItems:NO];
     }
 
   NSAssert4(!_attributesToFetch
@@ -3769,7 +3790,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"expression=%@", description);
 
-  expressionArray = [[EOExpressionArray new] autorelease];
+  expressionArray = AUTORELEASE([EOExpressionArray new]);
   s = [description cString];
 
   if (s)
@@ -3855,7 +3876,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
           NSLog(@"exception=%@", localException);
 
           [pool release];//Release the pool !
-          [localException autorelease];
+          AUTORELEASE(localException);
           [localException raise];
         }
       NS_ENDHANDLER;
@@ -4091,7 +4112,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 
 + (EOEntityClassDescription*)entityClassDescriptionWithEntity: (EOEntity *)entity
 {
-  return [[[self alloc] initWithEntity: entity] autorelease];
+  return AUTORELEASE([[self alloc] initWithEntity: entity]);
 }
 
 - (id)initWithEntity: (EOEntity *)entity
@@ -4247,11 +4268,10 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                           if (objectTo && [entityTo
                           isPrimaryKeyValidInObject:objectTo] == NO)
                           {
-                          pk = [[[entityTo primaryKeyAttributeNames] mutableCopy]
-                          autorelease];
+                          pk = AUTORELEASE([[[entityTo primaryKeyAttributeNames] mutableCopy]);
                           [pk removeObjectsInArray:[entityTo classPropertyNames]];
                     
-                          pkObj = [[newPK mutableCopy] autorelease];
+                          pkObj = AUTORELEASE([newPK mutableCopy]);
                           [pkObj removeObjectsForKeys:pk];
                     
                           [objectTo takeStoredValuesFromDictionary:pkObj];
@@ -4333,13 +4353,11 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
     {
       EOFLOGObjectLevelArgs(@"EOEntity", @"objectClass=%@", objectClass);
 
-      obj = [[objectClass allocWithZone:zone]
-	      initWithEditingContext: editingContext
-	      classDescription: self
-	      globalID: globalID];
+      obj = AUTORELEASE([[objectClass allocWithZone:zone]
+			  initWithEditingContext: editingContext
+			  classDescription: self
+			  globalID: globalID]);
     }
-
-  [obj autorelease];
 
   EOFLOGObjectFnStop();
 
