@@ -6,7 +6,9 @@
 	(-[setName:]): Mark as editited if parent is an entity.
 
 	* EOAccess/EOModel.m (-[_updateCache]): New method.
+	(-[_addEntity:]): Set model via public API.
 	* EOAccess/EOEntity.m
+	* EOAccess/EOEntityPriv.h
 	(-[EOModel _updateCache]): Declare private EOModel method.
 	(-[setName:]): Insure model updates its cache.
 	(-[setModel:]): Set instance variable directly without 

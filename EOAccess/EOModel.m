@@ -63,6 +63,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EOObserver.h>
+#include <EOControl/EOKeyValueCoding.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 
@@ -1360,7 +1361,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   [self _setEntity: entity
         forEntityName: [entity name]
         className: entityClassName];
-  [entity _setModel: self];
+  [entity setModel: self];
 
   return entity;
 }

@@ -86,7 +86,6 @@
 - (EOMKKDInitializer *)_primaryKeyDictionaryInitializer;
 - (EOMKKDInitializer *)_propertyDictionaryInitializer;
 - (EOMKKDInitializer *)_instanceDictionaryInitializer;
-- (void)_setModel: (EOModel *)model;
 - (void)_setIsEdited;
 - (NSArray *)_classPropertyAttributes;
 
