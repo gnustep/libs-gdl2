@@ -48,6 +48,10 @@ ADDITIONAL_CFLAGS =
 ADDITIONAL_INCLUDE_DIRS = -I..
 
 # Additional LDFLAGS to pass to the linker
+ifneq ($(FOUNDATION_LIB),gnu)
+ADDITIONAL_TOOL_LIBS += -lgnustep-baseadd
+endif
+
 ADDITIONAL_TOOL_LIBS += -lgnustep-db2 -lgnustep-db2control
 
 # Additional library directories the linker should search

@@ -10,6 +10,7 @@
 	* EOControl/Makefile.preamble: Ditto.
 	* EOModeler/Makefile.preamble: Ditto.
 	* Tools/Makefile.preamble: Ditto.
+	Add -lgnustep-baseadd as ADDITIONAL_TOOL_LIBS for non-*-gnu-*.
 	
 2003-01-29  David Ayers  <d.ayers@inode.at>
 
