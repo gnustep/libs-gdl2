@@ -4306,7 +4306,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   //Near OK
   NSString *inverseName = nil;
   EORelationship *relationship = [_entity relationshipNamed: relationshipKey];
-  NSArray *classProperties = [_entity classProperties];
+  NSArray *classPropertieNames = [_entity classPropertyNames];
   EOEntity *parentEntity = [_entity parentEntity];
   //TODO what if parentEntity
   EORelationship *inverseRelationship = [relationship inverseRelationship];
@@ -4319,6 +4319,9 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
       [inverseRelationshipEntity classProperties];*/
 
       inverseName = [inverseRelationship name];
+
+      if (![classPropertieNames containsObject: inverseName])
+	inverseName = nil;
     }
 
   return inverseName;
