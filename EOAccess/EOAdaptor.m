@@ -58,6 +58,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSException.h>
 #include <Foundation/NSFileManager.h>
 #include <Foundation/NSData.h>
+#include <Foundation/NSSet.h>
 #include <Foundation/NSDebug.h>
 #else
 #include <Foundation/Foundation.h>
@@ -301,6 +302,13 @@ NSString *EOAdministrativeConnectionDictionaryKey
   return panel;
 }
 
+/**
+ * Returns an array of EOAdaptor frameworks found in the standard
+ * framework locations.  If an adaptor is found in multiple locations
+ * the name is listed only once.  An adaptor framework is recognized
+ * the the "EOAdaptor.framework" suffix.  The framework name without
+ * this suffix is the name returned in the array.
+ */
 + (NSArray *)availableAdaptorNames
 {
   NSArray	 *pathArray = NSStandardLibraryPaths();
@@ -310,34 +318,33 @@ NSString *EOAdministrativeConnectionDictionaryKey
   NSArray	 *fileNames;
   NSEnumerator	 *filesEnum;
   NSString	 *fileName;
-  NSMutableArray *adaptorNames = AUTORELEASE([NSMutableArray new]);
+  NSMutableSet   *adaptorNames = [NSMutableSet set];
+  NSString       *adaptorSuffix = @"EOAdaptor.framework";
   
   EOFLOGObjectFnStartOrCond2(@"AdaptorLevel", @"EOAdaptor");
 
   while ((searchPath = [pathEnum nextObject]))
     {
-      fileNames = [defaultManager
-		    directoryContentsAtPath:
-		      [searchPath stringByAppendingPathComponent:@"Frameworks"]];
+      searchPath = [searchPath stringByAppendingPathComponent: @"Frameworks"];
+      fileNames = [defaultManager directoryContentsAtPath: searchPath];
       filesEnum = [fileNames objectEnumerator];
     
-      //NSLog(@"EOAdaptor : availableAdaptorNames, path = %@", searchPath);
+      NSDebugMLLog(@"EOAdaptor", @"path = %@", searchPath);
     
       while ((fileName = [filesEnum nextObject]))
 	{
-	  //NSLog(@"EOAdaptor : availableAdaptorNames, fileName = %@", fileName);
-	  if ([fileName hasSuffix:@"EOAdaptor.framework"]) {
-	    [adaptorNames addObject:
-			    [fileName substringToIndex: 
-					([fileName length]
-					 - [@"EOAdaptor.framework" length])]];
-	  }
+	  NSDebugMLLog(@"EOAdaptor", @"fileName = %@", fileName);
+	  if ([fileName hasSuffix: adaptorSuffix])
+	    {
+	      fileName = [fileName stringByDeletingSuffix: adaptorSuffix];
+	      [adaptorNames addObject: fileName];
+	    }
 	}
     }
 
   EOFLOGObjectFnStopOrCond2(@"AdaptorLevel", @"EOAdaptor");
   
-  return adaptorNames;
+  return [adaptorNames allObjects];
 }
 
 - (void)_performAdministativeStatementsForSelector: (SEL)sel

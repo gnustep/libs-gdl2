@@ -1,3 +1,9 @@
+2004-04-23  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAdaptor.m ([EOAdaptor availableAdaptorNames]):
+	Return unique names if multiple Adaptors are found.  Document.
+	Reported by Matt Rice <ratmice@yahoo.com>.
+	
 2004-04-21  David Ayers  <d.ayers@inode.at>
 
 	* README: New file.
