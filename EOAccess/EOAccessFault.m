@@ -145,8 +145,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 {
   if ((self = [super init]))
     {
-  NSDebugFLog(@"INIT EOAccessFaultHandler %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+      NSDebugFLog(@"INIT EOAccessFaultHandler %p. ThreadID=%@",
+		  (void*)self,GSCurrentThread());
     }
 
   return self;
@@ -183,8 +183,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 - (void)dealloc
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%@",
+              (void*)self, GSCurrentThread());
 #endif
 
   DESTROY(gid);
@@ -193,10 +193,6 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
   [super dealloc];
 
-#ifdef DEBUG
-//  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
-//              (void*)self,(void*)objc_thread_id());
-#endif
 }
 
 - (EOKeyGlobalID *)globalID
@@ -224,7 +220,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
   EOFLOGObjectFnStart();
 
   // We want to be sure that we will not be autoreleased 
-  // in a sub autorelease pool !
+  // in an autorelease pool of another thread!
   AUTORELEASE(RETAIN(self)); 
 
   [databaseContext _fireFault: anObject];
@@ -326,8 +322,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 - (void)dealloc
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Dealloc EOAccessArrayFaultHandler %p. ThreadID=%@",
+              (void*)self,GSCurrentThread());
 #endif
 
   DESTROY(sgid);
@@ -336,10 +332,6 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
   DESTROY(editingContext);
 
   [super dealloc];
-#ifdef DEBUG
-//  NSDebugFLog(@"Stop Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
-//              (void*)self,(void*)objc_thread_id());
-#endif
 }
 
 - (EOKeyGlobalID *)sourceGlobalID
@@ -367,7 +359,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
   EOFLOGObjectFnStart();
 
   // We want to be sure that we will not be autoreleased 
-  // in a sub autorelease pool !
+  // in an autorelease pool of another thread!
   AUTORELEASE(RETAIN(self)); 
 
   [databaseContext _fireArrayFault: anObject];

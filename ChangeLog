@@ -20,6 +20,12 @@
 	to islower.  Format according to coding standards.
 	* EOControl/EOKeyValueCoding.m (-takeValue:forKeyPath:isSmart:)
 	Use unsigned for index bookkeeping.
+
+	* EOAccess/EOAccessFault.m ([EOAccessFaultHandler-init])
+	([EOAccessFaultHandler-dealloc])
+	([EOAccessArrayFaultHandler-dealloc]): Use GSCurrentThread instead
+	of objc_thread_id.
+	(-completeInitializationOfObject): Correct comment.
 	
 2005-02-15  David Ayers  <d.ayers@inode.at>
 
