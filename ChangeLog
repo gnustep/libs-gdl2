@@ -53,6 +53,35 @@
 		o subclass joinExpression to avoid building join
 		expression (it's now build in -tableListWithRootEntity
 		o sublass -tableListWithRootEntity to add joins in it.
+	* EOAccess/EOSQLQualifier.m
+		o fix in  EOOrQualifier -sqlStringForSQLExpression: 
+		  use sqlExpression -sqlStringForDisjoinedQualifiers: 
+		  (problem was missing () around expression)
+	* EOControl/EOAndQualifier.m:
+		o implemented -_addBindingsToDictionary:
+		o implemented -qualifierWithBindings:requiresAllVariables:
+		o implemented -validateKeysWithRootClassDescription:
+	* EOControl/EOKeyValueQualifier.m:
+		o implemented -validateKeysWithRootClassDescription:
+		o implemented -initWithKeyValueUnarchiver:
+		o removed duplicate -initWithKeyValueUnarchiver: and
+		  -encodeWithKeyValueArchiver
+		o implemented -_addBindingsToDictionary:
+		o implemented - qualifierWithBindings:requiresAllVariables:
+	* EOControl/EOOrQualifier.m:
+		o implemented -_addBindingsToDictionary:
+		o implemented -qualifierWithBindings:requiresAllVariables:
+		o implemented -validateKeysWithRootClassDescription:
+	* EOControl/EONotQualifier.m:
+		o implemented -_addBindingsToDictionary:
+		o implemented -validateKeysWithRootClassDescription:
+		o implemented -qualifierWithBindings:requiresAllVariables:
+	* EOControl/EOQualifier.m:
+		o implemented _validateKey:withRootClassDescription:
+		o implemented -validateKeysWithRootClassDescription:
+		o implemented -bindingKeys
+		o implemented -keyPathForBindingKey:
+		o added EOQualifierVariableSubstitutionException;
 	
 2003-10-24  David Ayers  <d.ayers@inode.at>
 

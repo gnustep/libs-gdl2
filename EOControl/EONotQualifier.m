@@ -49,6 +49,9 @@ RCS_ID("$Id$")
 
 #include <EOControl/EOQualifier.h>
 
+@interface EOQualifier (Privat)
+- (void) _addBindingsToDictionary: (NSMutableDictionary*)dictionary;
+@end
 
 @implementation EONotQualifier
 
@@ -91,5 +94,29 @@ RCS_ID("$Id$")
 {
   return ([_qualifier evaluateWithObject: object] ? NO : YES);
 }
+
+- (NSException *) validateKeysWithRootClassDescription:(EOClassDescription*)classDescription
+{
+  return [_qualifier validateKeysWithRootClassDescription:classDescription];
+}
+
+- (EOQualifier *) qualifierWithBindings: (NSDictionary *)bindings
+                   requiresAllVariables: (BOOL)requiresAllVariables
+{
+  EOQualifier* resultQualifier
+    = [_qualifier qualifierWithBindings: bindings
+		  requiresAllVariables: requiresAllVariables];
+  if (resultQualifier==_qualifier)
+    resultQualifier=self;
+  else if (resultQualifier)
+    resultQualifier=[[self class]qualifierWithQualifier:resultQualifier];
+  return resultQualifier;
+}
+
+- (void) _addBindingsToDictionary: (NSMutableDictionary*)dictionary
+{
+  [_qualifier _addBindingsToDictionary:dictionary];
+}
+
 
 @end

@@ -105,6 +105,7 @@ RCS_ID("$Id$")
 - (NSString *)sqlStringForSQLExpression: (EOSQLExpression *)sqlExpression
 {
   //OK?
+  //Ayers: Review (This looks correct, time to cleanup.)
   return [sqlExpression sqlStringForConjoinedQualifiers: _qualifiers];
 
 /*
@@ -176,6 +177,11 @@ RCS_ID("$Id$")
 
 - (NSString *)sqlStringForSQLExpression: (EOSQLExpression *)sqlExpression
 {
+  //OK?
+  //Ayers: Review (This looks correct, time to cleanup.)
+  return [sqlExpression sqlStringForDisjoinedQualifiers: _qualifiers];
+
+/*
   NSEnumerator *qualifiersEnum;
   EOQualifier *qualifier;
   NSMutableString *sqlString = nil;
@@ -197,6 +203,7 @@ RCS_ID("$Id$")
     }
 
   return sqlString;
+*/
 }
 
 - (EOQualifier *)schemaBasedQualifierWithRootEntity: (EOEntity *)entity

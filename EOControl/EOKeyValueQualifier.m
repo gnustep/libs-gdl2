@@ -42,6 +42,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSString.h>
 #include <Foundation/NSDictionary.h>
 #include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSException.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -67,6 +68,12 @@ RCS_ID("$Id$")
 */
 @interface NSObject (Comparison)
 - (NSComparisonResult)compare: (id)other;
+@end
+
+@interface EOQualifier (Privat)
+- (void) _addBindingsToDictionary: (NSMutableDictionary*)dictionary;
+- (NSException *)_validateKey: (NSString*)key
+     withRootClassDescription: (EOClassDescription *)classDescription;
 @end
 
 @implementation EOKeyValueQualifier
@@ -254,38 +261,39 @@ RCS_ID("$Id$")
 }
 
 
-- (id) validateKeysWithRootClassDescription: (id)param0
+- (NSException *)validateKeysWithRootClassDescription:(EOClassDescription*)classDescription
 {
-  return [self notImplemented: _cmd]; //TODO
-}
-
-- (id) initWithKeyValueUnarchiver: (id)param0
-{
-  return [self notImplemented: _cmd]; //TODO
-}
-
-- (void) encodeWithKeyValueArchiver: (id)param0
-{
-  [self notImplemented: _cmd]; //TODO
-}
-
-- (void) _addBindingsToDictionary: (id)param0
-{
-  [self notImplemented: _cmd]; //TODO
+  return [self _validateKey:_key
+                withRootClassDescription:classDescription];
 }
 
 - (EOQualifier *) qualifierWithBindings: (NSDictionary*)bindings
 		   requiresAllVariables: (BOOL)requiresAllVariables
 {
+  EOQualifier* qualifier=nil;
+
   EOFLOGObjectLevelArgs(@"EOQualifier", @"bindings=%@", bindings);
 
-  if ([bindings count] > 0)
+  if ([_value isKindOfClass:[EOQualifierVariable class]])
     {
-      NSEmitTODO();  
-      return [self notImplemented: _cmd]; //TODO
-    }
-  else 
-    return self;
+      id value=[bindings valueForKeyPath:[(EOQualifierVariable*)_value key]];
+      if (value)
+        qualifier=[EOKeyValueQualifier qualifierWithKey:_key
+                                       operatorSelector:_selector
+                                       value:value];
+      else if (requiresAllVariables)
+        {
+          [NSException raise: EOQualifierVariableSubstitutionException
+                       format: @"%@ -- %@ 0x%x: Value for '%@' not found in binding resolution",
+                       NSStringFromSelector(_cmd),
+                       NSStringFromClass([self class]),
+                       self,
+                       _key];
+        };
+    } 
+  else
+    qualifier=self;
+  return qualifier;
 }
 
 - (EOQualifier *) qualifierMigratedFromEntity: (id)param0
@@ -293,6 +301,17 @@ RCS_ID("$Id$")
 {
   return [self notImplemented: _cmd]; //TODO
 }
+
+@end
+
+@implementation EOKeyValueQualifier (Privat)
+- (void) _addBindingsToDictionary: (NSMutableDictionary*)dictionary
+{
+  if ([_value isKindOfClass:[EOQualifierVariable class]])
+      [dictionary setObject:[(EOQualifierVariable*)_value key]
+                  forKey:_key];
+}
+
 
 @end
 
@@ -318,9 +337,15 @@ RCS_ID("$Id$")
   return self;
 }
 
-- (void) encodeWithKeyValueArchiver: (EOKeyValueUnarchiver*)archiver
+- (void) encodeWithKeyValueArchiver: (EOKeyValueArchiver*)archiver
 {
-  [self notImplemented: _cmd];
+  NSString* selectorName=NSStringFromSelector(_selector);
+  [archiver encodeObject:_key
+            forKey:@"key"];
+  [archiver encodeObject:selectorName
+            forKey:@"selectorName"];
+  [archiver encodeObject:_value
+            forKey:@"value"];
 }
 
 @end

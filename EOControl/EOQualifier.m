@@ -58,8 +58,12 @@ RCS_ID("$Id$")
 #include <EOControl/EOQualifier.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOClassDescription.h>
 
 #include <GNUstepBase/GSObjCRuntime.h>
+
+NSString *EOQualifierVariableSubstitutionException=@"EOQualifierVariableSubstitutionException";
+
 
 @implementation NSNumber (EOQualifierExtras)
 
@@ -86,6 +90,12 @@ RCS_ID("$Id$")
 	return [self initWithDouble: dVal];
       }
 }
+@end
+
+@interface EOQualifier (Privat)
+- (void) _addBindingsToDictionary: (NSMutableDictionary*)dictionary;
+- (id) _qualifierMigratedToSubEntity: (id)param0
+                    fromParentEntity: (id)param1;
 @end
 
 @implementation EOQualifier
@@ -676,9 +686,52 @@ static Class whichQualifier(const char **cFormat, const char **s)
   return [EOOrQualifier qualifierWithQualifierArray: array];
 }
 
-- (NSException *)validateKeysWithRootClassDescription: (EOClassDescription *)classDesc
+- (NSException *)_validateKey:(NSString*)key
+     withRootClassDescription: (EOClassDescription *)classDescription
 {
-  return [self notImplemented: _cmd]; //TODO
+  if (!key)
+    [NSException raise: NSInvalidArgumentException
+                 format: @"%@ -- %@ 0x%x: nil key",
+                 NSStringFromSelector(_cmd),
+                 NSStringFromClass([self class]),
+                 self];
+  else
+    {
+      NSArray* keyParts = [key componentsSeparatedByString:@"."];
+      int keyPartsCount=[keyParts count];
+      int i = 0;
+      BOOL stop=NO;
+      for(i=0;i<keyPartsCount && !stop; i++)
+        {
+          NSString* keyPart = [keyParts objectAtIndex:i];
+          NSArray* attributeKeys = [classDescription attributeKeys];
+          if ([attributeKeys containsObject:keyPart])
+            {
+              stop=(i!=(keyPartsCount-1));
+            } 
+          else
+            {
+              classDescription = [classDescription classDescriptionForDestinationKey:keyPart];
+              stop=(classDescription==nil);
+            };
+        };
+
+      if (stop)
+        {
+          [NSException raise: NSInternalInconsistencyException
+                       format: @"%@ -- %@ 0x%x: invalid key '%@'",
+                       NSStringFromSelector(_cmd),
+                       NSStringFromClass([self class]),
+                       key];
+        } ;
+    };
+  //TODO
+  return nil;
+};
+      
+- (NSException *)validateKeysWithRootClassDescription: (EOClassDescription *)classDescription
+{
+  return [self subclassResponsibility: _cmd];
 }
 
 + (NSArray *)allQualifierOperators
@@ -774,16 +827,15 @@ static Class whichQualifier(const char **cFormat, const char **s)
 - (EOQualifier *)qualifierWithBindings: (NSDictionary *)bindings
 		  requiresAllVariables: (BOOL)requiresAll
 {
-  // TODO
-  [self notImplemented: _cmd];
-  return nil;
+  return [self subclassResponsibility: _cmd];
 }
 
+/** Returns binding keys **/
 - (NSArray *)bindingKeys
 {
-  // TODO
-  [self notImplemented: _cmd];
-  return nil;
+  NSMutableDictionary* bindings = (NSMutableDictionary*)[NSMutableDictionary dictionary];
+  [self _addBindingsToDictionary:bindings];
+  return [bindings allKeys];
 }
 
 //NO
@@ -795,14 +847,9 @@ static Class whichQualifier(const char **cFormat, const char **s)
 
 - (NSString *)keyPathForBindingKey: (NSString *)key
 {
-  // TODO
-  [self notImplemented: _cmd];
-  return nil;
-}
-
-- (void) _addBindingsToDictionary: (id)param0
-{
-  [self notImplemented: _cmd]; //TODO
+  NSMutableDictionary* bindings = (NSMutableDictionary*)[NSMutableDictionary dictionary];
+  [self _addBindingsToDictionary:bindings];
+  return [bindings objectForKey:key];
 }
 
 - (EOQualifier *)qualifierMigratedFromEntity: (EOEntity *)entity 
@@ -811,16 +858,25 @@ static Class whichQualifier(const char **cFormat, const char **s)
   return [self notImplemented: _cmd]; //TODO
 }
 
+- (BOOL) usesDistinct
+{
+  [self notImplemented: _cmd]; //TODO
+  return NO;
+}
+
+@end
+
+@implementation EOQualifier (Privat)
+
 - (id) _qualifierMigratedToSubEntity: (id)param0
                     fromParentEntity: (id)param1
 {
   return [self notImplemented: _cmd]; //TODO
 }
 
-- (BOOL) usesDistinct
+- (void) _addBindingsToDictionary: (NSMutableDictionary*)dictionary
 {
   [self notImplemented: _cmd]; //TODO
-  return NO;
 }
 
 @end
@@ -996,7 +1052,7 @@ _isLike (NSString *self, NSString *regExpr, BOOL isCaseSensative)
 	  if ([regExScanner scanCharactersFromSet: isLikeWildCardSet
 			    intoString: &scanned])
 	    {
-	      char *cScanned;
+	      const char *cScanned;
 
 	      for (cScanned = [scanned cString]; *cScanned != 0; cScanned++)
 		{

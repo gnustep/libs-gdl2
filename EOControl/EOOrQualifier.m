@@ -152,23 +152,43 @@ RCS_ID("$Id$")
   return [self notImplemented: _cmd]; //TODO
 }
 
-- (void) _addBindingsToDictionary: (id)param0
+- (void) _addBindingsToDictionary: (NSMutableDictionary*)dictionary
 {
-  [self notImplemented: _cmd]; //TODO
+  int i=0;
+  int count=[_qualifiers count];
+  for(i=0;i<count;i++)
+      [[_qualifiers objectAtIndex:i]_addBindingsToDictionary:dictionary];
 }
 
 - (EOQualifier *) qualifierWithBindings: (NSDictionary *)bindings
                    requiresAllVariables: (BOOL)requiresAllVariables
 {
+  EOQualifier* resultQualifier=nil;
+  int i=0;
+  int count=[_qualifiers count];
+  NSMutableArray* newQualifiers=nil;
   EOFLOGObjectLevelArgs(@"EOQualifier", @"bindings=%@", bindings);
 
-  if ([bindings count] > 0)
+  for(i=0;i<count;i++)
     {
-      NSEmitTODO();
-      return [self notImplemented: _cmd]; //TODO
-    }
-  else 
-    return self;
+      EOQualifier* qualifier=[_qualifiers objectAtIndex:i];
+      EOQualifier* newQualifier=[qualifier qualifierWithBindings:bindings
+                                           requiresAllVariables:requiresAllVariables];
+      if (newQualifier)
+        {
+          if (!newQualifiers)
+            newQualifiers=(NSMutableArray*)[NSMutableArray array];
+          [newQualifiers addObject:newQualifier];
+        };
+    };
+  if ([newQualifiers count]>0)
+    {
+      if ([newQualifiers count]==1)
+        resultQualifier=[newQualifiers lastObject];
+      else 
+        resultQualifier=[[self class]qualifierWithQualifierArray:newQualifiers];
+    };
+  return resultQualifier;
 }
 
 - (id) initWithKeyValueUnarchiver: (id)param0
@@ -181,9 +201,14 @@ RCS_ID("$Id$")
   [self notImplemented: _cmd]; //TODO
 }
 
-- (id) validateKeysWithRootClassDescription: (id)param0
+- (NSException *) validateKeysWithRootClassDescription:(EOClassDescription*)classDescription
 {
-  return [self notImplemented: _cmd]; //TODO
+  int i=0;
+  int count=[_qualifiers count];
+  for(i=0;i<count;i++)
+    [[_qualifiers objectAtIndex:i]validateKeysWithRootClassDescription:classDescription];
+  //TODO
+  return nil;
 }
 
 - (id) description
