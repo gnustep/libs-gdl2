@@ -54,21 +54,6 @@ RCS_ID("$Id$")
 #define USTOP	DESTROY(arp);
 
 
-@interface NSObject (GSISA)
-
--(Class)isa;
-
-@end
-
-@implementation NSObject (GSISA)
-
--(Class)isa
-{
-  return  self->isa;
-}
-
-@end
-
 #ifdef DEBUG
 
 void EOFLogC_(const char *file, int line, const char *string)
@@ -389,18 +374,18 @@ void EOFLogDumpObject_(const char *file, int line, id object, int deep)
   USTOP
 }
 
-void EOFLogAssertGood_(const char *file, int line, NSObject *object)
+void EOFLogAssertGood_(const char *file, int line, id object)
 {
   if (object)
     {
-      if ([object isa] == ((Class)0xdeadface))
+      if (object->class_pointer == ((Class)0xdeadface))
 	{
 	  NSLog(@"DEAD FACE: object %p isa=%p in %s at %d\n",
 		(void*)object,
-		(void*)[object isa],
+		(void*)object->class_pointer,
 		file,
 		line);
-	  NSCParameterAssert([object isa] == (Class)0xdeadface);
+	  NSCParameterAssert(object->class_pointer == (Class)0xdeadface);
 	}
     }
   else

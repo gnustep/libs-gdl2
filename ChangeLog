@@ -1,3 +1,9 @@
+2003-02-12  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EODebug.h/m(EOFLogAssertGood_): Remove dependancy 
+	on superfluous category.
+	([NSObject isa]): Remove category.
+	
 2003-02-01  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.m ([EOAdaptor adaptorWithName:]): Use

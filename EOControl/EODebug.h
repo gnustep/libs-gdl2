@@ -44,7 +44,7 @@ GDL2CONTROL_EXPORT void EOFLogC_(const char* file,int line,const char* string);
 GDL2CONTROL_EXPORT void EOFLogDumpObject_(const char* file,int line,
 					  id object,int deep);
 GDL2CONTROL_EXPORT void EOFLogAssertGood_(const char* file,int line,
-					  NSObject* object);
+					  id object);
 
 #define EOFLogC(cString);		EOFLogC_(__FILE__,__LINE__,cString);
 #define EOFLogDumpObject(object,deep); 	EOFLogDumpObject_(__FILE__,__LINE__,object,deep);
