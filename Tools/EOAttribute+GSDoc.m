@@ -55,7 +55,7 @@ static char rcsId[] = "$Id$";
 
 @implementation EOAttribute (GSDoc)
 
-- (NSString *)gsdocContentWithIdPtr: (int *)xmlIdPtr;
+- (NSString *)gsdocContentWithIdPtr: (int *)xmlIdPtr
 {
   return [self gsdocContentWithTagName: @"EOAttribute"
                idPtr: xmlIdPtr];

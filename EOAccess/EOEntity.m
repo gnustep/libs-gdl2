@@ -828,7 +828,17 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return [_name hash];
 }
 
-- (NSString*)description
+- (NSString *)description
+{
+  NSMutableDictionary *plist;
+
+  plist = [NSMutableDictionary dictionaryWithCapacity: 4];
+  [self encodeIntoPropertyList: plist];
+
+  return [plist description];
+}
+
+- (NSString *)debugDescription
 {
   NSString *dscr = nil;
 
@@ -1014,8 +1024,10 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               NSString *classPropertyName = [classPropertiesList
 					      objectAtIndex: i];
 #else
-              NSString *classPropertyName = ([[classPropertiesList objectAtIndex:i] isKindOfClass:[NSString class]] ? [classPropertiesList objectAtIndex:i]:[[classPropertiesList
-                          objectAtIndex: i] name]);
+              NSString *classPropertyName = (
+       [[classPropertiesList objectAtIndex:i] isKindOfClass:[NSString class]] ?
+        [classPropertiesList objectAtIndex:i] :
+        [(EOEntity *)[classPropertiesList objectAtIndex: i] name]);
 #endif
               id classProperty = [self attributeNamed: classPropertyName];
 

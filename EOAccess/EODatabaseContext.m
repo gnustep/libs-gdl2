@@ -3029,7 +3029,7 @@ but not owned by this context to the coordinator.
   EOFLOGObjectFnStop();
 }
 
-/** Contructs EOAdaptorOperations for all EODatabaseOperations constructed in
+/** Constructs EOAdaptorOperations for all EODatabaseOperations constructed in
 during recordChangesInEditingContext and recordUpdateForObject:changes:.
 Performs the EOAdaptorOperations on an available adaptor channel.
 If the save is OK, updates the snapshots in the EODatabaseContext to reflect

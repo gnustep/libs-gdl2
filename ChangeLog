@@ -1,3 +1,21 @@
+2003-03-06  David Ayers  <d.ayers@inode.at>
+
+	* config/postgres.m4:  Updated CPPFLAGS and LIBS to account for
+	distributions default installations.
+	* configure: Regenerated.
+
+	* Tools/EOAttribute+GSDoc.m ([EOAttribute -gsdocContentWithPtr:]):
+	Removed superfluous semicolon in method definition.
+
+	* EOAccess/EODatabaseContext.m: Fixed minor typo in comment.
+	
+	* EOAccess/EOEntity.m ([EOEntity -description]): Return the
+	description of the encoded property list.
+	([EOEntity -debugDescription]): Implements original description
+	method.
+	([EOEntity -classProperties]): Added cast to supress compiler
+	warning.
+	
 2003-02-24  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOAccess/EOUtilities.h: added EOObjectStoreCoordinator.
