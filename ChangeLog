@@ -37,6 +37,13 @@
 	(+newValueForDateType:length:attribute:):  Do not depend on
 	EOControl/EOPriv.m/h but on own private files.  Improve
 	optimizations.
+
+	* EOAdaptors/Postgres95/Postgres95Values.m: Remove dependency
+	on EOAccess/EOAttributePriv.h and EOControl/EONSAddOns.h.
+	(attrRespondsToValueClass, attrRespondsToValueTypeChar): New
+	static locals.
+	(+initialize, +newValueForNumberType:length:attribute:): Remove
+	dependency and used static locals instead.
 	
 2005-02-18  Matt Rice  <ratmice@yahoo.com>
 

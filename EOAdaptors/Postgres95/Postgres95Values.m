@@ -54,8 +54,6 @@ RCS_ID("$Id$")
 
 
 #include <EOAccess/EOAttribute.h>
-#include <EOAccess/EOAttributePriv.h>
-#include <EOControl/EONSAddOns.h>
 
 #include "Postgres95EOAdaptor/Postgres95Adaptor.h"
 #include "Postgres95EOAdaptor/Postgres95Channel.h"
@@ -70,7 +68,14 @@ void __postgres95_values_linking_function (void)
 {
 }
 
+static BOOL attrRespondsToValueClass = NO;
+static BOOL attrRespondsToValueTypeChar = NO;
 static NSStringEncoding LPSQLA_StringDefaultCStringEncoding;
+
+@interface EOAttribute (private)
+- (Class)_valueClass;
+- (char)_valueTypeChar;
+@end
 
 @implementation Postgres95Values
 
@@ -81,6 +86,10 @@ static NSStringEncoding LPSQLA_StringDefaultCStringEncoding;
     {
       PSQLA_PrivInit();
 
+      attrRespondsToValueClass
+	= [EOAttribute instancesRespondToSelector: @selector(_valueClass)];
+      attrRespondsToValueTypeChar
+	= [EOAttribute instancesRespondToSelector: @selector(_valueTypeChar)];
       LPSQLA_StringDefaultCStringEncoding = [NSString defaultCStringEncoding];
     }
 };
@@ -142,7 +151,9 @@ to strlen(bytes)
     }
   else
     {
-      Class valueClass=[attribute _valueClass];
+      Class valueClass = attrRespondsToValueClass 
+	? [attribute _valueClass] 
+	: NSClassFromString ([attribute valueClassName]);
 
       if (valueClass==PSQLA_NSDecimalNumberClass)
         {
@@ -156,7 +167,9 @@ to strlen(bytes)
         }
       else
         {
-          char valueTypeChar=[attribute _valueTypeChar];
+          char valueTypeChar = attrRespondsToValueTypeChar
+	    ? [attribute _valueTypeChar]
+	    : [[attribute valueType] cString][0];
           switch(valueTypeChar)
             {
             case 'i':
