@@ -1,3 +1,23 @@
+2003-09-10  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOFault.m
+	(+[EOFault respondsToSelector:]): Use GSObjCRuntime functions and
+	correct casts.
+	(-[EOFault respondsToSelector:]): Correct casts.
+
+	* EOControl/EOKeyComparisonQualifier.m
+	* EOControl/EOKeyValueCoding.m
+	* EOControl/EOKeyValueQualifier.m
+	* EOControl/EOQualifier.m
+	* EOControl/EOSortOrdering.m
+	(-[NSObject compare:]): Add declaration to prepare for removal
+	of declaration from -base.
+	(-[EOKeyComparisonQualifier evaluateWithObject:]): Adapt vraiables
+	and casts to use correct prototype.
+	(-[EOKeyValueQualifier evaluateWithObject:]): Ditto
+	(-[NSArray computeMaxForKey:]): Ditto.
+	(-[NSArray computeMinForKey:]): Ditto.
+
 2003-08-25  Matt Rice  <ratmice@yahoo.com>
 
 	* *.h/m:  Updated to new header layout.

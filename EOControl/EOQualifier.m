@@ -883,6 +883,18 @@ static Class whichQualifier(const char **cFormat, const char **s)
 
 @end
 
+/*
+  This declaration is needed by the compiler to state that
+  eventhough we know not all objects respond to -compare:,
+  we want the compiler to generate code for the given
+  prototype when calling -compare: in the following methods.
+  We do not put this declaration in a header file to avoid
+  the compiler seeing conflicting prototypes in user code.
+*/
+@interface NSObject (Comparison)
+- (NSComparisonResult)compare: (id)other;
+@end
+
 
 @implementation NSObject (EORelationalSelectors)
 

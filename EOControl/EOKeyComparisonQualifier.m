@@ -52,6 +52,17 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyValueCoding.h>
 #include <EOControl/EODebug.h>
 
+/*
+  This declaration is needed by the compiler to state that
+  eventhough we know not all objects respond to -compare:,
+  we want the compiler to generate code for the given
+  prototype when calling -compare: in the following methods.
+  We do not put this declaration in a header file to avoid
+  the compiler seeing conflicting prototypes in user code.
+*/
+@interface NSObject (Comparison)
+- (NSComparisonResult)compare: (id)other;
+@end
 
 @implementation EOKeyComparisonQualifier
 
@@ -164,7 +175,8 @@ RCS_ID("$Id$")
  */
 - (BOOL) evaluateWithObject: (id)object
 {
-  id leftVal, rightVal;
+  NSObject *leftVal;
+  NSObject *rightVal;
   BOOL (*imp)(id, SEL, id);
 
   leftVal  = [object valueForKey: _leftKey];
@@ -201,7 +213,7 @@ RCS_ID("$Id$")
     }
   else if (sel_eq(_selector, EOQualifierOperatorContains) == YES)
     {
-      return [leftVal rangeOfString: rightVal].location != NSNotFound;
+      return [(id)leftVal rangeOfString: (id)rightVal].location != NSNotFound;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLike) == YES)
     {
@@ -212,7 +224,7 @@ RCS_ID("$Id$")
   else if (sel_eq(_selector, EOQualifierOperatorCaseInsensitiveLike) == YES)
     {
       NSEmitTODO();  //TODO
-      return [[leftVal uppercaseString] isEqual: [rightVal uppercaseString]]
+      return [[(id)leftVal uppercaseString] isEqual: [(id)rightVal uppercaseString]]
 	== NSOrderedSame;
     }
   /*Ayers (09-02-2002): Maybe we should raise instead of returning NO.*/

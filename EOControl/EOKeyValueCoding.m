@@ -168,6 +168,20 @@ initialize(void)
 }
 @end
 
+
+/*
+  This declaration is needed by the compiler to state that
+  eventhough we know not all objects respond to -compare:,
+  we want the compiler to generate code for the given
+  prototype when calling -compare: in the following methods.
+  We do not put this declaration in a header file to avoid
+  the compiler seeing conflicting prototypes in user code.
+*/
+@interface NSObject (Comparison)
+- (NSComparisonResult)compare: (id)other;
+@end
+
+
 @implementation NSArray (EOKeyValueCoding)
 
 /**
@@ -413,7 +427,7 @@ initialize(void)
 
 	  if (currentVal == nil || currentVal == null) continue;
 	  
-	  if ([resultVal compare: currentVal] == NSOrderedAscending)
+	  if ([(NSObject *)resultVal compare: currentVal] == NSOrderedAscending)
 	    {
 	      result    = current;
 	      resultVal = currentVal;
@@ -455,7 +469,7 @@ initialize(void)
 
 	  if (currentVal == nil || currentVal == null) continue;
 
-	  if ([resultVal compare: currentVal] == NSOrderedDescending)
+	  if ([(NSObject *)resultVal compare: currentVal] == NSOrderedDescending)
 	    {
 	      result    = current;
 	      resultVal = currentVal;
