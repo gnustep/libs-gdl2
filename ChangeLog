@@ -1,3 +1,10 @@
+2003-04-12  David Ayers  <d.ayers@inode.at>
+
+	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble:
+	Create symlink before building.  Error reported by Ludovic
+	Marcotte <ludovic@Sophos.ca> and Matt Rice
+	<ratmice@yahoo.com>.
+
 2003-03-29  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/Postgres95SQLExpression.m

@@ -33,10 +33,10 @@
 #
 
 # Things to do before compiling
-# before-all::
+before-all:: Postgres95EOAdaptor
 
 # Things to do after compiling
-after-all:: Postgres95EOAdaptor
+# after-all::
 
 # Things to do before installing
 # before-install::
