@@ -118,5 +118,9 @@ RCS_ID("$Id$")
   [_qualifier _addBindingsToDictionary:dictionary];
 }
 
+- (void)addQualifierKeysToSet: (NSMutableSet *)keys
+{
+  [_qualifier addQualifierKeysToSet: keys];
+}
 
 @end

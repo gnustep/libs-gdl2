@@ -835,7 +835,7 @@ static Class whichQualifier(const char **cFormat, const char **s)
 /** Returns binding keys **/
 - (NSArray *)bindingKeys
 {
-  NSMutableDictionary* bindings = (NSMutableDictionary*)[NSMutableDictionary dictionary];
+  NSMutableDictionary* bindings = (id)[NSMutableDictionary dictionary];
   [self _addBindingsToDictionary:bindings];
   return [bindings allKeys];
 }
@@ -864,6 +864,30 @@ static Class whichQualifier(const char **cFormat, const char **s)
 {
   [self notImplemented: _cmd]; //TODO
   return NO;
+}
+
+/**
+ * Returns a set containing the keys of the qualifier tree starting
+ * from the receiver.  Subclasses should override -addQualifierKeysToSet:
+ * and rely on the implementation EOQualifier for this method.
+ */
+- (NSSet *)allQualifierKeys
+{
+  NSMutableSet *keys;
+  keys = (id)[NSMutableSet set];
+  [self addQualifierKeysToSet: keys];
+  return [NSSet setWithSet: keys];
+}
+
+/**
+ * Subclasses must override this method to add their qualifier keys to
+ * the provided keys set.  Aggregate qualifiers, such as EOAndQualifer,
+ * should traverse their contents invoking this method on each with the
+ * provided set.
+ */
+- (void)addQualifierKeysToSet: (NSMutableSet *)keys
+{
+  [self subclassResponsibility: _cmd];
 }
 
 @end

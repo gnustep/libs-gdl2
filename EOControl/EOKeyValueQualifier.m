@@ -41,6 +41,7 @@ RCS_ID("$Id$")
 #ifdef GNUSTEP
 #include <Foundation/NSString.h>
 #include <Foundation/NSDictionary.h>
+#include <Foundation/NSSet.h>
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSException.h>
 #else
@@ -319,6 +320,10 @@ static EONull *null = nil;
   return [self notImplemented: _cmd]; //TODO
 }
 
+- (void)addQualifierKeysToSet: (NSMutableSet *)keys
+{
+  [keys addObject: _key];
+}
 @end
 
 @implementation EOKeyValueQualifier (Privat)

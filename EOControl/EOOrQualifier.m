@@ -223,4 +223,14 @@ RCS_ID("$Id$")
   return dscr;
 }
 
+- (void)addQualifierKeysToSet: (NSMutableSet *)keys
+{
+  EOQualifier *qual;
+  unsigned int i,n;
+  for (i=0, n=[_qualifiers count]; i < n; i++)
+    {
+      qual = [_qualifiers objectAtIndex:i];
+      [qual addQualifierKeysToSet: keys];
+    }
+}
 @end

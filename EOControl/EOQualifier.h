@@ -40,6 +40,7 @@
 @class NSArray;
 @class NSDictionary;
 @class NSString;
+@class NSSet;
 @class NSException;
 
 @class EOClassDescription;
@@ -79,6 +80,9 @@
 
 - (NSArray *)bindingKeys;
 - (NSString *)keyPathForBindingKey: (NSString *)key;
+
+- (NSSet *)allQualifierKeys;
+- (void)addQualifierKeysToSet: (NSMutableSet *)qualKeys;
 
 - (BOOL)evaluateWithObject: (id)object;
 

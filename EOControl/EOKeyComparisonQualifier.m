@@ -251,5 +251,9 @@ RCS_ID("$Id$")
 		   _rightKey];
 }
 
+- (void)addQualifierKeysToSet: (NSMutableSet *)keys
+{
+  [keys addObject: _leftKey];
+}
 @end
 
