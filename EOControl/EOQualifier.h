@@ -41,6 +41,7 @@
 @class NSDictionary;
 @class NSString;
 @class NSSet;
+@class NSMutableSet;
 @class NSException;
 
 @class EOClassDescription;
