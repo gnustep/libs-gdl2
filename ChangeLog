@@ -1,3 +1,8 @@
+2003-03-10  David Ayers  <d.ayers@inode.at>
+
+	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble:
+	Don't remove GNUmakefile on distclean.
+
 2003-03-08  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/Postgres95Channel.h

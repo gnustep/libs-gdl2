@@ -67,7 +67,7 @@ after-clean::
 
 # Things to do after distcleaning
 after-distclean::
-	rm -rf GNUmakefile config.mak
+	rm -rf config.mak
 
 # Things to do before checking
 # before-check::
