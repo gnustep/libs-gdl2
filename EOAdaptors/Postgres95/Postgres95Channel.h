@@ -52,6 +52,7 @@
   BOOL _isFetchInProgress;
   BOOL _fetchBlobsOid;
   NSArray *_pkAttributeArray;
+  int _pgVersion;
 
   struct {
     unsigned int postgres95InsertedRowOid:1;
@@ -66,6 +67,7 @@
 
 - (void)_cancelResults;
 - (void)_describeResults;
+- (void)_readServerVersion;
 
 /* Private methods */
 - (char*)_readBinaryDataRow: (Oid)oid length: (int*)length zone: (NSZone*)zone;

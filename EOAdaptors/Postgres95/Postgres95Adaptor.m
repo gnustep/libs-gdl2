@@ -56,6 +56,7 @@ RCS_ID("$Id$")
 #include <Foundation/Foundation.h>
 #endif
 
+#include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOAccess.h>
@@ -74,6 +75,18 @@ RCS_ID("$Id$")
 NSString *Postgres95Exception = @"Postgres95Exception";
 static int pgConnTotalAllocated = 0;
 static int pgConnCurrentAllocated = 0;
+
+int
+postgresClientVersion()
+{
+  static int version = 0;
+  if (version == 0)
+    {
+      NSString *versionString = [NSString stringWithCString: PG_VERSION];
+      version = [versionString parsedFirstVersionSubstring];
+    }
+  return version;
+}
 
 
 @implementation Postgres95Adaptor

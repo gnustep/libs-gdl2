@@ -44,10 +44,12 @@ RCS_ID("$Id$")
 #endif
 
 #include <EOControl/EONull.h>
+#include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
+#include <EOAccess/EOModel.h>
 #include <EOAccess/EOSchemaGeneration.h>
 
 #include <Postgres95EOAdaptor/Postgres95SQLExpression.h>
@@ -305,18 +307,30 @@ RCS_ID("$Id$")
 
 + (NSArray *)dropTableStatementsForEntityGroup:(NSArray *)entityGroup
 {
-  // We redefine this method to add the CASCADE: it is needed to delete
-  // associated foreign key constraints when dropping a table.
-  // Q: shouldn't we move this into EOSQLExpression.m?
-  NSArray *newArray = nil;
+  EOEntity *entity;
+  NSArray  *newArray;
+  int       version;
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
-  newArray = [NSArray arrayWithObject:
-			[self expressionForString:
-				[NSString stringWithFormat: @"DROP TABLE %@ CASCADE",
-					  [[entityGroup objectAtIndex: 0]
-					    externalName]]]];
+  entity = [entityGroup objectAtIndex: 0];
+  version = [[[[entity model] connectionDictionary]
+	      objectForKey: @"databaseVersion"] parsedFirstVersionSubstring];
+  if (version == 0)
+    {
+      version = postgresClientVersion();
+    }
+
+  if (version < 70300)
+    {
+      newArray = [super dropTableStatementsForEntityGroup: entityGroup];
+    }
+  else
+    {
+      newArray = [NSArray arrayWithObject: [self expressionForString:
+	[NSString stringWithFormat: @"DROP TABLE %@ CASCADE",
+		  [entity externalName]]]];
+    }
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
 

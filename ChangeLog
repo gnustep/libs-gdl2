@@ -1,3 +1,24 @@
+2003-06-23  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EONSAddOns.h/m:
+	([NSString -parsedFirstVersionSubstring]): New method.
+	* EOAdaptors/Postgres95/Postgres95Adaptor.h/m: Added include of
+	pg_config.h to access PG_VERSION.  Added databaseVersion to list
+	of meaningful connectionDictionary keys.
+	(postgresClientVersion): New function.
+	* EOAdaptors/Postgres95/Postgres95Channel.h/m:  Added instance
+	variable to hold the version of the database server.
+	(pgResultDictionary): New static function for debuging.
+	([Postgres95Channel -_readServerVersion]): New method to set Server
+	Version.
+	([Postgres95Channel -openChannel]): Call _readServerVersion method.
+	([Postgres95Channel -describeTableNames]): Adapt select statement
+	according to database version.
+	* Postgres95/Postgres95SQLExpression.m: 
+	([Postgres95SQLExpression +dropTableStatementsForEntityGroup:]):
+	Adapt select statement according to database version supplied in
+	connectionDictionary of the entites model.
+
 2003-06-22  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOFault.m ([EOFault -respondsToSelector:]): Adapt to
@@ -6,7 +27,7 @@
 	* EOAdaptors/Postgres95/Postgres95Channel.m
 	([Postgres95Channel -describeTableNames]): Removed incorrect code
 	left by copy and paste action.  Reported by Markus Hitter
-	<mah@jumping.de>
+	<mah@jumping.de>.
 
 2003-06-01  David Ayers  <d.ayers@inode.at>
 

@@ -28,7 +28,7 @@
 #define __EONSAddOns_h__
 
 #ifndef NeXT_Foundation_LIBRARY
-#include <Foundation/NSObject.h>
+#include <Foundation/NSArray.h>
 #include <Foundation/NSString.h>
 #else
 #include <Foundation/Foundation.h>
@@ -36,7 +36,6 @@
 
 #include <EOControl/EODefines.h>
 
-@class NSArray;
 @class NSLock;
 @class NSRecursiveLock;
 
@@ -88,6 +87,10 @@ GDL2GlobalRecursiveLock();
 
 @interface NSString (YorYes)
 - (BOOL)isYorYES;
+@end
+
+@interface NSString (VersionParsing)
+- (int)parsedFirstVersionSubstring;
 @end
 
 #endif /* __EONSAddOns_h__ */

@@ -57,6 +57,7 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EOQualifier.h>
 #include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOAttribute.h>
@@ -75,6 +76,77 @@ static void __dummy_function_used_for_linking(void)
 
   __postgres95_values_linking_function();
   __dummy_function_used_for_linking();
+}
+
+#define NSS_SWF NSString stringWithFormat
+static NSDictionary *
+pgResultDictionary(PGresult *pgResult)
+{
+  int nfields, ntuples;
+  int i, j;
+  NSMutableArray *fields;
+  NSMutableArray *tuples;
+  ExecStatusType statusType;
+
+  nfields = PQnfields(pgResult);
+  ntuples = PQntuples(pgResult);
+
+  fields = [NSMutableArray arrayWithCapacity: nfields];
+  tuples = [NSMutableArray arrayWithCapacity: ntuples];
+
+  for (i = 1; i <= nfields; i++)
+    {
+      char *fname;
+      fname = PQfname(pgResult, i);
+      [fields addObject: [NSDictionary dictionaryWithObjectsAndKeys:
+	[NSS_SWF:@"%s",  fname], @"PQfname",
+	[NSS_SWF:@"%d",  PQfnumber(pgResult, fname)], @"PQfnumber",
+	[NSS_SWF:@"%ud", PQftype(pgResult, i)], @"PQftype",
+	[NSS_SWF:@"%d",  PQfsize(pgResult, i)], @"PQfsize",
+	[NSS_SWF:@"%d",  PQfmod(pgResult, i)], @"PQfmod",
+	nil]];
+    }
+
+  for (i = 1; i <= ntuples; i++)
+    {
+      NSMutableDictionary *tuple;
+      tuple = [NSMutableDictionary dictionaryWithCapacity: nfields];
+      for (j = 1; j <= nfields; j++)
+	{
+	  NSString *tupleInfo;
+	  NSString *tupleKey;
+	  tupleKey = [NSS_SWF:@"%s", PQfname(pgResult, j)];
+	  if (PQgetisnull(pgResult, i, j))
+	    {
+	      tupleInfo = @"NULL";
+	    }
+	  else
+	    {
+	      NSString *fmt;
+	      fmt = [NSS_SWF: @"%%%ds", PQgetlength(pgResult, i, j)];
+	      tupleInfo = [NSS_SWF: fmt, PQgetvalue(pgResult, i, j)];
+	    }
+	  [tuple setObject: tupleInfo forKey: tupleKey];
+	}
+      [tuples addObject: tuple];
+    }
+
+  statusType = PQresultStatus(pgResult);
+
+  return [NSDictionary dictionaryWithObjectsAndKeys:
+    [NSS_SWF:@"%d",  statusType], @"PQresultStatus",
+    [NSS_SWF:@"%s",  PQresStatus(statusType)], @"PQresStatus",
+    [NSS_SWF:@"%s",  PQresultErrorMessage(pgResult)], @"PQresultErrorMessage",
+    [NSS_SWF:@"%d",  ntuples], @"PQntuples",
+    [NSS_SWF:@"%d",  nfields], @"PQnfields",
+    [NSS_SWF:@"%d",  PQbinaryTuples(pgResult)], @"PQbinaryTuples",
+    [NSS_SWF:@"%s",  PQcmdStatus(pgResult)], @"PQcmdStatus",
+    [NSS_SWF:@"%s",  PQoidStatus(pgResult)], @"PQoidStatus",
+    [NSS_SWF:@"%d",  PQoidValue(pgResult)], @"PQoidValue",
+    [NSS_SWF:@"%s",  PQcmdTuples(pgResult)], @"PQcmdTuples",
+    tuples, @"tuples",
+    fields, @"fields",
+    nil];
 }
 
 @implementation Postgres95Channel
@@ -129,7 +201,10 @@ static void __dummy_function_used_for_linking(void)
   _pgConn = [(Postgres95Adaptor *)[[self adaptorContext] adaptor] newPGconn];
 
   if (_pgConn)
-    [self _describeDatabaseTypes];
+    {
+      [self _readServerVersion];
+      [self _describeDatabaseTypes];
+    }
 }
 
 - (void)closeChannel
@@ -1171,6 +1246,28 @@ each key
   _pgResult = NULL;
 }
 
+- (void)_readServerVersion
+{
+  NSString *version;
+
+  _pgResult = PQexec(_pgConn, 
+		     "SELECT version()");
+
+  if (_pgResult == NULL || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
+    {
+      _pgResult = NULL;
+      [NSException raise: Postgres95Exception
+		   format: @"cannot read type name informations from database. "
+		   @"bad response from server"];
+    }
+
+  version = [NSString stringWithCString: PQgetvalue(_pgResult, 0, 0)];
+  _pgVersion = [version parsedFirstVersionSubstring];
+
+  PQclear(_pgResult);
+  _pgResult = NULL;
+}
+
 - (NSArray *)attributesToFetch
 {
   return _attributes;
@@ -1320,11 +1417,22 @@ each key
 {
   int i, count;
   NSMutableArray *results = [NSMutableArray array];
+  char *tableSelect;
+
+  if (_pgVersion < 70300)
+    {
+      tableSelect = "SELECT tablename FROM pg_tables WHERE tableowner != 'postgres' OR tablename NOT LIKE 'pg_%'";
+    }
+  else
+    {
+      tableSelect = "SELECT tablename FROM pg_tables WHERE pg_tables.schemaname = 'public'";
+    }
+
 
   NSAssert(_pgConn, @"Channel not opened");
 
-  _pgResult = PQexec(_pgConn,
-		     "SELECT tablename FROM pg_tables WHERE pg_tables.schemaname = 'public'");
+  _pgResult = PQexec(_pgConn, tableSelect);
+		     
 
   if (_pgResult == NULL
       || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)

@@ -38,6 +38,8 @@ RCS_ID("$Id$")
 #ifndef NeXT_Foundation_LIBRARY
 #include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>
+#include <Foundation/NSScanner.h>
+#include <Foundation/NSCharacterSet.h>
 #include <Foundation/NSLock.h>
 #include <Foundation/NSUserDefaults.h>
 #include <Foundation/NSNotification.h>
@@ -507,6 +509,39 @@ GDL2GlobalRecursiveLock()
 }
 
 @end
+
+@implementation NSString (VersionParsing)
+- (int)parsedFirstVersionSubstring
+{
+  NSString       *shortVersion;
+  NSScanner      *scanner;
+  NSCharacterSet *characterSet;
+  NSArray        *versionComponents;
+  NSString       *component;
+  int             count, i;
+  int             version = 0;
+  int             factor[] = { 10000, 100, 1 };
+
+  scanner = [NSScanner scannerWithString: self];
+  characterSet 
+    = [NSCharacterSet characterSetWithCharactersInString: @"0123456789."];
+
+  [scanner setCharactersToBeSkipped: [characterSet invertedSet]];
+  [scanner scanCharactersFromSet: characterSet intoString: &shortVersion];
+
+  versionComponents = [shortVersion componentsSeparatedByString:@"."];
+  count = [versionComponents count];
+
+  for (i = 0; (i < count) && (i < 3); i++)
+    {
+      component = [versionComponents objectAtIndex: i];
+      version += [component intValue] * factor[i];
+    }
+
+  return version;
+}
+@end
+
 
 @interface GDL2GlobalLockVendor (private)
 + (void) _setupLocks: (NSNotification *)notif;

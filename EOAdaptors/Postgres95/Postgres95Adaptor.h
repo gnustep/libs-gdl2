@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <libpq-fe.h>
 #include <libpq/libpq-fs.h>
+#include <pg_config.h>
 #undef Assert
 
 @class NSMutableArray;
@@ -50,6 +51,8 @@
 	(default getenv(PGHOST) or localhost)
     databaseName - the name of the database to use 
 	(default getenv(PGDATABASE))
+    databaseVersion - the Version of the database
+	(default parsed from #define PG_VERSION)
     options - additional options sent to the POSTGRES95 backend
 	(default getenv(PGOPTIONS))
     port - port to communicate with POSTGRES95 backend
@@ -63,6 +66,9 @@
           real user id of the user running the program and that user id
 	  is interpreted by the server (AFAIK)
 */
+
+extern int
+postgresClientVersion();
 
 @interface Postgres95Adaptor : EOAdaptor
 {
