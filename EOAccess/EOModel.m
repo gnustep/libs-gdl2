@@ -1799,4 +1799,32 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return entity;
 }
 
+/*
+  This method rebuilds the caches:
+  _entitiesByName, _subEntitiesCache, _entitiesByClass
+  from _entities.  Insure this works for real entities and dictionaries
+  which could be contained in _entities.  Also note that className need
+  not be unique.
+*/
+- (void)_updateCache
+{
+  NSArray  *names;
+  EOEntity *entity;
+  NSString *className;
+  unsigned int i,c;
+
+  DESTROY(_entitiesByName);
+  DESTROY(_subEntitiesCache);
+  NSResetMapTable(_entitiesByClass);
+
+  names = [_entities valueForKey: @"name"];
+  _entitiesByName = [[GCMutableDictionary alloc] initWithObjects: _entities
+						 forKeys: names];
+  for (i = 0, c = [_entities count]; i < c; i++)
+    {
+      entity = [_entities objectAtIndex: i]; /* entity or dictionary */
+      className = [entity valueForKey: @"className"];
+      NSMapInsertIfAbsent(_entitiesByClass, className, entity);
+    }
+}
 @end /* EOModel (EOModelPrivate) */

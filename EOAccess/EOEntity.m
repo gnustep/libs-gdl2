@@ -86,6 +86,9 @@ RCS_ID("$Id$")
 #include "EOEntityPriv.h"
 #include "EOAttributePriv.h"
 
+@interface EOModel (Privat)
+- (void)_updateCache;
+@end
 
 NSString *EOFetchAllProcedureOperation = @"EOFetchAllProcedureOperation";
 NSString *EOFetchWithPrimaryKeyProcedureOperation = @"EOFetchWithPrimaryKeyProcedureOperation";
@@ -545,19 +548,16 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   NS_DURING
     {
       where = 1;
-      [_model gcDecrementRefCount];
-
-      where = 2;
       EOFLOGObjectLevel(@"EOEntity", @"attributes gcDecrementRefCount");
       if (!_flags.attributesIsLazy)
         [(id)_attributes gcDecrementRefCount];
 
-      where = 3;
+      where = 2;
       EOFLOGObjectLevel(@"EOEntity",
 			@"propertiesToFault gcDecrementRefCount");
       [(id)_attributesByName gcDecrementRefCount];
 
-      where = 4;
+      where = 3;
       EOFLOGObjectLevelArgs(@"EOEntity",
 			    @"attributesToFetch gcDecrementRefCount class=%@",
 			    [_attributesToFetch class]);
@@ -577,56 +577,56 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                 [_attributesToFetch class],
                 _attributesToFetch);
 
-      where = 5;
+      where = 4;
       EOFLOGObjectLevelArgs(@"EOEntity",
 			    @"attributesToSave gcDecrementRefCount (class=%@)",
 			    [_attributesToSave class]);
       [(id)_attributesToSave gcDecrementRefCount];
 
-      where = 6;
+      where = 5;
       EOFLOGObjectLevel(@"EOEntity",
 			@"propertiesToFault gcDecrementRefCount");
       [(id)_propertiesToFault gcDecrementRefCount];
 
-      where = 7;
+      where = 6;
       EOFLOGObjectLevel(@"EOEntity",
 			@"rrelationships gcDecrementRefCount");
       if (!_flags.relationshipsIsLazy)
         [(id)_relationships gcDecrementRefCount];
 
-      where = 8;
+      where = 7;
       EOFLOGObjectLevel(@"EOEntity",
 			@"relationshipsByName gcDecrementRefCount");
       [(id)_relationshipsByName gcDecrementRefCount];
 
-      where = 9;
+      where = 8;
       EOFLOGObjectLevel(@"EOEntity",
 			@"primaryKeyAttributes gcDecrementRefCount");
       if (!_flags.primaryKeyAttributesIsLazy)
         [(id)_primaryKeyAttributes gcDecrementRefCount];
 
-      where = 10;
+      where = 9;
       EOFLOGObjectLevel(@"EOEntity",
 			@"classProperties gcDecrementRefCount");
       if (!_flags.classPropertiesIsLazy)
         [(id)_classProperties gcDecrementRefCount];
 
-      where = 11;
+      where = 10;
       EOFLOGObjectLevelArgs(@"EOEntity",
 			    @"attributesUsedForLocking (%@) gcDecrementRefCount",
 			    [_attributesUsedForLocking class]);
       if (!_flags.attributesUsedForLockingIsLazy)
         [(id)_attributesUsedForLocking gcDecrementRefCount];
 
-      where = 12;
+      where = 11;
       EOFLOGObjectLevel(@"EOEntity", @"subEntities gcDecrementRefCount");
       [(id)_subEntities gcDecrementRefCount];
 
-      where = 13;
+      where = 12;
       EOFLOGObjectLevel(@"EOEntity", @"dbSnapshotKeys gcDecrementRefCount");
       [(id)_dbSnapshotKeys gcDecrementRefCount];
 
-      where = 14;
+      where = 13;
       EOFLOGObjectLevel(@"EOEntity", @"_parent gcDecrementRefCount");
       [_parent gcDecrementRefCount];
     }
@@ -1883,6 +1883,7 @@ createInstanceWithEditingContext:globalID:zone:
                  name];
 
   ASSIGN(_name, name);
+  [_model _updateCache];
 }
 
 - (void)setExternalName: (NSString *)name
@@ -2475,7 +2476,7 @@ createInstanceWithEditingContext:globalID:zone:
             [_attributesToFetch class],
             _attributesToFetch);
 
-  [self _setModel: model];
+  _model = model;
 }
 
 - (void)setParentEntity: (EOEntity *)parent
@@ -2589,7 +2590,7 @@ createInstanceWithEditingContext:globalID:zone:
 
 //DESTROY v later because it may be still in use
 #define AUTORELEASE_SETNIL(v) { AUTORELEASE(v); v=nil; }
-- (void) _setIsEdited
+- (void)_setIsEdited
 {
   if(_flags.updating)
     return;
@@ -3428,15 +3429,6 @@ returns nil if there's no key in the instanceDictionaryInitializer
   return _instanceDictionaryInitializer;
 }
 
-- (void) _setModel: (EOModel *)model
-{
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"_setModel=%p", model);
-  ASSIGN(_model, model);
-
-  EOFLOGObjectFnStop();
-}
 @end
 
 @implementation EOEntity (EOEntityRelationshipPrivate)
