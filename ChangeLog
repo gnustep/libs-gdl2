@@ -1,3 +1,8 @@
+2003-02-23  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAdaptor.m ([EOAdaptor sharedLoginPanelInstance]):
+	Maintain instances on a per class basis as reported by Matt Rice.
+
 2003-02-22  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.h/m: New globals for GDL2 specific

@@ -90,7 +90,7 @@ NSString *EOAdministrativeConnectionDictionaryNeededNotification
   = @"EOAdministrativeConnectionDictionaryNeededNotification";
 NSString *EOAdaptorKey = @"EOAdaptorKey";
 NSString *EOModelKey = @"EOModelKey";
-NSString *EOConnectionDictionaryKey = "EOConnectionDictionaryKey";
+NSString *EOConnectionDictionaryKey = @"EOConnectionDictionaryKey";
 NSString *EOAdministrativeConnectionDictionaryKey 
   = @"EOAdministrativeConnectionDictionaryKey";
 
@@ -263,22 +263,36 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
 + (EOLoginPanel *)sharedLoginPanelInstance
 {
-  static EOLoginPanel *panel = nil;
+  static NSMutableDictionary *panelDict = nil;
+  NSString     *name;
+  EOLoginPanel *panel = nil;
 
-  if (panel == nil
-      && NSClassFromString(@"NSApplication") != nil)
+  if ([self isMemberOfClass: [EOAdaptor class]] == NO)
     {
-      NSBundle *adaptorFramework;
-      NSBundle *loginBundle;
-      NSString *path;
-      Class     loginClass;
+      if (panelDict == nil)
+	{
+	  panelDict = [NSMutableDictionary new];
+	}
+
+      name = NSStringFromClass(self);
+      panel = [panelDict objectForKey: name];
+
+      if (panel == nil
+	  && NSClassFromString(@"NSApplication") != nil)
+	{
+	  NSBundle *adaptorFramework;
+	  NSBundle *loginBundle;
+	  NSString *path;
+	  Class     loginClass;
 	  
-      adaptorFramework = [NSBundle bundleForClass: self];
-      path = [adaptorFramework pathForResource: @"LoginPanel"
-			       ofType: @"bundle"];
-      loginBundle = [NSBundle bundleWithPath: path];
-      loginClass = [loginBundle principalClass];
-      panel = [loginClass new];
+	  adaptorFramework = [NSBundle bundleForClass: self];
+	  path = [adaptorFramework pathForResource: @"LoginPanel"
+				   ofType: @"bundle"];
+	  loginBundle = [NSBundle bundleWithPath: path];
+	  loginClass = [loginBundle principalClass];
+	  panel = [loginClass new];
+	  [panelDict setObject: panel forKey: name];
+	}
     }
   
   return panel;
