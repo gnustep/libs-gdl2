@@ -1,3 +1,13 @@
+2002-11-24  Richard Frith-macdonald <rfm@gnu.org>
+
+	* EOAdaptors/Makefile.postamble: New file to clean configure
+	generated files.
+	* EOAdaptors/Postgres95/Makefile.postamble: New file to clean configure
+	generated files.
+	* EOAdaptors/Postgres95/Makefile.preamble: remove .. generated
+	automatically.
+	Fixes suggested by David Ayers
+
 2002-11-18  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOControl/EOKeyValueQualifier.m:
