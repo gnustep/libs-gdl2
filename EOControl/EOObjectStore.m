@@ -53,10 +53,10 @@ NSString *EOObjectsChangedInStoreNotification = @"EOObjectsChangedInStoreNotific
 
 NSString *EOInvalidatedAllObjectsInStoreNotification = @"EOInvalidatedAllObjectsInStoreNotification";
 
-NSString *EODeletedKey = @"inserted";
-NSString *EOInsertedKey = @"deleted";
-NSString *EOInvalidatedKey = @"updated";
-NSString *EOUpdatedKey = @"invalidated";
+NSString *EODeletedKey = @"deleted";
+NSString *EOInsertedKey = @"inserted";
+NSString *EOInvalidatedKey = @"invalidated";
+NSString *EOUpdatedKey = @"updated";
 
 
 @implementation EOObjectStore

@@ -1,3 +1,12 @@
+2005-02-07  Matt Rice  <ratmice@yahoo.com>
+
+	* EOControl/EOObjectStore.m: Assign correct key names for EOUpdatedKey,
+	EOInsertedKey, EODeletedKey, EOInvalidatedKey.
+	* EOAccess/EODatabaseContext.m (-_objectsChanged:, -commitChanges): Use
+	EOUpdatedKey, EOInsertedKey, EODeletedKey, EOInvalidatedKey, instead
+	of hard coded keys.
+	* EOControl/EOEditingContext.m (-didSaveChanges, pendingInfo): Ditto.
+		
 2005-02-03  David Ayers  <d.ayers@inode.at>
 	
 	* EOAccess/EODatabaseContext.h/m:(_numLocked): Removed.

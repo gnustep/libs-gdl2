@@ -889,9 +889,9 @@ userInfo = {
       //OK for update
       //TODO-NOW for insert/delete
       NSDictionary *userInfo = [notification userInfo];
-      NSArray *updatedObjects = [userInfo objectForKey: @"updated"];
-      //NSArray *insertedObjects = [userInfo objectForKey: @"inserted"];
-      //NSArray *deletedObjects = [userInfo objectForKey: @"deleted"];
+      NSArray *updatedObjects = [userInfo objectForKey: EOUpdatedKey];
+      //NSArray *insertedObjects = [userInfo objectForKey: EOInsertedKey];
+      //NSArray *deletedObjects = [userInfo objectForKey: EODeletedKey];
       int i, count = [updatedObjects count];
 
       NSDebugMLLog(@"EODatabaseContext", @"updatedObjects=%@", updatedObjects);
@@ -3490,9 +3490,9 @@ Raises an exception is the adaptor is unable to perform the operations.
 	postNotificationName: @"EOObjectsChangedInStoreNotification"
 	object: _database
 	userInfo: [NSDictionary dictionaryWithObjectsAndKeys:
-				  deletedObjects, @"deleted",
-				insertedObjects, @"inserted",
-				updatedObjects, @"updated",
+				  deletedObjects, EODeletedKey,
+				insertedObjects, EOInsertedKey,
+				updatedObjects, EOUpdatedKey,
 				nil, nil]]; //call self _snapshotsChangedInDatabase:
     }
 

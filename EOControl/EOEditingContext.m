@@ -2321,9 +2321,9 @@ _mergeValueForKey(id obj, id value,
     postNotificationName: @"EOEditingContextDidSaveChangesNotification"
     object: self
     userInfo: [NSDictionary dictionaryWithObjectsAndKeys:
-			      objectsForNotification[0], @"inserted",
-			    objectsForNotification[1], @"deleted",
-			    objectsForNotification[2], @"updated",
+			      objectsForNotification[0], EOInsertedKey,
+			    objectsForNotification[1], EODeletedKey,
+			    objectsForNotification[2], EOUpdatedKey,
 			    nil, nil]];
 
   EOFLOGObjectFnStop();
@@ -3554,9 +3554,9 @@ shouldContinueFetchingWithCurrentObjectCount: (unsigned)count
     }
 
   infoDict = [NSDictionary dictionaryWithObjectsAndKeys:
-			     objectsForInfo[0], @"inserted",
-			   objectsForInfo[1], @"deleted",
-			   objectsForInfo[2], @"updated",
+			     objectsForInfo[0], EOInsertedKey,
+			   objectsForInfo[1], EODeletedKey,
+			   objectsForInfo[2], EOUpdatedKey,
 			   nil, nil];
 
   NSDebugMLog(@"infoDict=%@", infoDict);
