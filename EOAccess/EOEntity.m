@@ -1929,18 +1929,21 @@ createInstanceWithEditingContext:globalID:zone:
 
 - (void)setRestrictingQualifier: (EOQualifier *)qualifier
 {
+  [self willChange];
   ASSIGN(_restrictingQualifier, qualifier);
 }
 
 - (void)setReadOnly: (BOOL)flag
 {
   //OK
+  [self willChange];
   _flags.isReadOnly = flag;
 }
 
 - (void)setCachesObjects: (BOOL)flag
 {
   //OK
+  [self willChange];
   _flags.cachesObjects = flag;
 }
 
@@ -1965,6 +1968,7 @@ createInstanceWithEditingContext:globalID:zone:
 	    NSStringFromClass([[attribute parent] class]),
 	    [(EOEntity *)[attribute parent] name]);
   
+  [self willChange]; 
   if ([self createsMutableObjects])
     [(GCMutableArray *)_attributes addObject: attribute];
   else
@@ -1985,6 +1989,7 @@ createInstanceWithEditingContext:globalID:zone:
 {
   if (attribute)
     {
+      [self willChange];
       [attribute setParent: nil];
       NSEmitTODO();  //TODO
 
@@ -2026,6 +2031,7 @@ createInstanceWithEditingContext:globalID:zone:
                  self,
                  relationshipName];
 
+  [self willChange];
   if ([self createsMutableObjects])
     [(GCMutableArray *)_relationships addObject: relationship];
   else
@@ -2049,6 +2055,7 @@ createInstanceWithEditingContext:globalID:zone:
   //TODO
   if (relationship)
     {
+      [self willChange]; 
       [relationship setEntity:nil];
 
       if(_relationshipsByName != nil)
@@ -2077,6 +2084,7 @@ createInstanceWithEditingContext:globalID:zone:
       _fetchSpecificationDictionary = [NSMutableDictionary new];
     }
 
+  [self willChange];
   [_fetchSpecificationDictionary setObject: fetchSpec forKey: name];
   ASSIGN(_fetchSpecificationNames, [[_fetchSpecificationDictionary allKeys]
 				     sortedArrayUsingSelector:
@@ -2085,6 +2093,7 @@ createInstanceWithEditingContext:globalID:zone:
 
 - (void)removeFetchSpecificationNamed: (NSString *)name
 {
+  [self willChange];
   [_fetchSpecificationDictionary removeObjectForKey:name];
   ASSIGN(_fetchSpecificationNames, [[_fetchSpecificationDictionary allKeys]
 				     sortedArrayUsingSelector:
@@ -2138,6 +2147,7 @@ createInstanceWithEditingContext:globalID:zone:
     if (![self isValidClassProperty: [properties objectAtIndex:i]])
       return NO;
 
+  [self willChange];
   DESTROY(_classProperties);
   if ([properties isKindOfClass:[GCArray class]]
       || [properties isKindOfClass: [GCMutableArray class]])
@@ -2158,6 +2168,7 @@ createInstanceWithEditingContext:globalID:zone:
     if (![self isValidPrimaryKeyAttribute: [keys objectAtIndex:i]])
       return NO;
 
+  [self willChange];
   DESTROY(_primaryKeyAttributes);
 
   if ([keys isKindOfClass:[GCArray class]]
@@ -2179,6 +2190,7 @@ createInstanceWithEditingContext:globalID:zone:
     if (![self isValidAttributeUsedForLocking: [attributes objectAtIndex: i]])
       return NO;
 
+  [self willChange];
   DESTROY(_attributesUsedForLocking);
   
   if ([attributes isKindOfClass: [GCArray class]]   // TODO
@@ -2268,12 +2280,14 @@ createInstanceWithEditingContext:globalID:zone:
 
 - (void)addSubEntity: (EOEntity *)child
 {
+  [self willChange];
   [_subEntities addObject: child];
   [child setParentEntity: self];
 }
 
 - (void)removeSubEntity: (EOEntity *)child
 {
+  [self willChange];
   [child setParentEntity: nil];
   [_subEntities removeObject: child];
 }
@@ -2281,11 +2295,13 @@ createInstanceWithEditingContext:globalID:zone:
 - (void)setIsAbstractEntity: (BOOL)flag
 {
   //OK
+  [self willChange];
   _flags.isAbstractEntity = flag;
 }
 
 - (void)setMaxNumberOfInstancesToBatchFetch: (unsigned int)size
 {
+  [self willChange];
   _batchCount = size;
 }
 
@@ -2404,6 +2420,7 @@ createInstanceWithEditingContext:globalID:zone:
 - (void)setStoredProcedure: (EOStoredProcedure *)storedProcedure
               forOperation: (NSString *)operation
 {
+  [self willChange];
   [_storedProcedures setObject: storedProcedure
                      forKey: operation];
 }
@@ -2618,8 +2635,12 @@ createInstanceWithEditingContext:globalID:zone:
   _model = model;
 }
 
+/* TODO this method should probably be private.
+   it doesn't tell the parent we are a subEntity and since
+   -addSubEntity: calls it doing so would cause a recursive loop */
 - (void)setParentEntity: (EOEntity *)parent
 {
+  [self willChange]; // TODO: verify
   ASSIGN(_parent, parent);
 }
 

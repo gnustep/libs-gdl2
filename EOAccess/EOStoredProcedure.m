@@ -50,6 +50,7 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GCObject.h>
 
 #include <EOControl/EODebug.h>
+#include <EOControl/EOObserver.h>
 
 #include <EOAccess/EOStoredProcedure.h>
 #include <EOAccess/EOAttribute.h>
@@ -222,16 +223,19 @@ RCS_ID("$Id$")
 
 - (void)setName: (NSString *)name
 {
+  [self willChange];
   ASSIGN(_name, name);
 }
 
 - (void)setExternalName: (NSString *)name
 {
+  [self willChange];
   ASSIGN(_externalName, name);
 }
 
 - (void)setArguments: (NSArray *)arguments
 {
+  [self willChange];
   if ([arguments isKindOfClass: [GCArray class]]
       || [arguments isKindOfClass: [GCMutableArray class]])
     ASSIGN(_arguments, arguments);
@@ -241,6 +245,7 @@ RCS_ID("$Id$")
 
 - (void)setUserInfo: (NSDictionary *)dictionary
 {
+  [self willChange];
   ASSIGN(_userInfo, dictionary);
 }
 

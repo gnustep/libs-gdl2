@@ -1288,6 +1288,7 @@ relationships. Nil if none" **/
                  NSStringFromClass([self class]),
                  self];
 
+  [self willChange];
   _flags.isToMany = flag;
 }
 
@@ -1587,7 +1588,6 @@ relationships. Nil if none" **/
   EOFLOGObjectFnStart();
 
   [self _flushCache];
-  [self willChange];
 
   if ([self isFlattened] == YES)
     [NSException raise: NSInvalidArgumentException
@@ -1597,6 +1597,7 @@ relationships. Nil if none" **/
                  self];
   else
     {
+      [self willChange];
       if ([self createsMutableObjects])
         {
           [(GCMutableArray *)_joins removeObject: join];
@@ -1698,6 +1699,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 - (void)setNumberOfToManyFaultsToBatchFetch: (unsigned int)size
 {
+  [self willChange];
   _batchCount = size;
 }
 
@@ -1707,6 +1709,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 	    @"Bad deleteRule numeric value: %d",
             deleteRule);
 
+  [self willChange];
   _flags.deleteRule = deleteRule;
 }
 
@@ -1821,8 +1824,10 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
   return _flags.createsMutableObjects;
 }
 
+/* TODO this method should probably be private. */
 - (void)setInverseRelationship: (EORelationship*)relationship
 {
+  [self willChange]; // TODO: verify
   ASSIGN(_inverseRelationship,relationship);
 }
 

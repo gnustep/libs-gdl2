@@ -1,3 +1,37 @@
+2005-02-18  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/EOModel.m (-addEntity:, -setName:): Call -willChange:
+	when modifying the receiver.
+	(-setConnectionDictionary:, -addEntity:, -removeEntity:): Ditto.
+	(-addStoredProcedure:, -removeStoredProcedure:, -setAdaptorName): Ditto.
+	* EOAccess/EOAttribute.m (-setName:, -setProtoType:,): Ditto.
+	(-setDefinition:, -setReadOnly:, -setWidth:, -setPrecision:): Ditto.
+	(-setScale:, -setWriteFormat:, -setReadFormat:): Ditto.
+	(-setParameterDirection:, -setServerTimeZone:): Ditto.
+	(-setValueFactoryMethodName:): Ditto.
+	(-setAdaptorValueConversionMethodName:): Ditto.
+	(-setFactoryMethodArgumentType:): Ditto.
+	* EOAccess/EOEntity.m (-setRestrictingQualifier:): Ditto.
+	(-setCachesObjects:, -setReadOnly:, -addAttribute:): Ditto.
+	(-removeAttribute:, -addRelationship:, -removeRelationship:): Ditto.
+	(-addFetchSpecification:withName:): Ditto.
+	(-removeFetchSpecificationNamed:): Ditto.
+	(-setClassProperties:, -setPrimaryKeyAttributes:): Ditto.
+	(-setAttributesUsedForLocking:, -addSubEntity:): Ditto.
+	(-removeSubEntity:, -setIsAbstractEntity:): Ditto.
+	(-setMaxNumberOfInstancesToBatch:): Ditto.
+	(-setStoredProcedure:forOperation:): Ditto.
+	(-setParentEntity:): Ditto, And add comments
+	* EOAccess/EORelationship.m (setToMany:): Call -willChange when 
+	modifying the receiver
+	(-setNumberOfToManyFaultsToBatch:, -setDeleteRule:): Ditto.
+	(-setInverseRelationship:): Ditto and comment.
+	(-removeJoin:): Move -willChange call after error handling.
+	* EOAccess/EOStoredProcedure: Include EOObserving headers.
+	(-setName:, -setExternalName:, -setArguments:): Call -willChange:
+	when modifying the receiver.
+	(-setUserInfo:): Ditto.
+
 2005-02-17  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOEntity.m: Remove unnecessary include.

@@ -782,6 +782,7 @@ RCS_ID("$Id$")
 {
   [[self validateName: name] raise];
 
+  [self willChange];
   ASSIGN(_name, name);
   if (_flags.isParentAnEOEntity)
     {
@@ -792,6 +793,7 @@ RCS_ID("$Id$")
 
 - (void)setPrototype: (EOAttribute *)prototype 
 {
+  [self willChange];
   ASSIGN(_prototype, prototype);
 }
 
@@ -857,6 +859,7 @@ return nexexp
 {
   if(definition)
     {
+      [self willChange];
       [self _setDefinitionWithoutFlushingCaches: definition];
       [_parent _setIsEdited];
       DESTROY(_columnName);//??
@@ -872,6 +875,7 @@ return nexexp
                  NSStringFromClass([self class]),
                  self];
 
+  [self willChange];
   _flags.isReadOnly = yn;
 }
 
@@ -916,16 +920,19 @@ return nexexp
 
 - (void)setWidth: (unsigned)length
 {
+  [self willChange];
   _width = length;
 }
 
 - (void)setPrecision: (unsigned)precision
 {
+  [self willChange];
   _precision = precision;
 }
 
 - (void)setScale: (int)scale
 {
+  [self willChange];
   _scale = scale;
 }
 
@@ -941,16 +948,19 @@ return nexexp
 
 - (void)setWriteFormat: (NSString *)string
 {
+  [self willChange];
   ASSIGN(_writeFormat, string);
 }
 
 - (void)setReadFormat: (NSString *)string
 {
+  [self willChange];
   ASSIGN(_readFormat, string);
 }
 
 - (void)setParameterDirection: (EOParameterDirection)parameterDirection
 {
+  [self willChange];
   _parameterDirection = parameterDirection;
 }
 
@@ -1051,6 +1061,7 @@ return nexexp
 
 - (void)setServerTimeZone: (NSTimeZone *)tz
 {
+  [self willChange];
   ASSIGN(_serverTimeZone, tz);
 }
 
@@ -1360,12 +1371,14 @@ return nexexp
 
 - (void)setValueFactoryMethodName: (NSString *)factoryMethodName
 {
+  [self willChange];
   ASSIGN(_valueFactoryMethodName, factoryMethodName);
   _valueFactoryMethod = NSSelectorFromString(_valueFactoryMethodName);
 }
 
 - (void)setAdaptorValueConversionMethodName: (NSString *)conversionMethodName
 {
+  [self willChange];
   ASSIGN(_adaptorValueConversionMethodName, conversionMethodName);
 
   _adaptorValueConversionMethod = NSSelectorFromString(_adaptorValueConversionMethodName);
@@ -1373,6 +1386,7 @@ return nexexp
 
 - (void)setFactoryMethodArgumentType: (EOFactoryMethodArgumentType)argumentType
 {
+  [self willChange];
   _argumentType = argumentType;
 }
 

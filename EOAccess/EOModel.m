@@ -1423,6 +1423,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       self modelGroup;
       //todo if modelgroup;
 */
+      [self willChange];
       ASSIGN(_name, name);
 /*
       self modelGroup;
@@ -1433,11 +1434,13 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 - (void) setAdaptorName: (NSString *)adaptorName
 {
+  [self willChange];
   ASSIGN(_adaptorName, adaptorName);
 }
 
 - (void) setConnectionDictionary: (NSDictionary *)connectionDictionary
 {
+  [self willChange];
   ASSIGN(_connectionDictionary, connectionDictionary);
 }
 
@@ -1468,6 +1471,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 	    @"Entity '%@' is already owned by model '%@'.",
 	    [entity name], [[entity model] name]);
 
+  [self willChange];
   /* Do not access _entities until cache is triggered */
   if ([self createsMutableObjects])
     [(GCMutableArray *)[self entities] addObject: entity];
@@ -1505,6 +1509,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
   className = [entity className];
   NSAssert1(className, @"No className in %@", entity);
+  [self willChange];
   NSMapRemove(_entitiesByClass, className);
 
   /* Do not access _entities until cache is triggered */
@@ -1535,6 +1540,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
                  self,
                  [storedProcedure name]];
   NSAssert(_storedProcedures, @"Uninitialised _storedProcedures!");
+  [self willChange];
   if ([self createsMutableObjects])
     [(GCMutableArray *)_storedProcedures addObject: storedProcedure];
   else
@@ -1551,6 +1557,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 {
   NSAssert(_storedProcedures, @"Uninitialised _storedProcedures!");
 
+  [self willChange];
   if ([self createsMutableObjects])
     [(GCMutableArray *)_storedProcedures removeObject: storedProcedure];
   else
