@@ -46,8 +46,16 @@
     : ( TYPE *)GSAutoreleasedBuffer((ID##_size) * sizeof( TYPE )); \
   TYPE *ID = ID##_base;
 
+
 GDL2CONTROL_EXPORT BOOL
 GSUseStrictWO451Compatibility(NSString *key);
+
+GDL2CONTROL_EXPORT void
+GDL2_ActivateCategory(const char *className, SEL sel, BOOL isInstance);
+
+GDL2CONTROL_EXPORT void
+GDL2_ActivateAllGDL2Categories(void);
+
 
 @interface NSObject (NSObjectPerformingSelector)
 - (NSArray *)resultsOfPerformingSelector: (SEL)sel

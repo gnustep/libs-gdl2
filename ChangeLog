@@ -1,3 +1,29 @@
+2004-06-21  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EONSAddOns.h/m
+	(GDL2_ActivateCategory, GDL2_ActivateAllGDL2Categories)
+	(GDL2_DumpMethodList): New functions.
+	
+	* EOControl/EOKeyValueCoding.m
+	(initialize): Make order of initialization more thread safe.
+	(NilToNull): Remove helper class.
+	([NSObject -unableToSetNilForKey:]): Implement.
+	([NSObject -GDL2KVCNSObjectICategoryID]): New method.
+	([NSObject +load]): Ditto.
+	([NSDictionary -GDL2KVCNSDictionaryICategoryID]): Ditto.
+	([NSDictionary +load]): Ditto.
+	([NSMutableDictionary -GDL2KVCNSDictionaryICategoryID]): Ditto.
+	([NSMutableDictionary +load]): Ditto.
+	
+	* EOControl/EOClassDescription.m
+	([NSObject -GDL2CDNSObjectICategoryID]): New method.
+	([NSObject +load]): New method.
+	([NSObject -validateValue:forKey:]) Introduce temporary variable
+	to allow correct formatting.
+	([NSObject -snapshot]): Reformat log string.
+	([NSObject -addObject], [NSObject -removeObject])
+	([NSObject _setObject], [NSObject -editingContext]): Reformat.
+	
 2004-06-04  Simon Stapelton  <simon@tufty.co.uk>
 
 	* EOControl/EOAndQualifier.m, 

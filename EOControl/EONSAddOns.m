@@ -90,6 +90,62 @@ GSUseStrictWO451Compatibility (NSString *key)
   return GSStrictWO451Flag;
 }
 
+void
+GDL2_DumpMethodList(Class cls, SEL sel, BOOL isInstance)
+{
+  void *iterator = 0;
+  GSMethodList mList;
+  
+  fprintf(stderr,"List for :%s %s (inst:%d)\n",
+	      GSNameFromClass(cls), GSNameFromSelector(sel), isInstance);
+  while ((mList = GSMethodListForSelector(cls, sel,
+					  &iterator, isInstance)))
+    {
+      GSMethod meth = GSMethodFromList(mList, sel, NO);
+      IMP imp = meth->method_imp;
+
+      fprintf(stderr,"List: %p Meth: %p Imp: %p\n",
+	      mList, meth, imp);
+    }
+  fprintf(stderr,"List finished\n"); fflush(stderr);
+}
+
+void
+GDL2_ActivateCategory(const char *className, SEL sel, BOOL isInstance)
+{
+  Class cls;
+  GSMethodList mList;
+
+  cls = GSClassFromName(className);
+  mList = GSMethodListForSelector(cls, sel, 0, isInstance);
+
+  GSRemoveMethodList(cls, mList, isInstance);
+  GSAddMethodList(cls, mList, isInstance);
+
+  GSFlushMethodCacheForClass(cls);
+}
+
+void
+GDL2_ActivateAllGDL2Categories(void)
+{
+  /* EOKeyValueCoding */
+  GDL2_ActivateCategory("NSObject",
+                        @selector(GDL2KVCNSObjectICategoryID), YES);
+  GDL2_ActivateCategory("NSArray",
+			@selector(GDL2KVCNSArrayICategoryID), YES);
+  GDL2_ActivateCategory("NSDictionary",
+                        @selector(GDL2KVCNSDictionaryICategoryID), YES);
+  GDL2_ActivateCategory("NSMutableDictionary",
+                        @selector(GDL2KVCNSMutableDictionaryICategoryID), YES);
+
+  /* EOClassDescription */
+  GDL2_ActivateCategory("NSObject",
+                        @selector(GDL2CDNSObjectICategoryID), YES);
+
+}
+
+
+
 @implementation NSObject (NSObjectPerformingSelector)
 
 - (NSArray*)resultsOfPerformingSelector: (SEL)sel

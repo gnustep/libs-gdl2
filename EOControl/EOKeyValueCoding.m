@@ -80,9 +80,9 @@ initialize(void)
 {
   if (null == nil)
     {
-      null     = [EONull null];
       oaiSel   = @selector(objectAtIndex:);
       strictWO = GSUseStrictWO451Compatibility(nil);
+      null     = [EONull null];
     }
 }
 
@@ -90,64 +90,24 @@ initialize(void)
    of efficiency, we don't use the do {} while (0) pattern.  */
 #define INITIALIZE if (null == nil) initialize();
 
-/*
- * This dummy class exists to provide a replacement implementation for
- * NSObject -unableToSetNilForKey:, which calls -unableToSetNullForKey:
- * as defined in WO4.5.  We need this mechanism as a category cannot
- * reliably override the category in gnustep-base or Foundation.
- */
-@interface NilToNull : NSObject
-@end
-@interface NilToNull (SurrpressWarning)
-- (void) unableToSetNullForKey: (NSString *)key;
-@end
-@implementation NilToNull
+
+@implementation NSObject (_EOKeyValueCodingCompatibility)
+
+- (void)GDL2KVCNSObjectICategoryID
+{
+}
+
 + (void)load
 {
-  Class cls;
-  SEL sel;
-  IMP imp;
-  GSMethod method;
-
-  imp = NULL;
-  sel = @selector(unableToSetNilForKey:);
-  cls = GSClassFromName("NSObject");
-
-  method = GSGetInstanceMethodNotInherited(self, sel);
-  if (method != METHOD_NULL)
-    {
-      imp = method->method_imp;
-    }
-  else
-    {
-      fprintf(stderr,
-	      "%s: Could not find method unableToSetNilForKey: in NilToNil!\n",
-	      __FILE__);
-      abort();
-    }
-
-  method = GSGetInstanceMethodNotInherited(cls, sel);
-  if (method != METHOD_NULL)
-    {
-      method->method_imp = imp;
-    }
-  else
-    {
-      fprintf(stderr,
-	      "%s: Could not find method unableToSetNilForKey: in NSObject!\n",
-	      __FILE__);
-      abort();
-    }
-  GSFlushMethodCacheForClass(cls);
+  GDL2_ActivateCategory("NSObject",
+			@selector(GDL2KVCNSObjectICategoryID), YES);
 }
 
 - (void) unableToSetNilForKey: (NSString *)key
 {
   [self unableToSetNullForKey: key];
 }
-@end
 
-@implementation NSObject (_EOKeyValueCodingCompatibility)
 /* See EODeprecated.h. */
 + (void) flushClassKeyBindings
 {
@@ -183,6 +143,16 @@ initialize(void)
 
 
 @implementation NSArray (EOKeyValueCoding)
+
+- (void)GDL2KVCNSArrayICategoryID
+{
+}
+
++ (void)load
+{
+  GDL2_ActivateCategory("NSArray",
+			@selector(GDL2KVCNSArrayICategoryID), YES);
+}
 
 /**
  * EOKeyValueCoding protocol<br/>
@@ -497,6 +467,16 @@ initialize(void)
 
 @implementation NSDictionary (EOKeyValueCoding)
 
+- (void)GDL2KVCNSDictionaryICategoryID
+{
+}
+
++ (void)load
+{
+  GDL2_ActivateCategory("NSDictionary",
+			@selector(GDL2KVCNSDictionaryICategoryID), YES);
+}
+
 /**
  * Returns the object stored in the dictionary for this key.
  * Unlike Foundation, this method may return objects for keys other than
@@ -794,6 +774,16 @@ initialize(void)
 @end
 
 @implementation NSMutableDictionary (EOKVCGNUstepExtensions)
+
+- (void)GDL2KVCNSMutableDictionaryICategoryID
+{
+}
+
++ (void)load
+{
+  GDL2_ActivateCategory("NSMutableDictionary",
+			@selector(GDL2KVCNSMutableDictionaryICategoryID), YES);
+}
 
 /**
  * Method to augment the NSKeyValueCoding implementation

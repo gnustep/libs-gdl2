@@ -711,6 +711,16 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 @implementation NSObject (EOClassDescriptionPrimitives)
 
+- (void)GDL2CDNSObjectICategoryID
+{
+}
+
++ (void)load
+{
+  GDL2_ActivateCategory("NSObject",
+                        @selector(GDL2CDNSObjectICategoryID), YES);
+}
+
 // when you enable the NSDebugMLLogs here you will have a loop. dave
 - (EOClassDescription *)classDescription
 {
@@ -891,13 +901,15 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                                     forKey: key];
   if (exception)
     {
+      NSDictionary *userInfo
+	= [NSDictionary dictionaryWithObjectsAndKeys:
+			  self, @"EOValidatedObjectUserInfoKey",
+			key, @"EOValidatedPropertyUserInfoKey",
+			nil];
+
       exception = [NSException exceptionWithName: [exception name]
 			       reason: [exception reason]
-			       userInfo: [NSDictionary
-					   dictionaryWithObjectsAndKeys:
-					     self, @"EOValidatedObjectUserInfoKey",
-					   key, @"EOValidatedPropertyUserInfoKey",
-					   nil, nil]];
+			       userInfo: userInfo];
     }
 
   if (exception == nil)
@@ -1065,7 +1077,8 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   toOneRelationshipKeyCount = [toOneRelationshipKeys count];
   toManyRelationshipKeyCount = [toManyRelationshipKeys count];
 
-  NSDebugMLLog(@"gsdb", @"attributeKeyCount=%d toOneRelationshipKeyCount=%d toManyRelationshipKeyCount=%d",
+  NSDebugMLLog(@"gsdb", @"attributeKeyCount=%d toOneRelationshipKeyCount=%d "
+	       @"toManyRelationshipKeyCount=%d",
 	       attributeKeyCount, toOneRelationshipKeyCount,
 	       toManyRelationshipKeyCount);
 
@@ -1289,7 +1302,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 @implementation NSObject (EOKeyRelationshipManipulation)
 
-- (void)addObject: object
+- (void)addObject: (id)object
 toPropertyWithKey: (NSString *)key
 {
   const char *str = NULL;
@@ -1389,7 +1402,7 @@ toPropertyWithKey: (NSString *)key
   EOFLOGObjectFnStop();
 }
 
-- (void)removeObject: object
+- (void)removeObject: (id)object
  fromPropertyWithKey: (NSString *)key
 {
 //self valueForKey:
@@ -1479,7 +1492,7 @@ toPropertyWithKey: (NSString *)key
   EOFLOGObjectFnStop();
 }
 
--(void)_setObject: (id)object
+- (void)_setObject: (id)object
 forBothSidesOfRelationshipWithKey: (NSString*)key
 {
   //Near OK
@@ -1819,7 +1832,7 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 
 @implementation NSObject (_EOEditingContext)
 
--(EOEditingContext*)editingContext
+- (EOEditingContext*)editingContext
 {
   return [EOObserverCenter observerForObject: self
                            ofClass: [EOEditingContext class]];
