@@ -88,6 +88,8 @@ extern NSString *EOMoreThanOneException;
 - (void)connectWithModelNamed: (NSString*)name
 connectionDictionaryOverrides: (NSDictionary*)overrides;
 
+- (id)createAndInsertInstanceOfEntityNamed: (NSString *)entityName;
+
 - (NSDictionary*)primaryKeyForObject: (id)object;
 - (NSDictionary*)destinationKeyForSourceObject: (id)object
 			     relationshipNamed: (NSString*)name;

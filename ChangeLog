@@ -1,3 +1,7 @@
+2002-12-06  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOUtilities.h: added prototype.
+
 2002-12-05  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOAccess/EODatabaseContext.m ([EODatabaseContext
