@@ -79,8 +79,6 @@ RCS_ID("$Id$")
 
 @implementation EOAttribute
 
-static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
-
 + (id) attributeWithPropertyList: (NSDictionary *)propertyList
                            owner: (id)owner
 {
@@ -452,14 +450,6 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
   return _name;
 }
 
-- (NSTimeZone *)serverTimeZone
-{
-  if (_serverTimeZone)
-    return _serverTimeZone;
-
-  return [_prototype serverTimeZone];
-}
-
 - (NSString *)columnName
 {
   if (_columnName)
@@ -598,10 +588,13 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
   return NO;
 }
 
-/** Return NO when the attribute corresponds to one SQL column in its entity associated table return YES otherwise. 
-An attribute with a definition such as "anotherAttributeName * 2" is derived
-A Flattened attribute is also a derived attributes.
-**/
+/** 
+ * Return NO when the attribute corresponds to one SQL column in its entity
+ * associated table return YES otherwise. 
+ * An attribute with a definition such as 
+ * "anotherAttributeName * 2" is derived.
+ * A Flattened attribute is also a derived attributes.
+ **/
 - (BOOL)isDerived
 {
   //Seems OK
@@ -612,11 +605,12 @@ A Flattened attribute is also a derived attributes.
 }
 
 
-/** Returns YES if the attribute is flattened, NO otherwise. 
-A flattened attribute is an attribute with a definition using a relationship to another entity 
-A Flattened attribute is also a derived attributes.
-**/
-
+/** 
+ * Returns YES if the attribute is flattened, NO otherwise.  
+ * A flattened attribute is an attribute with a definition
+ * using a relationship to another entity.  
+ * A Flattened attribute is also a derived attribute.
+ **/
 - (BOOL)isFlattened
 {
   BOOL isFlattened = NO;
@@ -630,33 +624,33 @@ A Flattened attribute is also a derived attributes.
 
 - (NSString *)valueClassName
 {
-  if (!_valueClassName && [self isFlattened])
-    return [[_definitionArray realAttribute] valueClassName];
-
   if (_valueClassName)
     return _valueClassName;
+
+  if ([self isFlattened])
+    return [[_definitionArray realAttribute] valueClassName];
 
   return [_prototype valueClassName];
 }
 
 - (NSString *)externalType
 {
-  if (!_externalType && [self isFlattened])
-    return [[_definitionArray realAttribute] externalType];
-
   if (_externalType)
     return _externalType;
+
+  if ([self isFlattened])
+    return [[_definitionArray realAttribute] externalType];
 
   return [_prototype externalType];
 }
 
 - (NSString *)valueType
 {
-  if(!_valueType && [self isFlattened])
-    return [[_definitionArray realAttribute] valueType];
-
   if (_valueType)
     return _valueType;
+
+  if([self isFlattened])
+    return [[_definitionArray realAttribute] valueType];
 
   return [_prototype valueType];
 }
@@ -664,7 +658,9 @@ A Flattened attribute is also a derived attributes.
 @end
 
 @implementation EOAttribute (EOAttributeSQLExpression)
-/** Returns the value to use in an EOSQLExpression. **/
+/**
+ * Returns the value to use in an EOSQLExpression. 
+ **/
 - (NSString *) valueForSQLExpression: (EOSQLExpression *)sqlExpression
 {
   NSString *value=nil;
@@ -999,7 +995,10 @@ return nexexp
 
 - (NSTimeZone *)serverTimeZone
 {
-  return _serverTimeZone;
+  if (_serverTimeZone)
+    return _serverTimeZone;
+
+  return [_prototype serverTimeZone];
 }
 
 @end
@@ -1018,18 +1017,22 @@ return nexexp
 @implementation EOAttribute (EOAttributeValueCreation)
 
 
-/** returns a NSString or a custom-class value object from the supplied set of bytes. 
-Adaptor call this method during value creation when fetching objects from the database. 
-For efficiency reasons, the returned value is NOT autoreleased !
-**/
+/** 
+ * Returns an NSString or a custom-class value object
+ * from the supplied set of bytes. 
+ * The Adaptor calls this method during value creation
+ * when fetching objects from the database. 
+ * For efficiency, the returned value is NOT autoreleased.
+ **/
 - (id)newValueForBytes: (const void *)bytes
                 length: (int)length
 {
   NSMethodSignature *aSignature;
   NSInvocation *anInvocation;
   NSData *value = nil;
+  Class valueClass = [self _valueClass];
 
-  if (_valueClass != Nil && _valueClass != [NSData class])
+  if (valueClass != Nil && valueClass != [NSData class])
     {
       switch (_argumentType)
         {
@@ -1037,15 +1040,15 @@ For efficiency reasons, the returned value is NOT autoreleased !
 	  value = [[NSData alloc] initWithBytes:bytes length: length]; //For efficiency reasons, the returned value is NOT autoreleased !
 
 	  if(_valueFactoryMethod != NULL)
-	    value = [_valueClass performSelector: _valueFactoryMethod
+	    value = [valueClass performSelector: _valueFactoryMethod
 				 withObject: [value autorelease]];
 	  break;
 
 	case EOFactoryMethodArgumentIsBytes:
-	  value = [_valueClass alloc];//For efficiency reasons, the returned value is NOT autoreleased !
+	  value = [valueClass alloc];//For efficiency reasons, the returned value is NOT autoreleased !
 
 	  aSignature =
-	    [_valueClass
+	    [valueClass
 	      instanceMethodSignatureForSelector: _valueFactoryMethod];
 
 	  anInvocation = [NSInvocation
@@ -1069,10 +1072,13 @@ For efficiency reasons, the returned value is NOT autoreleased !
   return value;
 }
 
-/** returns a NSString or a custom-class value object from the supplied set of bytes using  encoding. 
-Adaptor call this method during value creation when fetching objects from the database. 
-For efficiency reasons, the returned value is NOT autoreleased !
-**/
+/** 
+ * Returns a NSString or a custom-class value object
+ * from the supplied set of bytes using  encoding. 
+ * The Adaptor calls this method during value creation
+ * when fetching objects from the database. 
+ * For efficiency, the returned value is NOT autoreleased.
+ **/
 - (id)newValueForBytes: (const void *)bytes
                 length: (int)length
               encoding: (NSStringEncoding)encoding
@@ -1080,8 +1086,9 @@ For efficiency reasons, the returned value is NOT autoreleased !
   NSMethodSignature *aSignature;
   NSInvocation *anInvocation;
   id value = nil;
+  Class valueClass = [self _valueClass];
 
-  if (_valueClass != Nil && _valueClass != [NSString class])
+  if (valueClass != Nil && valueClass != [NSString class])
     {
       switch (_argumentType)
         {
@@ -1090,15 +1097,15 @@ For efficiency reasons, the returned value is NOT autoreleased !
 							  length: length]
 				    encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
 	  
-	  value = [_valueClass performSelector: _valueFactoryMethod
+	  value = [valueClass performSelector: _valueFactoryMethod
 			       withObject: [value autorelease]];
 	  break;
 
 	case EOFactoryMethodArgumentIsBytes:
-	  value = [_valueClass alloc];//For efficiency reasons, the returned value is NOT autoreleased !
+	  value = [valueClass alloc];//For efficiency reasons, the returned value is NOT autoreleased !
 
 	  aSignature =
-	    [_valueClass
+	    [valueClass
 	      instanceMethodSignatureForSelector: _valueFactoryMethod];
 
 	  anInvocation = [NSInvocation
@@ -1126,8 +1133,12 @@ For efficiency reasons, the returned value is NOT autoreleased !
 }
 
 /**
-For efficiency reasons, the returned value is NOT autoreleased !
-**/
+ * Returns an NSCalanderDate object
+ * from the supplied time information. 
+ * The Adaptor calls this method during value creation
+ * when fetching objects from the database. 
+ * For efficiency, the returned value is NOT autoreleased.
+ **/
 - (NSCalendarDate *)newDateForYear: (int)year
                              month: (unsigned)month
                                day: (unsigned)day
@@ -1222,16 +1233,16 @@ For efficiency reasons, the returned value is NOT autoreleased !
   EOAdaptorValueType values[] = { EOAdaptorNumberType,
                                   EOAdaptorCharactersType,
 				  EOAdaptorDateType };
-  Class class;
+  Class valueClass;
   int i;
 
   for ( i = 0; i < 3; i++)
     {
-      class = _valueClass;
-
-      for ( ; class != Nil; class = class_get_super_class(class))
+      for ( valueClass = [self _valueClass];
+	    valueClass != Nil;
+	    valueClass = GSObjCSuper(valueClass))
 	{
-	  if (class == adaptorClasses[i])
+	  if (valueClass == adaptorClasses[i])
 	    return values[i];
 	}
     }
@@ -1289,35 +1300,37 @@ For efficiency reasons, the returned value is NOT autoreleased !
 
       //TODO: revoir
       {
-        EOEntity *entity = [self entity];
+        //EOEntity *entity = [self entity];
         //NSArray *pkAttributes = [entity primaryKeyAttributes];
         //TODO wowhat
 
         if (*valueP)
           {
-            if ([*valueP isKindOfClass: _valueClass] == NO)
+	    Class valueClass = [self _valueClass];
+
+            if ([*valueP isKindOfClass: valueClass] == NO)
               {
                 if ([*valueP isKindOfClass: [NSString class]])
                   {
-                    if (_valueClass == [NSNumber class])
+                    if (valueClass == [NSNumber class])
                       {
-                        if ([_valueType isEqualToString: @"i"] == YES)
+                        if ([[self valueType] isEqualToString: @"i"] == YES)
                           *valueP = [NSNumber numberWithInt:
 						[*valueP intValue]];
                         else
                           *valueP = [NSNumber numberWithDouble:
                                                  [*valueP doubleValue]];
                       }
-                    else if (_valueClass == [NSDecimalNumber class])
+                    else if (valueClass == [NSDecimalNumber class])
                       *valueP = [NSDecimalNumber
 				  decimalNumberWithString: *valueP];
                   
-                    else if (_valueClass == [NSData class])
+                    else if (valueClass == [NSData class])
                       *valueP = [*valueP
 				  dataUsingEncoding: NSASCIIStringEncoding
 				  allowLossyConversion: YES];
                   
-                    else if (_valueClass == [NSCalendarDate class])
+                    else if (valueClass == [NSCalendarDate class])
                       *valueP = [[[NSCalendarDate alloc]
 				   initWithString: *valueP]
 				  autorelease];
@@ -1327,13 +1340,15 @@ For efficiency reasons, the returned value is NOT autoreleased !
               {
                 if ([*valueP isKindOfClass: [NSString class]])
                   {
-                    if (_width && [*valueP length] > _width)
+		    unsigned width = [self width];
+
+                    if (width && [*valueP length] > width)
                       {
                         const char *buf;
                       
                         buf = [*valueP cString];
                         *valueP = [NSString stringWithCString: buf
-					    length: _width];
+					    length: width];
                       }
                   }
                 else if ([*valueP isKindOfClass: [NSNumber class]])
@@ -1387,6 +1402,17 @@ For efficiency reasons, the returned value is NOT autoreleased !
   return _definitionArray;
 }
 
+- (Class)_valueClass
+{
+  if (_valueClass)
+    return _valueClass;
+
+  if ([self isFlattened])
+    return [[_definitionArray realAttribute] _valueClass];
+
+  return [_prototype _valueClass];
+}
+
 @end
 
 @implementation EOAttribute (EOAttributePrivate2)
@@ -1425,3 +1451,4 @@ For efficiency reasons, the returned value is NOT autoreleased !
 }
 
 @end
+

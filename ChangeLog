@@ -3,6 +3,24 @@
 	* EOControl/EOFetchSpecification.m
 	(-[EOFetchSpecification fetchSpecificationNamed:entityNamed:]}:
 	Implemented upon bug report by Philip Moetteli.
+	* EOAccess/EOAttributePriv.h (-[EOAttribute _valueClass]): Declare
+	new private method.
+	* EOAccess/EOAttribute.m: Remove declaration of unsused static
+	variable.  Format documentation.
+	(-[EOAttribute serverTimeZone]): Remove duplicate implementation
+	which is always overriden by the category and correct the category
+	implementation.
+	(-[EOAttribute valueClassName]): Minor optimisation.
+	(-[EOAttribute externalType]): Ditto.
+	(-[EOAttribute valueType]): Ditto.
+	(-[EOAttribute newValueForBytes:length:]): Use -_valueClass method
+	to insure correct valueClass usage.  Bug reported by Philip
+	Moetteli.
+	(-[EOAttribute newValueForBytes:length:encoding:]): Ditto.
+	(-[EOAttribute adaptorValueType]): Ditto.
+	(-[EOAttribute validateValue:]): Ditto.  Use -width method to
+	insure correct usage of width with respect to prototypes.
+	(-[EOAttribute _valueClass]): New private method.
 
 2003-09-29  Philip Moetteli  <Philip.Moetteli@tele2.ch>
 

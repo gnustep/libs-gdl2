@@ -28,23 +28,21 @@
 #define __EOAttributePriv_h__
 
 @interface EOAttribute (EOAttributePrivate)
-
 - (GCMutableArray *)_definitionArray;
 
 - (void)setParent: (id)parent;
 - (EOAttribute *)realAttribute;
 
+- (Class)_valueClass;
 @end
 
 @interface EOAttribute (EOAttributePrivate2)
-
 - (BOOL) _hasAnyOverrides;
 - (void) _resetPrototype;
 - (void) _updateFromPrototype;
 - (void) _setOverrideForKeyEnum: (int)keyEnum;
 - (BOOL) _isKeyEnumOverriden: (int)param0;
 - (BOOL) _isKeyEnumDefinedByPrototype: (int)param0;
-
 @end
 
 #endif  /* __EOAttributePriv_h__ */
