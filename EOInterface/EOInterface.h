@@ -33,6 +33,15 @@
 #include <EOInterface/EOColumnAssociation.h>
 #include <EOInterface/EOComboBoxAssociation.h>
 #include <EOInterface/EOControlAssociation.h>
+#include <EOInterface/EODetailSelectionAssociation.h>
 #include <EOInterface/EODisplayGroup.h>
+#include <EOInterface/EOMasterCopyAssociation.h>
+#include <EOInterface/EOMasterDetailAssociation.h>
+#include <EOInterface/EOMatrixAssociation.h>
+#include <EOInterface/EOPickTextAssociation.h>
+#include <EOInterface/EOPopUpAssociation.h>
+#include <EOInterface/EORadioMatrixAssociation.h>
+#include <EOInterface/EORecursiveBrowserAssociation.h>
+#include <EOInterface/EOTextAssociation.h>
 
 #endif /* __EOInterface_h__ */

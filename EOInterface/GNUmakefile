@@ -41,9 +41,19 @@ EOAssociation.m \
 EOColumnAssociation.m \
 EOComboBoxAssociation.m \
 EOControlAssociation.m \
+EODetailSelectionAssociation.m \
 EODisplayGroup.m \
 EOGenericControlAssociation.m \
+EOMasterCopyAssociation.m \
+EOMasterDetailAssociation.m \
+EOMasterPeerAssociation.m \
+EOMatrixAssociation.m \
+EOPickTextAssociation.m \
+EOPopUpAssociation.m \
+EORadioMatrixAssociation.m \
+EORecursiveBrowserAssociation.m \
 EOTableViewAssociation.m \
+EOTextAssociation.m \
 NSImage+Additions.m
 
 EOInterface_HEADER_FILES = \
@@ -53,8 +63,17 @@ EOAssociation.h \
 EOColumnAssociation.h \
 EOComboBoxAssociation.h \
 EOControlAssociation.h \
+EODetailSelectionAssociation.h \
 EODisplayGroup.h \
-EOInterface.h
+EOInterface.h \
+EOMasterCopyAssociation.h \
+EOMasterDetailAssociation.h \
+EOMatrixAssociation.h \
+EOPickTextAssociation.h \
+EOPopUpAssociation.h \
+EORadioMatrixAssociation.h \
+EORecursiveBrowserAssociation.h \
+EOTextAssociation.h
 
 gdl2_AUTOGSDOC_HEADERS = $(EOInterface_HEADER_FILES)
 gdl2_AUTOGSDOC_SOURCE = $(EOInterface_OBJC_FILES)

@@ -27,7 +27,6 @@
 #define __EOInterface_EOAssociation_h__
 
 #ifdef GNUSTEP
-#include <Foundation/NSObject.h>
 #include <Foundation/NSMapTable.h>
 #else
 #include <Foundation/Foundation.h>

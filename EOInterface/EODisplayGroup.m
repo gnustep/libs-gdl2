@@ -42,9 +42,8 @@ RCS_ID("$Id$")
 #include <EOControl/EOQualifier.h>
 
 #include "EODisplayGroup.h"
-/*
+#include "EODeprecated.h"
 #include "EOAssociation.h"
-*/
 
 
 @implementation EODisplayGroup
@@ -525,4 +524,14 @@ failedToValidateValue: (NSString *)value
 }
 @end
 
+@implementation EODisplayGroup (EODeprecated)
+- (void)setSortOrdering: (NSArray *)sortOrderings
+{
+  [self setSortOrderings: sortOrderings];
+}
+- (NSArray *)sortOrdering
+{
+  return [self sortOrderings];
+}
+@end
 

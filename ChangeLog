@@ -1,3 +1,23 @@
+2004-10-20  David Ayers  <d.ayers@inode.at>
+
+	* EOInterface/EODetailSelectionAssociation.h/m: New files.
+	* EOInterface/EOMasterCopyAssociation.h/m: Ditto.
+	* EOInterface/EOMasterDetailAssociation.h/m: Ditto.
+	* EOInterface/EOMasterPeerAssociation.m: Ditto.
+	* EOInterface/EOMatrixAssociation.h/m: Ditto.
+	* EOInterface/EOPickTextAssociation.h/m: Ditto.
+	* EOInterface/EOPopUpAssociation.h/m: Ditto.
+	* EOInterface/EORadioMatrixAssociation.h/m: Ditto.
+	* EOInterface/EORecursiveBrowserAssociation.h/m: Ditto.
+	* EOInterface/EOTextAssociation.h/m: Ditto.
+	* EOInterface/EODeprecated.h: Ditto.
+	* EOInterface/EOInterface.h: Added new header files.
+	* EOInterface/GNUmakefile: Added new files.
+	
+	* EOInterface/EODisplayGroup.m: Update includes.
+	(setSortOrdering:, sortOrdering): Add deprecated methods.
+	* EOInterface/EOAssociation.h: Remove redundant include.
+	
 2004-10-17  David Ayers  <d.ayers@inode.at>
 
 	* EOInterface/EOComboBoxAssociation.h/m: New files.
