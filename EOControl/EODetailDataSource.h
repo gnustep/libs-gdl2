@@ -61,6 +61,7 @@
 - (void)qualifyWithRelationshipKey: (NSString *)key
 			  ofObject: masterObject;
 - (NSString *)detailKey;
+- (void)setDetailKey:(NSString *)detailKey;
 - (id)masterObject;
 
 - (EOEditingContext *)editingContext;

@@ -174,8 +174,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 - (void)dealloc
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+//  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
+//              (void*)self,(void*)objc_thread_id());
 #endif
 
   DESTROY(gid);
@@ -185,8 +185,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
   [super dealloc];
 
 #ifdef DEBUG
-  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+//  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
+//              (void*)self,(void*)objc_thread_id());
 #endif
 }
 
@@ -311,8 +311,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 - (void)dealloc
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+//  NSDebugFLog(@"Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
+//              (void*)self,(void*)objc_thread_id());
 #endif
 
   DESTROY(sgid);
@@ -322,8 +322,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
   [super dealloc];
 #ifdef DEBUG
-  NSDebugFLog(@"Stop Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+//  NSDebugFLog(@"Stop Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
+//              (void*)self,(void*)objc_thread_id());
 #endif
 }
 

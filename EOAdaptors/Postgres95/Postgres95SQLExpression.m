@@ -215,10 +215,12 @@ RCS_ID("$Id$")
 
       length=[string cStringLength];
       tempString = [string cString];
+      EOFLOGObjectLevelArgs(@"EOSQLExpression", @"string '%@' tempString=%s",
+			    string, tempString);
 
       for (i = 0, dif = 0; i < length; i++)
         {
-          switch (tempString[i + dif])
+          switch (tempString[i])
             {
             case '\\':
             case '\'':
@@ -233,6 +235,8 @@ RCS_ID("$Id$")
               break;
             }
         }
+      EOFLOGObjectLevelArgs(@"EOSQLExpression", @"string '%@' tempString=%s",
+			    string, tempString);
 
       formatted = [NSString stringWithFormat: @"'%@'", string];      
 
@@ -287,7 +291,7 @@ RCS_ID("$Id$")
 			       tableList];
 
   if (whereClause && joinClause)
-    [sqlString appendFormat: @" WHERE %@ AND %@",
+    [sqlString appendFormat: @" WHERE (%@) AND (%@)",
                whereClause,
                joinClause];
   else if (whereClause || joinClause)

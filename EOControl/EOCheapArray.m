@@ -1,7 +1,7 @@
 /**
    EOCheapArray.m <title>EOCheapCopyArray Classes</title>
 
-   Copyright (C) 2000 Free Software Foundation, Inc.
+   Copyright (C) 2000-2003 Free Software Foundation, Inc.
 
    Author: Manuel Guesdon <mguesdon@orange-concept.com>
    Date: Sep 2000
@@ -327,15 +327,7 @@ RCS_ID("$Id$")
 
 - (void)addObject: (id)object
 {
-//7d0
-//im=530
   EOFLOGObjectFnStart();
-
-  NSDebugMLLog(@"gsdb", @"self %p=%@", self, self);
-  NSDebugMLLog(@"gsdb", @"object %p of class %@=%@",
-               object,
-               [object class],
-               object);
 
   if (!object)
     {
@@ -343,11 +335,7 @@ RCS_ID("$Id$")
                   format: @"Tried to add nil"];
     }
 
-  NSDebugMLLog(@"gsdb", @"self %p=%@", self, self);
-
   [self _mutate];
-
-  NSDebugMLLog(@"gsdb",@"self %p=%@", self, self);
 
   if (_count >= _capacity)
     {
@@ -370,8 +358,6 @@ RCS_ID("$Id$")
 
   _contents_array[_count] = RETAIN(object);
   _count++;     // Do this AFTER we have retained the object.
-
-  NSDebugMLLog(@"gsdb", @"self %p=%@", self, self);
 
   EOFLOGObjectFnStop();
 }

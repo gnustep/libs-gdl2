@@ -84,8 +84,8 @@ RCS_ID("$Id$")
 - (void)dealloc
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Dealloc EOFetchSpecification %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+//  NSDebugFLog(@"Dealloc EOFetchSpecification %p. ThreadID=%p",
+//              (void*)self,(void*)objc_thread_id());
 #endif
 
   DESTROY(_qualifier);
@@ -98,8 +98,8 @@ RCS_ID("$Id$")
   [super dealloc];
 
 #ifdef DEBUG
-  NSDebugFLog(@"Stop Dealloc EOFetchSpecification %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+//  NSDebugFLog(@"Stop Dealloc EOFetchSpecification %p. ThreadID=%p",
+//              (void*)self,(void*)objc_thread_id());
 #endif
 }
 

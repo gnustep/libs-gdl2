@@ -191,8 +191,8 @@ compareUsingSortOrderings(id    left,
       EOSortOrdering *sortOrd  = [sortOrders objectAtIndex: i];
       NSString       *key      = [sortOrd key];
       SEL             compSel  = [sortOrd selector];
-      id              leftVal  = [left  valueForKey: key];
-      id              rightVal = [right valueForKey: key];
+      id              leftVal  = [left  valueForKeyPath: key];
+      id              rightVal = [right valueForKeyPath: key];
       BOOL            inverted = NO;
       NSComparisonResult (*imp)(id, SEL, id);
 

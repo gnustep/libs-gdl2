@@ -231,12 +231,14 @@ static id classDelegate = nil;
 
   entityName = [description entityName];
   //NSAssert(entityName,@"No Entity Name");
+  NSDebugMLLog(@"gsdb", @"entityName=%@", entityName);
 
   NSMapInsert(classDescriptionForClass, aClass, description);
   if (entityName)
     {
       NSMapInsert(classDescriptionForEntity, entityName, description);
     }
+  NSDebugMLLog(@"gsdb", @"end");
 
   EOFLOGObjectFnStop();
 }
@@ -267,8 +269,13 @@ fromFetchInEditingContext: (EOEditingContext *)anEditingContext
 fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 {
   //Near OK
-  NSArray *toManyRelationshipKeys = [self toManyRelationshipKeys];
-  int toManyCount = [toManyRelationshipKeys count];
+  NSArray *toManyRelationshipKeys = nil;
+  int toManyCount = 0;
+
+  EOFLOGObjectFnStart();
+
+  toManyRelationshipKeys = [self toManyRelationshipKeys];
+  toManyCount = [toManyRelationshipKeys count];
 
   if (toManyCount > 0)
     {
@@ -278,6 +285,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
         {
           id key = [toManyRelationshipKeys objectAtIndex: i];
           id value = [object storedValueForKey: key];
+          NSDebugMLLog(@"gsdb", @"key=%@ value=%@",key,value);
 
           if (value)
             {
@@ -291,6 +299,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
             }
         }
     }
+  EOFLOGObjectFnStop();
 }
 
 - (EOClassDescription *)classDescriptionForDestinationKey: (NSString *)detailKey
@@ -1152,7 +1161,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
   EOFLOGObjectFnStart();
 
-  exception = [self validateForDelete];
+  exception = [self validateForSave];
 
   EOFLOGObjectFnStop();
 
@@ -1183,10 +1192,13 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 - (void)clearProperties
 {
-  NSArray *toOne = [self toOneRelationshipKeys];
-  NSArray *toMany = [self toManyRelationshipKeys];
-  NSEnumerator *relEnum;
-  NSString *key;
+  NSArray *toOne = nil;
+  NSArray *toMany = nil;
+  NSEnumerator *relEnum = nil;
+  NSString *key = nil;
+  EOFLOGObjectFnStart();
+  toOne = [self toOneRelationshipKeys];
+  toMany = [self toManyRelationshipKeys];
 
   relEnum = [toOne objectEnumerator];
   while ((key = [relEnum nextObject]))
@@ -1195,6 +1207,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   relEnum = [toMany objectEnumerator];
   while ((key = [relEnum nextObject]))
     [self takeStoredValue: nil forKey: key];
+  EOFLOGObjectFnStop();
 }
 
 - (void)propagateDeleteWithEditingContext: (EOEditingContext *)editingContext

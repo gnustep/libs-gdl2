@@ -118,15 +118,15 @@ RCS_ID("$Id$")
 - (void)dealloc
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Dealloc EOQualifier %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+//  NSDebugFLog(@"Dealloc EOQualifier %p. ThreadID=%p",
+//              (void*)self,(void*)objc_thread_id());
 #endif
 
   [super dealloc];
 
 #ifdef DEBUG
-  NSDebugFLog(@"Stop Dealloc EOQualifier %p. ThreadID=%p",
-              (void*)self,(void*)objc_thread_id());
+//  NSDebugFLog(@"Stop Dealloc EOQualifier %p. ThreadID=%p",
+//              (void*)self,(void*)objc_thread_id());
 #endif
 }
 

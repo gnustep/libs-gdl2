@@ -450,7 +450,7 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
   ret = [NSDecimalNumber zero];
 
   while ((item = [arrayEnum nextObject]))
-    [ret decimalNumberByAdding: [item valueForKey:key]];
+    ret=[ret decimalNumberByAdding: [item valueForKey:key]];
         
   EOFLOGObjectFnStopCond(@"EOKVC");
 
@@ -468,7 +468,7 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
   ret = [NSDecimalNumber zero];
 
   while ((item = [arrayEnum nextObject]))
-    [ret decimalNumberByAdding: [item valueForKey:key]];
+    ret=[ret decimalNumberByAdding: [item valueForKey:key]];
 
   ret = [ret decimalNumberByDividingBy:
 	       [NSDecimalNumber decimalNumberWithMantissa: [self count]
@@ -854,7 +854,7 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
         isSmart:YES];
 }
 
-#if !FOUNDATION_HAS_KVC
+//#if !FOUNDATION_HAS_KVC
 - (void)takeValue: (id)value
        forKeyPath: (NSString *)keyPath
 {
@@ -862,7 +862,7 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
         forKeyPath:keyPath
         isSmart:NO];
 }
-#endif /* !FOUNDATION_HAS_KVC */
+//#endif /* !FOUNDATION_HAS_KVC */
 
 - (void)takeValue: (id)value
        forKeyPath: (NSString *)keyPath

@@ -31,6 +31,9 @@
 /* Define if Foundation implements KeyValueCoding.  */
 #define FOUNDATION_HAS_KVC 1
 
+/* Log TODO points */
+#define EMIT_TODO 1
+
 
 #define RCS_ID(name) \
 	static const char rcsId[] = name; \

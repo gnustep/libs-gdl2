@@ -1,3 +1,66 @@
+2003-06-26  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* config.h.in: 
+		o added EMIT_TODO control	
+	* EOAccess/EOAccessFault.m:
+		o commented debug logs
+	* EOAccess/EODatabaseContext.m:
+		o more information in asserts	
+		o asserts
+		o fix in -relayPrimaryKey:object:entity: for 
+			nil 1:1 relationship value
+		o add -forgetSnapshotForGlobalID call in -refaultObject:withGlobalID:editingContext:
+		o add -forgetSnapshotForGlobalID database call in  -forgetSnapshotForGlobalID:
+	* EOAccess/EOEntity.m:
+		o logs
+		o fix in -awakeObject:fromInsertionInEditingContext: to avoid 
+			setting already present values
+		o reverted code in -awakeObject:fromInsertionInEditingContext:
+			My (old) tests show that we create 1: object not on 
+			mandatory property but on propagatesPrimaryKey one
+			if someone has an example of EOF creating an object 
+			here without propagatesPrimaryKey, please send it to me.
+	* EOAccess/EOModelGroup.m:
+		o don't autorelease return model group in -globalModelGroup as it will crash. I haven't find why :-(
+		o logs
+
+	* EOAccess/EOSQLExpression.m:
+			o fix bug in -assembleSelectStatementWithAttributes:lock:qualifier:
+				fetchOrder:selectString:columnList:tableList:
+				whereClause:joinClause:orderByClause:lockClause: 
+			by  adding () around where and join clause
+					o add detail in sqlStringForSelector:value: exception
+	* EOAdaptors/Postgres95/PostPostgres95Channel.m:
+		o add more information on exceptions
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m:
+		o fix escaping string in -formatValue:forAttribute:
+		o fix bug in -assembleSelectStatementWithAttributes:lock:qualifier:
+				fetchOrder:selectString:columnList:tableList:
+				whereClause:joinClause:orderByClause:lockClause: 
+			by  adding () around where and join clause
+	* EOAdaptors/Postgres95/Postgres95Value.m:
+		o Change log in +newValueForDateType:length:attribute:
+	* EOControl/EOCheapArray.m
+		o removed some logs
+	* EOAccess/EOClassDescription.m:
+		o fix in -validateForUpdate
+		o logs
+	* EOControl/Debug.h:
+		o donditional define of NSEmitTODO()
+	* EOControl/EODetailDataSource.h/.m:
+		o added -setDetailKey:
+	* EOControl/EOEditingContext.m
+		o logs
+	* EOControl/EOFetchSpecification.m
+		o logs
+	* EOControl/EOKeyValueCoding.m:
+		o fix in computeSum, computeAverage
+	* EOControl/EOQualifier.m
+		o logs
+	* EOControl/EOSortOrdering.m
+		o use valueForKeyPath: instead of valueForKey: to allow sort on related objects
+	* EOControl/EOUndoManager.h
+		o protection of include
+
 2003-06-23  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EONSAddOns.h/m:

@@ -179,6 +179,11 @@ RCS_ID("$Id$")
   return _detailKey;
 }
 
+- (void)setDetailKey:(NSString *)detailKey
+{
+  ASSIGN(_detailKey, detailKey);
+};
+
 - (id)masterObject
 {
   return _masterObject;

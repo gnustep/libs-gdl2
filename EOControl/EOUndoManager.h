@@ -24,6 +24,9 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+#ifndef __EOUndoManager_h__
+#define __EOUndoManager_h__
+
 #ifndef NeXT_Foundation_LIBRARY
 #include <Foundation/NSUndoManager.h>
 #else
@@ -41,3 +44,5 @@
 - (void) reenableUndoRegistration;
 
 @end
+
+#endif // __EOUndoManager_h__

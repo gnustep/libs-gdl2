@@ -1338,6 +1338,9 @@ validateTable:(NSHashTable*)table
 
   EOFLOGObjectFnStart();
 
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"unprocessed: %@",
+			[self unprocessedDescription]);
+
   validateForDelete = [self validateTable: _unprocessedDeletes
 			    withSelector: @selector(validateForDelete)
 			    exceptionArray: &exceptions
@@ -1440,6 +1443,12 @@ validateTable:(NSHashTable*)table
   id object = nil;
 
   EOFLOGObjectFnStart();
+
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"table: %@",
+			NSStringFromHashTable(table));
+
+  EOFLOGObjectLevelArgs(@"EOEditingContext", @"sel: %@",
+			NSStringFromSelector(sel));
 
   enumerator = NSEnumerateHashTable(table);
 
@@ -2027,12 +2036,18 @@ validateTable:(NSHashTable*)table
 - (void) clearOriginalSnapshotForObject: (id)object
 {
   //Consider OK
-  EOGlobalID *gid = [self globalIDForObject: object];
+  EOGlobalID *gid = nil;
+
+  EOFLOGObjectFnStart();
+
+  gid = [self globalIDForObject: object];
 
   if (gid)
     {
       [_snapshotsByGID removeObjectForKey: gid];
     }
+
+  EOFLOGObjectFnStop();
 }
 
 - (id)objectForGlobalID:(EOGlobalID *)globalID

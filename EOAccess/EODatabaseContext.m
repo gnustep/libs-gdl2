@@ -1183,7 +1183,7 @@ userInfo = {
         editingContext: context
         isComplete: YES]; //Why YES ?
 
-  //NO: done in edcontext by calling clearOriginalSnapshotForObject: [self forgetSnapshotForGlobalID:globalID];
+  [self forgetSnapshotForGlobalID:globalID];
 
   EOFLOGObjectFnStop();
 }
@@ -1778,6 +1778,7 @@ userInfo = {
 
                           EOFLOGObjectLevel(@"EODatabaseContext",
 					    @"AFTER FETCH");
+                          NSAssert(obj,@"No object");
                           [array addObject: obj];
                           EOFLOGObjectLevelArgs(@"EODatabaseContext",
 						@"array count=%d",
@@ -2968,6 +2969,7 @@ but not owned by this context to the coordinator.
   EODatabaseOperation *dbOpe = nil;
 
   EOFLOGObjectFnStart();
+  NSAssert(object, @"No object");
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%@", object);
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"changes=%@", changes);
@@ -3610,6 +3612,10 @@ Raises an exception is the adaptor is unable to perform the operations.
                            forKey: destinationKey];
                 }
 
+              NSAssert1(destinationObject, 
+                        @"No destinationObject for call of recordUpdateForObject:changes: changes: %@",
+                        changes);
+
               [self recordUpdateForObject: destinationObject
                     changes: changes];
             }
@@ -3784,6 +3790,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 
           EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relayedValues=%@",
 				relayedValues);
+
+          NSAssert1(destinationObject, 
+                    @"No destinationObject for call of recordUpdateForObject:changes: relayedValues: %@",
+                    relayedValues);
 
           [self recordUpdateForObject: destinationObject
                 changes: relayedValues];
@@ -4191,6 +4201,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
+  NSAssert3(destObject, 
+            @"No destinationObject. pk=%@ relationship=%@ sourceObject=%@",
+            pk,relationship,sourceObject);
+
   destAttributes = [relationship destinationAttributes];
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destAttributes=%@",
 			destAttributes);
@@ -4336,10 +4350,14 @@ Raises an exception is the adaptor is unable to perform the operations.
                   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"value=%@",
 					value);
 
-                  [self relayPrimaryKey: pk
-                        sourceObject: object
-                        destObject: value
-                        relationship: substRelationship]; //this one ??
+                  // 1:1 relationships may be optional so we may have no value here
+                  if (value)
+                    {
+                      [self relayPrimaryKey: pk
+                            sourceObject: object
+                            destObject: value
+                            relationship: substRelationship]; //this one ??
+                    };
                 }
             }
         }
@@ -4441,6 +4459,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 				      entity: entity];
 
             dbSnapshot = [dbOpe dbSnapshot];
+
             lockingQualifier = [self qualifierForLockingAttributes:
 				       lockingAttributes
 				     primaryKeyAttributes: pkAttributes
@@ -5147,8 +5166,8 @@ Raises an exception is the adaptor is unable to perform the operations.
                       EOFLOGObjectLevel(@"EODatabaseContext", @"NO VALUE");
                     }
 
-                  NSAssert3(value, @"no value for %@ in %p %@", snapName,
-			    snapshot, snapshot);
+                  NSAssert4(value, @"no value for %@ in %p %@ entity %@", snapName,
+			    snapshot, snapshot, [entity name]);
 
                   aQualifier = [EOKeyValueQualifier
 				 qualifierWithKey: attributeName
@@ -6096,6 +6115,9 @@ Raises an exception is the adaptor is unable to perform the operations.
   //TODO-VERIFY deleteStack
   EOFLOGObjectFnStart();
 
+  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p database=%p [_uniqueStack count]=%d",
+			self, _database,[_uniqueStack count]);
+
   if ([_uniqueStack count] > 0)
     {
       NSMutableDictionary *snapshots = [_uniqueStack lastObject];
@@ -6105,6 +6127,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       snapshots = [_uniqueArrayStack lastObject];
       [snapshots removeObjectForKey: gid];
     }
+  [_database forgetSnapshotForGlobalID: gid]; //MG Really here ?
 
   EOFLOGObjectFnStop();
 }
@@ -6547,6 +6570,7 @@ _numLocked = 0;
   EOGlobalID *gid = nil;
 
   EOFLOGObjectFnStart();
+  NSAssert(object, @"No object");
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p of class %@",
                         object,[object class]);
@@ -6554,7 +6578,8 @@ _numLocked = 0;
 			_editingContext);
 
   objectEditingContext = [object editingContext];
-  NSAssert1(objectEditingContext, @"No editing context for object %p", object);
+  NSAssert2(objectEditingContext, @"No editing context for object %p: %@", 
+            object,object);
 
   gid = [objectEditingContext globalIDForObject: object];
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
@@ -6599,6 +6624,7 @@ _numLocked = 0;
       EOGlobalID *gid = [self _globalIDForObject: object]; //OK
       EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
 
+
       pk = [entity primaryKeyForGlobalID: (EOKeyGlobalID*)gid]; //OK
       EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p pk=%@",
                             object,pk);
@@ -6641,6 +6667,7 @@ _numLocked = 0;
                             object,isPKValid);
       if (isPKValid == NO)
         pk = nil;
+
 
       if (isPKValid == NO && shouldGeneratePrimaryKey)
         {
@@ -6695,6 +6722,7 @@ _numLocked = 0;
 
                   EOFLOGObjectLevelArgs(@"EODatabaseContext",
 					@"** prepare pk %@", pk);
+
 
                   if (pk == nil && [[pkAttr valueClassName]
 				     isEqual:@"NSData"] == YES)
@@ -6791,9 +6819,11 @@ _numLocked = 0;
         };
       pk = [self valuesForKeys: pkNames
                  object: object];
+
       if (![entity isPrimaryKeyValidInObject: pk])
         pk=nil;
     };
+
   if (pk)
     {
       EODatabaseOperation *dbOpe = [self databaseOperationForObject: object];

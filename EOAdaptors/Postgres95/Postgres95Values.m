@@ -164,8 +164,7 @@ For efficiency reasons, the returned value is NOT autoreleased !
 			      calendarFormat: format];
   // TODO server TZ ?
 
-//  NSDebugMLLog(@"gsdb",@"str=%@ d=%@ format=%@",str,d,format);  
-  NSDebugMLog(@"str=%@ d=%@ format=%@", str, d, format);  
+  NSDebugMLLog(@"gsdb",@"str=%@ d=%@ format=%@",str,d,format);  
 
   return d;
 }

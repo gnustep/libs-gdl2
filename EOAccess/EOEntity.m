@@ -4174,15 +4174,18 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 fromFetchInEditingContext: (EOEditingContext *)context
 {
   //OK
+  EOFLOGObjectFnStart();
   [super awakeObject: object
 	 fromFetchInEditingContext: context];
   //nothing to do
+  EOFLOGObjectFnStop();
 }
 
 - (void)awakeObject: (id)object
 fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 {
   //near OK
+  EOFLOGObjectFnStart();
   [super awakeObject: object
          fromInsertionInEditingContext: anEditingContext];
   {
@@ -4197,13 +4200,24 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
         if (isToMany)
           {
-            //Put an empty muable array [Ref: Assigns empty arrays to to-many relationship properties of newly inserted enterprise objects]
-            [object takeStoredValue: [EOCheapCopyMutableArray array]
-		    forKey: [relationship name]];
+            // We put a value only if there's not already one
+            NSString* relationshipName=[relationship name];
+            id relationshipValue = [object storedValueForKey:relationshipName];
+            if (relationshipValue == nil)
+              {
+                //Put an empty mutable array [Ref: Assigns empty arrays to to-many 
+                // relationship properties of newly inserted enterprise objects]
+                [object takeStoredValue: [EOCheapCopyMutableArray array]
+                        forKey: [relationship name]];
+              };
           }
         else //??
           {
-#if 0
+/* Manuel 
+My (old) tests show that we create 1: object not on mandatory property but on propagatesPrimaryKey one *only*
+if someone has an example of EOF creating an object here without propagatesPrimaryKey, please send it to me.
+*/
+#if 1
             BOOL propagatesPrimaryKey = [relationship propagatesPrimaryKey];
 
             if (propagatesPrimaryKey)
@@ -4288,13 +4302,16 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                   }
               }
 #else
+            // We'll put only mandatory values
             if ([relationship isMandatory])
 	      {
-		id objectTo = [object storedValueForKey: [relationship name]];
+                NSString* relationshipName=[relationship name];
+		id objectTo = [object storedValueForKey:relationshipName];
 
+                // We put a value only if there's not already one
 		if (objectTo == nil)
 		  {
-		    EOEntity *entityTo;
+		    EOEntity *entityTo=nil;
 
                     entityTo = [relationship destinationEntity];
                     objectTo = [[entityTo classDescriptionForInstances]
@@ -4302,16 +4319,18 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 				   anEditingContext
 				 globalID: nil
 				 zone: NULL];
+
                     [anEditingContext insertObject: objectTo];
+
                     [object addObject: objectTo
-			    toBothSidesOfRelationshipWithKey:
-			      [relationship name]];
+			    toBothSidesOfRelationshipWithKey:relationshipName];
 		  }
 	      }
 #endif
           }
       }
   }
+  EOFLOGObjectFnStop();
 }
 
 - (EOClassDescription *)classDescriptionForDestinationKey: (NSString *)detailKey

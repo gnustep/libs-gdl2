@@ -1,7 +1,7 @@
 /** 
    Postgres95Channel.m <title>Postgres95Channel</title>
 
-   Copyright (C) 2000-2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2003 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
    Date: February 2000
@@ -499,13 +499,14 @@ zone:zone
     case PGRES_NONFATAL_ERROR:
     case PGRES_FATAL_ERROR: 
       {
+        NSString* errorString=[NSString stringWithCString:PQerrorMessage(_pgConn)];
         if ([self isDebugEnabled])
-          NSLog(@"SQL expression '%@' caused %s",
-                [_sqlExpression statement], PQerrorMessage(_pgConn));
-        NSDebugMLLog(@"SQL expression '%@' caused %s",
-                     [_sqlExpression statement], PQerrorMessage(_pgConn));
+          NSLog(@"SQL expression '%@' caused %@",
+                [_sqlExpression statement], errorString);
+        NSDebugMLLog(@"SQL expression '%@' caused %@",
+                     [_sqlExpression statement], errorString);
         [NSException raise: Postgres95Exception
-		     format: @"unexpected result returned by PQresultStatus()"];
+		     format: @"unexpected result returned by PQresultStatus(): %@",errorString];
 
         EOFLOGObjectFnStop();
 
@@ -513,8 +514,16 @@ zone:zone
       }
     default:
       {        
+        NSString* errorString=[NSString stringWithCString:PQerrorMessage(_pgConn)];
+        if ([self isDebugEnabled])
+          NSLog(@"SQL expression '%@' returned status %d: %@",
+                [_sqlExpression statement], status, errorString);
+        NSDebugMLLog(@"SQL expression '%@' returned status %d: %@",
+                     [_sqlExpression statement], status, errorString);
         [NSException raise: Postgres95Exception
-                     format: @"unexpected result returned by PQresultStatus():"];
+		     format: @"unexpected result returned by PQresultStatus(): status %d: %@",
+                     status,errorString];
+
         break;
       }
     }

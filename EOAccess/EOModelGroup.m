@@ -71,6 +71,8 @@ static EOModelGroup *defaultModelGroup = nil;
 
   EOFLOGObjectFnStart();
 
+  NSDebugMLLog(@"gsdb", @"defaultModelGroup=%p",defaultModelGroup);
+
   if (defaultModelGroup)
     modelGroup = defaultModelGroup;
   else if (delegateDefaultModelGroup)
@@ -83,6 +85,8 @@ static EOModelGroup *defaultModelGroup = nil;
       NSLog(@"WARNING: No default Group");
     }
 
+  NSDebugMLLog(@"gsdb", @"modelGroup=%p",modelGroup);
+
   EOFLOGObjectFnStop();
 
   return modelGroup;
@@ -90,6 +94,9 @@ static EOModelGroup *defaultModelGroup = nil;
 
 + (void)setDefaultGroup: (EOModelGroup *)group
 {
+  NSDebugMLLog(@"gsdb", @"group=%p defaultModelGroup=%p",
+               group,defaultModelGroup);
+
   if (group != defaultModelGroup)
     {
       if (defaultModelGroup)
@@ -115,6 +122,7 @@ static EOModelGroup *defaultModelGroup = nil;
   EOFLOGObjectFnStart();
 
   group = [EOModelGroup new];
+  NSDebugMLLog(@"gsdb", @"group=%p",group);
 
   [bundles addObjectsFromArray: [NSBundle allBundles]];
   [bundles addObjectsFromArray: [NSBundle allFrameworks]];
@@ -140,7 +148,7 @@ static EOModelGroup *defaultModelGroup = nil;
 
   EOFLOGObjectFnStop();
 
-  return [group autorelease]; // TODO release problem with EOModel
+  return group;//MG20030330;[group autorelease]; // TODO release problem with EOModel
 }
 
 /** returns a model group composed of all models in the resource directory
@@ -163,10 +171,12 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
 
 - init
 {
-  self = [super init];
+  if ((self = [super init]))
+    {
+      NSDebugMLLog(@"gsdb", @"model group=%p",self);
 
-  _modelsByName = [NSMutableDictionary new];
-
+      _modelsByName = [NSMutableDictionary new];
+    };
   return self;
 }
 

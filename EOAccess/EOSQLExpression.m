@@ -1005,7 +1005,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
     joinClause = nil;
 
   if (whereClause && joinClause)
-    [sqlString appendFormat: @" WHERE %@ AND %@",
+    [sqlString appendFormat: @" WHERE (%@) AND (%@)",
                whereClause, joinClause];
   else if (whereClause || joinClause)
     [sqlString appendFormat: @" WHERE %@",
@@ -1728,7 +1728,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   else
     {
       [NSException raise: NSInternalInconsistencyException
-                   format: @"EOSQLExpression: Unknown selector of sqlStringForSelector:value:"];
+                   format: @"EOSQLExpression: Unknown selector of sqlStringForSelector:value: '%@'",NSStringFromSelector(selector)];
     }
 
   return nil;
