@@ -1,3 +1,22 @@
+2004-11-02  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EODatabaseContext.h/m: 
+	(EOStoredProcedureNameHintKey, EOCustomQueryExpressionHintKey):
+	Define missing keys.
+	* EOControl/EODeprecated.h: (EOPrefetchingRelationshipHintKey)
+	(EOFetchLimitHintKey, EOPromptAfterFetchLimitHintKey): Ditto.
+	* EOControl/EOFetchSpecification.m:
+	(EOPrefetchingRelationshipHintKey, EOFetchLimitHintKey)
+	(EOPromptAfterFetchLimitHintKey): Ditto.  Use globally defined
+	keys instead of local strings.
+	* EOAccess/EODatabaseChannel.m
+	(_selectWithFetchSpecification:editingContext:) Use globally 
+	defined keys instead of local strings.
+
+	* EOControl/EOQualifier.m (+[stringForOperatorSelector:]):
+	Return selector name instead of nil if not given a standard
+	EOQualifierOperator selector.
+	
 2004-10-20  David Ayers  <d.ayers@inode.at>
 
 	* EOInterface/EODetailSelectionAssociation.h/m: New files.

@@ -645,7 +645,7 @@ RCS_ID("$Id$")
 
   _hints = [fetch _hints];
 
-  customQueryExpressionHint = [_hints objectForKey: @"EOCustomQueryExpressionHintKey"];//TODO use it
+  customQueryExpressionHint = [_hints objectForKey: EOCustomQueryExpressionHintKey];//TODO use it
 
   if (customQueryExpressionHint)
     {
@@ -722,7 +722,7 @@ RCS_ID("$Id$")
   entity = [database entityNamed:entityName];
   primaryKeyAttributes = [entity primaryKeyAttributes];
   hints = [fetch hints]; // ret {} 
-  storedProcedureName = [hints objectForKey: @"EOStoredProcedureNameHintKey"];//TODO use it
+  storedProcedureName = [hints objectForKey: EOStoredProcedureNameHintKey];//TODO use it
   model = [entity model];
   modelGroup = [model modelGroup]; //ret nil
   //TODO if model gr

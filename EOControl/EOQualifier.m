@@ -768,7 +768,7 @@ static Class whichQualifier(const char **cFormat, const char **s)
   else if (sel_eq(selector, EOQualifierOperatorCaseInsensitiveLike))
     return @"caseInsensitiveLike";
 
-  return nil;
+  return NSStringFromSelector(selector);
 }
 
 + (SEL)operatorSelectorForString: (NSString *)string

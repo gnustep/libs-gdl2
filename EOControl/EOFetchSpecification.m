@@ -56,6 +56,13 @@ RCS_ID("$Id$")
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EOQualifier.h>
 
+#include <EOControl/EODeprecated.h>
+
+NSString *EOPrefetchingRelationshipHintKey = @"EOPrefetchingRelationshipHintKey";
+NSString *EOFetchLimitHintKey = @"EOFetchLimitHintKey";
+NSString *EOPromptAfterFetchLimitHintKey = @"EOPromptAfterFetchLimitHintKey";
+
+
 @interface NSObject (EOAccess)
  /* EOEntity.h */
 - (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)fetchSpecName;
@@ -537,20 +544,20 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
       if (fetchLimit != 0)
         {
           [mutableHints setObject: [NSNumber numberWithInt: fetchLimit]
-			forKey: @"EOFetchLimitHintKey"];
+			forKey: EOFetchLimitHintKey];
         }
 
       if (promptsAfterFetchLimit)
         {
 	  [mutableHints setObject: [NSNumber numberWithBool:
 					       promptsAfterFetchLimit]
-			forKey: @"EOPromptAfterFetchLimitHintKey"];
+			forKey: EOPromptAfterFetchLimitHintKey];
         }
 
       if ([prefetchingRelationshipKeyPaths count] > 0)
         {
 	  [mutableHints setObject: prefetchingRelationshipKeyPaths
-			forKey: @"EOPrefetchingRelationshipHintKey"];
+			forKey: EOPrefetchingRelationshipHintKey];
         }
     }
 

@@ -68,5 +68,8 @@
 
 @end
 
+GDL2CONTROL_EXPORT NSString *EOPrefetchingRelationshipHintKey;
+GDL2CONTROL_EXPORT NSString *EOFetchLimitHintKey;
+GDL2CONTROL_EXPORT NSString *EOPromptAfterFetchLimitHintKey;
 
 #endif 

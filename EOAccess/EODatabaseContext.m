@@ -111,6 +111,8 @@ NSString *EODatabaseContextKey = @"EODatabaseContextKey";
 NSString *EODatabaseOperationsKey = @"EODatabaseOperationsKey";
 NSString *EOFailedDatabaseOperationKey = @"EOFailedDatabaseOperationKey";
 
+NSString *EOCustomQueryExpressionHintKey = @"EOCustomQueryExpressionHintKey";
+NSString *EOStoredProcedureNameHintKey = @"EOStoredProcedureNameHintKey";
 
 @interface EODatabaseContext(EOObjectStoreSupportPrivate)
 - (id) entityForGlobalID: (EOGlobalID *)globalID;

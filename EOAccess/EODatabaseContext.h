@@ -438,6 +438,7 @@ shouldRaiseExceptionForLockFailure: (NSException *)exception;
 @end
 
 GDL2ACCESS_EXPORT NSString *EOCustomQueryExpressionHintKey;
+GDL2ACCESS_EXPORT NSString *EOStoredProcedureNameHintKey;
 
 GDL2ACCESS_EXPORT NSString *EODatabaseContextKey;
 GDL2ACCESS_EXPORT NSString *EODatabaseOperationsKey;
