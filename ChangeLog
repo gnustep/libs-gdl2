@@ -1079,7 +1079,7 @@
 	EOAdaptorClassName entry.
 	
 
-2003-02-04  Stephane Corthesy	<stephane@sente.ch>
+2003-02-04  Stephane Corthesy  <stephane@sente.ch>
 
 	* Tools/eoutil.m: implemented.
 
@@ -1136,7 +1136,7 @@
 	* EOSortOrdering.m: replaced retain by RETAIN; avoid autoreleased
 	objects; replaced mutableCopy by initWithArray:copyItems:
 
-2003-02-03  Stephane Corthesy	<stephane@sente.ch>
+2003-02-03  Stephane Corthesy  <stephane@sente.ch>
 
 	* Postgres95Adaptor.m: made some changes to externalTypeNames (needs
 	to be reviewed completely!); avoided needless autoreleased object
@@ -1525,7 +1525,7 @@
 		o implement some cases in -entitiesOnWhichThisEntityDepends:
 		o changed return type of -entitiesOnWhichThisEntityDepends:
 
-2002-11-25  Richard Frith-macdonald <rfm@gnu.org>
+2002-11-25  Richard Frith-Macdonald <rfm@gnu.org>
 
 	Tagged all files as 'with-extensions'
 	Committed new versions of very many files with dependency on the
@@ -1534,7 +1534,7 @@
 	Additions library from the base library package, when someone wants
 	to do the port).
 
-2002-11-24  Richard Frith-macdonald <rfm@gnu.org>
+2002-11-24  Richard Frith-Macdonald <rfm@gnu.org>
 
 	* EOAdaptors/Makefile.postamble: New file to clean configure
 	generated files.
@@ -1552,7 +1552,7 @@
 	* EOControl/EONotQualifier.m:
 	* EOControl/EOOrQualifier.m: remove references to EOAccess.
 
-2002-11-16  Richard Frith-macdonald <rfm@gnu.org>
+2002-11-16  Richard Frith-Macdonald <rfm@gnu.org>
 
 	* EOAccess/EOExpressionArray.m: Correct reference to obsolete
 	behavior function call (removed from public api a few years back
