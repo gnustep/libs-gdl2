@@ -6334,22 +6334,24 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if ([_uniqueStack count] > 0)
     {
-      NSMutableDictionary *snapshots = [_uniqueStack lastObject];
+      NSMutableDictionary *uniqueSS = [_uniqueStack lastObject];
+      NSMutableDictionary *uniqArSS = [_uniqueArrayStack lastObject];
+      NSMutableSet        *deleteSS = [_deleteStack lastObject];
 
-      //call _deleteStack lastObject
-      [snapshots removeObjectForKey: gid];
-      snapshots = [_uniqueArrayStack lastObject];
-      [snapshots removeObjectForKey: gid];
+      [deleteSS addObject: gid];
+      [uniqueSS removeObjectForKey: gid];
+      [uniqArSS removeObjectForKey: gid];
     }
-  [_database forgetSnapshotForGlobalID: gid]; //MG Really here ?
 
   EOFLOGObjectFnStop();
 }
 
 - (void)forgetSnapshotsForGlobalIDs: (NSArray *)gids
 {
-  unsigned i, n;
+  unsigned i, j, n, m;
   NSMutableDictionary *snapshots;
+  NSMutableSet *deleteGIDs;
+  EOGlobalID *gid;
   EOFLOGObjectFnStart();
 
   n = [_uniqueStack count];
@@ -6367,7 +6369,8 @@ Raises an exception is the adaptor is unable to perform the operations.
   n = [_uniqueArrayStack count];
   if (n>0)
     {
-      IMP oaiIMP=[_uniqueArrayStack methodForSelector: @selector(objectAtIndex:)];
+      IMP oaiIMP
+	= [_uniqueArrayStack methodForSelector: @selector(objectAtIndex:)];
 
       for (i=0; i<n; i++)
         {
@@ -6380,12 +6383,19 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (n>0)
     {
       IMP oaiIMP=[_deleteStack methodForSelector: @selector(objectAtIndex:)];
+      IMP oaiIMP2=[gids methodForSelector: @selector(objectAtIndex:)];
+
+      m = [gids count];
       for (i=0; i<n; i++)
         {
-          snapshots = GDL2_ObjectAtIndexWithImp(_deleteStack,oaiIMP,i);
-          [snapshots removeObjectsForKeys: gids];
+          deleteGIDs = GDL2_ObjectAtIndexWithImp(_deleteStack,oaiIMP,i);
+	  for (j=0; j<m; j++)
+	    {
+	      gid = GDL2_ObjectAtIndexWithImp(gids, oaiIMP2, j);
+	      [deleteGIDs removeObject: gid];
+	    }
         }
-    };
+    }
 
   [_database forgetSnapshotsForGlobalIDs: gids];
   EOFLOGObjectFnStop();
@@ -6693,48 +6703,54 @@ Raises an exception is the adaptor is unable to perform the operations.
     }
 }
 
-- (void) _rollbackTransaction
-{ // TODO
+- (void)_rollbackTransaction
+{
   EOFLOGObjectFnStart();
 
-  NSEmitTODO();
-  [self notImplemented: _cmd];
+  if ([_uniqueStack count] > 0)
+    {
+      [self forgetAllLocks];
+
+      [_uniqueStack removeLastObject];
+      [_uniqueArrayStack removeLastObject];
+      [_deleteStack removeLastObject];
+    }
 
   EOFLOGObjectFnStop();
 }
 
-- (void) _commitTransaction
+- (void)_commitTransaction
 {
   EOFLOGObjectFnStart();
-
-  NSEmitTODO();
 
   NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
 	       self, _uniqueStack, _uniqueStack);
 
   if ([_uniqueStack count] > 0)
     {
-      NSMutableDictionary *snapshotsDict = AUTORELEASE(RETAIN([_uniqueStack lastObject]));
-      NSMutableDictionary *toManySnapshotsDict = AUTORELEASE(RETAIN([_uniqueArrayStack
-								      lastObject]));
-      /*NSMutableDictionary *deleteSnapshotsDict 
-	= AUTORELEASE(RETAIN([_deleteStack lastObject]));*/ //??
+      NSMutableDictionary *snapshotsDict 
+	= [_uniqueStack lastObject];
+      NSMutableDictionary *toManySnapshotsDict 
+	= [_uniqueArrayStack lastObject];
+      NSMutableSet *deleteSnapshotsSet 
+	= [_deleteStack lastObject];
+      NSEnumerator *deletedGIDEnum
+       = [deleteSnapshotsSet objectEnumerator];
+      EOGlobalID *gid;
 
-      [_uniqueStack removeLastObject];
-      [_uniqueArrayStack removeLastObject];
-      [_deleteStack removeLastObject];
-
-      [self forgetAllLocks];
+      while ((gid = [deletedGIDEnum nextObject]))
+	{
+	  [_database forgetSnapshotForGlobalID: gid];
+	}
 
       [_database recordSnapshots: snapshotsDict];
       [_database recordToManySnapshots: toManySnapshotsDict];
 
-      /* //TODO
-         if (moified ojects)
-         call forgetSnapshotForGlobalID: ...
-         <<<<
-         DESTROY(_modifiedObjects);
-      */
+      [self forgetAllLocks];
+
+      [_uniqueStack removeLastObject];
+      [_uniqueArrayStack removeLastObject];
+      [_deleteStack removeLastObject];
     }
 
   NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
@@ -6749,7 +6765,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   [_uniqueStack addObject: [NSMutableDictionary dictionary]];
   [_uniqueArrayStack addObject: [NSMutableDictionary dictionary]];
-  [_deleteStack addObject: [NSMutableDictionary dictionary]]; //TODO: put an object in the dictionary
+  [_deleteStack addObject: [NSMutableSet set]];
 
   NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
 	       self, _uniqueStack, _uniqueStack);

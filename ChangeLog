@@ -1,3 +1,11 @@
+2005-03-03  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EODatabaseContext.m (-forgetSnapshotForGlobalID:):
+	Handle deleted globalIDs correctly.
+	(-forgetSnapshotsForGlobalIDs:): Ditto.
+	(-_commitTransaction, -_beginTransaction): Ditto.
+	(-_rollbackTransaction): Implement.
+	
 2005-03-03  Matt Rice  <ratmice@yahoo.com>
             David Ayers  <d.ayers@inode.at>
 
