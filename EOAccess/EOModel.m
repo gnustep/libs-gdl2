@@ -1416,19 +1416,23 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 {
   if (![name isEqualToString: _name])
     {
-      //TODO
-/*
-      //???
-      self retain;
-      self modelGroup;
-      //todo if modelgroup;
-*/
+      EOModelGroup *group;
+
+      AUTORELEASE(RETAIN(self));
+
+      group = [self modelGroup];
+      if (group)
+	{
+	  [group removeModel: self];
+	}
+
       [self willChange];
       ASSIGN(_name, name);
-/*
-      self modelGroup;
-      self release;
-*/
+
+      if (group)
+	{
+	  [group addModel: self];
+	}
     }
 }
 

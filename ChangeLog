@@ -6,7 +6,10 @@
 	* EOControl/EOSortOrdering.m: Include EONull.h instead of
 	NSNull.h.
 
-	* EOAccess/EODatabaseChannel.m: Update formatting,
+	* EOAccess/EODatabaseChannel.m: Update formatting.
+
+	* EOAccess/EOModel.m (setName:): Remove from group before
+	changing name and readd afterwards.
 	
 2005-02-22  David Ayers  <d.ayers@inode.at>
 
