@@ -108,6 +108,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
       _contextStack = [NSMutableArray new];
       [_contextStack addObject: @""];
 
+      EOFLOGObjectLevelArgs(@"EOSQLExpression", @"added '%@' (t0) in contextStack => %@",
+                            @"",_contextStack);
+
 /*NOT now  _listString = [NSMutableString new];
   _valueListString = [NSMutableString new];
   _joinClauseString = [NSMutableString new];
@@ -366,7 +369,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
 	  [entitiesString appendString: externalName];
 
-	  if (_useAliases)
+	  if (_flags.useAliases)
 	    [entitiesString appendFormat: @" %@",
 			    [_aliasesByRelationshipPath
 			      objectForKey: relationshipPath]];
@@ -410,7 +413,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
 	  [entitiesString appendString: externalName];
 
-	  if (_useAliases)
+	  if (_flags.useAliases)
             {
               NSString *alias = [_aliasesByRelationshipPath
 				  objectForKey: relationshipPath];
@@ -425,6 +428,10 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
       i++;
     }
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                        @"entitiesString=%@",
+                        entitiesString);
 
   EOFLOGObjectFnStop();
 
@@ -883,6 +890,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
           // Get relationship joins
           joins = [rel joins];
           count = [joins count];
+          EOFLOGObjectLevelArgs(@"EOSQLExpression", @"joins=%@", joins);
 
           // Iterate on each join
           for (i = 0; i < count; i++)
@@ -1290,37 +1298,26 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   EOFLOGObjectFnStart();
 
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"operation=%@ qualifiers=%@",
+                        operation, qualifiers);
+
   count = [qualifiers count];
 
   for (i = 0; i < count; i++)
     {
       NSString *tmpSqlString=nil;
 
-      EOQualifier *qualifier = [qualifiers objectAtIndex: i];
+      EOQualifier<EOQualifierSQLGeneration> *qualifier 
+	= [qualifiers objectAtIndex: i];
 
-      // use of isKindOfClass is not very good. Improve it ?
-      if ([qualifier isKindOfClass:[EOKeyValueQualifier class]])
-        tmpSqlString = [self sqlStringForKeyValueQualifier:
-                               (EOKeyValueQualifier*)qualifier];
+      EOFLOGObjectLevelArgs(@"EOSQLExpression", @"qualifier=%@",
+                            qualifier);
 
-      else if ([qualifier isKindOfClass:[EOAndQualifier class]])
-        tmpSqlString=[self sqlStringForConjoinedQualifiers:
-                             [(EOAndQualifier*)qualifier qualifiers]];
+      tmpSqlString=[qualifier sqlStringForSQLExpression:self];
 
-      else if ([qualifier isKindOfClass:[EOOrQualifier class]])
-        tmpSqlString=[self sqlStringForDisjoinedQualifiers:
-                             [(EOOrQualifier*)qualifier qualifiers]];
-
-      else if ([qualifier isKindOfClass:[EONotQualifier class]])
-        tmpSqlString=[self sqlStringForNegatedQualifier:qualifier];
-
-      else if ([qualifier isKindOfClass:[EOKeyComparisonQualifier class]])
-        tmpSqlString=[self sqlStringForKeyComparisonQualifier:(id)qualifier];
-
-      else
-        [NSException raise: NSInternalInconsistencyException
-                     format: @"EOSQLExpression: Unknown qualifier class %@",
-                     [qualifier class]];
+      EOFLOGObjectLevelArgs(@"EOSQLExpression", 
+			    @"qualifier=%@ tmpSqlString=%@",
+                            qualifier, tmpSqlString);
 
       if (tmpSqlString)
         {
@@ -1332,6 +1329,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
 	  [sqlString appendString: tmpSqlString];
 	  nb++;
+
+          EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@",
+                                sqlString);
         }
     }
 
@@ -1342,6 +1342,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
     }
   else if (nb == 0)
     sqlString = nil;
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"operation=%@ qualifiers=%@ count=%d nb=%d sqlString=%@",
+                        operation, qualifiers, count, nb, sqlString);
 
   EOFLOGObjectFnStop();
 
@@ -1358,6 +1361,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   sqlString = [self sqlStringForArrayOfQualifiers: qualifiers
                     operation: @" AND "];
 
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
+
   EOFLOGObjectFnStop();
 
   return sqlString;
@@ -1373,6 +1378,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   sqlString = [self sqlStringForArrayOfQualifiers: qualifiers
 		    operation: @" OR "];
 
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
+
   EOFLOGObjectFnStop();
 
   return sqlString;
@@ -1380,13 +1387,15 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
 - (NSString *)sqlStringForNegatedQualifier:(EOQualifier *)qualifier
 {
-  NSString *sqlQual;
+  NSString *sqlQual = nil;
 
   EOFLOGObjectFnStart();
 
   sqlQual = [(id)qualifier sqlStringForSQLExpression: self];
   if (sqlQual)
     sqlQual = [NSString stringWithFormat:@"not (%@)", sqlQual];
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlQual=%@", sqlQual);
 
   EOFLOGObjectFnStop();    
 
@@ -1406,6 +1415,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   NSString* readFormat=nil;
 
   EOFLOGObjectFnStart();
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"qualifier=%@", qualifier);
 
   NSAssert2([qualifier isKindOfClass:[EOKeyValueQualifier class]],
             @"qualifier is not a EOKeyValueQualifier but a %@: %@",
@@ -1485,6 +1496,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 */
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
+
   EOFLOGObjectFnStop();
 
   return sqlString; //return someting like t1.label = 'XXX'
@@ -1576,12 +1588,12 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
 - (void)setUseAliases: (BOOL)useAliases
 {
-  _useAliases = useAliases;
+  _flags.useAliases = useAliases;
 }
 
 - (BOOL)useAliases
 {
-  return _useAliases;
+  return _flags.useAliases;
 }
 
 - (NSString *)sqlStringForSchemaObjectName: (NSString *)name
@@ -1806,10 +1818,16 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"anAttribute=%@\nisFlattened=%s\n_definitionArray=%@\n_definitionArray count=%d",
-			anAttribute,
-			([anAttribute isFlattened] ? "YES" : "NO"),
-			[anAttribute _definitionArray],
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"anAttribute=%@",
+			anAttribute);
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sFlattened=%s",
+			([anAttribute isFlattened] ? "YES" : "NO"));
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_definitionArray=%@",
+			[anAttribute _definitionArray]);
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_definitionArray count=%d",
 			[[anAttribute _definitionArray]count]);
 
   if ([anAttribute isFlattened])
@@ -1888,6 +1906,9 @@ else if([anAttribute isDerived] == YES)
                     {
                       NSString *columnName = [anAttribute columnName];
 
+                      EOFLOGObjectLevelArgs(@"EOSQLExpression",
+					    @"columnName=%@", columnName);
+
                       if (!columnName)
                         {
                           NSEmitTODO();  //TODO what to do when there's no column name (definition only like "((firstName || ' ') || lastName)") ?
@@ -1934,7 +1955,11 @@ else if([anAttribute isDerived] == YES)
 {
   NSString *sqlString = nil;
 
-  if (!_useAliases)
+  EOFLOGObjectFnStart();
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"path=%@", path);
+
+  if (!_flags.useAliases)
     {
       sqlString = [(EOAttribute *)[path lastObject] columnName];
 
@@ -1952,16 +1977,33 @@ else if([anAttribute isDerived] == YES)
         {
           for (i = 0; i < (count - 1); i++)
             {
+              EORelationship* relationship = nil;
               if (i > 0) 
                 [relationshipPathString appendString: @"."];
 
-              [relationshipPathString
-		appendString: [(EORelationship *)[path objectAtIndex:i]
-						 name]];
+              relationship = [path objectAtIndex:i];
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"[path objectAtIndex:%d]=%@",
+                                    i, relationship);
+
+              NSAssert2([relationship isKindOfClass:[EORelationship class]],
+                        @"'%@' is not a relationship but a %@",
+                        relationship,
+                        [relationship class]);
+
+              [relationshipPathString appendString: [relationship name]];
             }
 
+          EOFLOGObjectLevelArgs(@"EOSQLExpression", @"[path lastObject]=%@",
+                                [path lastObject]);
+
           //TODO
-          //call attribute      _definitionArray 
+          if ([[path lastObject] isDerived])
+            {
+              //call attribute      _definitionArray 
+              NSEmitTODO();  //TODO
+              [self notImplemented:_cmd]; 
+            };
+
           sqlString = [self _aliasForRelatedAttribute: [path lastObject] 
 			    relationshipPath: relationshipPathString];
 
@@ -1974,6 +2016,8 @@ else if([anAttribute isDerived] == YES)
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"path=%@ sqlString=%@", 
                         path, sqlString);
+
+  EOFLOGObjectFnStop();
 
   return sqlString;
 }
@@ -2195,9 +2239,12 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
   NSMutableString *mutableFlattenRelPath;
   NSString *alias = nil;
   NSMutableArray *pathElements;
-  int count;
-
+  int count = 0;
+  int contextStackCurrentIndex = 0;
+  
   EOFLOGObjectFnStart();
+
+  contextStackCurrentIndex = [_contextStack count];
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"relationshipPath=%@",
 			relationshipPath);
@@ -2223,7 +2270,7 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
 
   while (count > 0)
     {
-      NSString *tmpAlias;
+      NSString *tmpAlias = nil;
 
       EOFLOGObjectLevelArgs(@"EOSQLExpression",@"count=%d flattenRelPath=%@",
 			    count,
@@ -2234,14 +2281,22 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
 
       if (!tmpAlias)
         {
+          NSString* tmpRelPath=nil;
           tmpAlias = [NSString stringWithFormat: @"t%d", _alias++];
 
           EOFLOGObjectLevelArgs(@"EOSQLExpression", @"add alias %@ for %@",
 				tmpAlias, mutableFlattenRelPath);
 
+          tmpRelPath = [[mutableFlattenRelPath copy]
+                         autorelease]; //immuable key !
           [_aliasesByRelationshipPath setObject: tmpAlias
-                                      forKey: [[mutableFlattenRelPath copy]
-						autorelease]]; //immuable key !
+                                      forKey: tmpRelPath]; 
+
+          // Insert to ensure logical order (i.e. xx BEFORE xx.yy)
+          [_contextStack insertObject:tmpRelPath
+                         atIndex:contextStackCurrentIndex];
+          EOFLOGObjectLevelArgs(@"EOSQLExpression", @"inserted '%@' (%@) in contextStack => %@",
+                                tmpRelPath,tmpAlias,_contextStack);
         }
 
       if (!alias)
@@ -2293,7 +2348,6 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
 
       // use anyRelationshipNamed: to find hidden relationship too
       relationship = [entity anyRelationshipNamed: part];
-
       NSAssert2(relationship,
 		@"no relationship named %@ in entity %@",
 		part,
@@ -2301,6 +2355,11 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
 
       EOFLOGObjectLevelArgs(@"EOSQLExpression", @"i=%d part=%@ rel=%@",
 			    i, part, relationship);
+
+      // We check if there's outer join has some adaptors may buld things 
+      // differently in this case
+      if (!_flags.hasOuterJoin && [relationship joinSemantic]!=EOInnerJoin)
+        _flags.hasOuterJoin=YES;
 
       if ([relationship isFlattened])
         {
@@ -2344,9 +2403,9 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
                        relationshipPath: (NSString*)relationshipPath
 
 {
-  NSString *alias;
-  NSString *relPathAlias;
-  NSString *attributeColumnName;
+  NSString *alias = nil;
+  NSString *relPathAlias = nil;
+  NSString *attributeColumnName = nil;
 
   EOFLOGObjectFnStart();
 
@@ -2358,6 +2417,11 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
   attributeColumnName = [attribute columnName]; // ret "label"
   attributeColumnName = [self sqlStringForSchemaObjectName:
 				attributeColumnName]; // ret quoted columnName
+
+  NSAssert1([relPathAlias length]>0,@"no relPathAlias or empty relPathAlias ('%@')",
+            relPathAlias);
+  NSAssert1([attributeColumnName length]>0,@"no attributeColumnName or empty attributeColumnName ('%@')",
+            attributeColumnName);
 
   alias = [NSString stringWithFormat: @"%@.%@",
 		    relPathAlias,

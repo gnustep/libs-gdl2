@@ -73,7 +73,11 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
   NSMutableArray *_bindings;
   NSMutableArray *_contextStack;
   NSString *_statement;
-  BOOL _useAliases;
+  struct {
+    unsigned int useAliases:1;
+    unsigned int hasOuterJoin:1;
+    unsigned int _reserved:30;
+  } _flags;
 @private
   int _alias;
 }

@@ -57,8 +57,15 @@ RCS_ID("$Id$")
 #include <EOAccess/EOSchemaGeneration.h>
 
 #include <Postgres95EOAdaptor/Postgres95SQLExpression.h>
+#include <Postgres95EOAdaptor/Postgres95Adaptor.h>
 #include <Postgres95EOAdaptor/Postgres95Values.h>
 
+@interface EOSQLExpression (Privat)
+//Ayers: Review (Don't rely on privat method)
+- (NSString*) _aliasForRelatedAttribute: (EOAttribute *)attr
+		       relationshipPath: (NSString *)keyPath;
+
+@end
 
 @implementation Postgres95SQLExpression
 
@@ -102,7 +109,8 @@ RCS_ID("$Id$")
 
       formatted = [value sqlString];
     }
-  else if ([externalType hasPrefix: @"int"])
+  else if ([externalType hasPrefix: @"int"]
+           || [externalType hasPrefix: @"bigint"])
     {
       EOFLOGObjectLevelArgs(@"EOSQLExpression",
 			    @"int case - value=%@ class=%@",
@@ -356,6 +364,253 @@ RCS_ID("$Id$")
   // Q: shouldn't we move this into EOSQLExpression.m?
   [super prepareConstraintStatementForRelationship:relationship sourceColumns:sourceColumns destinationColumns:destinationColumns];
   ASSIGN(_statement, [_statement stringByAppendingString:@" DEFERRABLE INITIALLY DEFERRED"]);
+}
+
+/** Build join expression for all used relationships (call this) after all other query parts construction) **/
+- (void)joinExpression
+{
+  int contextStackCount=0;
+
+  EOFLOGObjectFnStart();
+
+  contextStackCount=[_contextStack count];
+  if (contextStackCount>1 && _flags.hasOuterJoin)
+    {
+      // No join clause in postgresql, joins are added in -tableList...
+      if (_joinClauseString)
+        DESTROY(_joinClauseString);
+    }
+  else
+    [super joinExpression];
+
+  EOFLOGObjectFnStop();
+}
+
+- (NSString *)tableListWithRootEntity: (EOEntity*)entity
+{
+  int contextStackCount=0;  
+  NSString *finalEntitiesString=nil;
+
+  EOFLOGObjectFnStart();
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entity=%@", entity);
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_aliasesByRelationshipPath=%@",
+                        _aliasesByRelationshipPath);
+      
+
+  contextStackCount=[_contextStack count];
+  if (contextStackCount>1 && _flags.hasOuterJoin)
+    {      
+      // joins are added here and not in join clause.
+      NSMutableString *entitiesString = [NSMutableString string];
+      NSString *relationshipPath = nil ;
+      EOEntity *currentEntity = nil;
+      int i = 0;
+      int relPathIndex = 0;
+      BOOL useAliases=[self useAliases];
+      
+      
+      for(relPathIndex=0;relPathIndex<contextStackCount;relPathIndex++)
+        {
+          relationshipPath = [_contextStack objectAtIndex:relPathIndex];
+          currentEntity = entity;
+          
+          if ([relationshipPath isEqualToString: @""])
+            {
+              NSString *externalName = [currentEntity externalName];
+              
+              EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                                    @"entity %p named %@: externalName=%@",
+                                    currentEntity, [currentEntity name],
+                                    externalName);
+              
+              NSAssert1([externalName length]>0,@"No external name for entity %@",
+                        [currentEntity name]);
+              
+              [entitiesString appendString: externalName];
+              
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
+              
+              if (useAliases)
+                [entitiesString appendFormat: @" %@",
+                                [_aliasesByRelationshipPath
+                                  objectForKey: relationshipPath]];
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
+            }
+          else
+            {
+              NSEnumerator *defEnum = nil;
+              NSArray *defArray = nil;
+              NSString *relationshipString;
+              NSString *externalName = nil;
+              EORelationship *rel = nil;
+              EOQualifier *auxiliaryQualifier = nil;
+              NSArray *joins = nil;
+              int i, count=0;
+              NSMutableString* joinOn=[NSMutableString string];
+              EOJoinSemantic joinSemantic;
+              NSString* joinOp = nil;
+              
+              defArray = [relationshipPath componentsSeparatedByString: @"."];
+              defEnum = [defArray objectEnumerator];
+              
+              // Get the relationship for this path (non flattened by design)
+              rel = [entity relationshipForPath: relationshipPath];
+              
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"rel=%@", rel);
+              NSAssert2(rel, @"No relationship for path %@ in entity %@",
+                        relationshipPath,
+                        [entity name]);
+              
+              //Get the auxiliary qualifier for this relationship
+              auxiliaryQualifier = [rel auxiliaryQualifier];
+              
+              if (auxiliaryQualifier)
+                {
+                  NSEmitTODO();  //TODO
+                  [self notImplemented:_cmd]; 
+                }
+	      
+              while ((relationshipString = [defEnum nextObject]))
+                {
+                  // use anyRelationshipNamed: to find hidden relationship too
+                  EORelationship *relationship=[currentEntity 
+                                                 anyRelationshipNamed: relationshipString];
+                  
+                  NSAssert2(relationship,@"No relationship named %@ in entity %@",
+                            relationshipString,
+                            [currentEntity name]);
+                  
+                  NSAssert2(currentEntity,@"No destination entity. Entity %@ relationship = %@",
+                            [currentEntity name],
+                            relationship);
+                  
+                  currentEntity = [relationship destinationEntity];
+                }
+              
+              externalName = [currentEntity externalName];
+
+              EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                                    @"entity %p named %@: externalName=%@",
+                                    currentEntity, [currentEntity name],
+                                    externalName);
+              
+              NSAssert1([externalName length]>0,@"No external name for entity %@",
+                        [currentEntity name]);
+              
+              joinSemantic = [rel joinSemantic];
+              switch (joinSemantic)
+                {
+                case EOInnerJoin:
+                  joinOp = @"INNER JOIN";
+                  break;
+                case EOLeftOuterJoin:
+                  joinOp = @"LEFT OUTER JOIN";
+                  break;
+                case EORightOuterJoin:
+                  joinOp = @"RIGHT OUTER JOIN";
+                  break;
+                case EOFullOuterJoin:
+                  joinOp = @"FULL OUTER JOIN";
+                  break;
+                }
+              
+              // Get relationship joins
+              joins = [rel joins];
+              count = [joins count];
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"joins=%@", joins);
+              
+              // Iterate on each join
+              for (i = 0; i < count; i++)
+                {
+                  NSString *sourceRelationshipPath = nil;
+                  NSArray *sourceRelationshipPathArray;
+                  //Get the join
+                  EOJoin *join=[joins objectAtIndex:i];
+                  // Get source and destination attributes
+                  EOAttribute *sourceAttribute = [join sourceAttribute];
+                  EOAttribute *destinationAttribute = [join destinationAttribute];
+                  NSString *sourceAttributeAlias = nil;
+                  NSString *destinationAttributeAlias = nil;
+                  
+                  // Build the source relationshipPath
+                  sourceRelationshipPathArray =
+                    [relationshipPath componentsSeparatedByString: @"."];
+                  sourceRelationshipPathArray =
+                    [sourceRelationshipPathArray
+                      subarrayWithRange:
+                        NSMakeRange(0,[sourceRelationshipPathArray count] - 1)];  
+                  sourceRelationshipPath = [sourceRelationshipPathArray
+                                             componentsJoinedByString: @"."];
+                  
+                  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sourceRelationshipPath=%@", sourceRelationshipPath);
+
+                  // Get the alias for sourceAttribute
+                  sourceAttributeAlias = [self
+                                           _aliasForRelatedAttribute:
+                                             sourceAttribute
+                                           relationshipPath:
+                                             sourceRelationshipPath];
+                  
+                  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sourceAttributeAlias=%@", sourceAttributeAlias);
+                  
+                  // Get the alias for destinationAttribute
+                  destinationAttributeAlias =
+                    [self _aliasForRelatedAttribute: destinationAttribute
+                          relationshipPath: relationshipPath];
+                  
+                  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"addJoin=%@ %d %@",
+                                        sourceAttributeAlias,
+                                        (int)joinSemantic,
+                                        destinationAttributeAlias);
+                  
+                  
+                  if (i>0)
+                    [joinOn appendString:@", "];
+                  joinOn = [NSString stringWithFormat: @"%@ = %@", 
+                                     sourceAttributeAlias,
+                                     destinationAttributeAlias];
+                  
+                  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"joinOn=%@", joinOn);
+                }
+              
+              [entitiesString appendFormat:@" %@ %@",
+                              joinOp,
+                              externalName];
+              
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
+              
+              if (useAliases)
+                {
+                  NSString *alias = [_aliasesByRelationshipPath
+                                      objectForKey: relationshipPath];
+                  
+                  [entitiesString appendFormat: @" %@",alias];
+                  
+                  EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                                        @"appending alias %@ in entitiesString",
+                                        alias);
+                }
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
+              
+              [entitiesString appendFormat:@" on (%@) ",joinOn];
+              
+              EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
+            }
+          
+          i++;
+        }
+      finalEntitiesString=entitiesString;
+    }
+  else
+    finalEntitiesString=[super tableListWithRootEntity:entity];
+    
+  EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                        @"finalEntitiesString=%@",
+                        finalEntitiesString);
+  
+  EOFLOGObjectFnStop();
+
+  return finalEntitiesString;
 }
 
 @end

@@ -1,4 +1,4 @@
-2003-11-26  Manuel Guesdon  <mguesdon@orange-concept.com>
+2003-11-28  Manuel Guesdon  <mguesdon@orange-concept.com>
 	
 	* EOAccess/EOAttribute.m:
 		o introducing new number types: 
@@ -39,6 +39,20 @@
 	* EOAccess/EORelationship.m:
 		o asserts
 		o fix in -isReciprocalToRelationship:
+	* EOAccess/EOSQLExpression.m/.h:
+		o renamed _useAliases to _flags.useAliases
+		o added _flags.hasOuterJoin
+		o call qualifier -sqlStringForSQLExpression: 
+		  instead of switching on qualifier class
+		  in -sqlStringForArrayOfQualifiers:operation:
+		o asserts
+		o fill _contextStack
+		o added outer joins checks in -_flattenRelPath:entity:
+		  (Used in Postgresql)
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m:
+		o subclass joinExpression to avoid building join
+		expression (it's now build in -tableListWithRootEntity
+		o sublass -tableListWithRootEntity to add joins in it.
 	
 2003-10-24  David Ayers  <d.ayers@inode.at>
 
