@@ -162,6 +162,23 @@ pgResultDictionary(PGresult *pgResult)
 
 @implementation Postgres95Channel
 
+/* Set DateStyle to use ISO format.  */
+- (void)_setDateStyle
+{
+  _pgResult = PQexec(_pgConn, 
+		     "SET DATESTYLE TO ISO");
+
+  if (_pgResult == NULL || PQresultStatus(_pgResult) != PGRES_COMMAND_OK)
+    {
+      _pgResult = NULL;
+      [NSException raise: Postgres95Exception
+		   format: @"cannot set date style to ISO."];
+    }
+  
+  PQclear(_pgResult);
+  _pgResult = NULL;
+}
+
 - (id) initWithAdaptorContext: (EOAdaptorContext *)adaptorContext
 {
   if ((self = [super initWithAdaptorContext: adaptorContext]))
@@ -213,6 +230,7 @@ pgResultDictionary(PGresult *pgResult)
 
   if (_pgConn)
     {
+      [self _setDateStyle];
       [self _readServerVersion];
       [self _describeDatabaseTypes];
     }

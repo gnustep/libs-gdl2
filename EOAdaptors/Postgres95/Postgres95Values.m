@@ -66,9 +66,6 @@ void __postgres95_values_linking_function (void)
 {
 }
 
-//NSString *Postgres95CalendarFormat = @"%m-%d-%Y %H:%M:%S %Z";
-NSString *Postgres95CalendarFormat = nil;
-
 @implementation Postgres95Values
 
 
@@ -314,16 +311,12 @@ if ([type isEqual:@"bytea"])
 
 + (NSString*)postgres95Format
 {
-  if (!Postgres95CalendarFormat)
-    //Mirko: @"%d/%m/%Y %H:%M:%S.00 %Z"
-    [NSCalendarDate setPostgres95Format: [NSString stringWithCString: "%m-%d-%Y %H:%M:%S %Z"]]; //"%b %d %Y %I:%M%p %Z"]];
-
-  return Postgres95CalendarFormat;
+  return @"%Y-%m-%d %H:%M:%S";
 }
 
-+ (void)setPostgres95Format: (NSString*)_format
++ (void)setPostgres95Format: (NSString*)dateFormat
 {
-  ASSIGN(Postgres95CalendarFormat, _format); 
+  NSLog(@"%@ - is deprecated.  The adaptor always uses ISO format.");
 }
 
 

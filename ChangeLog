@@ -6,6 +6,15 @@
 	
 2004-05-15  David Ayers  <d.ayers@inode.at>
 
+	* EOAdaptors/Postgres95/Postgres95Values.m
+	(-[NSCalendarDate postgres95Format]): Return ISO date format.
+	(-[NSCalendarDate setPostgres95Format:]): Deprecate method.
+	* EOAdaptors/Postgres95/Postgres95Channel.m
+	(-[Postgres95Channel _setDateStyle]): New method to request ISO
+	date format.
+	(-[Postgres95Channel openChannel]): Call -_setDateStyle to set ISO
+	date fromat.
+	
 	* EOAccess/EOAttribute.m
 	([EOAttribute initialize]): Implement class caching.
 	([EOAttribute *]): Use cached classes.
