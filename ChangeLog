@@ -1,0 +1,751 @@
+2002-11-14  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOAcces/EODatabaseDataSource.m:
+		o corrected bug in -description
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m
+		o change in +formatValue:forAttribute: to handle string value for dates
+
+2002-11-14  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAdaptors/*, EOAccess/*, EOControl/*: removed some warnings.
+
+2002-11-13  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAcces/EODatabaseContext.m:
+		o corrected bug
+		o logs
+	* EOAccess/EODatabaseOperation.m:
+		o -setDatabaseOperator: change to not update deleted objetcs
+	* EOAccess/EOEntity.m: 
+		o -_attributesToFetch added exception handling
+	* EOAccess/EOSQLExpression:
+		o use sqlExpressionWithEntity instead of alloc/init
+	* EOControl/EOEditingContext.m:
+		o _processOwnedObjectsUsingChangeTable:deleteTable:
+			bug correction in new/existing value handling
+		o doc
+	* EOControl/EOGenericRecord.m:
+		o log changes
+	* EOControl/EOKeyValueCoding.m:
+		o added -takeStoredValue:forKeyPath:
+		o added -storedValuesForKeyPaths:
+		o corrected bug in NSArray -valueForKey:
+		o corrected bugs in NSArray -valueForKeyPath:
+	* EOAccess/EOUtilities.m
+		o handle nil value in rawRowsMatchingValue:forKey:entityNamed:
+		o handle nil value in objectsMatchingValue:forKey:entityNamed:
+		o handle nil value in objectWithPrimaryKeyValue:entityNamed:
+	* EOAccess/EOAttribute.m
+		o destroy docComment in -dealloc
+	* EOAdaptors/Postgres98/Postgres95Values.m:
+		o comment
+		o use stringWithCString.. instead of alloc/init/release
+	* EOControl/EOMultipleKnownKeyDictionary.h
+		o added -debugDescription
+	* EOControl/EONull.m:
+		o added -NSNull -valueForKey:
+	* EOAccess/EOQualifier.m:
+		o in getKey: autorelease key
+		o in -qualifierWithQualifierFormat:varargList:
+			user [NSMutableArray array] instead [NSMutableArray new]/DESTROY 
+			to avoid memory leak if an exception is raised
+	
+2002-11-04  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOSortOrdering.m:
+		o changed -sortedArrayUsingKeyOrderArray:
+	* EOControl/EOQualifier.m: 
+		o improved -qualifierWithQualifierFormat: parsing
+
+2002-10-31  David Ayers  <d.ayers@inode.at>
+	
+	* EOControl/EOQualifier.m: 
+		o improved -qualifierWithQualifierFormat: parsing
+		o added NSNumber -initWithString as EOQualiferExtra
+	* EOControl/EOKeyValueQualifier.m:
+		o changed -description
+	* EOControl/EOKeyComparisonQualifier.m:
+		o changed -description
+
+2002-09-22  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* Makefile.postamble: install gdl2.make.
+
+2002-09-22  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* configure.ac: added adaptors configuration.
+	* config/postgres.m4: check for postgres db.
+	* EOAdaptors/Postgres95/GNUmakefile.in: new file.
+	* EOAdaptors/Postgres95/Makefile.preamble.in: new file.
+
+2002-09-20  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* configure.ac: new file.
+	* gdl2.make.in: new file.
+	* config.h.in: new file.
+
+2002-09-20  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* Indented all the sources and removed many warnings.
+	* Moved EOCheapArray.m|h, EONSAddOns.m|h and EODebug.m|h to EOControl.
+	* Moved EOUtilities.m|h to EOAccess.
+	* Moved EOQualifierSQLGeneration in EOAccess/EOSQLQualifier
+
+2002-06-03  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m:
+		o NSWarn -> NSWarnLog
+	* EOControl/EOKeyValueArchiver.m:
+		o added -isThereValueForKey: in EOKeyValueUnarchiver
+	* EOControl/EOKeyValueArchiver.h:
+		o added -isThereValueForKey: in EOKeyValueUnarchiver
+	* EOControl/EOSQLExpression.m:
+		o changes for usesDistincts
+		o logs
+	* EOAccess/EODatabaseChannel.m:
+		o fix for refetched objects
+	* EOAccess/EODatabaseContext.m:
+		o fixes in recordChangesInEditingContext
+	* EOAccess/EODatabaseDataSource.m:
+		o logs
+	* EOAccess/EONSAddOns.h/.m
+		o added NSArray -arrayExcludingObject: 
+		o added NSArray -containsIdenticalObjectsWithArray:
+	* EOAccess/EORelationship.h/.m:
+		o added isBidirectional: and associated methods (for use with smartTakeValue:forKey:)
+	* EOControl/EOClassDescription.h/.m:
+		o added -relationshipNamed:
+		o added -anyRelationshipNamed:
+	* EOControl/EOGenericRecord.m:
+		o added -smartTakeValue:forKey:
+	* EOControl/EOObjectStoreCoordinator.m:
+		o logs
+	
+2002-05-14  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOControl/EOEditingContext.m:
+		o changes in -saveChangesInEditingContext: to avoid return in the middle of the method
+		o logs
+	* EOAccess/EODatabaseContext.m:
+		o add rollbackChanges on exception in -saveChangesInEditingContext:
+		o corrected bug in initializeObject:row:entity:editingContext:
+		o logs
+	* EOControl/EOKeyValueQualifier.m:
+		o implementation of flatten case in -schemaBasedQualifierWithRootEntity:
+		o logs
+	* EOControl/EODetailDataSource.m
+		o correct bugs by using -decodeObjectForKey: in -initWithKeyValueUnarchiver:
+		o changed _masterEntityName to _masterClassDescriptionName
+		o added -classDescriptionForObjects
+		o logs
+	* EOControl/EODetailDataSource.h:
+		o changed _masterEntityName to _masterClassDescriptionName
+		o added -classDescriptionForObjects
+	* EOControl/EODataSource.m:
+		o logs
+	* EOControl/EOGenericRecord.m:
+		o added -willChange call in _setValueForKey:object:selector:type:size:offset:
+	* EOControl/EOMutableKnownKeyDictionary.m:
+		o corrected bug in -containsObjectsNotIdenticalTo:
+		o logs
+	* EOAccess/EOSQLExpression.m:
+		o logs
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m:
+		o logs
+		o corrected bugs for empty strings in +formatValue:forAttribute:
+	* EOAccess/EODatabaseDataSource.m
+		o logs
+	* EOAccess/EOEntity.m
+		o logs
+	* EOControl/EOQualifier.m:
+		o logs
+	* EOControl/EOOrQualifier.m:
+		o logs
+	* EOControl/EOAndQualifier.m:
+		o logs
+	* EOControl/EOObserver.m:
+		o logs
+	* EOAccess/EODatabase.m:
+		o logs
+		o avoid fault access in -entityForObject:
+
+2002-04-15  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAccess/EOFetchSpecification.m:
+		o changed  -fetchSpecification into +fetchSpecification
+	* EOAccess/EOKeyValueCoding.m:
+		o logs
+		o corrected bug: added special case "count" in NSArray -valueForKeyPath:
+	* EOAccess/EOGenericRecord.m:
+		o logs
+	* EOControl/EODetailDataSource.h:
+		o added -initWithKeyValueUnarchiver:
+	* EOControl/EODetailDataSource.m:
+		o added -initWithKeyValueUnarchiver:
+	* EOControl/EOKeyValueArcher.m:
+		o added EOKeyValueArchivingContainer +keyValueArchivingContainer
+		o corrected not autorelease bug in -_objectForPropertyList:
+		o logs
+	* EOControl/EODatabaseDataSource.m:
+		o logs
+
+2002-04-01  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAccess/EOModel.h:
+		o added +version
+	* EOAccess/EOStoredProcedure.h:
+		o added +storedProcedureWithPropertyList:owner:
+	* EOAccess/EOEntity.h:
+		o added +entityWithPropertyList:owner:
+		o added -setDocComment:
+		o added +entityClassDescriptionWithEntity:
+	* EOAccess/EOEntity.m:
+		o corrected bug in _keyMapForIdenticalKeyRelationshipPath: (dictionary construction)
+	* EOAccess/EOEntityPriv.h:
+		o retyped -_parseDescription:isFormat:arguments:;
+	* EOAccess/EORelationship.h:
+		o added +relationshipWithPropertyList:owner:
+	* EOAccess/EOAttribute.h:
+		o added +attributeWithPropertyList:owner:
+		o added -setInternalInfo:
+		o added -_normalizeDefinition:path:
+
+	* EOAccess/EOAttribute.m:
+		o use an id instead of a string for userInfo,...
+		o added -setInternalInfo:
+	* EOAccess/EOExpressionArray.h:
+		o added -valueForSQLExpression:
+
+2002-04-01  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOControl/EODetailDataSource.h/.m:
+		o added +detailDataSourceWithMasterDataSource:detailKey:
+	* EOAccess/EODatbaseDataSource.m:
+		o changed allocations
+	* EOAccess/EODatabase.m:
+		o changed allocations
+	* EOAccess/EOEntity.m:
+		o changed allocations
+		o corrected not autorelease bug in EOEntity -classDescriptionForInstances
+	* EOControl/EOGlobalID.h/.m:
+		o added EOTemporaryGlobalID +temporaryGlobalID
+	* EOControl/EIEditingContext.m:
+		o changed allocations
+	* EOControl/EOKeyValueQualifier.m:
+		o changed allocations
+	* EOControl/EOObjectStoreCoordinator.m:
+		o changed allocations
+	* EOKeyComparisonQualifier.m:
+		o added +qualifierWithLeftKey:operatorSelector:rightKey:
+	* EONotQualifier.m:
+		o added +qualifierWithQualifier:
+	* EOQualifier.m:
+		o changed allocations
+	* EOAccess/EOAdaptorContext.h/.m:
+		o added +adaptorContextWithAdaptor:
+	* EOAdaptors/Postgres95/Postgres9Adaptor.m:
+		o changed allocations
+	* EOAdaptors/Postgres95/Postgres9Channel.m:
+		o changed allocations
+	* EOAdaptors/Postgres95/Postgres9Context.m:
+		o changed allocations
+	* EOAccess/EOModel.h/.m:
+		o added +model
+	* EOAccess/EOAdaptorChannel.h/.m
+		o added +adaptorChannelWithAdaptorContext:
+	* EOAdaptors/Postgres95/Postgres9Values.m:
+		o changed allocations
+
+2002-03-29  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAccess/EODatabaseOperation.m
+		o logs
+	* EOAccess/EODatabaseContext.h/.m
+		o logs	
+		o added +databaseContextWithDatabase:
+		o change allocations
+	* EOAccess/EORelationship.m
+		o logs
+		o corrected not autorelease bug in _foreignKeyForSourceRow:
+		o added +relationshipWithPropertyList:owner:
+	* EOAccess/EOJoin.h/.m:
+		o added +joinWithSourceAttribute:destinationAttribute:
+
+	* EOAccess/EOSQLExpression.m:
+		o added +sqlExpressionWithEntity:
+	* EOAccess/EOAttribute.m:
+		o added +attributeWithPropertyList:owner:
+
+	* EOAdaptors/Postgres95/Postgres95Channel.m
+		o logs
+	* EOAccess/EODatabaseChannel.m
+		o logs
+		o added +databaseChannelWithDatabaseContext:
+	* EOAccess/EOFault.m:
+		o logs
+	* EOAccess/EOFetchSpecification.m/.h
+		o added +fetchSpecification
+	* EOControl/EOUtilities.m:
+		o corrected not autorelease bug in -objectsMatchingValues:entityNamed:
+		o change qualifiers allocations
+	* EOAccess/EOAndQualifier.m:
+		o added EOAndQualifier +qualifierWithQualifierArray:
+		o added EOAndQualifier +qualifierWithQualifiers:
+	* EOAccess/EOOrQualifier.m:
+		o added EOOrQualifier +qualifierWithQualifierArray:
+	* EOAccess/EOQualifier.h
+		o added EOAndQualifier +qualifierWithQualifierArray:
+		o added EOOrQualifier +qualifierWithQualifierArray:
+	* EOAccess/EOEntity.m:
+		o changed EOMutableKnownKeyDictionary allocation in -_dictionaryForProperties 
+	* EOAccess/EOMutableKnownKeyDictionary.h/.m:
+		o added +dictionaryFromDictionary:subsetMapping:
+	* EOAccess/EOModel.h/.m
+		o added +modelWithContentsOfFile:
+		o corrected not autorelease bug
+		o allocation changes
+	* EOAccess/EOModelGroup.m:
+		o Changed EOModel allocation
+	* EOAccess/EODatabase.h/.m:
+		o added +databaseWithModel:
+	* EOAccess/EOAccessFault.h/.m
+		o added EOAccessFaultHandler +accessFaultHandlerWithGlobalID:databaseContext:editingContext:
+		o added EOAccessArrayFaultHandler 
+			+accessArrayFaultHandlerWithSourceGlobalID:relationshipName:databaseContext:editingContext:
+	* EOAccess/EODatabaseOperation.h/.m:
+		o added EODatabaseOperation +databaseOperationWithGlobalID:object:entity:
+	* EOAccess/EOAdaptorOperation.h/.m:
+		o added EOAdaptorOperation +adaptorOperationWithEntity:
+	* EOAccess/EODatabaseDataSource.m:
+		o allocation changes
+	* EOAccess/EOStoredProcedure.m:
+		o corrected not autorelease bug in -initWithPropertyList:owner:
+
+
+2002-03-28  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAccess/EODatabaseChannel.m
+		o removed logs
+		o changed logs
+	* EOAdaptors/Postgres95/Postgres95Channel.m
+		o removed logs
+	* EOAccess/EORelationship.m:
+		o NSAssert
+		o added _docComment and associated methods
+	* EOAccess/EORelationship.h:
+		o added _docComment and associated methods
+	* EOAccess/EOSQLExpression.m:
+		o NSAssert
+		o logs	
+	* EOAccess/EOEntity.m:
+		o doc
+		o logs
+		o added _docComment and associated methods
+	* EOAccess/EOEntity.h:
+		o added _docComment and associated methods
+
+	* EOAccess/EOModel.h/.m:
+		o added -adaptorClassname
+		o added _version and -version
+		o added _docComment and associated methods
+	* EOAccess/EOAttribute.h/.m:
+		o added _docComment and associated methods
+
+	* EOAccess/EOAdaptorChannel.m
+		o logs
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m:
+		o corrected bug in formatValue:forAttribute:
+	* added Tools/
+
+2002-03-25  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAccess/GNUmakefile:
+		o removed -SystemProjects System
+		o added -Declared EOAccess
+	* EOControl/GNUmakefile:
+		o removed -SystemProjects System
+		o added -Declared EOControl
+	* EOAdaptors/Postgres95/GNUmakefile:
+		o removed -SystemProjects System
+		o added -Declared EOAdaptors/PostgreSQL
+	* EOControl/EOGenericRecord.m: logs
+	* EOAccess/EODebug.h: added EOFLOGClassFnStartCond EOFLOGClassFnStopCond
+	* EOAccess/EODatabaseChannel.m: logs
+	* EOAccess/EORelationship.m: 
+		o setDefinition
+		o corrected bug in _makeFlattenedInverseRelationship
+	* EOAccess/EOEntity.m 
+		o logs
+	* EOControl/EOQualifier.h
+	 	o added qualifierWithKey:operatorSelector:value:
+	* EOControl/EOKeyValueQualifier.m:
+	 	o added qualifierWithKey:operatorSelector:value:
+	* EOAccess/EOModel.m:
+		o removed assert for non EOGenericRecord class in -_classDescriptionNeeded:
+	
+2002-03-07  Manuel Guesdon  <mguesdon@orange-concept.com>
+	Too much changes
+
+2001-04-10  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOSQLExpression.m ([EOSQLExpression
+	+foreignKeyConstraintStatementsForRelationship:]): implemented.
+
+2001-04-07  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOKeyValueCoding.m: import EOControl.h
+	* EOControl/EONull.m: likewise.
+	* EOAccess/EOModel.m ([EOModel -writeToFile:]): implemented.
+	([EOModel -encodeTableOfContentsInfoPropertyList:]): implemented.
+	* EOAccess/EORelationship.m ([EORelationship -setEntity:]): remove self
+	from previous entity.
+	([EORelationship -setDefinition:]): remove joins.
+
+2001-01-12  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOModeler: new library.
+	* EOModeler/EOModelExtensions.m/.h: EOModeler categories needed by
+	eogenerator.
+	* EOControl/EOKeyValueCoding.m ([NSArray -valueForKey:]): fixed @x key.
+
+2001-01-06  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOControl.h: defined FOUNDATION_HAS_KVC to use Foundation
+	key value coding.
+	* EOAccess/EOAttribute.m ([EOAttribute
+	-adaptorValueByConvertingAttributeValue:]): use EONull null object.
+	* EOAccess/EOSQLExpression.m ([EOSQLExpression -sqlStringForSelector:
+	value:]): likewise.
+	* EOControl/EOKeyValueCoding.m ([NSObject -takeValuesFromDictionary:]):
+	([NSObject -takeStoredValuesFromDictionary:]): likewise.
+	defined FOUNDATION_HAS_KVC to use Foundation key value coding.
+
+2001-01-03  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-faultForGlobalID:editingContext:]): use the correct class property
+	array.
+
+2000-12-23  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOEntity.m ([EOEntity -isPrimaryKeyValidInObject:]): fixed.
+	Do not returns from inside an exception handler.
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-prepareForSaveWithCoordinator:editingContext:]): bug fix. Do not
+	release an autoreleased object.
+	* EOAccess/EODatabaseDataSource.m ([EODatabaseDataSource
+	-fetchSpecificationForFetch]): fixed fetch qualifier.
+	* EOControl/EOKeyValueQualifier.m ([EOKeyValueQualifier
+	-copyWithZone:]): do not copy _value.
+	* EOControl/EOAndQualifier.m ([EOAndQualifier -copyWithZone:]): use
+	correct zone.
+	* EOControl/EOOrQualifier.m ([EOOrQualifier -copyWithZone:]): likewise.
+	* EOControl/EOKeyComparisonQualifier.m ([EOKeyComparisonQualifier
+	-copyWithZone:]): likewise.
+
+2000-12-20  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-_recordChangesForObjects:operator:]): create dbOperation with the
+	correct entity for to-many relationship objects.
+
+2000-12-11  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOModel.m ([EOModel -_registerClassDescForClass:]): 
+	check for NULL _entitiesByClass
+	([EOModel -dealloc]): release _entitiesByClass
+	([EOModel -removeEntity:]): bug fix.
+
+	* EOAdaptors/Postgres95/Postgres95Channel.m ([Postgres
+	-_evaluateCommandsUntilAFetch]): raise an exception on error.
+
+2000-12-10  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOKeyValueCoding.m (newGetStoredBinding): fixed value of
+	class variable.
+
+2000-12-09  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOModel.m ([EOModel -_registerClassDescForClass:]): fixed
+	class description registration.
+	([EOModel -_registerClassDescForEntityName:]): likewise.
+	([EOModel -addEntity:]), ([EOModel -removeEntity:]): save EOEntity in
+	_entitiesByClass.
+
+2000-12-08  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-prepareForSaveWithCoordinator:editingContext:]): get the object value
+	if the key is a class property.
+	Added code to handle propagatesPrimaryKey for to many relationships.
+	Fixed code that merges pk values.
+	* EOControl/EOClassDescription.m ([EOClassDescription -awakeObject:
+	fromInsertionInEditingContext:]): use NSMutableArray for to many
+	relationships.
+
+2000-12-08  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext -faultForGlobalID:
+	editingContext:]): set only class property's object values.
+	([EODatabaseContext -faultForRawRow:entityNamed:editingContext:]):
+	likewise.
+	([EODatabaseContext -_recordChangesForObjects:operator:]): likewise.
+	([EODatabaseContext -batchFetchRelationship:forSourceObjects:
+	editingContext:]): get key value from snapshot rather than in the
+	object.
+
+2000-12-06  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOKeyValueCoding.m ([NSObject
+	-handleQueryWithUnboundKey:]): raise an EOUnknownKeyException with
+	the correct userInfo.
+	([NSObject -handleTakeValue:forUnboundKey:]): likewise.
+	* EOAccess/EOEntity.m ([EOEntity -isPrimaryKeyValidInObject:]):
+	check valueForKey: exception.
+	* EOControl/EOClassDescription.m ([NSObject -changesFromSnapshot:]):
+	check for EONull values as toMany relationship array.
+	* EOControl/EOEditingContext.m ([EOEditingContext
+	-processRecentChanges]): check for EONull values in dictionary.
+	* EOAccess/EOModel.m ([EOModel -initWithPropertyList:owner:]): check
+	for an exception in the entity awakeWithPropertyList method.
+	* EOAccess/EOJoin.m ([EOJoin -initWithSourceAttribute:
+	destinationAttribute:]): raise exception if source or destination is
+	nil.
+
+2000-12-05  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EODatabaseChannel.m ([EODatabaseChannel -fetchObject]):
+	fixed refreshing objects.
+	* EOControl/EOKeyValueCoding.m ([NSArray -valueForKey:]): fixed array
+	and string selector.
+	* EOAccess/EOUtilities.m ([EOEditingContext -objectsForEntityNamed:]):
+	([EOEditingContext -primaryKeyForObject:]), ([EOEditingContext
+	-entityForObject:]): implemented.
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-prepareForSaveWithCoordinator:editingContext:]): lock the database
+	context.
+	([EODatabaseContext -commitChanges]), ([EODatabaseContext
+	-rollbackChanges]): unlock the database context
+	([EODatabaseContext -registerLockedObjectWithGlobalID:]): fixed zone
+	size.
+
+2000-12-04  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-_recordChangesForObjects:operator:]): when updating relationship keys
+ 	look also in the object snapshot.
+
+2000-12-03  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOSQLExpression.m ([EOSQLExpression
+	-sqlStringForKeyValueQualifier:]): bug fix.
+	* EOAccess/EOUtilities.m ([EOEditingContext -objectsMatchingValue:
+	forKey:entityNamed:]): implemented.
+
+2000-12-01  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOUtilities.m/.h: new files.
+	* EOAccess/EOAccess.h: addes EOUtilities.h
+
+2000-11-23  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOEditingContext.m ([EOEditingContext
+	-initializeObject:withGlobalID:editingContext:]): ensure that the next
+	'willChange' notification will be processed for the initialized object.
+	* EOAccess/EOEntity.m ([EOEntity -globalIDForRow:]): fixed globalID
+	values order for compound PKs.
+
+2000-11-22  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EODatabaseOperationPriv.h: new file.
+	* EOAccess/EODatabaseOperation.m ([EODatabaseOperation
+	-_setGlobalID:]): new method.
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-prepareForSaveWithCoordinator:editingContext:]): fixed propagates
+	primary key code.
+	([EODatabaseContext -_recordChangesForObjects:operator:]): in toOne rel
+	discard PK to PK joins. Discard 'empty' toOne rels.
+	([EODatabaseContext -_setGlobalID:forDatabaseOperation:): new method.
+	It replaces the globalID for the gived operation.
+	* EOAccess/EORelationship.m ([EORelationship
+	-initWithPropertyList:owner:]): check for 'propagatesPrimaryKey'.
+	* EOAccess/EOSQLExpression.m ([EOSQLExpression
+	-addOrderByAttributeOrdering:]): use compare selector defines. Call
+	-sqlStringForAttributeNamed: for the sortOrdering key.
+
+2000-11-19  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOFault.m ([EOFault +makeObjectIntoFault:withHandler:]): 
+	do not turn into fault the nil object.
+	* EOControl/EOEditingContext.m ([EOEditingContext
+	-refaultObject:withGlobalID:editingContext:]): does nothing if objects
+	is nil.
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-refaultObject:withGlobalID:editingContext:]): likewise.
+	([EODatabaseContext -refaultObject:withGlobalID:editingContext:]): does
+	not remove the snapshot.
+	([EODatabaseChannel -fetchObject]): fix for refreshing object.
+	* EOControl/EOSortOrdering.m ([NSMutableArray
+	-_sortUsingKeyOrder:fromIndex:count:]): use defined value for compare
+	selectors. Fix when aValue or bValue are nil.
+	([EONull -compareAscending:]), ([EONull -compareDescending:]),
+	([EONull -compareCaseInsensitiveAscending:]): ([EONull
+	-compareCaseInsensitiveDescending:]): if value to be compared is be
+	treat it as EONull.
+
+2000-11-18  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOEditingContext.m ([EOEditingContext
+	-processRecentChanges]): get toOne and toMany keys from object instead
+	of the editingContext.
+
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	-_recordChangesForObjects:operator:]): new method. Fixed foreign key
+	update for inserted objects of toOne relationships. Fixed dictionary
+	and foreign key update for toMany relationships.
+	([EODatabaseContext -recordChangesInEditingContext]): moved code into
+	-_recordChangesForObjects:operator: and check changes also in inserted
+	objects.
+	([EODatabaseContext -_dbOperationWithObject:operator:]): new method.
+	Find db operation for the given object and operator.
+	([EODatabaseContext -commitChanges]), ([EODatabaseContext
+	-rollbackChanges]): reset ivars if no transaction in progress.
+
+2000-11-16  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOEditingContext.m ([EOEditingContext
+	-_handleObjectsChangedInStoreNotification:]): refault updated objects.
+
+	* EOAccess/EODatabaseChannel.m ([EODatabaseChannel -fetchObject]):
+	fixed notification for refreshed objects.
+	* EOAccess/EOSQLExpression.m ([EOSQLExpression
+	-sqlStringForAttribute:]): fix id attribute is derived.
+	* EOAccess/EOEntity.m ([EOEntity -setAttributesUsedForLocking:]): fix
+	release of the array when no valid attributes are found.
+	([EOEntity -setPrimaryKeyAttributes:]): likewise.
+	* EOAccess/EODatabase.m ([EODatabase -forgetSnapshotsForGlobalIDs:]): 
+	([EODatabase -forgetSnapshotForGlobalID:]): use defined userInfo string
+	instead of an hardcoded one.
+
+2000-11-05  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOSortOrdering.m ([NSArray
+	-sortedArrayUsingKeyOrderArray:]): implemented.
+	([NSMutableArray -sortUsingKeyOrderArray:]): not fully implemented.
+	([NSMutableArray -_sortUsingKeyOrder:fromIndex:count:]): modified
+	gnustep-base shell sort.
+	([EOSortOrdering -initWithCoder:]): fixed.
+	([EONull -compareAscending:]): implemented.
+	([EONull -compareDescending:]): implemented.
+	([EONull -compareCaseInsensitiveAscending:]): implemented.
+	([EONull -compareCaseInsensitiveDescending:]): implemented.
+
+	* EOAdaptors/Postgres95/Postgres95Channel.m ([Postgres
+	-_describeResults]): does not coerce attribute className.
+	* EOAdaptors/Postgres95/Postgres95Values.m: fixed pg calendar format.
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m ([Postgres -assembleSelectStatementWithAttributes:lock:qualifier:fetchOrder:selectString:columnList:tableList:whereClause:joinClause:orderByClause:lockClause:]): does not return
+	mutableCopy of the string.
+	([Postgres +formatValue:forAttribute:]): implemented. Added code from
+	Turbocat's development.
+
+	* EOAccess/EOSQLExpression.m: does not return mutableCopy of a string.
+	([EOSQLExpression +formatValue:forAttribute:]): return value unchanged.
+	([EOSQLExpression -sqlStringForValue:attributeNamed:]): bug fix ?
+	moved code from +[formatValue:forAttribute:]
+
+	* EOControl/EOAndQualifier.m ([EOAndQualifier
+	-sqlStringForSQLExpression:]): doesn't return mutableCopy of a string.
+	* EOControl/EOOrQualifier.m ([EOOrQualifier
+	-sqlStringForSQLExpression:]): likewise.
+
+	* EOControl/EODetailDataSource.m ([EODetailDataSource
+	-initWithMasterClassDescription:detailKey:]): set
+	masterClassDescription.
+
+	* EOAccess/EOSQLExpression.m
+	([EOSQLExpression -addCreateClauseForAttribute:]): 
+	([EOSQLExpression -allowsNullClauseForConstraint:]): 
+	([EOSQLExpression -columnTypeStringForAttribute:]): 
+	([EOSQLExpression +dropTableStatementsForEntityGroup:]): 
+	([EOSQLExpression +createTableStatementsForEntityGroup:]): 
+	([EOSQLExpression +primaryKeyConstraintStatementsForEntityGroup:]): 
+	([EOSQLExpression +primaryKeySupportStatementsForEntityGroup:]): 
+	([EOSQLExpression +dropPrimaryKeySupportStatementsForEntityGroup:]): 
+	([EOSQLExpression +createTableStatementsForEntityGroups:]): 
+	([EOSQLExpression +dropTableStatementsForEntityGroups:]): 
+	([EOSQLExpression +primaryKeyConstraintStatementsForEntityGroups:]): 
+	([EOSQLExpression +primaryKeySupportStatementsForEntityGroups:]): 
+	([EOSQLExpression +dropPrimaryKeySupportStatementsForEntityGroups:]): 
+	([EOSQLExpression +appendExpression:toScript:]): 
+	([EOSQLExpression +schemaCreationScriptForEntities:options:]): 
+	([EOSQLExpression +schemaCreationStatementsForEntities:options:]): 
+	([EOSQLExpression -prepareConstraintStatementForRelationship:
+	sourceColumns:destinationColumns:]): 
+	([EOSQLExpression +createDatabaseStatementsForConnectionDictionary:
+	administrativeConnectionDictionary:]): 
+	([EOSQLExpression +dropDatabaseStatementsForConnectionDictionary:
+	administrativeConnectionDictionary:]): 
+	([EOSQLExpression +selectStatementForContainerOptions]): implemented.
+
+	* EOAccess/EOEntity.m ([EOEntity -primaryKeyRootName]): bug fix: calls
+	-primaryKeyRootName on the _parent entity instead of -externalName.
+
+	* EOAccess/EOSchemaGeneration.h: new file.
+
+	* EOAccess/EOAccess.h: added EOSchemaGeneration.h
+
+	* EOAccess/EOModel.m ([EOModel -initWithContentsOfFile:]):,
+	([EOModel -initWithTableOfContentsPropertyList:path:]): fixed _name and
+	_path.
+	([EOModel -initWithPropertyList:owner:]): use _path instead of _name.
+
+	* EOAccess/EOModelGroup.m ([EOModelGroup +globalModelGroup]): search
+	models in bundles and frameworks.
+
+	* EOAccess/EOAdaptor.m ([EOAdaptor +adaptorWithName:]): changed adaptor
+	from bundle to framework. Looks for <name>EOAdaptor.framework
+	([EOAdaptor -createDatabaseWithAdministrativeConnectionDictionary:]): 
+	([EOAdaptor -dropDatabaseWithAdministrativeConnectionDictionary:]): 
+	new methods.
+	* EOAccess/EOAdaptor.h: added include file
+
+	* EOAccess/GNUmakefile: added LIBRARIES_DEPEND_UPON
+	* EOControl/GNUmakefile: Likewise.
+
+2000-10-05  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOAccess/EODatabaseChannel.m: added NSDebugMLog and NSAssert
+	* EOAccess/EODatabaseDataSource.m: added NSDebugMLog and NSAssert
+	* EOAccess/EOEntity.m: added NSDebugMLog and NSAssert
+	* EOAccess/EOModel.m: modified -init
+	* EOControl/EOFetchSpecification.h/.m: added EOKeyValueUnarchiver support
+	* EOControl/EOKeyValueArchiver.h/.m: implemented EOKeyValueUnarchiver
+	* EOControl/GNUmakefile: added EOKeyValueArchiver
+
+2000-09-28  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOAccess/EODatabaseContext.m: added NSDebugMLog and NSAssert
+	* EOAccess/EODatabaseChannel.m: added NSDebugMLog and NSAssert
+	* EOAdaptors/Postgres95/Postgres95Channel.m : added NSDebugMLog 
+		and NSAssert
+	* EOAccess/EODatabase.m: added NSDebugMLog and NSAssert
+
+2000-09-24  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* config.mak: added include directories in POSTGRES95_CFLAGS
+
+2000-09-23  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOQualifier.m (getKey): fixed pointer in key-value parsing.
+
+2000-09-17  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAdaptors/Postgres95/GNUmakefile: remove Postgres95Exceptions.h
+
+2000-09-17  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	Patches by David Wetzel <dave@turbocat.de>
+	* EOAccess/EOAdaptorContext.m ([EOAdaptorContext -initWithAdaptor:]):
+	set default debug.
+
+	* EOAccess/EOModel.m ([EOModel +findPathForModelNamed:]): look also
+	in the current dir.
+
+	* EOControl/EOObjectStoreCoordinator.m ([EOObjectStoreCoordinator
+	-objectStoreForGlobalID:]), ([EOObjectStoreCoordinator
+	-objectStoreForObject:]), ([EOObjectStoreCoordinator
+	-objectStoreForFetchSpecification:]): bug fix: changed notification
+	object.
+
+

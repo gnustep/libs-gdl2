@@ -1,0 +1,49 @@
+# -*-makefile-*-
+#  gdl2.make
+#
+#  Makefile include segment which handles linking to the GNUstep
+#  Database Library; requires the GNUstep makefile package.
+#  
+#  Copyright (C) 2002 Free Software Foundation, Inc.
+#
+#  Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+#
+#  This file is part of the GNUstep Database Library.
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Library General Public
+#  License as published by the Free Software Foundation; either
+#  version 2 of the License, or (at your option) any later version.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+#  Library General Public License for more details.
+#
+#  You should have received a copy of the GNU Library General Public
+#  License along with this library; if not, write to the Free
+#  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+
+# Don't reload if already loaded
+ifneq ($(GDL2_LOADED),yes)
+GDL2_LOADED=yes
+
+GDL2_VERSION = @VERSION@
+GDL2_MAJOR_VERSION = @MAJOR_VERSION@
+GDL2_MINOR_VERSION = @MINOR_VERSION@
+GDL2_SUBMINOR_VERSION = @SUBMINOR_VERSION@
+
+
+# Nothing special just include the library
+ifeq ($(debug), yes)
+	AUXILIARY_TOOL_LIBS += -lgnustep-db2_d -lgnustep-db2control_d
+else
+	AUXILIARY_TOOL_LIBS += -lgnustep-db2 -lgnustep-db2control
+endif
+
+
+# We depend upon the Foundation Extensions Library
+include $(GNUSTEP_MAKEFILES)/extensions.make
+
+endif

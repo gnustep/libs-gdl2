@@ -1,0 +1,4 @@
+{
+    NSPrincipalClass = Postgres95Adaptor;
+    NSExecutable = Postgres95;
+}
