@@ -59,6 +59,8 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #endif
 
+#include <GNUstepBase/GSLock.h>
+
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EOKeyValueCoding.h>
 #include <EOControl/EONull.h>
