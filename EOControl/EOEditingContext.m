@@ -37,6 +37,10 @@ RCS_ID("$Id$")
 //TODO EOMultiReaderLocks 
 #include <Foundation/Foundation.h>
 
+#ifndef GNUSTEP
+#include <gnustep/base/GNUstep.h>
+#endif
+
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EOObjectStoreCoordinator.h>
 #include <EOControl/EOGlobalID.h>

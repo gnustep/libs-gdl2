@@ -1,3 +1,7 @@
+2003-07-11  David Ayers  <d.ayers@inode.at>
+
+	* *.m: Include GNUstep.h if GNUSTEP is not defined for OS X.
+
 2003-06-26  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* config.h.in: 
 		o added EMIT_TODO control	

@@ -35,7 +35,27 @@
 
 RCS_ID("$Id$")
 
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSDecimalNumber.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSSet.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSData.h>
+#include <Foundation/NSCalendarDate.h>
+#include <Foundation/NSFileManager.h>
+#include <Foundation/NSFileHandle.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSAutoreleasePool.h>
+#else
 #include <Foundation/Foundation.h>
+#endif
+
+#ifndef GNUSTEP
+#include <gnustep/base/GNUstep.h>
+#endif
+
 #include <EOControl/EOControl.h>
 #include <EOAccess/EOAccess.h>
 

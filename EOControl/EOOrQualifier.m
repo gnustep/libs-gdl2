@@ -43,6 +43,10 @@ RCS_ID("$Id$")
 #include <Foundation/NSDebug.h>
 #else
 #include <Foundation/Foundation.h>
+#endif
+
+#ifndef GNUSTEP
+#include <gnustep/base/GNUstep.h>
 #include <gnustep/base/GSObjCRuntime.h>
 #endif
 

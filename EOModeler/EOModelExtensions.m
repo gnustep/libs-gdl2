@@ -26,6 +26,10 @@
 
 #include "config.h"
 
+#ifndef GNUSTEP
+#include <gnustep/base/GNUstep.h>
+#endif
+
 #include <EOModeler/EOModelExtensions.h>
 #include <EOControl/EODebug.h>
 

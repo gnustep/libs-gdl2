@@ -1,5 +1,5 @@
 #
-#  eoaccess makefile for GNUstep Database Library.
+#  EOControl makefile for GNUstep Database Library.
 #  
 #  Copyright (C) 1997 Free Software Foundation, Inc.
 #

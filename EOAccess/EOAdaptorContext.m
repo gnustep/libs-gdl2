@@ -46,6 +46,10 @@ RCS_ID("$Id$")
 #include <Foundation/Foundation.h>
 #endif
 
+#ifndef GNUSTEP
+#include <gnustep/base/GNUstep.h>
+#endif
+
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOAdaptor.h>

@@ -58,8 +58,7 @@ ADDITIONAL_LIB_DIRS =
 #
 
 # Additional directories to be created during installation
-ADDITIONAL_INSTALL_DIRS = \
-   $(GNUSTEP_HEADERS)/$(GNUSTEP_FND_DIR)/eoaccess/exceptions
+ADDITIONAL_INSTALL_DIRS = 
 
 
 # What are the libraries this library depends upon. This is needed for some

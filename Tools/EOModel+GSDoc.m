@@ -34,12 +34,22 @@
 
 RCS_ID("$Id$")
 
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation>
+#endif
+
+
+#ifndef GNUSTEP
+#include <gnustep/base/GNUstep.h>
+#endif
+
 #include <EOAccess/EOAccess.h>
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
-#include <Foundation/Foundation.h>
-#include <Foundation/NSAutoreleasePool.h>
-#include <Foundation/NSDebug.h>
+
 #include "NSArray+GSDoc.h"
 #include "NSDictionary+GSDoc.h"
 #include "EOEntity+GSDoc.h"
