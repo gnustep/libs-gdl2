@@ -142,7 +142,7 @@ GDL2GlobalRecursiveLock()
 
               object = [array objectAtIndex: i];
               result = [self performSelector: sel
-			     withObject: object];
+			     withObject: (id)object];
               if (!result)
                 result = defaultResult;
 

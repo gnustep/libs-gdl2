@@ -43,6 +43,7 @@
 #include <EOControl/EOFault.h>
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EODataSource.h>
+#include <EOControl/EOArrayDataSource.h>
 #include <EOControl/EODetailDataSource.h>
 #include <EOControl/EOObserver.h>
 #include <EOControl/EODebug.h>

@@ -125,7 +125,25 @@ static id classDelegate = nil;
 
 + (id)classDelegate
 {
-    return classDelegate;
+  id      delegate;
+  NSLock *lock = GDL2GlobalLock();
+
+  if (lock == nil)
+    {
+      delegate = classDelegate;
+    }
+  else
+    {
+      [lock lock];
+      delegate = classDelegate;
+      if (delegate != nil)
+	{
+	  AUTORELEASE(RETAIN(delegate));
+	}
+      [lock unlock];
+    }
+
+  return delegate;
 }
 
 + (EOClassDescription *)classDescriptionForClass:(Class)aClass
@@ -372,9 +390,9 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
   NSDebugMLLog(@"gsdb",@"object %p=%@", object, object);
 
-  classDelegate = [EOClassDescription classDelegate];
+  classDelegate = [[self class] classDelegate];
 
-  NSDebugMLLog(@"gsdb", @"[EOClassDescription classDelegate]%p=%@",
+  NSDebugMLLog(@"gsdb", @"classDelegate%p=%@",
                classDelegate,
                classDelegate);
 
@@ -398,7 +416,8 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
       if (shouldPropagate)
 	{
 	  destination = [object storedValueForKey: key];
-          NSDebugMLLog(@"gsdb", @"destination %p=%@", destination, destination);
+          NSDebugMLLog(@"gsdb", @"destination %p=%@",
+		       destination, destination);
 
 	  if (destination)
 	    {

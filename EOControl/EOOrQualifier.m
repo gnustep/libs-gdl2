@@ -43,6 +43,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSDebug.h>
 #else
 #include <Foundation/Foundation.h>
+#include <gnustep/base/GSObjCRuntime.h>
 #endif
 
 #include <EOControl/EOQualifier.h>
@@ -67,18 +68,11 @@ RCS_ID("$Id$")
  */
 + (EOQualifier *) qualifierWithQualifiers: (EOQualifier *)qualifiers, ...
 {
-  NSMutableArray *qualArray = [NSMutableArray array];
-  EOQualifier *tmpId;
-  va_list ap;
+  NSArray *qualArray;
 
-  va_start(ap, qualifiers);
-
-  for (tmpId = qualifiers; tmpId != nil; tmpId = va_arg(ap, id))
-    {
-      [qualArray addObject: tmpId];
-    }
-
-  va_end(ap);
+  GS_USEIDLIST(qualifiers, qualArray
+	       = AUTORELEASE([[NSArray alloc] initWithObjects: __objects
+					      count: __count]));
 
   return AUTORELEASE([[self alloc] initWithQualifierArray: qualArray]);
 }
@@ -90,18 +84,11 @@ RCS_ID("$Id$")
  */
 - (id) initWithQualifiers: (EOQualifier *)qualifiers, ...
 {
-  NSMutableArray *qualArray = [NSMutableArray array];
-  EOQualifier *tmpId;
-  va_list ap;
+  NSArray *qualArray;
 
-  va_start(ap, qualifiers);
-
-  for (tmpId = qualifiers; tmpId != nil; tmpId = va_arg(ap, id))
-    {
-      [qualArray addObject: tmpId];
-    }
-
-  va_end(ap);
+  GS_USEIDLIST(qualifiers, qualArray
+	       = AUTORELEASE([[NSArray alloc] initWithObjects: __objects
+					      count: __count]));
 
   return [self initWithQualifierArray: qualArray];
 }

@@ -50,6 +50,22 @@ RCS_ID("$Id$")
 
 @class EOEntityClassDescription;
 
+/*
+ * These EOAccess specific declarations are intended to
+ * supress long compiler warnings.  Non the less we should
+ * avoid dependancies on EOAccess.
+ */
+@interface NSObject(EOEntityWarningSupression)
+- (NSString *) name;
+- (EOGlobalID *) globalIDForRow:(NSDictionary *)row;
+@end
+@interface EOEntityClassDescription : EOClassDescription
+- (NSObject *) entity;
+@end
+
+@interface EOEditingContext(EOEditingContextPrivate)
+- (void) _observeUndoManagerNotifications;
+@end
 
 @implementation EOEditingContext
 

@@ -35,7 +35,6 @@
 
 #include <EOControl/EOKeyValueArchiver.h>
 
-
 @class NSArray;
 @class NSDictionary;
 @class NSString;

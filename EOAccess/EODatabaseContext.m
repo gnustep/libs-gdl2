@@ -599,7 +599,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   _delegateRespondsTo.shouldFetchArrayFault = 
     [delegate respondsToSelector: @selector(databaseContext:shouldFetchArrayFault:)];
 
-  while ((channel == [channelsEnum nextObject]))
+  while ((channel = [channelsEnum nextObject]))
     [channel setDelegate: delegate];
 }
 

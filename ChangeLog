@@ -16,6 +16,30 @@
 	* EOAccess/EOSQLExpression.m: Import GSCategories.h only for
 	NeXT_Foundation_Library.
 	* EOControl/EOKeyValueCoding.m: Ditto.
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext -setDelegate:]):
+	Fixed assignment in while loop as reported by Stephane Corthesy.
+	* EOControl/EOAndQualifier.m
+	([EOAndQualifier +qualifierWithQualifiers:]),
+	([EOAndQualifier -initWithQualifiers:]): Use GS_USEIDLIST to
+	optimize vararg list to array conversion.
+	* EOControl/EOOrQualifier.m
+	([EOOrQualifier +qualifierWithQualifiers:]),
+	([EOOrQualifier -initWithQualifiers:]): Ditto.
+	* EOControl/EOClassDescription.m
+	([EOClassDescription +classDelegate]): Make access to static
+	variable thread safe.
+	* EOControl/EOEdtitingContext.m: Added declarations to avoid
+	compiler warnings.
+
+2003-05-02  Stephane Corthesy  <stephane@sente.ch>
+
+	* EOControl/EOControl.h: Added inclusion of EOArrayDataSource.h.
+	* EOControl/EOEdtitingContext.m: Added declaration of
+	+[EOEditingContext(EOEditingContextPrivate)
+	_observeUndoManagerNotifications] to avoid compiler warnings.
+	* EOControl/EONSAddOns.m ([NSObject
+	-resultsOfPerformingSelector:withEachObjectInArray:defaultResult:]):
+	Added cast to avoid compiler warning.
 
 2003-04-18  Mirko Viviani  <mirko@objectlab.org>
 
