@@ -280,7 +280,7 @@ RCS_ID("$Id$")
 #endif
 }
 
-- (id) shallowCopy
+- (NSArray *)shallowCopy
 {
 #ifdef DEBUG
   NSDebugFLog(@"Start shallowCopy EOCheapCopyMutableArray %p. %@ immutableCopy=%p",

@@ -71,7 +71,7 @@
 		count: (unsigned int)count;
 - (id)initWithArray: (NSArray *)array;
 - (void)dealloc;
-- (id)shallowCopy;
+- (NSArray *)shallowCopy;
 - (void)_setCopy: (id)param0;
 - (void)_mutate;
 - (unsigned int)count;

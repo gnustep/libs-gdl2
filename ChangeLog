@@ -5,6 +5,7 @@
 	* EOControl/EOCheapArray.h/m (-initWithArray:): Correct signature
 	and only initialize instance variable if call to super init was
 	successfull.
+	(-shallowCopy): Correct signature.
 	
 2005-02-13  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOControl/EOClassDescription.m:
