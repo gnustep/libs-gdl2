@@ -7,6 +7,12 @@
 	Remove.
 	* EOControl/EOPriv.h/m (GDL2_shellPatternCharacterSet): Remove.
 	(GDL2PrivInit): Remove usage of GDL2_shellPatternCharacterSet.
+
+	* EOControl/EOMutableKnownKeyDictionary.m
+	([EOMKKDInitializer-arrayMappingForKeys:]): Correct call to
+	GDL2ObjectAtIndexWithImp.
+	([EOMKKDInitializer-subsetMappingForSourceDictionaryInitializer:
+	sourceKeys:destinationKeys:]): Ditto.
 	
 2005-02-15  David Ayers  <d.ayers@inode.at>
 
