@@ -82,6 +82,14 @@ static id classDelegate = nil;
   classDescriptionForEntity = NSCreateMapTable(NSObjectMapKeyCallBacks, 
 					       NSObjectMapValueCallBacks,
 					       32);
+
+  if (self == [EOClassDescription class])
+    {
+      Class cls = NSClassFromString(@"EOModelGroup");
+
+      if (cls != Nil)
+	[cls defaultGroup]; // Insure correct initialization.
+    }
 }
 
 
