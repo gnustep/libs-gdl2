@@ -41,7 +41,7 @@
 - (void)setCreateMutableObjects: (BOOL)flag;
 - (BOOL)createsMutableObjects;
 
-- (void)setModel: (EOModel *)model;
+- (void)_setModel: (EOModel *)model;
 - (void)setParentEntity: (EOEntity *)parent;
 
 -(Class)_classForInstances;

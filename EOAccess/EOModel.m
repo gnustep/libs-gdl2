@@ -1361,7 +1361,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   [self _setEntity: entity
         forEntityName: [entity name]
         className: entityClassName];
-  [entity setModel: self];
+  [entity _setModel: self];
 
   return entity;
 }
@@ -1438,13 +1438,13 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 //  int count;
   NSString *className = nil;
 
-  if ([self entityNamed: [entity name]])
-    [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: \"%@\" already registered as entity name ",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self,
-                 entityName];
+  NSAssert1([self entityNamed: [entity name]] == nil,
+	    @"Entity '%@' already registered as with this model",
+	    entityName);
+
+  NSAssert2([entity model]==nil,
+	    @"Entity '%@' is already owned by model '%@'.",
+	    [entity name], [[entity model] name]);
 
   /* Do not access _entities until cache is triggered */
   if ([self createsMutableObjects])
@@ -1469,14 +1469,14 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
   [_entitiesByName setObject: entity 
                    forKey: entityName];
-  [entity setModel: self];
+  [entity _setModel: self];
 }
 
 - (void) removeEntity: (EOEntity *)entity
 {
   NSString *className = nil;
 
-  [entity setModel: nil];
+  [entity _setModel: nil];
   [_entitiesByName removeObjectForKey: [entity name]];
 
   NSAssert(_entitiesByClass, @"No _entitiesByClass");

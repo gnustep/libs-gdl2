@@ -1926,24 +1926,22 @@ createInstanceWithEditingContext:globalID:zone:
 {
   NSString *attributeName = [attribute name];
 
-  if ([[self attributesByName] objectForKey: attributeName])
-    {
-      [NSException raise: NSInvalidArgumentException
-	format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
-	NSStringFromSelector(_cmd),
-	NSStringFromClass([self class]),
-	self,
-	attributeName];
-     } 
-  if ([[self relationshipsByName] objectForKey: attributeName])
-    {
-      [NSException raise: NSInvalidArgumentException format:
-	@"%@ -- %@ 0x%x: \"%@\" already used in the model as  relationship",
-	NSStringFromSelector(_cmd),
-	NSStringFromClass([self class]),
-	self,
-	attributeName];
-    }
+  NSAssert2([[self attributesByName] objectForKey: attributeName] == nil,
+	    @"'%@': attribute '%@' already used in the entity",
+	    [self name],
+	    attributeName);
+
+  NSAssert2([[self relationshipsByName] objectForKey: attributeName] == nil,
+	    @"'%@': attribute '%@' already used in entity as relationship",
+	    [self name],
+	    attributeName);
+
+  NSAssert4([attribute parent] == nil,
+	    @"'%@': attribute '%@' already owned by '%@' '%@'",
+	    [self name],
+	    attributeName,
+	    NSStringFromClass([[attribute parent] class]),
+	    [(EOEntity *)[attribute parent] name]);
   
   if ([self createsMutableObjects])
     [(GCMutableArray *)_attributes addObject: attribute];
@@ -2464,7 +2462,7 @@ createInstanceWithEditingContext:globalID:zone:
   return _flags.createsMutableObjects;
 }
 
-- (void)setModel: (EOModel *)model
+- (void)_setModel: (EOModel *)model
 {
   EOFLOGObjectLevelArgs(@"EOEntity", @"setModel=%p", model);
 
@@ -2475,6 +2473,10 @@ createInstanceWithEditingContext:globalID:zone:
             _attributesToFetch,
             [_attributesToFetch class],
             _attributesToFetch);
+
+  NSAssert3((_model == nil || _model == model),
+	    @"Attempt to set entity: %@ owned by model: %@ to model: @%.",
+	    [self name], [_model name], [model name]);
 
   _model = model;
 }

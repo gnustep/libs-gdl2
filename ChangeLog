@@ -1,3 +1,21 @@
+2004-09-08  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAttribute.m (-[copyWithZone:]): Override
+	implementation of GCObject as it isn't safe to copy EOAttributes.
+	* EOAccess/EOEntity.m (-[addAttribute:]); Use NSAsserts to check
+	integrity of parameters.  Insure that attribute is not used by
+	other entity or stored procedure.
+	(-[_setModel:]): Rename from -setModel:.  Assert that entity is
+	not used by another model.
+	* EOAccess/EOEntityPriv.h (-[_setModel:]): Rename from
+	-setModel:.
+	* EOAccess/EOModel.m (-[_addEntity:]): Use -_setModel: instead of
+	-setModel:.
+	(-[removeEntity:]): Ditto.
+	(-[addEntity:)): Use NSAssert to insure that entity name is unique
+	and that the entity is not being used by other mode.  Use
+	-_setModel: instead of -setModel:.
+	
 2004-09-07  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAttribute.h

@@ -461,6 +461,14 @@ static Class NSCalendarDateClass;
 
   return dscr;
 }
+
+/* We override GCObjects default implementation
+   as attributes cannot be copied */
+- (id)copyWithZone:(NSZone *)zone
+{
+  [self notImplemented: _cmd];
+  return nil;
+}
  
 - (EOEntity *)entity
 {
