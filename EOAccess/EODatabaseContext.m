@@ -130,7 +130,7 @@ static Class _contextClass = Nil;
 
 + (EODatabaseContext*)databaseContextWithDatabase: (EODatabase *)database
 {
-  return [[[self alloc] initWithDatabase: database] autorelease];
+  return AUTORELEASE([[self alloc] initWithDatabase: database]);
 }
 
 + (void)_registerDatabaseContext:(NSNotification *)notification
@@ -202,7 +202,7 @@ static Class _contextClass = Nil;
       if (_adaptorContext == nil)
         {
           NSLog(@"EODatabaseContext could not create adaptor context");
-          [self autorelease];
+          AUTORELEASE(self);
 
           return nil;
         }
@@ -241,14 +241,10 @@ static Class _contextClass = Nil;
       _toManySnapshots = [NSMutableDictionary new];
 */
       
-      
-      
-      
 //NO      _lock = [NSRecursiveLock new];
       
 //NO      _numLocked = 0;
 //After      _lockedObjects = NSZoneMalloc(NULL, _LOCK_BUFFER*sizeof(id));
-      
       
       
       /* //TODO ?
@@ -289,7 +285,8 @@ static Class _contextClass = Nil;
 
   if (_dbOperationsByGlobalID)
     {
-      NSDebugMLog(@"MEMORY: dbOperationsByGlobalID count=%u",NSCountMapTable(_dbOperationsByGlobalID));
+      NSDebugMLog(@"MEMORY: dbOperationsByGlobalID count=%u",
+		  NSCountMapTable(_dbOperationsByGlobalID));
       NSFreeMapTable(_dbOperationsByGlobalID);
       _dbOperationsByGlobalID = NULL;
     }
@@ -310,8 +307,8 @@ static Class _contextClass = Nil;
 
   if (_nonPrimaryKeyGenerators)
     {
-      NSDebugMLog(@"MEMORY: dbOperationsByGlobalID count=%u",
-		  NSCountMapTable(_dbOperationsByGlobalID));
+      NSDebugMLog(@"MEMORY: nonPrimaryKeyGnerators count=%u",
+		  NSCountMapTable(_nonPrimaryKeyGenerators));
 
       NSFreeHashTable(_nonPrimaryKeyGenerators);
       _nonPrimaryKeyGenerators = NULL;
@@ -613,8 +610,8 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   
   for (i = [_registeredChannels count] - 1; i >= 0; i--)
     {
-      [(EODatabaseChannel *)[[_registeredChannels objectAtIndex: i]
-			      nonretainedObjectValue] release];
+      RELEASE((EODatabaseChannel *)[[_registeredChannels objectAtIndex: i]
+			      nonretainedObjectValue]);
     }
 
   DESTROY(_registeredChannels);
@@ -1342,7 +1339,7 @@ userInfo = {
          {
          EOFetchSpecification *fetchSubEntity;
 
-         fetchSubEntity = [[fetch copy] autorelease];
+         fetchSubEntity = AUTORELEASE([fetch copy]);
          [fetchSubEntity setEntityName:[entity name]];
 
          [array addObjectsFromArray:[context objectsWithFetchSpecification:
@@ -1529,7 +1526,7 @@ userInfo = {
 
 		    RETAIN(localException);
 		    DESTROY(arp);
-		    [localException autorelease];
+		    AUTORELEASE(localException);
 		    [localException raise];
 		  }
 		NS_ENDHANDLER;
@@ -1855,7 +1852,7 @@ userInfo = {
 
                       RETAIN(localException);
                       DESTROY(arp);
-                      [localException autorelease];
+                      AUTORELEASE(localException);
                       [localException raise];
                     }
                   NS_ENDHANDLER;
@@ -2105,7 +2102,7 @@ userInfo = {
   else
     return NO;
 }
-/*//Mirko:
+/* //Mirko:
 - (EODatabaseOperation *)_dbOperationWithObject:object
 				       operator:(EODatabaseOperator)operator
 {
@@ -2170,11 +2167,11 @@ forDatabaseOperation:(EODatabaseOperation *)op
     return op;
 
   if (globalID == nil)
-    globalID = [[[EOTemporaryGlobalID alloc] init] autorelease];
+    globalID = AUTORELEASE([[EOTemporaryGlobalID alloc] init]);
 
-  op = [[[EODatabaseOperation alloc] initWithGlobalID:globalID
-				     object:object
-				     entity:entity] autorelease];
+  op = AUTORELEASE([[EODatabaseOperation alloc] initWithGlobalID:globalID
+						object:object
+						entity:entity]);
 
   [op setDatabaseOperator:operator];
   [op setDBSnapshot:[self snapshotForGlobalID:globalID]];
@@ -2768,9 +2765,9 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
 		      id toManyObj;
 
 		      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"rel 1 sourceGID=%@", gid);
-		      toManySnapshot = [[[self snapshotForSourceGlobalID:gid
-					       relationshipName:name]
-					  mutableCopy] autorelease];
+		      toManySnapshot = AUTORRELEASE([[self snapshotForSourceGlobalID:gid
+		                                           relationshipName:name]
+		                                      mutableCopy]);
 		      if (toManySnapshot == nil)
 			toManySnapshot = [NSMutableArray array];
 		      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"rel 1", name);
@@ -3495,7 +3492,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 				     _LOCK_BUFFER*sizeof(id));
 
       NSResetMapTable(_dbOperationsByGlobalID);
-/*//TODO
+/* //TODO
       [_snapshots removeAllObjects];
       [_toManySnapshots removeAllObjects];
 */
@@ -3760,8 +3757,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       if (foreignKeyInDestination || [relationship propagatesPrimaryKey])
         {
-          relayedValues = [[[sourceNewRow valuesForKeys: sourceKeys]
-			     mutableCopy] autorelease];// {code = 0; }
+          relayedValues = AUTORELEASE([[sourceNewRow valuesForKeys: sourceKeys]
+			     mutableCopy]);// {code = 0; }
           EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relayedValues=%@",
 				relayedValues);
 
@@ -3885,9 +3882,9 @@ Raises an exception is the adaptor is unable to perform the operations.
 			  inverse = [property inverseRelationship];
 			  if (inverse)
 			    {
-			      toManySnapshot = [[[self snapshotForSourceGlobalID:gid
+			      toManySnapshot = AUTORELEASE([[self snapshotForSourceGlobalID:gid
 						       relationshipName:[inverse name]]
-						  mutableCopy] autorelease];
+						  mutableCopy]);
 			      if (toManySnapshot == nil)
 				toManySnapshot = [NSMutableArray array];
 
@@ -4159,7 +4156,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
            [databaseOpe setNewRow: newRow];
            [self recordDatabaseOperation: databaseOpe];
-           [newRow release];
+           RELEASE(newRow);
          }
     }
   NS_HANDLER
@@ -4513,15 +4510,14 @@ Raises an exception is the adaptor is unable to perform the operations.
               }
             EOFLOGObjectLevelArgs(@"EODatabaseContext",@"lock stop2");
             
-            qualifier = [[[EOAndQualifier alloc]
+            qualifier = AUTORELEASE([[EOAndQualifier alloc]
                            initWithQualifiers:
                              [entity qualifierForPrimaryKey:
                                        [entity primaryKeyForGlobalID:
                                                  (EOKeyGlobalID *)gid]],
                            [EOQualifier qualifierToMatchAllValues:
                                           qualifierSnapshot],
-                           nil]
-                          autorelease];
+                           nil]);
 
                           if ([lockAttributes count] == 0)
                           lockAttributes = nil;
@@ -4579,12 +4575,10 @@ Raises an exception is the adaptor is unable to perform the operations.
           adaptorOperator = EOAdaptorDeleteOperator;
           /*
             MIRKO
-            NSMutableArray *newKeys = [[[NSMutableArray alloc]
-            initWithCapacity:count]
-            autorelease];
-            NSMutableArray *newVals = [[[NSMutableArray alloc]
-            initWithCapacity:count]
-            autorelease];
+            NSMutableArray *newKeys = AUTORELEASE([[NSMutableArray alloc]
+            initWithCapacity:count]);
+            NSMutableArray *newVals = AUTORELEASE([[NSMutableArray alloc]
+            initWithCapacity:count]);
             
             if ([entity isReadOnly] == YES)
             {
@@ -5475,7 +5469,7 @@ Raises an exception is the adaptor is unable to perform the operations.
          [handler faultWillFire:object];
          targetClass=[handler targetClass];
          extraData=[handler extraData];
-         [handler release];
+         RELEASE(handler);
       */
       EOFLOGObjectLevelArgs(@"EODatabaseContext",
 			    @"NEAR FINISHED 1 object count=%d %p %@",
@@ -5683,7 +5677,7 @@ Raises an exception is the adaptor is unable to perform the operations.
         previousHandler = (EOAccessFaultHandler *)[handler previous];
         nextHandler = (EOAccessFaultHandler *)[handler next]; //nil
 
-        fetchSpecif = [[EOFetchSpecification new] autorelease];
+        fetchSpecif = AUTORELEASE([EOFetchSpecification new]);
         [fetchSpecif setEntityName: entityName];
 
         qualifier = [EOOrQualifier qualifierWithQualifierArray: qualifiers];
@@ -5785,8 +5779,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 						[usedHandler globalID]]]];
 	}
 
-      qualifier = [[[EOOrQualifier alloc]
-		     initWithQualifierArray:qualifierArray] autorelease];
+      qualifier = AUTORELEASE([[EOOrQualifier alloc]
+		     initWithQualifierArray:qualifierArray]);
     }
 
   if (firstHandler == nil)
@@ -6403,12 +6397,11 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if ([_uniqueStack count] > 0)
     {
-      NSMutableDictionary *snapshotsDict = [RETAIN([_uniqueStack lastObject]) autorelease];
-      NSMutableDictionary *toManySnapshotsDict = [RETAIN([_uniqueArrayStack
-							   lastObject])
-							autorelease];
-      /*NSMutableDictionary *deleteSnapshotsDict = [[[_deleteStack lastObject]
-	retain] autorelease];*/ //??
+      NSMutableDictionary *snapshotsDict = AUTORELEASE(RETAIN([_uniqueStack lastObject]));
+      NSMutableDictionary *toManySnapshotsDict = AUTORELEASE(RETAIN([_uniqueArrayStack
+								      lastObject]));
+      /*NSMutableDictionary *deleteSnapshotsDict 
+	= AUTORELEASE(RETAIN([_deleteStack lastObject]));*/ //??
 
       [_uniqueStack removeLastObject];
       [_uniqueArrayStack removeLastObject];

@@ -1,3 +1,29 @@
+2003-08-05  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EODatabaseContext.m
+	([EODatabaseContext -dealloc]): Corrected debug logs. 
+	([EODatabaseContext +databaseContextWithDatabase:]): Use
+	AUTORELEASE instead of autorelease.
+	([EODatabaseContext -initWithDatabase:]): Ditto.
+	([EODatabaseContext
+	-objectsWithFetchSpecification:editingContext:]): Ditto.
+	([EODatabaseContext
+	-_dbOperationWithGlobalID:object:entity:operator:]): Ditto.
+	([EODatabaseContext -recordChangesInEditingContext]): Ditto.
+	([EODatabaseContext
+	-relayAttributesInRelationship:sourceObject:destinationObject:]):
+	Ditto.
+	([EODatabaseContext
+	-createAdaptorOperationsForDatabaseOperation:attributes:]):
+	Ditto. 
+	([EODatabaseContext -_fireFault:]): Ditto.
+	([EODatabaseContext -_batchToOne:withHandler:]): Ditto.
+	([EODatabaseContext -_commitTransaction]): Ditto.
+	([EODatabaseContext -handleDroppedConnection]): Use
+	RELEASE instead of release.
+	([EODatabaseContext -databaseOperationForObject:]): Ditto.
+	([EODatabaseContext -_fireArrayFault:]): Ditto.
+	
 2003-05-05  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOEntity.m: Replaced autorelease with AUTORELEASE.
