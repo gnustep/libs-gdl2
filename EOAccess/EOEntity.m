@@ -1874,14 +1874,21 @@ createInstanceWithEditingContext:globalID:zone:
 
 - (void)setName: (NSString *)name
 {
-  if ([_model entityNamed: name])
-    [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self,
-                 name];
+  if (name && [name isEqual: _name]) return;
 
+  if (name 
+      && [name isEqual: _name] == NO 
+      && [_model entityNamed: name] != nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+		   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+		   NSStringFromSelector(_cmd),
+		   NSStringFromClass([self class]),
+		   self,
+		   name];
+    }
+
+  [self willChange];
   ASSIGNCOPY(_name, name);
   [_model _updateCache];
 }

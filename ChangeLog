@@ -18,6 +18,9 @@
 	(-[EOObserverProxy initWithTarget:action:priority:]): Implement.
 	(-[EOObserverProxy dealloc],-[EOObserverProxy priority])
 	(-[EOObserverProxy subjectChanged]): Ditto.
+
+	* EOAccess/EOEntity.m (-[setName:]): Skip the uniqueing if the
+	name is the same.
 	
 2004-09-25  David Ayers  <d.ayers@inode.at>
 
