@@ -95,26 +95,28 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSAllLibrariesDirectory, NSAllDomainsMask, YES);
 
   tmpModelName = [modelName lastPathComponent];
-  NSDebugMLLog(@"gsdb", @"modelName=%@ tmpModelName=%@",
-	       modelName, tmpModelName);
+  EOFLOGClassLevelArgs(@"gsdb", @"modelName=%@ tmpModelName=%@",
+		       modelName, tmpModelName);
 
   tmpPath = [[modelName stringByStandardizingPath]
               stringByDeletingLastPathComponent]; 
-  NSDebugMLLog(@"gsdb", @"modelName=%@ tmpPath=%@", modelName, tmpPath);
+  EOFLOGClassLevelArgs(@"gsdb", @"modelName=%@ tmpPath=%@",
+			modelName, tmpPath);
 
   bundle = [NSBundle mainBundle];
   modelPath = [bundle pathForResource: modelName
                       ofType: @"eomodel"];
 
-  NSDebugMLLog(@"gsdb", @"modelName=%@ modelPath=%@", modelName, modelPath);
+  EOFLOGClassLevelArgs(@"gsdb", @"modelName=%@ modelPath=%@",
+			modelName, modelPath);
 
   if (!modelPath)
     {
       modelPath = [bundle pathForResource: modelName
                           ofType: @"eomodeld"];
 
-      NSDebugMLLog(@"gsdb", @"modelName=%@ modelPath=%@",
-		   modelName, modelPath);
+      EOFLOGClassLevelArgs(@"gsdb", @"modelName=%@ modelPath=%@",
+			    modelName, modelPath);
 
       if (!modelPath)
         {
@@ -127,23 +129,24 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
           if ([[tmpModelName pathExtension] length] != 0)
             tmpModelName = [tmpModelName stringByDeletingPathExtension]; 
           
-          NSDebugMLLog(@"gsdb", @"modelName=%@ tmpPath=%@ tmpModelName=%@",
-		       modelName, tmpPath, tmpModelName);
+          EOFLOGClassLevelArgs(@"gsdb",
+				@"modelName=%@ tmpPath=%@ tmpModelName=%@",
+				modelName, tmpPath, tmpModelName);
 
           bundle = [NSBundle bundleWithPath: tmpPath];
           
           modelPath = [bundle pathForResource: tmpModelName
                               ofType: @"eomodel"];
 
-          NSDebugMLLog(@"gsdb", @"modelName=%@ modelPath=%@",
-		       modelName, modelPath);
+          EOFLOGClassLevelArgs(@"gsdb", @"modelName=%@ modelPath=%@",
+				modelName, modelPath);
 
           if (!modelPath)
             {          
               modelPath = [bundle pathForResource: tmpModelName
                                   ofType: @"eomodeld"];
-              NSDebugMLLog(@"gsdb", @"modelName=%@ modelPath=%@",
-			   modelName, modelPath);
+              EOFLOGClassLevelArgs(@"gsdb", @"modelName=%@ modelPath=%@",
+				    modelName, modelPath);
 
               if (!modelPath)
                 {
@@ -151,23 +154,26 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
                   for (i = 0; !modelPath && pathCount < i; i++)
                     {
-                      NSDebugMLLog(@"gsdb", @"Trying path:%@", [paths objectAtIndex:i]);
+                      EOFLOGClassLevelArgs(@"gsdb", @"Trying path:%@",
+					    [paths objectAtIndex:i]);
 
                       bundle = [NSBundle bundleWithPath: [paths objectAtIndex:i]];
                       
                       modelPath = [bundle pathForResource: modelName
                                           ofType: @"eomodel"];
 
-                      NSDebugMLLog(@"gsdb", @"modelName=%@ modelPath=%@",
-				   modelName, modelPath);
+                      EOFLOGClassLevelArgs(@"gsdb",
+					    @"modelName=%@ modelPath=%@",
+					    modelName, modelPath);
 
                       if (!modelPath)
                         {
                           modelPath = [bundle pathForResource: modelName
                                               ofType: @"eomodeld"];
 
-                          NSDebugMLLog(@"gsdb", @"modelName=%@ modelPath=%@",
-				       modelName, modelPath);
+                          EOFLOGClassLevelArgs(@"gsdb",
+						@"modelName=%@ modelPath=%@",
+						modelName, modelPath);
                         }
                     }
                 }
@@ -382,13 +388,14 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       NSArray *storedProcedures = nil;
       NSArray *storedProcedureNames = [self storedProcedureNames];
 
-      NSDebugMLLog(@"gsdb", @"storedProcedureNames=%@", storedProcedureNames);
+      EOFLOGObjectLevelArgs(@"gsdb", @"storedProcedureNames=%@",
+			    storedProcedureNames);
 
       storedProcedures = [self resultsOfPerformingSelector:
 				 @selector(storedProcedureNamed:)
 			       withEachObjectInArray: storedProcedureNames];
 
-      NSDebugMLLog(@"gsdb", @"storedProcedures=%@", storedProcedures);
+      EOFLOGObjectLevelArgs(@"gsdb", @"storedProcedures=%@", storedProcedures);
 
       ASSIGN(_storedProcedures, [GCArray arrayWithArray:storedProcedures]);
 /*      [self performSelector:@selector(storedProcedureNamed:)
@@ -440,7 +447,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSMutableDictionary *descdict;
   id obj;
 
-  descdict = [[NSMutableDictionary alloc] initWithCapacity: 6];
+  descdict = [NSMutableDictionary dictionaryWithCapacity: 6];
   obj = [self name];
   if (obj) [descdict setObject: obj forKey: @"name"];
   obj = [self adaptorName];
@@ -455,7 +462,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   if (obj) [descdict setObject: obj forKey: @"storedProcedures"];
 
   obj = [descdict description];
-  RELEASE(descdict);
   return obj;
 }
 
@@ -513,7 +519,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
       fileContents = [NSString stringWithContentsOfFile: indexPath];
       propList = [fileContents propertyList];
-      NSDebugMLLog(@"gsdb", @"propList=%@", propList);
+      EOFLOGObjectLevelArgs(@"gsdb", @"propList=%@", propList);
       NSAssert1(propList!=nil, @"Model at path %@ is invalid", indexPath);
 
       self = [self initWithTableOfContentsPropertyList: propList
@@ -593,11 +599,12 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
           NSArray  *entities = nil;
           int i, count = 0;
 
-          NSDebugMLLog(@"gsdb", @"tableOfContents=%@", tableOfContents);
+          EOFLOGObjectLevelArgs(@"gsdb", @"tableOfContents=%@",
+				tableOfContents);
 
 	  /* The call to _setPath: also sets the name implicitly. */
           [self _setPath: [isa _formatModelPath: path checkFileSystem: YES]];
-          NSDebugMLLog(@"gsdb", @"name=%@ path=%@", _name, _path);
+          EOFLOGObjectLevelArgs(@"gsdb", @"name=%@ path=%@", _name, _path);
 
           versionString = [tableOfContents objectForKey: @"EOModelVersion"];
           if (versionString)
@@ -704,7 +711,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   if (_docComment)
     [propertyList setObject: _docComment forKey: @"docComment"];
 
-  count = [_entities count];
+  /* Do not access _entities until cache is triggered */
+  count = [[self entities] count];
   entitiesArray = [NSMutableArray arrayWithCapacity: count];
   [propertyList setObject: entitiesArray forKey: @"entities"];
 
@@ -775,7 +783,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
               NSDictionary *plist;
           
               plist = [propListEntities objectAtIndex: i];
-              NSDebugMLLog(@"gsdb", @"plist=%@ [%@]", plist, [plist class]);
+              EOFLOGObjectLevelArgs(@"gsdb", @"plist=%@ [%@]",
+				    plist, [plist class]);
           
               if (_version >= 2)
                 {
@@ -796,7 +805,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
               [self addEntity: entity];
             }
 
-          enumerator = [_entities objectEnumerator];
+          /* Do not access _entities until cache is triggered */
+          enumerator = [[self entities] objectEnumerator];
           while ((entity = [enumerator nextObject]))
             {
               NS_DURING
@@ -891,7 +901,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   if (_docComment)
     [propertyList setObject: _docComment forKey: @"docComment"];
 
-  count = [_entities count];
+  /* Do not access _entities until cache is triggered */
+  count = [[self entities] count];
 
   if (count > 0)
     {
@@ -938,7 +949,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
   notificationName = [notification name];
 
-  NSDebugMLLog(@"gsdb", @"notificationName=%@", notificationName);
+  EOFLOGObjectLevelArgs(@"gsdb", @"notificationName=%@", notificationName);
 
   if ([notificationName
 	isEqualToString: EOClassDescriptionNeededForClassNotification])
@@ -948,7 +959,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       EOEntity *entity = nil;
       NSString *entityClassName = nil;
 
-      NSDebugMLLog(@"gsdb", @"notification=%@ aClass=%@", notification, aClass);
+      EOFLOGObjectLevelArgs(@"gsdb", @"notification=%@ aClass=%@",
+			    notification, aClass);
       NSAssert(aClass, @"No class");
 
       entity = [self _entityForClass: aClass];
@@ -961,16 +973,19 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       else
         {
           classDescription = [entity classDescriptionForInstances];
-          NSDebugMLLog(@"gsdb", @"classDescription=%@", classDescription);
+          EOFLOGObjectLevelArgs(@"gsdb", @"classDescription=%@",
+				classDescription);
 
           entityClassName = [entity className];
-          NSDebugMLLog(@"gsdb",@"entityClassName=%@",entityClassName);
+          EOFLOGObjectLevelArgs(@"gsdb",@"entityClassName=%@",entityClassName);
 
           [EOClassDescription registerClassDescription: classDescription
                               forClass: NSClassFromString(entityClassName)];
 
           /*      classDescription = [[EOClassDescription new] autorelease];
-                  NSDebugMLLog(@"gsdb", @"classDescription=%@ aClass=%@", classDescription, aClass);
+                  EOFLOGObjectLevelArgs(@"gsdb",
+		                        @"classDescription=%@ aClass=%@",
+					classDescription, aClass);
                   [EOClassDescription registerClassDescription: classDescription
                   forClass: aClass];
           */
@@ -985,8 +1000,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       EOEntity *entity;
       NSString *entityClassName;
 
-      NSDebugMLLog(@"gsdb", @"notification=%@", notification);
-      NSDebugMLLog(@"gsdb", @"entityName=%@", entityName);
+      EOFLOGObjectLevelArgs(@"gsdb", @"notification=%@", notification);
+      EOFLOGObjectLevelArgs(@"gsdb", @"entityName=%@", entityName);
 
       NSAssert(entityName, @"No entity name");//??
 
@@ -994,10 +1009,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       NSAssert1(entity, @"No entity named %@", entityName);//??
 
       classDescription = [entity classDescriptionForInstances];
-      NSDebugMLLog(@"gsdb", @"classDescription=%@", classDescription);
+      EOFLOGObjectLevelArgs(@"gsdb", @"classDescription=%@", classDescription);
 
       entityClassName = [entity className];
-      NSDebugMLLog(@"gsdb", @"entityClassName=%@", entityClassName);
+      EOFLOGObjectLevelArgs(@"gsdb", @"entityClassName=%@", entityClassName);
 
       [EOClassDescription registerClassDescription: classDescription
                           forClass: NSClassFromString(entityClassName)];//??
@@ -1055,26 +1070,27 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSAssert(_entitiesByClass, @"No _entitiesByClass");
 
   className = NSStringFromClass(aClass);
-  NSDebugMLLog(@"gsdb", @"className=%@", className);
+  EOFLOGObjectLevelArgs(@"gsdb", @"className=%@", className);
 
   entity = NSMapGet(_entitiesByClass, className);
-  NSDebugMLLog(@"gsdb", @"entity class=%@", [entity class]);
+  EOFLOGObjectLevelArgs(@"gsdb", @"entity class=%@", [entity class]);
 
   if (entity)
     {
       entity = [self _verifyBuiltEntityObject: entity
                      named: nil];
-      NSDebugMLLog(@"gsdb", @"entity=%@", entity);
+      EOFLOGObjectLevelArgs(@"gsdb", @"entity=%@", entity);
     }
   else
     {
-      NSDebugMLLog(@"gsdb", @"entity for class named=%@ not found", className);
-      NSDebugMLLog(@"gsdb", @"entities class names=%@",
-		   NSAllMapTableKeys(_entitiesByClass));
-      NSDebugMLLog(@"gsdb", @"entities entities names=%@",
-		   NSAllMapTableValues(_entitiesByClass));
-      NSDebugMLLog(@"gsdb", @"entities map=%@",
-		   NSStringFromMapTable(_entitiesByClass));
+      EOFLOGObjectLevelArgs(@"gsdb", @"entity for class named=%@ not found",
+			    className);
+      EOFLOGObjectLevelArgs(@"gsdb", @"entities class names=%@",
+			    NSAllMapTableKeys(_entitiesByClass));
+      EOFLOGObjectLevelArgs(@"gsdb", @"entities entities names=%@",
+			    NSAllMapTableValues(_entitiesByClass));
+      EOFLOGObjectLevelArgs(@"gsdb", @"entities map=%@",
+			    NSStringFromMapTable(_entitiesByClass));
     }
 
   EOFLOGObjectFnStop();
@@ -1132,7 +1148,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   EOEntity *entity = nil;
 
   NSAssert(propertyList, @"no propertyList");
-  NSDebugMLLog(@"gsdb", @"propertyList=%@", propertyList);
+  EOFLOGObjectLevelArgs(@"gsdb", @"propertyList=%@", propertyList);
 
   entity = [EOEntity entityWithPropertyList: propertyList
 		     owner: self];
@@ -1184,7 +1200,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSString *entityClassName;
 
   NSAssert(entity, @"No entity to add");
-  NSDebugMLLog(@"gsdb", @"model _addEntity=%@", [entity name]);
+  EOFLOGObjectLevelArgs(@"gsdb", @"model _addEntity=%@", [entity name]);
 
   entityClassName = [entity className];
   NSAssert2(entityClassName, @"Entity %p named %@ has no class name",
@@ -1279,15 +1295,15 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
                  self,
                  entityName];
 
+  /* Do not access _entities until cache is triggered */
   if ([self createsMutableObjects])
-    [(GCMutableArray *)_entities addObject: entity];
+    [(GCMutableArray *)[self entities] addObject: entity];
   else
     {
-      id	e = [[GCMutableArray alloc] initWithArray: _entities];
+      id e = [GCMutableArray arrayWithArray: [self entities]];
 
       [e addObject: entity];
       ASSIGNCOPY(_entities, e);
-      RELEASE(e);
     }
 
   NSAssert(_entitiesByClass, @"No _entitiesByClass");
@@ -1318,15 +1334,15 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSAssert1(className, @"No className in %@", entity);
   NSMapRemove(_entitiesByClass, className);
 
+  /* Do not access _entities until cache is triggered */
   if ([self createsMutableObjects])
-    [(GCMutableArray *)_entities removeObject: entity];
+    [(GCMutableArray *)[self entities] removeObject: entity];
   else
     {
-      id	e = [[GCMutableArray alloc] initWithArray: _entities];
+      id e = [GCMutableArray arrayWithArray: [self entities]];
 
       [e removeObject: entity];
       ASSIGNCOPY(_entities, e);
-      RELEASE(e);
     }
 }
 
@@ -1447,7 +1463,8 @@ letter of each embedded word other than the first, which is upper case. Thus,
 	  [self setName: newString];
 
 	  // Entites
-	  if (_entities && (count = [_entities count]))
+	  /* Do not access _entities until cache is triggered */
+	  if ([self entities] && (count = [_entities count]))
 	    {
 	      for (i = 0; i < count; i++)
 		[(EOEntity *)[_entities objectAtIndex:i] beautifyName];
@@ -1541,10 +1558,11 @@ letter of each embedded word other than the first, which is upper case. Thus,
     {
       _flags.createsMutableObjects = flag;
       
+      /* Do not access _entities until cache is triggered */
       if (_flags.createsMutableObjects)
-	_entities = [[GCMutableArray alloc] initWithArray:[_entities autorelease] copyItems:NO];
+	_entities = [[GCMutableArray alloc] initWithArray:[[self entities] autorelease] copyItems:NO];
       else
-	_entities = [[GCArray alloc] initWithArray:[_entities autorelease] copyItems:NO];
+	_entities = [[GCArray alloc] initWithArray:[[self entities] autorelease] copyItems:NO];
     }
 }
 
@@ -1566,27 +1584,28 @@ letter of each embedded word other than the first, which is upper case. Thus,
           NSString *plistPathName = nil;
           NSDictionary *propList = nil;
 
-          NSDebugMLLog(@"gsdb", @"name=%@", name);
+          EOFLOGObjectLevelArgs(@"gsdb", @"name=%@", name);
 
           if (!name && [entity isKindOfClass: [NSDictionary class]])
             name = [entity objectForKey: @"name"];
 
-          NSDebugMLLog(@"gsdb", @"name=%@", name);
+          EOFLOGObjectLevelArgs(@"gsdb", @"name=%@", name);
           NSAssert1(name, @"No name for entity %@", entity);
-          NSDebugMLLog(@"gsdb", @"[self path]=%@", [self path]);
+          EOFLOGObjectLevelArgs(@"gsdb", @"[self path]=%@", [self path]);
 
           basePath = [self path]; 
           [RETAIN(entity) autorelease]; //so it won't be lost in _removeEntity
 
-          NSDebugMLLog(@"gsdb", @"basePath =%@", basePath);
+          EOFLOGObjectLevelArgs(@"gsdb", @"basePath =%@", basePath);
 
           plistPathName = [[basePath stringByAppendingPathComponent: name]
 			    stringByAppendingPathExtension: @"plist"];
 
-          NSDebugMLLog(@"gsdb", @"entity plistPathName =%@", plistPathName);
+          EOFLOGObjectLevelArgs(@"gsdb", @"entity plistPathName =%@",
+				plistPathName);
 
           propList = [NSDictionary dictionaryWithContentsOfFile: plistPathName];
-          NSDebugMLLog(@"gsdb", @"entity propList=%@", propList);
+          EOFLOGObjectLevelArgs(@"gsdb", @"entity propList=%@", propList);
 
           if (!propList)
             {
@@ -1605,7 +1624,7 @@ letter of each embedded word other than the first, which is upper case. Thus,
             }
 
           [self _removeEntity: entity];
-          NSDebugMLLog(@"gsdb", @"entity propList=%@", propList);
+          EOFLOGObjectLevelArgs(@"gsdb", @"entity propList=%@", propList);
 
           entity = [self _addEntityWithPropertyList: propList];
         }

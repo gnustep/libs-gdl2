@@ -1,3 +1,43 @@
+2003-02-06  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOModel.m
+	([EOModel -encodeTableOfContentsIntoPropertyList:]),
+	([EOModel -initWithPropertyList:owner:]),
+	([EOModel -encodeIntoPropertyList:]), ([EOModel -addEntity:]),
+	([EOModel -removeEntity:]), ([EOModel -beautifyNames]),
+	([EOModel -setCreateMutableObjects:]):
+	Do not access _entities until cache is triggered. 
+	* EOAccess/EOModel.m
+	([EOModel +findPathForModelNamed:]),
+	([EOModel -gcDecrementRefCountOfContainedObjects]),
+	([EOModel -storedProcedures]), ([EOModel -initWithContentsOfFile:]),
+	([EOModel -initWithTableOfContentsPropertyList:path:]),
+	([EOModel -initWithPropertyList:owner:]),
+	([EOModel -_classDescriptionNeeded:]), ([EOModel -_entityForClass:]),
+	([EOModel -_addEntityWithPropertyList:]), ([EOModel -_addEntity:]),
+	([EOModel -_verifyBuiltEntityObject:named:]):
+	replaced NSDebugMLLog with EOFLOGObject/ClassLevelArgs. 
+	* EOAccess/EOModel.m ([EOModel -description]), ([EOModel
+	-addEntity]), ([EOModel removeEntity]): Make temporary objects
+	autoreleased versions instead explicit release handling.  
+	
+	* EOAccess/EOAdaptor.m ([EOAdaptor +adaptorWithName:]):
+	reinserted accessing adaptor class by principal class of bundle as
+	fallback in case EOAdaptorClassName isn't found.  Raise an
+	exception if the provided class is not a subclass of EOAdaptor.  
+	* EOAccess/EOAdaptor.m ([EOAdaptor +adaptorWithName:]),
+	([EOAdaptor -fetchedValueForValue:attribute]),
+	([EOAdaptor -fetchedValueForStringValue:attribute]):
+	replaced NSLog/NSDebugMLLog with EOFLOGObject/ClassLevelArgs. 
+	* EOAccess/EOAdaptor.m ([EOAdaptor +adaptorWithModel:]),
+	([EOAdaptor +adaptorWithName:]),
+	([EOAdaptor +availableAdaptorNames]):
+	replaced autorelease with AUTORELEASE(). 
+
+	* EOAdaptors/Postgres95Adaptor/Info.plist: Added
+	EOAdaptorClassName entry.
+	
+
 2003-02-04  Stephane Corthesy	<stephane@sente.ch>
 
 	* Tools/eoutil.m: implemented.
@@ -207,7 +247,7 @@
 	* EOControl/EODebug.m:
 		o include NSDebug.h
 	
-2003-01-21  David Ayers <d.ayers@inode.at>
+2003-01-21  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOQualifier.m ([EOQualifier +allQualifierOperators]): 
 	([EOQualifier +relationalQualifierOperators]): 
@@ -219,7 +259,7 @@
 	* EOControl/EOObserver.m: Added implementation for EODelayedObserver
 	and EODelayedObserverQueue.
 
-2003-01-16  David Ayers <d.ayers@inode.at>
+2003-01-16  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/Postgres95Adaptor.m:
 	Added import of NSDebug.h/EODebug.h

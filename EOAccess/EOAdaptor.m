@@ -106,8 +106,7 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
           Class adaptorClass = NSClassFromString([NSString stringWithFormat: @"%@%@", adaptorName, @"Adaptor"]);
 
           if(adaptorClass)
-            adaptor = [[[adaptorClass alloc] initWithName: adaptorName]
-                        autorelease];
+            adaptor = AUTORELEASE([[adaptorClass alloc] initWithName: adaptorName]);
           else
             adaptor = [self adaptorWithName: adaptorName];
 
@@ -163,29 +162,29 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
       env = [pInfo environment];
       paths = [NSMutableArray array];
 
-      user = [[[env objectForKey: @"GNUSTEP_USER_ROOT"]
-		mutableCopy] autorelease];
+      user = AUTORELEASE([[env objectForKey: @"GNUSTEP_USER_ROOT"] 
+			   mutableCopy]);
       [user appendString: @"/Libraries/Frameworks"];
 
       if (user)
 	[paths addObject: user];
 
-      local = [[[env objectForKey: @"GNUSTEP_LOCAL_ROOT"]
-		 mutableCopy] autorelease];
+      local = AUTORELEASE([[env objectForKey: @"GNUSTEP_LOCAL_ROOT"]
+			    mutableCopy]);
       [local appendString: @"/Libraries/Frameworks"];
 
       if (local)
 	[paths addObject: local];
 
-      local = [[[env objectForKey: @"GNUSTEP_LOCAL_ROOT"]
-         mutableCopy] autorelease];
+      local = AUTORELEASE([[env objectForKey: @"GNUSTEP_LOCAL_ROOT"]
+         mutableCopy]);
       [local appendString: @"/Library/Frameworks"];
 
       if (local)
 	[paths addObject: local];
 
-      system = [[[env objectForKey: @"GNUSTEP_SYSTEM_ROOT"]
-		  mutableCopy] autorelease];
+      system = AUTORELEASE([[env objectForKey: @"GNUSTEP_SYSTEM_ROOT"]
+		  mutableCopy]);
       [system appendString: @"/Libraries/Frameworks"];
 
       if (system)
@@ -226,23 +225,40 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
      identifies the actual adaptor class from the bundle. */
 
   if(![bundle isLoaded])
-    NSLog(@"Loaded %@? %@", bundle, ([bundle load]? @"YES":@"NO"));
+    EOFLOGClassLevelArgs(@"gsdb", @"Loaded %@? %@", bundle, ([bundle load]? @"YES":@"NO"));
 
   adaptorClassName = [[bundle infoDictionary] objectForKey: @"EOAdaptorClassName"];
 
-  NSLog(@"adaptorClassName is %@", adaptorClassName);
+  EOFLOGClassLevelArgs(@"gsdb", @"adaptorClassName is %@", adaptorClassName);
 
   adaptorClass = NSClassFromString(adaptorClassName);
 
-  if(!adaptorClass)
-    [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: the adaptor bundle '%@' doesn't contain a principal class",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self,
-                 adaptorName];
+  if (adaptorClass == Nil)
+    {
+      adaptorClass = [bundle principalClass];
+    }
 
-  return [[[adaptorClass alloc] initWithName: adaptorName] autorelease];
+  if(adaptorClass == Nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+		   format: @"%@ -- %@ 0x%x: value of EOAdaptorClassName '%@' is not a valid class and bundle does not contain a principal class",
+		   NSStringFromSelector(_cmd),
+		   NSStringFromClass([self class]),
+		   self,
+		   adaptorName];
+    }
+      
+  if ([adaptorClass isSubclassOfClass: [self class]] == NO)
+    {
+      [NSException raise: NSInvalidArgumentException
+		   format: @"%@ -- %@ 0x%x: principal class is not a subclass of EOAdaptor:%@",
+		   NSStringFromSelector(_cmd),
+		   NSStringFromClass([self class]),
+		   self,
+		   NSStringFromClass([adaptorClass class])];
+    }
+
+  return AUTORELEASE([[adaptorClass alloc] initWithName: adaptorName]);
 }
 
 + (void)setExpressionClassName: (NSString *)sqlExpressionClassName
@@ -268,7 +284,7 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   NSArray	 *fileNames;
   NSEnumerator	 *filesEnum;
   NSString	 *fileName;
-  NSMutableArray *adaptorNames = [[NSMutableArray new] autorelease];
+  NSMutableArray *adaptorNames = AUTORELEASE([NSMutableArray new]);
   
   EOFLOGObjectFnStartOrCond2(@"AdaptorLevel", @"EOAdaptor");
 
@@ -480,8 +496,8 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   SEL valueFactoryMethod;
 
   EOFLOGObjectFnStart();
-  NSDebugMLLog(@"gsdb", @"value=%@", value);
-  NSDebugMLLog(@"gsdb", @"attribute=%@", attribute);
+  EOFLOGObjectLevelArgs(@"gsdb", @"value=%@", value);
+  EOFLOGObjectLevelArgs(@"gsdb", @"attribute=%@", attribute);
 
   valueFactoryMethod = [attribute valueFactoryMethod];
 
@@ -505,7 +521,7 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
         value = [self fetchedValueForDataValue: value
                       attribute: attribute];
 
-      NSDebugMLLog(@"gsdb",@"value=%@",value);
+      EOFLOGObjectLevelArgs(@"gsdb",@"value=%@",value);
     }
 
   if(_delegateRespondsTo.processValue)
@@ -513,7 +529,7 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
                        fetchedValueForValue: value
                        attribute: attribute];
 
-  NSDebugMLLog(@"gsdb", @"value=%@", value);
+  EOFLOGObjectLevelArgs(@"gsdb", @"value=%@", value);
   EOFLOGObjectFnStop();
 
   return value;
@@ -525,8 +541,8 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   NSString *resultValue = nil;
 
   EOFLOGObjectFnStart();
-  NSDebugMLLog(@"gsdb", @"value=%@", value);
-  NSDebugMLLog(@"gsdb", @"attribute=%@", attribute);
+  EOFLOGObjectLevelArgs(@"gsdb", @"value=%@", value);
+  EOFLOGObjectLevelArgs(@"gsdb", @"attribute=%@", attribute);
     
   if([value length]>0)
     {

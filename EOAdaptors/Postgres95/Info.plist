@@ -1,4 +1,5 @@
 {
+    EOAdaptorClassName = Postgres95Adaptor;
     NSPrincipalClass = Postgres95Adaptor;
     NSExecutable = Postgres95;
 }
