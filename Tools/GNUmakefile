@@ -34,7 +34,7 @@ include ../Version
 # The library to be compiled
 TOOL_NAME=gdlgsdoc
 
-LIBRARIES_DEPEND_UPON=-lgnustep-base -lFoundationExt -lgnustep-db2control -lgnustep-db2
+LIBRARIES_DEPEND_UPON=-lgnustep-base -lgnustep-db2control -lgnustep-db2
 
 # The C source files to be compiled
 gdlgsdoc_C_FILES = 

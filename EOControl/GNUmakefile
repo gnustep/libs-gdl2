@@ -34,7 +34,7 @@ include ../Version
 # The library to be compiled
 LIBRARY_NAME=libgnustep-db2control
 
-libgnustep-db2control_LIBRARIES_DEPEND_UPON = -lgnustep-base -lFoundationExt
+libgnustep-db2control_LIBRARIES_DEPEND_UPON = -lgnustep-base
 
 # The C source files to be compiled
 libgnustep-db2control_C_FILES = 
@@ -95,7 +95,9 @@ EODataSource.h \
 EODetailDataSource.h \
 EOUndoManager.h \
 EODebug.h \
-EOControl.h
+EOControl.h \
+GCObject.h
+
 
 gdl2control_AUTOGSDOC_HEADERS = $(libgnustep-db2control_HEADER_FILES)
 gdl2control_AUTOGSDOC_SOURCE = $(libgnustep-db2control_OBJC_FILES)

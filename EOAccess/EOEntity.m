@@ -39,10 +39,9 @@ static char rcsId[] = "$Id$";
 #import <ctype.h>
 
 #import <Foundation/Foundation.h>
+#import <Foundation/NSException.h>
 
-#import <extensions/GCArray.h>
-#import <extensions/NSException.h>
-#import <extensions/exceptions/GeneralExceptions.h>
+#include <gnustep/base/GCObject.h>
 
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOEntity.h>
@@ -1029,7 +1028,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return _classProperties;
 }
 
-- (NSArray *)primaryKeyAttributes
+- (NSArray*)primaryKeyAttributes
 {
   //OK
   if (_flags.primaryKeyAttributesIsLazy)
@@ -1069,7 +1068,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           DESTROY(primaryKeyAttributes);
 
-          [primaryKeyAttributes sortUsingSelector: @selector(eoCompareOnName:)]; //Very important to have always the same order.
+          [_primaryKeyAttributes sortUsingSelector: @selector(eoCompareOnName:)]; //Very important to have always the same order.
           [self _setIsEdited]; //To Clean Buffers
         }
       else
@@ -3677,6 +3676,8 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 {
   return [self notImplemented: _cmd]; //TODO
 }
+
+@end
 
 @implementation EOEntity (EOEntityPrivateXX)
 

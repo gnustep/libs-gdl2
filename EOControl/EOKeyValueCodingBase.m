@@ -49,9 +49,8 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSDecimalNumber.h>
 #import <Foundation/NSDebug.h>
 
-#import <extensions/NSException.h>
-#import <extensions/exceptions/GeneralExceptions.h>
-#import <extensions/objc-runtime.h>
+#include <Foundation/NSException.h>
+#include <objc/objc-api.h>
 
 #include "config.h"
 
@@ -555,12 +554,12 @@ static GetKeyValueBinding *newGetBinding(NSString *key, id instance)
     {
       if (count == 1)
 	{
-	  Strcpy(iname, ckey);
+	  strcpy(iname, ckey);
 	}
       else
 	{
-	  Strcpy(iname, "get");
-	  Strcat(iname, ckey);
+	  strcpy(iname, "get");
+	  strcat(iname, ckey);
 	  iname[3] = islower(iname[3]) ? toupper(iname[3]) : iname[3];
 	}
 
@@ -658,7 +657,7 @@ static GetKeyValueBinding *newGetBinding(NSString *key, id instance)
 	      //          NSDebugFLog(@"class=%@",NSStringFromClass(class));
 	      for (i = 0;!fptr &&  class->ivars && i < class->ivars->ivar_count; i++)
 		{
-		  if (!Strcmp(testKey, class->ivars->ivar_list[i].ivar_name))
+		  if (!strcmp(testKey, class->ivars->ivar_list[i].ivar_name))
 		    {
 		      //              NSDebugFLog(@"Found");    
 		      switch (*objc_skip_type_qualifiers(class->ivars->ivar_list[i].ivar_type))
@@ -728,8 +727,8 @@ static GetKeyValueBinding *newGetBinding(NSString *key, id instance)
 
   if (fptr)
     {
-      KeyValueMethod* mkey = Malloc(sizeof(KeyValueMethod));
-      GetKeyValueBinding* bin = Malloc(sizeof(GetKeyValueBinding));
+      KeyValueMethod* mkey = NSZoneMalloc(NSDefaultMallocZone(), sizeof(KeyValueMethod));
+      GetKeyValueBinding* bin = NSZoneMalloc(NSDefaultMallocZone(), sizeof(GetKeyValueBinding));
 
       mkey->key = [key copy];
       mkey->class = [instance class];
@@ -776,13 +775,13 @@ static GetKeyValueBinding *newGetStoredBinding(NSString *key, id instance)
     {
       if(count == 1)
 	{
-	  Strcpy(iname, "_");
-	  Strcat(iname, ckey);
+	  strcpy(iname, "_");
+	  strcat(iname, ckey);
 	}
       else
 	{
-	  Strcpy(iname, "_get");
-	  Strcat(iname, ckey);
+	  strcpy(iname, "_get");
+	  strcat(iname, ckey);
 	  iname[4] = islower(iname[4]) ? toupper(iname[4]) : iname[4];
 	}
 
@@ -856,19 +855,19 @@ static GetKeyValueBinding *newGetStoredBinding(NSString *key, id instance)
       // Make ivar from name
       if(count == 1)
 	{
-	  Strcpy(iname, "_");
-	  Strcat(iname, ckey);
+	  strcpy(iname, "_");
+	  strcat(iname, ckey);
 	}
       else
 	{
-	  Strcpy(iname, ckey);
+	  strcpy(iname, ckey);
 	}
 
       while (class)
 	{
 	  for (i = 0; class->ivars && i < class->ivars->ivar_count; i++)
 	    {
-	      if (!Strcmp(iname, class->ivars->ivar_list[i].ivar_name))
+	      if (!strcmp(iname, class->ivars->ivar_list[i].ivar_name))
 		{
 		  switch (*objc_skip_type_qualifiers(class->ivars->ivar_list[i].ivar_type))
 		    {
@@ -934,12 +933,12 @@ static GetKeyValueBinding *newGetStoredBinding(NSString *key, id instance)
     {
       if (count == 1)
 	{
-	  Strcpy(iname, ckey);
+	  strcpy(iname, ckey);
 	}
       else
 	{
-	  Strcpy(iname, "get");
-	  Strcat(iname, ckey);
+	  strcpy(iname, "get");
+	  strcat(iname, ckey);
 	  iname[3] = islower(iname[3]) ? toupper(iname[3]) : iname[3];
 	}
 
@@ -1003,8 +1002,8 @@ static GetKeyValueBinding *newGetStoredBinding(NSString *key, id instance)
   // Make binding and insert into map
   if (fptr)
     {
-      KeyValueMethod* mkey = Malloc(sizeof(KeyValueMethod));
-      GetKeyValueBinding* bin = Malloc(sizeof(GetKeyValueBinding));
+      KeyValueMethod* mkey = NSZoneMalloc(NSDefaultMallocZone(), sizeof(KeyValueMethod));
+      GetKeyValueBinding* bin = NSZoneMalloc(NSDefaultMallocZone(), sizeof(GetKeyValueBinding));
 
       mkey->key = [key copy];
       mkey->class = [instance class];
@@ -1039,12 +1038,12 @@ static SetKeyValueBinding *newSetBinding(NSString *key, id instance, id value)
     const char *ckey = [key cString];
     SEL sel;
     struct objc_method *mth;
-    char sname[Strlen(ckey)+7];
+    char sname[strlen(ckey)+7];
 
     // Make sel from name
-    Strcpy(sname, "set");
-    Strcat(sname, ckey);
-    Strcat(sname, ":");
+    strcpy(sname, "set");
+    strcat(sname, ckey);
+    strcat(sname, ":");
     sname[3] = islower(sname[3]) ? toupper(sname[3]) : sname[3];
 
     sel = sel_get_any_uid(sname);
@@ -1146,7 +1145,7 @@ static SetKeyValueBinding *newSetBinding(NSString *key, id instance, id value)
 		   !fptr && class->ivars && i < class->ivars->ivar_count;
 		   i++)
 		{
-		  if (!Strcmp(testKey, class->ivars->ivar_list[i].ivar_name))
+		  if (!strcmp(testKey, class->ivars->ivar_list[i].ivar_name))
 		    {
 		      //        NSDebugFLog(@"Found");    
 
@@ -1218,8 +1217,8 @@ static SetKeyValueBinding *newSetBinding(NSString *key, id instance, id value)
 
   if (fptr)
     {
-      KeyValueMethod *mkey = Malloc(sizeof(KeyValueMethod));
-      SetKeyValueBinding *bin = Malloc(sizeof(SetKeyValueBinding));
+      KeyValueMethod *mkey = NSZoneMalloc(NSDefaultMallocZone(), sizeof(KeyValueMethod));
+      SetKeyValueBinding *bin = NSZoneMalloc(NSDefaultMallocZone(), sizeof(SetKeyValueBinding));
 
       mkey->key = [key copy];
       mkey->class = [instance class];
@@ -1251,18 +1250,18 @@ static SetKeyValueBinding *newSetStoredBinding(NSString *key, id instance, id va
   {
     Class class = [instance class];
     const char* ckey = [key cString];
-    char  iname[Strlen(ckey) + 2];
+    char  iname[strlen(ckey) + 2];
     int i;
 
     // Make ivar from name
-    Strcpy(iname, "_");
-    Strcat(iname, ckey);
+    strcpy(iname, "_");
+    strcat(iname, ckey);
     
     while (class)
       {
 	for (i = 0; class->ivars && i < class->ivars->ivar_count; i++)
 	  {
-	    if (!Strcmp(iname, class->ivars->ivar_list[i].ivar_name))
+	    if (!strcmp(iname, class->ivars->ivar_list[i].ivar_name))
 	      {
 		switch (*objc_skip_type_qualifiers(class->ivars->ivar_list[i].ivar_type))
 		  {
@@ -1327,12 +1326,12 @@ static SetKeyValueBinding *newSetStoredBinding(NSString *key, id instance, id va
       const char* ckey = [key cString];
       SEL sel;
       struct objc_method* mth;
-      char  sname[Strlen(ckey) + 7];
+      char  sname[strlen(ckey) + 7];
       
       // Make sel from name
-      Strcpy(sname, "_set");
-      Strcat(sname, ckey);
-      Strcat(sname, ":");
+      strcpy(sname, "_set");
+      strcat(sname, ckey);
+      strcat(sname, ":");
       sname[3] = islower(sname[3]) ? toupper(sname[3]) : sname[3];
       sel = sel_get_any_uid(sname);
       
@@ -1409,7 +1408,7 @@ static SetKeyValueBinding *newSetStoredBinding(NSString *key, id instance, id va
 	{
 	  for (i = 0; class->ivars && i < class->ivars->ivar_count; i++)
 	    {
-	      if (!Strcmp(ckey, class->ivars->ivar_list[i].ivar_name))
+	      if (!strcmp(ckey, class->ivars->ivar_list[i].ivar_name))
 		{
 		  switch (*objc_skip_type_qualifiers(class->ivars->ivar_list[i].ivar_type))
 		    {
@@ -1474,12 +1473,12 @@ static SetKeyValueBinding *newSetStoredBinding(NSString *key, id instance, id va
       const char* ckey = [key cString];
       SEL sel;
       struct objc_method* mth;
-      char  sname[Strlen(ckey) + 7];
+      char  sname[strlen(ckey) + 7];
 
       // Make sel from name
-      Strcpy(sname, "set");
-      Strcat(sname, ckey);
-      Strcat(sname, ":");
+      strcpy(sname, "set");
+      strcat(sname, ckey);
+      strcat(sname, ":");
       sname[3] = islower(sname[3]) ? toupper(sname[3]) : sname[3];
       sel = sel_get_any_uid(sname);
 
@@ -1551,8 +1550,8 @@ static SetKeyValueBinding *newSetStoredBinding(NSString *key, id instance, id va
   // Make binding and insert into map
   if (fptr)
     {
-      KeyValueMethod* mkey = Malloc(sizeof(KeyValueMethod));
-      SetKeyValueBinding* bin = Malloc(sizeof(SetKeyValueBinding));
+      KeyValueMethod* mkey = NSZoneMalloc(NSDefaultMallocZone(), sizeof(KeyValueMethod));
+      SetKeyValueBinding* bin = NSZoneMalloc(NSDefaultMallocZone(), sizeof(SetKeyValueBinding));
 
       mkey->key = [key copy];
       mkey->class = [instance class];
@@ -1595,12 +1594,12 @@ static void mapRetainNothing(NSMapTable *table, KeyValueMethod *map)
 static void keyValueMapKeyRelease(NSMapTable *table, KeyValueMethod *map)
 {
   [map->key release];
-  Free(map);
+  NSZoneFree(NSDefaultMallocZone(), map);
 }
 
 static void keyValueMapValRelease(NSMapTable *table, void *map)
 {
-  Free(map);
+  NSZoneFree(NSDefaultMallocZone(), map);
 }
 
 static NSString *keyValueMapDescribe(NSMapTable *table, KeyValueMethod *map)

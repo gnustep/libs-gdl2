@@ -39,7 +39,6 @@ static char rcsId[] = "$Id$";
 
 #import <EOControl/EOQualifier.h>
 
-
 @implementation EONotQualifier
 
 + (EOQualifier *)qualifierWithQualifier: (EOQualifier *)qualifier

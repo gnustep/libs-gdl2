@@ -40,9 +40,8 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSString.h>
 #import <Foundation/NSObjCRuntime.h>
 
-#import <extensions/NSException.h>
-#import <extensions/exceptions/GeneralExceptions.h>
-#import <extensions/GCObject.h>
+#import <Foundation/NSException.h>
+#include <gnustep/base/GCObject.h>
 #import <EOControl/EOControl.h>
 #import <EOControl/EOFault.h>
 
@@ -51,9 +50,7 @@ BOOL __isGCEnabled(Class class_)
 {
   Class gcObjectClass = [GCObject class];
 
-  if ([class_ conformsToProtocol: @protocol(GarbageCollecting)])
-      return YES;
-  else if ([class_ instancesRespondToSelector: @selector(gcIncrementRefCount)])
+  if ([class_ instancesRespondToSelector: @selector(gcIncrementRefCount)])
     return YES;
   else
     {
@@ -68,8 +65,6 @@ BOOL __isGCEnabled(Class class_)
 	  else if ([class instancesRespondToSelector: @selector(gcIncrementRefCount)])
 	      return YES;
 	  else if ([class instancesRespondToSelector: @selector(gcNextObject)])
-	      return YES;
-	  else if ([class conformsToProtocol: @protocol(GarbageCollecting )])
 	      return YES;
 	}
     }
@@ -234,7 +229,7 @@ BOOL __isGCEnabled(Class class_)
 {
   id newObject = [super allocWithZone: zone_];
 
-  ((EOFaultHandler *)newObject)->gcFlags.refCount = 0;
+  ((EOFaultHandler *)newObject)->gc.flags.refCount = 0;
 
   return newObject;
 }
@@ -244,7 +239,7 @@ BOOL __isGCEnabled(Class class_)
 {
   if (gcEnabled)
 	{
-	  gcFlags.refCount++;
+	  gc.flags.refCount++;
 	  return self;
 	}
   else
@@ -257,7 +252,7 @@ BOOL __isGCEnabled(Class class_)
 {
   if (gcEnabled)
 	{
-	  return gcFlags.refCount;
+	  return gc.flags.refCount;
 	}
   else
 	{
@@ -268,7 +263,7 @@ BOOL __isGCEnabled(Class class_)
 - gcSetNextObject: (id)anObject
 {
   if (gcEnabled)
-    gcNextObject = anObject;
+    gc.next = anObject;
 
   return self;
 }
@@ -276,7 +271,7 @@ BOOL __isGCEnabled(Class class_)
 - gcSetPreviousObject: (id)anObject
 {
   if (gcEnabled)
-    gcPreviousObject = anObject;
+    gc.previous = anObject;
 
   return self;
 }
@@ -284,7 +279,7 @@ BOOL __isGCEnabled(Class class_)
 - (id)gcNextObject
 {
   if (gcEnabled)
-    return gcNextObject;
+    return gc.next;
 
   return nil;
 }
@@ -292,7 +287,7 @@ BOOL __isGCEnabled(Class class_)
 - (id)gcPreviousObject
 {
   if (gcEnabled)
-    return gcPreviousObject;
+    return gc.previous;
 
   return nil;
 }
@@ -300,7 +295,7 @@ BOOL __isGCEnabled(Class class_)
 - (BOOL)gcAlreadyVisited
 {
   if (gcEnabled)
-    return gcFlags.gcVisited;
+    return gc.flags.visited;
 
   return YES;
 }
@@ -308,7 +303,7 @@ BOOL __isGCEnabled(Class class_)
 - (void)gcSetVisited: (BOOL)flag
 {
   if (gcEnabled)
-    gcFlags.gcVisited = flag;
+    gc.flags.visited = flag;
 }
 
 - (void)gcDecrementRefCountOfContainedObjects
@@ -325,11 +320,11 @@ BOOL __isGCEnabled(Class class_)
 {
   if (gcEnabled)
     {
-      if (gcFlags.gcVisited)
+      if (gc.flags.visited)
 	return NO;
 
       gcCountainedObjectRefCount++;
-      gcFlags.gcVisited = YES;
+      gc.flags.visited = YES;
 
       return YES;
     }
@@ -345,14 +340,14 @@ BOOL __isGCEnabled(Class class_)
 - (void)gcIncrementRefCount
 {
   if (gcEnabled);
-  //gcFlags.refCount++;
+  //gc.flags.refCount++;
   //    faultReferences++;
 }
 
 - (void)gcDecrementRefCount
 {
   if(gcEnabled);
-  //gcFlags.refCount--;
+  //gc.flags.refCount--;
   //    faultReferences--;
 }
 
@@ -362,10 +357,12 @@ BOOL __isGCEnabled(Class class_)
   if (gcEnabled)
     {
       [fault gcIncrementRefCount];
-      [fault gcSetNextObject:[self gcNextObject]];
-      [fault gcSetPreviousObject:[self gcPreviousObject]];
-      while(gcCountainedObjectRefCount-- > 0)
-    	[fault gcIncrementRefCountOfContainedObjects];
+      fault->gc.next = gc.next;
+      fault->gc.previous = gc.previous;
+      while (gcCountainedObjectRefCount-- > 0)
+	{
+	  [fault gcIncrementRefCountOfContainedObjects];
+	}
     };
   return NO;
 }

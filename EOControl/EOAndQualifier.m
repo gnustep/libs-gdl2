@@ -44,7 +44,6 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOQualifier.h>
 #import <EOControl/EODebug.h>
 
-
 @implementation EOAndQualifier
 
 + (EOQualifier *)qualifierWithQualifierArray: (NSArray *)array

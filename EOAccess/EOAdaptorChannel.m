@@ -37,9 +37,7 @@ static char rcsId[] = "$Id$";
 
 #import <Foundation/NSDate.h>
 #import <Foundation/NSValue.h>
-
-#import <extensions/NSException.h>
-#import <extensions/exceptions/GeneralExceptions.h>
+#import <Foundation/NSException.h>
 
 #import <EOAccess/EOAccess.h>
 #import <EOAccess/EOEntity.h>

@@ -33,7 +33,7 @@
 
 static char rcsId[] = "$Id$";
 
-#import <extensions/GCArray.h>
+#include <gnustep/base/GCObject.h>
 
 #import <EOAccess/EOStoredProcedure.h>
 #import <EOAccess/EOAttribute.h>

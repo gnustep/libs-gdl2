@@ -29,8 +29,7 @@
 
 #import <Foundation/NSString.h>
 
-#import <extensions/GCObject.h>
-#import <extensions/GCArray.h>
+#include <gnustep/base/GCObject.h>
 
 #import <EOControl/EOClassDescription.h>
 #import <EOControl/EOQualifier.h>

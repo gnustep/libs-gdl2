@@ -28,7 +28,7 @@
 #define __EOExpressionArray_h__
 
 #import <Foundation/NSString.h>
-#import <extensions/GCArray.h>
+#include <gnustep/base/GCObject.h>
 
 @class EOAttribute;
 @class EOEntity;

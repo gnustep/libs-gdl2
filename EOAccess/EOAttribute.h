@@ -30,10 +30,9 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSDate.h>
+#import <Foundation/NSException.h>
 
-#import <extensions/GCObject.h>
-#import <extensions/GCArray.h>
-#import <extensions/NSException.h>
+#include <gnustep/base/GCObject.h>
 
 #import <EOAccess/EOPropertyListEncoding.h>
 

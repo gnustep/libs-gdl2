@@ -27,9 +27,7 @@
 #ifndef __EOJoin_h__
 #define __EOJoin_h__
 
-#import <extensions/GCObject.h>
-#import <extensions/GCArray.h>
-
+#include <gnustep/base/GCObject.h>
 
 @class EOEntity;
 @class EOAttribute;

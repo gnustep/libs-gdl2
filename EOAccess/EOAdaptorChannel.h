@@ -27,7 +27,7 @@
 #ifndef __EOAdaptorChannel_h__
 #define __EOAdaptorChannel_h__
 
-#import <extensions/NSException.h>
+#import <Foundation/NSException.h>
 
 #import <EOControl/EOFetchSpecification.h>
 

@@ -28,7 +28,7 @@
 #define __EOStoredProcedure_h__
 
 #import <Foundation/Foundation.h>
-#import <extensions/GCObject.h>
+#import <gnustep/base/GCObject.h>
 #import <EOAccess/EOPropertyListEncoding.h>
 
 @class EOModel;

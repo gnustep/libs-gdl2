@@ -1,3 +1,12 @@
+2002-11-25  Richard Frith-macdonald <rfm@gnu.org>
+
+	Tagged all files as 'with-extensions'
+	Committed new versions of very many files with dependency on the
+	obsolete extensions library removed.  gdl2 should now only need
+	the base library (or perhaps MacOS-X foundation plus a port of the
+	Additions library from the base library package, when someone wants
+	to do the port).
+
 2002-11-24  Richard Frith-macdonald <rfm@gnu.org>
 
 	* EOAdaptors/Makefile.postamble: New file to clean configure

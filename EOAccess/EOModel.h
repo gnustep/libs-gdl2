@@ -28,9 +28,7 @@
 #define __EOModel_h__
 
 #import <Foundation/NSString.h>
-#import <extensions/GCObject.h>
-#import <extensions/GCArray.h>
-#import <extensions/GCDictionary.h>
+#include <gnustep/base/GCObject.h>
 
 #import <EOAccess/EOPropertyListEncoding.h>
 

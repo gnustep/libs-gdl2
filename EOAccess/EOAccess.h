@@ -27,8 +27,6 @@
 #ifndef __EOAccess_h__
 #define __EOAccess_h__
 
-#import <extensions/objc-runtime.h>
-
 #import <Foundation/NSArray.h>
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSBundle.h>

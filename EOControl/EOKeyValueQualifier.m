@@ -45,7 +45,6 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOEditingContext.h>
 #import <EOControl/EODebug.h>
 
-
 @implementation EOKeyValueQualifier
 
 + (EOKeyValueQualifier *)qualifierWithKey: (NSString *)key

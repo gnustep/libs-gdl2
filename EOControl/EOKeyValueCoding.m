@@ -52,9 +52,8 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSDecimalNumber.h>
 #import <Foundation/NSDebug.h>
 
-#import <extensions/NSException.h>
-#import <extensions/exceptions/GeneralExceptions.h>
-#import <extensions/objc-runtime.h>
+#include <Foundation/NSException.h>
+#include <objc/objc-api.h>
 
 #import <EOControl/EOControl.h>
 #import <EOControl/EOKeyValueCoding.h>

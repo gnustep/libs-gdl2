@@ -47,9 +47,6 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSZone.h>
 #import <Foundation/NSNotification.h>
 
-#import <extensions/NSException.h>
-#import <extensions/exceptions/GeneralExceptions.h>
-
 #import <EOAccess/EOAdaptor.h>
 #import <EOAccess/EOAdaptorContext.h>
 #import <EOAccess/EOModel.h>
@@ -5196,6 +5193,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"** 4");
 }
 
+@end
 
 @implementation EODatabaseContext (EODatabaseContextPrivate)
 

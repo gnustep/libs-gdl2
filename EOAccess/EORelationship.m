@@ -41,8 +41,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSArray.h>
 #import <Foundation/NSUtilities.h>
 
-#import <extensions/NSException.h>
-#import <extensions/exceptions/GeneralExceptions.h>
+#import <Foundation/NSException.h>
 
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOAttribute.h>
@@ -1533,17 +1532,16 @@ relationships. Nil if none" **/
         }
       else
         {
-          [_joins autorelease];
-          _joins = [_joins arrayByRemovingObject: join];
+	  GCMutableArray	*ma = [_joins mutableCopy];
+	  GCArray		*a = _joins;
+
+	  [ma removeObject: join];
+	  _joins = ma;
+          [a release];
 
           EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 				_joins, [_joins class]);
-          [_joins retain];
 
-          /*      _joins = [[_joins autorelease] mutableCopy];
-                  [(GCMutableArray *)_joins removeObject:join];
-                  _joins = [[_joins autorelease] copy];
-          */
           /*NO: will be recomputed
             _sourceAttributes = [[_sourceAttributes autorelease] mutableCopy];
             [(GCMutableArray *)_sourceAttributes

@@ -27,8 +27,7 @@
 #ifndef __EOModelGroup_h__
 #define __EOModelGroup_h__
 
-#import <extensions/GCObject.h>
-#import <EOControl/EOControl.h>
+#include <EOControl/EOControl.h>
 
 
 @class EOModel;

@@ -28,9 +28,7 @@
 #define	__EOMultipleKnownKeyDictionary_h__
 
 #import <Foundation/Foundation.h>
-#import <extensions/GCObject.h>
-#import <extensions/GCArray.h>
-#import <extensions/GCDictionary.h>
+#include <gnustep/base/GCObject.h>
 
 @class EOMutableKnownKeyDictionary;
 

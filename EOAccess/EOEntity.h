@@ -28,14 +28,11 @@
 #define __EOEntity_h__
 
 #import <Foundation/NSString.h>
-#import <extensions/GCObject.h>
-#import <extensions/GCArray.h>
-#import <extensions/GCDictionary.h>
-#import <extensions/NSException.h>
+#import <Foundation/NSException.h>
 
 #import <EOAccess/EOPropertyListEncoding.h>
 #import <EOControl/EOClassDescription.h>
-
+#include <gnustep/base/GCObject.h>
 
 @class EOModel;
 @class EOAttribute;

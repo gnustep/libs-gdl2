@@ -42,8 +42,4 @@ else
 	AUXILIARY_TOOL_LIBS += -lgnustep-db2 -lgnustep-db2control
 endif
 
-
-# We depend upon the Foundation Extensions Library
-include $(GNUSTEP_MAKEFILES)/extensions.make
-
 endif

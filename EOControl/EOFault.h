@@ -32,6 +32,8 @@
 
 #include <Foundation/Foundation.h>
 
+#include <gnustep/base/GCObject.h>
+
 @class EOFaultHandler;
 
 /*
@@ -122,18 +124,14 @@
 
 @interface EOFaultHandler : NSObject
 {
+  gcInfo	gc;
+
   Class _targetClass;  // the first 8 bytes of
   void *_extraData;    // the faulted object
 
   unsigned _extraRefCount;
 
   BOOL gcEnabled;
-  id gcNextObject;
-  id gcPreviousObject;
-  struct {
-    unsigned gcVisited:1;
-    unsigned refCount:31;
-  } gcFlags;
 @public
   int gcCountainedObjectRefCount;
 }

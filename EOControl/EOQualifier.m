@@ -40,10 +40,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSSet.h>
 #import <Foundation/NSUtilities.h>
 
-#import <extensions/NSException.h>
-#import <extensions/DefaultScannerHandler.h>
-#import <extensions/PrintfFormatScanner.h>
-#import <extensions/exceptions/GeneralExceptions.h>
+#import <Foundation/NSException.h>
 
 #import <EOControl/EOControl.h>
 #import <EOControl/EOQualifier.h>
