@@ -1,3 +1,27 @@
+2003-04-18  Mirko Viviani  <mirko@objectlab.org>
+
+	* EOAccess/EOAttribute.m ([EOAttribute -awakeWithPropertyList:]): set
+	the prototype.
+	([EOAttribute -encodeIntoPropertyList:]): likewise.
+	([EOAttribute -serverTimeZone]): return the value from the prototype.
+	([EOAttribute -columnName]): likewise.
+	([EOAttribute -readFormat]): likewise.
+	([EOAttribute -writeFormat]): likewise.
+	([EOAttribute -scale]): likewise.
+	([EOAttribute -precision]): likewise.
+	([EOAttribute -width]): likewise.
+	([EOAttribute -allowsNull]): likewise.
+	([EOAttribute -isReadOnly]): likewise.
+	([EOAttribute -valueClassName]): likewise.
+	([EOAttribute -externalType]): likewise.
+	([EOAttribute -valueType]): likewise.
+
+	* EOAccess/EOAttribute.h: removed ivar _prototypeName.
+
+	* EOAccess/EOModel.m ([EOModel -prototypeAttributeNamed:]): implemented.
+	* EOAccess/EOAdaptor.m|.h ([EOAdaptor -prototypeAttributes]): renamed
+	from +prototypes and implemented.
+
 2003-04-15  Mirko Viviani  <mirko@objectlab.org>
 
 	* EOAccess/EOAdaptorContext.h: include EODefines.h and NSString.h

@@ -67,6 +67,8 @@ RCS_ID("$Id$")
 #include <EOAccess/EOStoredProcedure.h>
 #include <EOAccess/EOModelGroup.h>
 #include <EOAccess/EOAccessFault.h>
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAttribute.h>
 
 
 NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
@@ -483,6 +485,62 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 + (float) version
 {
   return 2;
+}
+
+- (EOAttribute *)prototypeAttributeNamed: (NSString *)attributeName
+{
+  NSString *entityName;
+  EOEntity *entity;
+  NSArray *attributes;
+  EOAttribute *attribute = nil;
+  int i, count;
+
+  EOFLOGObjectFnStart();
+  EOFLOGObjectLevelArgs(@"gsdb", @"attrName=%@", attributeName);
+
+  entityName = [NSString stringWithFormat: @"EO%@Prototypes", _adaptorName];
+
+  EOFLOGObjectLevelArgs(@"gsdb", @"entityName=%@", entityName);
+
+  entity = [self entityNamed: entityName];
+
+  if (!entity)
+    entity = [_group entityNamed: entityName];
+
+  if (!entity)
+    entity = [_group entityNamed: @"EOPrototypes"];
+
+  if (!entity && _adaptorName && [_adaptorName length] > 0)
+    {
+      EOAdaptor *adaptor;
+
+      adaptor = [EOAdaptor adaptorWithName: _adaptorName];
+      attributes = [adaptor prototypeAttributes];
+    }
+  else
+    attributes = [entity attributes];
+
+  EOFLOGObjectLevelArgs(@"gsdb", @"entity=%@ - attributes=%@",
+			entity, attributes);
+
+  if (attributes)
+    {
+      count = [attributes count];
+
+      for (i = 0; i < count; i++)
+	{
+	  attribute = [attributes objectAtIndex: i];
+
+	  if ([[attribute name]
+		isEqualToString: attributeName])
+	    break;
+	}
+    }
+
+  EOFLOGObjectLevelArgs(@"gsdb", @"attribute=%@", attribute);
+  EOFLOGObjectFnStop();
+
+  return attribute;
 }
 
 @end

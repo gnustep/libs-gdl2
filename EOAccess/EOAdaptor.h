@@ -83,7 +83,7 @@ GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 + (EOLoginPanel *)sharedLoginPanelInstance;
 
 + (NSArray *)availableAdaptorNames;
-+ (NSArray *)prototypes;
+- (NSArray *)prototypeAttributes;
 
 - initWithName:(NSString *)name;
 

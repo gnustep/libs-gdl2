@@ -43,6 +43,7 @@
 @class NSDictionary;
 
 @class EOEntity;
+@class EOAttribute;
 @class EOModelGroup;
 @class EOStoredProcedure;
 
@@ -110,6 +111,8 @@
 - (NSString*)docComment;
 
 - (EOModelGroup *)modelGroup;
+
+- (EOAttribute *)prototypeAttributeNamed: (NSString *)attributeName;
 
 @end
 

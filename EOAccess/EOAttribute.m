@@ -101,10 +101,6 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
       [self setParent: owner];
 //      EOFLOGObjectLevel(@"gsdb", @"Attribute Entity=%@", [self entity]);
 
-      tmpString = [propertyList objectForKey: @"prototypeName"];
-      if (tmpString)
-        [self setPrototypeName: tmpString];
-
       [self setExternalType: [propertyList objectForKey: @"externalType"]];
 
       tmpString = [propertyList objectForKey: @"allowsNull"];
@@ -234,8 +230,9 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 - (void)awakeWithPropertyList: (NSDictionary *)propertyList
 {
   //Seems OK
-  NSString *definition = nil;
-  NSString *columnName = nil;
+  NSString *definition;
+  NSString *columnName;
+  NSString *tmpString;
 
   definition = [propertyList objectForKey: @"definition"];
 
@@ -247,7 +244,17 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
   if (columnName)
     [self setColumnName: columnName];
 
-  EOFLOGObjectLevelArgs(@"gsdb", @"Attribute %@ awakeWithPropertyList:%@", 
+  tmpString = [propertyList objectForKey: @"prototypeName"];
+
+  if (tmpString)
+    {
+      EOAttribute *attr = [[_parent model] prototypeAttributeNamed: tmpString];
+
+      if (attr)
+	[self setPrototype: attr];
+    }
+
+  EOFLOGObjectLevelArgs(@"gsdb", @"Attribute %@ awakeWithPropertyList:%@",
                         self, propertyList);
 }
 
@@ -255,6 +262,8 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 {
   if (_name)
     [propertyList setObject: _name forKey: @"name"];
+  if (_prototype)
+    [propertyList setObject: [_prototype name] forKey: @"prototypeName"];
   if (_serverTimeZone)
     [propertyList setObject: [_serverTimeZone name]
 		  forKey: @"serverTimeZone"];
@@ -286,7 +295,7 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 - (void)dealloc
 {
   DESTROY(_name);
-  DESTROY(_prototypeName);
+  DESTROY(_prototype);
   DESTROY(_columnName);
   DESTROY(_externalType);
   DESTROY(_valueType);
@@ -381,12 +390,18 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 
 - (NSTimeZone *)serverTimeZone
 {
-  return _serverTimeZone;
+  if (_serverTimeZone)
+    return _serverTimeZone;
+
+  return [_prototype serverTimeZone];
 }
 
 - (NSString *)columnName
 {
-  return _columnName;
+  if (_columnName)
+    return _columnName;
+
+  return [_prototype columnName];
 }
 
 - (NSString *)definition
@@ -396,7 +411,7 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 //  EOFLOGObjectFnStart();
 //  EOFLOGObjectLevel(@"gsdb",@"_definitionArray:%@",_definitionArray);
 
-  definition=[_definitionArray valueForSQLExpression: nil];
+  definition = [_definitionArray valueForSQLExpression: nil];
 
 //  EOFLOGObjectLevel(@"gsdb",@"definition:%@",definition);
 //  EOFLOGObjectFnStop();
@@ -406,12 +421,18 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 
 - (NSString *)readFormat
 {
-  return _readFormat;
+  if (_readFormat)
+    return _readFormat;
+
+  return [_prototype readFormat];
 }
 
 - (NSString *)writeFormat
 {
-  return _writeFormat;
+  if (_writeFormat)
+    return _writeFormat;
+
+  return [_prototype writeFormat];
 }
 
 - (NSDictionary *)userInfo
@@ -426,17 +447,35 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 
 - (int)scale
 {
-  return _scale;
+  if (_scale)
+    return _scale;
+
+  if (_prototype)
+    return [_prototype scale];
+
+  return 0;
 }
 
 - (unsigned)precision
 {
-  return _precision;
+  if (_precision)
+    return _precision;
+
+  if (_prototype)
+    return [_prototype precision];
+
+  return 0;
 }
 
 - (unsigned)width
 {
-  return _width;
+  if (_width)
+    return _width;
+
+  if (_prototype)
+    return [_prototype width];
+
+  return 0;
 }
 
 - (id)parent
@@ -446,12 +485,12 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 
 - (EOAttribute *)prototype
 {
-  return nil; // TODO
+  return _prototype;
 }
 
 - (NSString *)prototypeName
 {
-  return _prototypeName;
+  return [_prototype name];
 }
 
 - (EOParameterDirection)parameterDirection
@@ -461,7 +500,13 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 
 - (BOOL)allowsNull
 {
-  return _flags.allowsNull;
+  if (_flags.allowsNull)
+    return _flags.allowsNull;
+
+  if (_prototype)
+    return [_prototype allowsNull];
+
+  return NO;
 }
 
 - (BOOL)isKeyDefinedByPrototype:(NSString *)key
@@ -480,7 +525,13 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
 - (BOOL)isReadOnly
 {
 //call isDerived
-  return _flags.isReadOnly;
+  if (_flags.isReadOnly)
+    return _flags.isReadOnly;
+
+  if (_prototype)
+    return [_prototype isReadOnly];
+
+  return NO;
 }
 
 /** Return NO when the attribute corresponds to one SQL column in its entity associated table return YES otherwise. 
@@ -492,6 +543,7 @@ A Flattened attribute is also a derived attributes.
   //Seems OK
   if(_definitionArray)
     return YES;
+
   return NO;
 }
 
@@ -517,15 +569,21 @@ A Flattened attribute is also a derived attributes.
   if (!_valueClassName && [self isFlattened])
     return [[_definitionArray realAttribute] valueClassName];
 
-  return _valueClassName;
+  if (_valueClassName)
+    return _valueClassName;
+
+  return [_prototype valueClassName];
 }
 
--(NSString *)externalType
+- (NSString *)externalType
 {
   if (!_externalType && [self isFlattened])
     return [[_definitionArray realAttribute] externalType];
 
-  return _externalType;
+  if (_externalType)
+    return _externalType;
+
+  return [_prototype externalType];
 }
 
 - (NSString *)valueType
@@ -533,7 +591,10 @@ A Flattened attribute is also a derived attributes.
   if(!_valueType && [self isFlattened])
     return [[_definitionArray realAttribute] valueType];
 
-  return _valueType;
+  if (_valueType)
+    return _valueType;
+
+  return [_prototype valueType];
 }
 
 @end
@@ -633,9 +694,9 @@ A Flattened attribute is also a derived attributes.
   ASSIGN(_name, name);
 }
 
-- (void)setPrototypeName: (NSString *)prototypeName 
+- (void)setPrototype: (EOAttribute *)prototype 
 {
-  ASSIGN(_prototypeName, prototypeName);
+  ASSIGN(_prototype, prototype);
 }
 
 - (void)setColumnName: (NSString *)columnName

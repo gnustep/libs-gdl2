@@ -74,7 +74,6 @@ typedef enum {
 @interface EOAttribute : GCObject <EOPropertyListEncoding>
 {
   NSString *_name;
-  NSString *_prototypeName;
   NSString *_columnName;
   NSString *_externalType;
   NSString *_valueType;
@@ -175,7 +174,7 @@ typedef enum {
 
 - (void)setName: (NSString *)name;
 
-- (void)setPrototypeName: (NSString *)prototypeName;
+- (void)setPrototype: (EOAttribute *)prototype;
 
 - (void)setReadOnly: (BOOL)yn;
 

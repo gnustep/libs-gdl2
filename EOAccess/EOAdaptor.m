@@ -71,12 +71,12 @@ RCS_ID("$Id$")
 
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAdaptorPriv.h>
-#include <EOAccess/EOModel.h>
-#include <EOAccess/EOAttribute.h>
-#include <EOAccess/EOSQLExpression.h>
-#include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAdaptorContext.h>
 #include <EOAccess/EOAdaptorChannel.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOSQLExpression.h>
 
 
 NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
@@ -322,11 +322,46 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   return adaptorNames;
 }
 
-+ (NSArray *)prototypes
+- (NSArray *)prototypeAttributes
 {
-  // TODO
-  [self notImplemented: _cmd];
-  return nil;
+  NSBundle *bundle;
+  NSString *path;
+  NSString *modelName;
+  EOModel *model;
+  NSMutableArray *attributes = nil;
+
+  EOFLOGObjectFnStart();
+
+  bundle = [NSBundle bundleForClass: [self class]];
+
+  modelName = [NSString stringWithFormat: @"EO%@Prototypes.eomodeld", _name];
+  path = [[bundle resourcePath] stringByAppendingPathComponent: modelName];
+
+  model = [[EOModel alloc] initWithContentsOfFile: path];
+
+  if (model)
+    {
+      NSArray *entities;
+      int i, count;
+
+      attributes = [NSMutableArray arrayWithCapacity: 20];
+
+      entities = [model entities];
+      count = [entities count];
+
+      for (i = 0; i < count; i++)
+	{
+	  EOEntity *entity = [entities objectAtIndex: i];
+
+	  [attributes addObjectsFromArray: [entity attributes]];
+	}
+
+      RELEASE(model);
+    }
+
+  EOFLOGObjectFnStop();
+
+  return attributes;
 }
 
 - initWithName:(NSString *)name
