@@ -193,7 +193,7 @@ static const char _c_id[2] = { _C_ID, NULL };
             retSize:size
             retOffset:offset];
 */
-  ok = GSObjCFindInstanceVariable(self, [name cString], type, size, offset);
+  ok = GSFindInstanceVariable(self, [name cString], type, size, offset);
 
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			@"Super InstanceVar named %@:%s",

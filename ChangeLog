@@ -1,3 +1,12 @@
+2002-12-04  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOGenericRecord.m ([EOGenericRecord
+	-_infoForInstanceVariableNamed:retType:retSize:retOffset:]): renamed
+	GSObjCFindInstanceVariable in GSFindInstanceVariable
+
+	* config/postgres.m4: check in /usr/local/include and /usr/local/lib
+	* EOModeler/GNUmakefile: install headers in EOModeler/
+
 2002-12-01  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOAccess/EODatabase.m
 		o  in -entityForObject: test for EONull or nil instead of just nil

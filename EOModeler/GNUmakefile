@@ -43,7 +43,7 @@ libgnustep-db2modeler_C_FILES =
 libgnustep-db2modeler_OBJC_FILES = EOModelExtensions.m
 
 libgnustep-db2modeler_HEADER_FILES_DIR = .
-libgnustep-db2modeler_HEADER_FILES_INSTALL_DIR = /EOControl
+libgnustep-db2modeler_HEADER_FILES_INSTALL_DIR = /EOModeler
 
 libgnustep-db2modeler_HEADER_FILES = EOModelExtensions.h
 
