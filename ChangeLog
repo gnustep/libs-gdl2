@@ -1,3 +1,10 @@
+2003-03-29  David Ayers  <d.ayers@inode.at>
+
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m
+	([Postgres95SQLExpression columnTypeStringForAttribute:]):
+	Implement special handling for text types to ignore precision 
+	and width as suggested by Matt Rice <ratmice@yahoo.com>.
+	
 2003-03-19  David Ayers  <d.ayers@inode.at>
 
 	* *.[hm] Use GNUSTEP in favor of NeXT_Foundation_LIBRARY

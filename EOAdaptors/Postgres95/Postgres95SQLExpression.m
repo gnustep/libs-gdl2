@@ -658,4 +658,21 @@ RCS_ID("$Id$")
   return finalEntitiesString;
 }
 
+- (NSString *)columnTypeStringForAttribute:(EOAttribute *)attribute
+{
+  NSString *extType = [attribute externalType];
+  NSString *columnTypeString = nil;
+
+  if ([extType isEqualToString: @"text"])
+    {
+      columnTypeString = [NSString stringWithFormat: @"%@", extType];
+    }
+  else
+    {
+      columnTypeString = [super columnTypeStringForAttribute: attribute];
+    }
+
+  return columnTypeString;
+}
+
 @end
