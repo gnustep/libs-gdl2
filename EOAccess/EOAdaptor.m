@@ -505,10 +505,11 @@ NSString *EOAdministrativeConnectionDictionaryKey
 {
   unsigned i;
 
-  for (i = [_contexts count] - 1; i >= 0; i--)
+  i = [_contexts count];
+  while (i--)
     {
-      EOAdaptorContext *ctx = [[_contexts objectAtIndex: i]
-				nonretainedObjectValue];
+      EOAdaptorContext *ctx 
+	= [[_contexts objectAtIndex: i] nonretainedObjectValue];
 
       if([ctx hasOpenChannels] == YES)
 	return YES;

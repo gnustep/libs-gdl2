@@ -1,3 +1,8 @@
+2005-02-22  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAdaptor.m (-hasOpenChannels): Make safe for
+	unsigned.
+	
 2005-02-20  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAccessFault.m: Include NSThread.h.
