@@ -359,7 +359,7 @@ static Class NSCalendarDateClass;
     [propertyList setObject: [NSString stringWithFormat:@"%hu", _precision]
 		  forKey: @"precision"];
   if (_scale != 0)
-    [propertyList setObject: [NSString stringWithFormat:@"%hí", _scale]
+    [propertyList setObject: [NSString stringWithFormat:@"%hi", _scale]
 		  forKey: @"scale"];
 
   if (_parameterDirection != 0)
