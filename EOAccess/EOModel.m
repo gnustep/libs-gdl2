@@ -581,18 +581,21 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 }
 
 /**
- * Writes the receivers plist representation into an
- * .eomodeld file wrapper located at path.  
- * Depending on the the path extension .eomodeld or .eomodel
+ * <p>Writes the receivers plist representation into an
+ * .eomodeld file wrapper located at path.  </p>
+ * <p>Depending on the the path extension .eomodeld or .eomodel
  * the corresponding format will be used.
  * If the path has neither .eomodeld nor .eomodel path
- * extension, .eomodeld will be used.
- * If the file located at path already exists, a back is created
+ * extension, .eomodeld will be used.</p>
+ * <p>If the file located at path already exists, a back is created
  * by appending a '~' character to file name.
  * If a backup file already exists, when trying to create a backup,
- * the old backup will be deleted.
- * If any of the file operations fail, an NSInvalidArgumentException
- * will be raised.
+ * the old backup will be deleted.</p>
+ * <p>If any of the file operations fail, an NSInvalidArgumentException
+ * will be raised.</p>
+ * <p>This method as the side effeect of setting the receivers path and
+ * name.  The this change can happen even if the write operation fails
+ * with an exception.</p>
  */
 - (void)writeToFile: (NSString *)path
 {

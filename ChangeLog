@@ -1,3 +1,8 @@
+2005-02-10  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOModel.m (writeToFile:): Clairfy documentation about
+	setting receivers name and path.
+	
 2005-02-13  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOControl/EOClassDescription.m:
 		o use IMPs
