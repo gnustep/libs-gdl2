@@ -1,3 +1,63 @@
+2003-02-13  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOAndQualifier.m: Added documentation.
+	([EOAndQualifier +qualifierWithQualifiers:]),
+	([EOAndQualifier -initWithQualifiers:]): Synchronize implementation.
+	([EOAndQualifier -initWithQualifierArray:]): Change ASSIGN to
+	ASSIGNCOPY when setting qualifier array (insuring immutability).
+	([EOAndQualifier -copyWithZone:]): remove (use implementation from
+	superclass).
+
+	* EOControl/EOKeyComparisonQualifier.m: Added documentation.
+	([EOKeyComparisonQualifier
+	+qualifierWithLeftKey:operatorSelector:rightKey:]): Use
+	AUTORELEASE() instead of -autorelease.
+	([EOKeyComparisonQualifier
+	-initWithLeftKey:operatorSelector:rightKey:]): Use ASSIGNCOPY
+	instead of ASSIGN to insure immutable keys.  Added comment about
+	possible selector assertion.
+	([EOKeyComparisonQualifier -copyWithZone:]): remove (use
+	implementation from superclass).
+	([EOKeyComparisonQualifier -evaluateWithObject:]): Try to call the
+	receivers selector before attempting to fallback on other
+	mechanisms to evaluate the object. Adjusted local variable names
+	and fixed fallback Equal, NotEqual and Contains comparisons.
+	([EOKeyComparisonQualifier -description]): Fall back to
+	NSStringFromSelector() if +stringForOperatorSelector returns nil.
+
+	* EOControl/EOKeyValueQualifier.m: Added documentation
+	([EOKeyValueQualifier +qualifierWithKey:operatorSelector:value:]): Use
+	AUTORELEASE() instead of -autorelease.
+	([EOKeyValueQualifier -initWithKey:operatorSelector:value:]): Use
+	ASSIGNCOPY instead of ASSIGN to insure immutable key.  Added
+	comment about possible selector assertion.
+	([EOKeyValueQualifier -copyWithZone:]): remove (use implementation
+	from superclass).
+	([EOKeyValueQualifier -evaluateWithObject:]): Try to call the
+	receivers selector before attempting to fallback on other
+	mechanisms to evaluate the object. Adjusted local variable names
+	and fixed fallback Equal, NotEqual and Contains comparisons.
+	([EOKeyValueQualifier -description]): Fall back to
+	NSStringFromSelector() if +stringForOperatorSelector returns nil.
+	
+	* EOControl/EONotQualifier.m: Added documentation.
+	([EONotQualifier -copyWithZone:]): remove (use implementation from
+	superclass).
+	([EONotQualifier -evaluateWithObject:]): Implemented.
+
+	* EOControl/EOOrQualifier.m: Added documentation.
+	([EOOrQualifier +qualifierWithQualifiers:]),
+	([EOORQualifier -initWithQualifiers:]): Synchronize implementation.
+	([EOOrQualifier -copyWithZone:]): remove (use implementation from
+	superclass).
+	([EOOrQualifier -evaluateWithObject:]): Corrected implementation.
+
+	* EOControl/EOQualifier.m: Added documentation
+	([EOQualifier +initialize]), (getKey()): Replace autorelease with
+	AUTORELEASE().
+	([EOQualifier -copyWithZone:]):  RETAIN() instead of NSCopyObject().
+	([EOQualifier +variableWithKey:]): Corrected implementation.
+
 2003-02-06  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOModel.m

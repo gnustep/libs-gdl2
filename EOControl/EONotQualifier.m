@@ -44,11 +44,18 @@ RCS_ID("$Id$")
 
 @implementation EONotQualifier
 
+/**
+ * Returns an autoreleased EONotQualifier referencing qualifiers.  This method
+ * calls [EONotQualifier-initWithQualifier:].
+ */
 + (EOQualifier *)qualifierWithQualifier: (EOQualifier *)qualifier
 {
   return [[[self alloc] initWithQualifier: qualifier] autorelease];
 }
 
+/** <init />
+ * Initializes the receiver with the provided qualifier.
+ */
 - initWithQualifier: (EOQualifier *)qualifier
 {
   self = [super init];
@@ -58,25 +65,23 @@ RCS_ID("$Id$")
   return self;
 }
 
+/**
+ * Returns the qualifier the reciever negates.
+ */
 - (EOQualifier *)qualifier
 {
   return _qualifier;
 }
 
-- (id)copyWithZone: (NSZone *)zone
-{
-  EONotQualifier *qual = [[EONotQualifier alloc] init];
-
-  qual->_qualifier = [_qualifier copyWithZone: zone];
-
-  return qual;
-}
-
+/**
+ * EOQualifierEvaluation protocol
+ * Returns YES if qualifier the receivers refernces returns NO on
+ * [EOQualifierEvaluation-evaluateWithObjects:] with object.  Returns NO
+ * otherwise.  
+ */
 - (BOOL)evaluateWithObject: (id)object
 {
-  //TODO
-  [self notImplemented: _cmd];
-  return NO;
+  return ([_qualifier evaluateWithObject: object] ? NO : YES);
 }
 
 @end

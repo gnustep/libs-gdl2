@@ -50,31 +50,45 @@ RCS_ID("$Id$")
 
 @implementation EOKeyValueQualifier
 
-+ (EOKeyValueQualifier *)qualifierWithKey: (NSString *)key
-			 operatorSelector: (SEL)selector
-				    value: (id)value
+/**
+ * Returns an autoreleased EOKeyValueQualifier using key, selector and value.  
+ * The selector should take a single id as an argument an return a BOOL value.
+ * This method calls [EOKeyValueQualifier-initWithKey:operatorSelectot:value:].
+ */
++ (EOKeyValueQualifier *) qualifierWithKey: (NSString *)key
+			  operatorSelector: (SEL)selector
+				     value: (id)value
 {
-  return [[[self alloc] initWithKey: key
-			operatorSelector: selector
-			value: value] autorelease];
+  return AUTORELEASE([[self alloc] initWithKey: key
+				   operatorSelector: selector
+				   value: value]);
 }
 
-- initWithKey: (NSString *)key
-operatorSelector: (SEL)selector
-        value: (id)value
+/** <init />
+ * Initializes the receiver with a copy of leftKey, selector and a copy of
+ * rightKey.  The selector should take a single id as an argument an return a
+ * BOOL value.
+ */
+- (id) initWithKey: (NSString *)key
+  operatorSelector: (SEL)selector
+	     value: (id)value
 {
-  //OK
   if ((self = [super init]))
     {
+     /*Ayers (09-02-2002): Maybe we should assert the correct signature
+       but we currently don't have the object which should implement it.
+       Assertion during evaluation (i.e. when we have an object) could be
+       too expensive.*/
+
       _selector = selector;
-      ASSIGN(_key, key);
+      ASSIGNCOPY(_key, key);
       ASSIGN(_value, value);
     }
 
   return self;
 }
 
-- (void)dealloc
+- (void) dealloc
 {
   DESTROY(_key);
   DESTROY(_value);
@@ -82,101 +96,138 @@ operatorSelector: (SEL)selector
   [super dealloc];
 }
 
-- (SEL)selector
+/**
+ * Returns the selector used by the receiver during in-memory evaluation.
+ * The selector should take a single id as an argument an return a BOOL value.
+ * (More docs to follow for EOQualifierSQLGeneration.)
+ */
+- (SEL) selector
 {
   return _selector;
 }
 
-- (NSString *)key
+/**
+ * Returns the key with which the receiver obtains the value to compare with 
+ * receivers value during in-memory evaluation. (More docs to follow for 
+ * EOQualifierSQLGeneration.)
+ */
+- (NSString *) key
 {
   return _key;
 }
 
-- (id)value
+/**
+ * Returns the value with which the receiver compares the value obtained from
+ * the provided object during in-memory evaluation. (More docs to follow for 
+ * EOQualifierSQLGeneration.)
+ */
+- (id) value
 {
   return _value;
 }
 
-- (id)copyWithZone: (NSZone *)zone
+/**
+ * EOQualifierEvaluation protocol<br/>
+ * Evaluates the object according to the receivers definition.  First the
+ * provided objects value object is obtained by invoking valueForKey: on it
+ * with the receivers key.  If the value object implements the receivers
+ * selector, this method returns the return value of the invocation of this
+ * method with the receivers value as the parameter.<br/> 
+ * If the value object doesn't implement the receivers selector, but the
+ * selector of the reciever is one of:<br/>
+ + <list>
+ * EOQualifierOperatorEqual
+ * EOQualifierOperatorNotEqual
+ * EOQualifierOperatorLessThan
+ * EOQualifierOperatorGreaterThan
+ * EOQualifierOperatorLessThanOrEqual
+ * EOQualifierOperatorGreaterThanOrEqual
+ * EOQualifierOperatorContains
+ * EOQualifierOperatorLike
+ * EOQualifierOperatorCaseInsensitiveLike
+ * </list>
+ * then GDL2 tries to evaluate the qualifier by invoking
+ * isEqual:, compare:, rangeOfString: respectively and interpreting the
+ * results accoring to the selector.  In the case of 
+ * EOQualifierOperatorCaseInsensitiveLike, the values are converted using
+ * uppercaseString for evaluation.<br/>
+ * Both 'Like' fallback implementations are currently implemented by using
+ * isEqual: and do not yet take the ? and * wildcards into account.<br/>
+ * If the receivers selector is neither implemented by the left value nor
+ * corresponds to one of the EOQualifierOperators, this method simply
+ * returns NO.
+ */
+- (BOOL) evaluateWithObject: (id)object
 {
-  EOKeyValueQualifier *qual = [[EOKeyValueQualifier allocWithZone: zone] init];
+  id val;
+  BOOL (*imp)(id, SEL, id);
 
-  qual->_selector = _selector;
-  ASSIGN(qual->_key, _key); //Don't copy it [_key copyWithZone:zone];
-  ASSIGN(qual->_value, _value); //Don't copy it: if this is a generic record, it isn't copyable [_value copyWithZone:zone];
+  val = [object valueForKey: _key];
 
-  return qual;
-}
-
-- (BOOL)evaluateWithObject: (id)object
-{
-  id key;
-
-  key = [object valueForKey: _key];
-
+  imp = (BOOL (*)(id, SEL, id))[val methodForSelector: _selector];
+  if (imp != NULL)
+    {
+      return (*imp) (val, _selector, _value);
+    }
   if (sel_eq(_selector, EOQualifierOperatorEqual) == YES)
     {
-      return [(NSString *)key compare: _value] == NSOrderedSame;
+      return [val isEqual: _value];
     }
   else if (sel_eq(_selector, EOQualifierOperatorNotEqual) == YES)
     {
-      return [(NSString *)key compare: _value] != NSOrderedSame;
+      return ([val isEqual: _value]?NO:YES);
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThan) == YES)
     {
-      return [(NSString *)key compare: _value] == NSOrderedAscending;
+      return [val compare: _value] == NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThan) == YES)
     {
-      return [(NSString *)key compare: _value] == NSOrderedDescending;
+      return [val compare: _value] == NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
     {
-      return [(NSString *)key compare: _value] != NSOrderedDescending;
+      return [val compare: _value] != NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
     {
-      return [(NSString *)key compare: _value] != NSOrderedAscending;
+      return [val compare: _value] != NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorContains) == YES)
     {
-      [self notImplemented: _cmd];
+      return [val rangeOfString: _value].location != NSNotFound;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLike) == YES)
     {
       NSEmitTODO();  //TODO
-      return [key isEqual: _value] == NSOrderedSame;
+      return [val isEqual: _value] == NSOrderedSame;
     }
   else if (sel_eq(_selector, EOQualifierOperatorCaseInsensitiveLike) == YES)
     {
       NSEmitTODO();  //TODO
-      return [[key uppercaseString] isEqual: [_value uppercaseString]]
+      return [[val uppercaseString] isEqual: [_value uppercaseString]]
 	== NSOrderedSame;
     }
-
+  /*Ayers (09-02-2002): Maybe we should raise instead of returning NO.*/
   return NO;
 }
 
-- (NSString *)description
+/**
+ * Returns a human readable representation of the receiver.
+ */
+- (NSString *) description
 {
-/*  //TODO revoir
-  NSString *dscr=nil;
-  int i=0;
-  dscr = [NSString stringWithFormat:@"<%s %p - %@ %@ (%@)%@>",
-		   object_get_class_name(self),
-		   (void*)self,
-                   _key,
-                   NSStringFromSelector(_selector),
-		   NSStringFromClass([_value class]),
-                   _value];
-  return dscr;
-*/
-
+  NSString *selectorString;
+  selectorString = [isa stringForOperatorSelector: _selector];
+  if (selectorString == nil)
+    {
+      selectorString = NSStringFromSelector(_selector);
+    }
   return [NSString stringWithFormat:@"<%s %p - %@ %@ (%@)'%@'>",
 		   object_get_class_name(self),
 		   (void*)self,
 		   _key,
-		   [isa stringForOperatorSelector:_selector],
+		   selectorString,
 		   NSStringFromClass([_value class]),
 		   _value];
 }

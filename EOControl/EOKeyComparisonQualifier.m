@@ -47,24 +47,40 @@ RCS_ID("$Id$")
 
 @implementation EOKeyComparisonQualifier
 
-+ (EOQualifier *)qualifierWithLeftKey: (NSString *)leftKey
-		     operatorSelector: (SEL)selector
-			     rightKey: (id)rightKey
+/**
+ * Returns an autoreleased EOKeyComparisonQualifier using leftKey, selector
+ * and right key.  The selector should take a single id as an argument and
+ * return a BOOL value.  This method calls
+ * [EOKeyComparisonQualifier-initWithLeftKey:operatorSelectot:rightKey:].
+ */
++ (EOQualifier *) qualifierWithLeftKey: (NSString *)leftKey
+		      operatorSelector: (SEL)selector
+			      rightKey: (id)rightKey
 {
-  return [[[self alloc] initWithLeftKey: leftKey
-			operatorSelector: selector
-			rightKey: rightKey] autorelease];
+  return AUTORELEASE([[self alloc] initWithLeftKey: leftKey
+				   operatorSelector: selector
+				   rightKey: rightKey]);
 }
 
-- initWithLeftKey: (NSString *)leftKey
- operatorSelector: (SEL)selector
-	 rightKey: (id)rightKey
+/** <init />
+ * Initializes the receiver with a copy of leftKey, selector and a copy of
+ * rightKey.  The selector should take a single id as an argument and return a
+ * BOOL value.
+ */
+- (id) initWithLeftKey: (NSString *)leftKey
+      operatorSelector: (SEL)selector
+	      rightKey: (id)rightKey
 {
   if ((self = [super init]))
     {
+     /*Ayers (09-02-2002): Maybe we should assert the correct signature
+       but we currently don't have the object which should implement it.
+       Assertion during evaluation (i.e. when we have an object) could be
+       too expensive.*/
+
       _selector = selector;
-      ASSIGN(_leftKey, leftKey);
-      ASSIGN(_rightKey, rightKey);
+      ASSIGNCOPY(_leftKey, leftKey);
+      ASSIGNCOPY(_rightKey, rightKey);
     }
 
   return self;
@@ -78,94 +94,140 @@ RCS_ID("$Id$")
   [super dealloc];
 }
 
-- (SEL)selector
+/**
+ * Returns the selector used by the receiver during in-memory evaluation.
+ * The selector should take a single id as an argument and return a BOOL value.
+ * (More docs to follow for EOQualifierSQLGeneration.)
+ */
+- (SEL) selector
 {
   return _selector;
 }
 
-- (NSString *)leftKey
+/**
+ * Returns the key with which the receiver obtains the left value during
+ * in-memory evaluation. (More docs to follow for EOQualifierSQLGeneration.)
+ */
+- (NSString *) leftKey
 {
   return _leftKey;
 }
 
-- (NSString *)rightKey
+/**
+ * Returns the key with which the receiver obtains the right value during
+ * in-memory evaluation. (More docs to follow for EOQualifierSQLGeneration.)
+ */
+- (NSString *) rightKey
 {
   return _rightKey;
 }
 
-- (id)copyWithZone: (NSZone *)zone
+/**
+ * EOQualifierEvaluation protocol<br/>
+ * Evaluates the object according to the receivers definition.  First the left
+ * value is obtained by invoking valueForKey: on the provided object with the
+ * receivers leftKey and the right value by invoking valueForKey: with the
+ * recievers rightKey.  If the left value implements the receivers selector,
+ * this method returns the return value of the invocation of this method with
+ * the right value as the parameter.<br/> 
+ * If the left object doesn't implement the receivers selector, but the
+ * selector of the reciever is one of:<br/>
+ + <list>
+ * EOQualifierOperatorEqual
+ * EOQualifierOperatorNotEqual
+ * EOQualifierOperatorLessThan
+ * EOQualifierOperatorGreaterThan
+ * EOQualifierOperatorLessThanOrEqual
+ * EOQualifierOperatorGreaterThanOrEqual
+ * EOQualifierOperatorContains
+ * EOQualifierOperatorLike
+ * EOQualifierOperatorCaseInsensitiveLike
+ * </list>
+ * then GDL2 tries to evaluate the qualifier by invoking
+ * isEqual:, compare:, rangeOfString: respectively and interpreting the
+ * results accoring to the selector.  In the case of 
+ * EOQualifierOperatorCaseInsensitiveLike, the values are converted using
+ * uppercaseString for evaluation.<br/>
+ * Both 'Like' fallback implementations are currently implemented by using
+ * isEqual: and do not yet take the ? and * wildcards into account.<br/>
+ * If the receivers selector is neither implemented by the left value nor
+ * corresponds to one of the EOQualifierOperators, this method simply
+ * returns NO.
+ */
+- (BOOL) evaluateWithObject: (id)object
 {
-  EOKeyComparisonQualifier *qual = [[EOKeyComparisonQualifier
-				      allocWithZone: zone] init];
+  id leftVal, rightVal;
+  BOOL (*imp)(id, SEL, id);
 
-  qual->_selector = _selector;
-  qual->_leftKey = [_leftKey copyWithZone: zone];
-  qual->_rightKey = [_rightKey copyWithZone: zone];
+  leftVal  = [object valueForKey: _leftKey];
+  rightVal = [object valueForKey: _rightKey];
 
-  return qual;
-}
-
-- (BOOL)evaluateWithObject: (id)object
-{
-  id leftKey, rightKey;
-
-  leftKey  = [object valueForKey: _leftKey];
-  rightKey = [object valueForKey: _rightKey];
-
+  imp = (BOOL (*)(id, SEL, id))[leftVal methodForSelector: _selector];
+  if (imp != NULL)
+    {
+      return (*imp) (leftVal, _selector, rightVal);
+    }
   if (sel_eq(_selector, EOQualifierOperatorEqual) == YES)
     {
-      return [leftKey isEqual: rightKey] == NSOrderedSame;
+      return [leftVal isEqual: rightVal];
     }
   else if (sel_eq(_selector, EOQualifierOperatorNotEqual) == YES)
     {
-      return [leftKey isEqual: rightKey] != NSOrderedSame;
+      return ([leftVal isEqual: rightVal]?NO:YES);
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThan) == YES)
     {
-      return [(NSObject *)leftKey compare: rightKey] == NSOrderedAscending;
+      return [leftVal compare: rightVal] == NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThan) == YES)
     {
-      return [(NSObject *)leftKey compare: rightKey] == NSOrderedDescending;
+      return [leftVal compare: rightVal] == NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
     {
-      return [(NSObject *)leftKey compare: rightKey] != NSOrderedDescending;
+      return [leftVal compare: rightVal] != NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
     {
-      return [(NSObject *)leftKey compare: rightKey] != NSOrderedAscending;
+      return [leftVal compare: rightVal] != NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorContains) == YES)
     {
-      [self notImplemented: _cmd];
-
-      return NO;
+      return [leftVal rangeOfString: rightVal].location != NSNotFound;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLike) == YES)
     {
       NSEmitTODO();  //TODO
-      return [leftKey isEqual: rightKey]
+      return [leftVal isEqual: rightVal]
 	== NSOrderedSame;
     }
   else if (sel_eq(_selector, EOQualifierOperatorCaseInsensitiveLike) == YES)
     {
       NSEmitTODO();  //TODO
-      return [[leftKey uppercaseString] isEqual: [rightKey uppercaseString]]
+      return [[leftVal uppercaseString] isEqual: [rightVal uppercaseString]]
 	== NSOrderedSame;
     }
-
+  /*Ayers (09-02-2002): Maybe we should raise instead of returning NO.*/
   return NO;
 }
 
-- (NSString *)description
+/**
+ * Returns a human readable representation of the receiver.
+ */
+- (NSString *) description
 {
-    return [NSString stringWithFormat:@"<%s %p - %@ %@ %@>",
-		     object_get_class_name(self),
-		     (void*)self,
-		     _leftKey,
-		     [isa stringForOperatorSelector:_selector],
-		     _rightKey];
+  NSString *selectorString;
+  selectorString = [isa stringForOperatorSelector: _selector];
+  if (selectorString == nil)
+    {
+      selectorString = NSStringFromSelector(_selector);
+    }
+  return [NSString stringWithFormat:@"<%s %p - %@ %@ %@>",
+		   object_get_class_name(self),
+		   (void*)self,
+		   _leftKey,
+		   selectorString,
+		   _rightKey];
 }
 
 @end

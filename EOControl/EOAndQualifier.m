@@ -49,12 +49,21 @@ RCS_ID("$Id$")
 
 @implementation EOAndQualifier
 
-+ (EOQualifier *)qualifierWithQualifierArray: (NSArray *)array
+/**
+ * Returns an autoreleased EOAndQualifier consisting of the provided array of
+ * qualifiers.  This method calls [EOAndQualifier-initWithQualifierArray:].  
+ */ 
++ (EOQualifier *) qualifierWithQualifierArray: (NSArray *)array
 {
   return AUTORELEASE([[self alloc] initWithQualifierArray: array]);
 }
 
-+ (EOQualifier *)qualifierWithQualifiers: (EOQualifier *)qualifiers, ...
+/**
+ * Returns an autoreleased EOAndQualifier consisting of the provided
+ * nil terminated list of qualifiers.  This method calls
+ * [EOAndQualifier-initWithQualifierArray:].  
+ */ 
++ (EOQualifier *) qualifierWithQualifiers: (EOQualifier *)qualifiers, ...
 {
   NSMutableArray *qualArray = [NSMutableArray array];
   EOQualifier *tmpId;
@@ -62,10 +71,9 @@ RCS_ID("$Id$")
 
   va_start(ap, qualifiers);
 
-  for (tmpId = qualifiers; tmpId != nil;)
+  for (tmpId = qualifiers; tmpId != nil; tmpId = va_arg(ap, id))
     {
       [qualArray addObject: tmpId];
-      tmpId = va_arg(ap, id);
     }
 
   va_end(ap);
@@ -73,6 +81,11 @@ RCS_ID("$Id$")
   return AUTORELEASE([[self alloc] initWithQualifierArray: qualArray]);
 }
 
+/**
+ * Initializes the receiver with the provided
+ * nil terminated list of qualifiers.  This method calls
+ * [EOAndQualifier-initWithQualifierArray:].  
+ */ 
 - (id) initWithQualifiers: (EOQualifier *)qualifiers, ...
 {
   NSMutableArray *qualArray = [NSMutableArray array];
@@ -81,10 +94,9 @@ RCS_ID("$Id$")
 
   va_start(ap, qualifiers);
 
-  for (tmpId = qualifiers; tmpId != nil;)
+  for (tmpId = qualifiers; tmpId != nil; tmpId = va_arg(ap, id))
     {
       [qualArray addObject: tmpId];
-      tmpId = va_arg(ap, id);
     }
 
   va_end(ap);
@@ -92,11 +104,14 @@ RCS_ID("$Id$")
   return [self initWithQualifierArray: qualArray];
 }
 
+/** <init />
+ * Initializes the receiver with the provided array of qualifiers.  
+ */ 
 - (id) initWithQualifierArray: (NSArray *)array
 {
   if ((self = [self init]))
     {
-      ASSIGN(_qualifiers, array);
+      ASSIGNCOPY(_qualifiers, array);
     }
 
   return self;
@@ -109,20 +124,20 @@ RCS_ID("$Id$")
   [super dealloc];
 }
 
+/**
+ * Returns the recievers array of qualifiers.
+ */
 - (NSArray *)qualifiers
 {
   return _qualifiers;
 }
 
-- (id)copyWithZone: (NSZone *)zone
-{
-  EOAndQualifier *qual = [[EOAndQualifier allocWithZone: zone] init];
-
-  qual->_qualifiers = [_qualifiers copyWithZone: zone];
-
-  return qual;
-}
-
+/**
+ * EOQualifierEvaluation protocol
+ * Returns YES if all of the receivers qualifiers return YES to
+ * [EOQualifierEvaluation-evaluateWithObjects:] with object.  This method
+ * returns NO as soon as the first qualifier retuns NO.
+ */
 - (BOOL)evaluateWithObject: (id)object
 {
   NSEnumerator *qualifiersEnum;

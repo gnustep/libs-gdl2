@@ -81,6 +81,10 @@ RCS_ID("$Id$")
 
 @implementation EOQualifier
 
+/**
+ * Returns an autoreleased qualifier which is constructed by calling
+ * [EOQualifier+qualifierWithQualifierFormat:varargList:]
+ */
 + (EOQualifier *)qualifierWithQualifierFormat: (NSString *)qualifierFormat, ...
 {
   EOQualifier *qualifier = nil;
@@ -335,7 +339,8 @@ static id getKey(const char **cFormat, const char **s, BOOL *isKeyValue,
 
       if (classString)
         {
-          key = [[[NSClassFromString(classString) alloc] initWithString: key] autorelease];
+          key = AUTORELEASE([[NSClassFromString(classString) alloc]
+			      initWithString: key]);
         }
     }
     
@@ -503,7 +508,8 @@ static Class whichQualifier(const char **cFormat, const char **s)
         if (qualifierArray != nil)
 	  {
 	    [qualifierArray addObject:qualifier];
-	    qualifier = AUTORELEASE([[qualifierClass alloc] initWithQualifierArray:qualifierArray]);
+	    qualifier = AUTORELEASE([[qualifierClass alloc]
+				      initWithQualifierArray: qualifierArray]);
 	    qualifierArray = nil;
 	  }
 
@@ -710,9 +716,16 @@ static Class whichQualifier(const char **cFormat, const char **s)
     }
 }
 
+/**
+ * NSCopying protocol
+ * EOQualifiers are immutable.  Returns the receiver after retaining it.<br\>
+ * If you wish to gain memory locality, you should recrate the qualifier
+ * from scratch insuring that all referenced objects are also local to the new
+ * zone.
+ */
 - (id)copyWithZone: (NSZone *)zone
 {
-  return NSCopyObject(self, 0, zone);
+  return RETAIN(self);
 }
 
 - (EOQualifier *)qualifierByApplyingBindings: (id)bindings
@@ -786,7 +799,7 @@ static Class whichQualifier(const char **cFormat, const char **s)
 
 + (EOQualifierVariable *)variableWithKey: (NSString *)key
 {
-  return [EOQualifierVariable variableWithKey: key];
+  return AUTORELEASE([[self alloc] initWithKey: key]);
 }
 
 - (EOQualifierVariable *)initWithKey: (NSString *)key
