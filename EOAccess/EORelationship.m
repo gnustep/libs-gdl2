@@ -1474,10 +1474,10 @@ relationships. Nil if none" **/
                 else
                   {
                     if (_joins)
-                      _joins = [[[_joins autorelease]
-				  arrayByAddingObject: join] retain];
+                      _joins = RETAIN([[_joins autorelease]
+				  arrayByAddingObject: join]);
                     else
-                      _joins = [[GCArray arrayWithObject: join] retain];
+                      _joins = RETAIN([GCArray arrayWithObject: join]);
 
                     EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 					  _joins, [_joins class]);
@@ -1721,7 +1721,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
         }
       else
         {
-          _joins = [[_joins autorelease] copy];
+          _joins = [[GCArray alloc] initWithArray:[_joins autorelease] copyItems:NO];
 
           EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 		       _joins, [_joins class]);

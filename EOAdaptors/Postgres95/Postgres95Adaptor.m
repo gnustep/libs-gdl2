@@ -149,26 +149,27 @@ static int pgConnCurrentAllocated = 0;
     }*/
 
 static NSString *externalTypeNames[] = {
-  @"bool", 
+#warning (stephane@sente.ch) Needs to be updated!!!
+  @"boolean", @"bool", 
   @"char", @"char2", @"char4", @"char8", @"char16", @"filename", 
-  @"date", @"reltime", @"time", @"tinterval", @"abstime", 
-  @"float4", @"float8", 
+  @"date", @"reltime", @"time", @"tinterval", @"abstime", @"timestamp",
+  @"real", @"double precision", @"float4", @"float8", 
   @"int4", @"int2", 
   @"oid", @"oid8", @"oidint2", @"oidint4", @"oidchar16",
   @"varchar", @"bpchar",
-  @"cid", @"tid", @"xid",
+  @"numeric", @"decimal", @"cid", @"tid", @"xid",
   nil
 };
 
 static NSString *internalTypeNames[] = {
-  @"NSNumber",
-  @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
-  @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate",
   @"NSNumber", @"NSNumber",
+  @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
+  @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate",
+  @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
   @"NSNumber", @"NSNumber",
   @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
   @"NSString", @"NSString",
-  @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber",
+  @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber",
   nil
 };
 
@@ -182,7 +183,7 @@ static NSString *internalTypeNames[] = {
 
     for (i = 0; externalTypeNames[i]; i++);
 
-    externalToInternalTypeMap = [[NSDictionary dictionaryWithObjects: internalTypeNames forKeys: externalTypeNames count: i] retain];
+    externalToInternalTypeMap = [[NSDictionary alloc] initWithObjects: internalTypeNames forKeys: externalTypeNames count: i];
   }
 
   return externalToInternalTypeMap;

@@ -39,6 +39,7 @@
 RCS_ID("$Id$")
 
 #include <ctype.h>
+#include <string.h>
 
 #import <Foundation/NSUtilities.h>
 #import <Foundation/NSArchiver.h>
@@ -251,7 +252,7 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
   if (_name)
     [propertyList setObject: _name forKey: @"name"];
   if (_serverTimeZone)
-    [propertyList setObject: [_serverTimeZone timeZoneName]
+    [propertyList setObject: [_serverTimeZone name]
 		  forKey: @"serverTimeZone"];
   if (_columnName)
     [propertyList setObject: _columnName forKey: @"columnName"];

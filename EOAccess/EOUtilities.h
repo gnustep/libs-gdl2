@@ -74,8 +74,6 @@ extern NSString *EOMoreThanOneException;
 - (id)objectWithPrimaryKey: (NSDictionary*)pkDict
 	       entityNamed: (NSString*)name;
 
-- (NSArray *)objectsOfClass: (Class)class;
-
 - (NSArray*)rawRowsForEntityNamed: (NSString*)name
 		  qualifierFormat: (NSString*)format, ...;
 - (NSArray*)rawRowsMatchingValue: (id)value

@@ -277,7 +277,7 @@ RCS_ID("$Id$")
   if (![self isFetchInProgress])
     {
       NSLog(@"No Fetch in progress");
-      NSDebugMLog(@"No Fetch in progress");
+      NSDebugMLog(@"No Fetch in progress", "");
 
       [NSException raise: NSInvalidArgumentException
                    format: @"%@ -- %@ 0x%x: no fetch in progress",
@@ -312,6 +312,10 @@ RCS_ID("$Id$")
             adaptorContext transactionDidCommit
           */
         }
+      else if([[_fetchSpecifications lastObject] fetchesRawRows])  // Testing against only one should be enough
+	{
+          object = [NSDictionary dictionaryWithDictionary:row];
+	}
       else
         {
           BOOL isObjectNew = YES; //TODO used to avoid double fetch. We should see how to do when isRefreshingObjects == YES
@@ -680,12 +684,13 @@ RCS_ID("$Id$")
               {
                 EOFetchSpecification *fetchSubEntity;
                 
-                fetchSubEntity = [[fetch copy] autorelease];
+                fetchSubEntity = [fetch copy];
                 [fetchSubEntity setEntityName: [entity name]];
                 
                 [array addObjectsFromArray:
 			 [context objectsWithFetchSpecification:
 				    fetchSubEntity]];
+                [fetchSubEntity release];
               }
           }
       }
@@ -747,7 +752,7 @@ RCS_ID("$Id$")
 	       ([self isFetchInProgress] ? "YES" : "NO"));
 
 //TODO: verify
-/*
+// (stephane@sente.ch) Uncommented end to allow rawRow fetches
   if([_databaseContext updateStrategy] == EOUpdateWithPessimisticLocking
      && ![[_databaseContext adaptorContext] transactionNestingLevel])
     [NSException raise:NSInvalidArgumentException
@@ -770,9 +775,9 @@ RCS_ID("$Id$")
 
   [_fetchSpecifications addObject:fetch];
 
-  [self setCurrentEntity:[[_databaseContext database]
-			   entityNamed:[fetch entityName]]];//done
-  [self setCurrentEditingContext:context];//done
+//  [self setCurrentEntity:[[_databaseContext database]
+//			   entityNamed:[fetch entityName]]];//done
+//  [self setCurrentEditingContext:context];//done
 
   [self setIsLocking:([_databaseContext updateStrategy] ==
 		      EOUpdateWithPessimisticLocking ?
@@ -780,21 +785,21 @@ RCS_ID("$Id$")
 		      [fetch locksObjects])];
   [self setIsRefreshingObjects:[fetch refreshesRefetchedObjects]];
 
-  attributesToFetch = [_currentEntity attributesToFetch];//done
+//  attributesToFetch = [_currentEntity attributesToFetch];//done
 
-  EOFLOGObjectLevelArgs(@"gsdb",@"[_adaptorChannel class]: %@",[_adaptorChannel class]);
-  [_adaptorChannel selectAttributes:attributesToFetch
-		   fetchSpecification:fetch
-		   lock:_isLocking
-		   entity:_currentEntity];//done
+//  EOFLOGObjectLevelArgs(@"gsdb",@"[_adaptorChannel class]: %@",[_adaptorChannel class]);
+//  [_adaptorChannel selectAttributes:attributesToFetch
+//		   fetchSpecification:fetch
+//		   lock:_isLocking
+//		   entity:_currentEntity];//done
 
-  [_fetchProperties addObjectsFromArray:attributesToFetch];
+  [_fetchProperties addObjectsFromArray:[self _propertiesToFetch]];
 
   if(_delegateRespondsTo.didSelectObjects)
     [_delegate databaseContext:_databaseContext
 	       didSelectObjectsWithFetchSpecification:fetch
 	       databaseChannel:self];
-*/
+
 
   EOFLOGObjectFnStop();
 }

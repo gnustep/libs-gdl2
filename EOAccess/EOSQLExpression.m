@@ -75,6 +75,10 @@ NSString *EOBindVariablePlaceHolderKey = @"EOBindVariablePlaceHolderKey";
 NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
 
+@interface EOSQLExpression(Private)
++ (id)sqlExpressionWithEntity: (EOEntity *)entity;
+@end
+
 @implementation EOSQLExpression
 
 + (id)sqlExpressionWithEntity: (EOEntity *)entity
@@ -2343,6 +2347,7 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
   return [self stringValue];
 }
 
+@end
 
 @implementation NSObject (EOSQLFormatting)
 
@@ -2419,6 +2424,52 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   return array;
 }
 
++ (NSArray *)foreignKeyConstraintStatementsForEntityGroup:(NSArray *)entityGroup
+{
+  NSMutableArray *sqlExps;
+  NSEnumerator    *relEnum;
+  EORelationship  *rel;
+  EOEntity        *entity;
+
+  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
+  entity = [entityGroup objectAtIndex: 0];
+  sqlExps = [NSMutableArray array];
+  relEnum = [[entity relationships] objectEnumerator];
+
+  while ((rel = [relEnum nextObject]))
+    {
+      [sqlExps addObjectsFromArray:
+		 [self foreignKeyConstraintStatementsForRelationship: rel]];
+    }
+
+  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
+  return sqlExps;
+}
+
++ (NSArray *)foreignKeyConstraintStatementsForEntityGroups: (NSArray *)entityGroups
+{
+  NSMutableArray *array;
+  NSEnumerator   *groupsEnum;
+  NSArray        *group;
+
+  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
+  array = [NSMutableArray arrayWithCapacity: [entityGroups count]];
+
+  groupsEnum = [entityGroups objectEnumerator];
+  while ((group = [groupsEnum nextObject]))
+    {
+      [array addObjectsFromArray:
+	       [self foreignKeyConstraintStatementsForEntityGroup: group]];
+    }
+
+  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
+  return array;
+}
+
 // default implementation verifies that relationship joins on foreign key
 // of destination and calls
 // prepareConstraintStatementForRelationship:sourceColumns:destinationColumns:
@@ -2445,7 +2496,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 
   [sqlExp setStatement: [NSString stringWithFormat:@"CREATE TABLE %@ (%@)",
 				  [[entityGroup objectAtIndex: 0] externalName],
-				  [self listString]]];
+				  [sqlExp listString]]];
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
 
@@ -2717,20 +2768,20 @@ struct _schema
   EOEntity       *entity;
   int             i, h, count;
   struct _schema  defaults[] = {
-    {EOCreateTablesKey           , @"YES",
-     @selector(createTableStatementsForEntityGroups:)},
-    {EODropTablesKey             , @"YES",
-     @selector(dropTableStatementsForEntityGroups:)},
-    {EOCreatePrimaryKeySupportKey, @"YES",
-     @selector(primaryKeySupportStatementsForEntityGroups:)},
     {EODropPrimaryKeySupportKey  , @"YES",
      @selector(dropPrimaryKeySupportStatementsForEntityGroups:)},
+    {EODropTablesKey             , @"YES",
+     @selector(dropTableStatementsForEntityGroups:)},
+    {EOCreateTablesKey           , @"YES",
+     @selector(createTableStatementsForEntityGroups:)},
+    {EOCreatePrimaryKeySupportKey, @"YES",
+     @selector(primaryKeySupportStatementsForEntityGroups:)},
     {EOPrimaryKeyContraintsKey   , @"YES",
      @selector(primaryKeyConstraintStatementsForEntityGroups:)},
     {EOForeignKeyConstraintsKey  , @"NO",
-     @selector(foreignKeyConstraintStatementsForRelationship:)},
+     @selector(foreignKeyConstraintStatementsForEntityGroups:)},
     {nil, nil},
-  };
+  }; // Order is important!
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
@@ -2779,7 +2830,6 @@ struct _schema
 {
   NSString *extType = [attribute externalType];
   int precision = [attribute precision];
-  int scale = [attribute scale];
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
@@ -2787,12 +2837,12 @@ struct _schema
     {
       EOFLOGClassFnStopOrCond(@"EOSQLExpression");
       return [NSString stringWithFormat:@"%@(%d, %d)", extType, precision,
-		       scale];
+		       [attribute scale]];
     }
   else if ([attribute width])
     {
       EOFLOGClassFnStopOrCond(@"EOSQLExpression");
-      return [NSString stringWithFormat: @"%@(%d)", extType, scale];
+      return [NSString stringWithFormat: @"%@(%d)", extType, [attribute width]];
     }
   else
     {
@@ -2825,9 +2875,9 @@ struct _schema
 		    columnType, allowsNull];
   else
     str = [NSString stringWithFormat: @"%@ %@", [attribute columnName],
-		    allowsNull];
+		    columnType];
 
-  [self appendItem:str toListString: _listString];
+  [self appendItem:str toListString: /*_listString*/[self listString]]; // Else no chance to get inited (lazy)
 
   EOFLOGClassFnStopOrCond(@"EOSQLExpression");
 }

@@ -82,13 +82,14 @@ static void __dummy_function_used_for_linking(void)
 //verify
       _oidToTypeName = [[NSMutableDictionary alloc] initWithCapacity: 101];
 
-      attr = [[[EOAttribute alloc] init] autorelease];
+      attr = [[EOAttribute alloc] init];
       [attr setName: @"nextval"];
       [attr setColumnName: @"nextval"];
       [attr setValueType: @"i"];
       [attr setValueClassName: @"NSNumber"];
 
       ASSIGN(_pkAttributeArray, [NSArray arrayWithObject: attr]);
+      RELEASE(attr);
     }
 
   return self;
@@ -261,7 +262,7 @@ zone:zone
 
       if ([self advanceRow] == NO)
         {
-          NSDebugMLLog(@"gsdb", @"No Advance Row");
+          NSDebugMLLog(@"gsdb", @"No Advance Row", "");
 
           // Return nil to indicate that the fetch operation was finished      
           if (_delegateRespondsTo.didFinishFetching)
@@ -307,7 +308,7 @@ zone:zone
 
               if (PQgetisnull(_pgResult, _currentResultRow, i))
                 {
-                  values[i] = [nullValue retain]; //to be compatible with others returned values
+                  values[i] = RETAIN(nullValue); //to be compatible with others returned values
                 }
               else
                 {
@@ -511,7 +512,7 @@ zone:zone
 //call PostgreSQLChannel numberOfAffectedRows
   /* Send the expression to the SQL server */
 
-  _pgResult = PQexec(_pgConn, (char *)[[expression statement] cString]);
+  _pgResult = PQexec(_pgConn, (char *)[[[expression statement] stringByAppendingString:@";"] cString]); // stephane@sente.ch: We need to add ; for INSERT, at least
   NSDebugMLLog(@"gsdb", @"_pgResult=%p", (void*)_pgResult);
 
   if (_pgResult == NULL)
@@ -575,7 +576,7 @@ zone:zone
   if (![self _evaluateExpression: expression
 	     withAttributes: nil])
     {
-      NSDebugMLLog(@"gsdb", @"_evaluateExpression:withAttributes: return NO");
+      NSDebugMLLog(@"gsdb", @"_evaluateExpression:withAttributes: return NO", "");
       [self _cancelResults];
     }
   else
@@ -630,13 +631,13 @@ zone:zone
      row the large objects as Oids and to insert them with the large
      object file-like interface */
 
-  nrow = [[row mutableCopy] autorelease];
+  nrow = AUTORELEASE([row mutableCopy]);
 
   adaptorContext = (Postgres95Context *)[self adaptorContext];
 
   [self _cancelResults]; //No done by WO
 
-  NSDebugMLLog(@"gsdb", @"autoBeginTransaction");
+  NSDebugMLLog(@"gsdb", @"autoBeginTransaction", "");
   [adaptorContext autoBeginTransaction: YES];
 /*:
  row allKeys
@@ -840,10 +841,10 @@ each key
   [self _evaluateExpression: sqlExpr
         withAttributes: attributes];
 
-  NSDebugMLLog(@"gsdb", @"After _evaluate");
+  NSDebugMLLog(@"gsdb", @"After _evaluate", "");
 //  NSDebugMLLog(@"gsdb",@"BB attributes=%@",_attributes);
   [_adaptorContext autoCommitTransaction];
-  NSDebugMLLog(@"gsdb", @"After autoCommitTransaction");
+  NSDebugMLLog(@"gsdb", @"After autoCommitTransaction", "");
 
   if (_delegateRespondsTo.didSelectAttributes)
     [_delegate adaptorChannel: self
@@ -900,13 +901,12 @@ each key
 
   if ([values count] > 0)
     {
-      mrow = [[values mutableCopyWithZone: [values zone]] autorelease];
+      mrow = AUTORELEASE([values mutableCopyWithZone: [values zone]]);
 
       // Get EOAttributes involved in update operation
       // Modify "inversion" attributes to NSNumber type with the Oid
 
-      invAttributes = [[[NSMutableArray alloc] initWithCapacity: [mrow count]] 
-                        autorelease];
+      invAttributes = AUTORELEASE([[NSMutableArray alloc] initWithCapacity: [mrow count]]);
 
       enumerator = [values keyEnumerator];
       while ((attrName = [enumerator nextObject]))
@@ -1219,7 +1219,7 @@ each key
 
       for (i = 0; i < colsNumber; i++)
         {
-          EOAttribute *attribute = [[EOAttribute new] autorelease];
+          EOAttribute *attribute = AUTORELEASE([EOAttribute new]);
           NSString *externalName;
           NSString *valueClass = @"NSString";
           NSString *valueType = nil;
@@ -1296,9 +1296,9 @@ each key
 		      [[attribute entity] attributesToFetch]);
         }
 
-      [self setAttributesToFetch: [[[NSArray alloc]
+      [self setAttributesToFetch: AUTORELEASE([[NSArray alloc]
 				     initWithObjects: attributes
-				     count: colsNumber] autorelease]];
+				     count: colsNumber])];
     }
 //  NSDebugMLLog(@"gsdb",@"_attributes=%@",_attributes);
 
@@ -1316,8 +1316,7 @@ each key
   NSAssert(_pgConn, @"Channel not opened");
 
   _pgResult = PQexec(_pgConn,
-		     "SELECT tablename FROM pg_tables WHERE 
-pg_tables.schemaname = 'public'");
+		     "SELECT tablename FROM pg_tables WHERE pg_tables.schemaname = 'public'");
 
   if (_pgResult == NULL
       || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
@@ -1358,13 +1357,13 @@ pg_tables.schemaname = 'public'");
   EOModel *model;
   EOEntity *entity;
 
-  model = [[[EOModel alloc] init] autorelease];
+  model = AUTORELEASE([[EOModel alloc] init]);
 
   tableEnum = [tableNames objectEnumerator];
 
   while ((table = [tableEnum nextObject]))
     {
-      entity = [[[EOEntity alloc] init] autorelease];
+      entity = AUTORELEASE([[EOEntity alloc] init]);
       [entity setExternalName: table];
       [model addEntity: entity];
     }
@@ -1431,11 +1430,10 @@ pg_tables.schemaname = 'public'");
       string = PQgetvalue(_pgResult, _currentResultRow, 0);
       length = PQgetlength(_pgResult, _currentResultRow, 0);
       
-      pkValue = [[Postgres95Values newValueForBytes: string
+      pkValue = AUTORELEASE([Postgres95Values newValueForBytes: string
                                    length: length
                                    attribute: [_pkAttributeArray
-						objectAtIndex: 0]]
-                  autorelease];
+						objectAtIndex: 0]]);
 
       NSAssert(pkValue, @"no pk value");
       key = [[entity primaryKeyAttributeNames] objectAtIndex: 0];

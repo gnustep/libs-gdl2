@@ -1,3 +1,89 @@
+2003-02-03  Stephane Corthesy	<stephane@sente.ch>
+
+	* Postgres95Adaptor.m: made some changes to externalTypeNames (needs
+	to be reviewed completely!); avoided needless autoreleased object
+	* Postgres95Channel.m: avoided needless autoreleased object ; added
+	arg to NSDebugMLLog (should be replaced by other log macro); use
+	macros RETAIN, AUTORELASE; when invoking PQexec, added ending ";" to
+	statement (necessary for inserts, at least)
+	* Postgres95SQLExpression.m: replaced #import <EOAccess/EOAccess.h> by
+	smaller #imports; commented out use of external type 'datetime'
+	(obsolete?); corrected bug in +formatValue:forAttribute: (error when
+	escaping special characters); overloaded
+	+dropTableStatementsForEntityGroup: to append CASCADE (maybe this
+	should be done in EOSQLExpression class?), else it is not possible to
+	drop tables which contain foreign key constraints; overloaded
+	+prepareConstraintStatementForRelationship:sourceColumns:
+	destinationColumns: to append DEFERRABLE INITIALLY DEFERRED (maybe this
+	should be done in EOSQLExpression class?)
+	* Postgres95Values.h: made Postgres95Values inherit from NSObject, else
+	ObjC runtime doesn't like it and crashes!
+
+	* EOAdaptor.m: added #import <Foundation/NSData.h>; corrected bug when
+	instantiating adaptor: class name needs to be taken exclusively from
+	infoDictionary, because a framework's principalClass is indeterminate
+	(is it?); corrected var type; added empty implementation of
+	EOLoginPanel class (is the method named
+	"administraticeConnectionDictionaryForAdaptor:" correct? Shouldn't it
+	be "administrativeConnectionDictionaryForAdaptor:" ??)
+	* EOAttribute.m: added #include <string.h>; use -[NSTimeZone name]
+	instead of -[NSTimeZone timeZoneName] (also on GNUstep?)
+	* EODatabaseChannel.m: corrected bug with macro NSDebugMLog (which
+	should be replaced by other macro...); in -fetchObject, added support
+	for raw rows (works for me, but I'm not sure whether it is totally
+	correct: _fetchSpecifications ivar is used nowhere!); avoided use of
+	autoreleased objects; in
+	-_selectWithFetchSpecification:editingContext:, uncommented last part
+	to allow support for raw rows.
+	* EODatabaseContext.h: added #import <Foundation/NSDate.h>
+	* EODatabaseContext.m: #import <Foundation/NSKeyValueCoding.h> only
+	when FOUNDATION_HAS_KVC? ; added declaration of -entityForGlobalID:;
+	replaced some retain by RETAIN; in
+	objectsWithFetchSpecification:editingContext:, added support for raw
+	rows (adapted code of non raw rows => needs refactoring); added missing
+	cast; corrected bug with macro NSDebugMLog (which should be replaced by
+	other macro...)
+	* EODatabaseDatasource.m: added #import <Foundation/NSEnumerator.h>;
+	added declaration of
+	-_partialInitWithEditingContext:entityName:fetchSpecificationName:
+	* EOEntity.m: corrected bugs with lazy loading of ivars by using
+	_flags.updating, in -initWithPropertyList:owner:, and by using methods
+	instead of direct access to ivars; in -classProperties, corrected
+	problem with vars containing sometimes strings, sometimes
+	EOAttribute/EORelationship! (very weird way of lazy initialization...
+	Should be reviewed); added use of _flags.updating in -relationships and
+	-attributes; in -isPrimaryKeyValidInObject:, no longer tests against
+	[NSNull null], because [EONull null] == [NSNull null]; replaced some
+	retain by RETAIN; in -addAttribute:, -removeAttribute:,
+	-addRelationship: and  -removeRelationship:, corrected nasty bug due to
+	mutableCopy: now we are independant of mutableCopy implementation (deep
+	or shallow copy), as implementation changed these last days and might
+	change again. Added -_setClassName: to allow modification without
+	calling willChange, when necessary (init); modified _setIsEdited to
+	test _flags.updating; in -awakeObject:fromInsertionInEditingContext:,
+	corrected conditions to create relationship (propagatesPrimaryKey has
+	nothing to do with it, whereas isMandatory is important)
+	* EOModel.m: added #include <gnustep/base/GSObjCRuntime.h> and #import
+	<Foundation/NSPathUtilities.h>; changed search strategy for models by
+	using NSSearchPathForDirectoriesInDomains(); replaced some retain by
+	RETAIN; avoided use of mutableCopy and copy
+	* EORelationship.m: replaced some retain by RETAIN; avoided use of
+	mutableCopy and copy
+	* EOSQLExpression.m: added declaration of +sqlExpressionWithEntity:;
+	added +foreignKeyConstraintStatementsForEntityGroup: and
+	+foreignKeyConstraintStatementsForEntityGroups:; in
+	+createTableStatementsForEntityGroup:, corrected call to listString; in
+	+schemaCreationStatementsForEntities:options:, reordered defaults[] to
+	allow correct SQL generation (you drop first, then create) and
+	corrected method to invoke for EOForeignKeyConstraintsKey; corrected
+	-columnTypeStringForAttribute: and -addCreateClauseForAttribute:
+	* EOSchemaGeneration.h: corrected documentation
+	* EOStoredProcedure.m: added #import <Foundation/NSEnumerator.h>
+	* EOUtilities.h: removed duplicate delcaration of -objectsOfClass:
+	* EOUtilities.m: added #import <EOControl/EOGenericRecord.h>; corrected
+	bug with macro NSDebugMLog (which should be replaced by other
+	macro...); corrected type casting; added type casting.
+
 2003-02-02  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOControl/EOGenericRecord.m ([EOGenericRecord +initialize]): import

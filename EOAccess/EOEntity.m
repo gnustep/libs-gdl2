@@ -42,8 +42,6 @@ RCS_ID("$Id$")
 
 #import <Foundation/Foundation.h>
 
-#import <gnustep/base/GCObject.h>
-
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOEntityPriv.h>
@@ -99,10 +97,13 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           NSArray	*array = nil;
           NSString	*tmpString = nil;
           id		tmpObject = nil;
-          
+
+          _flags.updating = YES;
           ASSIGN(_name, [propertyList objectForKey: @"name"]);
 
+//          ASSIGN(_externalName,[propertyList objectForKey: @"externalName"]);
           [self setExternalName: [propertyList objectForKey: @"externalName"]];
+//          ASSIGN(_externalQuery, [propertyList objectForKey: @"externalQuery"]);
           [self setExternalQuery:
 	    [propertyList objectForKey: @"externalQuery"]];
 
@@ -152,6 +153,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                         [tmpString class],
                         tmpString);*/
               //[self setUserInfo:[tmpString propertyList]];
+//              ASSIGN(_userInfo, tmpObject);
               [self setUserInfo: tmpObject];
             }
 
@@ -160,8 +162,11 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           EOFLOGObjectLevelArgs(@"EOEntity", @"tmpObject=%@ [%@]",
 				tmpObject, [tmpObject class]);
 
+//          ASSIGN(_internalInfo, tmpObject);
           [self _setInternalInfo: tmpObject];
+//          ASSIGN(_docComment, [propertyList objectForKey:@"docComment"]);
           [self setDocComment:[propertyList objectForKey:@"docComment"]];
+//          [self _setClassName:[propertyList objectForKey: @"className"]];
           [self setClassName: [propertyList objectForKey: @"className"]];
           [self setIsAbstractEntity:
 		  [[propertyList objectForKey: @"isAbstractEntity"] boolValue]];
@@ -321,7 +326,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 	      }
           }
 
-          [self setCreateMutableObjects: NO]; //?? TC say no, mirko yes 
+          [self setCreateMutableObjects: NO]; //?? TC say no, mirko yes
+          _flags.updating = NO;
         }  
     }
   NS_HANDLER
@@ -1004,8 +1010,13 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           for (i = 0; i < count; i++)
             {
+#if 0
               NSString *classPropertyName = [classPropertiesList
 					      objectAtIndex: i];
+#else
+              NSString *classPropertyName = ([[classPropertiesList objectAtIndex:i] isKindOfClass:[NSString class]] ? [classPropertiesList objectAtIndex:i]:[[classPropertiesList
+                          objectAtIndex: i] name]);
+#endif
               id classProperty = [self attributeNamed: classPropertyName];
 
               if (!classProperty)
@@ -1144,6 +1155,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           _flags.relationshipsIsLazy = NO;
           [EOObserverCenter suppressObserverNotification];
+          _flags.updating = YES;
 
           NS_DURING
             {
@@ -1250,6 +1262,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
               DESTROY(relationshipPLists);
 
+              _flags.updating = NO;
               [EOObserverCenter enableObserverNotification];
               [localException raise];
             }
@@ -1257,6 +1270,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           DESTROY(relationshipPLists);
 
+          _flags.updating = NO;
           [EOObserverCenter enableObserverNotification];
         }
       else
@@ -1308,6 +1322,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           _flags.attributesIsLazy = NO;
 
           [EOObserverCenter suppressObserverNotification];
+          _flags.updating = YES;
 
           NS_DURING
             {
@@ -1447,6 +1462,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           NS_HANDLER
             {
               DESTROY(attributePLists);
+	      _flags.updating = NO;
               [EOObserverCenter enableObserverNotification];
               [localException raise];
             }
@@ -1454,6 +1470,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           DESTROY(attributePLists);
 
+          _flags.updating = NO;
           [EOObserverCenter enableObserverNotification];
           [_attributes sortUsingSelector: @selector(eoCompareOnName:)];//Very important to have always the same order.
         }
@@ -1704,7 +1721,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       NS_DURING
 	{
           value = [object valueForKey: key];
-          if (value == nil || value == [EONull null] || value == [NSNull null])
+          if (value == nil || value == [EONull null])
             isValid = NO;
 	}
       NS_HANDLER
@@ -1990,8 +2007,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   if ([self createsMutableObjects])
     [(GCMutableArray *)_attributes addObject: attribute];
   else
-    _attributes = [[[_attributes autorelease]
-		     arrayByAddingObject: attribute] retain];
+    _attributes = RETAIN([[_attributes autorelease]
+		     arrayByAddingObject: attribute]);
 
   if (_attributesByName == nil)
     {
@@ -2015,9 +2032,9 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 	[(GCMutableArray *)_attributes removeObject: attribute];
       else
         {
-	  _attributes = [[_attributes autorelease] mutableCopy];
+          _attributes = [[GCMutableArray alloc] initWithArray:[_attributes autorelease] copyItems:NO];
 	  [(GCMutableArray *)_attributes removeObject: attribute];
-	  _attributes = [[_attributes autorelease] copy];
+      _attributes = [[GCArray alloc] initWithArray:[_attributes autorelease] copyItems:NO];
         }
       [_attributesByName removeObjectForKey: [attribute name]];
       [self _setIsEdited];//To clean caches
@@ -2047,8 +2064,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   if ([self createsMutableObjects])
     [(GCMutableArray *)_relationships addObject: relationship];
   else
-    _relationships = [[[_relationships autorelease]
-			arrayByAddingObject: relationship] retain];
+    _relationships = RETAIN([[_relationships autorelease]
+			arrayByAddingObject: relationship]);
   
   [relationship setEntity: self];
   [self _setIsEdited];//To clean caches
@@ -2063,13 +2080,15 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
     {
       [relationship setEntity:nil];
 
+      if(_relationshipsByName != nil)
+	[_relationshipsByName removeObjectForKey:[relationship name]];
       if ([self createsMutableObjects])
 	[(GCMutableArray *)_relationships removeObject: relationship];
       else
         {
-	  _relationships = [[_relationships autorelease] mutableCopy];
+          _relationships = [[GCMutableArray alloc] initWithArray:[_relationships autorelease] copyItems:NO];
 	  [(GCMutableArray *)_relationships removeObject: relationship];
-	  _relationships = [[_relationships autorelease] copy];
+	  _relationships = [[GCArray alloc] initWithArray:[_relationships autorelease] copyItems:NO];
         }
       [self _setIsEdited];//To clean caches
     }
@@ -2092,17 +2111,21 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 				       @selector(compare:)]);
 }
 
-- (void)setClassName:(NSString *)name
+- (void)_setClassName:(NSString *)name
 {
-  //OK
-  [self willChange];  
-
   if (!name)
     {
       NSLog(@"Entity %@ has no class name. Use EOGenericRecord", [self name]);
       name = @"EOGenericRecord";
     }
   ASSIGN(_className, name);
+}
+
+- (void)setClassName:(NSString *)name
+{
+  //OK
+  [self willChange];
+  [self _setClassName:name];
   [self _setIsEdited];
 }
 
@@ -2560,8 +2583,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
   if (!_classDescription)
     {
-      _classDescription = [[EOEntityClassDescription
-			     entityClassDescriptionWithEntity: self] retain];
+      _classDescription = RETAIN([EOEntityClassDescription
+			     entityClassDescriptionWithEntity: self]);
 
 //NO ? NotifyCenter addObserver:EOEntityClassDescription selector:_eoNowMultiThreaded: name:NSWillBecomeMultiThreadedNotification object:nil
     }
@@ -2587,13 +2610,13 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
   if (_flags.createsMutableObjects)
     {
-      _attributes = [[_attributes autorelease] mutableCopy];
-      _relationships = [[_relationships autorelease] mutableCopy];
+      _attributes = [[GCMutableArray alloc] initWithArray:[_attributes autorelease] copyItems:NO];
+      _relationships = [[GCMutableArray alloc] initWithArray:[_relationships autorelease] copyItems:NO];
     }
   else
     {
-      _attributes = [[_attributes autorelease] copy];
-      _relationships = [[_relationships autorelease] copy];
+      _attributes = [[GCArray alloc] initWithArray:[_attributes autorelease] copyItems:NO];
+      _relationships = [[GCArray alloc] initWithArray:[_relationships autorelease] copyItems:NO];
     }
 
   NSAssert4(!_attributesToFetch
@@ -3097,7 +3120,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                                 [self classProperties],
                                 [self relationships] };
 
-          _attributesToFetch = [[GCMutableArray array] retain];
+          _attributesToFetch = RETAIN([GCMutableArray array]);
           
           EOFLOGObjectLevelArgs(@"EOEntity", @"Entity %@ - _attributesToFetch %p [RC=%d]:%@",
                                 [self name],
@@ -3327,6 +3350,9 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 #define AUTORELEASE_SETNIL(v) { AUTORELEASE(v); v=nil; }
 - (void) _setIsEdited
 {
+  if(_flags.updating)
+    return;
+
   EOFLOGObjectLevelArgs(@"EOEntity", @"START entity name=%@", [self name]);
 
   NSAssert4(!_attributesToFetch
@@ -3801,7 +3827,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
         }
       NS_HANDLER
         {
-          [localException retain];
+          RETAIN(localException);
           NSLog(@"exception in EOEntity _parseDescription:isFormat:arguments:");
           NSLog(@"exception=%@", localException);
 
@@ -4126,6 +4152,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
           }
         else //??
           {
+#if 0
             BOOL propagatesPrimaryKey = [relationship propagatesPrimaryKey];
 
             if (propagatesPrimaryKey)
@@ -4210,6 +4237,28 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                       }
                   }
               }
+#else
+            if ([relationship isMandatory])
+	      {
+		id objectTo = [object storedValueForKey: [relationship name]];
+
+		if (objectTo == nil)
+		  {
+		    EOEntity *entityTo;
+
+                    entityTo = [relationship destinationEntity];
+                    objectTo = [[entityTo classDescriptionForInstances]
+				 createInstanceWithEditingContext:
+				   anEditingContext
+				 globalID: nil
+				 zone: NULL];
+                    [anEditingContext insertObject: objectTo];
+                    [object addObject: objectTo
+			    toBothSidesOfRelationshipWithKey:
+			      [relationship name]];
+		  }
+	      }
+#endif
           }
       }
   }

@@ -36,6 +36,8 @@
 
 RCS_ID("$Id$")
 
+#include <gnustep/base/GSObjCRuntime.h>
+
 #import <Foundation/NSBundle.h>
 #import <Foundation/NSValue.h>
 #import <Foundation/NSUtilities.h>
@@ -44,6 +46,7 @@ RCS_ID("$Id$")
 #import <Foundation/NSFileManager.h>
 #import <Foundation/NSValue.h>
 #import <Foundation/NSNotification.h>
+#import <Foundation/NSPathUtilities.h>
 #import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOModel.h>
@@ -89,10 +92,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSString *tmpModelName = nil;
   NSString *tmpPath = nil;
   NSBundle *bundle = nil;
-  NSString *paths[] = { @"~/Library/Models",
-			@"/LocalLibrary/Models",
-			@"/NextLibrary/Models",
-			nil };
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSAllLibrariesDirectory, NSAllDomainsMask, YES);
 
   tmpModelName = [modelName lastPathComponent];
   NSDebugMLLog(@"gsdb", @"modelName=%@ tmpModelName=%@",
@@ -147,13 +147,13 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
               if (!modelPath)
                 {
-                  int i;
+                  int i, pathCount = [paths count];
 
-                  for (i = 0; !modelPath && paths[i]; i++)
+                  for (i = 0; !modelPath && pathCount < i; i++)
                     {
-                      NSDebugMLLog(@"gsdb", @"Trying path:%@", paths[i]);
+                      NSDebugMLLog(@"gsdb", @"Trying path:%@", [paths objectAtIndex:i]);
 
-                      bundle = [NSBundle bundleWithPath: paths[i]];
+                      bundle = [NSBundle bundleWithPath: [paths objectAtIndex:i]];
                       
                       modelPath = [bundle pathForResource: modelName
                                           ofType: @"eomodel"];
@@ -756,12 +756,11 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       
           _version = [[propertyList objectForKey: @"EOModelVersion"]
 		       floatValue];
-          _adaptorName = [[propertyList objectForKey: @"adaptorName"] retain];
-          _connectionDictionary = [[propertyList objectForKey:
-						   @"connectionDictionary"]
-                                    retain];
-          _userInfo = [[propertyList objectForKey: @"userInfo"] retain];
-          _docComment = [[propertyList objectForKey: @"docComment"] retain];
+          _adaptorName = RETAIN([propertyList objectForKey: @"adaptorName"]);
+          _connectionDictionary = RETAIN([propertyList objectForKey:
+						   @"connectionDictionary"]);
+          _userInfo = RETAIN([propertyList objectForKey: @"userInfo"]);
+          _docComment = RETAIN([propertyList objectForKey: @"docComment"]);
 
           propListEntities = [propertyList objectForKey: @"entities"];
           propListSt = [propertyList objectForKey: @"storedProcedures"];
@@ -1351,10 +1350,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     [(GCMutableArray *)_storedProcedures addObject: storedProcedure];
   else
     {
-      _storedProcedures = [[[_storedProcedures autorelease] mutableCopy]
+      _storedProcedures = [[[GCMutableArray alloc] initWithArray:[_storedProcedures autorelease] copyItems:NO]
 			    autorelease];
       [(GCMutableArray *)_storedProcedures addObject: storedProcedure];
-      _storedProcedures = [_storedProcedures copy];
+      _storedProcedures = [[GCArray alloc] initWithArray:_storedProcedures copyItems:NO];
     }
 }
 
@@ -1366,7 +1365,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     {
       _storedProcedures = [[_storedProcedures autorelease] mutableCopy];
       [(GCMutableArray *)_storedProcedures removeObject: storedProcedure];
-      _storedProcedures = [[_storedProcedures autorelease] copy];
+      _storedProcedures = [[GCArray alloc] initWithArray:[_storedProcedures autorelease] copyItems:NO];
     }
 }
 
@@ -1543,9 +1542,9 @@ letter of each embedded word other than the first, which is upper case. Thus,
       _flags.createsMutableObjects = flag;
       
       if (_flags.createsMutableObjects)
-        _entities = [[_entities autorelease] mutableCopy];
+	_entities = [[GCMutableArray alloc] initWithArray:[_entities autorelease] copyItems:NO];
       else
-        _entities = [[_entities autorelease] copy];
+	_entities = [[GCArray alloc] initWithArray:[_entities autorelease] copyItems:NO];
     }
 }
 
@@ -1577,7 +1576,7 @@ letter of each embedded word other than the first, which is upper case. Thus,
           NSDebugMLLog(@"gsdb", @"[self path]=%@", [self path]);
 
           basePath = [self path]; 
-          [[entity retain] autorelease]; //so it won't be lost in _removeEntity
+          [RETAIN(entity) autorelease]; //so it won't be lost in _removeEntity
 
           NSDebugMLLog(@"gsdb", @"basePath =%@", basePath);
 

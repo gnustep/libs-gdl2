@@ -46,6 +46,7 @@ RCS_ID("$Id$")
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSDebug.h>
+#import <Foundation/NSEnumerator.h>
 
 #import <EOAccess/EODatabaseDataSource.h>
 #import <EOAccess/EOEntity.h>
@@ -61,6 +62,13 @@ RCS_ID("$Id$")
 #import <EOControl/EODataSource.h>
 #import <EOControl/EODetailDataSource.h>
 #import <EOControl/EODebug.h>
+
+
+@interface EODatabaseDataSource(Private)
+- (id)_partialInitWithEditingContext: (EOEditingContext*)editingContext
+                          entityName: (NSString*)entityName
+              fetchSpecificationName: (NSString*)fetchSpecificationName;
+@end
 
 
 @implementation EODatabaseDataSource

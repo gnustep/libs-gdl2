@@ -43,7 +43,7 @@
 extern NSString *Postgres95CalendarFormat;
 
 
-@interface Postgres95Values
+@interface Postgres95Values:NSObject
 {
 }
 

@@ -56,6 +56,7 @@ RCS_ID("$Id$")
 #import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSFileManager.h>
+#import <Foundation/NSData.h>
 #import <Foundation/NSDebug.h>
 
 #import <EOAccess/EOAdaptor.h>
@@ -224,15 +225,14 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
      property list containing one entry whose key is adaptorClassName. It
      identifies the actual adaptor class from the bundle. */
 
-  adaptorClass = [bundle principalClass]; //NSString* adaptorClassName=[infoDictionary objectForKey:@"EOAdaptorClassName"]; ??
+  if(![bundle isLoaded])
+    NSLog(@"Loaded %@? %@", bundle, ([bundle load]? @"YES":@"NO"));
 
-  if (adaptorClass == Nil) {
-    adaptorClassName = [[bundle infoDictionary] objectForKey: @"EOAdaptorClassName"];
+  adaptorClassName = [[bundle infoDictionary] objectForKey: @"EOAdaptorClassName"];
 
-    NSLog(@"adaptorClassName is %@", adaptorClassName);
+  NSLog(@"adaptorClassName is %@", adaptorClassName);
 
-    adaptorClass = NSClassFromString(adaptorClassName);
-  }
+  adaptorClass = NSClassFromString(adaptorClassName);
 
   if(!adaptorClass)
     [NSException raise: NSInvalidArgumentException
@@ -438,7 +438,7 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
 {
   NSString	   *encodingString=nil;
   NSDictionary	   *encodingsDict = [self connectionDictionary];
-  NSStringEncoding *availableEncodingsArray;
+  const NSStringEncoding *availableEncodingsArray;
   int		    count = 0;
   NSStringEncoding  availableEncodingValue;
   NSString	   *availableEncodingString;
@@ -723,6 +723,22 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
 - (void) _registerAdaptorContext: (EOAdaptorContext*)adaptorContext
 {
   [_contexts addObject: [NSValue valueWithNonretainedObject: adaptorContext]];
+}
+
+@end
+
+@implementation EOLoginPanel
+
+- (NSDictionary *) runPanelForAdaptor: (EOAdaptor *)adaptor validate: (BOOL)yn
+{
+  [self subclassResponsibility: _cmd];
+  return nil;
+}
+
+- (NSDictionary *) administraticeConnectionDictionaryForAdaptor: (EOAdaptor *)adaptor
+{
+  [self subclassResponsibility: _cmd];
+  return nil;
 }
 
 @end

@@ -49,6 +49,11 @@ RCS_ID("$Id$")
 #import <Foundation/NSSet.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSDebug.h>
+#if FOUNDATION_HAS_KVC
+#import <Foundation/NSKeyValueCoding.h>
+#endif
+
+#include <string.h>
 
 #import <EOAccess/EOAdaptor.h>
 #import <EOAccess/EOAdaptorChannel.h>
@@ -97,6 +102,10 @@ NSString *EODatabaseContextKey = @"EODatabaseContextKey";
 NSString *EODatabaseOperationsKey = @"EODatabaseOperationsKey";
 NSString *EOFailedDatabaseOperationKey = @"EOFailedDatabaseOperationKey";
 
+
+@interface EODatabaseContext(EOObjectStoreSupportPrivate)
+- (id) entityForGlobalID: (EOGlobalID *)globalID;
+@end
 
 @implementation EODatabaseContext
 
@@ -186,7 +195,7 @@ static Class _contextClass = Nil;
 
   if ((self = [super init]))
     {
-      _adaptorContext = [[[database adaptor] createAdaptorContext] retain];
+      _adaptorContext = RETAIN([[database adaptor] createAdaptorContext]);
 
       if (_adaptorContext == nil)
         {
@@ -195,7 +204,7 @@ static Class _contextClass = Nil;
 
           return nil;
         }
-      _database = [database retain];
+      _database = RETAIN(database);
 
       // Register this object into database
       [_database registerContext: self];
@@ -608,7 +617,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 
   DESTROY(_registeredChannels);
 
-  _adaptorContext = [[[[self database] adaptor] createAdaptorContext] retain];
+  _adaptorContext = RETAIN([[[self database] adaptor] createAdaptorContext]);
   _registeredChannels = [NSMutableArray new];
 
   EOFLOGObjectFnStopOrCond2(@"DatabaseLevel", @"EODatabaseContext");
@@ -1339,12 +1348,196 @@ userInfo = {
       */
       rawRowKeyPaths = [fetch rawRowKeyPaths];//OK
       if (rawRowKeyPaths)
+#if 0
         {
           NSEmitTODO();
           [self notImplemented: _cmd]; //TODO
         }
+#else
+      // (stephane@sente.ch) Adapted implementation of non raw rows
+      {
+          //cachesObject
+          //fetchspe isDeep ret 1
+	channel = [self _obtainOpenChannel];
 
-      if ([entity cachesObjects] == YES)//OK
+	if (!channel)
+          {
+	    NSEmitTODO();
+	    [self notImplemented: _cmd];//TODO
+          }
+	else
+          {
+	    EOFLOGObjectLevelArgs(@"EODatabaseContext", @"channel class %@ [channel isFetchInProgress]=%s",
+				  [channel class],
+				  ([channel isFetchInProgress] ? "YES" : "NO"));
+
+	    NSLog(@"%@ -- %@ 0x%x: channel isFetchInProgress=%s",
+		  NSStringFromSelector(_cmd),
+		  NSStringFromClass([self class]),
+		  self,
+		  ([channel isFetchInProgress] ? "YES" : "NO"));
+
+	    //mirko:
+#if 0
+	    if (_flags.beganTransaction == NO
+		&& _updateStrategy == EOUpdateWithPessimisticLocking)
+              {
+		[_adaptorContext beginTransaction];
+
+		EOFLOGObjectLevel(@"EODatabaseContext",
+				  @"BEGAN TRANSACTION FLAG==>YES");
+		_flags.beganTransaction = YES;
+              }
+#endif
+
+	    if ([entity isAbstractEntity] == NO) //Mirko ???
+	      // (stephane@sente) Should we test deepInheritanceFetch?
+              {
+		int autoreleaseSteps = 20;
+		int autoreleaseStep = autoreleaseSteps;
+		BOOL promptsAfterFetchLimit = NO;
+		NSAutoreleasePool *arp = nil;//To avoid too much memory use when fetching a lot of objects
+		int limit = 0;
+
+		[channel selectObjectsWithFetchSpecification: fetch
+			 editingContext: context];//OK
+
+		EOFLOGObjectLevelArgs(@"EODatabaseContext",
+				      @"[channel isFetchInProgress]=%s",
+				      ([channel isFetchInProgress] ? "YES" : "NO"));
+
+		limit = [fetch fetchLimit];//OK
+		promptsAfterFetchLimit = [fetch promptsAfterFetchLimit];
+
+		EOFLOGObjectLevel(@"EODatabaseContext", @"Will Fetch");
+
+		NS_DURING
+		  {
+		    arp = [NSAutoreleasePool new];
+		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					  @"[channel isFetchInProgress]=%s",
+					  ([channel isFetchInProgress] ? "YES" : "NO"));
+
+		    while ((obj = [channel fetchObject]))
+		      {
+			EOFLOGObjectLevel(@"EODatabaseContext",
+					  @"fetched an object");
+			EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					      @"FETCH OBJECT object=%@\n\n",
+					      obj);
+			EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					      @"%d usesDistinct: %s",
+					      num,
+					      (usesDistinct ? "YES" : "NO"));
+			EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					      @"object=%@\n\n", obj);
+
+			if (usesDistinct == YES && num)
+			  // (stephane@sente) I thought that DISTINCT was done on server-side?!?
+			  {
+			    for (i = 0; i < num; i++)
+			      {
+				if ([[array objectAtIndex: i]
+				      isEqual: obj] == YES)
+				  {
+				    obj = nil;
+				    break;
+				  }
+			      }
+
+			    if (obj == nil)
+			      continue;
+			  }
+
+			EOFLOGObjectLevel(@"EODatabaseContext",
+					  @"AFTER FETCH");
+			[array addObject: obj];
+			EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					      @"array count=%d",
+					      [array count]);
+			num++;
+
+			if (limit > 0 && num >= limit)
+			  {
+			    if ([[context messageHandler]
+				  editingContext: context
+				  shouldContinueFetchingWithCurrentObjectCount: num
+				  originalLimit: limit
+				  objectStore: self] == YES)
+			      limit = 0;//??
+			    else
+			      break;
+			  }
+
+			if (autoreleaseStep <= 0)
+			  {
+			    DESTROY(arp);
+			    autoreleaseStep = autoreleaseSteps;
+			    arp = [NSAutoreleasePool new];
+			  }
+			else
+			  autoreleaseStep--;
+
+			EOFLOGObjectLevel(@"EODatabaseContext",
+					  @"WILL FETCH NEXT OBJECT");
+			EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					      @"[channel isFetchInProgress]=%s",
+					      ([channel isFetchInProgress] ? "YES" : "NO"));
+		      }
+
+		    EOFLOGObjectLevel(@"EODatabaseContext",
+				      @"finished fetch");
+		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					  @"array=%@", array);
+		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					  @"step 0 channel is busy=%d",
+					  (int)[channel isFetchInProgress]);
+
+		    [channel cancelFetch]; //OK
+
+		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					  @"step 1 channel is busy=%d",
+					  (int)[channel isFetchInProgress]);
+		    EOFLOGObjectLevelArgs(@"EODatabaseContext", @"array=%@",
+					  array);
+
+                                  //TODO
+                                  /*
+                                   handle exceptio in fetchObject
+                                   channel fetchObject
+
+                                   if eception:
+                                   if ([editcontext handleError:localException])
+                                   {
+                                       //TODO
+                                   }
+                                   else
+                                   {
+                                       //TODO
+                                   };
+                                   */
+		  }
+		NS_HANDLER
+		  {
+		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
+					  @"AN EXCEPTION: %@",
+					  localException);
+
+		    RETAIN(localException);
+		    DESTROY(arp);
+		    [localException autorelease];
+		    [localException raise];
+		  }
+		NS_ENDHANDLER;
+              }
+          }
+	EOFLOGObjectLevelArgs(@"EODatabaseContext",
+			      @"step 2 channel is busy=%d",
+			      (int)[channel isFetchInProgress]);
+      }
+#endif
+
+      else if ([entity cachesObjects] == YES)//OK
         {
           ///TODO MG!!!
           NSMutableArray *cache;
@@ -1656,7 +1849,7 @@ userInfo = {
 					    @"AN EXCEPTION: %@",
 					    localException);
 
-                      [localException retain];
+                      RETAIN(localException);
                       DESTROY(arp);
                       [localException autorelease];
                       [localException raise];
@@ -3927,9 +4120,9 @@ Raises an exception is the adaptor is unable to perform the operations.
                     forKey: key];
              }
 
-           newRow = [[[NSMutableDictionary alloc]
+           newRow = [[NSMutableDictionary alloc]
 		       initWithDictionary: snapshot
-		       copyItems: NO] autorelease];
+		       copyItems: NO];
 
            EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRow=%@", newRow);
 
@@ -3958,6 +4151,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
            [databaseOpe setNewRow: newRow];
            [self recordDatabaseOperation: databaseOpe];
+           [newRow release];
          }
     }
   NS_HANDLER
@@ -5254,7 +5448,7 @@ Raises an exception is the adaptor is unable to perform the operations.
     {
       /*Class targetClass = Nil;
 	void *extraData = NULL;*/
-      EOAccessArrayFaultHandler *handler = [EOFault handlerForFault:object];
+      EOAccessArrayFaultHandler *handler = (EOAccessArrayFaultHandler *)[EOFault handlerForFault:object];
       EOEditingContext *context = [handler editingContext];
       NSString *relationshipName= [handler relationshipName];
       EOKeyGlobalID *gid = [handler sourceGlobalID];
@@ -5756,7 +5950,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   else
     {
       NSEmitTODO();
-      NSWarnLog(@"_uniqueStack is empty. May be there's no runing transaction !");
+      NSWarnLog(@"_uniqueStack is empty. May be there's no runing transaction !", "");
 
       [self notImplemented: _cmd]; //TODO
     }
@@ -6196,11 +6390,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if ([_uniqueStack count] > 0)
     {
-      NSMutableDictionary *snapshotsDict = [[[_uniqueStack lastObject]
-					      retain] autorelease];
-      NSMutableDictionary *toManySnapshotsDict = [[[_uniqueArrayStack
-						     lastObject] retain]
-						   autorelease];
+      NSMutableDictionary *snapshotsDict = [RETAIN([_uniqueStack lastObject]) autorelease];
+      NSMutableDictionary *toManySnapshotsDict = [RETAIN([_uniqueArrayStack
+							   lastObject])
+							autorelease];
       /*NSMutableDictionary *deleteSnapshotsDict = [[[_deleteStack lastObject]
 	retain] autorelease];*/ //??
 

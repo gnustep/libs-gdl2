@@ -41,6 +41,7 @@ RCS_ID("$Id$")
 #import <EOControl/EOQualifier.h>
 #import <EOControl/EOFetchSpecification.h>
 #import <EOControl/EONull.h>
+#import <EOControl/EOGenericRecord.h>
 #import <EOControl/EODebug.h>
 
 #import <EOAccess/EOAccess.h>
@@ -228,7 +229,7 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
     }
   NS_HANDLER
     {
-      NSDebugMLog(@"exception in EOEditingContext (EOUtilities) objectsMatchingValues:entityNamed:");
+      NSDebugMLog(@"exception in EOEditingContext (EOUtilities) objectsMatchingValues:entityNamed:", "");
       NSLog(@"exception in EOEditingContext (EOUtilities) objectsMatchingValues:entityNamed:");
       NSDebugMLog(@"exception=%@", localException);
       NSLog(@"exception=%@", localException);
@@ -1024,7 +1025,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
 
   EOFLOGObjectFnStartOrCond(@"EOEditingContext");
 
-  classDesc = (EOClassDescription *)[object classDescription];
+  classDesc = [(EOGenericRecord *)object classDescription];
 
   if ([classDesc isKindOfClass: [EOEntityClassDescription class]] == NO)
     [NSException raise: NSInvalidArgumentException
@@ -1096,7 +1097,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
 
   EOFLOGObjectFnStart();
 
-  userInfo = [self userInfo];
+  userInfo = (NSMutableDictionary *)[self userInfo];
 
   if (userInfo)
     [userInfo setObject: modelGroup

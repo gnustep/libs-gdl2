@@ -32,6 +32,7 @@
 #import <Foundation/NSHashTable.h>
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSLock.h>
+#import <Foundation/NSDate.h>
 
 #import <EOControl/EOObjectStoreCoordinator.h>
 

@@ -38,6 +38,7 @@ RCS_ID("$Id$")
 #import <Foundation/NSException.h>
 #import <Foundation/NSEnumerator.h>
 #import <Foundation/NSDebug.h>
+#import <Foundation/NSEnumerator.h>
 
 #import <EOAccess/EODatabaseOperation.h>
 #import <EOAccess/EOAttribute.h>

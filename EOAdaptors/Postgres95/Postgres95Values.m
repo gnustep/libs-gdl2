@@ -95,8 +95,7 @@ For efficiency reasons, the returned value is NOT autoreleased !
                      length: (int)length
                   attribute: (EOAttribute *)attribute
 {
-  NSString *str = [NSString stringWithCString:(char *)bytes 
-                            length:length];
+  NSString *str = nil;
   id value = nil;
 
   if ([[attribute externalType] isEqualToString: @"bool"])
@@ -107,12 +106,16 @@ For efficiency reasons, the returned value is NOT autoreleased !
 	return [[NSNumber alloc] initWithBool:NO];
     }
 
+  str = [[NSString alloc] initWithCString:(char *)bytes length:length];
+
   if ([[attribute valueClassName] isEqualToString: @"NSDecimalNumber"])
-    value = [[NSDecimalNumber decimalNumberWithString: str] retain];
+    value = [[NSDecimalNumber alloc] initWithString: str];
   else if ([[attribute valueType] isEqualToString: @"i"])
     value = [[NSNumber alloc] initWithInt: [str intValue]];
   else
     value = [[NSNumber alloc] initWithDouble: [str doubleValue]];
+
+  [str release];
 
   return value;
 }
@@ -152,10 +155,9 @@ For efficiency reasons, the returned value is NOT autoreleased !
   NSString *str = [NSString stringWithCString: bytes length: length];
   NSString *format = [NSCalendarDate postgres95Format];
 
-  d = [[[NSCalendarDate alloc] initWithString: str
-			       calendarFormat: format]
-	// TODO server TZ ?
-	retain];
+  d = [[NSCalendarDate alloc] initWithString: str
+			      calendarFormat: format];
+  // TODO server TZ ?
 
 //  NSDebugMLLog(@"gsdb",@"str=%@ d=%@ format=%@",str,d,format);  
   NSDebugMLog(@"str=%@ d=%@ format=%@", str, d, format);  

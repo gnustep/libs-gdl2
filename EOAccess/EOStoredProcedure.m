@@ -36,6 +36,7 @@
 RCS_ID("$Id$")
 
 #import <Foundation/NSException.h>
+#import <Foundation/NSEnumerator.h>
 #import <Foundation/NSDebug.h>
 
 #import <gnustep/base/GCObject.h>
@@ -99,7 +100,7 @@ RCS_ID("$Id$")
   NSEnumerator *enumerator;
   id attributePList;
 
-  _model = [owner retain];
+  _model = RETAIN(owner);
 
   [self setName: [propertyList objectForKey: @"name"]];
   [self setExternalName: [propertyList objectForKey: @"externalName"]];

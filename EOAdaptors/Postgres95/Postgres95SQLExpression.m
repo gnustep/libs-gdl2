@@ -40,7 +40,9 @@ RCS_ID("$Id$")
 #import <Foundation/NSUtilities.h>
 #import <Foundation/NSException.h>
 
-#import <EOAccess/EOAccess.h>
+#import <EOAccess/EOAttribute.h>
+#import <EOAccess/EOEntity.h>
+#import <EOAccess/EOSchemaGeneration.h>
 
 #import <EOControl/EODebug.h>
 
@@ -167,7 +169,7 @@ RCS_ID("$Id$")
         formatted = @"NULL";
     }
   else if (([externalType isEqualToString: @"abstime"])
-           || ([externalType isEqualToString: @"datetime"])
+           /*|| ([externalType isEqualToString: @"datetime"])*//* stephane@sente.ch: datetime does not exist */
            || ([externalType isEqualToString: @"timestamp"]))
     {
       EOFLOGObjectLevelArgs(@"EOSQLExpression",
@@ -210,7 +212,7 @@ RCS_ID("$Id$")
 
       for (i = 0, dif = 0; i < length; i++)
         {
-          switch (tempString[i])
+          switch (tempString[i + dif])
             {
             case '\\':
             case '\'':
@@ -298,5 +300,37 @@ RCS_ID("$Id$")
 }
 
 
-@end
++ (NSArray *)dropTableStatementsForEntityGroup:(NSArray *)entityGroup
+{
+  // We redefine this method to add the CASCADE: it is needed to delete
+  // associated foreign key constraints when dropping a table.
+  // Q: shouldn't we move this into EOSQLExpression.m?
+  NSArray *newArray = nil;
 
+  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
+  newArray = [NSArray arrayWithObject:
+			[self expressionForString:
+				[NSString stringWithFormat: @"DROP TABLE %@ CASCADE",
+					  [[entityGroup objectAtIndex: 0]
+					    externalName]]]];
+
+  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
+  return newArray;
+}
+
+- (void)prepareConstraintStatementForRelationship: (EORelationship *)relationship
+				    sourceColumns: (NSArray *)sourceColumns
+			       destinationColumns: (NSArray *)destinationColumns
+{
+  // We redefine this method to add "DEFERRABLE INITIALLY DEFERRED": it is needed
+  // to be able to insert rows into table related to other table rows, before these
+  // other rows have been inserted (relationship might be bidirectional, or it might
+  // simply be an operation order problem)
+  // Q: shouldn't we move this into EOSQLExpression.m?
+  [super prepareConstraintStatementForRelationship:relationship sourceColumns:sourceColumns destinationColumns:destinationColumns];
+  ASSIGN(_statement, [_statement stringByAppendingString:@" DEFERRABLE INITIALLY DEFERRED"]);
+}
+
+@end
