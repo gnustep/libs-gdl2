@@ -1,3 +1,7 @@
+2003-04-15  Mirko Viviani  <mirko@objectlab.org>
+
+	* EOAccess/EOAdaptorContext.h: include EODefines.h and NSString.h
+
 2003-04-01  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EODeprecated.h:  Replaces EODepricated.h.

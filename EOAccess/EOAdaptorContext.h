@@ -28,10 +28,12 @@
 #define __EOAdaptorContext_h__
 
 #ifndef NeXT_Foundation_LIBRARY
-#include <Foundation/NSObject.h>
+#include <Foundation/NSString.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
+
+#include <EOAccess/EODefines.h>
 
 
 @class NSMutableArray;
