@@ -68,27 +68,27 @@ RCS_ID("$Id$")
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
+#include <EOControl/EOPriv.h>
 
 #include <GNUstepBase/GSObjCRuntime.h>
 
-static EONull *null = nil;
-static SEL     oaiSel;
 static BOOL    strictWO;
+static BOOL initialized=NO;
 
 static inline void
 initialize(void)
 {
-  if (null == nil)
+  if (!initialized)
     {
-      oaiSel   = @selector(objectAtIndex:);
+      initialized=YES;
       strictWO = GSUseStrictWO451Compatibility(nil);
-      null     = [EONull null];
+      GDL2PrivInit();
     }
 }
 
 /* This macro is only used locally in defined places so for the sake
    of efficiency, we don't use the do {} while (0) pattern.  */
-#define INITIALIZE if (null == nil) initialize();
+#define INITIALIZE if (!initialized) initialize();
 
 
 @implementation NSObject (_EOKeyValueCodingCompatibility)
@@ -217,7 +217,9 @@ initialize(void)
       selStr = [NSString stringWithFormat: @"compute%@ForKey:",
 		   [[key substringWithRange: r] initialCapitalizedString]];
       sel = NSSelectorFromString(selStr);
-      NSAssert1(sel!=NULL, @"Invalid computational key %@", selStr);
+      NSAssert2(sel!=NULL,@"Invalid computational key: '%@' Selector: '%@'",
+                key,
+                selStr);
 
       result = [self performSelector: sel
 		     withObject: attrStr];
@@ -226,7 +228,7 @@ initialize(void)
     {
       result = [self resultsOfPerformingSelector: @selector(valueForKey:)
 		     withObject: key
-		     defaultResult: null];
+		     defaultResult: GDL2EONull];
     }
 
   EOFLOGObjectFnStopCond(@"EOKVC");
@@ -302,26 +304,30 @@ initialize(void)
  */
 - (id)computeSumForKey: (NSString *)key
 {
-  NSDecimalNumber *ret;
+  NSDecimalNumber *ret=nil;
   NSDecimal        result, left, right;
   NSRoundingMode   mode;
-  unsigned int     i, count;
-  IMP              oai;
+  unsigned int     count;
 
   INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
+
   mode = [[NSDecimalNumber defaultBehavior] roundingMode];
-  oai = [self methodForSelector: oaiSel];
   count = [self count];
   NSDecimalFromComponents(&result, 0, 0, NO);
 
-  for (i=0; i<count; i++)
+  if (count>0)
     {
-      left = result;
-      right = [[(*oai)(self, oaiSel, i) valueForKey: key] decimalValue];
-      NSDecimalAdd(&result, &left, &right, mode);
-    }
+      unsigned int i=0;
+      IMP oaiIMP = [self methodForSelector: GDL2_objectAtIndexSEL];
+      for (i=0; i<count; i++)
+        {
+          left = result;
+          right = [[GDL2ObjectAtIndexWithImp(self,oaiIMP,i) valueForKey: key] decimalValue];
+          NSDecimalAdd(&result, &left, &right, mode);
+        }
+    };
         
   ret = [NSDecimalNumber decimalNumberWithDecimal: result];
   EOFLOGObjectFnStopCond(@"EOKVC");
@@ -336,26 +342,30 @@ initialize(void)
  */
 - (id)computeAvgForKey: (NSString *)key
 {
-  NSDecimalNumber *ret;
+  NSDecimalNumber *ret = nil;
   NSDecimal        result, left, right;
   NSRoundingMode   mode;
-  unsigned int     i, count;
-  IMP              oai;
+  unsigned int     count = 0;
 
   INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
   mode = [[NSDecimalNumber defaultBehavior] roundingMode];
-  oai = [self methodForSelector: oaiSel];
   count = [self count];
   NSDecimalFromComponents(&result, 0, 0, NO);
 
-  for (i=0; i<count; i++)
+  if (count>0)
     {
-      left = result;
-      right = [[(*oai)(self, oaiSel, i) valueForKey: key] decimalValue];
-      NSDecimalAdd(&result, &left, &right, mode);
-    }
+      unsigned int i=0;
+      IMP oaiIMP = [self methodForSelector: GDL2_objectAtIndexSEL];
+      
+      for (i=0; i<count; i++)
+        {
+          left = result;
+          right = [[GDL2ObjectAtIndexWithImp(self,oaiIMP,i) valueForKey: key] decimalValue];
+          NSDecimalAdd(&result, &left, &right, mode);
+        }
+    };
 
   left  = result;
   NSDecimalFromComponents(&right, (unsigned long long) count, 0, NO);
@@ -380,33 +390,34 @@ initialize(void)
 
 - (id)computeMaxForKey: (NSString *)key
 {
-  id           result, resultVal;
-  unsigned int i, count;;
+  id result=nil;
+  id resultVal=nil;
+  unsigned int count=0;
 
   INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
-  result    = nil;
-  resultVal = nil;
   count     = [self count];
 
   if (count > 0)
     {
-      id                 current,currentVal;
-      IMP                oai;
+      unsigned int i=0;
+      id           current = nil;
+      id	   currentVal = nil;
+      IMP          oaiIMP = [self methodForSelector: GDL2_objectAtIndexSEL];
 
-      oai = [self methodForSelector: oaiSel];
-      for(i=0; i<count && (resultVal == nil || resultVal == null); i++)
+      for(i=0; i<count && (resultVal == nil || resultVal == GDL2EONull); i++)
 	{
-	  result    = (*oai)(self, oaiSel, i);
+	  result    = GDL2ObjectAtIndexWithImp(self,oaiIMP,i);
 	  resultVal = [result valueForKey: key];
 	}          
       for (; i<count; i++)
 	{
-	  current    = (*oai)(self, oaiSel, i);
+	  current    = GDL2ObjectAtIndexWithImp(self,oaiIMP,i);
 	  currentVal = [current valueForKey: key];
 
-	  if (currentVal == nil || currentVal == null) continue;
+	  if (currentVal == nil || currentVal == GDL2EONull)
+            continue;
 	  
 	  if ([(NSObject *)resultVal compare: currentVal] == NSOrderedAscending)
 	    {
@@ -422,33 +433,33 @@ initialize(void)
 
 - (id)computeMinForKey: (NSString *)key
 {
-  id             result, resultVal;
-  unsigned int   i, count;
+  id result=nil;
+  id resultVal=nil;
+  unsigned int   count = 0;
 
   INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
-  result    = nil;
-  resultVal = nil;
   count     = [self count];
 
   if (count > 0)
     {
-      id  current, currentVal;
-      IMP oai;
+      id current=nil;
+      id currentVal=nil;
+      unsigned int i = 0;
+      IMP oaiIMP = [self methodForSelector: GDL2_objectAtIndexSEL];
 
-      oai = [self methodForSelector: oaiSel];
-      for(i=0; i<count && (resultVal == nil || resultVal == null); i++)
+      for(i=0; i<count && (resultVal == nil || resultVal == GDL2EONull); i++)
 	{
-	  result    = (*oai)(self, oaiSel, i);
+	  result    = GDL2ObjectAtIndexWithImp(self,oaiIMP,i);
 	  resultVal = [result valueForKey: key];
 	}          
       for (; i<count; i++)
 	{
-	  current    = (*oai)(self, oaiSel, i);
+	  current    = GDL2ObjectAtIndexWithImp(self,oaiIMP,i);
 	  currentVal = [current valueForKey: key];
 
-	  if (currentVal == nil || currentVal == null) continue;
+	  if (currentVal == nil || currentVal == GDL2EONull) continue;
 
 	  if ([(NSObject *)resultVal compare: currentVal] == NSOrderedDescending)
 	    {
@@ -839,9 +850,11 @@ initialize(void)
 					mutableCopy] autorelease];
       NSMutableString *key = [NSMutableString string];
 
+      int keyPathArrayCount=[keyPathArray count];
+
       //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
 
-      while ([keyPathArray count] > 0)
+      while (keyPathArrayCount > 0)
         {
           id tmpKey;
 
@@ -851,6 +864,7 @@ initialize(void)
           //EOFLOGObjectLevelArgs(@"EOKVC", @"tmpKey=%@", tmpKey);
 
           [keyPathArray removeObjectAtIndex: 0];
+          keyPathArrayCount--;
 
           if ([key length] > 0)
             [key appendString: @"."];
@@ -872,7 +886,7 @@ initialize(void)
       //EOFLOGObjectLevelArgs(@"EOKVC",@"left keyPathArray=\"%@\"",
       //             keyPathArray);
 
-      if ([keyPathArray count] > 0)
+      if (keyPathArrayCount > 0)
         {
           id obj = [self objectForKey: key];
 
@@ -937,9 +951,11 @@ initialize(void)
 					mutableCopy] autorelease];
       NSMutableString *key = [NSMutableString string];
 
+      int keyPathArrayCount=[keyPathArray count];
+
       //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
 
-      while ([keyPathArray count] > 0)
+      while (keyPathArrayCount > 0)
         {
           id tmpKey;
 
@@ -949,6 +965,7 @@ initialize(void)
           //EOFLOGObjectLevelArgs(@"EOKVC", @"tmpKey=%@", tmpKey);
 
           [keyPathArray removeObjectAtIndex: 0];
+          keyPathArrayCount--;
 
           if ([key length] > 0)
             [key appendString: @"."];
@@ -969,7 +986,7 @@ initialize(void)
       //EOFLOGObjectLevelArgs(@"EOKVC",@"left keyPathArray=\"%@\"",
       //             keyPathArray);
 
-      if ([keyPathArray count] > 0)
+      if (keyPathArrayCount > 0)
         {
           id obj = [self objectForKey: key];
 
@@ -1055,7 +1072,7 @@ initialize(void)
 
       if (val == nil)
 	{
-	  val = null;
+	  val = GDL2EONull;
 	}
 
       [newKeyPaths addObject: keyPath];
@@ -1173,7 +1190,7 @@ initialize(void)
       NS_ENDHANDLER;
         
       if (val == nil)
-	val = null;
+	val = GDL2EONull;
       
       [newKeyPaths addObject: keyPath];
       [newVals addObject: val];

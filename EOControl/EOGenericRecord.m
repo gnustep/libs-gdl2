@@ -63,6 +63,7 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EOObserver.h>
 #include <EOControl/EOFault.h>
+#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EOKeyValueCoding.h>
@@ -109,8 +110,13 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 
 + (void) initialize
 {
-  if (self == [EOGenericRecord class] && !allGenericRecords)
+  static BOOL initialized=NO;
+  if (!initialized)
     {
+      initialized=YES;
+
+      GDL2PrivInit();
+
       allGenericRecords = NSCreateHashTable(NSNonOwnedPointerHashCallBacks,
 					    1000);
       allGenericRecordsLock = [GSLazyRecursiveLock new];
@@ -201,7 +207,8 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 static const char _c_id[2] = { _C_ID, 0 };
 
 //used to allow derived object implementation
-- (BOOL)_infoForInstanceVariableNamed: (NSString*)name
+- (BOOL)_infoForInstanceVariableNamed: (const char*)cStringName
+                           stringName: (NSString*)stringName
                               retType: (const char**)type
                               retSize: (unsigned int*)size
                             retOffset: (int*)offset
@@ -214,22 +221,24 @@ static const char _c_id[2] = { _C_ID, 0 };
             retSize:size
             retOffset:offset];
 */
-  ok = GSObjCFindVariable(self, [name cString], type, size, offset);
+  ok = GSObjCFindVariable(self, cStringName, type, size, offset);
 
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-			@"Super InstanceVar named %@:%s",
-			name, (ok ? "YES" : "NO"));
+			@"Super InstanceVar named %s:%s",
+			cStringName, (ok ? "YES" : "NO"));
 
   if (!ok)
     {
+      NSString* name=(stringName ? stringName : GDL2StringWithCString(cStringName));
+
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			    @"dictionary: %p eoMKKDInitializer: %p",
 			    dictionary,
 			    [dictionary eoMKKDInitializer]);
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"dictionary allkeys= %@",
 			    [dictionary allKeys]);
-
-      if ([dictionary hasKey: name])
+      
+      if (EOMKKD_hasKeyWithImpPtr(dictionary,NULL,name))
         {
 	  if (type)
 	    *type = _c_id;
@@ -262,24 +271,18 @@ static const char _c_id[2] = { _C_ID, 0 };
 
   EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-			@"Super InstanceVar named %@: offset=%u",
-			aKey, offset);
+			@"Super InstanceVar named %@: sel=%@ type=%s size=%u offset=%u",
+			aKey,NSStringFromSelector(sel),type,size,offset);
 
   if (offset == UINT_MAX)
     {
-      value = [dictionary objectForKey: aKey];
+      value = EOMKKD_objectForKeyWithImpPtr(dictionary,NULL,aKey);
 
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value %p (class=%@)",
 			    value, [value class]);
     }
   else
     {
-      /*    value=[super _getValueForKey:aKey
-            selector:sel
-            type:type
-            size:size
-            offset:offset];*/
-
       value = GSObjCGetValue(self, aKey, sel, type, size, offset);
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value %p (class=%@)",
 			    value, [value class]);
@@ -308,19 +311,11 @@ static const char _c_id[2] = { _C_ID, 0 };
   if (offset == UINT_MAX)
     {
       if (anObject)
-        [dictionary setObject: anObject
-                    forKey: aKey];
+        EOMKKD_setObjectForKeyWithImpPtr(dictionary,NULL,anObject,aKey);
       else
-        [dictionary removeObjectForKey: aKey];
+        EOMKKD_removeObjectForKeyWithImpPtr(dictionary,NULL,aKey);
     }
   else
-/*    [super _setValueForKey:aKey
-           object:anObject
-           selector:sel
-           type:type
-           size:size
-           offset:offset];
-*/
     GSObjCSetValue(self, aKey, anObject, sel, type, size, offset);
 
   EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
@@ -360,7 +355,7 @@ static const char _c_id[2] = { _C_ID, 0 };
          forKey: key];
   EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
 //
-//  if(value == nil || value == [EONull null])
+//  if(value == nil || value == GDL2EONull)
 //    [dictionary removeObjectForKey:key];
 //  else
 //    {
@@ -419,20 +414,30 @@ static const char _c_id[2] = { _C_ID, 0 };
 }
 */
 
+inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
+                                              const char* cStringName,NSString* stringName,
+                                              const char** type,unsigned int* size,
+                                              int* offset)
+{
+  SEL sel=@selector(_infoForInstanceVariableNamed:stringName:retType:retSize:retOffset:);
+  if (!*impPtr)
+    *impPtr=(GDL2IMP_BOOL)[object methodForSelector:sel];
+  return (**impPtr)(object,sel,cStringName,stringName,type,size,offset);
+};
+
 - (id) storedValueForKey: (NSString*)aKey
 {
   SEL		sel = 0;
   const char	*type = NULL;
   unsigned	size = 0;
   unsigned	off = 0;
-  NSString	*name = nil;
-  NSString	*cap = nil;
   id value = nil;
+  Class 	selfClass=[self class];
 
   EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@", aKey);
 
-  if ([[self class] useStoredAccessor] == NO)
+  if ([selfClass useStoredAccessor] == NO)
     {
       value = [self valueForKey: aKey];
     }
@@ -445,70 +450,116 @@ static const char _c_id[2] = { _C_ID, 0 };
           [NSException raise: NSInvalidArgumentException
                        format: @"storedValueForKey: ... empty key"];
         }
-
-      cap = [[aKey substringToIndex: 1] uppercaseString];
-      if (size > 1)
+      else
         {
-          cap = [cap stringByAppendingString: [aKey substringFromIndex: 1]];
-        }
+          char buf[size+5];
+          char lo;
+          char hi;
+          GDL2IMP_BOOL rtsIMP=NULL;
+          GDL2IMP_BOOL infoVarIMP=NULL;
+          
+          strcpy(buf, "_get");
+          [aKey getCString: &buf[4]];
+          lo = buf[4];
+          hi = islower(lo) ? toupper(lo) : lo;
+          buf[4] = hi;
 
-      name = [NSString stringWithFormat: @"_get%@", cap];
-      sel = NSSelectorFromString(name);
+          // test _getKey
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [_getKey] name=%s",
+                                aKey, buf);
+          sel = sel_get_any_uid(buf);
 
-      if (sel == 0 || [self respondsToSelector: sel] == NO)
-        {
-          name = [NSString stringWithFormat: @"_%@", aKey];
-          sel = NSSelectorFromString(name);
-
-          if (sel == 0 || [self respondsToSelector: sel] == NO)
+          if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
-              sel = 0;
-            }
-        }
+              // test _key
+              buf[3]='_';
+              buf[4]=lo;
 
-      if (sel == 0)
-        {
-          if ([[self class] accessInstanceVariablesDirectly] == YES)
-            {
-              name = [NSString stringWithFormat: @"_%@", aKey];
-
-              if ([self _infoForInstanceVariableNamed:name
-                        retType: &type
-                        retSize: &size
-                        retOffset: &off]==NO)
+              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"B aKey=%@ Method [_key] name=%s",
+                                    aKey, &buf[3]);
+              sel = sel_get_any_uid(&buf[3]);
+              
+              if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                 {
-                  name = aKey;
-                  [self _infoForInstanceVariableNamed:name
-                        retType: &type
-                        retSize: &size
-                        retOffset: &off];
+                  sel = 0;
                 }
             }
-
-          if (type == NULL)
+          
+          if (sel == 0)
             {
-              name = [NSString stringWithFormat: @"get%@", cap];
-              sel = NSSelectorFromString(name);
-
-              if (sel == 0 || [self respondsToSelector: sel] == NO)
+              if ([selfClass accessInstanceVariablesDirectly] == YES)
                 {
-                  name = aKey;
-                  sel = NSSelectorFromString(name);
+                  // test _key
+                  buf[3]='_';
+                  buf[4]=lo;
 
-                  if (sel == 0 || [self respondsToSelector: sel] == NO)
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Instance [_key] name=%s",
+                                        aKey, &buf[3]);
+                  /*if ([self _infoForInstanceVariableNamed:&buf[3]
+                            stringName: nil
+                            retType: &type
+                            retSize: &size
+                            retOffset: &off]==NO)*/
+                  if (infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
+                                                        &buf[3], // name
+                                                        nil,     // stringName
+                                                        &type,   // retType
+                                                        &size,   // retSize
+                                                        &off)==NO) // retOffset
                     {
-                      sel = 0;
+                      // key
+                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Instance [key] name=%s",
+                                            aKey, &buf[4]);
+                      /*[self _infoForInstanceVariableNamed:&buf[4]
+                            stringName: aKey
+                            retType: &type
+                            retSize: &size
+                            retOffset: &off];*/
+                      infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
+                                                        &buf[4], // name
+                                                        aKey,     // stringName
+                                                        &type,   // retType
+                                                        &size,   // retSize
+                                                        &off); // retOffset
+                    }
+                }
+              
+              if (type == NULL)
+                {
+                  //test getKey
+                  buf[3]='t';
+                  buf[4]=hi;
+                  
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"E aKey=%@ Method [getKey] name=%s",
+                                        aKey, &buf[1]);
+                  sel = sel_get_any_uid(&buf[1]);
+                  if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+                    {
+                      // test key
+                      buf[4]=lo;
+
+                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"F aKey=%@ Method [key] name=%s",
+                                            aKey, &buf[4]);
+                      sel = sel_get_any_uid(&buf[4]);
+                      
+                      if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+                        {
+                          sel = 0;
+                        }
                     }
                 }
             }
-        }
 
-      value = [self _getValueForKey: aKey
-                    selector: sel
-                    type: type
-                    size: size
-                    offset: off];
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+                                @"class=%@ aKey=%@ sel=%@ offset=%u",
+                                selfClass, aKey, NSStringFromSelector(sel), off);
 
+          value = [self _getValueForKey: aKey
+                        selector: sel
+                        type: type
+                        size: size
+                        offset: off];
+        };
     }
 
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value=%@", value);
@@ -524,14 +575,13 @@ static const char _c_id[2] = { _C_ID, 0 };
   const char	*type = NULL;
   unsigned	size = 0;
   unsigned	off = 0;
-  NSString	*cap = nil;
-  NSString	*name = nil;
+  Class 	selfClass=[self class];
 
   EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"anObject=%@", anObject);
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@", aKey);
 
-  if ([[self class] useStoredAccessor] == NO)
+  if ([selfClass useStoredAccessor] == NO)
     {
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@", aKey);
 
@@ -547,72 +597,106 @@ static const char _c_id[2] = { _C_ID, 0 };
           [NSException raise: NSInvalidArgumentException
                        format: @"takeStoredValue:forKey: ... empty key"];
         }
-
-      cap = [[aKey substringToIndex: 1] uppercaseString];
-      if (size > 1)
+      else
         {
-          cap = [cap stringByAppendingString: [aKey substringFromIndex: 1]];
-        }
-      
-      name = [NSString stringWithFormat: @"_set%@:", cap];
-      type = NULL;
-      sel = NSSelectorFromString(name);
+          char buf[size+6];
+          char		lo;
+          char		hi;
+          GDL2IMP_BOOL rtsIMP=NULL;
+          GDL2IMP_BOOL infoVarIMP=NULL;
 
-      if (sel == 0 || [self respondsToSelector: sel] == NO)
-        {
-          sel = 0;
+          strcpy(buf, "_set");
+          [aKey getCString: &buf[4]];
+          lo = buf[4];
+          hi = islower(lo) ? toupper(lo) : lo;
+          buf[4] = hi;
+          buf[size+4] = ':';
+          buf[size+5] = '\0';
 
-          if ([[self class] accessInstanceVariablesDirectly] == YES)
+          // test _setKey:          
+          type = NULL;
+
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [_setKey] name=%s",
+                                aKey, buf);
+
+          sel = sel_get_any_uid(buf);
+
+          if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
-              name = [NSString stringWithFormat: @"_%@", aKey];
-
-              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@ name=%@",
-				    aKey, name);
-
-              if ([self _infoForInstanceVariableNamed: name
-                        retType: &type
-                        retSize: &size
-                        retOffset: &off]==NO)
+              sel = 0;
+              
+              if ([selfClass accessInstanceVariablesDirectly] == YES)
                 {
-                  name = aKey;
+                  // test _key
+                  buf[3] = '_';
+                  buf[4] = lo;
+                  buf[size+4] = '\0';
 
-                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-					@"aKey=%@ name=%@", aKey, name);
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"B aKey=%@ Instance [_key] name=%s",
+                                        aKey, &buf[3]);
+                  
+                  /*if ([self _infoForInstanceVariableNamed:&buf[3]
+                            stringName: nil
+                            retType: &type
+                            retSize: &size
+                            retOffset: &off]==NO)
+                  */
+                  if (infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
+                                                        &buf[3], // name
+                                                        nil,     // stringName
+                                                        &type,   // retType
+                                                        &size,   // retSize
+                                                        &off)==NO) // retOffset
+                    {
+                      // Test key
+                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+                                            @"C aKey=%@ Instance [_key] name=%s", aKey, &buf[4]);
+                      
+                      /*[self _infoForInstanceVariableNamed: &buf[4]
+                            stringName: aKey
+                            retType: &type
+                            retSize: &size
+                            retOffset: &off];*/
+                      infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
+                                                        &buf[4], // name
+                                                        aKey,     // stringName
+                                                        &type,   // retType
+                                                        &size,   // retSize
+                                                        &off); // retOffset
+                    }
+                }
+              
+              if (type == NULL)
+                {
+                  // Test setKey:
+                  buf[3] = 't';
+                  buf[4] = hi;
+                  buf[size+4] = ':';
 
-                  [self _infoForInstanceVariableNamed: name
-                        retType: &type
-                        retSize: &size
-                        retOffset: &off];
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"D aKey=%@ Method [setKey:] name=%s",
+                                        aKey, &buf[1]);
+                  
+                  sel = sel_get_any_uid(&buf[1]);
+                  
+                  if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+                    {
+                      sel = 0;
+                    }
                 }
             }
-
-          if (type == NULL)
-            {
-              name = [NSString stringWithFormat: @"set%@:", cap];
-
-              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@ name=%@",
-				    aKey, name);
-
-              sel = NSSelectorFromString(name);
-
-              if (sel == 0 || [self respondsToSelector: sel] == NO)
-                {
-                  sel = 0;
-                }
-            }
+          
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+                                @"class=%@ aKey=%@ sel=%@ offset=%u",
+                                selfClass, aKey, NSStringFromSelector(sel), off);
+          
+          [self _setValueForKey: aKey
+                object: anObject
+                selector: sel
+                type: type
+                size: size
+                offset: off];
         }
-
-      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-			    @"class=%@ aKey=%@ sel=%p offset=%u",
-			    [self class], aKey, sel, off);
-
-      [self _setValueForKey: aKey
-            object: anObject
-            selector: sel
-            type: type
-            size: size
-            offset: off];
-    }
+    };
 
   EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
 }
@@ -632,11 +716,11 @@ static const char _c_id[2] = { _C_ID, 0 };
 	 || [[classDescription toOneRelationshipKeys] containsObject: aKey])
 	&& [classDescription inverseForRelationshipKey: aKey] != nil)
     {
-      if (isNilOrEONull(anObject))
+      if (_isNilOrEONull(anObject))
         {
           id oldObj = [self valueForKey: aKey];
 
-          if (isNilOrEONull(oldObj))
+          if (_isNilOrEONull(oldObj))
             {
               if (!isToMany)
                 [self takeValue: anObject
@@ -662,8 +746,6 @@ static const char _c_id[2] = { _C_ID, 0 };
   const char	*type;
   unsigned	size;
   unsigned	off=0;
-  NSString	*cap;
-  NSString	*name;
 
   EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"anObject=%@", anObject);
@@ -675,52 +757,91 @@ static const char _c_id[2] = { _C_ID, 0 };
       [NSException raise: NSInvalidArgumentException
 		  format: @"takeValue:forKey: ... empty key"];
     }
-
-  cap = [[aKey substringToIndex: 1] uppercaseString];
-  if (size > 1)
+  else
     {
-      cap = [cap stringByAppendingString: [aKey substringFromIndex: 1]];
-    }
+      char		buf[size+6];
+      char		lo;
+      char		hi;
+      GDL2IMP_BOOL rtsIMP=NULL;
+      GDL2IMP_BOOL infoVarIMP=NULL;
 
-  name = [NSString stringWithFormat: @"set%@:", cap];
-  type = NULL;
-  sel = NSSelectorFromString(name);
+      strcpy(buf, "_set");
+      [aKey getCString: &buf[4]];
+      lo = buf[4];
+      hi = islower(lo) ? toupper(lo) : lo;
+      buf[4] = hi;
+      buf[size+4] = ':';
+      buf[size+5] = '\0';
 
-  if (sel == 0 || [self respondsToSelector: sel] == NO)
-    {
-      name = [NSString stringWithFormat: @"_set%@:", cap];
-      sel = NSSelectorFromString(name);
+      type = NULL;
 
-      if (sel == 0 || [self respondsToSelector: sel] == NO)
-	{
-	  sel = 0;
+      //Try setKey:
+      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [setKey:] name=%s",
+                            aKey, &buf[1]);
+      sel = sel_get_any_uid(&buf[1]);
 
-	  if ([[self class] accessInstanceVariablesDirectly] == YES)
-	    {
-	      name = [NSString stringWithFormat: @"_%@", aKey];
+      if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+        {
+          // Try _setKey:
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"B aKey=%@ Method [_setKey:] name=%s",
+                                aKey, buf);
+	  sel = sel_get_any_uid(buf);
 
-              if ([self _infoForInstanceVariableNamed: name
-                        retType: &type
-                        retSize: &size
-                        retOffset: &off]==NO)
-		{
-		  name = aKey;
+          if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+            {
+              sel = 0;
 
-                  [self _infoForInstanceVariableNamed: name
-                        retType: &type
-                        retSize: &size
-                        retOffset: &off];
-		}
-	    }
-	}
-    }
+              if ([[self class] accessInstanceVariablesDirectly] == YES)
+                {
+                  // test _key
+		  buf[size+4] = '\0';
+		  buf[3] = '_';
+		  buf[4] = lo;
+                  
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Instance [_key] name=%s",
+                                        aKey, &buf[3]);
+                  /*if ([self _infoForInstanceVariableNamed: &buf[3]
+                            stringName: nil
+                            retType: &type
+                            retSize: &size
+                            retOffset: &off]==NO)*/
+                  if (infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
+                                                        &buf[3], // name
+                                                        nil,     // stringName
+                                                        &type,   // retType
+                                                        &size,   // retSize
+                                                        &off)==NO) // retOffset
+                    {
+                      // Test key                      
+                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"D aKey=%@ Instance [key] name=%s",
+                                            aKey, &buf[4]);
+                      /*[self _infoForInstanceVariableNamed: &buf[4]
+                            stringName: aKey
+                            retType: &type
+                            retSize: &size
+                            retOffset: &off];*/
+                      infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
+                                                        &buf[4], // name
+                                                        aKey,     // stringName
+                                                        &type,   // retType
+                                                        &size,   // retSize
+                                                        &off); // retOffset
+                    }
+                }
+            }
+        }
+      
+      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+                            @"aKey=%@ sel=%@ offset=%u",
+                            aKey, NSStringFromSelector(sel), off);
 
-  [self _setValueForKey: aKey
-        object: anObject
-        selector: sel
-        type: type
-        size: size
-        offset: off];
+      [self _setValueForKey: aKey
+            object: anObject
+            selector: sel
+            type: type
+            size: size
+            offset: off];
+    };
 
   EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
 }
@@ -728,8 +849,6 @@ static const char _c_id[2] = { _C_ID, 0 };
 - (id) valueForKey: (NSString*)aKey
 {
   SEL		sel = 0;
-  NSString	*cap;
-  NSString	*name = nil;
   const char	*type = NULL;
   unsigned	size;
   unsigned	off = 0;
@@ -744,63 +863,109 @@ static const char _c_id[2] = { _C_ID, 0 };
       [NSException raise: NSInvalidArgumentException
 		  format: @"valueForKey: ... empty key"];
     }
-
-  cap = [[aKey substringToIndex: 1] uppercaseString];
-  if (size > 1)
+  else
     {
-      cap = [cap stringByAppendingString: [aKey substringFromIndex: 1]];
-    }
+      char		buf[size+5];
+      char		lo;
+      char		hi;
+      GDL2IMP_BOOL rtsIMP=NULL;
+      GDL2IMP_BOOL infoVarIMP=NULL;
 
-  name = [@"get" stringByAppendingString: cap];
-  sel = NSSelectorFromString(name);
+      strcpy(buf, "_get");
+      [aKey getCString: &buf[4]];
+      lo = buf[4];
+      hi = islower(lo) ? toupper(lo) : lo;
+      buf[4] = hi;
 
-  if (sel == 0 || [self respondsToSelector: sel] == NO)
-    {
-      name = aKey;
-      sel = NSSelectorFromString(name);
+      // Test getKey
+      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [getKey] name=%s",
+                            aKey, &buf[1]);
+      sel = sel_get_any_uid(&buf[1]);
 
-      if (sel == 0 || [self respondsToSelector: sel] == NO)
-	{
-	  name = [@"_get" stringByAppendingString: cap];
-	  sel = NSSelectorFromString(name);
-
-	  if (sel == 0 || [self respondsToSelector: sel] == NO)
-	    {
-	      name = [NSString stringWithFormat: @"_%@", aKey];
-	      sel = NSSelectorFromString(name);
-
-	      if (sel == 0 || [self respondsToSelector: sel] == NO)
-		{
-		  sel = 0;
-		}
-	    }
-	}
-    }
-
-  if (sel == 0 && [[self class] accessInstanceVariablesDirectly] == YES)
-    {
-      name = [NSString stringWithFormat: @"_%@", aKey];
-
-      if ([self _infoForInstanceVariableNamed: name
-                retType: &type
-                retSize: &size
-                retOffset: &off]==NO)
+      if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
         {
-          name = aKey;
+          //Test key
+	  buf[4] = lo;
 
-          [self _infoForInstanceVariableNamed: name
-		retType: &type
-                retSize: &size
-                retOffset: &off];
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"B aKey=%@ Method [key] name=%s",
+                                aKey, &buf[4]);
+	  sel = sel_get_any_uid(&buf[4]);
+
+          if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+            {
+              //Test _getKey
+	      buf[4] = hi;
+
+              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Method [_getKey] name=%s",
+                                    aKey, buf);
+	      sel = sel_get_any_uid(buf);
+              
+              if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+                {
+                  // Test _key
+		  buf[3] = '_';
+		  buf[4] = lo;
+
+                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"C aKey=%@ Method [_key] name=%s",
+                                        aKey, &buf[3]);
+                  sel = sel_get_any_uid(&buf[3]);
+
+                  if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+                    {
+                      sel = 0;
+                    }
+                }
+            }
         }
-    }
 
-  value = [self _getValueForKey: aKey
-		selector: sel
-		type: type
-		size: size
-		offset: off];
-
+      if (sel == 0 && [[self class] accessInstanceVariablesDirectly] == YES)
+        {
+          // Test _key
+          buf[3] = '_';
+          buf[4] = lo;
+          
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"D aKey=%@ Instance [_key] name=%s",
+                                aKey, &buf[3]);
+          /*if ([self _infoForInstanceVariableNamed: &buf[3]
+                    stringName: nil
+                    retType: &type
+                    retSize: &size
+                    retOffset: &off]==NO)*/
+          if (infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
+                                                &buf[3], // name
+                                                nil,     // stringName
+                                                &type,   // retType
+                                                &size,   // retSize
+                                                &off)==NO) // retOffset
+            {
+              // Test key
+              
+              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"E aKey=%@ Instance [key] name=%s",
+                                    aKey, &buf[4]);
+              /*[self _infoForInstanceVariableNamed:  &buf[4]
+                    stringName: aKey
+                    retType: &type
+                    retSize: &size
+                    retOffset: &off];*/
+              infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
+                                                &buf[4], // name
+                                                aKey,     // stringName
+                                                &type,   // retType
+                                                &size,   // retSize
+                                                &off); // retOffset
+            }
+        }
+      
+      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+                            @"aKey=%@ sel=%@ offset=%u",
+                            aKey, NSStringFromSelector(sel), off);
+      
+      value = [self _getValueForKey: aKey
+                    selector: sel
+                    type: type
+                    size: size
+                    offset: off];
+    };
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value: %p (class=%@)",
 			value, [value class]);
   EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
@@ -847,7 +1012,7 @@ static const char _c_id[2] = { _C_ID, 0 };
     [dictionary setObject: value
 		forKey: key];
   else
-//        [dictionary setObject: [EONull null]
+//        [dictionary setObject: GDL2EONull
 //                       forKey: key];
     [dictionary removeObjectForKey: key];
 
@@ -867,6 +1032,7 @@ infinite loop in description **/
   NSMutableDictionary *dict;
   NSString *key = nil;
   id obj = nil;
+  IMP ofkIMP=NULL;
 
   toManyKeys = [classDescription toManyRelationshipKeys];
   toOneKeys = [classDescription toOneRelationshipKeys];
@@ -874,8 +1040,7 @@ infinite loop in description **/
 
   while ((key = [enumerator nextObject]))
     {
-      obj = [dictionary objectForKey: key];
-
+      obj = EOMKKD_objectForKeyWithImpPtr(dictionary,&ofkIMP,key);
       if (!obj)
         [dict setObject: @"(null)"
               forKey: key];
@@ -906,6 +1071,7 @@ infinite loop in description **/
   NSMutableDictionary *dict;
   NSString *key = nil;
   id obj = nil;
+  IMP ofkIMP=NULL;
 
   toManyKeys = [classDescription toManyRelationshipKeys];
   toOneKeys = [classDescription toOneRelationshipKeys];
@@ -914,64 +1080,63 @@ infinite loop in description **/
 
   while ((key = [enumerator nextObject]))
     {
-      obj = [dictionary objectForKey: key];
+      obj = EOMKKD_objectForKeyWithImpPtr(dictionary,&ofkIMP,key);
 
       if (!obj)
         [dict setObject: @"(null)"
               forKey: key];
+      else if (_isFault(obj) == YES)
+        {
+          [dict setObject: [obj description]
+                forKey: key];
+        }
+      else if (obj==GDL2EONull)
+        [dict setObject: @"(null)"
+              forKey: key];
       else
         {
-          if ([toManyKeys containsObject: key] == NO
-	      && [toOneKeys containsObject: key] == NO)
+          if ([toManyKeys containsObject: key] != NO)
             {
-              [dict setObject: obj
+              NSEnumerator *toManyEnum;
+              NSMutableArray *array;
+              id rel;
+              
+              array = [NSMutableArray arrayWithCapacity: 8];
+              toManyEnum = [obj objectEnumerator];
+              
+              while ((rel = [toManyEnum nextObject]))
+                {
+                  NSString* relDescr=nil;
+                  // Avoid infinit loop
+                  if ([rel respondsToSelector: @selector(_shortDescription)])
+                    relDescr=[rel _shortDescription];
+                  else
+                    relDescr=[rel description];
+                  
+                  [array addObject:
+                           [NSString
+                             stringWithFormat: @"<%@ %p>",
+                             relDescr, NSStringFromClass([rel class])]];
+                }
+              
+              [dict setObject: [NSString stringWithFormat:
+                                           @"<%p %@ : %@>",
+                                         obj, [obj class], array]
+                    forKey: key];
+            }
+          else if ([toOneKeys containsObject: key] != NO)
+            {
+              [dict setObject: [NSString
+                                 stringWithFormat: @"<%p %@: classDescription=%@>",
+                                 obj,
+                                 NSStringFromClass([obj class]),
+                                 [(EOGenericRecord *)obj classDescription]]
                     forKey: key];
             }
           else
             {
-              if ([EOFault isFault: obj] == YES)
-                {
-                  [dict setObject: [obj description]
-                        forKey: key];
-                }
-              else if ([toManyKeys containsObject: key] == YES)
-                {
-                  NSEnumerator *toManyEnum;
-                  NSMutableArray *array;
-                  id rel;
-
-                  array = [NSMutableArray arrayWithCapacity: 8];
-                  toManyEnum = [obj objectEnumerator];
-
-                  while ((rel = [toManyEnum nextObject]))
-                    {
-                      NSString* relDescr;
-                      // Avoid infinit loop
-                      if ([rel respondsToSelector: @selector(_shortDescription)])
-                        relDescr=[rel _shortDescription];
-                      else
-                        relDescr=[rel description];
-
-                      [array addObject:
-                               [NSString
-                                 stringWithFormat: @"<%@ %p>",
-                                 relDescr, NSStringFromClass([rel class])]];
-                    }
-
-                  [dict setObject: [NSString stringWithFormat:
-					       @"<%p %@ : %@>",
-					     obj, [obj class], array]
-                        forKey: key];
-                }
-              else
-                {
-                  [dict setObject: [NSString
-				     stringWithFormat: @"<%p %@: classDescription=%@>",
-				     obj,
-				     NSStringFromClass([obj class]),
-				     [(EOGenericRecord *)obj classDescription]]
-                        forKey: key];
-                }
+              [dict setObject: obj
+                    forKey: key];
             }
         }
     }
@@ -1026,7 +1191,7 @@ You can override this to exclude properties manually handled by derived object *
  
       while ((record = (EOGenericRecord*)NSNextHashEnumeratorItem(&hashEnum)))
         {
-          if ([EOFault isFault:record])
+          if (_isFault(record))
             [EOFault eoCalculateSizeWith: dict
                      forFault: record];
           else
@@ -1114,12 +1279,12 @@ You can override this to exclude properties manually handled by derived object *
           id value = [self valueForKey: propKey];
 
           //NSDebugMLog(@"propKey=%@", propKey);
-          //NSDebugMLog(@"value isFault=%s", ([EOFault isFault:value] ? "YES" : "NO"));
+          //NSDebugMLog(@"value isFault=%s", (_isFault(value) ? "YES" : "NO"));
           //NSDebugMLog(@"value=%p class=%@", value, [value class]);
 
           if (value)
             {
-              if ([EOFault isFault:value])
+              if (_isFault(value))
                 size += [EOFault eoCalculateSizeWith: dict
 				 forFault: value];
               else if ([value respondsToSelector: @selector(eoCalculateSizeWith:)])

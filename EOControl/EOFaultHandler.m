@@ -44,6 +44,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSDebug.h>
 #include <Foundation/NSException.h>
+#include <Foundation/NSInvocation.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -234,6 +235,9 @@ BOOL __isGCEnabled(Class class_)
 
 - (BOOL)shouldPerformInvocation: (NSInvocation *)invocation
 {
+  NSDebugFLLog(@"gsdb",@"invocation selector=%@ target: %p",
+               NSStringFromSelector([invocation selector]),
+               [invocation target]);
   return YES;
 }
 

@@ -68,6 +68,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOCheapArray.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 
 // NOTE: (stephane@sente.ch) Should we subclass NSClassDescription?
@@ -108,11 +109,19 @@ static NSMapTable *classDescriptionForClass = NULL;
 static id classDelegate = nil;
 static NSRecursiveLock *local_lock = nil;
 
-+ (void)initialize
++ (void) initialize
 {
-  if (self == [EOClassDescription class])
+  static BOOL initialized=NO;
+  if (!initialized)
     {
-      Class cls = NSClassFromString(@"EOModelGroup");
+      Class cls = Nil;
+
+      initialized=YES;
+
+      GDL2PrivInit();
+
+      cls = NSClassFromString(@"EOModelGroup");
+
 
       local_lock = [GSLazyRecursiveLock new];
       classDescriptionForClass = NSCreateMapTable(NSObjectMapKeyCallBacks, 
@@ -274,7 +283,7 @@ static NSRecursiveLock *local_lock = nil;
   EOFLOGObjectFnStart();
 
   // Get class properties (attributes + relationships)
-  classPropertyNames = [[NSMutableArray alloc]
+  classPropertyNames = [((NSMutableArray*)[NSMutableArray alloc])
                          initWithArray: [self attributeKeys]];
   [classPropertyNames addObjectsFromArray:
                         [self toOneRelationshipKeys]];
@@ -435,179 +444,186 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
   NSDebugMLLog(@"gsdb",@"object %p=%@", object, object);
 
-  classDelegate = [[self class] classDelegate];
-
-  NSDebugMLLog(@"gsdb", @"classDelegate%p=%@",
-               classDelegate,
-               classDelegate);
-
-  toRelArray = [object toOneRelationshipKeys];
-  toRelEnum = [toRelArray objectEnumerator];
-
-  while ((key = [toRelEnum nextObject]))
+  if (object==GDL2EONull)
     {
-      BOOL shouldPropagate = YES;
+      NSWarnMLog(@"Warning: object is an EONull");
+    }
+  else
+    {
+      classDelegate = [[self class] classDelegate];
 
-      NSDebugMLLog(@"gsdb", @"ToOne key=%@", key);
+      NSDebugMLLog(@"gsdb", @"classDelegate%p=%@",
+                   classDelegate,
+                   classDelegate);
+      
+      toRelArray = [object toOneRelationshipKeys];
+      toRelEnum = [toRelArray objectEnumerator];
+      
+      while ((key = [toRelEnum nextObject]))
+        {
+          BOOL shouldPropagate = YES;
+          
+          NSDebugMLLog(@"gsdb", @"ToOne key=%@", key);
+          
+          if (classDelegate)
+            shouldPropagate = [classDelegate shouldPropagateDeleteForObject: object
+                                             inEditingContext: context
+                                             forRelationshipKey: key];
+          
+          NSDebugMLLog(@"gsdb", @"ToOne key=%@ shouldPropagate=%s", key,
+                       (shouldPropagate ? "YES" : "NO"));
+          
+          if (shouldPropagate)
+            {
+              destination = [object storedValueForKey: key];
+              NSDebugMLLog(@"gsdb", @"destination %p=%@",
+                           destination, destination);
+              
+              if (!_isNilOrEONull(destination))
+                {
+                  EODeleteRule deleteRule = [object deleteRuleForRelationshipKey:
+                                                      key];
 
-      if (classDelegate)
-        shouldPropagate = [classDelegate shouldPropagateDeleteForObject: object
-					 inEditingContext: context
-					 forRelationshipKey: key];
+                  NSDebugMLLog(@"gsdb", @"deleteRule=%d", (int)deleteRule);
 
-      NSDebugMLLog(@"gsdb", @"ToOne key=%@ shouldPropagate=%s", key,
-		   (shouldPropagate ? "YES" : "NO"));
+                  switch (deleteRule)
+                    {
+                    case EODeleteRuleNullify:
+                      EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNullify");
+                      
+                      [object removeObject: destination
+                              fromBothSidesOfRelationshipWithKey: key];
+                      /*
+                        [object takeValue:nil
+                        forKey:key];
+                        inverseKey = [object inverseForRelationshipKey:key];
+                        NSDebugMLLog(@"gsdb",@"inverseKey=%@",inverseKey);
+                        
+                        if (inverseKey)
+                        // p.ex. : the statement  [employee inverseForRelationshipKey:@"department"] --> returns "employees"
+                        [destination removeObject:object
+                        fromPropertyWithKey:inverseKey];
+                      */
+                      break;
+                      
+                    case EODeleteRuleCascade:
+                      //OK
+                      EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleCascade");
+                      [object removeObject: destination
+                              fromBothSidesOfRelationshipWithKey: key];
+                      [context deleteObject: destination];
+                      [destination propagateDeleteWithEditingContext: context];
+                      break;
+                      
+                    case EODeleteRuleDeny:
+                      EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleDeny");
+                      // TODO don't know how to do yet, if raise an exception
+                      // or something else.
+                      NSEmitTODO();  
+                      [self notImplemented: _cmd];
+                      break;
+                      
+                    case EODeleteRuleNoAction:
+                      EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNoAction");
+                      break;
+                    }
+                }
+            }
+        }
+    
+      toRelArray = [self toManyRelationshipKeys];
+      toRelEnum = [toRelArray objectEnumerator];
 
-      if (shouldPropagate)
-	{
-	  destination = [object storedValueForKey: key];
-          NSDebugMLLog(@"gsdb", @"destination %p=%@",
-		       destination, destination);
+      while ((key = [toRelEnum nextObject]))
+        {
+          BOOL shouldPropagate = YES;
 
-	  if (destination)
-	    {
-              EODeleteRule deleteRule = [object deleteRuleForRelationshipKey:
-						  key];
+          NSDebugMLLog(@"gsdb", @"ToMany key=%@", key);
 
+          if (classDelegate)
+            shouldPropagate = [classDelegate shouldPropagateDeleteForObject: object
+                                             inEditingContext: context
+                                             forRelationshipKey: key];
+          NSDebugMLLog(@"gsdb", @"ToMany key=%@ shouldPropagate=%s", key,
+                       (shouldPropagate ? "YES" : "NO"));
+
+          if (shouldPropagate)
+            {
+              NSArray *toManyArray;
+              EODeleteRule deleteRule;
+
+              toManyArray = [object valueForKey: key];
+              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray, toManyArray);
+
+              deleteRule = [object deleteRuleForRelationshipKey: key];
               NSDebugMLLog(@"gsdb", @"deleteRule=%d", (int)deleteRule);
 
-	      switch (deleteRule)
-		{
-		case EODeleteRuleNullify:
+              switch (deleteRule)
+                {
+                case EODeleteRuleNullify:
                   EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNullify");
+                  NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray,
+                               toManyArray);
 
-                  [object removeObject: destination
-                          fromBothSidesOfRelationshipWithKey: key];
-                  /*
-                  [object takeValue:nil
-                          forKey:key];
-		  inverseKey = [object inverseForRelationshipKey:key];
-                  NSDebugMLLog(@"gsdb",@"inverseKey=%@",inverseKey);
+                  while ((destination = [toManyArray lastObject]))
+                    {
+                      NSDebugMLLog(@"gsdb", @"destination %p=%@", destination,
+                                   destination);
 
-		  if (inverseKey)
-                    // p.ex. : the statement  [employee inverseForRelationshipKey:@"department"] --> returns "employees"
-		    [destination removeObject:object
-				 fromPropertyWithKey:inverseKey];
-                  */
-		  break;
+                      [object removeObject: destination
+                              fromBothSidesOfRelationshipWithKey: key];
+                      /*
+                        inverseKey = [self inverseForRelationshipKey:key];
+                        NSDebugMLLog(@"gsdb",@"inverseKey=%@",inverseKey);
 
-		case EODeleteRuleCascade:
+                        if (inverseKey)
+                        [destination removeObject:object
+                        fromPropertyWithKey:inverseKey];
+                      */
+                    }
+                  NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
+                               toManyArray, toManyArray);
+                  break;
+
+                case EODeleteRuleCascade:
                   //OK
                   EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleCascade");
-                  [object removeObject: destination
-                          fromBothSidesOfRelationshipWithKey: key];
-		  [context deleteObject: destination];
-		  [destination propagateDeleteWithEditingContext: context];
-		  break;
+                  NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
+                               toManyArray, toManyArray);
 
-		case EODeleteRuleDeny:
+                  while ((destination = [toManyArray lastObject]))
+                    {
+                      NSDebugMLLog(@"gsdb", @"destination %p=%@",
+                                   destination, destination);
+
+                      [object removeObject: destination
+                              fromBothSidesOfRelationshipWithKey: key];
+                      [context deleteObject: destination];
+                      [destination propagateDeleteWithEditingContext: context];
+                    }
+                  NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
+                               toManyArray, toManyArray);
+                  break;
+
+                case EODeleteRuleDeny:
                   EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleDeny");
-		  // TODO don't know how to do yet, if raise an exception
-		  // or something else.
-                  NSEmitTODO();  
-		  [self notImplemented: _cmd];
-		  break;
+                  NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
+                               toManyArray, toManyArray);
+                  if ([toManyArray count] > 0)
+                    {
+                      // TODO don't know how to do yet, if raise an exception
+                      // or something else.
+                      NSEmitTODO();  
+                      [self notImplemented: _cmd];
+                    }
+                  break;
 
-		case EODeleteRuleNoAction:
+                case EODeleteRuleNoAction:
                   EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNoAction");
-		  break;
-		}
-	    }
-	}
-    }
-    
-  toRelArray = [self toManyRelationshipKeys];
-  toRelEnum = [toRelArray objectEnumerator];
-
-  while ((key = [toRelEnum nextObject]))
-    {
-      BOOL shouldPropagate = YES;
-
-      NSDebugMLLog(@"gsdb", @"ToMany key=%@", key);
-
-      if (classDelegate)
-        shouldPropagate = [classDelegate shouldPropagateDeleteForObject: object
-					 inEditingContext: context
-					 forRelationshipKey: key];
-      NSDebugMLLog(@"gsdb", @"ToMany key=%@ shouldPropagate=%s", key,
-		   (shouldPropagate ? "YES" : "NO"));
-
-      if (shouldPropagate)
-	{
-	  NSArray *toManyArray;
-          EODeleteRule deleteRule;
-
-	  toManyArray = [object valueForKey: key];
-          NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray, toManyArray);
-
-          deleteRule = [object deleteRuleForRelationshipKey: key];
-          NSDebugMLLog(@"gsdb", @"deleteRule=%d", (int)deleteRule);
-
-          switch (deleteRule)
-	    {
-	    case EODeleteRuleNullify:
-              EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNullify");
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray,
-			   toManyArray);
-
-	      while ((destination = [toManyArray lastObject]))
-		{
-                  NSDebugMLLog(@"gsdb", @"destination %p=%@", destination,
-			       destination);
-
-                  [object removeObject: destination
-                          fromBothSidesOfRelationshipWithKey: key];
-                  /*
-		  inverseKey = [self inverseForRelationshipKey:key];
-                  NSDebugMLLog(@"gsdb",@"inverseKey=%@",inverseKey);
-
-		  if (inverseKey)
-		    [destination removeObject:object
-				 fromPropertyWithKey:inverseKey];
-                  */
-		}
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
-			   toManyArray, toManyArray);
-	      break;
-
-	    case EODeleteRuleCascade:
-              //OK
-              EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleCascade");
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
-			   toManyArray, toManyArray);
-
-	      while ((destination = [toManyArray lastObject]))
-		{
-                  NSDebugMLLog(@"gsdb", @"destination %p=%@",
-			       destination, destination);
-
-                  [object removeObject: destination
-                          fromBothSidesOfRelationshipWithKey: key];
-		  [context deleteObject: destination];
-		  [destination propagateDeleteWithEditingContext: context];
-		}
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
-			   toManyArray, toManyArray);
-	      break;
-
-	    case EODeleteRuleDeny:
-              EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleDeny");
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
-			   toManyArray, toManyArray);
-	      if ([toManyArray count] > 0)
-		{
-		  // TODO don't know how to do yet, if raise an exception
-		  // or something else.
-                  NSEmitTODO();  
-		  [self notImplemented: _cmd];
-		}
-	      break;
-
-	    case EODeleteRuleNoAction:
-              EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNoAction");
-	      break;
-	    }
-	}
+                  break;
+                }
+            }
+        }
     }
 
   EOFLOGObjectFnStop();
@@ -914,27 +930,29 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
   if (exception == nil)
     {
-      NSMutableString *selString = [NSMutableString stringWithCapacity: 32];
-      SEL validateSelector;
-      const char *str;
-      char l;
+      int size = [key length];
 
-      str = [key cString];
-      l = str[0];
+      if (size < 1)
+        {
+          [NSException raise: NSInvalidArgumentException
+                       format: @"storedValueForKey: ... empty key"];
+        }
+      else
+        {
+          SEL validateSelector=NULL;
+          char buf[size+8]; // 8 characters for validate          
+          strcpy(buf, "validate");
+          [key getCString: &buf[8]];
+          if (islower(buf[8]))
+            buf[8]=toupper(buf[8]);
 
-      if (islower(l))
-	l = toupper(l);
+          validateSelector = sel_get_any_uid(buf);
 
-      [selString appendString: @"validate"];
-      [selString appendString: [NSString stringWithCString: &l length: 1]];
-      [selString appendString: [NSString stringWithCString: &str[1]]];
-      [selString appendString: @":"];
-      
-      validateSelector = NSSelectorFromString(selString);
 
-      if (validateSelector && [self respondsToSelector: validateSelector])
-	exception = [self performSelector: validateSelector
-			  withObject: *valueP];
+          if (validateSelector && [self respondsToSelector: validateSelector])
+            exception = [self performSelector: validateSelector
+                              withObject: *valueP];
+        };
     }
 
   EOFLOGObjectFnStop();
@@ -980,6 +998,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
               NSString *key = [keys objectAtIndex: i];
               id value = [self valueForKey: key];
               id newValue = value;
+              BOOL isEqual=NO;
 
               exception = [self validateValue: &newValue
 				forKey: key];
@@ -988,11 +1007,21 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                   if (!expArray)
                     expArray = [NSMutableArray array];
                   [expArray addObject: exception];
-                }
+                }              
+              if (newValue==value)
+                isEqual = YES;
+              else if (_isNilOrEONull(newValue))
+                isEqual = _isNilOrEONull(value);
+              else 
+                isEqual = [newValue isEqual: value];
 
-              if ([newValue isEqual: value] == NO)
-                [self takeValue: newValue
-                      forKey: key];
+              if (isEqual == NO)
+                {
+                  NSDebugMLLog(@"gsdb", @"key=%@ newValue='%@' (class=%@) value='%@' (class=%@)",
+                               key,newValue,[newValue class],value,[value class]);
+                  [self takeValue: newValue
+                        forKey: key];
+                };
             }
         }
     }
@@ -1042,7 +1071,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 - (NSArray *)shallowCopy
 {
-  return [[NSArray alloc] initWithArray: self];
+  return [((NSMutableArray*)[NSArray alloc]) initWithArray: self];
 }
 
 @end
@@ -1061,86 +1090,93 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   int attributeKeyCount;
   int toOneRelationshipKeyCount;
   int toManyRelationshipKeyCount;
-  EONull *null = (EONull *)[EONull null];
   int i;
 
   EOFLOGObjectFnStart();
+
   NSDebugMLLog(@"gsdb", @"self=%@", self);
 
-  attributeKeys = [self attributeKeys];
-  NSDebugMLLog(@"gsdb", @"attributeKeys=%@", attributeKeys);
-
-  toOneRelationshipKeys = [self toOneRelationshipKeys];
-  toManyRelationshipKeys = [self toManyRelationshipKeys];
-
-  attributeKeyCount = [attributeKeys count];
-  toOneRelationshipKeyCount = [toOneRelationshipKeys count];
-  toManyRelationshipKeyCount = [toManyRelationshipKeys count];
-
-  NSDebugMLLog(@"gsdb", @"attributeKeyCount=%d toOneRelationshipKeyCount=%d "
-	       @"toManyRelationshipKeyCount=%d",
-	       attributeKeyCount, toOneRelationshipKeyCount,
-	       toManyRelationshipKeyCount);
-
-  snapshot = [NSMutableDictionary dictionaryWithCapacity: attributeKeyCount
-				  + toOneRelationshipKeyCount
-				  + toManyRelationshipKeyCount];
-  NSDebugMLLog(@"gsdb", @"attributeKeys=%@", attributeKeys);
-
-  for (i = 0; i < attributeKeyCount; i++)
+  if (self==GDL2EONull)
     {
-      id key = [attributeKeys objectAtIndex: i];
-      id value = [self storedValueForKey: key];
-
-      if (!value)
-        value = null;
-
-      NSDebugMLLog(@"gsdb", @"snap=%p key=%@ ==> value %p=%@",
-		   snapshot, key, value, value);
-      [snapshot setObject: value
-                forKey: key];
+      NSWarnMLog(@"Warning: self is an EONull");
     }
-
-  NSDebugMLLog(@"gsdb", @"toOneRelationshipKeys=%@", toOneRelationshipKeys);
-
-  for (i = 0; i < toOneRelationshipKeyCount; i++)
+  else
     {
-      id key = [toOneRelationshipKeys objectAtIndex: i];
-      id value = [self storedValueForKey: key];
+      attributeKeys = [self attributeKeys];
+      NSDebugMLLog(@"gsdb", @"attributeKeys=%@", attributeKeys);
 
-      if (!value)
-        value = null;
+      toOneRelationshipKeys = [self toOneRelationshipKeys];
+      toManyRelationshipKeys = [self toManyRelationshipKeys];
 
-      NSDebugMLLog(@"gsdb", @"TOONE snap=%p key=%@ ==> value %p=%@",
-		   snapshot, key, value, value);
+      attributeKeyCount = [attributeKeys count];
+      toOneRelationshipKeyCount = [toOneRelationshipKeys count];
+      toManyRelationshipKeyCount = [toManyRelationshipKeys count];
 
-      [snapshot setObject: value
-                forKey: key];
-    }
+      NSDebugMLLog(@"gsdb", @"attributeKeyCount=%d toOneRelationshipKeyCount=%d "
+                   @"toManyRelationshipKeyCount=%d",
+                   attributeKeyCount, toOneRelationshipKeyCount,
+                   toManyRelationshipKeyCount);
 
-  NSDebugMLLog(@"gsdb", @"toManyRelationshipKeys=%@", toManyRelationshipKeys);
+      snapshot = [NSMutableDictionary dictionaryWithCapacity: attributeKeyCount
+                                      + toOneRelationshipKeyCount
+                                      + toManyRelationshipKeyCount];
+      NSDebugMLLog(@"gsdb", @"attributeKeys=%@", attributeKeys);
 
-  for (i = 0; i < toManyRelationshipKeyCount; i++)
-    {
-      id key = [toManyRelationshipKeys objectAtIndex: i];
-      id value = [self storedValueForKey: key];
-
-      if (value)
+      for (i = 0; i < attributeKeyCount; i++)
         {
-          NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
-		       snapshot, key, value, value);
+          id key = [attributeKeys objectAtIndex: i];
+          id value = [self storedValueForKey: key];
 
-          value = AUTORELEASE([value shallowCopy]);
-          NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
-		       snapshot, key, value, value);
+          if (!value)
+            value = GDL2EONull;
+
+          NSDebugMLLog(@"gsdb", @"snap=%p key=%@ ==> value %p=%@",
+                       snapshot, key, value, value);
+          [snapshot setObject: value
+                    forKey: key];
+        }
+
+      NSDebugMLLog(@"gsdb", @"toOneRelationshipKeys=%@", toOneRelationshipKeys);
+
+      for (i = 0; i < toOneRelationshipKeyCount; i++)
+        {
+          id key = [toOneRelationshipKeys objectAtIndex: i];
+          id value = [self storedValueForKey: key];
+
+          if (!value)
+            value = GDL2EONull;
+
+          NSDebugMLLog(@"gsdb", @"TOONE snap=%p key=%@ ==> value %p=%@",
+                       snapshot, key, value, value);
 
           [snapshot setObject: value
                     forKey: key];
         }
-      /*    //TODO-VERIFY or set it to eonull ?
-            else
-            value=null;
-      */
+
+      NSDebugMLLog(@"gsdb", @"toManyRelationshipKeys=%@", toManyRelationshipKeys);
+
+      for (i = 0; i < toManyRelationshipKeyCount; i++)
+        {
+          id key = [toManyRelationshipKeys objectAtIndex: i];
+          id value = [self storedValueForKey: key];
+
+          if (value)
+            {
+              NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
+                           snapshot, key, value, value);
+
+              value = AUTORELEASE([((NSArray*)value) shallowCopy]);
+              NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
+                           snapshot, key, value, value);
+
+              [snapshot setObject: value
+                        forKey: key];
+            }
+          /*    //TODO-VERIFY or set it to eonull ?
+                else
+                value=GDL2EONull;
+          */
+        }
     }
 
   NSDebugMLLog(@"gsdb", @"self=%p snapshot=%p", self, snapshot);
@@ -1159,18 +1195,17 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 {
   NSEnumerator *snapshotEnum = [snapshot keyEnumerator];
   NSString *key;
-  EONull *null = (EONull *)[EONull null];
   id val;
 
   while ((key = [snapshotEnum nextObject]))
     {
       val = [snapshot objectForKey: key];
       
-      if ([val isEqual: null])
+      if (val==GDL2EONull)
 	val = nil;
 
       if ([val isKindOfClass: [NSArray class]])
-	val = AUTORELEASE([AUTORELEASE([val shallowCopy]) mutableCopy]);
+	val = AUTORELEASE([AUTORELEASE([((NSArray*)val) shallowCopy]) mutableCopy]);
 
       [self takeStoredValue: val forKey: key];
     }
@@ -1312,86 +1347,93 @@ toPropertyWithKey: (NSString *)key
   NSDebugMLLog(@"gsdb", @"object=%@", object);
   NSDebugMLLog(@"gsdb", @"key=%@", key);
 
-  str = [key cString];
-
-  NSDebugMLLog(@"gsdb", @"*+* ciao3 %@", key);
-  NSDebugMLLog(@"gsdb", @"*+* ciao3 %@", object);
-
-  if ([key length])
+  if (self==GDL2EONull)
     {
-      NSMutableString *selString = [NSMutableString stringWithCapacity: 25];
-      SEL addToSelector;
-      char l = str[0];
+      NSWarnMLog(@"Warning: self is an EONull. key=%@ object=%@",key,object);
+    }
+  else
+    {
+      str = [key cString];
 
-      if (islower(l))
-	l = toupper(l);
+      NSDebugMLLog(@"gsdb", @"*+* ciao3 %@", key);
+      NSDebugMLLog(@"gsdb", @"*+* ciao3 %@", object);
 
-      [selString appendString: @"addTo"];
-      [selString appendString: [NSString stringWithCString: &l length: 1]];
-      [selString appendString: [NSString stringWithCString: &str[1]]];
-      [selString appendString: @":"];
-
-      addToSelector = NSSelectorFromString(selString);
-
-      if (addToSelector && [self respondsToSelector: addToSelector] == YES)
-	{
-          NSDebugMLLog(@"gsdb", @"selector=%@", selString);
-
-	  [self performSelector: addToSelector
-		withObject: object];
-	}
-      else
+      if ([key length])
         {
-	  id val = nil;
+          NSMutableString *selString = [NSMutableString stringWithCapacity: 25];
+          SEL addToSelector;
+          char l = str[0];
 
-	  if ([self isToManyKey: key] == YES)
-	    {
-	      EOFLOGObjectLevel(@"gsdb", @"to many");
+          if (islower(l))
+            l = toupper(l);
 
-	      val = [self valueForKey: key]; //should use storedValueForKey: ?
+          [selString appendString: @"addTo"];
+          [selString appendString: [NSString stringWithCString: &l length: 1]];
+          [selString appendString: [NSString stringWithCString: &str[1]]];
+          [selString appendString: @":"];
 
-	      NSDebugMLLog(@"gsdb", @"to many val=%@ (%@)", val, [val class]);
+          addToSelector = NSSelectorFromString(selString);
 
-              if ([val containsObject: object])
+          if (addToSelector && [self respondsToSelector: addToSelector] == YES)
+            {
+              NSDebugMLLog(@"gsdb", @"selector=%@", selString);
+
+              [self performSelector: addToSelector
+                    withObject: object];
+            }
+          else
+            {
+              id val = nil;
+
+              if ([self isToManyKey: key] == YES)
                 {
-                  NSDebugMLog(@"Object %p already in too many val=%@ (%@)",
-			      object, val, [val class]);
-                }
-              else
-                {
-                  if ([val isKindOfClass: [NSMutableArray class]])
+                  EOFLOGObjectLevel(@"gsdb", @"to many");
+
+                  val = [self valueForKey: key]; //should use storedValueForKey: ?
+
+                  NSDebugMLLog(@"gsdb", @"to many val=%@ (%@)", val, [val class]);
+
+                  if ([val containsObject: object])
                     {
-                      EOFLOGObjectLevel(@"gsdb", @"to many2");
-                      [self willChange];
-                      [val addObject: object];
+                      NSDebugMLog(@"Object %p already in too many val=%@ (%@)",
+                                  object, val, [val class]);
                     }
                   else
                     {
-                      NSMutableArray *relArray;
-
-                      if (val)
-                        relArray = AUTORELEASE([val mutableCopy]);
+                      if ([val isKindOfClass: [NSMutableArray class]])
+                        {
+                          EOFLOGObjectLevel(@"gsdb", @"to many2");
+                          [self willChange];
+                          [val addObject: object];
+                        }
                       else
-                        relArray = [NSMutableArray arrayWithCapacity: 10];
+                        {
+                          NSMutableArray *relArray;
 
-                      NSDebugMLLog(@"gsdb", @"relArray=%@ (%@)",
-				   relArray, [relArray class]);
+                          if (val)
+                            relArray = AUTORELEASE([val mutableCopy]);
+                          else
+                            relArray = [NSMutableArray arrayWithCapacity: 10];
 
-                      [relArray addObject: object];
-                      NSDebugMLLog(@"gsdb", @"relArray=%@ (%@)",
-				   relArray, [relArray class]);
+                          NSDebugMLLog(@"gsdb", @"relArray=%@ (%@)",
+                                       relArray, [relArray class]);
 
-                      [self takeValue: relArray
-                            forKey: key];
+                          [relArray addObject: object];
+                          NSDebugMLLog(@"gsdb", @"relArray=%@ (%@)",
+                                       relArray, [relArray class]);
+
+                          [self takeValue: relArray
+                                forKey: key];
+                        }
                     }
                 }
-	    }
-	  else
-            {
-              EOFLOGObjectLevel(@"gsdb", @"key is not to many");
+              else
+                {
+                  EOFLOGObjectLevel(@"gsdb", @"key is not to many");
 
-              [self takeValue: object
-                    forKey: key];
+                  [self takeValue: object
+                        forKey: key];
+                }
             }
         }
     }
@@ -1413,75 +1455,82 @@ toPropertyWithKey: (NSString *)key
   NSDebugMLLog(@"gsdb", @"object=%@", object);
   NSDebugMLLog(@"gsdb", @"key=%@ class=%@", key, [key class]);
 
-  str = [key cString];
-
-  if ([key length])
+  if (self==GDL2EONull)
     {
-      NSMutableString *selString = [NSMutableString stringWithCapacity: 25];
-      SEL removeFromSelector;
-      char l = str[0];
+      NSWarnMLog(@"Warning: self is an EONull. key=%@ object=%@",key,object);
+    }
+  else
+    {
+      str = [key cString];
 
-      if (islower(l))
-	l = toupper(l);
+      if ([key length])
+        {
+          NSMutableString *selString = [NSMutableString stringWithCapacity: 25];
+          SEL removeFromSelector;
+          char l = str[0];
+
+          if (islower(l))
+            l = toupper(l);
       
-      [selString appendString: @"removeFrom"];
-      NSDebugMLLog(@"gsdb", @"selString=%@", selString);
-      [selString appendString: [NSString stringWithCString: &l
-					 length: 1]];
-      NSDebugMLLog(@"gsdb", @"selString=%@", selString);
-      [selString appendString: [NSString stringWithCString: &str[1]]];
-      NSDebugMLLog(@"gsdb", @"selString=%@", selString);
-      [selString appendString: @":"];
-      NSDebugMLLog(@"gsdb", @"selString=%@", selString);
+          [selString appendString: @"removeFrom"];
+          NSDebugMLLog(@"gsdb", @"selString=%@", selString);
+          [selString appendString: [NSString stringWithCString: &l
+                                             length: 1]];
+          NSDebugMLLog(@"gsdb", @"selString=%@", selString);
+          [selString appendString: [NSString stringWithCString: &str[1]]];
+          NSDebugMLLog(@"gsdb", @"selString=%@", selString);
+          [selString appendString: @":"];
+          NSDebugMLLog(@"gsdb", @"selString=%@", selString);
 
-      removeFromSelector = NSSelectorFromString(selString);
+          removeFromSelector = NSSelectorFromString(selString);
 
-      NSDebugMLLog(@"gsdb", @"selString=%@ removeFromSelector=%p", selString,
-		   (void*)removeFromSelector);
+          NSDebugMLLog(@"gsdb", @"selString=%@ removeFromSelector=%p", selString,
+                       (void*)removeFromSelector);
 
-      if (removeFromSelector && [self respondsToSelector: removeFromSelector])
-        {
-          EOFLOGObjectLevel(@"gsdb", @"responds=YES");
-          [self performSelector: removeFromSelector
-                withObject: object];
-        }
-      else
-        {
-	  id val = nil;
-
-          EOFLOGObjectLevel(@"gsdb", @"responds=NO");
-	  
-	  if ([self isToManyKey:key] == YES)
-	    {
-              EOFLOGObjectLevel(@"gsdb", @"key is to many");
-
-	      val = [self valueForKey: key];
-              NSDebugMLLog(@"gsdb", @"val=%@", val);
-
-	      if ([val isKindOfClass: [NSMutableArray class]])
-		{
-		  [self willChange];
-		  [val removeObject: object];
-		}
-	      else
-		{
-		  NSMutableArray *relArray = nil;
-
-		  if (val)
-		    {
-		      relArray = AUTORELEASE([val mutableCopy]);
-
-		      [relArray removeObject: object];
-		      [self takeValue: relArray
-                            forKey: key];
-		    }
-		}
-	    }
-	  else
+          if (removeFromSelector && [self respondsToSelector: removeFromSelector])
             {
-              EOFLOGObjectLevel(@"gsdb", @"key is not to many");
-              [self takeValue: nil
-                    forKey: key];
+              EOFLOGObjectLevel(@"gsdb", @"responds=YES");
+              [self performSelector: removeFromSelector
+                    withObject: object];
+            }
+          else
+            {
+              id val = nil;
+
+              EOFLOGObjectLevel(@"gsdb", @"responds=NO");
+	  
+              if ([self isToManyKey:key] == YES)
+                {
+                  EOFLOGObjectLevel(@"gsdb", @"key is to many");
+
+                  val = [self valueForKey: key];
+                  NSDebugMLLog(@"gsdb", @"val=%@", val);
+
+                  if ([val isKindOfClass: [NSMutableArray class]])
+                    {
+                      [self willChange];
+                      [val removeObject: object];
+                    }
+                  else
+                    {
+                      NSMutableArray *relArray = nil;
+
+                      if (val)
+                        {
+                          relArray = AUTORELEASE([val mutableCopy]);
+
+                          [relArray removeObject: object];
+                          [self takeValue: relArray
+                                forKey: key];
+                        }
+                    }
+                }
+              else
+                {
+                  EOFLOGObjectLevel(@"gsdb", @"key is not to many");
+                  [self takeValue: nil
+                        forKey: key];
+                }
             }
         }
     }
@@ -1504,44 +1553,58 @@ forBothSidesOfRelationshipWithKey: (NSString*)key
   NSDebugMLLog(@"gsdb", @"object=%@", object);
   NSDebugMLLog(@"gsdb", @"key=%@", key);
 
-  inverseKey = [self inverseForRelationshipKey:key];
-  NSDebugMLLog(@"gsdb", @"inverseKey=%@", inverseKey);
-
-  oldObject = [self valueForKey: key];
-  NSDebugMLLog(@"gsdb", @"oldObject=%@", oldObject);
-
-  if (inverseKey)
+  if (self==GDL2EONull)
     {
-      [oldObject removeObject: self
-                 fromPropertyWithKey: inverseKey];
-      [object addObject: self
-              toPropertyWithKey: inverseKey];
-/*      if ([object isToManyKey:inverseKey])
-        {
-          //??
-          EOFLOGObjectLevel(@"gsdb",@"Inverse is to many");
-          [oldObject removeObject:self
-                     fromPropertyWithKey:inverseKey];
-          [object addObject:self
-                  toPropertyWithKey:inverseKey];
-        }
-      else
-        {
-          EOFLOGObjectLevel(@"gsdb",@"Inverse is not to many");
-          //OK
-          //MIRKO      if ((inverseKey = [oldObject inverseForRelationshipKey:key]))
-          //MIRKO [oldObject removeObject:self
-          //           fromPropertyWithKey:inverseKey];
-          [oldObject takeValue:nil
-                     forKey:inverseKey];
-          [object  takeValue:self
-                   forKey:inverseKey];
-        };
-*/
+      NSWarnMLog(@"Warning: self is an EONull. key=%@ object=%@",key,object);
     }
+  else
+    {
+      inverseKey = [self inverseForRelationshipKey:key];
+      NSDebugMLLog(@"gsdb", @"inverseKey=%@", inverseKey);
 
-  [self takeValue: object
-        forKey: key];
+      oldObject = [self valueForKey: key];
+      NSDebugMLLog(@"gsdb", @"oldObject=%@", oldObject);
+
+      if (inverseKey)
+        {
+          if (oldObject==GDL2EONull)
+            {
+              NSWarnMLog(@"Warning: oldObject is an EONull. self=%@ key=%@ object=%@",self,key,object);
+            }
+          else
+            {
+              [oldObject removeObject: self
+                         fromPropertyWithKey: inverseKey];
+              [object addObject: self
+                      toPropertyWithKey: inverseKey];
+              /*      if ([object isToManyKey:inverseKey])
+                      {
+                      //??
+                      EOFLOGObjectLevel(@"gsdb",@"Inverse is to many");
+                      [oldObject removeObject:self
+                      fromPropertyWithKey:inverseKey];
+                      [object addObject:self
+                      toPropertyWithKey:inverseKey];
+                      }
+                      else
+                      {
+                      EOFLOGObjectLevel(@"gsdb",@"Inverse is not to many");
+                      //OK
+                      //MIRKO      if ((inverseKey = [oldObject inverseForRelationshipKey:key]))
+                      //MIRKO [oldObject removeObject:self
+                      //           fromPropertyWithKey:inverseKey];
+                      [oldObject takeValue:nil
+                      forKey:inverseKey];
+                      [object  takeValue:self
+                      forKey:inverseKey];
+                      };
+              */
+            }
+        }
+
+      [self takeValue: object
+            forKey: key];
+    }
 
   NSDebugMLLog(@"gsdb", @"self=%@", self);
   NSDebugMLLog(@"gsdb", @"object=%@", object);
@@ -1558,57 +1621,71 @@ toBothSidesOfRelationshipWithKey: (NSString *)key
   NSDebugMLLog(@"gsdb", @"object=%@", object);
   NSDebugMLLog(@"gsdb", @"key=%@", key);
 
-  // 2 differents cases: to-one and to-many relation
-  if ([self isToManyKey:key]) // to-many
+  if (self==GDL2EONull)
     {
-      //See if there's an inverse relationship
-      NSString *inverseKey = [self inverseForRelationshipKey: key];
-
-      NSDebugMLLog(@"gsdb", @"self %p=%@,object %p=%@ key=%@ inverseKey=%@",
-                   self,
-                   self,
-                   object,
-                   object,
-                   key,
-                   inverseKey);
-
-      // First add object to self relation array
-      [self addObject: object
-            toPropertyWithKey: key];
-
-      if (inverseKey) //if no inverse relation do nothing 
-        {
-          // See if inverse relationship is to-many or to-one
-          if ([object isToManyKey: inverseKey])
-            {
-              //TODO VERIFY
-              [object addObject:self
-                      toPropertyWithKey:inverseKey];
-            }
-          else
-            {
-              // Previous value, if any
-              id oldObject = [object valueForKey: inverseKey];
-
-              NSDebugMLLog(@"gsdb", @"oldObject=%@", oldObject);
-
-              if (oldObject)
-                {
-                  //TODO VERIFY
-                  [object removeObject:oldObject
-                          fromPropertyWithKey:inverseKey];
-                }
-
-              // Just set self into object relationship property
-              [object takeValue: self
-                      forKey: inverseKey];
-            }
-        }
+      NSWarnMLog(@"Warning: self is an EONull. key=%@ object=%@",key,object);
     }
   else
     {
-      [self _setObject: object
-            forBothSidesOfRelationshipWithKey: key];
+      // 2 differents cases: to-one and to-many relation
+      if ([self isToManyKey:key]) // to-many
+        {
+          //See if there's an inverse relationship
+          NSString *inverseKey = [self inverseForRelationshipKey: key];
+
+          NSDebugMLLog(@"gsdb", @"self %p=%@,object %p=%@ key=%@ inverseKey=%@",
+                       self,
+                       self,
+                       object,
+                       object,
+                       key,
+                       inverseKey);
+
+          // First add object to self relation array
+          [self addObject: object
+                toPropertyWithKey: key];
+
+          if (inverseKey) //if no inverse relation do nothing 
+            {
+              if (object==GDL2EONull)
+                {
+                  NSWarnMLog(@"Warning: object is an EONull. self=%@ key=%@ object=%@",self,key,object);
+                }
+              else
+                {
+                  // See if inverse relationship is to-many or to-one
+                  if ([object isToManyKey: inverseKey])
+                    {
+                      //TODO VERIFY
+                      [object addObject:self
+                              toPropertyWithKey:inverseKey];
+                    }
+                  else
+                    {
+                      // Previous value, if any
+                      id oldObject = [object valueForKey: inverseKey];
+
+                      NSDebugMLLog(@"gsdb", @"oldObject=%@", oldObject);
+
+                      if (oldObject)
+                        {
+                          //TODO VERIFY
+                          [object removeObject:oldObject
+                                  fromPropertyWithKey:inverseKey];
+                        }
+
+                      // Just set self into object relationship property
+                      [object takeValue: self
+                              forKey: inverseKey];
+                    }
+                }
+            }
+        }
+      else
+        {
+          [self _setObject: object
+                forBothSidesOfRelationshipWithKey: key];
+        }
     }
 
   NSDebugMLLog(@"gsdb", @"self=%@", self);
@@ -1620,14 +1697,34 @@ toBothSidesOfRelationshipWithKey: (NSString *)key
 - (void)removeObject: (id)object
 fromBothSidesOfRelationshipWithKey: (NSString *)key
 {
-  NSString *inverseKey;
+  EOFLOGObjectFnStart();
 
-  [self removeObject: object
-        fromPropertyWithKey: key];
+  if (self==GDL2EONull)
+    {
+      NSWarnMLog(@"Warning: self is an EONull. key=%@ object=%@",key,object);
+    }
+  else
+    {
+      NSString *inverseKey=nil;
 
-  if ((inverseKey = [self inverseForRelationshipKey: key]))
-    [object removeObject: self
-            fromPropertyWithKey: inverseKey];
+      [self removeObject: object
+            fromPropertyWithKey: key];
+
+      if ((inverseKey = [self inverseForRelationshipKey: key]))
+        {
+          if (object==GDL2EONull)
+            {
+              NSWarnMLog(@"Warning: object is an EONull. self=%@ key=%@",self,key);
+            }
+          else
+            {
+              [object removeObject: self
+                      fromPropertyWithKey: inverseKey];
+            }
+        };
+    }
+
+  EOFLOGObjectFnStop();
 }
 
 @end
@@ -1780,10 +1877,10 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
       val = [self storedValueForKey: key];
       oldVal = [snapshot objectForKey: key];
 
-      if ((id)val == [EONull null])
+      if ((id)val == GDL2EONull)
 	val = nil;
 
-      if ((id)oldVal == [EONull null])
+      if ((id)oldVal == GDL2EONull)
 	oldVal = nil;
 
       if (!val && !oldVal)

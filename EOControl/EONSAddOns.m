@@ -59,6 +59,7 @@ RCS_ID("$Id$")
 
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 #include <limits.h>
 
@@ -147,6 +148,16 @@ GDL2_ActivateAllGDL2Categories(void)
 }
 
 
+@implementation NSString (ShellPattern)
+/** returns YES is string contain shell pattern characters,
+NO otherwise **/
+- (BOOL)hasShellPatternCharacter
+{
+  NSRange r=[self rangeOfCharacterFromSet:GDL2_shellPatternCharacterSet];
+  return (r.length>0 ? YES : NO);
+};
+
+@end
 
 @implementation NSObject (NSObjectPerformingSelector)
 
@@ -190,7 +201,7 @@ GDL2_ActivateAllGDL2Categories(void)
                         object,
                         sel_get_name(sel));
 
-              [results addObject: result];
+              [results addObject: result]; //TODO What to do if nil ??
             }
         }
       NS_HANDLER

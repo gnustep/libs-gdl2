@@ -53,12 +53,23 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #endif
 
+#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
 
 
 @implementation EOMKKDInitializer
+
++ (void)initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+      GDL2PrivInit();
+    }
+}
 
 + (EOMKKDInitializer*)initializerFromKeyArray: (NSArray*)keys
 {
@@ -236,15 +247,14 @@ RCS_ID("$Id$")
 
 - (BOOL)hasKey: (id)key
 {
-  return ([self indexForKey: key] != NSNotFound);
+  return (EOMKKDInitializer_indexForKeyWithImpPtr(self,NULL,key) != NSNotFound);
 }
 
 - (EOMKKDArrayMapping*) arrayMappingForKeys: (NSArray*)keys
 {
   int selfKeyCount = [keys count];
   int keyCount = [keys count];
-  EOMKKDArrayMapping *arrayMapping;
-  int i;
+  EOMKKDArrayMapping *arrayMapping = nil;
 
   NSAssert(keyCount <= selfKeyCount, @"key count greater than our key count");
 
@@ -252,13 +262,21 @@ RCS_ID("$Id$")
 				      destinationDescription: self
 				      zone: [self zone]] autorelease];  
 
-  for (i = 0; i < keyCount; i++)
+  if (keyCount>0)
     {
-      NSString *key = [keys objectAtIndex: i];
-      int destinationIndex = [self indexForKey:key];
+      int i=0;
+      GDL2IMP_UINT indexForKeyIMP=NULL;
+      IMP objectAtIndexIMP=[keys methodForSelector:GDL2_objectAtIndexSEL];
 
-      arrayMapping->_destinationOffsetForArrayIndex[i] = destinationIndex + 1;
-    }
+      for (i = 0; i < keyCount; i++)
+        {
+          NSString *key = GDL2AddObjectWithImp(keys,objectAtIndexIMP,i);
+          int destinationIndex =  EOMKKDInitializer_indexForKeyWithImpPtr(self,&indexForKeyIMP,key);
+          
+          
+          arrayMapping->_destinationOffsetForArrayIndex[i] = destinationIndex + 1;
+        }
+    };
 
   return arrayMapping;
 }
@@ -269,8 +287,7 @@ RCS_ID("$Id$")
 {
   unsigned int selfKeyCount = [self count];
   unsigned int keyCount = [destinationKeys count];
-  EOMKKDSubsetMapping *subsetMapping;
-  int i;
+  EOMKKDSubsetMapping *subsetMapping = nil;
 
   NSAssert([sourceKeys count] == keyCount, @"Source and destination keys count are different");
   NSAssert(keyCount <= selfKeyCount, @"key count greater than our key count");
@@ -285,38 +302,55 @@ RCS_ID("$Id$")
   EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceKeys=%@", sourceKeys);
   EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationKeys=%@", destinationKeys);
 
-  for (i = 0; i < keyCount; i++)
-    {
-      NSString *sourceKey;
-      NSString *destinationKey;
-      int destinationIndex;
-      int sourceIndex;
+  if (keyCount>0)
+      {
+        int i;
+        GDL2IMP_UINT selfIndexForKeyIMP=NULL;
+        GDL2IMP_UINT sourceInitializerIndexForKeyIMP=NULL;
+        IMP sourceObjectAtIndexIMP=[sourceKeys methodForSelector:GDL2_objectAtIndexSEL];
+        IMP destinationObjectAtIndexIMP=[destinationKeys methodForSelector:GDL2_objectAtIndexSEL];
 
-      sourceKey = [sourceKeys objectAtIndex: i];
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceKey=%@", sourceKey);
-
-      destinationKey = [destinationKeys objectAtIndex: i];
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationKey=%@", destinationKey);
-
-      destinationIndex = [self indexForKey: destinationKey];
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationIndex=%d",
-			    destinationIndex);
-
-      sourceIndex = [sourceInitializer indexForKey: sourceKey];
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceIndex=%d", sourceIndex);
-
-      NSAssert2(destinationIndex != NSNotFound,
-                @"Destination Key %@ not found in %@",
-                destinationKey,
-                self);
-      NSAssert2(sourceIndex != NSNotFound,
-                @"Source Key %@ not found in %@",
-                sourceKey,
-                sourceInitializer);
-
-      subsetMapping->_sourceOffsetForDestinationOffset[destinationIndex]
-	= sourceIndex + 1;
-    }
+        for (i = 0; i < keyCount; i++)
+          {
+            NSString *sourceKey = nil;
+            NSString *destinationKey = nil;
+            int destinationIndex = 0;
+            int sourceIndex = 0;
+            
+            sourceKey = 
+              GDL2AddObjectWithImp(sourceKeys,sourceObjectAtIndexIMP,i);
+            EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceKey=%@", sourceKey);
+            
+            destinationKey = 
+              GDL2AddObjectWithImp(destinationKeys,destinationObjectAtIndexIMP,i);
+            EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationKey=%@", destinationKey);
+            
+            destinationIndex =  
+              EOMKKDInitializer_indexForKeyWithImpPtr(self,
+                                                      &selfIndexForKeyIMP,
+                                                      destinationKey);
+            EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationIndex=%d",
+                                  destinationIndex);
+            
+            sourceIndex = 
+              EOMKKDInitializer_indexForKeyWithImpPtr(sourceInitializer,
+                                                      &sourceInitializerIndexForKeyIMP,
+                                                      sourceKey);
+            EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceIndex=%d", sourceIndex);
+            
+            NSAssert2(destinationIndex != NSNotFound,
+                      @"Destination Key %@ not found in %@",
+                      destinationKey,
+                      self);
+            NSAssert2(sourceIndex != NSNotFound,
+                      @"Source Key %@ not found in %@",
+                      sourceKey,
+                      sourceInitializer);
+            
+            subsetMapping->_sourceOffsetForDestinationOffset[destinationIndex]
+              = sourceIndex + 1;
+          }
+      };
 
   return subsetMapping;
 }
@@ -329,22 +363,28 @@ RCS_ID("$Id$")
 					  sourceDescription: sourceInitializer
 					  destinationDescription: self
 					  zone: [self zone]] autorelease];
-  int i;
 
-  for (i = 0; i < keyCount; i++)
+  if (keyCount>0)
     {
-      NSString *key;
-      int index;
-
-      key = _keys[i];
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%@", key);
-
-      index = [sourceInitializer indexForKey: key];
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"index=%d", index);
-
-      subsetMapping->_sourceOffsetForDestinationOffset[i]
-	= (index == NSNotFound ? 0 : index + 1);
-    }
+      int i=0;
+      GDL2IMP_UINT indexForKeyIMP=NULL;
+  
+      for (i = 0; i < keyCount; i++)
+        {
+          NSString *key;
+          int index;
+          
+          key = _keys[i];
+          EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%@", key);
+          
+          index = EOMKKDInitializer_indexForKeyWithImpPtr(sourceInitializer,
+                                                          &indexForKeyIMP,key);
+          EOFLOGObjectLevelArgs(@"EOMKKD", @"index=%d", index);
+          
+          subsetMapping->_sourceOffsetForDestinationOffset[i]
+            = (index == NSNotFound ? 0 : index + 1);
+        }
+    };
 
   return subsetMapping;
 }
@@ -485,16 +525,6 @@ RCS_ID("$Id$")
 
 @implementation EOMKKDArrayMapping
 
-+ (id)dictionaryFromDictionary: (NSDictionary *)dict
-		 subsetMapping: (EOMKKDSubsetMapping *)subsetMapping
-{
-#warning (stephane@sente.ch) Method is really not implemented!
-#warning (Ayers 28-03-2003) Either remove this method from array or use EOMutableKnownKeyDictionary instead of self 
-  return [[self newDictionaryFromDictionary: dict
-                subsetMapping: subsetMapping
-                zone: NULL] autorelease];
-}
-
 + (id)newInstanceWithKeyCount: (unsigned int)keyCount
        destinationDescription: (EOMKKDInitializer*)destination
 			 zone: (NSZone*)zone
@@ -535,6 +565,16 @@ RCS_ID("$Id$")
 
 
 @implementation EOMutableKnownKeyDictionary
+
++ (void)initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+      GDL2PrivInit();
+    }
+}
 
 + (id)dictionaryFromDictionary: (NSDictionary *)dict
 		 subsetMapping: (EOMKKDSubsetMapping *)subsetMapping
@@ -803,7 +843,7 @@ RCS_ID("$Id$")
 //  EOFLOGObjectFnStart();
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
 
-  index = [_MKKDInitializer indexForKey: key];
+  index = EOMKKDInitializer_indexForKeyWithImpPtr(_MKKDInitializer,NULL,key);
 
 //  EOFLOGObjectLevelArgs(@"EOMKKD", @"index=%d", index);
 
@@ -832,7 +872,7 @@ RCS_ID("$Id$")
 
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
 
-  index = [_MKKDInitializer indexForKey: key];
+  index = EOMKKDInitializer_indexForKeyWithImpPtr(_MKKDInitializer,NULL,key);
 
   if (index == NSNotFound)
     {
@@ -857,7 +897,7 @@ RCS_ID("$Id$")
 
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
 
-  index = [_MKKDInitializer indexForKey: key];
+  index = EOMKKDInitializer_indexForKeyWithImpPtr(_MKKDInitializer,NULL,key);
 
   if (index == NSNotFound)
     {
@@ -883,9 +923,9 @@ RCS_ID("$Id$")
     {
       if (_values[i] != object)
         {
-          if (isNilOrEONull(_values[i]))
-            result =! isNilOrEONull(object);
-          else if (isNilOrEONull(object))
+          if (_isNilOrEONull(_values[i]))
+            result =! _isNilOrEONull(object);
+          else if (_isNilOrEONull(object))
             result = YES;
           else
             result = ![_values[i] isEqual: object];
@@ -900,11 +940,12 @@ RCS_ID("$Id$")
 - (void)addEntriesFromDictionary: (NSDictionary*)dictionary
 {
   NSEnumerator *e = [dictionary keyEnumerator];
-  id key;
+  id key=nil;
+  IMP indexForKeyIMP=NULL;
 
   while ((key = [e nextObject]))
     {
-      if (![self objectForKey: key]) //Don't overwrite already present values ?
+      if (!EOMKKD_objectForKeyWithImpPtr(self,&indexForKeyIMP,key)) //Don't overwrite already present values ?
         {
           [self setObject: [dictionary objectForKey: key]
                 forKey: key];
@@ -965,3 +1006,137 @@ RCS_ID("$Id$")
 }
 
 @end
+
+id EOMKKD_objectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,NSString* key)
+{
+  if (mkkd)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_objectForKeyIMP)
+            imp=GDL2MKKD_objectForKeyIMP;
+          else
+            imp=[mkkd methodForSelector:GDL2_objectForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(mkkd,GDL2_objectForKeySEL,key);
+    }
+  else
+    return nil;
+};
+
+void EOMKKD_setObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,id anObject,NSString* key)
+{
+  if (mkkd)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_setObjectForKeyIMP)
+            imp=GDL2MKKD_setObjectForKeyIMP;
+          else
+            imp=[mkkd methodForSelector:GDL2_setObjectForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      (*imp)(mkkd,GDL2_setObjectForKeySEL,anObject,key);
+    };
+};
+
+void EOMKKD_removeObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,NSString* key)
+{
+  if (mkkd)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_removeObjectForKeyIMP)
+            imp=GDL2MKKD_removeObjectForKeyIMP;
+          else
+            imp=[mkkd methodForSelector:GDL2_removeObjectForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      (*imp)(mkkd,GDL2_removeObjectForKeySEL,key);
+    };
+};
+
+BOOL EOMKKD_hasKeyWithImpPtr(NSDictionary* mkkd,GDL2IMP_BOOL* impPtr,NSString* key)
+{
+  if (mkkd)
+    {
+      GDL2IMP_BOOL imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_hasKeyIMP)
+            imp=GDL2MKKD_hasKeyIMP;
+          else
+            imp=(GDL2IMP_BOOL)[mkkd methodForSelector:GDL2_hasKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(mkkd,GDL2_hasKeySEL,key);
+    }
+  else
+    return NO;
+};
+
+unsigned int EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,GDL2IMP_UINT* impPtr,NSString* key)
+{
+  if (mkkd)
+    {
+      GDL2IMP_UINT imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkd)==GDL2MKKDClass
+              && GDL2MKKD_indexForKeyIMP)
+            imp=GDL2MKKD_indexForKeyIMP;
+          else
+            imp=(GDL2IMP_UINT)[mkkd methodForSelector:GDL2_indexForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(mkkd,GDL2_indexForKeySEL,key);
+    }
+  else
+    return 0;
+};
+
+unsigned int EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,GDL2IMP_UINT* impPtr,NSString* key)
+{
+  if (mkkdInit)
+    {
+      GDL2IMP_UINT imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(mkkdInit)==GDL2EOMKKDInitializerClass
+              && GDL2EOMKKDInitializer_indexForKeyIMP)
+            imp=GDL2EOMKKDInitializer_indexForKeyIMP;
+          else
+            imp=(GDL2IMP_UINT)[mkkdInit methodForSelector:GDL2_indexForKeySEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(mkkdInit,GDL2_indexForKeySEL,key);
+    }
+  else
+    return 0;
+};

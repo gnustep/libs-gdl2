@@ -61,6 +61,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EONull.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 /*
   This declaration is needed by the compiler to state that
@@ -81,10 +82,16 @@ RCS_ID("$Id$")
 @end
 
 @implementation EOKeyValueQualifier
-static EONull *null = nil;
+
 + (void)initialize
 {
-  null = [EONull null];
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+
+      GDL2PrivInit();
+    };
 }
 
 /**
@@ -121,7 +128,7 @@ static EONull *null = nil;
       ASSIGNCOPY(_key, key);
       if (value == nil)
 	{
-	  value = null;
+	  value = GDL2EONull;
 	}
       ASSIGN(_value, value);
     }
@@ -200,59 +207,99 @@ static EONull *null = nil;
  */
 - (BOOL) evaluateWithObject: (id)object
 {
-  NSObject *val;
+  NSObject *objectValue;
+  NSObject *selfValue=_value;
   BOOL (*imp)(id, SEL, id);
 
-  val = [object valueForKey: _key];
+  objectValue = [object valueForKey: _key];
 
-  if (val == nil)
+  if (objectValue == nil)
     {
-      val = null;
+      objectValue = GDL2EONull;
+    }
+  if (selfValue == nil)
+    {
+      selfValue = GDL2EONull;
     }
 
-  imp = (BOOL (*)(id, SEL, id))[val methodForSelector: _selector];
+  imp = (BOOL (*)(id, SEL, id))[objectValue methodForSelector: _selector];
   if (imp != NULL)
     {
-      return (*imp) (val, _selector, _value);
+      return (*imp) (objectValue, _selector, selfValue);
     }
   if (sel_eq(_selector, EOQualifierOperatorEqual) == YES)
     {
-      return [val isEqual: _value];
+      return [objectValue isEqual: selfValue];
     }
   else if (sel_eq(_selector, EOQualifierOperatorNotEqual) == YES)
     {
-      return ([val isEqual: _value]?NO:YES);
+      return ([objectValue isEqual: selfValue]?NO:YES);
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThan) == YES)
     {
-      return [val compare: _value] == NSOrderedAscending;
+      if (objectValue==GDL2EONull)
+        return ((selfValue==GDL2EONull) ? NO : YES);
+      else if (selfValue==GDL2EONull)
+        return NO;
+      else
+        return [objectValue compare: selfValue] == NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThan) == YES)
     {
-      return [val compare: _value] == NSOrderedDescending;
+      if (objectValue==GDL2EONull)
+        return NO;
+      else if (selfValue==GDL2EONull)
+        return YES;
+      else
+        return [objectValue compare: selfValue] == NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
     {
-      return [val compare: _value] != NSOrderedDescending;
+      if (objectValue==GDL2EONull)
+        return YES;
+      else if (selfValue==GDL2EONull)
+        return NO;
+      else
+        return [objectValue compare: selfValue] != NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
     {
-      return [val compare: _value] != NSOrderedAscending;
+      if (objectValue==GDL2EONull)
+        return ((selfValue==GDL2EONull) ? YES : NO);
+      else if (selfValue==GDL2EONull)
+        return YES;
+      else
+        return [objectValue compare: selfValue] != NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorContains) == YES)
     {
-      return [(id)val rangeOfString: _value].location != NSNotFound;
+      //Philosophical question: does nil contains nil ??
+
+      if (objectValue==GDL2EONull) // Let's say nil does contain nothing (even not nil)
+        return NO;
+      else if (selfValue==GDL2EONull) // Let's say nil is contained by nothing
+        return NO;
+      else
+        return [(NSString*)objectValue rangeOfString: 
+                             (NSString*)selfValue].location != NSNotFound;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLike) == YES)
     {
       NSEmitTODO();  //TODO
-      return [val isEqual: _value] == NSOrderedSame;
+      //How to handle nil like ?
+      return [objectValue isEqual: selfValue];
     }
   else if (sel_eq(_selector, EOQualifierOperatorCaseInsensitiveLike) == YES)
     {
       NSEmitTODO();  //TODO
-      return [[(id)val uppercaseString] isEqual: [_value uppercaseString]]
-	== NSOrderedSame;
+      //How to handle nil like ?
+      if (objectValue==GDL2EONull)
+        return ((selfValue==GDL2EONull) ? YES : NO);
+      else if (selfValue==GDL2EONull)
+        return NO;
+      else
+        return [(id)objectValue caseInsensitiveCompare: 
+                      (NSString*)selfValue] == NSOrderedSame;
     }
   /*Ayers (09-02-2002): Maybe we should raise instead of returning NO.*/
   return NO;

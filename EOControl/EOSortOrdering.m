@@ -52,8 +52,20 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyValueCoding.h>
 #include <EOControl/EOKeyValueArchiver.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 @implementation EOSortOrdering
+
++ (void)initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+
+      GDL2PrivInit();
+    };
+};
 
 /**
  * Returns an autoreleased EOSortOrdering initilaized with key and selector.  
@@ -176,16 +188,10 @@ compareUsingSortOrderings(id    left,
 			  id    right,
 			  void* vpSortOrders)
 {
-  static EONull     *null = nil;
   NSArray           *sortOrders = (NSArray *)vpSortOrders;
   NSComparisonResult r = NSOrderedSame;
   unsigned int       i;
   unsigned int       sortOrdCnt = [sortOrders count];
-
-  if (null == nil)
-    {
-      null = [EONull null];
-    }
 
   /* Loop over all sort orderings until we have an ordering difference. */
   for (i=0; (r == NSOrderedSame) && (i < sortOrdCnt); i++)
@@ -199,15 +205,15 @@ compareUsingSortOrderings(id    left,
       NSComparisonResult (*imp)(id, SEL, id);
 
       /* Use EONull instead of nil. */
-      leftVal  = (leftVal  != nil)?(leftVal) :(null);
-      rightVal = (rightVal != nil)?(rightVal):(null);
+      leftVal  = (leftVal  != nil)?(leftVal) :(GDL2EONull);
+      rightVal = (rightVal != nil)?(rightVal):(GDL2EONull);
 
       /* Insure that EONull is not the parameter for 
 	 comparisons with other classes. */
-      if (rightVal == null)
+      if (rightVal == GDL2EONull)
 	{
 	  rightVal = leftVal;
-	  leftVal  = null;
+	  leftVal  = GDL2EONull;
 	  inverted = YES;
 	}
 

@@ -1,7 +1,7 @@
 /* -*-objc-*-
    EONSAddOns.h
 
-   Copyright (C) 2000 Free Software Foundation, Inc.
+   Copyright (C) 2000-2005 Free Software Foundation, Inc.
 
    Author: Manuel Guesdon <mguesdon@orange-concept.com>
    Date: October 2000
@@ -116,6 +116,12 @@ GDL2_ActivateAllGDL2Categories(void);
 -(unsigned long)unsignedLongValue;
 -(long long)longLongValue;
 -(unsigned long long)unsignedLongLongValue;
+@end
+
+@interface NSString (ShellPattern)
+/** returns YES is string contain shell pattern characters,
+NO otherwise **/
+- (BOOL)hasShellPatternCharacter;
 @end
 
 @interface NSObject (PerformSelect3)

@@ -50,5 +50,6 @@
 
 GDL2CONTROL_EXPORT BOOL isNilOrEONull(id v);
 
+
 #endif /* __EONull_h__ */
 

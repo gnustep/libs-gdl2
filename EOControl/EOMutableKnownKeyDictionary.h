@@ -171,4 +171,13 @@
 
 @end
 
+/** mkkkd can be a NSMutableKnownKey or another kind of dictionary **/
+GDL2CONTROL_EXPORT id EOMKKD_objectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,NSString* key);
+GDL2CONTROL_EXPORT void EOMKKD_setObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,id anObject,NSString* key);
+GDL2CONTROL_EXPORT void EOMKKD_removeObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,NSString* key);
+GDL2CONTROL_EXPORT BOOL EOMKKD_hasKeyWithImpPtr(NSDictionary* mkkd,GDL2IMP_BOOL* impPtr,NSString* key);
+
+GDL2CONTROL_EXPORT unsigned int EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,GDL2IMP_UINT* impPtr,NSString* key);
+GDL2CONTROL_EXPORT unsigned int EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,GDL2IMP_UINT* impPtr,NSString* key);
+
 #endif

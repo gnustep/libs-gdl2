@@ -65,7 +65,8 @@ EOMutableKnownKeyDictionary.m \
 EONSAddOns.m \
 EOCheapArray.m \
 EOArrayDataSource.m \
-EODebug.m
+EODebug.m \
+EOPriv.m
 
 libgnustep-db2control_HEADER_FILES_DIR = .
 libgnustep-db2control_HEADER_FILES_INSTALL_DIR = /EOControl
@@ -94,7 +95,7 @@ EONSAddOns.h \
 EODefines.h \
 EODeprecated.h \
 EOControl.h \
-
+EOPriv.h
 
 DOCUMENT_NAME = EOControl
 EOControl_AUTOGSDOC_HEADERS = $(libgnustep-db2control_HEADER_FILES)

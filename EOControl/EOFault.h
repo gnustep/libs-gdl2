@@ -54,6 +54,7 @@
 
 @interface EOFault
 {
+@public
   Class isa;
   EOFaultHandler *_handler;
 }

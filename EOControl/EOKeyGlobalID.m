@@ -53,9 +53,19 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
+#include <EOControl/EOPriv.h>
 
 
 @implementation EOKeyGlobalID
+
++ (void) initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      GDL2PrivInit();
+    };
+};
 
 + (id)globalIDWithEntityName: (NSString *)entityName
 			keys: (id *)keys
@@ -229,7 +239,7 @@ RCS_ID("$Id$")
   BOOL areNulls = YES;
 
   for (i = 0; areNulls && i < _keyCount; i++)
-    areNulls = isNilOrEONull(_keyValues[i]);
+    areNulls = _isNilOrEONull(_keyValues[i]);
 
   return areNulls;
 }

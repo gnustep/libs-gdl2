@@ -172,6 +172,7 @@ static Class EOFaultClass = NULL;
 
 + (BOOL)isFault: (id)object
 {
+  //See also EOControl/EOPriv.h
 //  NSDebugFLLog(@"gsdb",@"object=%p",object);
 
   if (object == nil)
@@ -491,6 +492,10 @@ static Class EOFaultClass = NULL;
 
 - (void)forwardInvocation: (NSInvocation *)invocation
 {
+  NSDebugFLLog(@"gsdb",@"invocation selector=%@ target: %p",
+               NSStringFromSelector([invocation selector]),
+               [invocation target]);
+
   if ([_handler shouldPerformInvocation: invocation])
     [_handler completeInitializationOfObject: self];
 
