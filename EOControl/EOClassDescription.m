@@ -109,9 +109,6 @@ static id classDelegate = nil;
     {
       Class cls = NSClassFromString(@"EOModelGroup");
 
-      if (cls != Nil)
-	[cls defaultGroup]; // Insure correct initialization.
-
       classDescriptionForClass = NSCreateMapTable(NSObjectMapKeyCallBacks, 
 						  NSObjectMapValueCallBacks,
 						  32);
@@ -119,6 +116,9 @@ static id classDelegate = nil;
       classDescriptionForEntity = NSCreateMapTable(NSObjectMapKeyCallBacks, 
 						   NSObjectMapValueCallBacks,
 						   32);
+      if (cls != Nil)
+	[cls defaultGroup]; // Insure correct initialization.
+
     }
 }
 
