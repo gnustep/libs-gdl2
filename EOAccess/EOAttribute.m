@@ -780,13 +780,19 @@ RCS_ID("$Id$")
 
 - (void)setName: (NSString *)name
 {
-  [[self validateName: name] raise];
-
-  [self willChange];
-  ASSIGN(_name, name);
-  if (_flags.isParentAnEOEntity)
+  if ([_name isEqual: name]==NO)
     {
-      [_parent _setIsEdited];
+      NSString *oldName = nil;
+      [[self validateName: name] raise];
+
+      oldName = AUTORELEASE(RETAIN(_name));
+      [self willChange];
+      ASSIGN(_name, name);
+      if (_flags.isParentAnEOEntity)
+	{
+	  [_parent _setIsEdited];
+	  [_parent _attributeNameChangedFrom: oldName to: name];
+	}
     }
 
 }

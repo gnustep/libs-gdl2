@@ -111,8 +111,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 };
 
 /* Not documented becuase it is not a public method.  */
-- (id) initWithPropertyList: (NSDictionary*)propertyList
-		      owner: (id)owner
+- (id)initWithPropertyList: (NSDictionary*)propertyList
+		     owner: (id)owner
 {
   [EOObserverCenter suppressObserverNotification];
 
@@ -130,8 +130,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           ASSIGN(_name, [propertyList objectForKey: @"name"]);
 
           [self setExternalName: [propertyList objectForKey: @"externalName"]];
-          [self setExternalQuery:
-	    [propertyList objectForKey: @"externalQuery"]];
+	  tmpObject = [propertyList objectForKey: @"externalQuery"];
+          [self setExternalQuery: tmpObject];
 
           tmpString = [propertyList objectForKey: @"restrictingQualifier"];
 
@@ -139,8 +139,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           if (tmpString)
             {
-              EOQualifier *restrictingQualifier =
-		[EOQualifier qualifierWithQualifierFormat: @"%@", tmpString];
+              EOQualifier *restrictingQualifier
+		= [EOQualifier qualifierWithQualifierFormat: @"%@", tmpString];
 
               [self setRestrictingQualifier: restrictingQualifier];
             }
@@ -152,32 +152,20 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               NSEmitTODO();  //TODO
             }
 
-          [self setReadOnly: [[propertyList objectForKey: @"isReadOnly"]
-			       boolValue]];
-          [self setCachesObjects: [[propertyList objectForKey:
-						   @"cachesObjects"]
-				    boolValue]];
+	  tmpObject = [propertyList objectForKey: @"isReadOnly"];
+          [self setReadOnly: [tmpObject boolValue]];
+	  tmpObject = [propertyList objectForKey: @"cachesObjects"];
+          [self setCachesObjects: [tmpObject boolValue]];
+
           tmpObject = [propertyList objectForKey: @"userInfo"];
-
           EOFLOGObjectLevelArgs(@"EOEntity", @"tmpObject=%@", tmpObject);
-          /*NSAssert2((!tmpString
-		|| [tmpString isKindOfClass:[NSString class]]),
-                    @"tmpString is not a NSString but a %@. tmpString:\n%@",
-                    [tmpString class],
-                    tmpString);
-          */
-
           if (tmpObject)
-            //[self setUserInfo:[tmpString propertyList]];
-            [self setUserInfo: tmpObject];
+	    {
+	      [self setUserInfo: tmpObject];
+	    }
           else
             {
               tmpObject = [propertyList objectForKey: @"userDictionary"];
-              /*NSAssert2((!tmpString
-		|| [tmpString isKindOfClass:[NSString class]]),
-                        @"tmpString is not a NSString but a %@ tmpString:\n%@",
-                        [tmpString class],
-                        tmpString);*/
               [self setUserInfo: tmpObject];
             }
 
@@ -189,8 +177,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           [self _setInternalInfo: tmpObject];
           [self setDocComment:[propertyList objectForKey:@"docComment"]];
           [self setClassName: [propertyList objectForKey: @"className"]];
-          [self setIsAbstractEntity:
-		  [[propertyList objectForKey: @"isAbstractEntity"] boolValue]];
+	  tmpObject = [propertyList objectForKey: @"isAbstractEntity"];
+          [self setIsAbstractEntity: [tmpObject  boolValue]];
       
           tmpString = [propertyList objectForKey: @"isFetchable"];
 
@@ -218,8 +206,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               _flags.attributesUsedForLockingIsLazy = YES;
             }
 
-          array = [[propertyList objectForKey: @"primaryKeyAttributes"] 
-                    sortedArrayUsingSelector: @selector(compare:)];
+          array = [propertyList objectForKey: @"primaryKeyAttributes"];
+          array = [array sortedArrayUsingSelector: @selector(compare:)];
 
           EOFLOGObjectLevelArgs(@"EOEntity", @"primaryKeyAttributes: %@",
 				array);
@@ -262,8 +250,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               NSEmitTODO(); //TODO
             }
 
-          tmpString = [propertyList objectForKey:
-				      @"maxNumberOfInstancesToBatchFetch"];
+          tmpString 
+	    = [propertyList objectForKey: @"maxNumberOfInstancesToBatchFetch"];
 
           EOFLOGObjectLevelArgs(@"EOEntity",
 	    @"maxNumberOfInstancesToBatchFetch=%@ [%@]",
@@ -279,12 +267,12 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 	      //[self setBatchFaultingMaxSize: [tmpString intValue]];
 	    }
 
-          tmpObject = [propertyList objectForKey:
-				      @"fetchSpecificationDictionary"];
+          tmpObject 
+	    = [propertyList objectForKey: @"fetchSpecificationDictionary"];
 
           EOFLOGObjectLevelArgs(@"EOEntity",
-	    @"fetchSpecificationDictionary=%@ [%@]",
-	    tmpObject, [tmpObject class]);
+				@"fetchSpecificationDictionary=%@ [%@]",
+				tmpObject, [tmpObject class]);
 
           if (tmpObject)
             {
@@ -310,7 +298,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
             NSString* path;
 
             fileName = [NSString stringWithFormat: @"%@.fspec", _name];
-            path = [[(EOModel *)owner path] stringByAppendingPathComponent: fileName];
+            path = [(EOModel *)owner path];
+            path = [path stringByAppendingPathComponent: fileName];
 	    if ([[NSFileManager defaultManager] fileExistsAtPath: path])
 		plist 
 		  = [[NSString stringWithContentsOfFile: path] propertyList];
@@ -322,13 +311,13 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                 NSEnumerator *variablesEnum;
                 id fetchSpecName;
 
-                unarchiver = AUTORELEASE([[EOKeyValueUnarchiver alloc]
-			       initWithDictionary:
-			       [NSDictionary dictionaryWithObject: plist
-					     forKey: @"fspecs"]]);
+                unarchiver 
+		  = AUTORELEASE([[EOKeyValueUnarchiver alloc]
+				  initWithDictionary:
+				    [NSDictionary dictionaryWithObject: plist
+						  forKey: @"fspecs"]]);
 
                 variables = [unarchiver decodeObjectForKey: @"fspecs"];
-                //NSLog(@"fspecs variables:%@",variables);
                 
                 [unarchiver finishInitializationOfObjects];
                 [unarchiver awakeObjects];
@@ -337,8 +326,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 		while ((fetchSpecName = [variablesEnum nextObject]))
 		  {
 		    id fetchSpec = [variables objectForKey: fetchSpecName];
-
-		    //NSLog(@"fetchSpecName:%@ fetchSpec:%@", fetchSpecName, fetchSpec);
 
 		    [self addFetchSpecification: fetchSpec
 			  withName: fetchSpecName];
@@ -356,9 +343,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
       NSLog(@"exception in EOEntity initWithPropertyList:owner:");
       NSLog(@"exception=%@", localException);
-
-/*      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In EOEntity initWithPropertyList:owner:");*/
 
       NSLog(@"exception=%@", localException);
       [localException raise];
@@ -933,13 +917,12 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 - (NSArray *)attributes
 {
-  //OK
   if (_flags.attributesIsLazy)
     {
       int count = 0;
 
-      EOFLOGObjectLevelArgs(@"EOEntity", @"START construct attributes on %p",
-			    self);
+      EOFLOGObjectLevelArgs(@"EOEntity",
+			    @"START construct attributes on %p", self);
 
       count = [_attributes count];
       EOFLOGObjectLevelArgs(@"EOEntity", @"Entity %@: Lazy _attributes=%@",
@@ -949,17 +932,17 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       if (count > 0)
         {
           int i = 0;
-          NSArray *attributePLists = _attributes;
+          NSArray *attributePLists = AUTORELEASE(RETAIN(_attributes));
           NSDictionary *relationshipsByName = nil;
 
+          DESTROY(_attributes);
           DESTROY(_attributesByName);
 
           _attributes = [GCMutableArray new];
           _attributesByName = [GCMutableDictionary new];
 
           NSAssert2((!_attributesByName
-		     || [_attributesByName isKindOfClass:
-					     [NSDictionary class]]),
+		     || [_attributesByName isKindOfClass: GDL2_NSDictionaryClass]),
                     @"_attributesByName is not a NSDictionary but a %@. _attributesByName [%p]",
                     [_attributesByName class],
                     _attributesByName);
@@ -978,16 +961,22 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
               for (i = 0; i < count; i++)
                 {
-                  NSDictionary *attrPList = [attributePLists objectAtIndex: i];
-                  EOAttribute *attribute = [EOAttribute
-					     attributeWithPropertyList:
-					       attrPList
-					     owner: self];
-                  NSString *attributeName = [attribute name];
+                  id attrPList = [attributePLists objectAtIndex: i];
+                  EOAttribute *attribute = nil;
+                  NSString *attributeName = nil;
+		  
+		  attribute = [attrPList isKindOfClass: GDL2_EOAttributeClass]
+		    ? attrPList
+		    : [EOAttribute attributeWithPropertyList: attrPList
+				   owner: self];
+		  attributeName = [attribute name];
 
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"XXX 1 ATTRIBUTE: attribute=%@",
+                  EOFLOGObjectLevelArgs(@"EOEntity",
+					@"XXX 1 ATTRIBUTE: attribute=%@",
 					attribute);
 
+		  /* We just created this dictionary so the ivar is
+		     initialized.  */
                   if ([_attributesByName objectForKey: attributeName])
                     {
                       [NSException raise: NSInvalidArgumentException
@@ -1068,7 +1057,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               EOFLOGObjectLevelArgs(@"EOEntity", @"self=%p attributePLists count=%d",
 				    self, [attributePLists count]);
 
-              {
+	      {
                 int pass = 0;
 
                 //We'll first awake non derived/flattened attributes
@@ -1077,24 +1066,28 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                     for (i = 0; i < count; i++)
                       {
                         NSString *attrName = [attrNames objectAtIndex: i];
-                        NSDictionary *attrPList = [attributePLists
-						    objectAtIndex: i];
+                        NSDictionary *attrPList = nil;
                         EOAttribute *attribute = nil;
+			id definition = nil;
 
                         EOFLOGObjectLevelArgs(@"EOEntity", @"XXX attrName=%@",
 					      attrName);
-
-                        if ((pass == 0 &&
-			     ![attrPList objectForKey: @"definition"]) 
-                            || (pass == 1
-				&& [attrPList objectForKey: @"definition"]))
+			
+			attrPList = [attributePLists objectAtIndex: i];
+			if ([attrPList isKindOfClass: GDL2_EOAttributeClass])
+			  continue;
+			definition = [attrPList objectForKey: @"definition"];
+                        if ((pass == 0 && definition == nil)
+			    || (pass == 1 && definition != nil))
                           {
                             attribute = [self attributeNamed: attrName];
-                            EOFLOGObjectLevelArgs(@"EOEntity", @"XXX 2A ATTRIBUTE: self=%p AWAKE attribute=%@",
+                            EOFLOGObjectLevelArgs(@"EOEntity",
+						  @"XXX 2A ATTRIBUTE: self=%p AWAKE attribute=%@",
 						  self, attribute);
 
                             [attribute awakeWithPropertyList: attrPList];
-                            EOFLOGObjectLevelArgs(@"EOEntity", @"XXX 2B ATTRIBUTE: self=%p attribute=%@",
+                            EOFLOGObjectLevelArgs(@"EOEntity",
+						  @"XXX 2B ATTRIBUTE: self=%p attribute=%@",
 						  self, attribute);
                           }
                       }
@@ -1109,14 +1102,11 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
             }
           NS_HANDLER
             {
-              DESTROY(attributePLists);
 	      _flags.updating = NO;
               [EOObserverCenter enableObserverNotification];
               [localException raise];
             }
           NS_ENDHANDLER;
-
-          DESTROY(attributePLists);
 
           _flags.updating = NO;
           [EOObserverCenter enableObserverNotification];
@@ -1973,8 +1963,8 @@ createInstanceWithEditingContext:globalID:zone:
   if ([self createsMutableObjects])
     [(GCMutableArray *)_attributes addObject: attribute];
   else
-    _attributes = RETAIN([AUTORELEASE(_attributes)
-		     arrayByAddingObject: attribute]);
+    _attributes 
+      = RETAIN([AUTORELEASE(_attributes) arrayByAddingObject: attribute]);
 
   if (_attributesByName == nil)
     {
@@ -2857,6 +2847,14 @@ createInstanceWithEditingContext:globalID:zone:
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"STOP%s", "");
 }
+
+- (void)_attributeNameChangedFrom: (NSString *)oldName to: (NSString *)newName
+{
+  EOAttribute *attribute = [_attributesByName objectForKey: oldName];
+  [_attributesByName setObject: attribute forKey: newName];
+  [_attributesByName removeObjectForKey: oldName];
+}
+
 
 /** Returns attributes by name (only attributes, not relationships) **/
 - (NSDictionary*)attributesByName

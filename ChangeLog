@@ -1,3 +1,17 @@
+2005-03-03  Matt Rice  <ratmice@yahoo.com>
+            David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOEntity.m (initWithPropertyList:owner:): Reformatting
+	for GNU coding standards.
+	(-attributes): Fix memory leak.  Use global class cache.
+	Handle partially converted attributes array.
+	(-_attributeNameChangedFrom:to:): New privat method.
+	* EOAccess/EOEntityPriv.h (-_attributeNameChangedFrom:to:):
+	Declare new private method.
+	* EOAccess/EOAttribute.m (setName:): Call
+	-[EOEntity _attributeNameChangedFrom:to:] if attribute is in
+	an EOEntity.
+
 2005-03-02  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOKeyValueCoding.h/m: (-setNilValueForKey:):
