@@ -101,6 +101,16 @@
 	(-setAllVariablesRequiredFromBindings:)
 	(-allVariablesRequiredFromBindings): Deprecate.
 	Update various setter methods to make them promotion safe.
+
+	* EOControl/EOObjectStoreCoordinator.m
+	(requestStoreForGlobalID:fetchSpecification:object):
+	Add all information to the notfication.
+	(-invalidateObjectsWithGlobalIDs:): Reimplement via map table.
+	(-lockObjectWithGlobalID:editingContext:): Implement.
+	(-isObjectLockedWithGlobalID:editingContext:): Implement.
+
+	* EOControl/EOObserver.m (+addObserver:forObject:): Cairify
+	documentation.
 	
 2005-02-02  Matt Rice  <ratmice@yahoo.com>
 

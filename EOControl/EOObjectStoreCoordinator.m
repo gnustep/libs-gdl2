@@ -151,16 +151,19 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 }
 
 - (void) requestStoreForGlobalID: (EOGlobalID *)globalID
-              fetchSpecification: (id)param1
+              fetchSpecification: (EOFetchSpecification *)fetchSpec
                           object: (id)object
 {
-  //TODO if object!=nil or fetchsec !=nil
+  NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+
+  if (globalID)  [dict setObject: globalID forKey: @"globalID"];
+  if (fetchSpec) [dict setObject: fetchSpec forKey: @"fetchSpecification"];
+  if (object)    [dict setObject: object forKey: @"object"];
+
   [[NSNotificationCenter defaultCenter]
     postNotificationName: EOCooperatingObjectStoreNeeded
     object: self
-    userInfo: [NSDictionary dictionaryWithObject: globalID
-			    forKey: @"globalID"]];
-
+    userInfo: dict];
 }
 
 - (EOCooperatingObjectStore*)objectStoreForGlobalID: (EOGlobalID *)globalID
@@ -494,46 +497,59 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 
 - (void)invalidateObjectsWithGlobalIDs: (NSArray *)globalIDs
 {
-  NSMutableArray *buf;
-  NSMutableArray *gids, *gidsToRemove;
-  NSEnumerator *gidEnum;
+  NSMapTable *gidsByStore;
+  NSMapEnumerator gbsEnum;
   EOCooperatingObjectStore *store;
   EOGlobalID *gid;
+  NSMutableArray *array;
+  unsigned i,n;
 
   EOFLOGObjectFnStart();
 
-  buf  = [NSMutableArray arrayWithArray: globalIDs];
-  gids = [NSMutableArray arrayWithCapacity: [globalIDs count]];
-  gidsToRemove = [NSMutableArray arrayWithCapacity: 16];
+  gidsByStore = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
+				 NSNonOwnedPointerMapValueCallBacks,
+				 8);
 
-  while (YES)
+  for (i=0, n=[globalIDs count]; i<n; i++)
     {
-      if (![buf count])
-	break;
+      gid = [globalIDs objectAtIndex: i];
+      store = [self objectStoreForGlobalID: gid];
 
-      store = nil;
+      NSAssert1(store,@"No store found for gid:%@", gid);
 
-      gidEnum = [buf objectEnumerator];
-      while ((gid = [gidEnum nextObject]))
+      array = NSMapGet(gidsByStore, store);
+      if (array == nil)
 	{
-	  if (store == nil)
-	    {
-	      if ((store = [self objectStoreForGlobalID: gid]) == nil)
-		[buf addObject: gid];
-	    }
-	  else if ([store ownsGlobalID: gid] == YES)
-	    [gids addObject: gid];
+	  array = [NSMutableArray array];
+	  NSMapInsertKnownAbsent(gidsByStore, store, array);
 	}
-
-      [store invalidateObjectsWithGlobalIDs: gids];
-
-      [buf  removeObjectsInArray: gids];
-      [buf  removeObjectsInArray: gidsToRemove];
-      [gids removeAllObjects];
-      [gidsToRemove removeAllObjects];
+      [array addObject: gid];
     }
 
+  gbsEnum = NSEnumerateMapTable(gidsByStore);
+  while (NSNextMapEnumeratorPair(&gbsEnum, (void**)&store, (void**)&array))
+    {
+      [store invalidateObjectsWithGlobalIDs: array];
+    }
+
+  NSEndMapTableEnumeration(&gbsEnum);
+  NSFreeMapTable(gidsByStore);
+
   EOFLOGObjectFnStop();
+}
+
+- (void)lockObjectWithGlobalID: (EOGlobalID *)gid
+                editingContext: (EOEditingContext *)context
+{
+  EOObjectStore *store = [self objectStoreForGlobalID: gid];
+  [store lockObjectWithGlobalID: gid editingContext: context];
+}
+
+- (BOOL)isObjectLockedWithGlobalID: (EOGlobalID *)gid
+		    editingContext: (EOEditingContext *)context
+{
+  EOObjectStore *store = [self objectStoreForGlobalID: gid];
+  return [store isObjectLockedWithGlobalID: gid editingContext: context];
 }
 
 @end

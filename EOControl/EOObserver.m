@@ -117,9 +117,9 @@ static id lastObject;
 /**
  * Adds the observer to be notified with a [EOObserving-objectWillChange:] 
  * on the first of consecutive [NSObject-willChange] methods invoked on
- * the object.  The does not the object.  It is the observers responsibility
- * to unregister the object with [-removeObserver:forObject:] before the 
- * object ceases to exist.
+ * the object.  This does not retain the object.  It is the observers
+ * responsibility to unregister the object with [-removeObserver:forObject:]
+ * before the object ceases to exist.
  */
 + (void)addObserver: (id <EOObserving>)observer forObject: (id)object
 {
