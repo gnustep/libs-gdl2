@@ -39,10 +39,7 @@
 RCS_ID("$Id$")
 
 #ifndef NeXT_Foundation_LIBRARY
-#include <Foundation/NSNull.h>
-#include <Foundation/NSString.h> 
-#include <Foundation/NSException.h>
-#include <Foundation/NSDebug.h>
+#include <Foundation/NSString.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -55,74 +52,7 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 
 
-@implementation EONull
-
-static EONull *sharedEONull = nil;
-
-+ (void) initialize
-{
-  sharedEONull = (EONull *)[NSNull null];
-}
-
-+ null
-{
-  return sharedEONull;
-}
-
-+ (id) allocWithZone:(NSZone *)zone
-{
-  return sharedEONull;
-}
-
-- (id) copy
-{
-  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
-  return sharedEONull;
-}
-
-- (id) copyWithZone: (NSZone *)zone
-{
-  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
-  return sharedEONull;
-}
-
-- (id) retain
-{
-  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
-  return sharedEONull;
-}
-
-- (id) autorelease
-{
-  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
-  return sharedEONull;
-}
-
-- (void) release
-{
-  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
-}
-
-- (void) dealloc
-{
-  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
-}
-
-- (id)valueForKey: (NSString *)key
-{
-  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
-  return nil;
-}
-
-- (NSString *) sqlString
-{
-  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
-  return nil;
-}
-
-@end /* EONull */
-
-@implementation NSNull (EOSQLFormatting)
+@implementation EONull (EOSQLFormatting)
 
 - (NSString *)sqlString
 {
@@ -145,7 +75,7 @@ static EONull *sharedEONull = nil;
 
 - (BOOL)isEONull
 {  
-  return (((id)self) == sharedEONull || (((id)self) == [NSNull null]));
+  return ((id)self == [NSNull null]);
 }
 
 - (BOOL)isNotEONull
@@ -159,3 +89,35 @@ BOOL isNilOrEONull(id v)
 {
   return ((!v) || [v isEONull]);
 }
+
+/*
+ * We keep this class to support NSClassFromString() which
+ * scripting libraries my depend on.  Note that this is
+ * not a fail-safe implementation.  You should rely on
+ * [EONull+null] and pointer comparison.  Do not rely on
+ * [obj isKindOfClass: NSClassFromString(@"EONull")]
+ * or similar constructs.  They will return wrong results.
+ * This is a small backdraw from using the new extension classes
+ * in base / Foundation.
+ */
+#undef EONull
+@interface EONull : NSNull
+@end
+@implementation EONull
++ (Class) class
+{
+  return [NSNull class];
+}
+
++ (id) allocWithZone: (NSZone *)zone
+{
+  return [NSNull null];
+}
+
++ null
+{
+  return [NSNull null];
+}
+
+@end
+

@@ -6,6 +6,9 @@
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
    Date: February 2000
 
+   Modified: David Ayers <d.ayers@inode.at>
+   Date: February 2003
+
    This file is part of the GNUstep Database Library.
 
    This library is free software; you can redistribute it and/or
@@ -36,34 +39,109 @@
 #include <Foundation/Foundation.h>
 #endif
 
-#include <EOControl/EODefines.h>
+#include "EODefines.h"
+
+/**
+ * GDL2 aims to be compatible with EOF of WebObjects 4.5 and expects to be
+ * compiled with gnustep-base or the current version Foundation of Mac OS X
+ * together with gnustep-baseadd, the Additions subproject of gnustep-base.  
+ * As many of the EOKeyValueCoding methods have moved to NSKeyValueCoding,
+ * GDL2 merely implements those methods which are not part of NSKeyValueCoding
+ * or reimplements those methods to insure WebObjects 4.5 compatibility or
+ * augment the behavior for GDL2 specific features.
+ */
+@interface NSObject (EOKeyValueCoding)
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (id)valueForKey: (NSString *)key;
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (void)takeValue: (id)value forKey: (NSString *)key;
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (id)storedValueForKey: (NSString *)key;
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (void)takeStoredValue: (id)value forKey: (NSString *)key;
 
 
-@interface NSObject (EOKVCPAdditions2)
-- (void)smartTakeValue: (id)anObject 
-                forKey: (NSString *)aKey;
-- (void)smartTakeValue: (id)anObject 
-            forKeyPath: (NSString *)aKeyPath;
-- (void)takeStoredValue: value 
-             forKeyPath: (NSString *)key;
-- (id)storedValueForKeyPath: (NSString *)key;
-#if !FOUNDATION_HAS_KVC
-- (void)takeStoredValuesFromDictionary: (NSDictionary *)dictionary;
-#endif
-- (NSDictionary *)valuesForKeyPaths: (NSArray *)keyPaths;
-- (NSDictionary *)storedValuesForKeyPaths: (NSArray *)keyPaths;
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
++ (BOOL)accessInstanceVariablesDirectly;
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
++ (BOOL)useStoredAccessor;
+
+
+/**
+ * Does nothing.  Key bindings are currently not cached so there is no
+ * need to flush them.  This method exists for API compatibility.
+ */
++ (void)flushAllKeyBindings;
+
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (id)handleQueryWithUnboundKey: (NSString *)key;
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (void)handleTakeValue: (id)value forUnboundKey: (NSString *)key;
+
+/**
+ * This method is invoked by the EOKeyValueCoding mechanism when an attempt
+ * is made to set an null value for a scalar attribute.  This implementation
+ * raises an NSInvalidArgument exception. <br/>
+ * The NSKeyValueCoding -unableToSetNilForKey: is overriden to invoke this
+ * method instead.  We manipulate the runtime to insure that our implementation
+ * of unableToSetNilForKey: is used in favor of the one in gnustep-base or
+ * Foundation.
+ */
 - (void)unableToSetNullForKey: (NSString *)key;
+
 @end
 
-#if NeXT_Foundation_LIBRARY
-@interface NSObject (MacOSXRevealed)
-- (void)takeStoredValuesFromDictionary: (NSDictionary *)dictionary;
+@interface NSObject (EOKeyValueCodingAdditions)
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (id)valueForKeyPath: (NSString *)keyPath;
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (void)takeValue: (id)value forKeyPath: (NSString *)keyPath;
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (NSDictionary *)valuesForKeys: (NSArray *)keys;
+
+/**
+ * Unimplemented here.  Relies on NSKeyValueCoding.
+ */
+- (void)takeValuesFromDictionary: (NSDictionary *)dictionary; 
+
 @end
-#endif
 
 @interface NSArray (EOKeyValueCoding)
 - (id)valueForKey: (NSString *)key;
 - (id)valueForKeyPath: (NSString *)keyPath;
+
 - (id)computeSumForKey: (NSString *)key;
 - (id)computeAvgForKey: (NSString *)key;
 - (id)computeCountForKey: (NSString *)key;
@@ -72,22 +150,56 @@
 @end
 
 
-
-
-#if !FOUNDATION_HAS_KVC
 @interface NSDictionary (EOKeyValueCoding)
+/*
+ * Overrides gnustep-base and Foundations implementation.
+ * See documentation or source file for details on how it differs.
+ */
 - (id)valueForKey: (NSString *)key;
+- (id)storedValueForKey: (NSString *)key;
+- (id)valueForKeyPath: (NSString *)keyPath;
+- (id)storedValueForKeyPath: (NSString*)keyPath;
 @end
 
 
 @interface NSMutableDictionary (EOKeyValueCoding)
+/*
+ * Overrides gnustep-base and Foundations implementation.
+ * See documentation or source file for details on how it differs.
+ */
 - (void)takeValue: (id)value 
            forKey: (NSString*)key;
 @end
-#endif
+
+
+@interface NSObject (EOKVCGDL2Additions)
+/* These are hooks for EOGenericRecord KVC implementaion. */
+- (void)smartTakeValue: (id)anObject 
+                forKey: (NSString *)aKey;
+- (void)smartTakeValue: (id)anObject 
+            forKeyPath: (NSString *)aKeyPath;
+
+- (void)takeStoredValue: value 
+             forKeyPath: (NSString *)key;
+- (id)storedValueForKeyPath: (NSString *)key;
+
+- (NSDictionary *)valuesForKeyPaths: (NSArray *)keyPaths;
+- (NSDictionary *)storedValuesForKeyPaths: (NSArray *)keyPaths;
+@end
+
 
 #define EOUnknownKeyException NSUnknownKeyException;
 GDL2CONTROL_EXPORT NSString *EOTargetObjectUserInfoKey;
 GDL2CONTROL_EXPORT NSString *EOUnknownUserInfoKey;
+
+/*
+ * The following declaration is reportedly missing in Apple's headers,
+ * yet are implemented.
+ */
+#if NeXT_Foundation_LIBRARY
+@interface NSObject (MacOSX)
+- (void)takeStoredValuesFromDictionary: (NSDictionary *)dictionary;
+@end
+#endif
 
 #endif /* __EOKeyValueCoding_h__ */

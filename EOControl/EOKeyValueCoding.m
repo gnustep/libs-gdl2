@@ -1,7 +1,7 @@
 /** 
    EOKeyValueCoding.m <title>EOKeyValueCoding</title>
 
-   Copyright (C) 1996-2002 Free Software Foundation, Inc.
+   Copyright (C) 1996-2002, 2003 Free Software Foundation, Inc.
 
    Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
    Date: November 1996
@@ -12,8 +12,9 @@
    Author: Manuel Guesdon <mguesdon@oxymium.net>
    Date: January 2002
 
-   $Revision$
-   $Date$
+   Author: David Ayers <d.ayers@inode.at>
+   Date: February 2003
+
 
    <abstract></abstract>
 
@@ -63,33 +64,101 @@ RCS_ID("$Id$")
 #include <gnustep/base/GSCategories.h>
 #endif
 
-#include <ctype.h>
-
 #include <EOControl/EOKeyValueCoding.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
 
-#include <ctype.h>
+#include <gnustep/base/GSObjCRuntime.h>
 
+static EONull *null = nil;
+static SEL     oaiSel;
+static BOOL    strictWO;
+
+static inline void
+initialize(void)
+{
+  if (null == nil)
+    {
+      null     = [EONull null];
+      oaiSel   = @selector(objectAtIndex:);
+      strictWO = GSUseStrictWO451Compatibility(nil);
+    }
+}
+
+/* This macro is only used locally in defined places so for the sake
+   of efficiency, we don't use the do {} while (0) pattern.  */
+#define INITIALIZE if (null == nil) initialize();
 
 /*
- *  EOKeyValueCodingAdditions implementation
+ * This dummy class exists to provide a replacement implementation for
+ * NSObject -unableToSetNilForKey:, which calls -unableToSetNullForKey:
+ * as defined in WO4.5.  We need this mechanism as a category cannot
+ * reliably override the category in gnustep-base or Foundation.
  */
+@interface NilToNull : NSObject
+@end
+@interface NilToNull (SurrpressWarning)
+- (void) unableToSetNullForKey: (NSString *)key;
+@end
+@implementation NilToNull
++ (void)load
+{
+  Class cls;
+  SEL sel;
+  IMP imp;
+  GSMethod method;
 
-NSString *EOTargetObjectUserInfoKey = @"EOTargetObjectUserInfoKey";
-NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
+  imp = NULL;
+  sel = @selector(unableToSetNilForKey:);
+  cls = GSClassFromName("NSObject");
 
-@implementation NSObject (EOKVCPAdditions2)
+  method = GSGetInstanceMethodNotInherited(self, sel);
+  if (method != METHOD_NULL)
+    {
+      imp = method->method_imp;
+    }
+  else
+    {
+      fprintf(stderr,
+	      "%s: Could not find method unableToSetNilForKey: in NilToNil!\n",
+	      __FILE__);
+      abort();
+    }
 
+  method = GSGetInstanceMethodNotInherited(cls, sel);
+  if (method != METHOD_NULL)
+    {
+      method->method_imp = imp;
+    }
+  else
+    {
+      fprintf(stderr,
+	      "%s: Could not find method unableToSetNilForKey: in NSObject!\n",
+	      __FILE__);
+      abort();
+    }
+  GSFlushMethodCacheForClass(cls);
+}
+
+- (void) unableToSetNilForKey: (NSString *)key
+{
+  [self unableToSetNullForKey: key];
+}
+@end
+
+@implementation NSObject (_EOKeyValueCodingCompatibility)
+/* See EODeprecated.h. */
 + (void) flushClassKeyBindings
 {
 }
 
+/* See header file for documentation. */
 + (void) flushAllKeyBindings
 {
 }
 
+/* See header file for documentation. */
 - (void) unableToSetNullForKey: (NSString *)key
 {
   [NSException raise: NSInvalidArgumentException
@@ -97,461 +166,305 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
 	       NSStringFromSelector(_cmd), NSStringFromClass([self class]), 
 	       self, key];
 }
-
-/** if key is a bidirectional rel, use addObject:toBothSidesOfRelationship otherwise call  takeValue:forKey: **/
-- (void)smartTakeValue: (id)anObject 
-                forKey: (NSString *)aKey
-{
-  [self takeValue: anObject
-        forKey: aKey];
-}
-
-- (void)smartTakeValue: (id)anObject 
-            forKeyPath: (NSString *)aKeyPath
-{
-  NSRange r = [aKeyPath rangeOfString: @"."];
-
-  if (r.length == 0)
-    {
-      [self smartTakeValue: anObject 
-            forKey: aKeyPath];
-    }
-  else
-    {
-      NSString *key = [aKeyPath substringToIndex: r.location];
-      NSString *path = [aKeyPath substringFromIndex: NSMaxRange(r)];
-
-      [[self valueForKey: key] smartTakeValue: anObject 
-                               forKeyPath: path];
-    }
-}
-
-- (void)takeStoredValue: value 
-             forKeyPath: (NSString *)key
-{
-  NSArray *pathArray;
-  NSString *path;
-  id obj = self;
-  int i, count;
-
-  EOFLOGObjectFnStartCond(@"EOKVC");
-
-  pathArray = [key componentsSeparatedByString:@"."];
-  count = [pathArray count];
-
-  for (i = 0; i < (count - 1); i++)
-    {
-      path = [pathArray objectAtIndex: i];
-      obj = [obj valueForKey: path];
-    }
-
-  path = [pathArray lastObject];
-  [obj takeStoredValue: value forKey: path];
-
-  EOFLOGObjectFnStopCond(@"EOKVC");
-}
-
-- (id)storedValueForKeyPath: (NSString *)key
-{
-  NSArray *pathArray = nil;
-  NSString *path;
-  id obj = self;
-  int i, count;
-  EOFLOGObjectFnStartCond(@"EOKVC");
-  pathArray = [key componentsSeparatedByString:@"."];
-  count = [pathArray count];
-
-  for(i=0; i < (count-1); i++)
-    {
-      path = [pathArray objectAtIndex:i];
-      obj = [obj valueForKey:path];
-    }
-
-  path = [pathArray lastObject];
-  obj=[obj storedValueForKey:path];
-  EOFLOGObjectFnStopCond(@"EOKVC");
-  return obj;
-}
-
-#if !FOUNDATION_HAS_KVC
-- (void)takeStoredValuesFromDictionary: (NSDictionary *)dictionary
-{
-  NSEnumerator *keyEnum;
-  id key;
-  id val;
-  EONull *null;
-  
-  EOFLOGObjectFnStartCond(@"EOKVC");
-
-  keyEnum = [dictionary keyEnumerator];
-
-  null = (EONull *)[EONull null];
-
-  while ((key = [keyEnum nextObject]))
-    {
-      val = [dictionary objectForKey: key];
-      
-      if (val == null)
-	val = nil;
-      
-      [self takeStoredValue: val forKey: key];
-    }
-
-  EOFLOGObjectFnStopCond(@"EOKVC");
-}
-#endif /* !FOUNDATION_HAS_KVC */
-
-- (NSDictionary *)storedValuesForKeyPaths: (NSArray *)keyPaths
-{
-  NSDictionary *values = nil;
-  int i, n;
-  NSMutableArray *newKeyPaths = nil;
-  NSMutableArray *newVals = nil;
-  EONull *null;
-
-  EOFLOGObjectFnStartCond(@"EOKVC");
-
-  n = [keyPaths count];
-
-  newKeyPaths = [[[NSMutableArray alloc] initWithCapacity: n] 
-			      autorelease];
-  newVals = [[[NSMutableArray alloc] initWithCapacity: n] 
-			      autorelease];
-  null = (EONull *)[EONull null];
-
-  for (i = 0; i < n; i++)
-    {
-      id keyPath = [keyPaths objectAtIndex: i];
-      id val = nil;
-
-      NS_DURING //DEBUG Only ?
-        {
-          val = [self storedValueForKeyPath: keyPath];
-        }
-      NS_HANDLER
-        {
-          NSLog(@"EXCEPTION %@", localException);
-          NSDebugMLog(@"EXCEPTION %@", localException);              
-          [localException raise];
-        }
-      NS_ENDHANDLER;
-        
-      if (val == nil)
-	val = null;
-      
-      [newKeyPaths addObject: keyPath];
-      [newVals addObject: val];
-    }
-  
-  values = [NSDictionary dictionaryWithObjects: newVals
-			 forKeys: newKeyPaths];
-  EOFLOGObjectFnStopCond(@"EOKVC");
-
-  return values;
-}
-
-- (NSDictionary *)valuesForKeyPaths: (NSArray *)keyPaths
-{
-  NSDictionary *values = nil;
-  int i;
-  int n;
-  NSMutableArray *newKeyPaths;
-  NSMutableArray *newVals;
-  EONull *null;
-
-  EOFLOGObjectFnStartCond(@"EOKVC");
-
-  n = [keyPaths count];
-  newKeyPaths = [[[NSMutableArray alloc] initWithCapacity: n]
-		  autorelease];
-  newVals = [[[NSMutableArray alloc] initWithCapacity: n]
-	      autorelease];
-  null = (EONull *)[EONull null];
-
-  for (i = 0; i < n; i++)
-    {
-      id keyPath = [keyPaths objectAtIndex: i];
-      id val = nil;
-
-      NS_DURING //DEBUG Only ?
-        {
-          val = [self valueForKeyPath: keyPath];
-        }
-      NS_HANDLER
-        {
-          NSLog(@"EXCEPTION %@", localException);
-          NSDebugMLog(@"EXCEPTION %@",localException);              
-          [localException raise];
-        }
-      NS_ENDHANDLER;
-
-      if (val == nil)
-	val = null;
-
-      [newKeyPaths addObject: keyPath];
-      [newVals addObject: val];
-    }
-  
-  values = [NSDictionary dictionaryWithObjects: newVals
-			 forKeys: newKeyPaths];
-
-  EOFLOGObjectFnStopCond(@"EOKVC");
-
-  return values;
-}
-
 @end
 
 @implementation NSArray (EOKeyValueCoding)
 
+/**
+ * EOKeyValueCoding protocol<br/>
+ * This overrides NSObjects implementation of this method.
+ * Generally this method returns an array of objects
+ * returned by invoking [NSObject-valueForKey:]
+ * for each item in the receiver, substituting EONull for nil.
+ * Keys formated like "@function.someKey" are resolved by invoking
+ * [NSArray-computeFuncionWithKey:] "someKey" on the reviever.
+ * The following functions are supported by default:
+ * <list>
+ *  <item>@sum   -> -computeSumForKey:</item>
+ *  <item>@avg   -> -computeAvgForKey:</item>
+ *  <item>@max   -> -computeMaxForKey:</item>
+ *  <item>@min   -> -computeMinForKey:</item>
+ *  <item>@count -> -computeCountForKey:</item>
+ * </list>
+ * As a special case the @count function does not require a key,
+ * in fact, any key supplied is ignored.
+ * As another special case the key "count" is not forwarded to each object
+ * of the receiver but returns the number of objects of the receiver.<br/>
+ * There is no special handling of EONull.  Therefore expect exceptions
+ * on EONull not responding to decimalValue and compare: when the are
+ * used with this mechanism. 
+ */
 - (id)valueForKey: (NSString *)key
 {
-  id result = nil;
-  const char *str;
+  id result;
+
+  INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
-  //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@",
-  //                      key);
-
-  str=[key cString];
-
-  if (str && *str == '@')
+  if ([key isEqualToString: @"count"] || [key isEqualToString: @"@count"])
     {
-      if ([key length] > 1)
-        {
-          if ([key isEqualToString: @"@count"]) //the only known case because we haven't implemented custom operators
-            result = [super valueForKey: @"count"];
-          else // for unknwon case: call computeXXForKey:nil
-            {
-              NSMutableString *selString = [NSMutableString stringWithCapacity:10];
-              SEL computeSelector;
-              char l = str[1];
-              
-              if (islower(l))
-                l = toupper(l);
-              
-              [selString appendString: @"compute"];
-              [selString appendString: [NSString stringWithCString: &l
-						 length: 1]];
-              [selString appendString: [NSString stringWithCString: &str[2]]];
-              [selString appendString: @"ForKey:"];
-
-              computeSelector = NSSelectorFromString(selString);
-              result = [self performSelector: computeSelector
-			     withObject: nil];
-            }
-        }
+      result = [NSDecimalNumber numberWithUnsignedInt: [self count]];
     }
-  else if ([key isEqualToString: @"count"]) //Special case: Apple Doc is wrong; here we return -count
+  else if ([key hasPrefix:@"@"])
     {
-      static BOOL warnedCount = NO;
-      if (warnedCount == NO)
-        {
-          warnedCount = YES;
-          NSWarnLog(@"use of special 'count' key may works differently with only foundation base", "");
-        }
-      result = [super valueForKey: key];
+      NSString *selStr;
+      SEL       sel;
+      NSRange   r;
+
+      r = [key rangeOfString:@"."];
+      NSAssert(r.location!=NSNotFound,
+	       @"Invalid computational key structure");
+      r.length   = r.location - 1; /* set length of key (w/o @) */
+      r.location = 1;              /* remove leading '@' */
+      selStr = [NSString stringWithFormat: @"compute%@ForKey:",
+		   [[key substringWithRange: r] capitalizedString]];
+      sel = NSSelectorFromString(selStr);
+      NSAssert(sel!=NULL,@"Invalid computational key");
+
+      result = [self performSelector: sel               /* skip located '.' */
+		     withObject: [key substringFromIndex: NSMaxRange(r) + 1]];
     }
   else
     {
       result = [self resultsOfPerformingSelector: @selector(valueForKey:)
 		     withObject: key
-		     defaultResult: [EONull null]];
+		     defaultResult: null];
     }
 
   EOFLOGObjectFnStopCond(@"EOKVC");
-
   return result;
 }
 
+/**
+ * EOKeyValueCoding protocol<br/>
+ * Returns the object returned by invoking [NSObject-valueForKeyPath:]
+ * on the object returned by invoking [NSObject-valueForKey:]
+ * on the reciever with the first key component supplied by the key path,
+ * with rest of the key path.<br/>
+ * If the first component starts with "@", the first component includes the key
+ * of the computational key component and as the form "@function.key".
+ * If there is only one key component, this method invokes 
+ * [NSObject-valueForKey:] in the receiver with that component.
+ * All computational components are expected to specifiy a key with the
+ * exception of @count, in which case the key maybe omitted.
+ * Unlike the reference implementation GDL2 allows you to continue the keyPath
+ * in a meaningfull way after @count but the path must then contain a key as
+ * the computational key structure implies.
+ * (i.e. you may use "@count.self.decimalValue") The actual key "self" is
+ * infact ignored during the computation, but the formal structure must be
+ * maintained.<br/>
+ * It should be mentioned that the reference implementation
+ * would return the result of "@count" independent
+ * of any additional key paths, even if they were meaningless like
+ * "@count.bla.strange".  GDL2 will raise, if the object returned by
+ * valueForKey:@"count.bla" (which generally is an NSDecimalNumber) raises on
+ * valueForKey:@"strange".
+ */
 - (id)valueForKeyPath: (NSString *)keyPath
 {
-  id result = nil;
-  const char *str;
+  NSRange   r;
+  id        result;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
-  //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPath=%@",
-  //                      keyPath);
-
-  str = [keyPath cString];
-
-  if (str && *str == '@')
+  r = [keyPath rangeOfString: @"."];
+  if ([keyPath hasPrefix: @"@"] == YES &&
+      [keyPath isEqualToString: @"@count"] == NO)
     {
-      if ([keyPath length] > 1)
-        {
-	  NSMutableString *selString = [NSMutableString stringWithCapacity: 10];
-          NSArray *pathArray = [keyPath componentsSeparatedByString: @"."];
-	  NSString *fn = [pathArray objectAtIndex:0];
-	  NSString *key = nil;
-	  SEL computeSelector;
-	  char l;
+      NSRange rr;
+      unsigned length;
 
-	  str = [fn cString];
-	  l = str[1];
-                            
-	  if (islower(l))
-	    l = toupper(l);
-              
-	  [selString appendString: @"compute"];
-	  [selString appendString: [NSString stringWithCString: &l
-					     length: 1]];
-	  [selString appendString: [NSString stringWithCString: &str[2]]];
-	  [selString appendString: @"ForKey:"];
+      length = [keyPath length];
+      NSAssert1(r.location!=NSNotFound && length > r.location,
+		@"invalid computational keyPath:%@", keyPath);
 
-	  computeSelector = NSSelectorFromString(selString);
-
-	  if ([pathArray count] > 1)
-	    {
-	      key = [pathArray objectAtIndex: 1];
-
-	      result = [self performSelector: computeSelector
-			     withObject: key];
-	    }
-	  else
-	    result = [self performSelector: computeSelector
-			   withObject: @""];
-
-	  if (result && [pathArray count] > 2)
-	    {
-	      NSArray *rightKeyPathArray
-		= [pathArray subarrayWithRange:
-			       NSMakeRange(2, [pathArray count] - 2)];
-	      NSString *rightKeyPath
-		= [rightKeyPathArray componentsJoinedByString: @"."];
-
-	      result = [result valueForKeyPath: rightKeyPath];
-	    }
-	}
+      rr.location = NSMaxRange(r);
+      rr.length   = length - rr.location;
+      r = [keyPath rangeOfString: @"." 
+		   options: 0
+		   range: rr];
     }
-  else if ([keyPath isEqualToString: @"count"]) //Special case: Apple Doc is wrong; here we return -count
+    
+  if (r.length == 0)
     {
-      static BOOL warnedCount = NO;
-      if (warnedCount == NO)
-        {
-          warnedCount = YES;
-          NSWarnLog(@"use of special 'count' key may works differently with only foundation base", "");
-        }
-      result = [super valueForKeyPath: keyPath];
+      result = [self valueForKey: keyPath];
     }
-  else 
-    result = [self resultsOfPerformingSelector: @selector(valueForKeyPath:)
-		   withObject: keyPath
-		   defaultResult: [EONull null]];
+  else
+    {
+      NSString *key  = [keyPath substringToIndex: r.location];
+      NSString *path = [keyPath substringFromIndex: NSMaxRange(r)];
+
+      result = [[self valueForKey: key] valueForKeyPath: path];
+    }
 
   EOFLOGObjectFnStopCond(@"EOKVC");
-
   return result;
 }
 
+/**
+ * Iterates over the objects of the receiver send each object valueForKey:
+ * with the parameter.  The decimalValue of the returned object is accumalted.
+ * An empty array returns NSDecimalNumber 0.
+ */
 - (id)computeSumForKey: (NSString *)key
 {
-  NSEnumerator *arrayEnum;
-  NSDecimalNumber *item, *ret;
+  NSDecimalNumber *ret;
+  NSDecimal        result, left, right;
+  NSRoundingMode   mode;
+  unsigned int     i, count;
+  IMP              oai;
+
+  INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
+  mode = [[NSDecimalNumber defaultBehavior] roundingMode];
+  oai = [self methodForSelector: oaiSel];
+  count = [self count];
+  NSDecimalFromComponents(&result, 0, 0, NO);
 
-  arrayEnum = [self objectEnumerator];
-  ret = [NSDecimalNumber zero];
-
-  while ((item = [arrayEnum nextObject]))
-    ret=[ret decimalNumberByAdding: [item valueForKey:key]];
+  for (i=0; i<count; i++)
+    {
+      left = result;
+      right = [[(*oai)(self, oaiSel, i) valueForKey: key] decimalValue];
+      NSDecimalAdd(&result, &left, &right, mode);
+    }
         
+  ret = [NSDecimalNumber decimalNumberWithDecimal: result];
   EOFLOGObjectFnStopCond(@"EOKVC");
-
   return ret;
 }
 
+/**
+ * Iterates over the objects of the receiver send each object valueForKey:
+ * with the parameter.  The decimalValue of the returned object is accumalted
+ * and then divided by number of objects contained by the receiver as returned
+ * by [NSArray-coung].  An empty array returns NSDecimalNumber 0.
+ */
 - (id)computeAvgForKey: (NSString *)key
 {
-  NSEnumerator *arrayEnum;
-  NSDecimalNumber *item, *ret;
+  NSDecimalNumber *ret;
+  NSDecimal        result, left, right;
+  NSRoundingMode   mode;
+  unsigned int     i, count;
+  IMP              oai;
+
+  INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
+  mode = [[NSDecimalNumber defaultBehavior] roundingMode];
+  oai = [self methodForSelector: oaiSel];
+  count = [self count];
+  NSDecimalFromComponents(&result, 0, 0, NO);
 
-  arrayEnum = [self objectEnumerator];
-  ret = [NSDecimalNumber zero];
+  for (i=0; i<count; i++)
+    {
+      left = result;
+      right = [[(*oai)(self, oaiSel, i) valueForKey: key] decimalValue];
+      NSDecimalAdd(&result, &left, &right, mode);
+    }
 
-  while ((item = [arrayEnum nextObject]))
-    ret=[ret decimalNumberByAdding: [item valueForKey:key]];
+  left  = result;
+  NSDecimalFromComponents(&right, (unsigned long long) count, 0, NO);
 
-  ret = [ret decimalNumberByDividingBy:
-	       [NSDecimalNumber decimalNumberWithMantissa: [self count]
-				exponent: 0
-				isNegative:NO]];
-
+  NSDecimalDivide(&result, &left, &right, mode);
+        
+  ret = [NSDecimalNumber decimalNumberWithDecimal: result];
   EOFLOGObjectFnStopCond(@"EOKVC");
-
   return ret;
 }
 
 - (id)computeCountForKey: (NSString *)key
 {
-  id ret;
+  id result;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
-
-  ret = [NSNumber numberWithInt: [self count]];
+  result = [NSDecimalNumber numberWithUnsignedInt: [self count]];
 
   EOFLOGObjectFnStopCond(@"EOKVC");
-
-  return ret;
+  return result;
 }
 
 - (id)computeMaxForKey: (NSString *)key
 {
-  NSEnumerator *arrayEnum;
-  NSDecimalNumber *item, *max;
-  id value = nil;
+  id           result, resultVal;
+  unsigned int i, count;;
+
+  INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
+  result    = nil;
+  resultVal = nil;
+  count     = [self count];
 
-  arrayEnum = [self objectEnumerator];
-
-  item = [arrayEnum nextObject];
-  value = [item valueForKey:key];
-  max = value;
-
-  if (item != nil)
+  if (count > 0)
     {
-      while ((item = [arrayEnum nextObject]))
+      id                 current,currentVal;
+      IMP                oai;
+
+      oai = [self methodForSelector: oaiSel];
+      for(i=0; i<count && (resultVal == nil || resultVal == null); i++)
 	{
-          value = [item valueForKey:key];
-	  if ([max compare: value] == NSOrderedAscending)
-	    max = value;
+	  result    = (*oai)(self, oaiSel, i);
+	  resultVal = [result valueForKey: key];
+	}          
+      for (; i<count; i++)
+	{
+	  current    = (*oai)(self, oaiSel, i);
+	  currentVal = [current valueForKey: key];
+
+	  if (currentVal == nil || currentVal == null) continue;
+	  
+	  if ([resultVal compare: currentVal] == NSOrderedAscending)
+	    {
+	      result    = current;
+	      resultVal = currentVal;
+	    }
 	}
     }
 
   EOFLOGObjectFnStopCond(@"EOKVC");
-
-  return max;
+  return result;
 }
 
 - (id)computeMinForKey: (NSString *)key
 {
-  NSEnumerator *arrayEnum;
-  NSDecimalNumber *item, *min;
-  id value = nil;
+  id             result, resultVal;
+  unsigned int   i, count;
+
+  INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
+  result    = nil;
+  resultVal = nil;
+  count     = [self count];
 
-  arrayEnum = [self objectEnumerator];
-  item = [arrayEnum nextObject];
-  value = [item valueForKey:key];
-  min = value;
-
-  if (item != nil)
+  if (count > 0)
     {
-      while ((item = [arrayEnum nextObject]))
+      id  current, currentVal;
+      IMP oai;
+
+      oai = [self methodForSelector: oaiSel];
+      for(i=0; i<count && (resultVal == nil || resultVal == null); i++)
 	{
-          value = [item valueForKey:key];
-	  if ([min compare: value] == NSOrderedDescending)
-	    min = value;
+	  result    = (*oai)(self, oaiSel, i);
+	  resultVal = [result valueForKey: key];
+	}          
+      for (; i<count; i++)
+	{
+	  current    = (*oai)(self, oaiSel, i);
+	  currentVal = [current valueForKey: key];
+
+	  if (currentVal == nil || currentVal == null) continue;
+
+	  if ([resultVal compare: currentVal] == NSOrderedDescending)
+	    {
+	      result    = current;
+	      resultVal = currentVal;
+	    }
 	}
     }
 
   EOFLOGObjectFnStopCond(@"EOKVC");
-
-  return min;
+  return result;
 }
 
 @end
@@ -559,61 +472,80 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
 
 @implementation NSDictionary (EOKeyValueCoding)
 
-#if !FOUNDATION_HAS_KVC
-- (id)valueForKey:(NSString *)key
+/**
+ * Returns the object stored in the dictionary for this key.
+ * Unlike Foundation, this method may return objects for keys other than
+ * those explicitly stored in the receiver.  These special keys are
+ * 'count', 'allKeys' and 'allValues'.
+ * We override the implementation to account for these
+ * special keys.
+ */
+- (id)valueForKey: (NSString *)key
 {
   id value;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
-  EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@",
-                        key);
+  //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@",
+  //                      key);
 
   value = [self objectForKey: key];
 
   if (!value)
     {
       if ([key isEqualToString: @"allValues"])
-        {
-          static BOOL warnedAllValues = NO;
-          if (warnedAllValues == NO)
+	{
+#ifdef NeXT_Foundation_LIBRARY
+          static BOOL warnedValuesKeys = NO;
+          if (warnedValuesKeys == NO)
             {
-              warnedAllValues = YES;
-              NSWarnLog(@"use of special 'allValues' key works differently with only foundation base", "");
+              warnedValuesKeys = YES;
+              NSWarnMLog(@"Foundation does not return a value for the special 'allValues' key", "");
             }
-
-          value = [self allValues];
-        }
+#endif
+	  value = [self allValues];
+	}
       else if ([key isEqualToString: @"allKeys"])
-        {
+	{
+#ifdef NeXT_Foundation_LIBRARY
           static BOOL warnedAllKeys = NO;
           if (warnedAllKeys == NO)
             {
               warnedAllKeys = YES;
-              NSWarnLog(@"use of special 'allKeys' key works differently with only foundation base", "");
+              NSWarnMLog(@"Foundation does not return a value for the special 'allKeys' key", "");
             }
-
-          value = [self allKeys];
-        }
+#endif
+	  value = [self allKeys];
+	}
       else if ([key isEqualToString: @"count"])
-        {
+	{
+#ifdef NeXT_Foundation_LIBRARY
           static BOOL warnedCount = NO;
           if (warnedCount == NO)
             {
               warnedCount = YES;
-              NSWarnLog(@"use of special 'count' key works differently with only foundation base", "");
+              NSWarnMLog(@"Foundation does not return a value for the special 'count' key", "");
             }
-
-          value = [NSNumber numberWithInt: [self count]];
-        }
+#endif
+	  value = [NSNumber numberWithUnsignedInt: [self count]];
+	}
     }
 
-  //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@ value: %p (class %@)",
+  //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@ value: %p (class=%@)",
   //                      key, value, [value class]);
   EOFLOGObjectFnStopCond(@"EOKVC");
 
   return value;
 }
 
+/**
+ * Returns the object stored in the dictionary for this key.
+ * Unlike Foundation, this method may return objects for keys other than
+ * those explicitly stored in the receiver.  These special keys are
+ * 'count', 'allKeys' and 'allValues'.
+ * We do not simply invoke [NSDictionary-valueForKey:]
+ * to avoid recursions in subclasses that might implement
+ * [NSDictionary-valueForKey:] by calling [NSDictionary-storedValueForKey:]
+ */
 - (id)storedValueForKey: (NSString *)key
 {
   id value;
@@ -627,11 +559,17 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
   if (!value)
     {
       if ([key isEqualToString: @"allValues"])
-        value = [self allValues];
+	{
+	  value = [self allValues];
+	}
       else if ([key isEqualToString: @"allKeys"])
-        value = [self allKeys];
+	{
+	  value = [self allKeys];
+	}
       else if ([key isEqualToString: @"count"])
-        value = [NSNumber numberWithInt: [self count]];
+	{
+	  value = [NSNumber numberWithUnsignedInt: [self count]];
+	}
     }
 
   //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@ value: %p (class=%@)",
@@ -640,17 +578,24 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
 
   return value;
 }
-#endif /* !FOUNDATION_HAS_KVC */ //MG
 
+/**
+ * First checks whether the entire keyPath is contained as a key
+ * in the receiver before invoking super's implementation.
+ * (The special quoted key handling will probably be moved
+ * to a GSWDictionary subclass to be used by GSWDisplayGroup.)
+ */
 - (id)valueForKeyPath: (NSString*)keyPath
 {
-  id value = nil;
+  id  value = nil;
+
+  INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
   //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPath=\"%@\"",
   //                      keyPath);
 
-  if ([keyPath hasPrefix: @"'"]) //user defined composed key 
+  if ([keyPath hasPrefix: @"'"] && strictWO == NO) //user defined composed key 
     {
       NSMutableArray *keyPathArray = [[[[keyPath stringByDeletingPrefix: @"'"]
 					 componentsSeparatedByString: @"."]
@@ -704,15 +649,14 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
     }
   else
     {
-      //return super valueForKeyPath:keyPath only if there's no object for entire key keyPath
+      /*
+       * Return super valueForKeyPath: only 
+       * if there's no object for entire key keyPath
+       */
       value = [self objectForKey: keyPath];
 
       EOFLOGObjectLevelArgs(@"EOKVC",@"keyPath=%@ tmpValue: %p (class=%@)",
                    keyPath,value,[value class]);
-
-      /*  if([value isEqual:[EONull null]] == YES) //???
-          value=nil;
-          else */
 
       if (!value)
         value = [super valueForKeyPath: keyPath];
@@ -724,17 +668,24 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
 
   return value;
 }
-//MG #endif /* !FOUNDATION_HAS_KVC */
 
+/**
+ * First checks whether the entire keyPath is contained as a key
+ * in the receiver before invoking super's implementation.
+ * (The special quoted key handling will probably be moved
+ * to a GSWDictionary subclass to be used by GSWDisplayGroup.)
+ */
 - (id)storedValueForKeyPath: (NSString*)keyPath
 {
   id value = nil;
+
+  INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
   //EOFLOGObjectLevelArgs(@"EOKVC",@"keyPath=\"%@\"",
   //                      keyPath);
 
-  if ([keyPath hasPrefix: @"'"]) //user defined composed key 
+  if ([keyPath hasPrefix: @"'"] && strictWO == NO) //user defined composed key 
     {
       NSMutableArray *keyPathArray = [[[[keyPath stringByDeletingPrefix: @"'"]
 					 componentsSeparatedByString: @"."]
@@ -788,15 +739,14 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
     }
   else
     {
-      //return super valueForKeyPath:keyPath only if there's no object for entire key keyPath
+      /*
+       * Return super valueForKeyPath: only 
+       * if there's no object for entire key keyPath
+       */
       value = [self objectForKey: keyPath];
 
       //EOFLOGObjectLevelArgs(@"EOKVC",@"keyPath=%@ tmpValue: %p (class=%@)",
       //             keyPath,value,[value class]);
-
-      /*  if([value isEqual:[EONull null]] == YES) //???
-          value=nil;
-          else */
 
       if (!value)
         value = [super storedValueForKeyPath: keyPath];
@@ -818,38 +768,15 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
           isSmart: (BOOL)smartFlag;
 @end
 
-@implementation NSMutableDictionary (EOKeyValueCoding)
+@implementation NSMutableDictionary (EOKVCGNUstepExtensions)
 
-#if !FOUNDATION_HAS_KVC
-- (void)takeValue: (id)value 
-           forKey: (NSString *)key
-{
-  EOFLOGObjectFnStartCond(@"EOKVC");
-
-  if (value)
-    [self setObject: value 
-          forKey: key];
-  else
-    [self removeObjectForKey: key];
-
-  EOFLOGObjectFnStopCond(@"EOKVC");
-}
-
-- (void)takeStoredValue: (id)value 
-                 forKey: (NSString *)key
-{
-  EOFLOGObjectFnStartCond(@"EOKVC");
-
-  if (value)
-    [self setObject: value 
-          forKey: key];
-  else
-    [self removeObjectForKey: key];
-
-  EOFLOGObjectFnStopCond(@"EOKVC");
-}
-#endif /* !FOUNDATION_HAS_KVC */
-
+/**
+ * Method to augment the NSKeyValueCoding implementation
+ * to account for added functionality such as quoted key paths.
+ * (The special quoted key handling will probably be moved
+ * to a GSWDictionary subclass to be used by GSWDisplayGroup.
+ * this method then becomes obsolete.)
+ */
 - (void)smartTakeValue: (id)value 
             forKeyPath: (NSString*)keyPath
 {
@@ -858,7 +785,13 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
         isSmart:YES];
 }
 
-//#if !FOUNDATION_HAS_KVC
+/**
+ * Overrides gnustep-base and Foundations implementation
+ * to account for added functionality such as quoted key paths.
+ * (The special quoted key handling will probably be moved
+ * to a GSWDictionary subclass to be used by GSWDisplayGroup.
+ * this method then becomes obsolete.)
+ */
 - (void)takeValue: (id)value
        forKeyPath: (NSString *)keyPath
 {
@@ -866,8 +799,14 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
         forKeyPath:keyPath
         isSmart:NO];
 }
-//#endif /* !FOUNDATION_HAS_KVC */
 
+/**
+ * Support method to augment the NSKeyValueCoding implementation
+ * to account for added functionality such as quoted key paths.
+ * (The special quoted key handling will probably be moved
+ * to a GSWDictionary subclass to be used by GSWDisplayGroup.
+ * this method then becomes obsolete.)
+ */
 - (void)takeValue: (id)value
        forKeyPath: (NSString *)keyPath
           isSmart: (BOOL)smartFlag
@@ -876,7 +815,9 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
   //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPath=\"%@\"",
   //                      keyPath);
 
-  if ([keyPath hasPrefix: @"'"]) //user defined composed key 
+  INITIALIZE;
+
+  if ([keyPath hasPrefix: @"'"] && strictWO == NO) //user defined composed key 
     {
       NSMutableArray *keyPathArray = [[[[keyPath stringByDeletingPrefix: @"'"]
 					 componentsSeparatedByString: @"."]
@@ -947,16 +888,26 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
     }
   else
     {
-      if (value)
-        [self setObject: value 
-              forKey: keyPath];
+      if (value == nil)
+	{
+	  [self removeObjectForKey: keyPath];
+	}
       else
-        [self removeObjectForKey: keyPath];
-    }
+	{
+	  [self setObject: value forKey: keyPath];
+	}
+     }
 
   EOFLOGObjectFnStopCond(@"EOKVC");
 }
 
+/**
+ * Calls [NSMutableDictionary-setObject:forKey:] using the full keyPath
+ * as a key, if the value is non nil.  Otherwise calls
+ * [NSDictionary-removeObjectForKey:] with the full keyPath.
+ * (The special quoted key handling will probably be moved
+ * to a GSWDictionary subclass to be used by GSWDisplayGroup.)
+ */
 - (void)takeStoredValue: (id)value 
              forKeyPath: (NSString *)keyPath
 {
@@ -1039,5 +990,226 @@ NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
 
   EOFLOGObjectFnStopCond(@"EOKVC");
 }
+
+@end
+
+@implementation NSObject (EOKVCGNUstepExtensions)
+
+/**
+ * This is a GDL2 extension.  This convenience method iterates over
+ * the supplied keyPaths and determines the corresponding values by invoking
+ * valueForKeyPath: on the receiver.  The results are returned an NSDictionary
+ * with the keyPaths as keys and the returned values as the dictionary's
+ * values.  If valueForKeyPath: returns nil, it is replaced by the shared
+ * EONull instance.
+ */
+- (NSDictionary *)valuesForKeyPaths: (NSArray *)keyPaths
+{
+  NSDictionary *values = nil;
+  int i;
+  int n;
+  NSMutableArray *newKeyPaths;
+  NSMutableArray *newVals;
+
+  INITIALIZE;
+
+  EOFLOGObjectFnStartCond(@"EOKVC");
+
+  n = [keyPaths count];
+  newKeyPaths = AUTORELEASE([[NSMutableArray alloc] initWithCapacity: n]);
+  newVals = AUTORELEASE([[NSMutableArray alloc] initWithCapacity: n]);
+
+  for (i = 0; i < n; i++)
+    {
+      id keyPath = [keyPaths objectAtIndex: i];
+      id val = nil;
+
+      NS_DURING //DEBUG Only ?
+        {
+          val = [self valueForKeyPath: keyPath];
+        }
+      NS_HANDLER
+        {
+          NSLog(@"KVC:%@ EXCEPTION %@",
+		NSStringFromSelector(_cmd), localException);
+          NSDebugMLog(@"KVC:%@ EXCEPTION %@",
+		NSStringFromSelector(_cmd), localException);
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+
+      if (val == nil)
+	{
+	  val = null;
+	}
+
+      [newKeyPaths addObject: keyPath];
+      [newVals addObject: val];
+    }
+  
+  values = [NSDictionary dictionaryWithObjects: newVals
+			 forKeys: newKeyPaths];
+
+  EOFLOGObjectFnStopCond(@"EOKVC");
+
+  return values;
+}
+
+/**
+ * This is a GDL2 extension.  This convenience method retrieves the object
+ * obtained by invoking valueForKey: on each path component until the one
+ * next to the last.  It then invokes takeStoredValue:forKey: on that object
+ * with the last path component as the key.
+ */
+- (void)takeStoredValue: value 
+             forKeyPath: (NSString *)key
+{
+  NSArray *pathArray;
+  NSString *path;
+  id obj = self;
+  int i, count;
+
+  EOFLOGObjectFnStartCond(@"EOKVC");
+
+  pathArray = [key componentsSeparatedByString:@"."];
+  count = [pathArray count];
+
+  for (i = 0; i < (count - 1); i++)
+    {
+      path = [pathArray objectAtIndex: i];
+      obj = [obj valueForKey: path];
+    }
+
+  path = [pathArray lastObject];
+  [obj takeStoredValue: value forKey: path];
+
+  EOFLOGObjectFnStopCond(@"EOKVC");
+}
+
+/**
+ * This is a GDL2 extension.  This convenience method retrieves the object
+ * obtained by invoking valueForKey: on each path component until the one
+ * next to the last.  It then invokes storedValue:forKey: on that object
+ * with the last path component as the key, returning the result.
+ */
+- (id)storedValueForKeyPath: (NSString *)key
+{
+  NSArray *pathArray = nil;
+  NSString *path;
+  id obj = self;
+  int i, count;
+  EOFLOGObjectFnStartCond(@"EOKVC");
+  pathArray = [key componentsSeparatedByString:@"."];
+  count = [pathArray count];
+
+  for(i=0; i < (count-1); i++)
+    {
+      path = [pathArray objectAtIndex:i];
+      obj = [obj valueForKey:path];
+    }
+
+  path = [pathArray lastObject];
+  obj=[obj storedValueForKey:path];
+  EOFLOGObjectFnStopCond(@"EOKVC");
+  return obj;
+}
+
+/**
+ * This is a GDL2 extension.  This convenience method iterates over
+ * the supplied keyPaths and determines the corresponding values by invoking
+ * storedValueForKeyPath: on the receiver.  The results are returned an
+ * NSDictionary with the keyPaths as keys and the returned values as the
+ * dictionary's values.  If storedValueForKeyPath: returns nil, it is replaced
+ * by the shared EONull instance.
+ */
+- (NSDictionary *)storedValuesForKeyPaths: (NSArray *)keyPaths
+{
+  NSDictionary *values = nil;
+  int i, n;
+  NSMutableArray *newKeyPaths = nil;
+  NSMutableArray *newVals = nil;
+
+  INITIALIZE;
+
+  EOFLOGObjectFnStartCond(@"EOKVC");
+
+  n = [keyPaths count];
+
+  newKeyPaths = [[[NSMutableArray alloc] initWithCapacity: n] 
+			      autorelease];
+  newVals = [[[NSMutableArray alloc] initWithCapacity: n] 
+			      autorelease];
+
+  for (i = 0; i < n; i++)
+    {
+      id keyPath = [keyPaths objectAtIndex: i];
+      id val = nil;
+
+      NS_DURING //DEBUG Only ?
+        {
+          val = [self storedValueForKeyPath: keyPath];
+        }
+      NS_HANDLER
+        {
+          NSLog(@"EXCEPTION %@", localException);
+          NSDebugMLog(@"EXCEPTION %@", localException);              
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+        
+      if (val == nil)
+	val = null;
+      
+      [newKeyPaths addObject: keyPath];
+      [newVals addObject: val];
+    }
+  
+  values = [NSDictionary dictionaryWithObjects: newVals
+			 forKeys: newKeyPaths];
+  EOFLOGObjectFnStopCond(@"EOKVC");
+
+  return values;
+}
+
+/**
+ * This is a GDL2 extension.  Simply invokes takeValue:forKey:.
+ * This method provides a hook for EOGenericRecords KVC implementation,
+ * which takes relationship definitions into account.
+ */
+- (void)smartTakeValue: (id)anObject 
+                forKey: (NSString *)aKey
+{
+  [self takeValue: anObject
+        forKey: aKey];
+}
+
+/**
+ * This is a GDL2 extension.  This convenience method invokes
+ * smartTakeValue:forKeyPath on the object returned by valueForKey: with
+ * the first path component. 
+ * obtained by invoking valueForKey: on each path component until the one
+ * next to the last.  It then invokes storedValue:forKey: on that object
+ * with the last path component as the key, returning the result.
+ */
+- (void)smartTakeValue: (id)anObject 
+            forKeyPath: (NSString *)aKeyPath
+{
+  NSRange r = [aKeyPath rangeOfString: @"."];
+
+  if (r.length == 0)
+    {
+      [self smartTakeValue: anObject 
+            forKey: aKeyPath];
+    }
+  else
+    {
+      NSString *key = [aKeyPath substringToIndex: r.location];
+      NSString *path = [aKeyPath substringFromIndex: NSMaxRange(r)];
+
+      [[self valueForKey: key] smartTakeValue: anObject 
+                               forKeyPath: path];
+    }
+}
+
 
 @end

@@ -28,20 +28,22 @@
 #define __EONull_h__
 
 #ifndef NeXT_Foundation_LIBRARY
-#include <Foundation/NSObject.h>
+#include <Foundation/NSNull.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
 
-#include <EOControl/EODefines.h>
+#include "EODefines.h"
 
-@interface EONull : NSObject <NSCopying>
-/* Type is ommited to avoid compiler warnings
-   triggerd by NSNull. */
-+ null;
-@end /* EONull */
+@class NSString;
 
-@interface NSObject (EONull)
+#define EONull NSNull
+
+@interface EONull (EOSQLFormatting)
+- (NSString *)sqlString;
+@end
+
+@interface NSObject (EONullTest)
 - (BOOL)isEONull;
 - (BOOL)isNotEONull;
 @end
@@ -49,3 +51,4 @@
 GDL2CONTROL_EXPORT BOOL isNilOrEONull(id v);
 
 #endif /* __EONull_h__ */
+

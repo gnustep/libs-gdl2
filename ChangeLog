@@ -1,3 +1,19 @@
+2003-08-23  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOKeyValueCoding.h/m: Rewritten and documented.
+	Declared and documented EOKeyValueCoding categories currently
+	implemented by gnustep-base/Foundation in NSKeyValueCoding.
+	Removed FOUNDATION_HAS_KVC conditionals as gnustep-base/Foundation
+	implement NSKeyValueCoding.
+	(-[NSObject takeStoredValuesFromDictionary:]): Added declaration
+	reportedly missing in Apple's headers to compelte EOKeyValueCoding
+	declarations.
+	Most implementations rewritten.
+
+	* EOControl/EONull.h/m: Define EONull to NSNull to allow pointer
+	equality checks.  Implement EONull as NSNull subclass that returns
+	the NSNull instance.  Remove old assertions.
+
 2003-07-11  David Ayers  <d.ayers@inode.at>
 
 	* *.m: Include GNUstep.h if GNUSTEP is not defined for OS X.
