@@ -1,3 +1,9 @@
+2005-02-17  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOEntity.m: Remove unnecessary include.
+	(-setClassProperties:, -setPrimaryKeyAttributes:)
+	(-setAttributesUsedForLocking:): Remove unnecessary casts.
+	
 2005-02-16  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOClassDescription.m ([NSObject-snapshot]):

@@ -47,7 +47,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSSet.h>
 #include <Foundation/NSEnumerator.h>
 #include <Foundation/NSValue.h>
-#include <Foundation/NSNull.h>
 #include <Foundation/NSProcessInfo.h>
 #include <Foundation/NSFileManager.h>
 #include <Foundation/NSFormatter.h>
@@ -2142,9 +2141,9 @@ createInstanceWithEditingContext:globalID:zone:
   DESTROY(_classProperties);
   if ([properties isKindOfClass:[GCArray class]]
       || [properties isKindOfClass: [GCMutableArray class]])
-    _classProperties = [((NSArray*)[GCMutableArray alloc]) initWithArray: properties];
+    _classProperties = [[GCMutableArray alloc] initWithArray: properties];
   else
-    _classProperties = [((NSArray*)[GCMutableArray alloc]) initWithArray: properties]; //TODO
+    _classProperties = [[GCMutableArray alloc] initWithArray: properties]; //TODO
 
   [self _setIsEdited]; //To clean cache
 
@@ -2163,9 +2162,9 @@ createInstanceWithEditingContext:globalID:zone:
 
   if ([keys isKindOfClass:[GCArray class]]
       || [keys isKindOfClass: [GCMutableArray class]])
-    _primaryKeyAttributes = [((NSArray*)[GCMutableArray alloc]) initWithArray: keys];
+    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys];
   else
-    _primaryKeyAttributes = [((NSArray*)[GCMutableArray alloc]) initWithArray: keys]; // TODO
+    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys]; // TODO
   
   [self _setIsEdited];//To clean cache
 
@@ -2184,10 +2183,10 @@ createInstanceWithEditingContext:globalID:zone:
   
   if ([attributes isKindOfClass: [GCArray class]]   // TODO
       || [attributes isKindOfClass: [GCMutableArray class]])
-    _attributesUsedForLocking = [((NSArray*)[GCMutableArray alloc])
+    _attributesUsedForLocking = [[GCMutableArray alloc]
 				  initWithArray: attributes];
   else
-    _attributesUsedForLocking = [((NSArray*)[GCMutableArray alloc])
+    _attributesUsedForLocking = [[GCMutableArray alloc]
 				  initWithArray: attributes];
   
   [self _setIsEdited]; //To clean cache
