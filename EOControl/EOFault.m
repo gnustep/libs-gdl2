@@ -410,14 +410,7 @@ typedef struct {
 
 - (EOEditingContext *)editingContext
 {
-  if ([_handler respondsToSelector: @selector(editingContext)])
-    return [_handler editingContext];
-  else
-    {
-      [_handler completeInitializationOfObject: self];
-
-      return [self editingContext];
-    }
+  return [_handler editingContext];
 }
 
 /*
@@ -464,7 +457,7 @@ typedef struct {
   retval_t ret;
   NSInvocation *inv;
 
-  NSDebugFLLog(@"gsdb", @"START self=%p", self);
+  EOFLOGObjectLevelArgs(@"gsdb", @"START self=%p", self);
 
   inv = [[[NSInvocation alloc] initWithArgframe: args
 			       selector: sel]
@@ -472,21 +465,22 @@ typedef struct {
   [self forwardInvocation: inv];
 
   ret = [inv returnFrame: args];
-  NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
+
+  EOFLOGObjectLevelArgs(@"gsdb", @"STOP self=%p", self);
 
   return ret;
 }
 
 - (void)forwardInvocation: (NSInvocation *)invocation
 {
-  NSDebugFLLog(@"gsdb", @"START self=%p", self);
+  EOFLOGObjectLevelArgs(@"gsdb", @"START self=%p", self);
 
   if ([_handler shouldPerformInvocation: invocation])
     [_handler completeInitializationOfObject: self];
 
   [invocation invoke];
 
-  NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
+  EOFLOGObjectLevelArgs(@"gsdb", @"STOP self=%p", self);
 }
 
 - (unsigned int)hash
@@ -563,13 +557,13 @@ typedef struct {
 
 - (void)gcDecrementRefCount
 {
-  NSDebugFLLog(@"gsdb", @"START self=%p", self);
+  EOFLOGObjectLevelArgs(@"gsdb", @"START self=%p", self);
 
-  NSDebugFLLog(@"gsdb", @"handler gcDecrementRefCount");
+  EOFLOGObjectLevel(@"gsdb", @"handler gcDecrementRefCount");
 
   [_handler gcDecrementRefCount];
 
-  NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
+  EOFLOGObjectLevelArgs(@"gsdb", @"STOP self=%p", self);
 }
 
 @end

@@ -1,5 +1,8 @@
 2002-12-31  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
+	* EOControl/EOFault.m ([EOFault -editingContext]): simplified.
+	Converted NSDebug* to EOFLOGObjectLevel.
+
 	* EOAccess/EOUtilities.m|.h ([EOObjectStoreCoordinator -modelGroup]),
 	([EOObjectStoreCoordinator -setModelGroup:]): moved from EOControl/
 	EOObjectStoreCoordinator.m
