@@ -607,6 +607,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSString              *extension;
   BOOL writeSingleFile;
 
+  [self loadAllModelObjects];
+
   path = [path stringByStandardizingPath];
   extension = [path pathExtension];
 
