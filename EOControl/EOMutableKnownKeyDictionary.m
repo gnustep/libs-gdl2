@@ -31,12 +31,15 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/Foundation.h>
 
 #import <EOControl/EOMutableKnownKeyDictionary.h>
 #import <EOControl/EODebug.h>
+#import <EOControl/EONull.h>
 
 
 @implementation EOMKKDInitializer

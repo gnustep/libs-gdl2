@@ -112,6 +112,13 @@
 @end
 
 
+@interface EOFault (EOAccess)
+
+- (EODatabaseContext *)databaseContext;
+
+@end
+
+
 extern NSString *EOAccessFaultObjectNotAvailableException;
 
 

@@ -34,7 +34,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #if HAVE_LIBC_H
 # include <libc.h>

@@ -72,12 +72,6 @@
 
 @end
 
-@interface EOObjectStoreCoordinator (EOModelGroup)
-
-- (id) modelGroup;
-- (void) setModelGroup: (EOModelGroup*)modelGroup;
-
-@end
 
 // Notifications:
 extern NSString *EOCooperatingObjectStoreWasAdded;

@@ -34,7 +34,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSArray.h>
@@ -51,8 +53,6 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSException.h>
 
 #include <objc/objc-api.h>
-
-#include "config.h"
 
 #if !FOUNDATION_HAS_KVC
 

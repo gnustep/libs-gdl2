@@ -34,7 +34,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include <ctype.h>
 
@@ -62,6 +64,8 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EONull.h>
 #import <EOControl/EOObserver.h>
 #import <EOControl/EODebug.h>
+
+#include <string.h>
 
 
 @implementation EOAttribute

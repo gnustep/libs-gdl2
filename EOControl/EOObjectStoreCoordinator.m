@@ -30,16 +30,15 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/Foundation.h>
 
 #import <EOControl/EOObjectStoreCoordinator.h>
 #import <EOControl/EOEditingContext.h>
 #import <EOControl/EODebug.h>
-
-#import <EOAccess/EODatabaseContext.h>
-#import <EOAccess/EOModelGroup.h>
 
 
 @implementation EOObjectStoreCoordinator
@@ -513,54 +512,6 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 
 @end
 
-@implementation EOObjectStoreCoordinator (EOModelGroup)
-
-- (id) modelGroup
-{
-  //Seems OK
-  EOModelGroup *modelGroup;
-  NSDictionary *userInfo;
-
-  EOFLOGObjectFnStart();
-
-  userInfo = [self userInfo];
-  modelGroup = [userInfo objectForKey: @"EOModelGroup"];
-
-  if (!modelGroup)
-    {
-      modelGroup = [EOModelGroup defaultGroup];
-      [self setModelGroup: modelGroup];
-    }
-
-  EOFLOGObjectFnStop();
-
-  return modelGroup;
-}
-
-- (void) setModelGroup: (EOModelGroup*)modelGroup
-{
-  NSMutableDictionary *userInfo;
-
-  EOFLOGObjectFnStart();
-
-  userInfo = [self userInfo];
-
-  if (userInfo)
-    [userInfo setObject: modelGroup
-              forKey: @"EOModelGroup"];
-  else
-    {
-      userInfo = [NSMutableDictionary dictionary];
-
-      [userInfo setObject: modelGroup
-                forKey: @"EOModelGroup"];
-      [self setUserInfo: userInfo];
-    }
-
-  EOFLOGObjectFnStop();
-}
-
-@end
 
 @implementation EOCooperatingObjectStore
 

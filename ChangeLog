@@ -1,3 +1,24 @@
+2002-12-31  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOUtilities.m|.h ([EOObjectStoreCoordinator -modelGroup]),
+	([EOObjectStoreCoordinator -setModelGroup:]): moved from EOControl/
+	EOObjectStoreCoordinator.m
+
+	* EOAccess/EOUtilities.m|.h ([EOFetchSpecification
+	+fetchSpecificationNamed:entityNamed:]): moved from EOControl/
+	EOFetchSpecification.m
+
+	* EOControl/EOFetchSpecification.m ([EOFetchSpecification
+	+fetchSpecificationNamed:entityNamed:]): return nil.
+
+	* EOAccess/EOAccessFault.m|.h ([EOFault -databaseContext]): moved from
+	EOControl/EOFault.m
+
+	* added missing include, include config.h in all .m files.
+
+	* EOControl/EOEditingContext.m ([EOEditingContext -tryToSaveChanges]),
+	([EOEditingContext -saveChanges:]): use respondsToSelector:
+
 2002-12-30  Markus Hitter <mah@jump-ing.de>
 
 	* EOAdaptors/Postgres95/Postgres95Channel.m ([Postgres95Channel

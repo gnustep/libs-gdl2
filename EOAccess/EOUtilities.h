@@ -29,6 +29,7 @@
 
 
 #import <EOControl/EOEditingContext.h>
+#import <EOControl/EOFetchSpecification.h>
 
 
 @class NSArray;
@@ -110,5 +111,22 @@ connectionDictionaryOverrides: (NSDictionary*)overrides;
 - (EOEntity*)entityForObject: (id)obj;
 
 @end
+
+
+@interface EOFetchSpecification (EOAccess)
+
++ (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
+                                      entityNamed: (NSString *)entityName;
+
+@end
+
+
+@interface EOObjectStoreCoordinator (EOModelGroup)
+
+- (id) modelGroup;
+- (void) setModelGroup: (EOModelGroup*)modelGroup;
+
+@end
+
 
 #endif

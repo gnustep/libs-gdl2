@@ -31,7 +31,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include <stdio.h>
 #include <string.h>

@@ -34,7 +34,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
@@ -82,6 +84,8 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EONSAddOns.h>
 #import <EOControl/EONull.h>
 #import <EOControl/EODebug.h>
+
+#include <string.h>
 
 
 #define _LOCK_BUFFER 128
@@ -823,7 +827,7 @@ classPropertyNames = [entity classPropertyNames];
       [self notImplemented: _cmd]; //TODO
     }
 
-  if (![globalID isFinal])
+  if (![(EOKeyGlobalID *)globalID isFinal])
     {
       NSEmitTODO();
       [self notImplemented: _cmd]; //TODO
@@ -5470,7 +5474,7 @@ Raises an exception is the adaptor is unable to perform the operations.
         /*int maxNumberOfInstancesToBatchFetch =
 	  [entity maxNumberOfInstancesToBatchFetch];
 	  NSDictionary *snapshot = [self snapshotForGlobalID: gid];*///nil //TODO use it !
-        NSDictionary *pk = [entity primaryKeyForGlobalID: gid];
+        NSDictionary *pk = [entity primaryKeyForGlobalID: (EOKeyGlobalID *)gid];
         EOQualifier *pkQualifier = [entity qualifierForPrimaryKey: pk];
         NSMutableArray *qualifiers = [NSMutableArray array];
 

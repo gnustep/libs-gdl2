@@ -31,11 +31,14 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSMapTable.h>
 #import <Foundation/NSNotification.h>
+#import <Foundation/NSEnumerator.h>
 #import <Foundation/NSDebug.h>
 
 #import <EOControl/EOClassDescription.h>
@@ -43,6 +46,8 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EONull.h>
 #import <EOControl/EOObserver.h>
 #import <EOControl/EODebug.h>
+
+#include <string.h>
 
 
 @implementation NSObject (EOObserver)

@@ -30,11 +30,9 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSKeyValueCoding.h>
+#import <Foundation/NSDictionary.h>
 
 #import <EOControl/EOKeyValueCodingBase.h>
-
-
-@class NSDictionary;
 
 
 @interface NSObject (EOKVCPAdditions2)

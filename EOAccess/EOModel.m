@@ -32,7 +32,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/NSBundle.h>
 #import <Foundation/NSValue.h>

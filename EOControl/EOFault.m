@@ -34,7 +34,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include <objc/Object.h>
 #include <objc/Protocol.h>
@@ -55,9 +57,8 @@ static char rcsId[] = "$Id$";
 
 #import <EOControl/EOFault.h>
 #import <EOControl/EOKeyGlobalID.h>
+#import <EOControl/EOEditingContext.h>
 #import <EOControl/EODebug.h>
-
-#import <EOAccess/EODatabaseContext.h>
 
 
 typedef struct {
@@ -404,17 +405,6 @@ typedef struct {
     {
       [_handler completeInitializationOfObject: self];
       return [self globalID];
-    }
-}
-
-- (EODatabaseContext *)databaseContext
-{
-  if ([_handler respondsToSelector: @selector(databaseContext)])
-    return [(id)_handler databaseContext];
-  else
-    {
-      [_handler completeInitializationOfObject: self];
-      return [self databaseContext];
     }
 }
 

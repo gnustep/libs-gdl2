@@ -31,7 +31,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/NSException.h>
 #import <Foundation/NSDebug.h>

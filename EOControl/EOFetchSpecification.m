@@ -31,7 +31,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/NSCoder.h>
 #import <Foundation/NSValue.h>
@@ -42,8 +44,7 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOObserver.h>
 #import <EOControl/EODebug.h>
 #import <EOControl/EONSAddOns.h>
-
-#import <EOAccess/EOModelGroup.h>
+#import <EOControl/EOQualifier.h>
 
 
 @implementation EOFetchSpecification
@@ -121,20 +122,7 @@ static char rcsId[] = "$Id$";
 + (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
                                       entityNamed: (NSString *)entityName
 {
-  EOFetchSpecification *newEOFetchSpecification = nil;
-  EOModelGroup	       *anModelGroup;
-  
-  EOFLOGClassFnStartOrCond(@"EOFetchSpecification");
-  
-  anModelGroup = [EOModelGroup defaultGroup];
-
-  if (anModelGroup)
-    newEOFetchSpecification = [anModelGroup fetchSpecificationNamed: name
-                                            entityNamed: entityName];
-	
-  EOFLOGObjectFnStopOrCond(@"EOFetchSpecification");
-
-  return newEOFetchSpecification;
+  return nil;
 }
 
 + (EOFetchSpecification *)fetchSpecificationWithEntityName: (NSString *)name

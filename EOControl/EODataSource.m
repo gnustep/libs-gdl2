@@ -31,12 +31,16 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <EOControl/EODataSource.h>
 #import <EOControl/EOClassDescription.h>
 #import <EOControl/EOEditingContext.h>
 #import <EOControl/EODebug.h>
+
+#include <string.h>
 
 
 @implementation EODataSource

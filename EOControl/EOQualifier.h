@@ -35,6 +35,7 @@
 @class NSArray;
 @class NSDictionary;
 @class NSString;
+@class NSException;
 
 @class EOClassDescription;
 @class EOSQLExpression;

@@ -30,7 +30,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 //TODO EOMultiReaderLocks 
 #import <Foundation/Foundation.h>
@@ -1965,7 +1967,7 @@ validateTable:(NSHashTable*)table
     {
       if(_messageHandler
 	 && [_messageHandler
-	      respondsTo: @selector(editingContext:presentErrorMessage:)] == YES)
+	      respondsToSelector: @selector(editingContext:presentErrorMessage:)] == YES)
 	[_messageHandler editingContext: self
 			 presentErrorMessage: [localException reason]];
 
@@ -2884,7 +2886,7 @@ shouldContinueFetchingWithCurrentObjectCount: (unsigned)count
     {
       if(_messageHandler
 	 && [_messageHandler
-	      respondsTo: @selector(editingContext:presentErrorMessage:)] == YES)
+	      respondsToSelector: @selector(editingContext:presentErrorMessage:)] == YES)
 	[_messageHandler editingContext: self
 			 presentErrorMessage: [localException reason]];
     }

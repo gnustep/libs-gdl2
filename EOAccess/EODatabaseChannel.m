@@ -34,7 +34,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/Foundation.h>
 
@@ -59,7 +61,7 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOKeyValueCoding.h>
 #import <EOControl/EOFetchSpecification.h>
 #import <EOControl/EOClassDescription.h>
-#import <EOControl/EOGlobalID.h>
+#import <EOControl/EOKeyGlobalID.h>
 #import <EOControl/EOObjectStore.h>
 #import <EOControl/EODebug.h>
 

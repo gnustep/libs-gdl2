@@ -89,9 +89,9 @@
 
 - (NSString *)expressionValueForContext: (id<EOExpressionContext>)ctx;
 
-+ (EOExpressionArray *)parseExpression: (NSString *)expression
+/*+ (EOExpressionArray *)parseExpression: (NSString *)expression
                                 entity: (EOEntity *)entity
-             replacePropertyReferences: (BOOL)flag;
+				replacePropertyReferences: (BOOL)flag;*/
 
 - (NSString*)valueForSQLExpression: (EOSQLExpression *)sqlExpression;
 

@@ -31,7 +31,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #ifdef GNUSTEP
 #import <Foundation/NSObjCRuntime.h>
@@ -43,8 +45,10 @@ static char rcsId[] = "$Id$";
 #import <EOAccess/EOAccessFault.h>
 #import <EOAccess/EOAccessFaultPriv.h>
 #import <EOAccess/EODatabaseContext.h>
+#import <EOAccess/EODatabaseContextPriv.h>
 
 #import <EOControl/EOCheapArray.h>
+#import <EOControl/EOKeyGlobalID.h>
 #import <EOControl/EODebug.h>
 
 
@@ -327,6 +331,22 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 - (BOOL)shouldPerformInvocation: (NSInvocation *)invocation
 {
   return YES;
+}
+
+@end
+
+
+@implementation EOFault (EOAccess)
+
+- (EODatabaseContext *)databaseContext
+{
+  if ([_handler respondsToSelector: @selector(databaseContext)])
+    return [(id)_handler databaseContext];
+  else
+    {
+      [_handler completeInitializationOfObject: self];
+      return [self databaseContext];
+    }
 }
 
 @end

@@ -36,12 +36,15 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSException.h>
 #import <Foundation/NSCoder.h>
+#import <Foundation/NSEnumerator.h>
 #import <Foundation/NSDebug.h>
 
 #import <EOAccess/EODatabaseDataSource.h>
@@ -354,6 +357,22 @@ static char rcsId[] = "$Id$";
   // TODO flags
 }
 
+- (id)_partialInitWithEditingContext: (EOEditingContext*)editingContext
+                          entityName: (NSString*)entityName
+              fetchSpecificationName: (NSString*)fetchSpecificationName
+{
+  if ((self = [self initWithEditingContext: editingContext
+		    entityName: entityName
+		    fetchSpecificationName: nil]))
+    {
+      //turbocat ASSIGN(_editingContext,editingContext);
+      ASSIGN(_fetchSpecification, [EOFetchSpecification new]);
+      [_fetchSpecification setEntityName: entityName];
+    }
+
+  return self;
+}
+
 - (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver
 {
   NSString *entityName = nil;
@@ -402,22 +421,6 @@ static char rcsId[] = "$Id$";
 - (void) encodeWithKeyValueArchiver: (EOKeyValueUnarchiver *)archiver
 {
   [self notImplemented: _cmd];
-}
-
-- (id)_partialInitWithEditingContext: (EOEditingContext*)editingContext
-                          entityName: (NSString*)entityName
-              fetchSpecificationName: (NSString*)fetchSpecificationName
-{
-  if ((self = [self initWithEditingContext: editingContext
-		    entityName: entityName
-		    fetchSpecificationName: nil]))
-    {
-      //turbocat ASSIGN(_editingContext,editingContext);
-      ASSIGN(_fetchSpecification, [EOFetchSpecification new]);
-      [_fetchSpecification setEntityName: entityName];
-    }
-
-  return self;
 }
 
 - (EOEditingContext*)editingContext

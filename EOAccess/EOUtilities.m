@@ -31,7 +31,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/Foundation.h>
 
@@ -42,7 +44,6 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EODebug.h>
 
 #import <EOAccess/EOAccess.h>
-#import <EOAccess/EOEntityPriv.h>
 
 
 static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
@@ -1023,7 +1024,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
 
   EOFLOGObjectFnStartOrCond(@"EOEditingContext");
 
-  classDesc = [object classDescription];
+  classDesc = (EOClassDescription *)[object classDescription];
 
   if ([classDesc isKindOfClass: [EOEntityClassDescription class]] == NO)
     [NSException raise: NSInvalidArgumentException
@@ -1039,3 +1040,78 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
 }
 
 @end
+
+
+@implementation EOFetchSpecification (EOAccess)
+
++ (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
+                                      entityNamed: (NSString *)entityName
+{
+  EOFetchSpecification *newEOFetchSpecification = nil;
+  EOModelGroup	       *anModelGroup;
+
+  EOFLOGClassFnStartOrCond(@"EOFetchSpecification");
+
+  anModelGroup = [EOModelGroup defaultGroup];
+
+  if (anModelGroup)
+    newEOFetchSpecification = [anModelGroup fetchSpecificationNamed: name
+                                            entityNamed: entityName];
+
+  EOFLOGObjectFnStopOrCond(@"EOFetchSpecification");
+
+  return newEOFetchSpecification;
+}
+
+@end
+
+
+@implementation EOObjectStoreCoordinator (EOModelGroup)
+
+- (id) modelGroup
+{
+  //Seems OK
+  EOModelGroup *modelGroup;
+  NSDictionary *userInfo;
+
+  EOFLOGObjectFnStart();
+
+  userInfo = [self userInfo];
+  modelGroup = [userInfo objectForKey: @"EOModelGroup"];
+
+  if (!modelGroup)
+    {
+      modelGroup = [EOModelGroup defaultGroup];
+      [self setModelGroup: modelGroup];
+    }
+
+  EOFLOGObjectFnStop();
+
+  return modelGroup;
+}
+
+- (void) setModelGroup: (EOModelGroup*)modelGroup
+{
+  NSMutableDictionary *userInfo;
+
+  EOFLOGObjectFnStart();
+
+  userInfo = [self userInfo];
+
+  if (userInfo)
+    [userInfo setObject: modelGroup
+              forKey: @"EOModelGroup"];
+  else
+    {
+      userInfo = [NSMutableDictionary dictionary];
+
+      [userInfo setObject: modelGroup
+                forKey: @"EOModelGroup"];
+      [self setUserInfo: userInfo];
+    }
+
+  EOFLOGObjectFnStop();
+}
+
+@end
+

@@ -34,7 +34,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #import <Foundation/NSNull.h>
 #import <Foundation/NSString.h> 
@@ -42,8 +44,6 @@ static char rcsId[] = "$Id$";
 
 #import <EOControl/EONull.h>
 #import <EOControl/EODebug.h>
-
-#include "config.h"
 
 
 @implementation EONull
