@@ -1223,12 +1223,16 @@ return nexexp
     {
         case EOAdaptorNumberType:
 	  convert = [value isKindOfClass: NSNumberClass] ? NO : YES;
+	  break;
         case EOAdaptorCharactersType:
 	  convert = [value isKindOfClass: NSStringClass] ? NO : YES;
+	  break;
         case EOAdaptorBytesType:
 	  convert = [value isKindOfClass: NSDataClass] ? NO : YES;
+	  break;
         case EOAdaptorDateType:
 	  convert = [value isKindOfClass: NSDateClass] ? NO : YES;
+	  break;
 	default:
 	  [NSException raise: NSInvalidArgumentException
 		       format: @"Illegal adaptorValueType: %d", 
