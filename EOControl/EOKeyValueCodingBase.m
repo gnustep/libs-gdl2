@@ -48,8 +48,8 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSUtilities.h>
 #import <Foundation/NSDecimalNumber.h>
 #import <Foundation/NSDebug.h>
+#import <Foundation/NSException.h>
 
-#include <Foundation/NSException.h>
 #include <objc/objc-api.h>
 
 #include "config.h"

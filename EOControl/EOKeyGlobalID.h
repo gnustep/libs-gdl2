@@ -29,6 +29,7 @@
 
 #import <EOControl/EOGlobalID.h>
 
+
 @interface EOKeyGlobalID : EOGlobalID <NSCoding>
 {
   unsigned short _keyCount;

@@ -26,9 +26,21 @@
 #ifndef	__EOEditingContext_h__
 #define	__EOEditingContext_h__
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSHashTable.h>
+#import <Foundation/NSMapTable.h>
+#import <Foundation/NSLock.h>
+
 #import <EOControl/EOObjectStore.h>
 #import <EOControl/EOObserver.h>
+
+
+@class NSArray;
+@class NSMutableArray;
+@class NSDictionary;
+@class NSMutableDictionary;
+@class NSAutoreleasePool;
+@class NSUndoManager;
+
 
 @interface EOEditingContext : EOObjectStore <EOObserving>
 {

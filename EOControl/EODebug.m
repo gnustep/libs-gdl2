@@ -31,9 +31,9 @@
 
 static char rcsId[] = "$Id$";
 
-#include <Foundation/Foundation.h>
-#include <Foundation/NSThread.h>
-#include <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSThread.h>
+#import <Foundation/NSAutoreleasePool.h>
+
 #include <unistd.h>
 
 #define USTART	NSAutoreleasePool* arp=[NSAutoreleasePool new];

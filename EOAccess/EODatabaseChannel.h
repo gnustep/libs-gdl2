@@ -27,12 +27,18 @@
 #ifndef __EODatabaseChannel_h__
 #define __EODatabaseChannel_h__
 
-#import <EOAccess/EOAdaptorChannel.h>
-#import <EOControl/EOControl.h>
 
+#import <Foundation/NSObject.h>
+
+
+@class NSMutableArray;
+
+@class EOEntity;
 @class EOAdaptorChannel;
 @class EORelationship;
 @class EODatabaseContext;
+@class EOEditingContext;
+@class EOFetchSpecification;
 
 
 @interface EODatabaseChannel : NSObject

@@ -27,11 +27,20 @@
 #ifndef __EODatabaseOperation_h__
 #define __EODatabaseOperation_h__
 
-#import <EOControl/EOControl.h>
+#import <Foundation/NSObject.h>
 
+
+@class NSArray;
+@class NSMutableArray;
+@class NSDictionary;
+@class NSMutableDictionary;
+@class NSException;
+@class NSString;
 
 @class EOStoredProcedure;
 @class EOEntity;
+@class EOQualifier;
+@class EOGlobalID;
 
 
 typedef enum {

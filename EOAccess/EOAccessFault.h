@@ -28,11 +28,15 @@
 #define	__EOAccessFault_h__
 
 
-#import <EOControl/EOControl.h>
+#import <Foundation/NSObject.h>
+
+#import <EOControl/EOFault.h>
 
 
 @class EODatabaseContext;
+@class EOEditingContext;
 @class EOKeyGlobalID;
+@class NSString;
 
 
 @interface EOAccessGenericFaultHandler:EOFaultHandler

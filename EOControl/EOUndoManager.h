@@ -26,6 +26,7 @@
 
 #import <Foundation/NSUndoManager.h>
 
+
 @interface EOUndoManager : NSUndoManager
 
 - (void) forgetAllWithTarget: (id)param0;

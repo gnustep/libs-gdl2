@@ -27,16 +27,26 @@
 #ifndef __EOModelGroup_h__
 #define __EOModelGroup_h__
 
-#include <EOControl/EOControl.h>
+#import <Foundation/NSObject.h>
+#import <gnustep/base/GCObject.h>
 
+#import <EOControl/EOObjectStoreCoordinator.h>
+
+
+@class NSArray;
+@class NSDictionary;
+@class NSMutableDictionary;
+@class NSString;
 
 @class EOModel;
 @class EOEntity;
 @class EORelationship;
 @class EOGlobalID;
 @class EOAttribute;
-
 @class EOStoredProcedure;
+@class EOFetchSpecification;
+
+
 @interface EOModelGroup : GCObject
 {
   NSMutableDictionary *_modelsByName;

@@ -36,11 +36,12 @@
 
 static char rcsId[] = "$Id$";
 
-#import <Foundation/Foundation.h>
-
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSObjCRuntime.h>
+#import <Foundation/NSLock.h>
+#import <Foundation/NSValue.h>
+#import <Foundation/NSHashTable.h>
 #import <gnustep/base/GSObjCRuntime.h>
 
 #import <EOAccess/EOEntity.h>
@@ -53,7 +54,7 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOFault.h>
 #import <EOControl/EOMutableKnownKeyDictionary.h>
 #import <EOControl/EODebug.h>
-
+#import <EOControl/EOKeyValueCoding.h>
 
 
 @interface NSObject (EOCalculateSize)

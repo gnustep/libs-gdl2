@@ -27,9 +27,14 @@
 #ifndef __EOQualifier_h__
 #define __EOQualifier_h__
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
+
 #import <EOControl/EOKeyValueArchiver.h>
 
+
+@class NSArray;
+@class NSDictionary;
+@class NSString;
 
 @class EOClassDescription;
 @class EOSQLExpression;

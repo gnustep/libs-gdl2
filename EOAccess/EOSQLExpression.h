@@ -27,17 +27,26 @@
 #ifndef __EOSQLExpression_h__
 #define __EOSQLExpression_h__
 
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSArray.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSString.h>
+#import <Foundation/NSValue.h>
 
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EOSortOrdering.h>
-
+#import <EOAccess/EOJoin.h>
 #import <EOAccess/EORelationship.h>
+
+
+@class NSArray;
+@class NSMutableArray;
+@class NSDictionary;
+@class NSMutableDictionary;
 
 @class EOAttribute;
 @class EOEntity;
 @class EOQualifier;
+@class EOKeyValueQualifier;
+@class EOKeyComparisonQualifier;
+@class EOSortOrdering;
+@class EOFetchSpecification;
 
 
 extern NSString *EOBindVariableNameKey;
@@ -80,6 +89,8 @@ extern NSString *EOBindVariableColumnKey;
 					     lock: (BOOL)yn
 			       fetchSpecification: (EOFetchSpecification *)fetchSpecification
 					   entity: (EOEntity *)entity;
+
++ (id)sqlExpressionWithEntity: (EOEntity *)entity;
 
 - initWithEntity: (EOEntity *)entity;
 

@@ -28,14 +28,18 @@
 #define __EOAttribute_h__
 
 #import <Foundation/NSString.h>
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSDate.h>
-#import <Foundation/NSException.h>
+#import <Foundation/NSZone.h>
 
-#include <gnustep/base/GCObject.h>
+#import <gnustep/base/GCObject.h>
 
 #import <EOAccess/EOPropertyListEncoding.h>
 
+
+@class NSDictionary;
+@class NSData;
+@class NSException;
+@class NSCalendarDate;
+@class NSTimeZone;
 
 @class EOEntity;
 @class EOExpressionArray;

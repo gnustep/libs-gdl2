@@ -27,7 +27,12 @@
 #ifndef	__EOObjectStore_h__
 #define	__EOObjectStore_h__
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
+
+
+@class NSArray;
+@class NSDictionary;
+@class NSString;
 
 @class EOEditingContext;
 @class EOGlobalID;

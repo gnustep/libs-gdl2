@@ -28,20 +28,26 @@
 #define __EORelationship_h__
 
 #import <Foundation/NSString.h>
-
-#include <gnustep/base/GCObject.h>
-
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOQualifier.h>
+#import <gnustep/base/GCObject.h>
 
 #import <EOAccess/EOJoin.h>
 #import <EOAccess/EOPropertyListEncoding.h>
 
+#import <EOControl/EOClassDescription.h>
+
+
+@class NSArray;
+@class NSMutableArray;
+@class NSDictionary;
+@class NSMutableDictionary;
+@class NSException;
 
 @class EOEntity;
 @class EOAttribute;
 @class EOExpressionArray;
 @class EOMKKDSubsetMapping;
+@class EOQualifier;
+
 
 typedef enum {
   EOInnerJoin = 0,
@@ -53,44 +59,44 @@ typedef enum {
 
 @interface EORelationship : GCObject <EOPropertyListEncoding>
 {
-    NSString *_name;
-    EOQualifier *_qualifier;
-    NSMutableDictionary *_sourceNames;
-    NSMutableDictionary *_destinationNames;
-    NSDictionary *_userInfo;
-    NSDictionary *_internalInfo;
-    NSString *_docComment;
-    NSDictionary *_sourceToDestinationKeyMap;
-    unsigned int _batchCount;
-    EOJoinSemantic _joinSemantic;
+  NSString *_name;
+  EOQualifier *_qualifier;
+  NSMutableDictionary *_sourceNames;
+  NSMutableDictionary *_destinationNames;
+  NSDictionary *_userInfo;
+  NSDictionary *_internalInfo;
+  NSString *_docComment;
+  NSDictionary *_sourceToDestinationKeyMap;
+  unsigned int _batchCount;
+  EOJoinSemantic _joinSemantic;
 
-    struct {
-        unsigned int isToMany:1;
-        unsigned int useBatchFaulting:1;
-        unsigned int deleteRule:2;
-        unsigned int isMandatory:1;
-        unsigned int ownsDestination:1;
-        unsigned int propagatesPrimaryKey:1;
-        unsigned int createsMutableObjects:1;
-        unsigned int isBidirectional:1;
-        unsigned int extraRefCount:23;
-    } _flags;
-    id _sourceRowToForeignKeyMapping;
+  struct {
+    unsigned int isToMany:1;
+    unsigned int useBatchFaulting:1;
+    unsigned int deleteRule:2;
+    unsigned int isMandatory:1;
+    unsigned int ownsDestination:1;
+    unsigned int propagatesPrimaryKey:1;
+    unsigned int createsMutableObjects:1;
+    unsigned int isBidirectional:1;
+    unsigned int extraRefCount:23;
+  } _flags;
+  id _sourceRowToForeignKeyMapping;
 
-    /* Garbage collectable objects */
-    EOExpressionArray *_definitionArray;
+  /* Garbage collectable objects */
+  EOExpressionArray *_definitionArray;
 
-    EORelationship *_inverseRelationship;
-    EORelationship *_hiddenInverseRelationship;
+  EORelationship *_inverseRelationship;
+  EORelationship *_hiddenInverseRelationship;
 
-    EOEntity *_entity;
-    EOEntity *_destination;
-    GCMutableArray *_joins;
+  EOEntity *_entity;
+  EOEntity *_destination;
+  GCMutableArray *_joins;
 
-    /* Computed values */
-    GCArray *_sourceAttributes;
-    GCArray *_destinationAttributes;
-    GCMutableArray *_componentRelationships;//Used ????
+  /* Computed values */
+  GCArray *_sourceAttributes;
+  GCArray *_destinationAttributes;
+  GCMutableArray *_componentRelationships;//Used ????
 }
 
 + (id) relationshipWithPropertyList: (NSDictionary *)propertyList

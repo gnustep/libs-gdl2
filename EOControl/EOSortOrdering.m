@@ -33,9 +33,11 @@
 
 static char rcsId[] = "$Id$";
 
-#import <EOControl/EOControl.h>
+#import <Foundation/NSCoder.h>
+
 #import <EOControl/EOSortOrdering.h>
 #import <EOControl/EOKeyValueCoding.h>
+#import <EOControl/EOKeyValueArchiver.h>
 
 
 @implementation EOSortOrdering

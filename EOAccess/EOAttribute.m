@@ -36,14 +36,19 @@
 
 static char rcsId[] = "$Id$";
 
-#import <ctype.h>
+#include <ctype.h>
 
 #import <Foundation/NSUtilities.h>
 #import <Foundation/NSArchiver.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSTimeZone.h>
+#import <Foundation/NSData.h>
+#import <Foundation/NSInvocation.h>
+#import <Foundation/NSDecimalNumber.h>
+#import <Foundation/NSValue.h>
+#import <Foundation/NSCalendarDate.h>
 
-#import <EOAccess/EOAccess.h>
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOEntityPriv.h>
@@ -55,6 +60,7 @@ static char rcsId[] = "$Id$";
 
 #import <EOControl/EONull.h>
 #import <EOControl/EOObserver.h>
+
 
 @implementation EOAttribute
 
@@ -291,13 +297,13 @@ static NSString *defaultCalendarFormat = @"%b %d %Y %H:%M";
   EOFLOGObjectFnStart();
 
   [_parent gcDecrementRefCount];
-  NSDebugMLLog(@"gsdb", @"prototype gcDecrementRefCount");
+  EOFLOGObjectLevel(@"gsdb", @"prototype gcDecrementRefCount");
 
   [_prototype gcDecrementRefCount];
-  NSDebugMLLog(@"gsdb", @"definitionArray gcDecrementRefCount");
+  EOFLOGObjectLevel(@"gsdb", @"definitionArray gcDecrementRefCount");
 
   [(id)_definitionArray gcDecrementRefCount];
-  NSDebugMLLog(@"gsdb", @"realAttribute gcDecrementRefCount");
+  EOFLOGObjectLevel(@"gsdb", @"realAttribute gcDecrementRefCount");
 
   [_realAttribute gcDecrementRefCount];
 

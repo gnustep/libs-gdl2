@@ -27,16 +27,23 @@
 #ifndef	__EOUtilities_h__
 #define	__EOUtilities_h__
 
-#import <EOControl/EOControl.h>
+
+#import <EOControl/EOEditingContext.h>
+
+
+@class NSArray;
+@class NSDictionary;
+@class NSString;
 
 @class EODatabaseContext;
 @class EOModelGroup;
 @class EOEntity;
 
+
 extern NSString *EOMoreThanOneException;
 
 
-@interface EOEditingContext(EOUtilities)
+@interface EOEditingContext (EOUtilities)
 
 - (NSArray*)objectsForEntityNamed: (NSString*)name;
 - (NSArray*)objectsOfClass: (Class)classObject;

@@ -37,6 +37,8 @@ static char rcsId[] = "$Id$";
 
 #import <EOControl/EOEditingContext.h>
 #import <EOControl/EOQualifier.h>
+#import <EOControl/EOFetchSpecification.h>
+#import <EOControl/EONull.h>
 #import <EOControl/EODebug.h>
 
 #import <EOAccess/EOAccess.h>
@@ -227,7 +229,7 @@ static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
     {
       NSDebugMLog(@"exception in EOEditingContext (EOUtilities) objectsMatchingValues:entityNamed:");
       NSLog(@"exception in EOEditingContext (EOUtilities) objectsMatchingValues:entityNamed:");
-      NSDebugMLog(@"exception=%@",localException);
+      NSDebugMLog(@"exception=%@", localException);
       NSLog(@"exception=%@", localException);
 /*      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
                                                               @"In EOEditingContext (EOUtilities) objectsMatchingValues:entityNamed:");

@@ -39,14 +39,16 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSUtilities.h>
-
 #import <Foundation/NSException.h>
+#import <Foundation/NSValue.h>
+#import <Foundation/NSCoder.h>
 
-#import <EOControl/EOControl.h>
 #import <EOControl/EOQualifier.h>
 #import <EOControl/EODebug.h>
 
+
 @implementation NSNumber (EOQualifierExtras)
+
 - (id)initWithString:(NSString *)string
 {
     double   dVal;

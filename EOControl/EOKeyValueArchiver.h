@@ -28,7 +28,15 @@
 #define __EOKeyValueArchiving_h__
 
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSHashTable.h>
+
+
+@class NSArray;
+@class NSDictionary;
+@class NSMutableDictionary;
+@class NSString;
+
 
 @interface EOKeyValueArchiver : NSObject
 {
@@ -77,12 +85,12 @@ referenceToEncodeForObject: (id)object;
     
 @interface EOKeyValueUnarchiver : NSObject
 {
-  NSDictionary*   _propertyList;
+  NSDictionary   *_propertyList;
   id              _parent;
   id		  _nextParent;
-  NSMutableArray* _allUnarchivedObjects;	
+  NSMutableArray *_allUnarchivedObjects;
   id              _delegate;
-  NSHashTable*    _awakenedObjects;
+  NSHashTable    *_awakenedObjects;
 }
 
 - (id)initWithDictionary: (NSDictionary *)dictionary;

@@ -46,7 +46,7 @@
 #import <EOControl/EODetailDataSource.h>
 #import <EOControl/EOObserver.h>
 #import <EOControl/EODebug.h>
-#include <gnustep/base/GCObject.h>
+#import <gnustep/base/GCObject.h>
 
 
 #endif /* __EOControl_h__ */

@@ -26,12 +26,19 @@
 #ifndef	__EOObjectStoreCoordinator_h__
 #define	__EOObjectStoreCoordinator_h__
 
-#import <Foundation/Foundation.h>
+
 #import <EOControl/EOObjectStore.h>
+
+
+@class NSArray;
+@class NSMutableArray;
+@class NSDictionary;
+@class NSString;
 
 @class EOCooperatingObjectStore;
 @class EOQualifier;
 @class EOModelGroup;
+
 
 @interface EOObjectStoreCoordinator:EOObjectStore
 {

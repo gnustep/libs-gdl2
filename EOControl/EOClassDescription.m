@@ -133,7 +133,7 @@ static id classDelegate = nil;
   NSDebugMLLog(@"gsdb", @"entityName=%@", entityName);
 
   classDescription = NSMapGet(classDescriptionForEntity, entityName);
-  NSDebugMLLog(@"gsdb",@"classDescription=%@",classDescription);
+  NSDebugMLLog(@"gsdb", @"classDescription=%@", classDescription);
 
 /*??  if (classDescription==NOT_FOUND_CLASS_DESCRIPTION)
     classDescription=nil;
@@ -292,7 +292,8 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 - (NSString *)displayNameForKey: (NSString *)key
 {
   const char *s, *ckey = [key cString];
-  NSMutableString *str = [NSMutableString initWithCapacity: [key length]];
+  NSMutableString *str = [[NSMutableString alloc] initWithCapacity:
+						    [key length]];
   char c;
   BOOL init = NO;
 
@@ -390,7 +391,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 	      switch (deleteRule)
 		{
 		case EODeleteRuleNullify:
-                  NSDebugMLLog(@"gsdb", @"EODeleteRuleNullify");
+                  EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNullify");
 
                   [object removeObject: destination
                           fromBothSidesOfRelationshipWithKey: key];
@@ -409,7 +410,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 		case EODeleteRuleCascade:
                   //OK
-                  NSDebugMLLog(@"gsdb", @"EODeleteRuleCascade");
+                  EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleCascade");
                   [object removeObject: destination
                           fromBothSidesOfRelationshipWithKey: key];
 		  [context deleteObject: destination];
@@ -417,7 +418,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 		  break;
 
 		case EODeleteRuleDeny:
-                  NSDebugMLLog(@"gsdb", @"EODeleteRuleDeny");
+                  EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleDeny");
 		  // TODO don't know how to do yet, if raise an exception
 		  // or something else.
                   NSEmitTODO();  
@@ -425,7 +426,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 		  break;
 
 		case EODeleteRuleNoAction:
-                  NSDebugMLLog(@"gsdb", @"EODeleteRuleNoAction");
+                  EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNoAction");
 		  break;
 		}
 	    }
@@ -462,7 +463,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
           switch (deleteRule)
 	    {
 	    case EODeleteRuleNullify:
-              NSDebugMLLog(@"gsdb", @"EODeleteRuleNullify");
+              EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNullify");
               NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray,
 			   toManyArray);
 
@@ -487,7 +488,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 	    case EODeleteRuleCascade:
               //OK
-              NSDebugMLLog(@"gsdb", @"EODeleteRuleCascade");
+              EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleCascade");
               NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray, toManyArray);
 
 	      while ((destination = [toManyArray lastObject]))
@@ -503,7 +504,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 	      break;
 
 	    case EODeleteRuleDeny:
-              NSDebugMLLog(@"gsdb", @"EODeleteRuleDeny");
+              EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleDeny");
               NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray, toManyArray);
 	      if ([toManyArray count] > 0)
 		{
@@ -515,7 +516,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 	      break;
 
 	    case EODeleteRuleNoAction:
-              NSDebugMLLog(@"gsdb", @"EODeleteRuleNoAction");
+              EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNoAction");
 	      break;
 	    }
 	}
@@ -997,7 +998,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                 forKey: key];
     }
 
-  NSDebugMLLog(@"gsdb",@"toManyRelationshipKeys=%@",toManyRelationshipKeys);
+  NSDebugMLLog(@"gsdb", @"toManyRelationshipKeys=%@", toManyRelationshipKeys);
 
   for (i = 0; i < toManyRelationshipKeyCount; i++)
     {
@@ -1221,7 +1222,7 @@ toPropertyWithKey: (NSString *)key
 
 	  if ([self isToManyKey: key] == YES)
 	    {
-	      NSDebugMLLog(@"gsdb", @"to many");
+	      EOFLOGObjectLevel(@"gsdb", @"to many");
 
 	      val = [self valueForKey: key]; //should use storedValueForKey: ?
 
@@ -1236,7 +1237,7 @@ toPropertyWithKey: (NSString *)key
                 {
                   if ([val isKindOfClass: [NSMutableArray class]])
                     {
-                      NSDebugMLLog(@"gsdb", @"to many2");
+                      EOFLOGObjectLevel(@"gsdb", @"to many2");
                       [self willChange];
                       [val addObject: object];
                     }
@@ -1263,7 +1264,7 @@ toPropertyWithKey: (NSString *)key
 	    }
 	  else
             {
-              NSDebugMLLog(@"gsdb", @"key is not to many");
+              EOFLOGObjectLevel(@"gsdb", @"key is not to many");
 
               [self takeValue: object
                     forKey: key];
@@ -1316,7 +1317,7 @@ toPropertyWithKey: (NSString *)key
 
       if (removeFromSelector && [self respondsToSelector: removeFromSelector])
         {
-          NSDebugMLLog(@"gsdb", @"responds=YES");
+          EOFLOGObjectLevel(@"gsdb", @"responds=YES");
           [self performSelector: removeFromSelector
                 withObject: object];
         }
@@ -1324,11 +1325,11 @@ toPropertyWithKey: (NSString *)key
         {
 	  id val = nil;
 
-          NSDebugMLLog(@"gsdb", @"responds=NO");
+          EOFLOGObjectLevel(@"gsdb", @"responds=NO");
 	  
 	  if ([self isToManyKey:key] == YES)
 	    {
-              NSDebugMLLog(@"gsdb", @"key is to many");
+              EOFLOGObjectLevel(@"gsdb", @"key is to many");
 
 	      val = [self valueForKey: key];
               NSDebugMLLog(@"gsdb", @"val=%@", val);
@@ -1354,7 +1355,7 @@ toPropertyWithKey: (NSString *)key
 	    }
 	  else
             {
-              NSDebugMLLog(@"gsdb", @"key is not to many");
+              EOFLOGObjectLevel(@"gsdb", @"key is not to many");
               [self takeValue: nil
                     forKey: key];
             }
@@ -1394,7 +1395,7 @@ forBothSidesOfRelationshipWithKey: (NSString*)key
 /*      if ([object isToManyKey:inverseKey])
         {
           //??
-          NSDebugMLLog(@"gsdb",@"Inverse is to many");
+          EOFLOGObjectLevel(@"gsdb",@"Inverse is to many");
           [oldObject removeObject:self
                      fromPropertyWithKey:inverseKey];
           [object addObject:self
@@ -1402,7 +1403,7 @@ forBothSidesOfRelationshipWithKey: (NSString*)key
         }
       else
         {
-          NSDebugMLLog(@"gsdb",@"Inverse is not to many");
+          EOFLOGObjectLevel(@"gsdb",@"Inverse is not to many");
           //OK
           //MIRKO      if ((inverseKey = [oldObject inverseForRelationshipKey:key]))
           //MIRKO [oldObject removeObject:self
@@ -1513,15 +1514,15 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 + (NSException *)validationExceptionWithFormat: (NSString *)format, ...
 {
   NSException *exp;
-  NSString *name;
+  NSString *aName;
   va_list args;
 
   va_start(args, format);
 
-  name = [[[NSString alloc] initWithFormat: format arguments: args]
-	   autorelease];
+  aName = [[[NSString alloc] initWithFormat: format arguments: args]
+	    autorelease];
   exp = [NSException exceptionWithName: EOValidationException
-		     reason: name
+		     reason: aName
 		     userInfo: nil];
 
   va_end(args);
@@ -1537,21 +1538,21 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
     exp = [subexceptions objectAtIndex: 0];
   else if ([subexceptions count] > 1)
     {
-      NSString *name, *reason;
-      NSMutableDictionary *userInfo;
+      NSString *aName, *aReason;
+      NSMutableDictionary *aUserInfo;
 
       exp = [subexceptions objectAtIndex: 0];
 
-      name     = [exp name];
-      reason   = [exp reason];
-      userInfo = [[exp userInfo] mutableCopy];
-      
-      [userInfo setObject: subexceptions
-                forKey: EOAdditionalExceptionsKey];
+      aName     = [exp name];
+      aReason   = [exp reason];
+      aUserInfo = [[exp userInfo] mutableCopy];
 
-      exp = [NSException exceptionWithName: name
-                         reason: reason
-                         userInfo: userInfo];
+      [aUserInfo setObject: subexceptions
+		 forKey: EOAdditionalExceptionsKey];
+
+      exp = [NSException exceptionWithName: aName
+                         reason: aReason
+                         userInfo: aUserInfo];
     }
 
   return exp;
@@ -1560,21 +1561,21 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 - (NSException *)exceptionAddingEntriesToUserInfo: (NSDictionary *)additions
 {
   NSException *exp;
-  NSString *name, *reason;
-  NSMutableDictionary *userInfo;
+  NSString *aName, *aReason;
+  NSMutableDictionary *aUserInfo;
 
-  name     = [self name];
-  reason   = [self reason];
-  userInfo = [[self userInfo] mutableCopy];
+  aName     = [self name];
+  aReason   = [self reason];
+  aUserInfo = [[self userInfo] mutableCopy];
 
-  [userInfo setObject: [additions allValues]
-	    forKey: EOValidatedObjectUserInfoKey];
-  [userInfo setObject: [additions allKeys]
-	    forKey: EOValidatedPropertyUserInfoKey];
+  [aUserInfo setObject: [additions allValues]
+	     forKey: EOValidatedObjectUserInfoKey];
+  [aUserInfo setObject: [additions allKeys]
+	     forKey: EOValidatedPropertyUserInfoKey];
 
-  exp = [NSException exceptionWithName: name
-		     reason: reason
-		     userInfo: userInfo];
+  exp = [NSException exceptionWithName: aName
+		     reason: aReason
+		     userInfo: aUserInfo];
 
   return exp;
 }

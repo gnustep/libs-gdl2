@@ -33,10 +33,14 @@
 
 static char rcsId[] = "$Id$";
 
-#import <EOControl/EOControl.h>
+#import <Foundation/NSCoder.h>
+#import <Foundation/NSString.h>
+
 #import <EOControl/EOGlobalID.h>
+
 #include <time.h>
 #include <unistd.h>
+
 
 NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 

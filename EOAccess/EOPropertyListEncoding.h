@@ -27,7 +27,12 @@
 #ifndef __EOPropertyListEncoding_h__
 #define __EOPropertyListEncoding_h__
 
-#import <Foundation/NSDictionary.h>
+
+#import <Foundation/NSObject.h>
+
+
+@class NSDictionary;
+@class NSMutableDictionary;
 
 
 @protocol EOPropertyListEncoding

@@ -33,12 +33,9 @@
 
 static char rcsId[] = "$Id$";
 
-#import <Foundation/Foundation.h>
-
 #import <Foundation/NSString.h>
 #import <Foundation/NSUtilities.h>
 
-#import <EOAccess/EOAccess.h>
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOAttribute.h>
@@ -78,10 +75,10 @@ static char rcsId[] = "$Id$";
 {
   EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"sourceAttribute gcDecrementRefCount");
+  EOFLOGObjectLevel(@"gsdb", @"sourceAttribute gcDecrementRefCount");
 
   [_sourceAttribute gcDecrementRefCount];
-  NSDebugMLLog(@"gsdb", @"destinationAttribute gcDecrementRefCount");
+  EOFLOGObjectLevel(@"gsdb", @"destinationAttribute gcDecrementRefCount");
 
   [_destinationAttribute gcDecrementRefCount];
 

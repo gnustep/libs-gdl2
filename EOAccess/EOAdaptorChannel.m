@@ -35,11 +35,6 @@ static char rcsId[] = "$Id$";
 
 #import <Foundation/Foundation.h>
 
-#import <Foundation/NSDate.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSException.h>
-
-#import <EOAccess/EOAccess.h>
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOAttribute.h>
 #import <EOAccess/EOAdaptor.h>
@@ -49,6 +44,7 @@ static char rcsId[] = "$Id$";
 #import <EOAccess/EODatabaseOperation.h>
 
 #import <EOControl/EOMutableKnownKeyDictionary.h>
+#import <EOControl/EOFetchSpecification.h>
 #import <EOControl/EONSAddOns.h>
 
 
@@ -407,7 +403,7 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
                    attributes,objects);
       NSAssert(initializer,@"No initializer");
           
-      NSDebugMLLog(@"gsdb",@"initializer=%@",initializer);
+      NSDebugMLLog(@"gsdb", @"initializer=%@", initializer);
       
       dict = [[[EOMutableKnownKeyDictionary allocWithZone: zone]
                 initWithInitializer:initializer] autorelease];
@@ -488,7 +484,7 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
     switch(operator)
       {
       case EOAdaptorLockOperator:
-        NSDebugMLLog(@"gsdb", @"EOAdaptorLockOperator");
+        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorLockOperator");
 
 	[self lockRowComparingAttributes: [adaptorOperation attributes]
 	      entity: entity
@@ -497,7 +493,7 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
 	break;
 
       case EOAdaptorInsertOperator:
-        NSDebugMLLog(@"gsdb", @"EOAdaptorInsertOperator");
+        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorInsertOperator");
 /*
 //self adaptorContext
 //adaptorcontext transactionNestingLevel
@@ -516,7 +512,7 @@ prepareInsertExpressionWithRow:changedValues
 	break;
 
       case EOAdaptorUpdateOperator:
-        NSDebugMLLog(@"gsdb", @"EOAdaptorUpdateOperator");
+        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorUpdateOperator");
         //OK
 	[self updateValues: [adaptorOperation changedValues]
 	      inRowDescribedByQualifier: [adaptorOperation qualifier]
@@ -524,19 +520,19 @@ prepareInsertExpressionWithRow:changedValues
 	break;
 
       case EOAdaptorDeleteOperator:
-        NSDebugMLLog(@"gsdb", @"EOAdaptorDeleteOperator");
+        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorDeleteOperator");
 	[self deleteRowDescribedByQualifier: [adaptorOperation qualifier]
 	      entity: entity];
 	break;
 
       case EOAdaptorStoredProcedureOperator:
-        NSDebugMLLog(@"gsdb", @"EOAdaptorStoredProcedureOperator");
+        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorStoredProcedureOperator");
 	[self executeStoredProcedure: [adaptorOperation storedProcedure]
 	      withValues: [adaptorOperation changedValues]];
 	break;
 
       case EOAdaptorUndefinedOperator:
-        NSDebugMLLog(@"gsdb", @"EOAdaptorUndefinedOperator");
+        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorUndefinedOperator");
 
       default:
         [NSException raise: NSInvalidArgumentException

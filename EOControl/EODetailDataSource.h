@@ -24,7 +24,13 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+#ifndef __EODetailDataSource_h__
+#define __EODetailDataSource_h__
+
 #import <EOControl/EODataSource.h>
+
+
+@class EOKeyValueUnarchiver;
 
 
 @interface EODetailDataSource : EODataSource <NSCoding>
@@ -60,3 +66,5 @@
 - (EOEditingContext *)editingContext;
 
 @end
+
+#endif /* __EODetailDataSource_h__ */

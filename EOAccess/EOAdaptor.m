@@ -53,6 +53,7 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSValue.h>
 #import <Foundation/NSProcessInfo.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSFileManager.h>
 
 #import <EOAccess/EOAdaptor.h>
 #import <EOAccess/EOAdaptorPriv.h>
@@ -623,7 +624,7 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   [self notImplemented: _cmd];
 }
 
-- (BOOL) isValidQualifierType: (EOAttribute *)attribute
+- (BOOL) isValidQualifierType: (NSString *)attribute
 			model: (EOModel *)model
 {
   [self subclassResponsibility: _cmd];

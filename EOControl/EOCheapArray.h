@@ -27,6 +27,10 @@
 #ifndef __EOCheapArray_h__
 #define __EOCheapArray_h__
 
+#import <Foundation/NSArray.h>
+#import <Foundation/NSZone.h>
+
+
 @interface EOCheapCopyArray : NSArray
 {
   unsigned int _count;

@@ -27,7 +27,12 @@
 #ifndef __EOObserver_h__
 #define __EOObserver_h__
 
-#import <Foundation/Foundation.h>
+
+#import <Foundation/NSObject.h>
+
+
+@class NSArray;
+
 
 @interface NSObject (EOObserver)
 
@@ -75,10 +80,12 @@ typedef enum {
   EOObserverPrioritySixth,
   EOObserverPriorityLater
 } EOObserverPriority;
+
 #define EOObserverNumberOfPriorities ((unsigned)EOObserverPriorityLater + 1)
 
 
-@interface EODelayedObserver : NSObject <EOObserving> {
+@interface EODelayedObserver : NSObject <EOObserving>
+{
   @public
     EODelayedObserver *_next;   // linked list.  Nil if not on list.
 }
@@ -97,17 +104,18 @@ typedef enum {
 @end
 
 // used with NSRunLoop's performSelector:target:argument:order:modes:
-enum {
-    EOFlushDelayedObserversRunLoopOrdering = 400000
+enum
+{
+  EOFlushDelayedObserversRunLoopOrdering = 400000
 };
 
 
 @interface EODelayedObserverQueue : NSObject
 {
-    EODelayedObserver *_queue[EOObserverNumberOfPriorities];  // lists for each priority
-    unsigned _highestNonEmptyQueue;
-    BOOL _haveEntryInNotificationQueue;
-    NSArray *_modes;
+  EODelayedObserver *_queue[EOObserverNumberOfPriorities];  // lists for each priority
+  unsigned _highestNonEmptyQueue;
+  BOOL _haveEntryInNotificationQueue;
+  NSArray *_modes;
 }
 
 + (EODelayedObserverQueue *)defaultObserverQueue;
@@ -123,10 +131,11 @@ enum {
 @end
 
 
-@interface EOObserverProxy : EODelayedObserver {
-    id _target;
-    SEL _action;
-    EOObserverPriority _priority;
+@interface EOObserverProxy : EODelayedObserver
+{
+  id _target;
+  SEL _action;
+  EOObserverPriority _priority;
 }
 
 - initWithTarget: (id)target

@@ -30,8 +30,9 @@
 
 #ifdef DEBUG
 
-#include <Foundation/NSDebug.h>
-#include <Foundation/NSAutoreleasePool.h>
+#import <Foundation/NSDebug.h>
+#import <Foundation/NSAutoreleasePool.h>
+
 
 extern void EOFLogC_(const char* file,int line,const char* string);
 extern void EOFLogDumpObject_(const char* file,int line,id object,int deep);

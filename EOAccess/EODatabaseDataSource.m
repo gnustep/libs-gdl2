@@ -41,14 +41,22 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSCoder.h>
 
-#import <EOAccess/EOAccess.h>
 #import <EOAccess/EODatabaseDataSource.h>
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOModelGroup.h>
 #import <EOAccess/EODatabase.h>
 #import <EOAccess/EODatabaseContext.h>
+
+#import <EOControl/EOEditingContext.h>
+#import <EOControl/EOQualifier.h>
+#import <EOControl/EOFetchSpecification.h>
+#import <EOControl/EOKeyValueArchiver.h>
+#import <EOControl/EODataSource.h>
+#import <EOControl/EODetailDataSource.h>
+
 
 @implementation EODatabaseDataSource
 

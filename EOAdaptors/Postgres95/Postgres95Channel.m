@@ -44,13 +44,13 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSString.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSUtilities.h>
-
-#include <Foundation/NSException.h>
+#import <Foundation/NSException.h>
 
 #import <EOAccess/EOAccess.h>
 
 #import <EOControl/EONull.h>
 #import <EOControl/EOQualifier.h>
+#import <EOControl/EOFetchSpecification.h>
 
 #import <Postgres95EOAdaptor/Postgres95Channel.h>
 #import <Postgres95EOAdaptor/Postgres95Context.h>
@@ -1306,9 +1306,38 @@ each key
 
 - (NSArray *)describeTableNames
 {
-  // TODO
-  [self notImplemented: _cmd];
-  return nil;
+  int i, count;
+  NSMutableArray *results = [NSMutableArray array];
+
+  NSAssert(_pgConn, @"Channel not opened");
+
+  _pgResult = PQexec(_pgConn,
+		     "SELECT tablename FROM pg_tables WHERE 
+pg_tables.schemaname = 'public'");
+
+  if (_pgResult == NULL
+      || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
+    {
+      _pgResult = NULL;
+      [NSException raise: Postgres95Exception
+		   format: @"cannot read list of tables from database. "
+		   @"bad response from server"];
+    }
+
+  [_oidToTypeName removeAllObjects];
+  count = PQntuples(_pgResult);
+
+  for (i = 0; i < count; i++)
+    {
+      char *oid = PQgetvalue(_pgResult, i, 0);
+
+      [results addObject: [NSString stringWithUTF8String: oid]];
+    }
+
+  PQclear(_pgResult);
+  _pgResult = NULL;
+
+  return [NSArray arrayWithArray: results];
 }
 
 - (NSArray *)describeStoredProcedureNames

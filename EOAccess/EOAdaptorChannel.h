@@ -28,10 +28,7 @@
 #define __EOAdaptorChannel_h__
 
 #import <Foundation/NSException.h>
-
-#import <EOControl/EOFetchSpecification.h>
-
-#import <EOAccess/EOAdaptorContext.h>
+#import <Foundation/NSZone.h>
 
 
 @class NSArray;
@@ -45,10 +42,13 @@
 @class EOModel;
 @class EOEntity;
 @class EOAttribute;
+@class EOAdaptorContext;
 @class EOQualifier;
 @class EOStoredProcedure;
 @class EOAdaptorOperation;
 @class EOSQLExpression;
+@class EOFetchSpecification;
+
 
 /* The EOAdaptorChannel class could be overriden for a concrete database
    adaptor. You have to override only those methods marked in this header
@@ -191,7 +191,7 @@ shouldSelectAttributes: (NSArray *)attributes
 - (void)adaptorChannel: channel
    didSelectAttributes: (NSArray *)attributes
     fetchSpecification: (EOFetchSpecification *)fetchSpecification
-		  lock:(BOOL) flag
+		  lock: (BOOL) flag
 		entity: (EOEntity *)entity;
 
 - (void)adaptorChannelWillFetchRow: channel;

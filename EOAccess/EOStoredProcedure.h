@@ -27,25 +27,29 @@
 #ifndef __EOStoredProcedure_h__
 #define __EOStoredProcedure_h__
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
 #import <gnustep/base/GCObject.h>
+
 #import <EOAccess/EOPropertyListEncoding.h>
+
+
+@class NSDictionary;
 
 @class EOModel;
 @class EOAttribute;
-@class GCArray;
+@class EOStoredProcedure;
 
 
 @interface EOStoredProcedure : GCObject <EOPropertyListEncoding>
 {
-    NSString *_name;
-    NSString *_externalName;
-    NSDictionary *_userInfo;
-    NSDictionary *_internalInfo;
+  NSString *_name;
+  NSString *_externalName;
+  NSDictionary *_userInfo;
+  NSDictionary *_internalInfo;
 
-    /* Garbage collectable objects */
-    EOModel *_model;
-    GCArray *_arguments;
+  /* Garbage collectable objects */
+  EOModel *_model;
+  GCArray *_arguments;
 }
 
 + (EOStoredProcedure *)storedProcedureWithPropertyList: (NSDictionary *)propertyList 

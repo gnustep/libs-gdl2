@@ -30,6 +30,8 @@
 #import <Foundation/NSObject.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSException.h>
+#import <Foundation/NSZone.h>
+
 
 @class NSDictionary;
 @class NSFormatter;
@@ -44,6 +46,7 @@ typedef enum
   EODeleteRuleDeny,
   EODeleteRuleNoAction
 } EODeleteRule;
+
 
 @interface EOClassDescription : NSObject
 
@@ -147,7 +150,7 @@ extern NSString *EOClassDescriptionNeededForClassNotification;
 extern NSString *EOClassDescriptionNeededForEntityNameNotification;
 
 
-@interface NSArray(EOShallowCopy)
+@interface NSArray (EOShallowCopy)
 
 - (NSArray *)shallowCopy;
 
@@ -220,7 +223,7 @@ extern NSString *EOValidatedPropertyUserInfoKey;
 @end
 
 @interface NSObject (_EOEditingContext)
--(EOEditingContext*)editingContext;
+- (EOEditingContext*)editingContext;
 @end
 
 #endif

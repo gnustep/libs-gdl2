@@ -38,14 +38,11 @@ static char rcsId[] = "$Id$";
 
 #include <string.h>
 
-#import <Foundation/Foundation.h>
-
 #import <Foundation/NSString.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSUtilities.h>
 #import <Foundation/NSException.h>
-
-#import <Foundation/NSException.h>
+#import <Foundation/NSUserDefaults.h>
 
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOAttribute.h>
@@ -61,8 +58,11 @@ static char rcsId[] = "$Id$";
 #import <EOAccess/EOExpressionArray.h>
 #import <EOAccess/EOSchemaGeneration.h>
 
+#import <EOControl/EOFetchSpecification.h>
 #import <EOControl/EOQualifier.h>
+#import <EOControl/EOSortOrdering.h>
 #import <EOControl/EODebug.h>
+#import <EOControl/EONull.h>
 
 
 NSString *EOBindVariableNameKey = @"EOBindVariableNameKey";
@@ -483,7 +483,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"qualifier=%@", qualifier);
 
-  whereClauseString = [(<EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression: self];
+  whereClauseString = [(id <EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression: self];
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"whereClauseString=%@",
 			whereClauseString);

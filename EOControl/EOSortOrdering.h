@@ -28,7 +28,8 @@
 #define __EOSortOrdering_h__
 
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSArray.h>
 
 #import <EOControl/EONull.h>
 

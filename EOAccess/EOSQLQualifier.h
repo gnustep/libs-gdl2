@@ -30,14 +30,18 @@
 #ifndef __EOSQLQualifier_h__
 #define __EOSQLQualifier_h__
 
-#import <Foundation/Foundation.h>
-#import <EOControl/EOControl.h>
+
+#import <Foundation/NSObject.h>
+#import <Foundation/NSString.h>
+
+#import <EOControl/EOQualifier.h>
 
 
 @class EOSQLExpression;
 @class EOExpressionArray;
 @class EOEntity;
 @class EOModel;
+
 
 /** Protocol for all qualifiers used used to generate SQL queries **/
 @protocol EOQualifierSQLGeneration

@@ -38,8 +38,8 @@ static char rcsId[] = "$Id$";
 
 #import <Foundation/NSNull.h>
 #import <Foundation/NSString.h> 
-#import <EOControl/EOControl.h>
 #import <EOControl/EONull.h>
+
 #include "config.h"
 
 

@@ -1,3 +1,30 @@
+2002-12-30  Markus Hitter <mah@jump-ing.de>
+
+	* EOAdaptors/Postgres95/Postgres95Channel.m ([Postgres95Channel
+	-describeTableNames]): implemented.
+
+2002-12-30  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EOSQLExpression.h: added missing declaration.
+
+	* EOAccess/EORelationship.m ([EORelationship -removeJoin:]): added cast.
+
+	* EOAccess/EOModel.m ([EOModel -dealloc]): removes observer correctly.
+
+	* EOAccess/EODatabaseContext.h: added missing declaration.
+
+	* EOControl/EOFetchSpecification.m ([EOFetchSpecification
+	-copyWithZone:]): fixed cast.
+	([EOFetchSpecification -hints]): added cast.
+
+	* EOControl/EOClassDescription.m  ([NSException
+	+validationExceptionWithFormat:]), ([NSException
+	+aggregateExceptionWithExceptions:]),
+	([NSException -exceptionAddingEntriesToUserInfo:]): renamed local
+	variables.
+
+	* rearranged header inclusion in all sources.
+
 2002-12-29  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOAccess/EODatabaseContext.m ([EODatabaseContext -initializeObject:

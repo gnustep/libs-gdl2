@@ -46,12 +46,14 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
 #import <Foundation/NSObjCRuntime.h>
+#import <Foundation/NSInvocation.h>
+#import <Foundation/NSLock.h>
+#import <Foundation/NSException.h>
 
-#include <Foundation/NSException.h>
 #include <objc/objc-api.h>
 
-#import <EOControl/EOControl.h>
 #import <EOControl/EOFault.h>
+#import <EOControl/EOKeyGlobalID.h>
 
 #import <EOAccess/EODatabaseContext.h>
 
@@ -141,7 +143,7 @@ typedef struct {
       EOFault *fault = object;
       unsigned int refs;
 
-      NSAssert(handler,@"No Handler");
+      NSAssert(handler, @"No Handler");
 
       refs = [object retainCount];
       
@@ -579,4 +581,3 @@ typedef struct {
 }
 
 @end
-

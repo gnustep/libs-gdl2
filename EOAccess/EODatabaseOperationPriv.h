@@ -28,6 +28,9 @@
 #define __EODatabaseOperationPriv_h__
 
 
+@class EOGlobalID;
+
+
 @interface EODatabaseOperation (private)
 
 - (void)_setGlobalID: (EOGlobalID *)globalID;

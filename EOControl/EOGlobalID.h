@@ -27,10 +27,11 @@
 #ifndef __EOGlobalID_h__
 #define __EOGlobalID_h__
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
 
 
 extern NSString *EOGlobalIDChangedNotification;
+
 
 @interface EOGlobalID : NSObject <NSCopying>
 - (BOOL)isEqual:other;

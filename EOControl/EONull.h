@@ -29,6 +29,7 @@
 
 #import <Foundation/NSObject.h>
 
+
 @interface EONull : NSObject <NSCopying>
 + null;
 @end /* EONull */

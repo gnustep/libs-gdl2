@@ -27,10 +27,15 @@
 #ifndef __EOModel_h__
 #define __EOModel_h__
 
+
 #import <Foundation/NSString.h>
-#include <gnustep/base/GCObject.h>
+#import <gnustep/base/GCObject.h>
 
 #import <EOAccess/EOPropertyListEncoding.h>
+
+
+@class NSArray;
+@class NSDictionary;
 
 @class EOEntity;
 @class EOModelGroup;

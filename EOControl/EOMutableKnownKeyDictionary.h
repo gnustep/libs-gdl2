@@ -27,10 +27,19 @@
 #ifndef	__EOMultipleKnownKeyDictionary_h__
 #define	__EOMultipleKnownKeyDictionary_h__
 
-#import <Foundation/Foundation.h>
-#include <gnustep/base/GCObject.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSEnumerator.h>
+#import <Foundation/NSZone.h>
+
+#import <gnustep/base/GCObject.h>
+
+
+@class NSArray;
+@class NSDictionary;
+@class NSMutableDictionary;
 
 @class EOMutableKnownKeyDictionary;
+
 
 @interface EOMKKDInitializer : GCObject
 {

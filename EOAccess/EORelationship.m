@@ -36,8 +36,6 @@
 
 static char rcsId[] = "$Id$";
 
-#import <Foundation/Foundation.h>
-
 #import <Foundation/NSArray.h>
 #import <Foundation/NSUtilities.h>
 
@@ -1534,7 +1532,7 @@ relationships. Nil if none" **/
       else
         {
 	  GCMutableArray	*ma = [_joins mutableCopy];
-	  GCArray		*a = _joins;
+	  GCArray		*a = (GCArray *)_joins;
 
 	  [ma removeObject: join];
 	  _joins = ma;

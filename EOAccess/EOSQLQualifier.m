@@ -39,13 +39,19 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSSet.h>
 #import <Foundation/NSUtilities.h>
-
 #import <Foundation/NSException.h>
 
-#import <EOAccess/EOAccess.h>
+#import <EOAccess/EOSQLQualifier.h>
+#import <EOAccess/EOAttribute.h>
+#import <EOAccess/EORelationship.h>
+#import <EOAccess/EOJoin.h>
+#import <EOAccess/EOEntity.h>
+#import <EOAccess/EOSQLExpression.h>
 
-#import <EOControl/EOControl.h>
 #import <EOControl/EOQualifier.h>
+#import <EOControl/EOEditingContext.h>
+#import <EOControl/EOObjectStoreCoordinator.h>
+#import <EOControl/EONull.h>
 #import <EOControl/EODebug.h>
 
 
@@ -102,13 +108,13 @@ static char rcsId[] = "$Id$";
       if (!sqlString)
         {
 	  sqlString = [NSMutableString stringWithString:
-					 [(<EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression:sqlExpression]];
+					 [(id <EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression:sqlExpression]];
         }
       else
         {
 	  [sqlString appendFormat:@" %@ %@",
 		     @"AND",
-		     [(<EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression:sqlExpression]];
+		     [(id <EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression:sqlExpression]];
         }
     }
   return sqlString;
@@ -133,11 +139,13 @@ static char rcsId[] = "$Id$";
 	{
 	  EOQualifier *qualifier = [_qualifiers objectAtIndex: i];
 	  EOQualifier *schemaBasedQualifierTmp =
-	    [(<EOQualifierSQLGeneration>)qualifier
-					 schemaBasedQualifierWithRootEntity:
-					   entity];
+	    [(id <EOQualifierSQLGeneration>)qualifier
+					    schemaBasedQualifierWithRootEntity:
+					      entity];
+
           if (schemaBasedQualifierTmp != qualifier)
             atLeastOneDifferentQualifier = YES;
+
 	  [qualifiers addObject: schemaBasedQualifierTmp];
 	}
 
@@ -167,13 +175,13 @@ static char rcsId[] = "$Id$";
       if (!sqlString)
         {
 	  sqlString = [NSMutableString stringWithString:
-					 [(<EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression: sqlExpression]];
+					 [(id <EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression: sqlExpression]];
         }
       else
         {
 	  [sqlString appendFormat: @" %@ %@",
 		     @"OR",
-		     [(<EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression: sqlExpression]];
+		     [(id <EOQualifierSQLGeneration>)qualifier sqlStringForSQLExpression: sqlExpression]];
         }
     }
 
@@ -198,11 +206,13 @@ static char rcsId[] = "$Id$";
 	{
 	  EOQualifier *qualifier = [_qualifiers objectAtIndex: i];
 	  EOQualifier *schemaBasedQualifierTmp =
-	    [(<EOQualifierSQLGeneration>)qualifier
-					 schemaBasedQualifierWithRootEntity:
-					   entity];
+	    [(id <EOQualifierSQLGeneration>)qualifier
+					    schemaBasedQualifierWithRootEntity:
+					      entity];
+
           if (schemaBasedQualifierTmp != qualifier)
             atLeastOneDifferentQualifier = YES;
+
 	  [qualifiers addObject: schemaBasedQualifierTmp];
 	}
 

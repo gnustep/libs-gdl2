@@ -31,6 +31,7 @@
 #import <Foundation/NSValue.h>
 #import <Foundation/NSData.h>
 #import <Foundation/NSDate.h>
+#import <Foundation/NSCalendarDate.h>
 
 #import <EOControl/EONull.h>
 

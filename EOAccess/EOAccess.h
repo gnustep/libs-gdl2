@@ -27,27 +27,6 @@
 #ifndef __EOAccess_h__
 #define __EOAccess_h__
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSAutoreleasePool.h>
-#import <Foundation/NSBundle.h>
-#import <Foundation/NSCharacterSet.h>
-#import <Foundation/NSData.h>
-#import <Foundation/NSDate.h>
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSNotification.h>
-#import <Foundation/NSObjCRuntime.h>
-#import <Foundation/NSObject.h>
-#import <Foundation/NSPathUtilities.h>
-#import <Foundation/NSRange.h>
-#import <Foundation/NSScanner.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSZone.h>
-#import <Foundation/NSCoder.h>
-#import <Foundation/NSArchiver.h>
-
 #import <EOAccess/EOAdaptor.h>
 #import <EOAccess/EOAdaptorContext.h>
 #import <EOAccess/EOAdaptorChannel.h>

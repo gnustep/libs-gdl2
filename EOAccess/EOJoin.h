@@ -27,7 +27,10 @@
 #ifndef __EOJoin_h__
 #define __EOJoin_h__
 
-#include <gnustep/base/GCObject.h>
+#import <gnustep/base/GCObject.h>
+
+
+@class NSString;
 
 @class EOEntity;
 @class EOAttribute;
@@ -35,9 +38,9 @@
 
 @interface EOJoin : GCObject
 {
-    /* Garbage collectable objects */
-    EOAttribute *_sourceAttribute;
-    EOAttribute *_destinationAttribute;
+  /* Garbage collectable objects */
+  EOAttribute *_sourceAttribute;
+  EOAttribute *_destinationAttribute;
 }
 
 + (EOJoin *)joinWithSourceAttribute: (EOAttribute *)source

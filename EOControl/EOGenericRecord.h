@@ -29,12 +29,15 @@
 
 #import <Foundation/NSObject.h>
 
+
 @class NSString;
 @class NSMutableDictionary;
+
 @class EOClassDescription;
 @class EOEditingContext;
 @class EOGlobalID;
 @class EOMutableKnownKeyDictionary;
+
 
 @interface EOGenericRecord : NSObject
 {
@@ -54,6 +57,10 @@
 
 + (void)eoCalculateAllSizeWith: (NSMutableDictionary*)dict;
 - (unsigned int)eoCalculateSizeWith: (NSMutableDictionary*)dict;
++ (unsigned int)eoCalculateSizeWith: (NSMutableDictionary *)dict
+			   forArray: (NSArray *)array;
+
+- (NSString *)debugDictionaryDescription;
 
 @end /* EOGenericRecord */
 

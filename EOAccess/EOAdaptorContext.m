@@ -39,8 +39,8 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSUserDefaults.h>
 
-#import <EOAccess/EOAccess.h>
 #import <EOAccess/EOAdaptor.h>
+#import <EOAccess/EOAdaptorPriv.h>
 #import <EOAccess/EOAdaptorContext.h>
 #import <EOAccess/EOAdaptorChannel.h>
 

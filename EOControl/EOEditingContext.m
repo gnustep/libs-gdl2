@@ -33,11 +33,7 @@
 static char rcsId[] = "$Id$";
 
 //TODO EOMultiReaderLocks 
-#import <EOControl/EOControl.h>
 #import <Foundation/Foundation.h>
-
-#import <Foundation/NSObject.h>
-#import <Foundation/NSNotification.h>
 
 #import <EOControl/EOEditingContext.h>
 #import <EOControl/EOObjectStoreCoordinator.h>
@@ -47,9 +43,9 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOFault.h>
 #import <EOControl/EONull.h>
 #import <EOControl/EOUndoManager.h>
+#import <EOControl/EONSAddOns.h>
 
 #import <EOAccess/EOEntity.h>
-#import <EOControl/EONSAddOns.h>
 
 
 @implementation EOEditingContext

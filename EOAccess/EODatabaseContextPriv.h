@@ -27,8 +27,11 @@
 #ifndef __EODatabaseContextPriv_h__
 #define __EODatabaseContextPriv_h__
 
+
 @class EOAccessFaultHandler;
 @class EOAccessArrayFaultHandler;
+@class EOKeyGlobalID;
+@class EOFault;
 
 
 @interface EODatabaseContext (EODatabaseContextPrivate)

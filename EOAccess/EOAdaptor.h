@@ -28,12 +28,17 @@
 #define __EOAdaptor_h__
 
 #import <Foundation/NSObject.h>
+#import <Foundation/NSString.h>
 
 
+@class NSArray;
 @class NSMutableArray;
 @class NSDictionary;
-@class NSString;
 @class NSNumber;
+@class NSException;
+@class NSCalendarDate;
+@class NSData;
+@class NSTimeZone;
 
 @class EOModel;
 @class EOAttribute;
@@ -119,7 +124,7 @@ extern NSString *EOGeneralAdaptorException;
 - (id)delegate;
 - (void)setDelegate: delegate;
 
-- (BOOL) isValidQualifierType: (EOAttribute *)attribute
+- (BOOL) isValidQualifierType: (NSString *)attribute
 			model: (EOModel *)model;
 
 @end /* EOAdaptor */

@@ -28,11 +28,12 @@
 #define __EOKeyValueCoding_h__
 
 #if !FOUNDATION_HAS_KVC
+
 #import <Foundation/NSObject.h>
 #import <Foundation/NSArray.h>
 
-@class NSDictionary;
 
+@class NSDictionary;
 
 
 @interface NSObject (EOKeyValueCodingPrimitives)

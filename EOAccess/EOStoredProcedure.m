@@ -33,7 +33,9 @@
 
 static char rcsId[] = "$Id$";
 
-#include <gnustep/base/GCObject.h>
+#import <Foundation/NSException.h>
+
+#import <gnustep/base/GCObject.h>
 
 #import <EOAccess/EOStoredProcedure.h>
 #import <EOAccess/EOAttribute.h>
@@ -59,7 +61,7 @@ static char rcsId[] = "$Id$";
 {
   EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"model gcDecrementRefCount");
+  EOFLOGObjectLevel(@"gsdb", @"model gcDecrementRefCount");
 
   [(id)_model gcDecrementRefCount];
   [(id)_arguments gcDecrementRefCount];

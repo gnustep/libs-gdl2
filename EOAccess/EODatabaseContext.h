@@ -27,8 +27,15 @@
 #ifndef __EODatabaseContext_h__
 #define __EODatabaseContext_h__
 
-#import <EOControl/EOControl.h>
 
+#import <Foundation/NSObject.h>
+#import <Foundation/NSHashTable.h>
+#import <Foundation/NSLock.h>
+
+#import <EOControl/EOObjectStoreCoordinator.h>
+
+
+@class NSMutableSet;
 
 @class EOAdaptorContext;
 @class EOAdaptorChannel;
@@ -37,7 +44,6 @@
 @class EOModel;
 @class EORelationship;
 @class EOAttribute;
-
 @class EODatabase;
 @class EODatabaseChannel;
 @class EODatabaseOperation;
@@ -83,11 +89,11 @@ struct _EOTransactionScope;
     NSDictionary *_currentSnapshot;
     objc_object *_currentBatch;
 */
-    NSMutableArray *_uniqueStack;// snaps
-    NSMutableArray *_uniqueArrayStack;//to many snaps
-    NSMutableArray *_deleteStack;
+  NSMutableArray *_uniqueStack;// snaps
+  NSMutableArray *_uniqueArrayStack;//to many snaps
+  NSMutableArray *_deleteStack;
 
-    NSHashTable *_nonPrimaryKeyGenerators;
+  NSHashTable *_nonPrimaryKeyGenerators;
 
   struct {
     unsigned int preparingForSave:1;
@@ -149,11 +155,13 @@ struct _EOTransactionScope;
 @end /* EODatabaseContext */
 
 
-@interface EODatabaseContext(EOObjectStoreSupport)
+@interface EODatabaseContext (EOObjectStoreSupport)
 
 - (id)faultForRawRow: (NSDictionary *)row
          entityNamed: (NSString *)entityName
       editingContext: (EOEditingContext *)editingContext;
+
+- (id) entityForGlobalID: (EOGlobalID *)globalID;
 
 - (id)faultForGlobalID: (EOGlobalID *)globalID
         editingContext: (EOEditingContext *)context;
@@ -195,7 +203,7 @@ struct _EOTransactionScope;
 @end
 
 
-@interface EODatabaseContext(EOCooperatingObjectStoreSupport)
+@interface EODatabaseContext (EOCooperatingObjectStoreSupport)
 
 - (BOOL)ownsGlobalID:(EOGlobalID *)globalID;
 

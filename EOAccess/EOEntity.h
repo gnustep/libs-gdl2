@@ -32,7 +32,8 @@
 
 #import <EOAccess/EOPropertyListEncoding.h>
 #import <EOControl/EOClassDescription.h>
-#include <gnustep/base/GCObject.h>
+#import <gnustep/base/GCObject.h>
+
 
 @class EOModel;
 @class EOAttribute;
@@ -49,6 +50,7 @@
 @class EOMutableKnownKeyDictionary;
 @class EOMKKDInitializer;
 @class EOMKKDSubsetMapping;
+
 
 @interface EOEntity : GCObject <EOPropertyListEncoding>
 {

@@ -36,8 +36,6 @@
 
 static char rcsId[] = "$Id$";
 
-#import <Foundation/Foundation.h>
-
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSString.h>
@@ -46,8 +44,11 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSUtilities.h>
 #import <Foundation/NSZone.h>
 #import <Foundation/NSNotification.h>
+#import <Foundation/NSSet.h>
+#import <Foundation/NSData.h>
 
 #import <EOAccess/EOAdaptor.h>
+#import <EOAccess/EOAdaptorChannel.h>
 #import <EOAccess/EOAdaptorContext.h>
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOModelGroup.h>
@@ -64,17 +65,21 @@ static char rcsId[] = "$Id$";
 #import <EOAccess/EODatabaseOperation.h>
 #import <EOAccess/EOAccessFault.h>
 #import <EOAccess/EOAccessFaultPriv.h>
+#import <EOAccess/EOExpressionArray.h>
 
 #import <EOControl/EOFault.h>
 #import <EOControl/EOEditingContext.h>
 #import <EOControl/EOClassDescription.h>
+#import <EOControl/EOGenericRecord.h>
 #import <EOControl/EOQualifier.h>
 #import <EOControl/EOKeyGlobalID.h>
 #import <EOControl/EOFetchSpecification.h>
+#import <EOControl/EOSortOrdering.h>
 #import <EOControl/EOKeyValueCoding.h>
 #import <EOControl/EOMutableKnownKeyDictionary.h>
 #import <EOControl/EOCheapArray.h>
 #import <EOControl/EONSAddOns.h>
+#import <EOControl/EONull.h>
 
 
 #define _LOCK_BUFFER 128
@@ -608,7 +613,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 @end
 
 
-@implementation EODatabaseContext(EOObjectStoreSupport)
+@implementation EODatabaseContext (EOObjectStoreSupport)
 
 /** Return a fault for row 'row' **/
 - (id)faultForRawRow: (NSDictionary *)row

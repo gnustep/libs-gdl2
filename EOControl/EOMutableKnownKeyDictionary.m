@@ -35,7 +35,6 @@ static char rcsId[] = "$Id$";
 
 #import <Foundation/Foundation.h>
 
-#import <EOControl/EOControl.h>
 #import <EOControl/EOMutableKnownKeyDictionary.h>
 #import <EOControl/EODebug.h>
 

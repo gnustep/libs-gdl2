@@ -52,13 +52,12 @@ static char rcsId[] = "$Id$";
 #import <Foundation/NSDecimalNumber.h>
 #import <Foundation/NSDebug.h>
 
-#include <Foundation/NSException.h>
 #include <objc/objc-api.h>
 
-#import <EOControl/EOControl.h>
 #import <EOControl/EOKeyValueCoding.h>
 #import <EOControl/EONSAddOns.h>
 #import <EOControl/EODebug.h>
+#import <EOControl/EONull.h>
 
 
 /*

@@ -27,31 +27,37 @@
 #ifndef __EOFetchSpecification_h__
 #define __EOFetchSpecification_h__
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
 
+
+@class NSArray;
+@class NSDictionary;
+@class NSString;
 
 @class EOQualifier;
 @class EOKeyValueArchiver;
 @class EOKeyValueUnarchiver;
+@class EOFetchSpecification;
+
 
 @interface EOFetchSpecification : NSObject <NSCopying, NSCoding>
 {
-    EOQualifier *_qualifier;
-    NSArray *_sortOrderings;
-    NSString *_entityName;
-    NSDictionary *_hints;
-    unsigned int _fetchLimit;
-    NSArray *_prefetchingRelationshipKeys;
-    NSArray *_rawAttributeKeys;
-    struct {
-        unsigned usesDistinct:1;
-        unsigned isDeep:1;
-        unsigned locksObjects:1;
-        unsigned refreshesRefetchedObjects:1;
-        unsigned promptsAfterFetchLimit:1;
-        unsigned allVariablesRequiredFromBindings:1;
-        unsigned :26; //padding
-    }_flags;
+  EOQualifier *_qualifier;
+  NSArray *_sortOrderings;
+  NSString *_entityName;
+  NSDictionary *_hints;
+  unsigned int _fetchLimit;
+  NSArray *_prefetchingRelationshipKeys;
+  NSArray *_rawAttributeKeys;
+  struct {
+    unsigned usesDistinct:1;
+    unsigned isDeep:1;
+    unsigned locksObjects:1;
+    unsigned refreshesRefetchedObjects:1;
+    unsigned promptsAfterFetchLimit:1;
+    unsigned allVariablesRequiredFromBindings:1;
+    unsigned :26; //padding
+  }_flags;
 }
 
 + (EOFetchSpecification *)fetchSpecification;

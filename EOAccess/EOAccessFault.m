@@ -33,11 +33,15 @@
 
 static char rcsId[] = "$Id$";
 
+#ifdef GNUSTEP
 #import <Foundation/NSObjCRuntime.h>
+#endif
+
+#import <Foundation/NSException.h>
 
 #import <EOAccess/EOAccessFault.h>
+#import <EOAccess/EOAccessFaultPriv.h>
 #import <EOAccess/EODatabaseContext.h>
-#import <EOAccess/EODatabaseContextPriv.h>
 
 #import <EOControl/EOCheapArray.h>
 

@@ -38,7 +38,6 @@ static char rcsId[] = "$Id$";
 
 #import <Foundation/Foundation.h>
 
-#import <EOAccess/EOAccess.h>
 #import <EOAccess/EODatabaseChannel.h>
 #import <EOAccess/EODatabaseChannelPriv.h>
 #import <EOAccess/EODatabaseContext.h>
@@ -47,11 +46,14 @@ static char rcsId[] = "$Id$";
 
 #import <EOAccess/EOAdaptor.h>
 #import <EOAccess/EOAdaptorChannel.h>
+#import <EOAccess/EOAdaptorContext.h>
 #import <EOAccess/EOEntity.h>
 #import <EOAccess/EOAttribute.h>
 #import <EOAccess/EORelationship.h>
 #import <EOAccess/EOModel.h>
 #import <EOAccess/EOAccessFault.h>
+#import <EOAccess/EOSQLExpression.h>
+#import <EOAccess/EOSQLQualifier.h>
 
 #import <EOControl/EOEditingContext.h>
 #import <EOControl/EOKeyValueCoding.h>
@@ -59,6 +61,7 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOClassDescription.h>
 #import <EOControl/EOGlobalID.h>
 #import <EOControl/EOObjectStore.h>
+
 
 @implementation EODatabaseChannel
 
@@ -286,7 +289,7 @@ static char rcsId[] = "$Id$";
 
       propertiesToFetch = [self _propertiesToFetch];
 
-      NSDebugMLLog(@"gsdb", @"Will fetchRow");
+      EOFLOGObjectLevel(@"gsdb", @"Will fetchRow");
 
       row = [_adaptorChannel fetchRowWithZone: NULL];
 
@@ -314,12 +317,12 @@ static char rcsId[] = "$Id$";
           gid = [_currentEntity globalIDForRow: row
 				isFinal: YES];//OK
 
-          NSDebugMLLog(@"gsdb",@"gid=%@",gid);
+          NSDebugMLLog(@"gsdb", @"gid=%@", gid);
           //NSDebugMLog(@"TEST attributesToFetch=%@",[_currentEntity attributesToFetch]);
 
           object = [_currentEditingContext objectForGlobalID: gid]; //OK //nil
 
-          NSDebugMLLog(@"gsdb",@"object=%@",object);
+          NSDebugMLLog(@"gsdb", @"object=%@", object);
 
           if (object)
             isObjectNew = NO;
@@ -385,7 +388,7 @@ static char rcsId[] = "$Id$";
             }
 
           if (!object)
-            {          
+            {
               EOClassDescription *entityClassDescripton = [_currentEntity classDescriptionForInstances];
 
               object = [entityClassDescripton createInstanceWithEditingContext: _currentEditingContext
@@ -401,7 +404,8 @@ static char rcsId[] = "$Id$";
             }
           else if (object && [EOFault isFault: object])
             {
-              EOAccessFaultHandler *handler = [EOFault handlerForFault: object];
+              EOAccessFaultHandler *handler = (EOAccessFaultHandler *)
+		[EOFault handlerForFault: object];
               EOKeyGlobalID *handlerGID = (EOKeyGlobalID *)[handler globalID];
 
               isObjectNew = YES; //TODO

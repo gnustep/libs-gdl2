@@ -24,10 +24,23 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-#import <EOControl/EOControl.h>
+#ifndef __EODatabaseDataSource_h__
+#define __EODatabaseDataSource_h__
+
+
+#import <Foundation/NSObject.h>
+
+#import <EOControl/EODataSource.h>
+
+
+@class NSDictionary;
+@class NSString;
 
 @class EOEntity;
 @class EODatabaseContext;
+@class EOEditingContext;
+@class EOFetchSpecification;
+@class EOQualifier;
 
 
 @interface EODatabaseDataSource : EODataSource <NSCoding>
@@ -65,3 +78,6 @@
 - (BOOL)isFetchEnabled;
 
 @end
+
+
+#endif /* __EODatabaseDataSource_h__ */

@@ -28,6 +28,12 @@
 #define __EOEntityPriv_h__
 
 
+@class NSString;
+
+@class EORelationship;
+@class EOExpressionArray;
+
+
 @interface EOEntity (EOEntityPrivate)
 
 - (void)setCreateMutableObjects: (BOOL)flag;
@@ -48,7 +54,6 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path;
 - (BOOL) _relationshipPathHasIdenticalKeys: (id)param0;
 @end
 
-@class EOExpressionArray;
 
 @interface EOEntity (EOEntitySQLExpression)
 - (id) valueForSQLExpression: (id)param0;

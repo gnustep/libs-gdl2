@@ -30,9 +30,16 @@
 #ifndef	__EOFault_h__
 #define	__EOFault_h__
 
-#include <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSZone.h>
 
-#include <gnustep/base/GCObject.h>
+#import <gnustep/base/GCObject.h>
+
+
+@class NSInvocation;
+@class NSMethodSignature;
+@class NSDictionary;
+@class NSString;
 
 @class EOFaultHandler;
 

@@ -33,6 +33,9 @@
 
 static char rcsId[] = "$Id$";
 
+#import <Foundation/NSCoder.h>
+#import <Foundation/NSValue.h>
+
 #import <EOControl/EOFetchSpecification.h>
 #import <EOControl/EOKeyValueArchiver.h>
 #import <EOControl/EOObserver.h>
@@ -162,7 +165,7 @@ setPromptsAfterFetchLimit: promptsAfterFetchLimit
 setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
 */
   //call setXX fn instead to have "willChange" ??
-  ret->_qualifier = [(<NSCopying>)_qualifier copyWithZone: zone];
+  ret->_qualifier = [(id <NSCopying>)_qualifier copyWithZone: zone];
   ret->_sortOrderings = [_sortOrderings copyWithZone: zone]; //mirko: ASSIGN(ret->_sortOrderings, _sortOrderings);
   ret->_entityName = [_entityName copyWithZone: zone];
   ret->_hints = [_hints copyWithZone: zone]; 
@@ -431,7 +434,7 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
 
 - (NSDictionary *)hints
 {
-  NSMutableDictionary *hints = _hints;
+  NSMutableDictionary *hints = (NSMutableDictionary *)_hints;
   BOOL promptsAfterFetchLimit;
   NSArray *prefetchingRelationshipKeyPaths;
   unsigned fetchLimit;

@@ -29,10 +29,13 @@
 
 #import <Foundation/NSObject.h>
 
+
 @class NSMutableArray;
+@class NSString;
 
 @class EOAdaptor;
 @class EOAdaptorChannel;
+
 
 typedef enum { 
     EODelegateRejects, 

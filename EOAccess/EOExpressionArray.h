@@ -27,12 +27,17 @@
 #ifndef __EOExpressionArray_h__
 #define __EOExpressionArray_h__
 
+
 #import <Foundation/NSString.h>
-#include <gnustep/base/GCObject.h>
+#import <gnustep/base/GCObject.h>
+
+
+@class NSArray;
 
 @class EOAttribute;
 @class EOEntity;
-@class EOExpressionArray;
+@class EOSQLExpression;
+
 
 @protocol EOExpressionContext <NSObject>
 
@@ -44,16 +49,16 @@
 
 @interface EOExpressionArray : GCMutableArray
 {
-    NSString *_prefix;
-    NSString *_infix;
-    NSString *_suffix;
+  NSString *_prefix;
+  NSString *_infix;
+  NSString *_suffix;
 //    NSString *_definition; it's rebuilt
-    EOAttribute *_realAttribute;
+  EOAttribute *_realAttribute;
 
-    struct
-    {
-        unsigned int isFlattened:1; //TODO Why ?
-    } _flags;
+  struct
+  {
+    unsigned int isFlattened:1; //TODO Why ?
+  } _flags;
 }
 
 + (EOExpressionArray*)expressionArray;

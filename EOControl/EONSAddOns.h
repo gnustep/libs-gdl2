@@ -27,7 +27,11 @@
 #ifndef __EONSAddOns_h__
 #define __EONSAddOns_h__
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSString.h>
+
+
+@class NSArray;
 
 
 @interface NSObject (NSObjectPerformingSelector)

@@ -31,6 +31,8 @@
 
 @class NSArray;
 @class NSDictionary;
+@class NSString;
+
 @class EOEditingContext;
 @class EOClassDescription;
 

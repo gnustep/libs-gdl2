@@ -27,7 +27,15 @@
 #ifndef __EODatabase_h__
 #define __EODatabase_h__
 
-#import <EOControl/EOControl.h>
+
+#import <Foundation/NSObject.h>
+
+
+@class NSArray;
+@class NSMutableArray;
+@class NSDictionary;
+@class NSMutableDictionary;
+@class NSString;
 
 @class EOAdaptor;
 @class EOModel;
