@@ -66,7 +66,7 @@ RCS_ID("$Id$")
 
   return [super init];
 };
-- (id) initWithArray: (id)array
+- (id)initWithArray: (NSArray *)array
 {
 #ifdef DEBUG
   NSDebugFLog(@"initWithArray EOCheapCopyArray %p", 
@@ -243,12 +243,11 @@ RCS_ID("$Id$")
   return self;
 }
 
-- (id) initWithArray:(NSArray*)array
+- (id)initWithArray: (NSArray *)array
 {
-  _grow_factor = 5;
-
   if ((self = [super initWithArray: array]))
     {
+      _grow_factor = 5;
     }
 
   return self;

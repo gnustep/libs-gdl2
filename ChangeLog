@@ -1,7 +1,10 @@
 2005-02-10  David Ayers  <d.ayers@inode.at>
 
-	* EOAccess/EOModel.m (writeToFile:): Clairfy documentation about
+	* EOAccess/EOModel.m (-writeToFile:): Clairfy documentation about
 	setting receivers name and path.
+	* EOControl/EOCheapArray.h/m (-initWithArray:): Correct signature
+	and only initialize instance variable if call to super init was
+	successfull.
 	
 2005-02-13  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOControl/EOClassDescription.m:

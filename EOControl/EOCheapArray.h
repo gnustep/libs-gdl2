@@ -43,7 +43,7 @@
   unsigned int _refcount;
 }
 
-- (id)initWithArray: (id)array;
+- (id)initWithArray: (NSArray *)array;
 - (id)initWithObjects: (id *)objects
 		count: (unsigned int)count;
 - (void)release;
