@@ -291,7 +291,10 @@ NSString *EOAdministrativeConnectionDictionaryKey
 	  loginBundle = [NSBundle bundleWithPath: path];
 	  loginClass = [loginBundle principalClass];
 	  panel = [loginClass new];
-	  [panelDict setObject: panel forKey: name];
+	  if (panel != nil)
+	    {
+	      [panelDict setObject: panel forKey: name];
+	    }
 	}
     }
   
