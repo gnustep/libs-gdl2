@@ -23,6 +23,10 @@
 	(-forgetSnapshotsForGlobalIDs:): Implement.
 	(-forgetAllLocks): Ditto.
 	(-forgetLocksForObjectsWithGlobalIDs:) Ditto.
+	* EOAccess/EODatabaseDataSource.m (-insertObject): Do not
+	insert object into the editing context.
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m (externalTypeNames):
+	Add new types.
 	
 2005-02-02  Matt Rice  <ratmice@yahoo.com>
 
