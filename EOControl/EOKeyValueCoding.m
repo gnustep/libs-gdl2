@@ -56,9 +56,8 @@ RCS_ID("$Id$")
 #include <Foundation/NSDebug.h>
 #else
 #include <Foundation/Foundation.h>
-#endif
-
 #include <gnustep/base/GSCategories.h>
+#endif
 
 #include <ctype.h>
 

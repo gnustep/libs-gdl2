@@ -49,9 +49,8 @@ RCS_ID("$Id$")
 #include <Foundation/NSDebug.h>
 #else
 #include <Foundation/Foundation.h>
-#endif
-
 #include <gnustep/base/GSCategories.h>
+#endif
 
 #include <EOControl/EOFetchSpecification.h>
 #include <EOControl/EOQualifier.h>

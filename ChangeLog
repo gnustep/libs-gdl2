@@ -13,6 +13,9 @@
 	* EOControl/GNUmakefile: Ditto.
 	* EOModeler/GNUmakefile: Ditto.
 	* Tools/GNUmakefile: Ditto.
+	* EOAccess/EOSQLExpression.m: Import GSCategories.h only for
+	NeXT_Foundation_Library.
+	* EOControl/EOKeyValueCoding.m: Ditto.
 
 2003-04-18  Mirko Viviani  <mirko@objectlab.org>
 
