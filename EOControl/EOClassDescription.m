@@ -271,7 +271,7 @@ static NSRecursiveLock *local_lock = nil;
 }
 
 /** returns a new autoreleased mutable dictionary to store properties **/
-- (NSMutableDictionary*) dictionaryForInstanceProperties
+- (NSMutableDictionary *)dictionaryForInstanceProperties
 {
   // Default implementation create a new EOMKKDInitializer. But subclass 
   // implementation like EOEntityClassDescription can (should :-) use the 
@@ -283,7 +283,7 @@ static NSRecursiveLock *local_lock = nil;
   EOFLOGObjectFnStart();
 
   // Get class properties (attributes + relationships)
-  classPropertyNames = [((NSMutableArray*)[NSMutableArray alloc])
+  classPropertyNames = [[NSMutableArray alloc]
                          initWithArray: [self attributeKeys]];
   [classPropertyNames addObjectsFromArray:
                         [self toOneRelationshipKeys]];
@@ -951,20 +951,23 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
         }
       else
         {
-          SEL validateSelector=NULL;
-          char buf[size+8]; // 8 characters for validate          
-          strcpy(buf, "validate");
-          [key getCString: &buf[8]];
-          if (islower(buf[8]))
-            buf[8]=toupper(buf[8]);
+	  SEL validateSelector;
+	  unsigned length = [key length];
+	  unsigned char buf[length + 10];
 
-          validateSelector = sel_get_any_uid(buf);
+	  strcpy(buf, "validate");
+	  [key getCString: &buf[8]];
+	  buf[8] = toupper(buf[8]);
+	  buf[length + 8] = ':';
+	  buf[length + 9] = 0;
 
-
+	  validateSelector = GSSelectorFromName(buf);
           if (validateSelector && [self respondsToSelector: validateSelector])
-            exception = [self performSelector: validateSelector
-                              withObject: *valueP];
-        };
+	    {
+	      exception = [self performSelector: validateSelector
+				withObject: *valueP];
+	    }
+        }
     }
 
   EOFLOGObjectFnStop();
@@ -1085,7 +1088,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 - (NSArray *)shallowCopy
 {
-  return [((NSMutableArray*)[NSArray alloc]) initWithArray: self];
+  return [[NSArray alloc] initWithArray: self];
 }
 
 @end
@@ -1193,7 +1196,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                   NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
                                snapshot, key, value, value);
                   
-                  value = AUTORELEASE([((NSArray*)value) shallowCopy]);
+                  value = AUTORELEASE([value shallowCopy]);
                   NSDebugMLLog(@"gsdb", @"TOMANY snap=%p key=%@ ==> value %p=%@",
                                snapshot, key, value, value);
                   
@@ -1236,7 +1239,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 	val = nil;
 
       if ([val isKindOfClass: GDL2NSArrayClass])
-	val = AUTORELEASE([AUTORELEASE([((NSArray*)val) shallowCopy]) mutableCopy]);
+	val = AUTORELEASE([val mutableCopy]);
 
       GDL2TakeStoredValueForKeyWithImpPtr(self,&selfTSVFK,val,key);
     }
@@ -1410,8 +1413,6 @@ toPropertyWithKey: (NSString *)key
       else
         {
           char buf[size+7];
-          char		lo;
-          char		hi;
           GDL2IMP_BOOL rtsIMP=NULL;
           SEL sel=NULL;
 
@@ -1419,16 +1420,15 @@ toPropertyWithKey: (NSString *)key
 
           strcpy(buf, "addTo");
           [key getCString: &buf[5]];
-          lo = buf[5];
-          hi = islower(lo) ? toupper(lo) : lo;
-          buf[5] = hi;
+          buf[5] = toupper(buf[5]);
           buf[size+5] = ':';
           buf[size+6] = '\0';
 
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [addToKey:] name=%s",
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				@"A aKey=%@ Method [addToKey:] name=%s",
                                 key, buf);
 
-          sel = sel_get_any_uid(buf);
+          sel = GSSelectorFromName(buf);
 
           if (sel && GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == YES)
             {
@@ -1526,8 +1526,6 @@ toPropertyWithKey: (NSString *)key
       else
         {
           char buf[size+12];
-          char		lo;
-          char		hi;
           GDL2IMP_BOOL rtsIMP=NULL;
           SEL sel=NULL;
 
@@ -1535,16 +1533,15 @@ toPropertyWithKey: (NSString *)key
 
           strcpy(buf, "removeFrom");
           [key getCString: &buf[10]];
-          lo = buf[10];
-          hi = islower(lo) ? toupper(lo) : lo;
-          buf[10] = hi;
+	  buf[10] = toupper(buf[10]);
           buf[size+10] = ':';
           buf[size+11] = '\0';
 
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [removeFromKey:] name=%s",
+          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
+				@"A aKey=%@ Method [removeFromKey:] name=%s",
                                 key, buf);
 
-          sel = sel_get_any_uid(buf);
+          sel = GSSelectorFromName(buf);
 
           if (sel && GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == YES)
             {

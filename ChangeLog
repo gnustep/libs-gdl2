@@ -6,6 +6,15 @@
 	and only initialize instance variable if call to super init was
 	successfull.
 	(-shallowCopy): Correct signature.
+	* EOControl/EOClassDescription.m
+	(-dictionaryForInstanceProperties): Remove casts.
+	([NSObject-shallowCopy], [NSObject-snapshot])
+	([NSObject-updateFromSnapshot:]): Ditto.
+	([NSObject-validateValue:forKey:]): Correct key determination and
+	use GSSelectorFromName instead of sel_get_any_uid.
+	([NSObject-addObject:toPropertyWithKey:]): Use GSSelectorFromName
+	instead of sel_get_any_uid.  Minor optimization.
+	([NSObject-removeObject:fromPropertyWithKey:]): Ditto.
 	
 2005-02-13  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOControl/EOClassDescription.m:
