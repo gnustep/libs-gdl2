@@ -1,0 +1,40 @@
+Introduction
+============
+
+   Make sure you have installed the GNUstep Makefile package
+(gnustep-make) and the GNUstep Base Library (gnustep-base) and you
+have sourced the makefile script:
+     . $GNUSTEP_SYSTEM_ROOT/Library/Makefiles/GNUstep.sh
+If you want support for LoginPanels you also need the GNUstep GUI
+Library (gnustep-gui) and the GNUstep Backend Library (gnustep-back)
+installed.
+   If your installing GDL2 on Cocoa, the GNUstep Base Library should
+be installed as a support library (gnustep-baseadd).  GDL2 will use
+AppKit so you do not need gnustep-gui or gnustep-back. 
+   See the GNUstep-HOWTO in gnustep-make for more information.
+
+   Quick installation instructions:
+
+     ./configure
+     make
+     make install
+
+Configuration
+=============
+
+   Configuration is performed by running the `configure' program at a
+shell prompt. You may want to use some of the optional arguments to the
+`configure' program. Type `configure --help' for a list of these. It is
+not likely that you will need to use the `--prefix' option, since
+gnustep-base will automatically install in the directory specified by the
+`GNUSTEP_SYSTEM_ROOT' environment variable (specified when you
+installed gnustep-make).
+
+Compilation
+===========
+
+   To compile this library, type make. After this is complete, type make
+install. Some additional options you can use with make are `debug=yes'
+to make a debugging version of the library and `shared=no' to make a
+static version of the library. See the gnustep-make package for more
+information on these options.

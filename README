@@ -1,0 +1,111 @@
+Readme
+******
+
+The GNUstep Database Library 2 (GDL2) is a set of libraries to map
+Objective-C objects to rows of relational database management systems
+(RDBMS).  It aims to be compatible with Enterprise Objects Framework
+(EOF) as released with WebObjects 4.5 from Apple Inc.  It requires the
+GNUstep Make Package 1.9.1 and the Base Library 1.9.1.  Alternatively
+it is meant to work with other OpenStep-like implementations like
+Cocoa together with the GNUstep BaseAdditions Library 1.9.1.  For UI
+applications which may want to use adaptor specific login panels, you
+should also install the GNUstep GUI Library 0.9.2 and the GNUstep
+Backend Library 0.9.2.  These should also work with AppKit.
+
+GDL2 consists of the following components:
+
+- EOControl (gnustep-db2control)
+
+The fundamental abstraction library which includes many non RDBMS
+related extensions such as KeyValueCoding extensions and other
+categories.  Most importantly it contains the classes which handle the
+coordination of object graphs namely EOEditingContext.
+
+- EOAccess (gnustep-db2)
+
+This library implements the underlying mechanism to retrieve and store
+data in RDBMS.  It defines the abstract classes like EOAdaptor which
+are subclassed to interface with concrete RDBMS implementations.
+
+- EOInterface (gnustep-db2interface)
+
+This library implements classes used to synchronize UI components such
+as NSTextFields, NSButtons and NSTableViews with the state of objects
+which an EOEditingContext contains.
+*Note this library is still missing in GDL2.  Some people have tried
+to use http://www.mulle-kybernetik.com/software/MulleEOInterface/ with
+some success.
+
+- EOAdaptors
+
+This is a collection of concrete EOAdaptor projects needed to connect
+to specific databases.  GDL2 currently only supplies an Adaptor for
+the PostgreSQL database.  Even though the Adaptor is still called
+Postgres95 we aim to support PostgreSQL 7.2 and higher API.  In fact
+the Adaptor may very soon be renamed to PostgreSQL.
+
+- EOModeler (???)
+
+GDL2 will offer a UI application to create and maintain .eomodel(d)
+files.  Currently it is not defined if this will be a EOModeler clone
+or different style of application.  Some people have started some
+preliminary work so ask on <discuss-gnustep@gnu.org> before starting
+on this.
+
+======================
+*** Important Note ***
+======================
+
+This release is meant for developers who can help test and contribute
+the current code or are willing to test the interface.  It is not
+ready for general purpose production code.  Having said that, it
+should be mentioned that GDL2 is being used in production environments
+and has been much tested in those contexts.
+
+Expect the current interface to change especially with respect to
+functions and methods not documented in EOF 4.5.  Even the library
+names themselves may change.
+
+With respect to EOF, GDL2 is currently missing EOSharedEditingContext,
+EOMultiReaderLocks and the EOEvent classes.  Also we currently do not
+support the EOSchemaSynchronization methods yet.  But you are likely
+to find many more missing implementations within the source.  If you
+identify something that you need, please let us know at
+<discuss-gnustep@gnu.org> or even better get copyright assignment for
+the FSF and post a patch.
+
+Initial reading
+===============
+
+   The file `NEWS' has the library's feature history.
+
+   The files `INSTALL' gives instructions for installing the library.
+
+License
+=======
+
+   The GNUstep libraries are covered under the GNU Lesser Public
+License.  This means you can use these libraries in any program (even
+non-free programs).  If you distribute the libraries along with your
+program, you must make the improvements you have made to the libraries
+available to those you distribute to.  You should read the COPYING.LIB
+file for more information.
+
+   GNUstep tools, test programs, and other files are covered under the
+GNU General Public License.  This means if you distribute derivative works
+of these programs you must distribute them in compliance with the
+GPL.  You should read the COPYING file for more information.
+
+How can you help?
+=================
+
+   * Give us feedback!  Tell us what you like; tell us what you think
+     could be better.
+
+     Please log bug reports on the GNUstep project page
+     <http://savannah.gnu.org/support/?group=gnustep> or send bug
+     reports to <bug-gnustep@gnu.org>.
+
+
+     Happy hacking!
+

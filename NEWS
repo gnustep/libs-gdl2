@@ -1,0 +1,17 @@
+News
+****
+
+The currently released version of the library is `0.9.1'.
+
+Initial 'alpha' release
+========================================
+
+   * This is the first alpha release package of GDL2.  First and
+     foremost this is the result of a tremendous effort of 
+     Mirko Viviani <mirko.viviani@e-cremona.it> to create a database
+     library aiming a compatibility with Enterprise Objects Frameworks
+     from Apple Inc.  It is still missing major components and many of
+     the existing classes are not fully implemented.  Yet the package
+     does provide a basis for production level code.  As major
+     features are completed, they should be mentioned by release in
+     this file.
