@@ -3301,7 +3301,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   //NSAssert(object, @"No object");
 
-  if (object)
+  if (!isNilOrEONull(object))
     {
       entity = [_database entityForObject: object];
 
@@ -3613,7 +3613,7 @@ Raises an exception is the adaptor is unable to perform the operations.
               EOFLOGObjectLevelArgs(@"EODatabaseContext",
 				    @"destinationValue=%@", destinationValue);
 
-              if (destinationValue)//?? or always
+              if (!isNilOrEONull(destinationValue))//?? or always
                 [relayedValues setObject: destinationValue
                                forKey: sourceKey];
             }

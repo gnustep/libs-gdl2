@@ -1,3 +1,22 @@
+2002-12-01  Manuel Guesdon  <mguesdon@orange-concept.com>
+	* EOAccess/EODatabase.m
+		o  in -entityForObject: test for EONull or nil instead of just nil
+	* EOAccess/EODatabaseContext.m:
+		o in -valuesForKeys:object: test for EONull or nil instead of just nil
+	* EOControl/EOGenericRecord.m:
+		o replaced GSObjCFindVariable by GSObjCFindInstanceVariable
+	 	o replaced GSObjCGetValue by GSGetValue
+		o replaced GSObjCSetValue by GSSetValue
+	* EOAccess/EOSQLExpression.m:
+		o changed assertion message in -sqlStringForAttributeNamed:
+	* EOAccess/EOSQLQualifier.m:
+		o finished EOAndQualifier -schemaBasedQualifierWithRootEntity implementation
+		o done EOOrQualifier -schemaBasedQualifierWithRootEntity implementation
+		o modified EOKeyValueQualifier -schemaBasedQualifierWithRootEntity: 
+			to use EONull for EONull value relationship attribute value
+			so it will make sql like is null instead of = NULL which 
+			doesn't work on Postgresql.
+
 2002-11-30  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOAccess/EODatabaseContext.m
 		o logs

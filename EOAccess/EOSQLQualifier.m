@@ -117,7 +117,12 @@ static char rcsId[] = "$Id$";
 
 - (EOQualifier *)schemaBasedQualifierWithRootEntity: (EOEntity *)entity
 {
-  int qualifierCount = [_qualifiers count];
+  EOQualifier *returnedQualifier = self;
+  int qualifierCount = 0;
+  BOOL atLeastOneDifferentQualifier = NO; // YES if we find a changed qualifier
+  EOFLOGObjectFnStart();
+
+  qualifierCount = [_qualifiers count];
 
   if (qualifierCount > 0)
     {
@@ -131,17 +136,19 @@ static char rcsId[] = "$Id$";
 	    [(<EOQualifierSQLGeneration>)qualifier
 					 schemaBasedQualifierWithRootEntity:
 					   entity];
-
+          if (schemaBasedQualifierTmp != qualifier)
+            atLeastOneDifferentQualifier = YES;
 	  [qualifiers addObject: schemaBasedQualifierTmp];
 	}
+
+      // If we've found at least a different qualifier, return a new EOAndQualifier
+      if (atLeastOneDifferentQualifier)
+          returnedQualifier = [[self class] qualifierWithQualifierArray:qualifiers];
     }
-//TODO
-/*
-call schemaBasedQualifierWithRootEntity:entity for each qualifier
-if none return something different self, return self
-  [self notImplemented:_cmd];//TODO
-*/
-  return self;
+
+  EOFLOGObjectFnStop();
+
+  return returnedQualifier;
 }
 
 @end
@@ -175,12 +182,38 @@ if none return something different self, return self
 
 - (EOQualifier *)schemaBasedQualifierWithRootEntity: (EOEntity *)entity
 {
-/*
-call schemaBasedQualifierWithRootEntity:entity for each qualifier
-if none return something different self, return self
-  [self notImplemented:_cmd];//TODO
-*/
-  return self;
+  EOQualifier *returnedQualifier = self;
+  int qualifierCount = 0;
+  BOOL atLeastOneDifferentQualifier = NO; // YES if we find a changed qualifier
+  EOFLOGObjectFnStart();
+
+  qualifierCount = [_qualifiers count];
+
+  if (qualifierCount > 0)
+    {
+      NSMutableArray *qualifiers = [NSMutableArray array];
+      int i;
+
+      for (i = 0; i < qualifierCount; i++)
+	{
+	  EOQualifier *qualifier = [_qualifiers objectAtIndex: i];
+	  EOQualifier *schemaBasedQualifierTmp =
+	    [(<EOQualifierSQLGeneration>)qualifier
+					 schemaBasedQualifierWithRootEntity:
+					   entity];
+          if (schemaBasedQualifierTmp != qualifier)
+            atLeastOneDifferentQualifier = YES;
+	  [qualifiers addObject: schemaBasedQualifierTmp];
+	}
+
+      // If we've found at least a different qualifier, return a new EOOrQualifier
+      if (atLeastOneDifferentQualifier)
+          returnedQualifier = [[self class] qualifierWithQualifierArray:qualifiers];
+    }
+
+  EOFLOGObjectFnStop();
+
+  return returnedQualifier;
 }
 
 @end
@@ -262,11 +295,11 @@ if none return something different self, return self
 			    rootObjectStore);
       EOFLOGObjectLevelArgs(@"EOQualifier", @"destinationAttributeNames=%@",
 			    destinationAttributeNames);
-
+      
       keyValues = [(EOObjectStoreCoordinator*)rootObjectStore
-					      valuesForKeys:
-						destinationAttributeNames
-					      object: value];
+                                              valuesForKeys:
+                                                destinationAttributeNames
+                                              object: value];
       EOFLOGObjectLevelArgs(@"EOQualifier", @"keyValues=%@", keyValues);
 
       sel = [self selector];
@@ -282,6 +315,8 @@ when flattened: ???
           NSString *attributeName = nil;
           NSString *destinationAttributeName;
           EOJoin *join = [joins objectAtIndex: i];
+          id attributeValue = nil;
+          EONull *eoNull=[EONull null];
 
           EOFLOGObjectLevelArgs(@"EOQualifier",@"join=%@",join);
 
@@ -302,11 +337,11 @@ when flattened: ???
               attributeName = [sourceAttribute name];
             }
 
+          attributeValue = [keyValues objectForKey:destinationAttributeName];
           tmpQualifier = [EOKeyValueQualifier
 			   qualifierWithKey: attributeName
 			   operatorSelector: sel
-			   value: [keyValues objectForKey:
-					       destinationAttributeName]];
+			   value: (attributeValue ? attributeValue : eoNull)];
 
           if (qualifier)//Already a qualifier
             {
@@ -325,7 +360,6 @@ when flattened: ???
 
       if (qualifiers)
         {
-          //TODOVERIFY
           qualifier = [EOAndQualifier qualifierWithQualifierArray: qualifiers];
         }
     }

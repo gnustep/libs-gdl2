@@ -1530,11 +1530,13 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   //OK
   EOAttribute *attribute = nil;
   NSString *sqlString = nil;
-  NSArray *keyParts;
+  NSArray *keyParts = nil;
   NSString *key = nil;
   EOEntity *entity=_entity;
   NSMutableArray *attributePath = nil;  
   int i, count;
+  EORelationship *rel = nil;
+
 
   EOFLOGObjectFnStart();
 
@@ -1549,8 +1551,6 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   for (i = 0; i < count - 1; i++)
     {
-      EORelationship *rel;
-
       key = [keyParts objectAtIndex: i];
 
       EOFLOGObjectLevelArgs(@"EOSQLExpression", @"keyPart=%@", key);
@@ -1580,12 +1580,24 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   attribute = [entity anyAttributeNamed: key];
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attribute=%@", attribute);
 
-  NSAssert4(attribute,
-            @"no attribute named %@ in entity %@\nAttributesByName=%@\nattributes=%@",
-            key,
-            [entity name],
-            [entity attributesByName],
-            [entity attributes]);
+  if (!attribute)
+    {
+      rel = [entity anyRelationshipNamed: key];
+      if (rel)
+        NSAssert4(attribute,
+                  @"no attribute named %@ (only a relationship) in entity %@\nAttributesByName=%@\nattributes=%@",
+                  key,
+                  [entity name],
+                  [entity attributesByName],
+                  [entity attributes]);
+      else
+        NSAssert4(attribute,
+                  @"no attribute nor relationship named %@ in entity %@\nAttributesByName=%@\nattributes=%@",
+                  key,
+                  [entity name],
+                  [entity attributesByName],
+                  [entity attributes]);
+    };
 
   if (attributePath)
     {

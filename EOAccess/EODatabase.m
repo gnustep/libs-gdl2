@@ -277,7 +277,7 @@ static NSMutableArray *databaseInstances;
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p (of class %@)",
 			object, [object class]);
-  NSAssert(object, @"No object");
+  NSAssert(!isNilOrEONull(object), @"No object");
 
   if ([EOFault isFault: object])
     {
