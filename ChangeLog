@@ -1,7 +1,21 @@
 2003-02-25  David Ayers  <d.ayers@inode.at>
 
+	* EOAdaptors/Postgres95/Postgres95Channel.m: Define 
+	EOAdaptorDebugLog convinience macro and use it throughout the file.
+	([Postgres95Channel _describeResults]): Rename externalName to 
+	externalType. Avoid nested messages for source level debugging.
+	([Postgres95Channel _describeBasicEntityWithName:forModel:]):
+	New support method derived from describeModelWithEntityNames:.
+	([Postgres95Channel _describeForeignKeysForEntity:forModel:]):
+	Ditto.
+	([Postgres95Channel describeModelWithEntityNames:]): Use new
+	support methods in an autotelease pool.
+	([Postgres95Channel primaryKeyForNewRowWithEntity:]): Honor 
+	EOAdaptorQuotesExternalNames.
+	
 	* EOAdaptors/Postgres95/Postgres95Adaptor.m: Reorder external
 	type mappings to correspond to EOAdaptorValueTypes.
+	
 	* EOAccess/EOModel.m ([EOModel beautifyNames]): Remove log and 
 	reformat comments. 
 

@@ -46,11 +46,11 @@ RCS_ID("$Id$")
 #include <Foundation/NSArray.h>
 #include <Foundation/NSDictionary.h>
 #include <Foundation/NSString.h>
+#include <Foundation/NSSet.h>
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSUtilities.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
-#include <Foundation/NSScanner.h>
 #else
 #include <Foundation/Foundation.h>
 #include <GNUstepBase/GSCategories.h>
@@ -85,7 +85,10 @@ static void __dummy_function_used_for_linking(void)
   __dummy_function_used_for_linking();
 }
 
+#define EOAdaptorDebugLog(format, args...) \
+  do { if ([self isDebugEnabled]) { NSLog(format , ## args); } } while (0)
 #define NSS_SWF NSString stringWithFormat
+
 static NSDictionary *
 pgResultDictionary(PGresult *pgResult)
 {
@@ -1341,7 +1344,7 @@ each key
       for (i = 0; i < colsNumber; i++)
         {
           EOAttribute *attribute = AUTORELEASE([EOAttribute new]);
-          NSString *externalName;
+          NSString *externalType;
           NSString *valueClass = @"NSString";
           NSString *valueType = nil;
           NSDebugMLog(@"TEST attributesToFetch=%@",
@@ -1359,53 +1362,54 @@ each key
               [attribute setValueClassName: [origAttr valueClassName]];
             }
           else
-            {              
-              externalName = [_oidToTypeName 
-                               objectForKey: [NSNumber
-					       numberWithLong: PQftype(_pgResult, i)]];
+            {
+              NSNumber *externalTypeNumber;
+	      externalTypeNumber 
+		= [NSNumber numberWithLong: PQftype(_pgResult, i)];
+              externalType = [_oidToTypeName objectForKey: externalTypeNumber];
 
-              if (!externalName)
+              if (!externalType)
                 [NSException raise: Postgres95Exception
                              format: @"cannot find type for Oid = %d",
                              PQftype(_pgResult, i)];
 
               [attribute setName: [NSString stringWithFormat: @"attribute%d", i]];
               [attribute setColumnName: @"unknown"];
-              [attribute setExternalType: externalName];
+              [attribute setExternalType: externalType];
 
-              if      ([externalName isEqual: @"bool"])
+              if      ([externalType isEqual: @"bool"])
                 valueClass = @"NSNumber", valueType = @"c";
-              else if ([externalName isEqual: @"char"])
+              else if ([externalType isEqual: @"char"])
                 valueClass = @"NSNumber", valueType = @"c";
-              else if ([externalName isEqual: @"dt"])
+              else if ([externalType isEqual: @"dt"])
                 valueClass = @"NSCalendarDate", valueType = nil;
-              else if ([externalName isEqual: @"date"])
+              else if ([externalType isEqual: @"date"])
                 valueClass = @"NSCalendarDate", valueType = nil;
-              else if ([externalName isEqual: @"time"])
+              else if ([externalType isEqual: @"time"])
                 valueClass = @"NSCalendarDate", valueType = nil;
-              else if ([externalName isEqual: @"float4"])
+              else if ([externalType isEqual: @"float4"])
                 valueClass = @"NSNumber", valueType = @"f";
-              else if ([externalName isEqual: @"float8"])
+              else if ([externalType isEqual: @"float8"])
                 valueClass = @"NSNumber", valueType = @"d";
-              else if ([externalName isEqual: @"int2"])
+              else if ([externalType isEqual: @"int2"])
                 valueClass = @"NSNumber", valueType = @"s";
-              else if ([externalName isEqual: @"int4"])
+              else if ([externalType isEqual: @"int4"])
                 valueClass = @"NSNumber", valueType = @"i";
-              else if ([externalName isEqual: @"int8"] || [externalName isEqual: @"bigint"])
+              else if ([externalType isEqual: @"int8"] || [externalType isEqual: @"bigint"])
                 valueClass = @"NSNumber", valueType = @"u";
-              else if ([externalName isEqual: @"oid"])
+              else if ([externalType isEqual: @"oid"])
                 valueClass = @"NSNumber", valueType = @"l";
-              else if ([externalName isEqual: @"varchar"])
+              else if ([externalType isEqual: @"varchar"])
                 valueClass = @"NSString", valueType = nil;
-              else if ([externalName isEqual: @"bpchar"])
+              else if ([externalType isEqual: @"bpchar"])
                 valueClass = @"NSString", valueType = nil;
-              else if ([externalName isEqual: @"text"])
+              else if ([externalType isEqual: @"text"])
                 valueClass = @"NSString", valueType = nil;
-              /*      else if ([externalName isEqual:@"cid"])
+              /*      else if ([externalType isEqual:@"cid"])
                       valueClass = @"NSNumber", valueType = @"";
-                      else if ([externalName isEqual:@"tid"])
+                      else if ([externalType isEqual:@"tid"])
                       valueClass = @"NSNumber", valueType = @"";
-                      else if ([externalName isEqual:@"xid"])
+                      else if ([externalType isEqual:@"xid"])
                       valueClass = @"NSNumber", valueType = @"";*/
 
               [attribute setValueType: valueType];
@@ -1481,12 +1485,255 @@ each key
   return nil;
 }
 
+- (void)_describeBasicEntityWithName:(NSString *)tableName
+			    forModel:(EOModel *)model
+{
+  EOEntity *entity;
+  NSString *stmt;
+  EOAttribute *attribute;
+  NSString *valueClass = @"NSString";
+  NSString *valueType = nil;
+  NSString *tableOid;
+  unsigned int n, c, k;
+
+  entity = AUTORELEASE([[EOEntity alloc] init]);
+  [entity setName: tableName];
+  [entity setExternalName: tableName];
+  [entity setClassName: @"EOGenericRecord"];
+  [model addEntity: entity];
+
+  stmt = [NSS_SWF: @"SELECT oid FROM pg_class "
+		 @"WHERE relname = '%@' AND relkind = 'r'",tableName];
+
+  EOAdaptorDebugLog(@"Postgres95Adaptor: execute command:\n%@", stmt);
+  _pgResult = PQexec(_pgConn, [stmt cString]);
+
+  if (_pgResult == NULL || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
+    {
+      _pgResult = NULL;
+      [NSException raise: Postgres95Exception
+		   format: @"cannot read type name information from database."
+		   @"bad response from server"];
+    }
+
+  if (PQntuples(_pgResult) != 1)
+    {
+      _pgResult = NULL;
+      [NSException raise: Postgres95Exception
+		   format: @"Table %@ doesn't exist", tableName];
+    }
+
+  tableOid = [NSString stringWithCString: PQgetvalue(_pgResult,0,0)];
+  [entity setUserInfo: [NSDictionary dictionaryWithObject:tableOid 
+				     forKey: @"tableOid"]];
+  stmt = [NSS_SWF: @"SELECT attname,typname,attnum "
+		 @"FROM pg_attribute LEFT JOIN pg_type ON atttypid = oid "
+		 @"WHERE attnum > 0 AND attrelid=%@", tableOid];
+
+  EOAdaptorDebugLog(@"Postgres95Adaptor: execute command:\n%@", stmt);
+  PQclear(_pgResult);
+
+  _pgResult = PQexec(_pgConn, [stmt cString]);
+
+  for (n = 0, c = PQntuples(_pgResult); n < c; n++)
+    {
+      NSString *columnName;
+      NSString *externalType;
+
+      externalType = [NSString stringWithCString: PQgetvalue(_pgResult,n,1)];
+      if ([externalType isEqual: @"bool"])
+	valueClass = @"NSNumber", valueType = @"c";
+      else if ([externalType isEqual: @"char"])
+	valueClass = @"NSNumber", valueType = @"c";
+      else if ([externalType isEqual: @"dt"])
+	valueClass = @"NSCalendarDate", valueType = nil;
+      else if ([externalType isEqual: @"date"])
+	valueClass = @"NSCalendarDate", valueType = nil;
+      else if ([externalType isEqual: @"time"])
+	valueClass = @"NSCalendarDate", valueType = nil;
+      else if ([externalType isEqual: @"float4"])
+	valueClass = @"NSNumber", valueType = @"f";
+      else if ([externalType isEqual: @"float8"])
+	valueClass = @"NSNumber", valueType = @"d";
+      else if ([externalType isEqual: @"int2"])
+	valueClass = @"NSNumber", valueType = @"i";
+      else if ([externalType isEqual: @"int4"])
+	valueClass = @"NSNumber", valueType = @"i";
+      else if ([externalType isEqual: @"int8"])
+	valueClass = @"NSNumber", valueType = @"l";
+      else if ([externalType isEqual: @"oid"])
+	valueClass = @"NSNumber", valueType = @"l";
+      else if ([externalType isEqual: @"varchar"])
+	valueClass = @"NSString", valueType = nil;
+      else if ([externalType isEqual: @"bpchar"])
+	valueClass = @"NSString", valueType = nil;
+      else if ([externalType isEqual: @"text"])
+	valueClass = @"NSString", valueType = nil;
+
+      attribute = AUTORELEASE([EOAttribute new]);
+      columnName 
+	= [NSString stringWithCString: PQgetvalue(_pgResult, n, 0)];
+      [attribute setName: columnName];
+      [attribute setColumnName: columnName];
+      [attribute setExternalType: externalType];
+      [attribute setValueType: valueType];
+      [attribute setValueClassName: valueClass];
+      [entity addAttribute: attribute];
+    }
+
+  PQclear(_pgResult);
+
+  /* Determint primary key. */ 
+  stmt = [NSS_SWF: @"SELECT indkey FROM pg_index "
+		 @"WHERE indrelid='%@' AND indisprimary = 't'",
+		 tableOid];
+
+  EOAdaptorDebugLog(@"Postgres95Adaptor: execute command:\n%@", stmt);
+  _pgResult = PQexec(_pgConn,[stmt cString]);
+  if (PQntuples(_pgResult))
+    {
+      NSString *pkAttNum;
+      pkAttNum = [NSString stringWithCString: PQgetvalue(_pgResult,0,0)];
+      pkAttNum = [pkAttNum stringByReplacingString:@" " withString: @", "];
+      stmt = [NSS_SWF: @"SELECT attname FROM pg_attribute "
+		     @"WHERE attrelid='%@' and attnum in (%@)",
+		     tableOid, pkAttNum];
+      PQclear(_pgResult);
+
+      EOAdaptorDebugLog(@"Postgres95Adaptor: execute command:\n%@", stmt);
+      _pgResult = PQexec(_pgConn,[stmt cString]);
+ 
+      if (PQntuples(_pgResult))
+	{
+	  NSArray *pkeys = AUTORELEASE([NSArray new]);
+	  for (k = 0, c = PQntuples(_pgResult); k < c; k++)
+	    {
+	      const char *cName;
+	      NSString *name;
+
+	      cName = PQgetvalue(_pgResult,k,0);
+	      name  = [NSString stringWithCString: cName];
+	      attribute = [entity attributeNamed: name];
+	      NSDebugMLLog(@"adaptor", @"pk(%d) name: %@", k, name); 
+
+	      pkeys = [pkeys arrayByAddingObject: attribute];
+	    }
+
+	  NSDebugMLLog(@"adaptor", @"pkeys %@", pkeys);
+	  [entity setPrimaryKeyAttributes: pkeys];
+	}
+    }
+  /* </primary key stuff> */
+
+}
+
+
+- (void)_describeForeignKeysForEntity:(EOEntity *) entity
+			     forModel:(EOModel *) model
+{
+  NSString  *stmt;
+  NSString  *tableOid;
+  unsigned int i, j, n, m;
+
+  tableOid = [[entity userInfo] objectForKey: @"tableOid"];
+  stmt = [NSS_SWF: @"SELECT tgargs FROM pg_trigger "
+		 @"WHERE tgtype=21 AND tgisconstraint='t' AND tgrelid=%@",
+		 tableOid];
+
+  PQclear(_pgResult);
+
+  EOAdaptorDebugLog(@"Postgres95Adaptor: execute command:\n%@", stmt);
+  _pgResult = PQexec(_pgConn, [stmt cString]);
+
+  for (i = 0, n = PQntuples(_pgResult); i < n; i++)
+    {
+      NSString       *fkString;
+      NSArray        *fkComp;
+      NSString       *srcEntityName;
+      NSString       *dstEntityName;
+      EOEntity       *srcEntity;
+      EOEntity       *dstEntity;
+      NSString       *relationshipName;
+      EORelationship *relationship;
+      NSSet          *dstPKSet;
+      NSMutableSet   *dstAttribNames;
+
+      fkString = [NSString stringWithCString: PQgetvalue(_pgResult,i,0)];
+      NSDebugMLLog(@"adaptor", @"foreign key: %@\n",fkString);
+
+      fkComp = [fkString componentsSeparatedByString: @"\\000"];
+
+      NSAssert1([fkComp count]>6, @"Illformed constraint:%@", fkString);
+
+      NSDebugMLLog(@"adaptor", @"constaint anme: %@", 
+		   [fkComp objectAtIndex:0]);
+
+      /* This assumes that entityName == tableName.  */
+      srcEntityName = [fkComp objectAtIndex: 1];
+      dstEntityName = [fkComp objectAtIndex: 2];
+
+      srcEntity = [model entityNamed: srcEntityName];
+      dstEntity = [model entityNamed: dstEntityName];
+
+      relationshipName = [NSS_SWF:@"to%@", dstEntityName];
+
+      for (j = 1; 
+	   ([srcEntity anyAttributeNamed: relationshipName] != nil || 
+	    [srcEntity anyRelationshipNamed: relationshipName] != nil);
+	   j++)
+	{
+	  relationshipName = [NSS_SWF:@"to%@_%d", dstEntityName, j];
+	}
+
+      relationship = AUTORELEASE([EORelationship new]);
+      [relationship setName: relationshipName];
+      [srcEntity addRelationship: relationship];
+
+      dstAttribNames = (id)[NSMutableSet set];
+
+      for (j = 4, m = [fkComp count]; j < m; j = j + 2)
+	{
+	  NSString    *srcAttribName;
+	  NSString    *dstAttribName;
+	  EOAttribute *srcAttrib;
+	  EOAttribute *dstAttrib;
+	  EOJoin      *join;
+
+	  srcAttribName = [fkComp objectAtIndex: j];
+	  if ([srcAttribName length] == 0) break;
+	  dstAttribName = [fkComp objectAtIndex: j + 1];
+	  [dstAttribNames addObject: dstAttribName];
+
+	  srcAttrib = [srcEntity attributeNamed: srcAttribName];
+	  dstAttrib = [srcEntity attributeNamed: dstAttribName];
+
+	  join 
+	    = AUTORELEASE([[EOJoin alloc] initWithSourceAttribute: srcAttrib
+					  destinationAttribute: dstAttrib]);
+	  [relationship addJoin: join];
+	}
+
+      dstPKSet = [NSSet setWithArray: [dstEntity primaryKeyAttributeNames]];
+
+      if ([dstPKSet isSubsetOfSet: dstAttribNames])
+	{
+	  [relationship setToMany: NO];
+	}
+      else
+	{
+	  [relationship setToMany: YES];
+	}
+      [relationship setJoinSemantic: EOInnerJoin];
+    } 
+}
+
 - (EOModel *)describeModelWithTableNames: (NSArray *)tableNames
 {
   EOModel   *model;
   EOAdaptor *adaptor;
-  int i,k,n;
-  unsigned int j;
+  NSArray *entityNames;
+  unsigned int i;
+
   adaptor = [[self adaptorContext] adaptor];
   model = AUTORELEASE([[EOModel alloc] init]);
 
@@ -1495,236 +1742,46 @@ each key
 
   for (i = 0; i < [tableNames count]; i++)
     {
-      NSString *tableName;
-      EOEntity *entity;
-      NSString *stmt;
-      EOAttribute *attribute;
-      NSString *externalName;
-      NSString *valueClass = @"NSString";
-      NSString *valueType = nil;
-      NSString *tableOid;
+      NSAutoreleasePool *pool = [NSAutoreleasePool new];
+      NSString *name;
 
-      tableName = [tableNames objectAtIndex: i];
-      entity = AUTORELEASE([[EOEntity alloc] init]);
-      [entity setName: tableName];
-      [entity setExternalName: tableName];
-      [entity setClassName: @"EOGenericRecord"];
-      [model addEntity: entity];
+      NS_DURING
+	name = [tableNames objectAtIndex: i];
+	[self _describeBasicEntityWithName: name forModel: model];
+      NS_HANDLER
+	{
+	  RETAIN(localException);
+	  [pool release];
+	  [AUTORELEASE(localException) raise];
+	}
+      NS_ENDHANDLER
 
-      stmt = [NSS_SWF: @"SELECT oid FROM pg_class WHERE relname = '%@' AND relkind = 'r'",tableName];
-//      NSLog(@"Calling:%@", stmt);
-      _pgResult = PQexec(_pgConn, [stmt cString]);
-
-      if (_pgResult == NULL || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
-        {
-          _pgResult = NULL;
-          [NSException raise: Postgres95Exception
-                    format: @"cannot read type name informations from database."
-                            @"bad response from server"];
-        }
-
-      if (PQntuples(_pgResult) != 1)
-        {
-          _pgResult = NULL;
-          [NSException raise: Postgres95Exception
-                       format: @"Table %@ doesn't exist", tableName];
-        }
-
-      tableOid = [NSString stringWithCString: (char*)PQgetvalue(_pgResult,0,0)];
-      [entity setUserInfo: [NSDictionary dictionaryWithObject:tableOid forKey: @"tableOid"]];
-      stmt = [NSS_SWF: @"SELECT attname,typname,attnum FROM pg_attribute LEFT JOIN pg_type ON atttypid = oid WHERE attnum > 0 AND attrelid=%@", tableOid];
-
-      PQclear(_pgResult);
-//     NSLog(@"Calling: %@",stmt);
-      _pgResult = PQexec(_pgConn, [stmt cString]);
-
-        for (n = 0; n < PQntuples(_pgResult); n++)
-           {
-             externalName = [NSString stringWithCString: PQgetvalue(_pgResult,n,1)];
-             if      ([externalName isEqual: @"bool"])
-               valueClass = @"NSNumber", valueType = @"c";
-             else if ([externalName isEqual: @"char"])
-               valueClass = @"NSNumber", valueType = @"c";
-             else if ([externalName isEqual: @"dt"])
-               valueClass = @"NSCalendarDate", valueType = nil;
-             else if ([externalName isEqual: @"date"])
-               valueClass = @"NSCalendarDate", valueType = nil;
-             else if ([externalName isEqual: @"time"])
-               valueClass = @"NSCalendarDate", valueType = nil;
-             else if ([externalName isEqual: @"float4"])
-               valueClass = @"NSNumber", valueType = @"f";
-             else if ([externalName isEqual: @"float8"])
-               valueClass = @"NSNumber", valueType = @"d";
-             else if ([externalName isEqual: @"int2"])
-               valueClass = @"NSNumber", valueType = @"i";
-             else if ([externalName isEqual: @"int4"])
-               valueClass = @"NSNumber", valueType = @"i";
-             else if ([externalName isEqual: @"int8"])
-               valueClass = @"NSNumber", valueType = @"l";
-             else if ([externalName isEqual: @"oid"])
-               valueClass = @"NSNumber", valueType = @"l";
-             else if ([externalName isEqual: @"varchar"])
-               valueClass = @"NSString", valueType = nil;
-             else if ([externalName isEqual: @"bpchar"])
-               valueClass = @"NSString", valueType = nil;
-             else if ([externalName isEqual: @"text"])
-               valueClass = @"NSString", valueType = nil;
-
-             attribute = AUTORELEASE([EOAttribute new]);
-             [attribute setName: [NSString stringWithCString:
-                                    PQgetvalue(_pgResult,n,0)]];
-             [attribute setColumnName: tableName];
-             [attribute setExternalType: externalName];
-             [attribute setValueType: valueType];
-             [attribute setValueClassName: valueClass];
-             [entity addAttribute: attribute];
-           }
-
-         /* <primary key stuff> */ 
-
-         stmt = [NSS_SWF: @"SELECT indkey FROM pg_index WHERE indrelid='%@' AND indisprimary = 't'",tableOid];
-         PQclear(_pgResult);
-	   // NSLog(@"calling: %@",stmt);
-	    _pgResult = PQexec(_pgConn,[stmt cString]);
-         if (PQntuples(_pgResult))
-	    {
-	        NSString *pkAttNum;
-		    pkAttNum = [[NSString stringWithCString: PQgetvalue(_pgResult,0,0)] stringByReplacingString:@" " withString: @", "];
-            stmt = [NSS_SWF: @"SELECT attname FROM pg_attribute WHERE attrelid='%@' and attnum in (%@)",tableOid,pkAttNum];
-            PQclear(_pgResult);
-           //  NSLog(@"calling: %@",stmt);
-            _pgResult = PQexec(_pgConn,[stmt cString]);
- 
-            if (PQntuples(_pgResult))
-            {
-	           NSArray *pkeys = AUTORELEASE([NSArray new]);
-		         for (k=0;k<PQntuples(_pgResult);k++)
-			         {
-				           attribute = [entity attributeNamed: [NSString stringWithCString: PQgetvalue(_pgResult,k,0)]];
-	          pkeys = [pkeys arrayByAddingObject: attribute];
-             //     NSLog(@"pk name's %s",PQgetvalue(_pgResult,k,0)); 
-	              }
-		          
-              // NSLog(@"pkeys %@",pkeys);
-	             [entity setPrimaryKeyAttributes: pkeys];
-		          }
-			     }
-          /* </primary key stuff> */
-
+      [pool release];
     }
-          /* <foreign key stuff> */
-NSArray *entityNames = [model entityNames];
+
+  /* <foreign key stuff> */
+  entityNames = [model entityNames];
   for (i = 0; i < [entityNames count]; i++)
     {
-         EOEntity  *entity;
-         NSString  *stmt;
-         NSString  *tableOid;
-         NSScanner *scanner;
-         NSString  *scanValue;
-         entity = [model entityNamed: [entityNames objectAtIndex:i]];
-         tableOid = [[entity userInfo] objectForKey: @"tableOid"];
-         stmt = [NSS_SWF: @"SELECT tgargs FROM pg_trigger WHERE tgtype=21 AND tgisconstraint='t' AND tgrelid=%@",tableOid];
-        // NSLog(@"Calling: %@",stmt);
-         PQclear(_pgResult);
-         _pgResult = PQexec(_pgConn, [stmt cString]);
-         // if (PQntuples(_pgResult) != 0)
-         for (n = 0; n < PQntuples(_pgResult); n++)
-           {
-            NSString       *sourceTable;
-            NSString       *destinationTable;
-            NSString       *sourceAttribute;
-            NSString       *destinationAttribute;
-            EORelationship *fkRelationship;
-            EOEntity       *destEntity;
-            NSString       *aRelationshipName;
-            EOJoin         *fkJoin;
-            j = 0; 
-            scanner = [NSScanner scannerWithString: [NSString stringWithCString:
-PQgetvalue(_pgResult,n,0)]];
-            [scanner scanUpToString: @"\\000" intoString: &scanValue];
-           //  NSLog(@"constraint name: %@\n",scanValue); //dunno what this is assuming it isn't needed
-            while ([scanner scanString: @"\\000" intoString:&scanValue]==YES)
-                {
-                  [scanner scanUpToString: @"\\000" intoString:&scanValue];
-                  if (![scanValue isEqual: @"\\000"])
-                   {
-                     j++;
-                     switch (j)
-                          {
-                            case 1:
-                             sourceTable= scanValue;
-                             RETAIN(sourceTable);
-                            // NSLog(@"table with foreign key: %@\n",sourceTable);
-                             break;
-                            case 2:
-                             destinationTable = scanValue;
-                             RETAIN(destinationTable);
-                            // NSLog(@"table foreign key references: %@\n",destinationTable);
-                             aRelationshipName = [NSS_SWF:@"to%@",destinationTable];
-                             fkRelationship = [[model entityNamed: sourceTable] relationshipNamed: aRelationshipName];
-                            if (!fkRelationship)
-                             {
-					       destEntity = [model entityNamed: destinationTable];
-                               // NSLog(@"destEntity retainCount %i", [destEntity retainCount]);
-                               // this is ugly we also check it's existance again later... this yeilds interesting retain counts 
-                              if (destEntity) // TODO test what happens if destEntity is nil aka (destEntity isn't in tableNames)
-		             {
-					         fkRelationship = [EORelationship new];
-                                 [fkRelationship setName: aRelationshipName];
-			         [[model entityNamed: sourceTable] addRelationship: fkRelationship];
-                               }
-						     }
-                             break;
-                            case 3:
-                            // NSLog(@"match type: %@\n",scanValue); //dunno what this is assuming it isn't needed
-                             break;
-                            default:
-                             if (j > 3)
-                              {
-                                if ((j % 2) == 0)
-                                 {
-                                   sourceAttribute = scanValue;
-                                   RETAIN(sourceAttribute);
-                              //     NSLog(@"source attribute: %@\n", sourceAttribute);
-                                   break; 
-                                  }
-                               else
-                                 {
-                                   destinationAttribute= scanValue;
-                                   RETAIN(destinationAttribute);
-                               //    NSLog(@"destination attribute: %@\n",destinationAttribute);
-                                   if(destEntity)  // check if no entityNamed: destinationTable aka destinationTable not in tableNames..
-                                    {
-                                     if([[destEntity primaryKeyAttributeNames] containsObject: destinationAttribute]) 
-                                     {
-                                      // NSLog(@"is a primary key");
-                                      [fkRelationship setToMany:NO]; // assuming one to one 
-                                     }
-                                     else
-                                     {
-                                      //NSLog(@"not a primary key");
-                                      [fkRelationship setToMany: YES]; //assuming to one to many
-                                     }
-                                    fkJoin = AUTORELEASE([[EOJoin alloc]
-				              initWithSourceAttribute: [[model entityNamed:sourceTable] attributeNamed: sourceAttribute]
-                                              destinationAttribute: [[model entityNamed: destinationTable] attributeNamed: destinationAttribute]]);
-		                     [fkRelationship addJoin: fkJoin];
-								   }
-                                   RELEASE(destinationAttribute);
-                                   RELEASE(sourceAttribute);
-                                  break;
-                                 }
-                              }
-                          }
-                   }
-                }
-                 RELEASE(sourceTable);
-			 RELEASE(destinationTable);
-//				 NSLog(@"retain counts 3: %i %i %i %i %i",[destinationAttribute retainCount],[destinationTable retainCount],[sourceAttribute retainCount],[sourceTable retainCount],[destEntity retainCount]);
+      NSAutoreleasePool *pool = [NSAutoreleasePool new];
+      NSString *entityName;
+      EOEntity *entity;
 
-          } 
-    
-    } /*</foreign key stuff>*/
+      NS_DURING
+	entityName = [entityNames objectAtIndex:i];
+	entity = [model entityNamed: entityName];
+	[self _describeForeignKeysForEntity: entity forModel: model];
+      NS_HANDLER
+	{
+	  RETAIN(localException);
+	  [pool release];
+	  [AUTORELEASE(localException) raise];
+	}
+      NS_ENDHANDLER
+
+      [pool release];
+    }
+  [model beautifyNames];
   return model;
 }
 
@@ -1758,22 +1815,26 @@ PQgetvalue(_pgResult,n,0)]];
   int length = 0;
   NSString *primaryKeySequenceNameFormat;
   NSString *sequenceName;
+  EOSQLExpression *expr;
 
   EOFLOGObjectFnStart();
 
-  primaryKeySequenceNameFormat = [(Postgres95Context*)[self adaptorContext]
-						      primaryKeySequenceNameFormat];
+  primaryKeySequenceNameFormat 
+    = [(Postgres95Context*)[self adaptorContext] primaryKeySequenceNameFormat];
   NSAssert(primaryKeySequenceNameFormat, @"No primary sequence name format");
 
+  expr = AUTORELEASE([[[_adaptorContext adaptor] expressionClass] new]);
   sequenceName = [NSString stringWithFormat: primaryKeySequenceNameFormat,
 			   [entity externalName]];
+  sequenceName = [expr sqlStringForSchemaObjectName: sequenceName];
   sqlString = [NSString stringWithFormat: @"SELECT nextval('%@')",
 			sequenceName];
+  [expr setStatement: sqlString];
 
   [self _cancelResults];
   [_adaptorContext autoBeginTransaction: NO];
 
-  [self _evaluateExpression: [EOSQLExpression expressionForString:sqlString]
+  [self _evaluateExpression: expr
 	withAttributes: _pkAttributeArray];
 
   if ([self isFetchInProgress] == NO
