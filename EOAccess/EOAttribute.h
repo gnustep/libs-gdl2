@@ -27,12 +27,16 @@
 #ifndef __EOAttribute_h__
 #define __EOAttribute_h__
 
-#import <Foundation/NSString.h>
-#import <Foundation/NSZone.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSZone.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <gnustep/base/GCObject.h>
+#include <gnustep/base/GCObject.h>
 
-#import <EOAccess/EOPropertyListEncoding.h>
+#include <EOAccess/EOPropertyListEncoding.h>
 
 
 @class NSDictionary;

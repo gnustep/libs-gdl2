@@ -27,12 +27,19 @@
 #ifndef __EOEntity_h__
 #define __EOEntity_h__
 
-#import <Foundation/NSString.h>
-#import <Foundation/NSException.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSException.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOPropertyListEncoding.h>
-#import <EOControl/EOClassDescription.h>
-#import <gnustep/base/GCObject.h>
+#include <gnustep/base/GCObject.h>
+
+#include <EOControl/EOClassDescription.h>
+
+#include <EOAccess/EODefines.h>
+#include <EOAccess/EOPropertyListEncoding.h>
 
 
 @class EOModel;
@@ -258,11 +265,11 @@
 
 @end
 
-extern NSString *EOFetchAllProcedureOperation;
-extern NSString *EOFetchWithPrimaryKeyProcedureOperation;
-extern NSString *EOInsertProcedureOperation;
-extern NSString *EODeleteProcedureOperation;
-extern NSString *EONextPrimaryKeyProcedureOperation;
+GDL2ACCESS_EXPORT NSString *EOFetchAllProcedureOperation;
+GDL2ACCESS_EXPORT NSString *EOFetchWithPrimaryKeyProcedureOperation;
+GDL2ACCESS_EXPORT NSString *EOInsertProcedureOperation;
+GDL2ACCESS_EXPORT NSString *EODeleteProcedureOperation;
+GDL2ACCESS_EXPORT NSString *EONextPrimaryKeyProcedureOperation;
 
 @interface EOEntity (MethodSet11)
 - (NSException *)validateObjectForDelete: (id)object;

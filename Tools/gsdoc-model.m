@@ -30,11 +30,13 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include <Foundation/Foundation.h>
+#include <gnustep/base/GSCategories.h>
 #include <EOAccess/EOAccess.h>
-#include <EOAccess/EOModel.h>
 #include "EOModel+GSDoc.h"
 
 
@@ -227,7 +229,7 @@ main(int argc, char **argv, char **env)
               else if ([key hasPrefix: @"define-"])
                 {
                   if (!infoDictionary)
-                    infoDictionary = [NSMutableDictionary dictionary];
+                    infoDictionary = (id)[NSMutableDictionary dictionary];
 
                   NSCAssert1(value, @"No value for %@", key);
 
@@ -392,7 +394,7 @@ main(int argc, char **argv, char **env)
                   gsdocModelContent = [model gsdocContentSplittedByEntities:
 					       (splitByEntities
 						? &entities : NULL)
-					     withIdPtr: NULL/*&xmlId*/];//Debugging
+					     idPtr: NULL/*&xmlId*/];//Debugging
 
                   if (gsdocModelContent == nil)
                     {

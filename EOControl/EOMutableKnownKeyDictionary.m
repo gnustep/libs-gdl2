@@ -35,11 +35,21 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSZone.h>
+#include <Foundation/NSMapTable.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOMutableKnownKeyDictionary.h>
-#import <EOControl/EODebug.h>
-#import <EOControl/EONull.h>
+#include <EOControl/EOMutableKnownKeyDictionary.h>
+#include <EOControl/EODebug.h>
+#include <EOControl/EONull.h>
 
 
 @implementation EOMKKDInitializer
@@ -473,6 +483,7 @@ RCS_ID("$Id$")
 		 subsetMapping: (EOMKKDSubsetMapping *)subsetMapping
 {
 #warning (stephane@sente.ch) Method is really not implemented!
+#warning (Ayers 28-03-2003) Either remove this method from array or use EOMutableKnownKeyDictionary instead of self 
   return [[self newDictionaryFromDictionary: dict
                 subsetMapping: subsetMapping
                 zone: NULL] autorelease];

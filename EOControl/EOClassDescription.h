@@ -27,10 +27,13 @@
 #ifndef __EOClassDescription_h__
 #define __EOClassDescription_h__
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSArray.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSZone.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSZone.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
 
 @class NSDictionary;

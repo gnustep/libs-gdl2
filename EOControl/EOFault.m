@@ -38,36 +38,28 @@
 
 RCS_ID("$Id$")
 
-#include <objc/Object.h>
-#include <objc/Protocol.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSInvocation.h>
+#include <Foundation/NSLock.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSAutoreleasePool.h>
-#import <Foundation/NSArray.h>
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSObjCRuntime.h>
-#import <Foundation/NSInvocation.h>
-#import <Foundation/NSLock.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
+#include <gnustep/base/GSObjCRuntime.h>
 
-#include <objc/objc-api.h>
-
-#import <EOControl/EOFault.h>
-#import <EOControl/EOKeyGlobalID.h>
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EODebug.h>
-
-
-typedef struct {
-	Class isa;
-} *my_objc_object;
-
-#define object_is_instance(object) \
-    ((object != nil) && CLS_ISCLASS(((my_objc_object)object)->isa))
-
+#include <EOControl/EOFault.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EODebug.h>
 
 /*
  * EOFault class
@@ -75,15 +67,21 @@ typedef struct {
 
 @implementation EOFault
 
+static Class EOFaultClass = NULL;
+
 + (void)initialize
 {
   // Must be here as initialize is called for each root class
   // without asking if it responds to it !
+  if (EOFaultClass == NULL)
+    {
+      EOFaultClass = [EOFaultClass class];
+    }
 }
 
 + (Class)superclass
 {
-  return class_get_super_class(self);
+  return GSObjCSuper(self);
 }
 
 + (Class)class
@@ -118,7 +116,7 @@ typedef struct {
 
 + (BOOL)isKindOfClass: (Class)aClass
 {
-  if (aClass == [EOFault class])
+  if (aClass == EOFaultClass)
     return YES;
 
   return NO;
@@ -184,7 +182,7 @@ typedef struct {
 
   NSDebugFLLog(@"gsdb", @"START fault=%p", fault);
 
-  if ([EOFault isFault:fault] == NO)
+  if ([EOFaultClass isFault:fault] == NO)
     {
 //REVOIR!!!
 /*
@@ -237,9 +235,10 @@ typedef struct {
 
 + (EOFaultHandler *)handlerForFault:(id)fault
 {
-  BOOL isFault = [EOFault isFault: fault];
+  BOOL isFault = [EOFaultClass isFault: fault];
 
-  NSDebugFLLog(@"gsdb", @"object %p is%s a fault", fault, (isFault ? "" : " not"));
+  NSDebugFLLog(@"gsdb", @"object %p is%s a fault", fault,
+	       (isFault ? "" : " not"));
 
   if (isFault)
     return ((EOFault *)fault)->_handler;
@@ -249,7 +248,7 @@ typedef struct {
 
 + (Class)targetClassForFault: (id)fault
 {
-  if ([EOFault isFault:fault])
+  if ([EOFaultClass isFault:fault])
     return [((EOFault *)fault)->_handler targetClass];
   else
     return nil;
@@ -275,7 +274,7 @@ typedef struct {
 
   class = [_handler targetClass];
 
-  for (; !koc && class != Nil; class = class_get_super_class(class))
+  for (; !koc && class != Nil; class = GSObjCSuper(class))
     if (class == aclass)
       koc = YES;
 
@@ -318,10 +317,10 @@ typedef struct {
   NSDebugFLLog(@"gsdb", @"START self=%p", self);
 
   class = [_handler targetClass];
-  NSDebugFLLog(@"gsdb", @"class=%@ aSelector=%s", class, sel_get_name(aSelector));
+  NSDebugFLLog(@"gsdb", @"class=%@ aSelector=%@", class,
+	       NSStringFromSelector(aSelector));
 
-  respondsToSelector = ((IMP)class_get_instance_method(class, aSelector)
-			!= (IMP)0);
+  respondsToSelector = (GSObjCGetInstanceMethod(class, aSelector) != (IMP)0);
   NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
 
   return respondsToSelector;
@@ -428,9 +427,9 @@ typedef struct {
   NSDebugFLog(@"Dealloc EOFault %p. ThreadID=%p",
               (void*)self,(void*)objc_thread_id());
 #endif
-  [EOFault clearFault: self];
+  [EOFaultClass clearFault: self];
   NSDebugMLog(@"EOFault dealloc self=%p",self);
-  if (![EOFault isFault:self]) // otherwise, this loop. 
+  if (![EOFaultClass isFault:self]) // otherwise, this loop. 
     [self dealloc];
 #ifdef DEBUG
   NSDebugFLog(@"Stop Dealloc EOFault %p. ThreadID=%p",

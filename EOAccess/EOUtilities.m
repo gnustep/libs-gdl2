@@ -35,16 +35,38 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EOGenericRecord.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EOGenericRecord.h>
+#include <EOControl/EODebug.h>
 
-#import <EOAccess/EOAccess.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOJoin.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOModelGroup.h>
+#include <EOAccess/EODatabase.h>
+#include <EOAccess/EODatabaseContext.h>
+#include <EOAccess/EODatabaseChannel.h>
+#include <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EOAdaptorChannel.h>
+#include <EOAccess/EOStoredProcedure.h>
+
+#include <EOAccess/EOUtilities.h>
 
 
 static NSString *EOMoreThanOneException = @"EOMoreThanOneException";
@@ -1104,7 +1126,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
               forKey: @"EOModelGroup"];
   else
     {
-      userInfo = [NSMutableDictionary dictionary];
+      userInfo = (id)[NSMutableDictionary dictionary];
 
       [userInfo setObject: modelGroup
                 forKey: @"EOModelGroup"];

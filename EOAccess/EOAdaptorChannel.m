@@ -35,20 +35,31 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSZone.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOAdaptor.h>
-#import <EOAccess/EOAdaptorContext.h>
-#import <EOAccess/EOAdaptorChannel.h>
-#import <EOAccess/EOSQLExpression.h>
-#import <EOAccess/EODatabaseOperation.h>
+#include <EOControl/EOMutableKnownKeyDictionary.h>
+#include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EOMutableKnownKeyDictionary.h>
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EONSAddOns.h>
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAdaptorContext.h>
+#include <EOAccess/EOAdaptorChannel.h>
+#include <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EODatabaseOperation.h>
 
 
 NSString *EOAdaptorOperationsKey = @"EOAdaptorOperationsKey";

@@ -35,16 +35,19 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EODatabaseOperation.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOEntity.h>
+#include <EOAccess/EODatabaseOperation.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOEntity.h>
 
-#import <EOControl/EOSortOrdering.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOSortOrdering.h>
+#include <EOControl/EODebug.h>
 
 
 @implementation EOAdaptorOperation

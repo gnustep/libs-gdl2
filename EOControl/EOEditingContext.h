@@ -26,12 +26,16 @@
 #ifndef	__EOEditingContext_h__
 #define	__EOEditingContext_h__
 
-#import <Foundation/NSHashTable.h>
-#import <Foundation/NSMapTable.h>
-#import <Foundation/NSLock.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSHashTable.h>
+#include <Foundation/NSMapTable.h>
+#include <Foundation/NSLock.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOObjectStore.h>
-#import <EOControl/EOObserver.h>
+#include <EOControl/EOObjectStore.h>
+#include <EOControl/EOObserver.h>
 
 
 @class NSArray;

@@ -27,11 +27,15 @@
 #ifndef	__EOMultipleKnownKeyDictionary_h__
 #define	__EOMultipleKnownKeyDictionary_h__
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSEnumerator.h>
-#import <Foundation/NSZone.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSZone.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <gnustep/base/GCObject.h>
+#include <gnustep/base/GCObject.h>
 
 
 @class NSArray;

@@ -1,8 +1,8 @@
 /* debug.h - debug
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2002, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -30,19 +30,27 @@
 
 #ifdef DEBUG
 
-#import <Foundation/NSDebug.h>
-#import <Foundation/NSAutoreleasePool.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSDebug.h>
+#include <Foundation/NSAutoreleasePool.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
+
+#include <EOControl/EODefines.h>
 
 
-extern void EOFLogC_(const char* file,int line,const char* string);
-extern void EOFLogDumpObject_(const char* file,int line,id object,int deep);
-extern void EOFLogAssertGood_(const char* file,int line,NSObject* object);
+GDL2CONTROL_EXPORT void EOFLogC_(const char* file,int line,const char* string);
+GDL2CONTROL_EXPORT void EOFLogDumpObject_(const char* file,int line,
+					  id object,int deep);
+GDL2CONTROL_EXPORT void EOFLogAssertGood_(const char* file,int line,
+					  NSObject* object);
 
-#define EOFLogC(cString);				EOFLogC_(__FILE__,__LINE__,cString);
+#define EOFLogC(cString);		EOFLogC_(__FILE__,__LINE__,cString);
 #define EOFLogDumpObject(object,deep); 	EOFLogDumpObject_(__FILE__,__LINE__,object,deep);
-#define EOFLogAssertGood(object); 		EOFLogAssertGood_(__FILE__,__LINE__,object);
+#define EOFLogAssertGood(object); 	EOFLogAssertGood_(__FILE__,__LINE__,object);
 #else  // no DEBUG
-#define EOFLogC(cString);				
+#define EOFLogC(cString);
 #define EOFLogDumpObject(object,deep);
 #define EOFLogAssertGood(object);
 #endif // DEBUG
@@ -261,7 +269,7 @@ extern void EOFLogAssertGood_(const char* file,int line,NSObject* object);
 #endif
 
 #ifndef NSEmitTODO
-#define NSEmitTODO();		NSLog(@"DVLP WARNING %s (%d): TODO",(char*)__FILE__,(int)__LINE__);
+#define NSEmitTODO();	NSLog(@"DVLP WARNING %s (%d): TODO",(char*)__FILE__,(int)__LINE__);
 #endif
 
 #endif // _EODebug_h__

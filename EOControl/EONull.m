@@ -38,68 +38,24 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSNull.h>
-#import <Foundation/NSString.h> 
-#import <Foundation/NSDebug.h> 
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSNull.h>
+#include <Foundation/NSString.h> 
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EONull.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EODebug.h>
 
 
 @implementation EONull
 
 static EONull *sharedEONull = nil;
 
-#ifndef FOUNDATION_HAS_KVC
-
-+ (void)initialize
-{
-  // THREAD - do this operation under a lock
-  sharedEONull = (EONull *)NSAllocateObject(self, 0, NSDefaultMallocZone());
-}
-
-+ null
-{
-  return sharedEONull;
-}
-
-+ allocWithZone
-{
-  return sharedEONull;
-}
-
-- copy
-{
-  return self;
-}
-
-- copyWithZone: (NSZone *)zone
-{
-  return self;
-}
-
-// One cannot destroy the shared null object
-
-- (id)retain
-{
-  return self;
-}
-
-- (id)autorelease
-{
-  return self;
-}
-
-- (void)release
-{
-}
-
-- (void)dealloc
-{
-}
-
-#else
-+ (void)initialize
++ (void) initialize
 {
   sharedEONull = (EONull *)[NSNull null];
 }
@@ -109,57 +65,59 @@ static EONull *sharedEONull = nil;
   return sharedEONull;
 }
 
-+ allocWithZone
++ (id) allocWithZone:(NSZone *)zone
 {
   return sharedEONull;
 }
 
-- copy
+- (id) copy
 {
+  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
   return sharedEONull;
 }
 
-- copyWithZone: (NSZone *)zone
+- (id) copyWithZone: (NSZone *)zone
 {
+  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
   return sharedEONull;
 }
 
-- (id)retain
+- (id) retain
 {
+  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
   return sharedEONull;
 }
 
-- (id)autorelease
+- (id) autorelease
 {
+  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
   return sharedEONull;
 }
 
-- (void)release
+- (void) release
 {
+  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
 }
 
-- (void)dealloc
+- (void) dealloc
 {
+  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
 }
 
-// OK
 - (id)valueForKey: (NSString *)key
 {
-  return self;
+  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
+  return nil;
 }
 
-#endif
-
-- (NSString *)sqlString
+- (NSString *) sqlString
 {
-  EOFLOGObjectFnStart();
-  EOFLOGObjectFnStop();
-  return @"NULL";
+  NSAssert1(NO,@"EONull instance received:%@",NSStringFromSelector(_cmd));
+  return nil;
 }
 
 @end /* EONull */
 
-#ifdef FOUNDATION_HAS_KVC
 @implementation NSNull (EOSQLFormatting)
 
 - (NSString *)sqlString
@@ -170,13 +128,13 @@ static EONull *sharedEONull = nil;
   return @"NULL";
 }
 
+//OK
 - (id)valueForKey:(NSString *)key
 {
   return self;
-};
+}
 
 @end
-#endif
 
 
 @implementation NSObject (EONull)

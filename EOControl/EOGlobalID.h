@@ -27,11 +27,15 @@
 #ifndef __EOGlobalID_h__
 #define __EOGlobalID_h__
 
-#import <Foundation/NSObject.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
+#include <EOControl/EODefines.h>
 
-extern NSString *EOGlobalIDChangedNotification;
-
+GDL2CONTROL_EXPORT NSString *EOGlobalIDChangedNotification;
 
 @interface EOGlobalID : NSObject <NSCopying>
 - (BOOL)isEqual:other;

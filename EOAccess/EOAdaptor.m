@@ -46,29 +46,37 @@ RCS_ID("$Id$")
 #endif /* !__WIN32__ */
 #endif
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSPathUtilities.h>
-#import <Foundation/NSBundle.h>
-#import <Foundation/NSObjCRuntime.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSProcessInfo.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSFileManager.h>
-#import <Foundation/NSData.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSPathUtilities.h>
+#include <Foundation/NSBundle.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSProcessInfo.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSFileManager.h>
+#include <Foundation/NSData.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOAdaptor.h>
-#import <EOAccess/EOAdaptorPriv.h>
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOSQLExpression.h>
-#import <EOAccess/EOAdaptor.h>
-#import <EOAccess/EOAdaptorContext.h>
-#import <EOAccess/EOAdaptorChannel.h>
+#include <gnustep/base/Unicode.h>
 
-#import <EOControl/EODebug.h>
+
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EODebug.h>
+
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAdaptorPriv.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAdaptorContext.h>
+#include <EOAccess/EOAdaptorChannel.h>
 
 
 NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
@@ -369,7 +377,8 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
 
 - (NSArray *)contexts
 {
-  return _contexts;
+  SEL sel = @selector(nonretainedObjectValue);
+  return [_contexts resultsOfPerformingSelector: sel];
 }
 
 - (BOOL)hasOpenChannels
@@ -470,7 +479,7 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
 	{
 	  availableEncodingValue = availableEncodingsArray[count++];
 
-	  availableEncodingString = (NSString *)GetEncodingName(availableEncodingValue);
+	  availableEncodingString = GSEncodingName(availableEncodingValue);
 
 	  if (availableEncodingString)
 	    {

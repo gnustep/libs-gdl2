@@ -35,19 +35,21 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSCoder.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
-
-#import <EOControl/EOSortOrdering.h>
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EOKeyValueArchiver.h>
-#import <EOControl/EODebug.h>
-
-#if FOUNDATION_HAS_KVC
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSCoder.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
 #include <Foundation/NSNull.h>
-#define EONull NSNull
+#else
+#include <Foundation/Foundation.h>
 #endif
+
+#include <EOControl/EOSortOrdering.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EOKeyValueArchiver.h>
+#include <EOControl/EODebug.h>
+
+#define EONull NSNull
 
 @implementation EOSortOrdering
 
@@ -78,6 +80,16 @@ RCS_ID("$Id$")
   _key = RETAIN([coder decodeObject]);
 
   return self;
+}
+
+- (id)copyWithZone:(NSZone *)zone
+{
+  if (NSShouldRetainWithZone(self, zone))
+    {
+      return RETAIN(self);
+    }
+  return [[[self class] allocWithZone: zone] 
+	   initWithKey: _key selector: _selector];
 }
 
 /**<init />
@@ -131,9 +143,14 @@ RCS_ID("$Id$")
   return self;
 }
 
-- (void) encodeWithKeyValueArchiver: (EOKeyValueUnarchiver*)archiver
+- (void) encodeWithKeyValueArchiver: (EOKeyValueArchiver*)archiver
 {
-  [self notImplemented: _cmd];
+  [archiver encodeObject: _key forKey: @"key"];
+  if (_selector)
+    {
+      [archiver encodeObject: NSStringFromSelector(_selector)
+		forKey: @"selectorName"];
+    }
 }
 
 /**
@@ -218,14 +235,14 @@ compareUsingSortOrderings(id    left,
  */
 - (NSArray *) sortedArrayUsingKeyOrderArray: (NSArray *)orderArray
 {
-  if ([self count] <= 1)
+  if ([self count] > 1)
     {
-      return self;
+      return [self sortedArrayUsingFunction: compareUsingSortOrderings
+		   context: orderArray];
     }
   else
     {
-      return  [self sortedArrayUsingFunction: compareUsingSortOrderings
-		    context: orderArray];
+      return self;
     }
 }
 
@@ -239,9 +256,7 @@ compareUsingSortOrderings(id    left,
  */
 - (void) sortUsingKeyOrderArray: (NSArray *)orderArray
 {
-  int count = [self count];
-
-  if (count > 1) 
+  if ([self count] > 1) 
     {
       [self sortUsingFunction: compareUsingSortOrderings
 	    context: orderArray];
@@ -314,7 +329,7 @@ compareUsingSortOrderings(id    left,
  */
 - (NSComparisonResult) compareAscending: (id)other
 {
-  if (other == nil || self == other)
+  if (self == other)
     return NSOrderedSame;
 
   return NSOrderedAscending;
@@ -328,7 +343,7 @@ compareUsingSortOrderings(id    left,
  */
 - (NSComparisonResult) compareDescending: (id)other
 {
-  if (other == nil || self == other)
+  if (self == other)
     return NSOrderedSame;
 
   return NSOrderedDescending;
@@ -342,7 +357,7 @@ compareUsingSortOrderings(id    left,
  */
 - (NSComparisonResult) compareCaseInsensitiveAscending: (id)other
 {
-  if (other == nil || self == other)
+  if (self == other)
     return NSOrderedSame;
 
   return NSOrderedAscending;
@@ -356,7 +371,7 @@ compareUsingSortOrderings(id    left,
  */
 - (NSComparisonResult) compareCaseInsensitiveDescending: (id)other
 {
-  if (other == nil || self == other)
+  if (self == other)
     return NSOrderedSame;
 
   return NSOrderedDescending;

@@ -35,10 +35,10 @@
 
 RCS_ID("$Id$")
 
-#import <EOControl/EODataSource.h>
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EODataSource.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EODebug.h>
 
 #include <string.h>
 

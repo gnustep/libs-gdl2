@@ -35,17 +35,21 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSString.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EORelationship.h>
-#import <EOAccess/EOJoin.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOJoin.h>
 
 
 @implementation EOJoin

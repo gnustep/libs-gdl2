@@ -27,24 +27,24 @@
 #ifndef __EOAccess_h__
 #define __EOAccess_h__
 
-#import <EOAccess/EOAdaptor.h>
-#import <EOAccess/EOAdaptorContext.h>
-#import <EOAccess/EOAdaptorChannel.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EODatabase.h>
-#import <EOAccess/EODatabaseChannel.h>
-#import <EOAccess/EODatabaseContext.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOJoin.h>
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOModelGroup.h>
-#import <EOAccess/EORelationship.h>
-#import <EOAccess/EOStoredProcedure.h>
-#import <EOAccess/EOSQLExpression.h>
-#import <EOAccess/EOSQLQualifier.h>
-#import <EOAccess/EODatabaseDataSource.h>
-#import <EOAccess/EOSchemaGeneration.h>
-#import <EOAccess/EOUtilities.h>
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAdaptorContext.h>
+#include <EOAccess/EOAdaptorChannel.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EODatabase.h>
+#include <EOAccess/EODatabaseChannel.h>
+#include <EOAccess/EODatabaseContext.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOJoin.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOModelGroup.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOStoredProcedure.h>
+#include <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EOSQLQualifier.h>
+#include <EOAccess/EODatabaseDataSource.h>
+#include <EOAccess/EOSchemaGeneration.h>
+#include <EOAccess/EOUtilities.h>
 
 
 #endif /* __EOAccess_h__ */

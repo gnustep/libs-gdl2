@@ -1,10 +1,10 @@
-/* 
-   EONull.h
+/**
+   EOArrayDataSource.h
 
-   Copyright (C) 1996-2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 2003 Free Software Foundation, Inc.
 
-   Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
-   Date: 1996
+   Author: Stephane Corthesy <stephane@sente.ch>
+   Date: March 2003
 
    This file is part of the GNUstep Database Library.
 
@@ -22,30 +22,31 @@
    License along with this library; see the file COPYING.LIB.
    If not, write to the Free Software Foundation,
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-*/
+   */
 
-#ifndef __EONull_h__
-#define __EONull_h__
+#ifndef __EOArrayDataSource_h__
+#define __EOArrayDataSource_h__
 
-#ifndef NeXT_Foundation_LIBRARY
-#include <Foundation/NSObject.h>
-#else
-#include <Foundation/Foundation.h>
-#endif
+#include <EOControl/EODataSource.h>
 
-#include <EOControl/EODefines.h>
+@class NSMutableArray;
+@class NSArray;
 
-@interface EONull : NSObject <NSCopying>
-/* Type is ommited to avoid compiler warnings
-   triggerd by NSNull. */
-+ null;
-@end /* EONull */
+@class EOEditingContext;
+@class EOClassDescription;
 
-@interface NSObject (EONull)
-- (BOOL)isEONull;
-- (BOOL)isNotEONull;
+@interface EOArrayDataSource : EODataSource <NSCoding>
+{
+  NSMutableArray        *_objects;
+  EOEditingContext      *_context;
+  EOClassDescription    *_classDescription;
+}
+
+- (id) initWithClassDescription: (EOClassDescription *)classDescription
+                 editingContext: (EOEditingContext *)context;
+
+- (void) setArray: (NSArray *)array;
+
 @end
 
-GDL2CONTROL_EXPORT BOOL isNilOrEONull(id v);
-
-#endif /* __EONull_h__ */
+#endif

@@ -1,3 +1,147 @@
+2003-03-30  David Ayers  <d.ayers@inode.at>
+
+	* *.h/m, *.h/m):
+	Used #include instead of depricated #import.  Avoid including
+	entire library headers.  Use export macro where applicable.
+
+	* EOControl/GNUmakefile: Removed EOKeyValueCodingBase.m/h and
+	EOUndoMananger.h.  Added EOArrayDataSource.m/h, EODefines.h
+	and EODepricated.h.
+	* EOControl/EODefines.h: Updated for GDL2 & gnustep-make.
+	* EOControl/EODebug.h: Updated.
+	* EOControl/EODepricated.h: Updated for current state of GDL2.
+	([NSObject +flushClassKeyBindings]): Added declaration.
+	([EOClassDescription +setDelegate:]): Added declaration.
+	([EOClassDescription +delegate]): Added declaration.
+	(EOUndoManager): Moved declaration of interface here.
+	* EOControl/EOKeyValueCoding.m
+	([EOClassDescription +flushClassKeyBindings]): Added empty
+	implementation.
+	([NSObject takeStoredValuesFromDictionary:]): Cache EONull
+	instance and use it instead of isKindOfClass:.
+	* EOControl/EOEditingContext.m
+	([EOEditingContext +initialize]): Tidied.
+	([EOEditingContest -deleteObject]): Use NSUndoManager instead of
+	EOUndoManager.
+	* EOControl/EOQualifier.m 
+	([NSArray -filteredArrayUsingQualifier:]): Added minor
+	optimization tweak.
+	* EOControl/EOClassDescription.m: Removed inactive commented
+	code.  Added private declerations of EOAccess methods to avoid
+	compiler warnings.
+	([EOClassDescription +initialize]): Tidied.
+	([EOClassDescription -classDescriptionForClass:]): Use
+	GSObjCName() instead of objc runtime routines.
+	* EOControl/EOFault.m: Exchanged direct usages of ObjC runtime
+	routines with NS/GSObjCRuntime abstraction API.
+	([EOFault +superclass]): Ditto.
+	([EOFault +targetClassForFault:]): Ditto.
+	([EOFault -respondsToSelector:]): Ditto.
+	([EOFault +initialize]): Cache static class variable.
+	([EOFault +isKindOfClass]): Use static class variable.
+	([EOFault +handlerForFault:]): Ditto.
+	([EOFault +targetClassForFault:]): Ditto.
+	([EOFault -dealloc]): Ditto.
+	* EOControl/EOGenericRecord.m:
+	([EOGenericRecord +initialize]): Tidied.
+	* EOControl/EOKeyComparisonQualifier.m: Tidied documentation.
+	* EOControl/EOKeyValueQualifier.m: Ditto.
+	* EOControl/EONSAddOns.h/m: Added declarations to surpress
+	compiler warnings.
+	([NSObject -eoCompareOnName:]): Adjusted casts to surpress
+	compiler warnings.
+	(GSUseStrictWO451Compatibility): Added function.
+	(GDL2GlobalLock, GDL2GlobalRecursive): Ditto.
+	* EOControl/EONull: Remove implementations for foundation
+	libraries without key value coding and fully rely on NSNull.
+	Added assertions in all intance methods as instances should never
+	be created.
+	([EONull +allocWithZone:]) Corrected method name so it will
+	actually be used.
+	* EOControl/EOSortOrdering.m
+	([NSArray sortedArrayUsingKeyOrderArray:]): Tidied.
+	([NSMutableArray sortUsingKeyOrderArray:]): Ditto.
+	([EONull compareAscending:]): Sync with referencs implementation.
+	([EONull compareDescending:]): Ditto.
+	([EONull compareCaseInsensitiveAscending:]): Ditto.
+	([EONull compareCaseInsensitiveDescending:]): Ditto.
+	
+	* EOAccess/EOAdaptor.h: Added comment about API compatibility.
+	* EOAccess/EOAdaptor.m ([EOAdaptor -contexts]): Return array of
+	adaptor contexts rather tham GC-wrapper objects containing adaptor
+	contexts.
+	([EOAdaptor -databaseEncoding]): Use GSEncodingName() instead of
+	GetEncodingName(). 
+	* EOAccess/EODatabaseContext.m
+	([EODatabaseContext -_turnFault:gid:editingContext:isComplete:]):
+	Use GSObjCClass() instead of trying to access isa by dereferencing
+	from id with incorrect member.
+	* EOAccess/EOModel.m ([EOModel -entityNames]): Sort returned array
+	to insure comparable output.
+	* EOAccess/EOSQLExpression.m 
+	([EOSQLExpression sqlStringForArrayOfQualifiers:operation:]):
+	Added cast to surpress compiler warning.
+	* EOAccess/EOUtilities.m
+	([EOObjectStoreCoordinator setModelGroup:]): Ditto.
+	* EOAccess/EORelationship.h ([EORelationship -docComment]):
+	Added declaration.
+	* EOAccess/GNUmakefile: Added EODefines.h and EODepricated.h.
+
+	* Tools/*.m: Use RCS_ID macro.
+	* Tools/EOAttribute+GSDoc.h:
+	([EOAttribute gsdocContentWithTagName:idPtr:]): Corrected Typo.
+	* Tools/EOModel+GSDoc.h/m:
+	([EOModel gsdocContentSplittedByEntities:idPtr:]): Ditto.
+	* Tools/EORelationship+GSDoc.m:
+	([EORelationship gsdocContentWithTagName:idPtr:]): Change variable
+	type to supress compiler warnings.
+	* Tools/eoutil.m (dump): Initialize variables to supress compiler
+	warnings.
+	* Tools/gsdoc-model.m: Include GSCategories.h to supress compiler
+	warnings.
+	(main): Added cast to supress compiler warning.  Fixed typo in
+	method invocation.
+
+2003-03-25  Stephane Corthesy  <stephane@sente.ch>
+
+	* EOControl/EODefines.h: Added new file for export/win32 support.
+	* EOControl/EODepricated.h: Added new file for depricated features.
+	* EOControl/EOControl.h: Added EOArrayDataSource.h and EODefines.h.
+	* EOControl/EOArrayDataSource.h/m: Added new files.  Some methods
+	(<NSCoding> and qualifier bindings) are empty stubs.
+	* EOControl/EODebug.h: Use export macro instead of explicit extern for
+	function and symbol declarations.
+	* EOControl/EOGlobalID.h: Ditto.
+	* EOControl/EONull.h: Ditto.
+	* EOControl/EOObjectStore.h: Ditto.
+	* EOControl/EOOrQualifier.m: Replaced autorelease by AUTORELEASE
+	and fixed typo.
+	* EOControl/EOQualifier.m
+	([NSArray -filteredArrayUsingQualifier:]): Implemented.
+	* EOControl/EONSAddOns.m: Use volatile in some exception handlers
+	(man longjmp for more info). 
+	* EOControl/EOSortOrdering.h/m
+	([EOSortOrdering -copyWithZone:]): Implemented <NSCopying>.
+	([EOSortOrdering -encodeWithKeyValueArchiver:]): Implemented.
+
+	* EOAccess/EODefines.h: Added new file for export/win32 support.
+	* EOAccess/EODepricated.h: Added new file for depricated features.
+	* EOAccess/EOAccess.h: Added EODefines.h.
+	* EOAccess/EOSQLExpression.h/m: Fixed typo for
+	EOPrimaryKeyConstraintKey. 
+	* EOAccess/EOExpressionArray.h/m: Use volatile for variables usein
+	in exception handlers. (man longjmp for more info)
+	* EOAccess/EODatabase.h: Use export macro instead of explicit
+	extern for function and symbol declarations.
+	* EOAccess/EOEntity.h: Ditto.
+	* EOAccess/EOModel.h: Ditto.
+	* EOAccess/EOSchemaGeneration.h: Ditto.
+	* EOAccess/EOSQLExpression.h: Ditto.
+	* EOAccess/EOUtilities.h: Ditto.
+	* Tools/eoutil.m (dump): Implemented use of -postinstall option.
+	Corrected bug when getting adaptor's expression class.  Renamed
+	symbol EOPrimaryKeyContraintsKey into EOPrimaryKeyConstraintsKey.
+	
 2003-03-21  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOAccess/EODatabaseContext.m:
 		o added assert in _primaryKeyForObject:

@@ -27,8 +27,14 @@
 #ifndef __EOAdaptorChannel_h__
 #define __EOAdaptorChannel_h__
 
-#import <Foundation/NSException.h>
-#import <Foundation/NSZone.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSZone.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
+
+#include <EOAccess/EODefines.h>
 
 
 @class NSArray;
@@ -38,6 +44,7 @@
 @class NSString;
 @class NSMutableString;
 @class NSCalendarDate;
+@class NSException;
 
 @class EOModel;
 @class EOEntity;
@@ -224,10 +231,10 @@ shouldReturnValuesForStoredProcedure: (NSDictionary *)returnValues;
 @end /* NSObject(EOAdaptorChannelDelegation) */
 
 
-extern NSString *EOAdaptorOperationsKey;
-extern NSString *EOFailedAdaptorOperationKey;
-extern NSString *EOAdaptorFailureKey;
-extern NSString *EOAdaptorOptimisticLockingFailure;
+GDL2ACCESS_EXPORT NSString *EOAdaptorOperationsKey;
+GDL2ACCESS_EXPORT NSString *EOFailedAdaptorOperationKey;
+GDL2ACCESS_EXPORT NSString *EOAdaptorFailureKey;
+GDL2ACCESS_EXPORT NSString *EOAdaptorOptimisticLockingFailure;
 
 
 #endif /* __EOAdaptorChannel_h__ */

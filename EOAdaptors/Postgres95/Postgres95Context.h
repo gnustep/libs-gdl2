@@ -30,8 +30,8 @@
 #ifndef __Postgres95Context_h__
 #define __Postgres95Context_h__
 
-#import <EOAccess/EOAdaptorContext.h>
-#import <Postgres95EOAdaptor/Postgres95Adaptor.h>
+#include <EOAccess/EOAdaptorContext.h>
+#include <Postgres95EOAdaptor/Postgres95Adaptor.h>
 
 
 @interface Postgres95Context : EOAdaptorContext

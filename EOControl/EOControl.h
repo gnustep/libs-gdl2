@@ -28,26 +28,24 @@
 #define __EOControl_h__
 
 
-#import <EOControl/EOSortOrdering.h>
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EOGenericRecord.h>
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EOKeyValueArchiver.h>
-#import <EOControl/EOGlobalID.h>
-#import <EOControl/EOKeyGlobalID.h>
-#import <EOControl/EOUndoManager.h>
-#import <EOControl/EOObjectStore.h>
-#import <EOControl/EOObjectStoreCoordinator.h>
-#import <EOControl/EOFault.h>
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EODataSource.h>
-#import <EOControl/EODetailDataSource.h>
-#import <EOControl/EOObserver.h>
-#import <EOControl/EODebug.h>
-#import <gnustep/base/GCObject.h>
+#include <EOControl/EOSortOrdering.h>
+#include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EOGenericRecord.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EOKeyValueArchiver.h>
+#include <EOControl/EOGlobalID.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EOObjectStore.h>
+#include <EOControl/EOObjectStoreCoordinator.h>
+#include <EOControl/EOFault.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EODataSource.h>
+#include <EOControl/EODetailDataSource.h>
+#include <EOControl/EOObserver.h>
+#include <EOControl/EODebug.h>
 
 
 #endif /* __EOControl_h__ */

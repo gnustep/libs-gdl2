@@ -35,9 +35,13 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSString.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOObjectStore.h>
+#include <EOControl/EOObjectStore.h>
 
 
 NSString *EOObjectsChangedInStoreNotification = @"EOObjectsChangedInStoreNotification";

@@ -35,10 +35,8 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
-
-#import <EOControl/EOUndoManager.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EODepricated.h>
+#include <EOControl/EODebug.h>
 
 
 @implementation EOUndoManager

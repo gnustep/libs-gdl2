@@ -38,23 +38,37 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSFormatter.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSMapTable.h>
+#include <Foundation/NSZone.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EOCheapArray.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EOCheapArray.h>
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EODebug.h>
 
-#include <gnustep/base/objc-gnu2next.h>
-
-
-//?? #define NOT_FOUND_CLASS_DESCRIPTION ([NSObject class]) //we use NSObject class as a "not found" value*******
 // NOTE: (stephane@sente.ch) Should we subclass NSClassDescription?
 
-@implementation EOClassDescription
+@interface NSObject (SupressCompilerWarnings)
++(id)defaultGroup;
+@end
 
+@implementation EOClassDescription
 
 NSString *EOClassDescriptionNeededNotification = @"EOClassDescriptionNeededNotification";
 NSString *EOClassDescriptionNeededForClassNotification = @"EOClassDescriptionNeededForClassNotification";
@@ -75,20 +89,20 @@ static id classDelegate = nil;
 
 + (void)initialize
 {
-  classDescriptionForClass = NSCreateMapTable(NSObjectMapKeyCallBacks, 
-					      NSObjectMapValueCallBacks,
-					      32);
-
-  classDescriptionForEntity = NSCreateMapTable(NSObjectMapKeyCallBacks, 
-					       NSObjectMapValueCallBacks,
-					       32);
-
   if (self == [EOClassDescription class])
     {
       Class cls = NSClassFromString(@"EOModelGroup");
 
       if (cls != Nil)
 	[cls defaultGroup]; // Insure correct initialization.
+
+      classDescriptionForClass = NSCreateMapTable(NSObjectMapKeyCallBacks, 
+						  NSObjectMapValueCallBacks,
+						  32);
+
+      classDescriptionForEntity = NSCreateMapTable(NSObjectMapKeyCallBacks, 
+						   NSObjectMapValueCallBacks,
+						   32);
     }
 }
 
@@ -110,14 +124,11 @@ static id classDelegate = nil;
 
   NSDebugMLLog(@"gsdb", @"aClass=%@", aClass);
   NSAssert(aClass, @"No class");
-  NSDebugMLLog(@"gsdb", @"class name=%s", object_get_class_name(aClass));
+  NSDebugMLLog(@"gsdb", @"class name=%s", GSObjCName(aClass));
 
   classDescription = NSMapGet(classDescriptionForClass, aClass);  
 
   NSDebugMLLog(@"gsdb", @"classDescription=%@", classDescription);
-/*  ?? if (classDescription==NOT_FOUND_CLASS_DESCRIPTION)
-    classDescription=nil;
-  else*/
   if (!classDescription)
     {
       [[NSNotificationCenter defaultCenter]
@@ -129,7 +140,8 @@ static id classDelegate = nil;
 
       if (!classDescription)
         {
-          NSLog(@"Warning: No class description for class named: %s", object_get_class_name(aClass));
+          NSLog(@"Warning: No class description for class named: %s",
+		GSObjCName(aClass));
         }
     }
 
@@ -149,9 +161,6 @@ static id classDelegate = nil;
   classDescription = NSMapGet(classDescriptionForEntity, entityName);
   NSDebugMLLog(@"gsdb", @"classDescription=%@", classDescription);
 
-/*??  if (classDescription==NOT_FOUND_CLASS_DESCRIPTION)
-    classDescription=nil;
-  else*/
   if (!classDescription)
     {
       [[NSNotificationCenter defaultCenter]

@@ -41,30 +41,34 @@ RCS_ID("$Id$")
 #include <ctype.h>
 #include <string.h>
 
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSArchiver.h>
-#import <Foundation/NSObjCRuntime.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSTimeZone.h>
-#import <Foundation/NSData.h>
-#import <Foundation/NSInvocation.h>
-#import <Foundation/NSDecimalNumber.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSCalendarDate.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSArchiver.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSTimeZone.h>
+#include <Foundation/NSData.h>
+#include <Foundation/NSInvocation.h>
+#include <Foundation/NSDecimalNumber.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSCalendarDate.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOEntityPriv.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOAttributePriv.h>
-#import <EOAccess/EOStoredProcedure.h>
-#import <EOAccess/EORelationship.h>
-#import <EOAccess/EOExpressionArray.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EOObserver.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EONull.h>
-#import <EOControl/EOObserver.h>
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOEntityPriv.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOAttributePriv.h>
+#include <EOAccess/EOStoredProcedure.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOExpressionArray.h>
 
 #include <string.h>
 

@@ -27,8 +27,13 @@
 #ifndef __EOCheapArray_h__
 #define __EOCheapArray_h__
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSZone.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSZone.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
+
 
 
 @interface EOCheapCopyArray : NSArray

@@ -35,10 +35,19 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOKeyValueArchiver.h>
-#import <EOControl/EODebug.h>
+
+#include <EOControl/EOKeyValueArchiver.h>
+#include <EOControl/EODebug.h>
 
 
 @interface EOKeyValueArchivingContainer : NSObject

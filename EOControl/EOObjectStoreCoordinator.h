@@ -27,7 +27,7 @@
 #define	__EOObjectStoreCoordinator_h__
 
 
-#import <EOControl/EOObjectStore.h>
+#include <EOControl/EOObjectStore.h>
 
 
 @class NSArray;

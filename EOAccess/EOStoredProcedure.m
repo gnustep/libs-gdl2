@@ -35,17 +35,21 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSException.h>
-#import <Foundation/NSEnumerator.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSException.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <gnustep/base/GCObject.h>
+#include <gnustep/base/GCObject.h>
 
-#import <EOAccess/EOStoredProcedure.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOModel.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOStoredProcedure.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOModel.h>
 
 
 @implementation EOStoredProcedure

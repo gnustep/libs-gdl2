@@ -38,25 +38,29 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOAttributePriv.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOEntityPriv.h>
-#import <EOAccess/EOStoredProcedure.h>
-#import <EOAccess/EORelationship.h>
-#import <EOAccess/EOJoin.h>
-#import <EOAccess/EOExpressionArray.h>
+#include <EOControl/EOObserver.h>
+#include <EOControl/EOMutableKnownKeyDictionary.h>
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EOObserver.h>
-#import <EOControl/EOMutableKnownKeyDictionary.h>
-#import <EOControl/EONSAddOns.h>
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOAttributePriv.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOEntityPriv.h>
+#include <EOAccess/EOStoredProcedure.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOJoin.h>
+#include <EOAccess/EOExpressionArray.h>
 
 
 @implementation EORelationship

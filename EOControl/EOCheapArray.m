@@ -35,10 +35,18 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSZone.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOCheapArray.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOCheapArray.h>
+#include <EOControl/EODebug.h>
 
 
 @implementation EOCheapCopyArray : NSArray

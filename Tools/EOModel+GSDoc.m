@@ -30,8 +30,9 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
    </license>
 **/
+#include "config.h"
 
-static char rcsId[] = "$Id$";
+RCS_ID("$Id$")
 
 #include <EOAccess/EOAccess.h>
 #include <EOAccess/EOModel.h>
@@ -54,7 +55,7 @@ static char rcsId[] = "$Id$";
 }
 
 - (NSString *)gsdocContentSplittedByEntities: (NSDictionary **)entitiesPtr
-				   withIdPtr: (int *)xmlIdPtr
+				       idPtr: (int *)xmlIdPtr
 {
   NSAutoreleasePool *arp = [NSAutoreleasePool new];
   NSString *content = [NSString string];

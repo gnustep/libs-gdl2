@@ -38,23 +38,27 @@ RCS_ID("$Id$")
 #include <stdio.h>
 #include <string.h>
 
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSSet.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSCoder.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSSet.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSCoder.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EODebug.h>
 
 #include <gnustep/base/GSObjCRuntime.h>
 
 
 @implementation NSNumber (EOQualifierExtras)
 
-- (id)initWithString:(NSString *)string
+- (id)initWithString: (NSString *)string
 {
     double   dVal;
     float    fVal;
@@ -947,5 +951,51 @@ static Class whichQualifier(const char **cFormat, const char **s)
   return [[self uppercaseString]
 	   isEqual: [object uppercaseString]] == NSOrderedSame;
 }
+
+@end
+
+@implementation NSArray (EOQualifierExtras)
+
+#define MAX_STACK_OBJECTS 20
+
+- (NSArray *)filteredArrayUsingQualifier: (EOQualifier *)qualifier
+{
+  unsigned    max = [self count];
+
+  if (max != 0)
+    {
+      unsigned  i;
+      id        obj[max>MAX_STACK_OBJECTS?0:max];
+      id       *objPStart;
+      id       *objP;
+      id        anObject;
+      SEL       oaiSEL = @selector(objectAtIndex:);
+      IMP       oaiIMP = [self methodForSelector:oaiSEL];
+      SEL       ewoSEL = @selector(evaluateWithObject:);
+      BOOL      (*ewoIMP)(id, SEL, id);
+
+      ewoIMP = (BOOL (*)(id, SEL, id))[qualifier methodForSelector:ewoSEL];
+
+      objPStart = objP = (max > MAX_STACK_OBJECTS)?
+	GSAutoreleasedBuffer(sizeof(id)*max):obj;
+
+      for(i=0; i < max; i++)
+	{
+	  anObject = (*oaiIMP)(self, oaiSEL, i);
+
+	  if((*ewoIMP)(qualifier, ewoSEL, anObject))
+	    {
+	      *objP++=anObject;
+	    }
+	}
+      return [NSArray arrayWithObjects: objPStart count: objP - objPStart];
+    }
+  else
+    {
+      return self;
+    }
+}
+
+#undef MAX_STACK_OBJECTS
 
 @end

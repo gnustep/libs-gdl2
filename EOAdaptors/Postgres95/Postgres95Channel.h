@@ -30,10 +30,11 @@
 #ifndef __Postgres95Channel_h__
 #define __Postgres95Channel_h__
 
-#import <EOAccess/EOAdaptorChannel.h>
-#import <Postgres95EOAdaptor/Postgres95Context.h>
+#include <EOAccess/EOAdaptorChannel.h>
+#include <Postgres95EOAdaptor/Postgres95Context.h>
 
 
+@class NSString;
 @class NSMutableDictionary;
 @class NSMutableArray;
 @class EOAttribute;

@@ -41,26 +41,31 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSArray.h>
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSHashTable.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSObjCRuntime.h>
-#import <Foundation/NSMapTable.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSDecimalNumber.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSHashTable.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSMapTable.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSDecimalNumber.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#include <objc/objc-api.h>
+#include <gnustep/base/GSCategories.h>
+
 #include <ctype.h>
 
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EONSAddOns.h>
-#import <EOControl/EODebug.h>
-#import <EOControl/EONull.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EODebug.h>
+#include <EOControl/EONull.h>
 
 #include <ctype.h>
 
@@ -70,6 +75,10 @@ RCS_ID("$Id$")
  */
 
 @implementation NSObject (EOKVCPAdditions2)
+
++ (void) flushClassKeyBindings
+{
+}
 
 /** if key is a bidirectional rel, use addObject:toBothSidesOfRelationship otherwise call  takeValue:forKey: **/
 - (void)smartTakeValue: (id)anObject 
@@ -152,16 +161,19 @@ RCS_ID("$Id$")
   NSEnumerator *keyEnum;
   id key;
   id val;
+  EONull *null;
   
   EOFLOGObjectFnStartCond(@"EOKVC");
 
   keyEnum = [dictionary keyEnumerator];
 
+  null = (EONull *)[EONull null];
+
   while ((key = [keyEnum nextObject]))
     {
       val = [dictionary objectForKey: key];
       
-      if ([val isKindOfClass: [[EONull null] class]])
+      if (val == null)
 	val = nil;
       
       [self takeStoredValue: val forKey: key];

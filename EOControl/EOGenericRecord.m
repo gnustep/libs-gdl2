@@ -38,25 +38,29 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSAutoreleasePool.h>
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSObjCRuntime.h>
-#import <Foundation/NSLock.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSHashTable.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSLock.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSHashTable.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <gnustep/base/GSObjCRuntime.h>
+#include <gnustep/base/GSObjCRuntime.h>
 
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOGenericRecord.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EOObserver.h>
-#import <EOControl/EOFault.h>
-#import <EOControl/EOMutableKnownKeyDictionary.h>
-#import <EOControl/EODebug.h>
-#import <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOGenericRecord.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EOObserver.h>
+#include <EOControl/EOFault.h>
+#include <EOControl/EOMutableKnownKeyDictionary.h>
+#include <EOControl/EODebug.h>
+#include <EOControl/EOKeyValueCoding.h>
 
 #ifndef GNU_RUNTIME
 #include <objc/objc-class.h>
@@ -99,8 +103,6 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 
 + (void) initialize
 {
-  [[super superclass] initialize];
-
   if (self == [EOGenericRecord class] && !allGenericRecords)
     {
       allGenericRecords = NSCreateHashTable(NSNonOwnedPointerHashCallBacks,
@@ -201,7 +203,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 
 //MG #if !FOUNDATION_HAS_KVC
 
-static const char _c_id[2] = { _C_ID, NULL };
+static const char _c_id[2] = { _C_ID, 0 };
 
 //used to allow derived object implementation
 - (BOOL)_infoForInstanceVariableNamed: (NSString*)name

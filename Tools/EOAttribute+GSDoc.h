@@ -42,7 +42,8 @@
 @interface EOAttribute (GSDoc)
 
 - (NSString *)gsdocContentWithIdPtr: (int *)xmlIdPtr;
-- (NSString *)gsdocContentWithTagName: (NSString *)tagName;
+- (NSString *)gsdocContentWithTagName: (NSString *)tagName
+                                idPtr: (int *)xmlIdPtr;
 
 @end
 

@@ -36,33 +36,37 @@
 
 RCS_ID("$Id$")
 
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSBundle.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSFileManager.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSPathUtilities.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
+
 #include <gnustep/base/GSObjCRuntime.h>
 
-#import <Foundation/NSBundle.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSObjCRuntime.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSFileManager.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSNotification.h>
-#import <Foundation/NSPathUtilities.h>
-#import <Foundation/NSDebug.h>
+#include <EOControl/EOGenericRecord.h>
+#include <EOControl/EOFault.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOObserver.h>
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EODebug.h>
 
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOEntityPriv.h>
-#import <EOAccess/EOStoredProcedure.h>
-#import <EOAccess/EOModelGroup.h>
-#import <EOAccess/EOAccessFault.h>
-
-#import <EOControl/EOGenericRecord.h>
-#import <EOControl/EOFault.h>
-#import <EOControl/EOKeyGlobalID.h>
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOObserver.h>
-#import <EOControl/EONSAddOns.h>
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOEntityPriv.h>
+#include <EOAccess/EOStoredProcedure.h>
+#include <EOAccess/EOModelGroup.h>
+#include <EOAccess/EOAccessFault.h>
 
 
 NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
@@ -347,7 +351,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 - (NSArray*) entityNames
 {
-  return [_entitiesByName allKeys];
+  return [[_entitiesByName allKeys]
+	   sortedArrayUsingSelector: @selector(compare:)];
 }
 
 - (NSArray*) storedProcedureNames

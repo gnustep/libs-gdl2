@@ -27,7 +27,7 @@
 #ifndef __EODetailDataSource_h__
 #define __EODetailDataSource_h__
 
-#import <EOControl/EODataSource.h>
+#include <EOControl/EODataSource.h>
 
 
 @class EOKeyValueUnarchiver;

@@ -88,7 +88,10 @@ EOPropertyListEncoding.h \
 EODatabaseDataSource.h \
 EOSchemaGeneration.h \
 EOUtilities.h \
-EOAccess.h
+EODefines.h \
+EODepricated.h \
+EOAccess.h \
+
 
 gdl2_AUTOGSDOC_HEADERS = $(libgnustep-db2_HEADER_FILES)
 gdl2_AUTOGSDOC_SOURCE = $(libgnustep-db2_OBJC_FILES)

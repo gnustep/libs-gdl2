@@ -28,9 +28,7 @@
 #define __EODatabaseDataSource_h__
 
 
-#import <Foundation/NSObject.h>
-
-#import <EOControl/EODataSource.h>
+#include <EOControl/EODataSource.h>
 
 
 @class NSDictionary;

@@ -28,13 +28,17 @@
 #define __EOSortOrdering_h__
 
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSArray.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSArray.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EONull.h>
+#include <EOControl/EONull.h>
 
 
-@interface EOSortOrdering : NSObject <NSCoding>
+@interface EOSortOrdering : NSObject <NSCoding, NSCopying>
 {
   SEL _selector;
   NSString *_key;

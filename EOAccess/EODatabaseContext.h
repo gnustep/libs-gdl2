@@ -28,13 +28,19 @@
 #define __EODatabaseContext_h__
 
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSHashTable.h>
-#import <Foundation/NSMapTable.h>
-#import <Foundation/NSLock.h>
-#import <Foundation/NSDate.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSHashTable.h>
+#include <Foundation/NSMapTable.h>
+#include <Foundation/NSLock.h>
+#include <Foundation/NSDate.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOObjectStoreCoordinator.h>
+#include <EOControl/EOObjectStoreCoordinator.h>
+
+#include <EOAccess/EODefines.h>
 
 
 @class NSMutableSet;
@@ -363,7 +369,7 @@ Only searches locally (in the transaction scope), not in the EODatabase. **/
 @end
 
 // Notifications:
-extern NSString *EODatabaseChannelNeededNotification;
+GDL2ACCESS_EXPORT NSString *EODatabaseChannelNeededNotification;
 
 
 @interface NSObject (EODatabaseContextDelegation)
@@ -432,10 +438,10 @@ shouldRaiseExceptionForLockFailure: (NSException *)exception;
 
 @end
 
-extern NSString *EOCustomQueryExpressionHintKey;
+GDL2ACCESS_EXPORT NSString *EOCustomQueryExpressionHintKey;
 
-extern NSString *EODatabaseContextKey;
-extern NSString *EODatabaseOperationsKey;
-extern NSString *EOFailedDatabaseOperationKey;
+GDL2ACCESS_EXPORT NSString *EODatabaseContextKey;
+GDL2ACCESS_EXPORT NSString *EODatabaseOperationsKey;
+GDL2ACCESS_EXPORT NSString *EOFailedDatabaseOperationKey;
 
 #endif /* __EODatabaseContext_h__ */

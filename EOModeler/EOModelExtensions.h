@@ -27,12 +27,15 @@
 #ifndef	__EOModelExtensions_h__
 #define	__EOModelExtensions_h__
 
-#import <Foundation/NSString.h>
-#import <Foundation/NSAttributedString.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSAttributedString.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EORelationship.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EORelationship.h>
 
 
 @interface EOEntity (EOModelExtensions)

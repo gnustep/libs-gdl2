@@ -40,32 +40,39 @@ RCS_ID("$Id$")
 
 #include <string.h>
 
-#import <Foundation/NSString.h>
-#import <Foundation/NSSet.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSUserDefaults.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSSet.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSUserDefaults.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOAttributePriv.h>
-#import <EOAccess/EORelationship.h>
-#import <EOAccess/EOAdaptor.h>
-#import <EOAccess/EOAdaptorContext.h>
-#import <EOAccess/EOAdaptorChannel.h>
-#import <EOAccess/EOJoin.h>
-#import <EOAccess/EOSQLExpression.h>
-#import <EOAccess/EOSQLExpressionPriv.h>
-#import <EOAccess/EOSQLQualifier.h>
-#import <EOAccess/EOExpressionArray.h>
-#import <EOAccess/EOSchemaGeneration.h>
+#include <gnustep/base/GSCategories.h>
 
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EOSortOrdering.h>
-#import <EOControl/EODebug.h>
-#import <EOControl/EONull.h>
+#include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EOSortOrdering.h>
+#include <EOControl/EODebug.h>
+#include <EOControl/EONull.h>
+
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOAttributePriv.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAdaptorContext.h>
+#include <EOAccess/EOAdaptorChannel.h>
+#include <EOAccess/EOJoin.h>
+#include <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EOSQLExpressionPriv.h>
+#include <EOAccess/EOSQLQualifier.h>
+#include <EOAccess/EOExpressionArray.h>
+#include <EOAccess/EOSchemaGeneration.h>
+
 
 
 NSString *EOBindVariableNameKey = @"EOBindVariableNameKey";
@@ -1305,7 +1312,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
         tmpSqlString=[self sqlStringForNegatedQualifier:qualifier];
 
       else if ([qualifier isKindOfClass:[EOKeyComparisonQualifier class]])
-        tmpSqlString=[self sqlStringForKeyComparisonQualifier:qualifier];
+        tmpSqlString=[self sqlStringForKeyComparisonQualifier:(id)qualifier];
 
       else
         [NSException raise: NSInternalInconsistencyException
@@ -2400,7 +2407,7 @@ NSString *EOCreateTablesKey = @"EOCreateTablesKey";
 NSString *EODropTablesKey = @"EODropTablesKey";
 NSString *EOCreatePrimaryKeySupportKey = @"EOCreatePrimaryKeySupportKey";
 NSString *EODropPrimaryKeySupportKey = @"EODropPrimaryKeySupportKey";
-NSString *EOPrimaryKeyContraintsKey = @"EOPrimaryKeyContraintsKey";
+NSString *EOPrimaryKeyConstraintsKey = @"EOPrimaryKeyConstraintsKey";
 NSString *EOForeignKeyConstraintsKey = @"EOForeignKeyConstraintsKey";
 NSString *EOCreateDatabaseKey = @"EOCreateDatabaseKey";
 NSString *EODropDatabaseKey = @"EODropDatabaseKey";
@@ -2813,7 +2820,7 @@ struct _schema
      @selector(createTableStatementsForEntityGroups:)},
     {EOCreatePrimaryKeySupportKey, @"YES",
      @selector(primaryKeySupportStatementsForEntityGroups:)},
-    {EOPrimaryKeyContraintsKey   , @"YES",
+    {EOPrimaryKeyConstraintsKey   , @"YES",
      @selector(primaryKeyConstraintStatementsForEntityGroups:)},
     {EOForeignKeyConstraintsKey  , @"NO",
      @selector(foreignKeyConstraintStatementsForEntityGroups:)},

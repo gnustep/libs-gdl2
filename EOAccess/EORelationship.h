@@ -27,15 +27,15 @@
 #ifndef __EORelationship_h__
 #define __EORelationship_h__
 
-#import <Foundation/NSString.h>
-#import <gnustep/base/GCObject.h>
+#include <gnustep/base/GCObject.h>
 
-#import <EOAccess/EOJoin.h>
-#import <EOAccess/EOPropertyListEncoding.h>
+#include <EOControl/EOClassDescription.h>
 
-#import <EOControl/EOClassDescription.h>
+#include <EOAccess/EOJoin.h>
+#include <EOAccess/EOPropertyListEncoding.h>
 
 
+@class NSString;
 @class NSArray;
 @class NSMutableArray;
 @class NSDictionary;
@@ -151,6 +151,8 @@ typedef enum {
 - (BOOL)ownsDestination;
 - (EOQualifier *)qualifierWithSourceRow: (NSDictionary *)sourceRow;
 
+/** Accessing documentation comments **/
+- (NSString*)docComment;
 @end
 
 

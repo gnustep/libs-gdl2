@@ -35,18 +35,22 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSMapTable.h>
-#import <Foundation/NSNotification.h>
-#import <Foundation/NSEnumerator.h>
-#import <Foundation/NSRunLoop.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSMapTable.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSRunLoop.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EOObserver.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EOObserver.h>
+#include <EOControl/EODebug.h>
 
 #include <string.h>
 

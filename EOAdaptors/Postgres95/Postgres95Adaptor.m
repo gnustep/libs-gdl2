@@ -41,30 +41,34 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSSet.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSDate.h>
-#import <Foundation/NSAutoreleasePool.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSSet.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSDate.h>
+#include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOAccess.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOExpressionArray.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOModel.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOAccess.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOExpressionArray.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOModel.h>
 
-#import <Postgres95EOAdaptor/Postgres95Adaptor.h>
-#import <Postgres95EOAdaptor/Postgres95Context.h>
-#import <Postgres95EOAdaptor/Postgres95Channel.h>
-#import <Postgres95EOAdaptor/Postgres95SQLExpression.h>
-#import <Postgres95EOAdaptor/Postgres95Values.h>
+#include <Postgres95EOAdaptor/Postgres95Adaptor.h>
+#include <Postgres95EOAdaptor/Postgres95Context.h>
+#include <Postgres95EOAdaptor/Postgres95Channel.h>
+#include <Postgres95EOAdaptor/Postgres95SQLExpression.h>
+#include <Postgres95EOAdaptor/Postgres95Values.h>
 
 
 NSString *Postgres95Exception = @"Postgres95Exception";

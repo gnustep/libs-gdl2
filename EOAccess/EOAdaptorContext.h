@@ -27,7 +27,11 @@
 #ifndef __EOAdaptorContext_h__
 #define __EOAdaptorContext_h__
 
-#import <Foundation/NSObject.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
 
 @class NSMutableArray;
@@ -131,8 +135,8 @@ typedef enum {
 
 @end /* NSObject(EOAdaptorContextDelegate) */
 
-extern NSString *EOAdaptorContextBeginTransactionNotification;
-extern NSString *EOAdaptorContextCommitTransactionNotification;
-extern NSString *EOAdaptorContextRollbackTransactionNotification;
+GDL2ACCESS_EXPORT NSString *EOAdaptorContextBeginTransactionNotification;
+GDL2ACCESS_EXPORT NSString *EOAdaptorContextCommitTransactionNotification;
+GDL2ACCESS_EXPORT NSString *EOAdaptorContextRollbackTransactionNotification;
 
 #endif /* __EOAdaptorContext_h__*/

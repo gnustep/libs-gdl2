@@ -35,20 +35,25 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSData.h>
-#import <Foundation/NSDate.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSDecimalNumber.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
 
-#import <EOAccess/EOAccess.h>
-#import <EOAccess/EOAttribute.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSData.h>
+#include <Foundation/NSDate.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSDecimalNumber.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <Postgres95EOAdaptor/Postgres95Adaptor.h>
-#import <Postgres95EOAdaptor/Postgres95Channel.h>
-#import <Postgres95EOAdaptor/Postgres95Values.h>
+
+#include <EOAccess/EOAttribute.h>
+
+#include <Postgres95EOAdaptor/Postgres95Adaptor.h>
+#include <Postgres95EOAdaptor/Postgres95Channel.h>
+#include <Postgres95EOAdaptor/Postgres95Values.h>
 
 
 void __postgres95_values_linking_function (void)

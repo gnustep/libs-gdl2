@@ -27,10 +27,9 @@
 #ifndef __EOStoredProcedure_h__
 #define __EOStoredProcedure_h__
 
-#import <Foundation/NSObject.h>
-#import <gnustep/base/GCObject.h>
+#include <gnustep/base/GCObject.h>
 
-#import <EOAccess/EOPropertyListEncoding.h>
+#include <EOAccess/EOPropertyListEncoding.h>
 
 
 @class NSDictionary;

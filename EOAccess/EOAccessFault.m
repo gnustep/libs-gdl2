@@ -35,21 +35,23 @@
 
 RCS_ID("$Id$")
 
-#ifdef GNUSTEP
-#import <Foundation/NSObjCRuntime.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
 #endif
 
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
+#include <EOControl/EOCheapArray.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EODebug.h>
 
-#import <EOAccess/EOAccessFault.h>
-#import <EOAccess/EOAccessFaultPriv.h>
-#import <EOAccess/EODatabaseContext.h>
-#import <EOAccess/EODatabaseContextPriv.h>
+#include <EOAccess/EOAccessFault.h>
+#include <EOAccess/EOAccessFaultPriv.h>
+#include <EOAccess/EODatabaseContext.h>
+#include <EOAccess/EODatabaseContextPriv.h>
 
-#import <EOControl/EOCheapArray.h>
-#import <EOControl/EOKeyGlobalID.h>
-#import <EOControl/EODebug.h>
 
 NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAvailableException";
 

@@ -27,10 +27,16 @@
 #ifndef __EOKeyValueCoding_h__
 #define __EOKeyValueCoding_h__
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSArray.h>
-#import <Foundation/NSKeyValueCoding.h>
-#import <Foundation/NSDictionary.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSKeyValueCoding.h>
+#include <Foundation/NSDictionary.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
+
+#include <EOControl/EODefines.h>
 
 
 @interface NSObject (EOKVCPAdditions2)
@@ -79,8 +85,8 @@
 @end
 #endif
 
-extern NSString *EOUnknownKeyException;
-extern NSString *EOTargetObjectUserInfoKey;
-extern NSString *EOUnknownUserInfoKey;
+GDL2CONTROL_EXPORT NSString *EOUnknownKeyException;
+GDL2CONTROL_EXPORT NSString *EOTargetObjectUserInfoKey;
+GDL2CONTROL_EXPORT NSString *EOUnknownUserInfoKey;
 
 #endif /* __EOKeyValueCoding_h__ */

@@ -27,7 +27,11 @@
 #ifndef __EOFetchSpecification_h__
 #define __EOFetchSpecification_h__
 
-#import <Foundation/NSObject.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
 
 @class NSArray;

@@ -35,10 +35,21 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
-#import <EOControl/EOControl.h>
-#import <EOAccess/EOAccess.h>
+#include <Foundation/Foundation.h>
+#include <EOControl/EOControl.h>
+#include <EOAccess/EOAccess.h>
 
+/*
+ TODO
+ Implement -ascii option
+ Test multiple models
+ Add new option -dateFormat ISO|Apple (has ISO enough precision for microseconds?)
+ Add new option -nullValue '__NULL__'
+ Question: is it possible to save/restore sequences (for PK)?
+ Replace all autorelease/release/retain by macros
+ Document plist format
+ Document usage
+ */
 
 @interface NSString(eoutil)
 - (NSString *) lossyASCIIString;
@@ -56,7 +67,8 @@ RCS_ID("$Id$")
 @end
 
 
-static BOOL usage(BOOL fullUsage)
+static BOOL
+usage(BOOL fullUsage)
 {
   char *usageString;
 
@@ -152,12 +164,13 @@ enum {
 };
 
 
-static BOOL dump(NSArray *arguments)
+static BOOL
+dump(NSArray *arguments)
 {
   int			 aCount = [arguments count], i = 0;
   EOModel		*srcModel;
-  NSString		*sourceType = nil, *sourceFilename;
-  NSString		*destType = nil, *destFilename;
+  NSString		*sourceType = nil, *sourceFilename = nil;
+  NSString		*destType = nil, *destFilename = nil;
   int			 schemaCreateOptions = 0, schemaDropOptions = 0;
   BOOL			 postInstall = NO;
   BOOL			 force = NO;
@@ -170,7 +183,8 @@ static BOOL dump(NSArray *arguments)
   NSArray		*statements = nil;
   NSDictionary		*dataDictionary = nil;
   Class			 exprClass;
-
+  NSArray	*postInstallSQLExpressions = nil;
+  
   // First, let's parse arguments
   srcModel = [EOModel modelWithContentsOfFile: [[arguments objectAtIndex: i++]
 						stringByStandardizingPath]];
@@ -504,19 +518,19 @@ static BOOL dump(NSArray *arguments)
       // Only for srcModel, not for additional models?
     }
 
-  exprClass = [[EOAdaptor adaptorWithModel: srcModel] defaultExpressionClass];
+  exprClass = [[EOAdaptor adaptorWithModel: srcModel] expressionClass];
   if (schemaDropOptions != 0 || schemaCreateOptions != 0)
     {
       NSDictionary *aDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 						  ((schemaDropOptions & databaseOption) ? @"YES":@"NO"), EODropDatabaseKey,
 						((schemaDropOptions & tablesOption) ? @"YES":@"NO"), EODropTablesKey,
 						((schemaDropOptions & pkSupportOption) ? @"YES":@"NO"), EODropPrimaryKeySupportKey,
-						//            ((schemaDropOptions & pkConstraintsOption) ? @"YES":@"NO"), EOPrimaryKeyContraintsKey,
+						//            ((schemaDropOptions & pkConstraintsOption) ? @"YES":@"NO"), EOPrimaryKeyConstraintsKey,
 						//            ((schemaDropOptions & fkConstraintsOption) ? @"YES":@"NO"), EOForeignKeyConstraintsKey,
 						((schemaCreateOptions & databaseOption) ? @"YES":@"NO"), EOCreateDatabaseKey,
 						((schemaCreateOptions & tablesOption) ? @"YES":@"NO"), EOCreateTablesKey,
 						((schemaCreateOptions & pkSupportOption) ? @"YES":@"NO"), EOCreatePrimaryKeySupportKey,
-						((schemaCreateOptions & pkConstraintsOption) ? @"YES":@"NO"), EOPrimaryKeyContraintsKey,
+						((schemaCreateOptions & pkConstraintsOption) ? @"YES":@"NO"), EOPrimaryKeyConstraintsKey,
 						((schemaCreateOptions & fkConstraintsOption) ? @"YES":@"NO"), EOForeignKeyConstraintsKey,
 						nil];
       NSEnumerator	*anEnum;
@@ -707,6 +721,13 @@ static BOOL dump(NSArray *arguments)
     }
   // Else, no sourcefile => schemaDrop and/or schemaCreate
 
+  if (postInstall)
+        {
+            // Look for a key "AdaptorName"PostInstallExpressions which
+            // which have an array of SQL expressions
+            postInstallSQLExpressions = [[srcModel userInfo] objectForKey:[[[EOAdaptor adaptorWithModel: srcModel] name] stringByAppendingString:@"PostInstallExpressions"]];
+        }
+
   if ([destType isEqualToString: @"plist"])
     {
       // Write data as plist
@@ -764,9 +785,9 @@ static BOOL dump(NSArray *arguments)
             }
         }
 
-      if (postInstall)
+      if (postInstallSQLExpressions)
 	{
-#warning TODO: Append postInstall instructions to outputString
+              [outputString appendString:[postInstallSQLExpressions componentsJoinedByString:@"\n"]];
         }
       if (destFilename)
 	{
@@ -803,6 +824,7 @@ static BOOL dump(NSArray *arguments)
 	      if (![[anEntity className] isEqualToString: @"EOGenericRecord"])
 		[anEntity setClassName: @"EOGenericRecord"];
 
+          // Let's use -[EOEntity attributesToFetch]?
 	      while ((aName = [anEnum nextObject]))
 		{
 		  EOAttribute	*anAttribute = [anEntity attributeNamed: aName];
@@ -810,9 +832,9 @@ static BOOL dump(NSArray *arguments)
 		  NSCAssert1(anAttribute != nil,
 			     @"'%@' is not a valid attribute name", aName);
 
+#warning Remove also derived attributes
 		  if ([anAttribute isReadOnly])
 		    [anAttribute setReadOnly: NO];
-
 		  [newClassProperties addObject: anAttribute];
                 }
 
@@ -933,16 +955,61 @@ static BOOL dump(NSArray *arguments)
 	  NS_ENDHANDLER;
 	}
 
-      if (postInstall)
-	{
-#warning TODO: Append postInstall instructions to outputString
+        if (postInstallSQLExpressions)
+        {
+            EODatabaseContext	*databaseContext;
+            EOEditingContext	*anEC = [[EOEditingContext alloc] init];
+
+            databaseContext =
+                [EODatabaseContext registeredDatabaseContextForModel: srcModel
+                                                               editingContext: anEC];
+
+            [databaseContext lock];
+
+            NS_DURING
+            {
+                EODatabaseChannel *databaseChannel = [databaseContext
+                    availableChannel];
+                EOAdaptorChannel *adaptorChannel = [databaseChannel
+                    adaptorChannel];
+                NSString		*aString;
+                NSEnumerator	*anEnum;
+
+                if (![adaptorChannel isOpen])
+                    [adaptorChannel openChannel];
+
+                anEnum = [postInstallSQLExpressions objectEnumerator];
+
+                while ((aString = [anEnum nextObject]))
+                {
+                    NS_DURING
+                        EOSQLExpression	*aStatement = [exprClass expressionForString:aString];
+                        
+                        [adaptorChannel evaluateExpression: aStatement];
+                    NS_HANDLER
+                        if(!force)
+                            break;
+                        NS_ENDHANDLER;
+                }
+
+                    [databaseContext unlock];
+                    [anEC release];
+            }
+                NS_HANDLER
+                {
+                    [databaseContext unlock];
+                    [anEC release];
+                    [localException raise];
+                }
+                NS_ENDHANDLER;
         }
     }
         
   return YES;
 }
 
-static BOOL convert(NSArray *arguments)
+static BOOL
+convert(NSArray *arguments)
 {
   EOModel	*aModel;
   EOAdaptor	*newAdaptor;
@@ -969,7 +1036,8 @@ static BOOL convert(NSArray *arguments)
   return YES;
 }
 
-static BOOL dbConnect(NSArray *arguments)
+static BOOL
+dbConnect(NSArray *arguments)
 {
   EOAdaptor	*anAdaptor = nil;
   NSDictionary	*aConnectionDictionary = nil;
@@ -998,7 +1066,8 @@ static BOOL dbConnect(NSArray *arguments)
   return YES;
 }
 
-int main(int arcg, char *argv[], char **envp)
+int
+main(int arcg, char *argv[], char **envp)
 {
   NSAutoreleasePool	*localAP = [[NSAutoreleasePool alloc] init];
   BOOL			 noUsage = NO;

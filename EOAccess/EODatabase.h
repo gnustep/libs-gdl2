@@ -28,8 +28,13 @@
 #define __EODatabase_h__
 
 
-#import <Foundation/NSObject.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
+#include <EOAccess/EODefines.h>
 
 @class NSArray;
 @class NSMutableArray;
@@ -46,7 +51,7 @@
 @class EOEditingContext;
 
 
-extern NSString *EOGeneralDatabaseException;
+GDL2ACCESS_EXPORT NSString *EOGeneralDatabaseException;
 
 
 @interface EODatabase : NSObject

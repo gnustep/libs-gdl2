@@ -24,10 +24,10 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-#import "config.h"
+#include "config.h"
 
-#import <EOModeler/EOModelExtensions.h>
-#import <EOControl/EODebug.h>
+#include <EOModeler/EOModelExtensions.h>
+#include <EOControl/EODebug.h>
 
 
 @implementation EOEntity (EOModelExtensions)

@@ -27,7 +27,7 @@
 #ifndef __Postgres95SQLExpression_h__
 #define __Postgres95SQLExpression_h__
 
-#import <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EOSQLExpression.h>
 
 
 @class NSString;

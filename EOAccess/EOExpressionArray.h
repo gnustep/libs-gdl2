@@ -28,8 +28,13 @@
 #define __EOExpressionArray_h__
 
 
-#import <Foundation/NSString.h>
-#import <gnustep/base/GCObject.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
+
+#include <gnustep/base/GCObject.h>
 
 
 @class NSArray;

@@ -38,57 +38,59 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSZone.h>
-#import <Foundation/NSNotification.h>
-#import <Foundation/NSSet.h>
-#import <Foundation/NSData.h>
-#import <Foundation/NSDebug.h>
-#if FOUNDATION_HAS_KVC
-#import <Foundation/NSKeyValueCoding.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSZone.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSSet.h>
+#include <Foundation/NSData.h>
+#include <Foundation/NSKeyValueCoding.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
 #endif
 
-#include <string.h>
+#include <gnustep/base/GSObjCRuntime.h>
 
-#import <EOAccess/EOAdaptor.h>
-#import <EOAccess/EOAdaptorChannel.h>
-#import <EOAccess/EOAdaptorContext.h>
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOModelGroup.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EORelationship.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOStoredProcedure.h>
-#import <EOAccess/EOJoin.h>
+#include <EOControl/EOFault.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOGenericRecord.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EOSortOrdering.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EOMutableKnownKeyDictionary.h>
+#include <EOControl/EOCheapArray.h>
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EODebug.h>
 
-#import <EOAccess/EODatabase.h>
-#import <EOAccess/EODatabaseContext.h>
-#import <EOAccess/EODatabaseContextPriv.h>
-#import <EOAccess/EODatabaseChannel.h>
-#import <EOAccess/EODatabaseOperation.h>
-#import <EOAccess/EOAccessFault.h>
-#import <EOAccess/EOAccessFaultPriv.h>
-#import <EOAccess/EOExpressionArray.h>
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAdaptorChannel.h>
+#include <EOAccess/EOAdaptorContext.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOModelGroup.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOStoredProcedure.h>
+#include <EOAccess/EOJoin.h>
 
-#import <EOControl/EOFault.h>
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOGenericRecord.h>
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EOKeyGlobalID.h>
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EOSortOrdering.h>
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EOMutableKnownKeyDictionary.h>
-#import <EOControl/EOCheapArray.h>
-#import <EOControl/EONSAddOns.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EODebug.h>
+#include <EOAccess/EODatabase.h>
+#include <EOAccess/EODatabaseContext.h>
+#include <EOAccess/EODatabaseContextPriv.h>
+#include <EOAccess/EODatabaseChannel.h>
+#include <EOAccess/EODatabaseOperation.h>
+#include <EOAccess/EOAccessFault.h>
+#include <EOAccess/EOAccessFaultPriv.h>
+#include <EOAccess/EOExpressionArray.h>
 
 #include <string.h>
 
@@ -700,12 +702,14 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 	      editingContext: context];
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"handler=%@", handler);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object->isa=%p", object->isa);
+  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object->class_pointer=%p",
+			GSObjCClass(object));
 
   [EOFault makeObjectIntoFault: object
 	   withHandler: handler];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object->isa=%p", object->isa);
+  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object->class_pointer=%p",
+			GSObjCClass(object));
 
   [self _addBatchForGlobalID: (EOKeyGlobalID*)globalID
         fault: object];

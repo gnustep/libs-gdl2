@@ -40,26 +40,44 @@ RCS_ID("$Id$")
 
 #include <ctype.h>
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSSet.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSNull.h>
+#include <Foundation/NSProcessInfo.h>
+#include <Foundation/NSFileManager.h>
+#include <Foundation/NSFormatter.h>
+#include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSZone.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOEntityPriv.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOAttributePriv.h>
-#import <EOAccess/EORelationship.h>
-#import <EOAccess/EOStoredProcedure.h>
-#import <EOAccess/EOExpressionArray.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EOMutableKnownKeyDictionary.h>
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EOCheapArray.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EOKeyGlobalID.h>
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EOMutableKnownKeyDictionary.h>
-#import <EOControl/EONSAddOns.h>
-#import <EOControl/EOCheapArray.h>
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOEntityPriv.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOAttributePriv.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOStoredProcedure.h>
+#include <EOAccess/EOExpressionArray.h>
 
 
 NSString *EOFetchAllProcedureOperation = @"EOFetchAllProcedureOperation";

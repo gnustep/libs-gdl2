@@ -35,18 +35,17 @@
 RCS_ID("$Id$")
 
 //TODO EOMultiReaderLocks 
-#import <Foundation/Foundation.h>
+#include <Foundation/Foundation.h>
 
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EOObjectStoreCoordinator.h>
-#import <EOControl/EOGlobalID.h>
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EOFault.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EOUndoManager.h>
-#import <EOControl/EONSAddOns.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EOObjectStoreCoordinator.h>
+#include <EOControl/EOGlobalID.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EOFault.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EONSAddOns.h>
+#include <EOControl/EODebug.h>
 
 
 @class EOEntityClassDescription;
@@ -64,8 +63,10 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
 
 + (void)initialize
 {
-  if (self == [EOEditingContext class] && !defaultParentStore)
-    defaultParentStore = [EOObjectStoreCoordinator defaultCoordinator];
+  if (self == [EOEditingContext class] && defaultParentStore == nil)
+    {
+      defaultParentStore = [EOObjectStoreCoordinator defaultCoordinator];
+    }
 }
 
 + (void)setInstancesRetainRegisteredObjects: (BOOL)flag
@@ -113,7 +114,7 @@ NSString *EOEditingContextDidSaveChangesNotification = @"EOEditingContextDidSave
       
       _lock = [NSRecursiveLock new];
 
-//TODO-NOW      _undoManager = [EOUndoManager new];
+//TODO-NOW      _undoManager = [NSUndoManager new];
       [_undoManager beginUndoGrouping]; //??
 
       [self _observeUndoManagerNotifications];
@@ -1748,12 +1749,12 @@ validateTable:(NSHashTable*)table
      && !NSHashGet(_deletedObjects, object))
    {
      NSMethodSignature *undoMethodSignature = nil;
-     EOUndoManager *undoManager;
+     NSUndoManager *undoManager;
      //EOGlobalID *gid = [self globalIDForObject: object];
 
      [self _registerClearStateWithUndoManager];
 
-     undoManager = (EOUndoManager*)[self undoManager];
+     undoManager = (NSUndoManager*)[self undoManager];
      [undoManager prepareWithInvocationTarget: self];
 
      undoMethodSignature = [undoManager methodSignatureForSelector: 

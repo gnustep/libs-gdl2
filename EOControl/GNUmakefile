@@ -45,7 +45,6 @@ EOSortOrdering.m \
 EOFetchSpecification.m \
 EOGenericRecord.m \
 EOClassDescription.m \
-EOKeyValueCodingBase.m \
 EOKeyValueCoding.m \
 EOKeyValueArchiver.m \
 EOQualifier.m \
@@ -69,6 +68,7 @@ EOUndoManager.m \
 EOMutableKnownKeyDictionary.m \
 EONSAddOns.m \
 EOCheapArray.m \
+EOArrayDataSource.m \
 EODebug.m
 
 libgnustep-db2control_HEADER_FILES_DIR = .
@@ -79,7 +79,6 @@ EOSortOrdering.h \
 EOFetchSpecification.h \
 EOGenericRecord.h \
 EOClassDescription.h \
-EOKeyValueCodingBase.h \
 EOKeyValueCoding.h \
 EOKeyValueArchiver.h \
 EOQualifier.h \
@@ -93,10 +92,12 @@ EOObserver.h \
 EOEditingContext.h \
 EODataSource.h \
 EODetailDataSource.h \
-EOUndoManager.h \
+EOArrayDataSource.h \
 EODebug.h \
-EOControl.h \
 EONSAddOns.h \
+EODefines.h \
+EODeprecated.h \
+EOControl.h \
 
 
 gdl2control_AUTOGSDOC_HEADERS = $(libgnustep-db2control_HEADER_FILES)

@@ -35,19 +35,23 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSNotification.h>
-#import <Foundation/NSUserDefaults.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSUserDefaults.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOAdaptor.h>
-#import <EOAccess/EOAdaptorPriv.h>
-#import <EOAccess/EOAdaptorContext.h>
-#import <EOAccess/EOAdaptorChannel.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAdaptorPriv.h>
+#include <EOAccess/EOAdaptorContext.h>
+#include <EOAccess/EOAdaptorChannel.h>
 
 
 NSString *EOAdaptorContextBeginTransactionNotification = @"EOAdaptorContextBeginTransactionNotofication";

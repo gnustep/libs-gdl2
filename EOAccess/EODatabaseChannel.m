@@ -38,32 +38,43 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EODatabaseChannel.h>
-#import <EOAccess/EODatabaseChannelPriv.h>
-#import <EOAccess/EODatabaseContext.h>
-#import <EOAccess/EODatabaseContextPriv.h>
-#import <EOAccess/EODatabase.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EOClassDescription.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EOObjectStore.h>
+#include <EOControl/EODebug.h>
 
-#import <EOAccess/EOAdaptor.h>
-#import <EOAccess/EOAdaptorChannel.h>
-#import <EOAccess/EOAdaptorContext.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EORelationship.h>
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOAccessFault.h>
-#import <EOAccess/EOSQLExpression.h>
-#import <EOAccess/EOSQLQualifier.h>
+#include <EOAccess/EODatabaseChannel.h>
+#include <EOAccess/EODatabaseChannelPriv.h>
+#include <EOAccess/EODatabaseContext.h>
+#include <EOAccess/EODatabaseContextPriv.h>
+#include <EOAccess/EODatabase.h>
 
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EOClassDescription.h>
-#import <EOControl/EOKeyGlobalID.h>
-#import <EOControl/EOObjectStore.h>
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAdaptorChannel.h>
+#include <EOAccess/EOAdaptorContext.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOAccessFault.h>
+#include <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EOSQLQualifier.h>
 
 
 @implementation EODatabaseChannel

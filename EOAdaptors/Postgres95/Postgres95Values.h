@@ -27,14 +27,15 @@
 #ifndef __Postgres95Values_h__
 #define __Postgres95Values_h__
 
-#import <Foundation/NSString.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSData.h>
-#import <Foundation/NSDate.h>
-#import <Foundation/NSCalendarDate.h>
-
-#import <EOControl/EONull.h>
-
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSData.h>
+#include <Foundation/NSDate.h>
+#include <Foundation/NSCalendarDate.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
 @class EOAttribute;
 @class Postgres95Channel;

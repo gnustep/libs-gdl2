@@ -38,13 +38,17 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSSet.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSSet.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EODebug.h>
 
 
 @implementation EOAndQualifier

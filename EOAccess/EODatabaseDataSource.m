@@ -40,28 +40,32 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSCoder.h>
-#import <Foundation/NSEnumerator.h>
-#import <Foundation/NSDebug.h>
-#import <Foundation/NSEnumerator.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSCoder.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EODatabaseDataSource.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOModelGroup.h>
-#import <EOAccess/EODatabase.h>
-#import <EOAccess/EODatabaseContext.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EOKeyValueArchiver.h>
+#include <EOControl/EODataSource.h>
+#include <EOControl/EODetailDataSource.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EOKeyValueArchiver.h>
-#import <EOControl/EODataSource.h>
-#import <EOControl/EODetailDataSource.h>
-#import <EOControl/EODebug.h>
+#include <EOAccess/EODatabaseDataSource.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOModelGroup.h>
+#include <EOAccess/EODatabase.h>
+#include <EOAccess/EODatabaseContext.h>
 
 
 @interface EODatabaseDataSource(Private)

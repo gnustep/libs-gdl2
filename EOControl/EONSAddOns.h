@@ -27,12 +27,27 @@
 #ifndef __EONSAddOns_h__
 #define __EONSAddOns_h__
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSString.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSString.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
+#include <EOControl/EODefines.h>
 
 @class NSArray;
+@class NSLock;
+@class NSRecursiveLock;
 
+GDL2CONTROL_EXPORT BOOL
+GSUseStrictWO451Compatibility(NSString *key);
+
+GDL2CONTROL_EXPORT NSLock *
+GDL2GlobalLock();
+
+GDL2CONTROL_EXPORT NSRecursiveLock *
+GDL2GlobalRecursiveLock();
 
 @interface NSObject (NSObjectPerformingSelector)
 - (NSArray*)resultsOfPerformingSelector: (SEL)sel
@@ -74,6 +89,5 @@
 @interface NSString (YorYes)
 - (BOOL)isYorYES;
 @end
-
 
 #endif /* __EONSAddOns_h__ */

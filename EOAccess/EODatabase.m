@@ -35,28 +35,31 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSNotification.h>
-#import <Foundation/NSSet.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSSet.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOAccessFault.h>
-#import <EOAccess/EOAdaptor.h>
-#import <EOAccess/EOModel.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EODatabase.h>
-#import <EOAccess/EODatabaseContext.h>
+#include <EOControl/EOObjectStore.h>
+#include <EOControl/EOKeyGlobalID.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EOObjectStore.h>
-#import <EOControl/EOKeyGlobalID.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EODebug.h>
-
+#include <EOAccess/EOAccessFault.h>
+#include <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EODatabase.h>
+#include <EOAccess/EODatabaseContext.h>
 
 /* TODO
 

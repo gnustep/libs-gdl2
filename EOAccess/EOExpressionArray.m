@@ -40,21 +40,24 @@ RCS_ID("$Id$")
 
 #include <ctype.h>
 
-#import <Foundation/NSString.h>
-#import <Foundation/NSAutoreleasePool.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSDate.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSDate.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <gnustep/base/GSObjCRuntime.h>
+#include <gnustep/base/GSObjCRuntime.h>
 
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOExpressionArray.h>
-#import <EOAccess/EORelationship.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EODebug.h>
-
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOExpressionArray.h>
+#include <EOAccess/EORelationship.h>
 
 
 @implementation EOExpressionArray
@@ -319,7 +322,8 @@ if it's a string return NO
 {
   //TODO verify
   NSMutableString *value = [NSMutableString string];
-  int i, count;
+  volatile int i;
+  int count;
 
   NS_DURING //Just for debugging
     {

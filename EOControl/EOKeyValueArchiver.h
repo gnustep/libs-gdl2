@@ -28,8 +28,12 @@
 #define __EOKeyValueArchiving_h__
 
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSHashTable.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSHashTable.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
 
 @class NSArray;

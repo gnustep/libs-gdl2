@@ -27,8 +27,13 @@
 #ifndef __EOAdaptor_h__
 #define __EOAdaptor_h__
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSString.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
+
+#include <EOAccess/EODefines.h>
 
 
 @class NSArray;
@@ -46,7 +51,7 @@
 @class EOLoginPanel;
 @class EOEntity;
 
-extern NSString *EOGeneralAdaptorException;
+GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 
 
 @interface EOAdaptor : NSObject
@@ -56,6 +61,10 @@ extern NSString *EOGeneralAdaptorException;
   NSString *_name;
   NSDictionary *_connectionDictionary;
   NSMutableArray *_contexts;	// values with contexts
+  // Strictly speaking, the _context array is not API compatible
+  // with WO4.5 as the objects in the array are GC-wrappers.
+  // Subclasses should access this array via accessor method.
+
   NSString *_expressionClassName;
   Class _expressionClass;
   id _delegate;	// not retained

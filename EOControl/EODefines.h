@@ -1,10 +1,10 @@
 /* 
-   EONull.h
+   EODefines.h
 
-   Copyright (C) 1996-2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 2003 Free Software Foundation, Inc.
 
-   Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
-   Date: 1996
+   Author: Stephane Corthesy <stephane@sente.ch>
+   Date: March 2003
 
    This file is part of the GNUstep Database Library.
 
@@ -24,28 +24,26 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-#ifndef __EONull_h__
-#define __EONull_h__
+#ifndef __EOControl_EODefines_h__
+#define __EOControl_EODefines_h__
 
-#ifndef NeXT_Foundation_LIBRARY
-#include <Foundation/NSObject.h>
+#ifdef GNUSTEP_WITH_DLL
+
+#if BUILD_libgnustep_db2control_DLL
+#  define GDL2CONTROL_EXPORT  __declspec(dllexport)
+#  define GDL2CONTROL_DECLARE __declspec(dllexport) 
 #else
-#include <Foundation/Foundation.h>
+#  define GDL2CONTROL_EXPORT  extern __declspec(dllimport)
+#  define GDL2CONTROL_DECLARE __declspec(dllimport) 
 #endif
 
-#include <EOControl/EODefines.h>
+#else /* GNUSTEP_WITH[OUT]_DLL */
 
-@interface EONull : NSObject <NSCopying>
-/* Type is ommited to avoid compiler warnings
-   triggerd by NSNull. */
-+ null;
-@end /* EONull */
+#  define GDL2CONTROL_EXPORT extern
+#  define GDL2CONTROL_DECLARE 
 
-@interface NSObject (EONull)
-- (BOOL)isEONull;
-- (BOOL)isNotEONull;
-@end
+#endif
 
-GDL2CONTROL_EXPORT BOOL isNilOrEONull(id v);
 
-#endif /* __EONull_h__ */
+#endif /* __EOControl_EODefines_h__ */
+

@@ -28,10 +28,15 @@
 #define __EOModel_h__
 
 
-#import <Foundation/NSString.h>
-#import <gnustep/base/GCObject.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
+#include <gnustep/base/GCObject.h>
 
-#import <EOAccess/EOPropertyListEncoding.h>
+#include <EOAccess/EODefines.h>
+#include <EOAccess/EOPropertyListEncoding.h>
 
 
 @class NSArray;
@@ -180,6 +185,6 @@
 
 @end
 
-extern NSString *EOEntityLoadedNotification;
+GDL2ACCESS_EXPORT NSString *EOEntityLoadedNotification;
 
 #endif /* __EOModel_h__ */

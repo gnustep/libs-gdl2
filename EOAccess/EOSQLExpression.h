@@ -27,12 +27,17 @@
 #ifndef __EOSQLExpression_h__
 #define __EOSQLExpression_h__
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSValue.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSValue.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOJoin.h>
-#import <EOAccess/EORelationship.h>
+#include <EOAccess/EOJoin.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EODefines.h>
 
 
 @class NSArray;
@@ -49,11 +54,11 @@
 @class EOFetchSpecification;
 
 
-extern NSString *EOBindVariableNameKey;
-extern NSString *EOBindVariableAttributeKey;
-extern NSString *EOBindVariableValueKey;
-extern NSString *EOBindVariablePlaceHolderKey;
-extern NSString *EOBindVariableColumnKey;
+GDL2ACCESS_EXPORT NSString *EOBindVariableNameKey;
+GDL2ACCESS_EXPORT NSString *EOBindVariableAttributeKey;
+GDL2ACCESS_EXPORT NSString *EOBindVariableValueKey;
+GDL2ACCESS_EXPORT NSString *EOBindVariablePlaceHolderKey;
+GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 
 
 @interface EOSQLExpression : NSObject

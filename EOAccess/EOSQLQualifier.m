@@ -38,24 +38,28 @@ RCS_ID("$Id$")
 #include <stdio.h>
 #include <string.h>
 
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSSet.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSSet.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOSQLQualifier.h>
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EORelationship.h>
-#import <EOAccess/EOJoin.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EOSQLQualifier.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EORelationship.h>
+#include <EOAccess/EOJoin.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOSQLExpression.h>
 
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EOObjectStoreCoordinator.h>
-#import <EOControl/EONull.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EOObjectStoreCoordinator.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EODebug.h>
 
 
 @implementation EOSQLQualifier

@@ -36,18 +36,22 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSException.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSException.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOAttribute.h>
-#import <EOAccess/EOEntity.h>
-#import <EOAccess/EOSchemaGeneration.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EODebug.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOSchemaGeneration.h>
 
-#import <Postgres95EOAdaptor/Postgres95SQLExpression.h>
-#import <Postgres95EOAdaptor/Postgres95Values.h>
+#include <Postgres95EOAdaptor/Postgres95SQLExpression.h>
+#include <Postgres95EOAdaptor/Postgres95Values.h>
 
 
 @implementation Postgres95SQLExpression

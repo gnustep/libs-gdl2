@@ -27,10 +27,9 @@
 #ifndef __EOModelGroup_h__
 #define __EOModelGroup_h__
 
-#import <Foundation/NSObject.h>
-#import <gnustep/base/GCObject.h>
+#include <gnustep/base/GCObject.h>
 
-#import <EOControl/EOObjectStoreCoordinator.h>
+#include <EOControl/EOObjectStoreCoordinator.h>
 
 
 @class NSArray;

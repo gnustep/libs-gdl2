@@ -30,7 +30,7 @@
 #ifndef __Postgres95Adaptor_h__
 #define __Postgres95Adaptor_h__
 
-#import <EOAccess/EOAdaptor.h>
+#include <EOAccess/EOAdaptor.h>
 
 
 /* Include Postgres 95 Headers */

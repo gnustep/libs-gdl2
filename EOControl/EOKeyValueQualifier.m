@@ -38,14 +38,20 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSObjCRuntime.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EOKeyValueCoding.h>
-#import <EOControl/EOObjectStore.h>
-#import <EOControl/EOObjectStoreCoordinator.h>
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EOObjectStore.h>
+#include <EOControl/EOObjectStoreCoordinator.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EODebug.h>
 
 
 @implementation EOKeyValueQualifier
@@ -135,16 +141,16 @@ RCS_ID("$Id$")
  * method with the receivers value as the parameter.<br/> 
  * If the value object doesn't implement the receivers selector, but the
  * selector of the reciever is one of:<br/>
- + <list>
- * EOQualifierOperatorEqual
- * EOQualifierOperatorNotEqual
- * EOQualifierOperatorLessThan
- * EOQualifierOperatorGreaterThan
- * EOQualifierOperatorLessThanOrEqual
- * EOQualifierOperatorGreaterThanOrEqual
- * EOQualifierOperatorContains
- * EOQualifierOperatorLike
- * EOQualifierOperatorCaseInsensitiveLike
+ * <list>
+ *  <item>EOQualifierOperatorEqual</item>
+ *  <item>EOQualifierOperatorNotEqual</item>
+ *  <item>EOQualifierOperatorLessThan</item>
+ *  <item>EOQualifierOperatorGreaterThan</item>
+ *  <item>EOQualifierOperatorLessThanOrEqual</item>
+ *  <item>EOQualifierOperatorGreaterThanOrEqual</item>
+ *  <item>EOQualifierOperatorContains</item>
+ *  <item>EOQualifierOperatorLike</item>
+ *  <item>EOQualifierOperatorCaseInsensitiveLike</item>
  * </list>
  * then GDL2 tries to evaluate the qualifier by invoking
  * isEqual:, compare:, rangeOfString: respectively and interpreting the

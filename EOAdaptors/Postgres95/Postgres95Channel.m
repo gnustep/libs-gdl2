@@ -41,24 +41,32 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSArray.h>
-#import <Foundation/NSDictionary.h>
-#import <Foundation/NSString.h>
-#import <Foundation/NSObjCRuntime.h>
-#import <Foundation/NSUtilities.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
 
-#import <EOAccess/EOAccess.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSUtilities.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EONull.h>
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EODebug.h>
 
-#import <Postgres95EOAdaptor/Postgres95Channel.h>
-#import <Postgres95EOAdaptor/Postgres95Context.h>
-#import <Postgres95EOAdaptor/Postgres95Values.h>
+#include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOEntity.h>
+#include <EOAccess/EOModel.h>
+#include <EOAccess/EOSQLExpression.h>
+
+#include <Postgres95EOAdaptor/Postgres95Channel.h>
+#include <Postgres95EOAdaptor/Postgres95Context.h>
+#include <Postgres95EOAdaptor/Postgres95Values.h>
 
 
 static void __dummy_function_used_for_linking(void)

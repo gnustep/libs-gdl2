@@ -34,11 +34,21 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/Foundation.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOObjectStoreCoordinator.h>
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EODebug.h>
+#include <EOControl/EOObjectStoreCoordinator.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EODebug.h>
 
 
 @implementation EOObjectStoreCoordinator

@@ -27,7 +27,7 @@
 #ifndef __EOKeyGlobalID_h__
 #define __EOKeyGlobalID_h__
 
-#import <EOControl/EOGlobalID.h>
+#include <EOControl/EOGlobalID.h>
 
 
 @interface EOKeyGlobalID : EOGlobalID <NSCoding>

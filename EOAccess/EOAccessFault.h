@@ -28,9 +28,9 @@
 #define	__EOAccessFault_h__
 
 
-#import <Foundation/NSObject.h>
+#include <EOControl/EOFault.h>
 
-#import <EOControl/EOFault.h>
+#include <EOAccess/EODefines.h>
 
 
 @class EODatabaseContext;
@@ -119,7 +119,7 @@
 @end
 
 
-extern NSString *EOAccessFaultObjectNotAvailableException;
+GDL2ACCESS_EXPORT NSString *EOAccessFaultObjectNotAvailableException;
 
 
 #endif

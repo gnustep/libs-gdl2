@@ -27,7 +27,8 @@
 #ifndef __EOSQLExpressionPriv_h__
 #define __EOSQLExpressionPriv_h__
 
-#import <EOAccess/EOJoin.h>
+#include <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EORelationship.h>
 
 @class NSString;
 @class EOEntity;

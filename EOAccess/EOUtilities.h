@@ -28,9 +28,11 @@
 #define	__EOUtilities_h__
 
 
-#import <EOControl/EOEditingContext.h>
-#import <EOControl/EOFetchSpecification.h>
-#import <EOControl/EOObjectStoreCoordinator.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EOObjectStoreCoordinator.h>
+
+#include <EOAccess/EODefines.h>
 
 
 @class NSArray;
@@ -42,7 +44,7 @@
 @class EOEntity;
 
 
-extern NSString *EOMoreThanOneException;
+GDL2ACCESS_EXPORT NSString *EOMoreThanOneException;
 
 
 @interface EOEditingContext (EOUtilities)

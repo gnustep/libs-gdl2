@@ -27,7 +27,7 @@
 #ifndef __EOJoin_h__
 #define __EOJoin_h__
 
-#import <gnustep/base/GCObject.h>
+#include <gnustep/base/GCObject.h>
 
 
 @class NSString;

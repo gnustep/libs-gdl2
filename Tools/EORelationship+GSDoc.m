@@ -30,8 +30,9 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
    </license>
 **/
+#include "config.h"
 
-static char rcsId[] = "$Id$";
+RCS_ID("$Id$")
 
 #include <EOAccess/EOAccess.h>
 #include <EOAccess/EORelationship.h>
@@ -94,7 +95,8 @@ static char rcsId[] = "$Id$";
 
           for (i = 0; i < count; i++)
             {
-              id component = [[self componentRelationships] objectAtIndex: i];
+	      EORelationship *component;
+              component = [[self componentRelationships] objectAtIndex: i];
 
               content = [content stringByAppendingFormat:
 				 @"<EORelationshipComponent%@ definition=\"%@\">\n",

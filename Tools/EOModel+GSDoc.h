@@ -43,7 +43,7 @@
 
 - (NSString *)gsdocContentWithIdPtr: (int *)xmlIdPtr;
 - (NSString *)gsdocContentSplittedByEntities: (NSDictionary **)entitiesPtr
-				   withIdPtr: (int *)xmlIdPtr;
+				       idPtr: (int *)xmlIdPtr;
 
 @end
 

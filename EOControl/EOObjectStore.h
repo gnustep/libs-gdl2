@@ -1,7 +1,7 @@
 /* 
    EOObjectStore.h
 
-   Copyright (C) 2000 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2003 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
    Date: June 2000
@@ -27,8 +27,13 @@
 #ifndef	__EOObjectStore_h__
 #define	__EOObjectStore_h__
 
-#import <Foundation/NSObject.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSObject.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
+#include <EOControl/EODefines.h>
 
 @class NSArray;
 @class NSDictionary;
@@ -83,13 +88,13 @@
 @end
 
 
-extern NSString *EOObjectsChangedInStoreNotification;
+GDL2CONTROL_EXPORT NSString *EOObjectsChangedInStoreNotification;
 
-extern NSString *EOInvalidatedAllObjectsInStoreNotification;
+GDL2CONTROL_EXPORT NSString *EOInvalidatedAllObjectsInStoreNotification;
 
-extern NSString *EODeletedKey;
-extern NSString *EOInsertedKey;
-extern NSString *EOInvalidatedKey;
-extern NSString *EOUpdatedKey;
+GDL2CONTROL_EXPORT NSString *EODeletedKey;
+GDL2CONTROL_EXPORT NSString *EOInsertedKey;
+GDL2CONTROL_EXPORT NSString *EOInvalidatedKey;
+GDL2CONTROL_EXPORT NSString *EOUpdatedKey;
 
 #endif

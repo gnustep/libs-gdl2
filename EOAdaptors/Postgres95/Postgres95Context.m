@@ -41,20 +41,22 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSString.h>
-#import <Foundation/NSArray.h>
-#import <Foundation/NSValue.h>
-#import <Foundation/NSException.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#include <Foundation/NSArray.h>
+#include <Foundation/NSValue.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOAccess/EOAccess.h>
+#include <EOControl/EODebug.h>
 
-#import <EOControl/EODebug.h>
-
-#import <Postgres95EOAdaptor/Postgres95Adaptor.h>
-#import <Postgres95EOAdaptor/Postgres95Context.h>
-#import <Postgres95EOAdaptor/Postgres95Channel.h>
-#import <Postgres95EOAdaptor/Postgres95SQLExpression.h>
+#include <Postgres95EOAdaptor/Postgres95Adaptor.h>
+#include <Postgres95EOAdaptor/Postgres95Context.h>
+#include <Postgres95EOAdaptor/Postgres95Channel.h>
+#include <Postgres95EOAdaptor/Postgres95SQLExpression.h>
 
 
 @implementation Postgres95Context

@@ -31,10 +31,13 @@
 #define __EOSQLQualifier_h__
 
 
-#import <Foundation/NSObject.h>
-#import <Foundation/NSString.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSString.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
-#import <EOControl/EOQualifier.h>
+#include <EOControl/EOQualifier.h>
 
 
 @class EOSQLExpression;

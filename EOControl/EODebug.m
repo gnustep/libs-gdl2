@@ -33,11 +33,18 @@
 
 RCS_ID("$Id$")
 
-#import <Foundation/NSThread.h>
-#import <Foundation/NSAutoreleasePool.h>
-#import <Foundation/NSDebug.h>
+#ifndef NeXT_Foundation_LIBRARY
+#include <Foundation/NSThread.h>
+#include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/NSDebug.h>
+#else
+#include <Foundation/Foundation.h>
+#endif
 
 #include <unistd.h>
+
+#include <EOControl/EODebug.h>
+
 
 #define USTART	NSAutoreleasePool* arp=[NSAutoreleasePool new];
 #define USTOP	DESTROY(arp);
