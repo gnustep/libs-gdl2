@@ -53,9 +53,9 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#endif
-
 #include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/GSCategories.h>
+#endif
 
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EOGenericRecord.h>

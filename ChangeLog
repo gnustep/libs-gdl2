@@ -1,3 +1,31 @@
+2003-02-01  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAccessFault.m: Add #includes for non *-gnu-*.
+	* EOAccess/EOAdaptorOperation.m: Ditto.
+	* EOAccess/EOAttribute.m: Ditto.
+	* EOAccess/EODatabaseDataSource.m: Ditto.
+	* EOAccess/EODatabaseOperation.m: Ditto.
+	* EOAccess/EOEntity.m: Ditto.
+	* EOAccess/EOExpressionArray.m: Ditto.
+	* EOAccess/EOJoin.m: Ditto.
+	* EOAccess/EORelationship.m: Ditto.
+	* EOAccess/EOSQLExpression.m: Ditto.
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m: Ditto.
+	* EOAdaptors/Postgres95/Postgres95Channel.m: Ditto.
+	* EOAdaptors/Postgres95/Postgres95Context.m: Ditto.
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m: Ditto.
+	* EOAdaptors/Postgres95/Postgres95Values.m: Ditto.
+	* EOControl/EOCheapArray.m: Ditto.
+	* EOControl/EODetailDataSource.m: Ditto.
+	* EOControl/EOGenericRecord.m: Ditto.
+	* EOControl/EOKeyComparisonQualifier.m: Ditto.
+	* EOControl/EOKeyGlobalID.m: Ditto.
+	* EOControl/EOKeyValueQualifier.m: Ditto.
+	* EOControl/EOMutableKnownKeyDictionary.m: Ditto.
+	* EOControl/EONSAddOns.m: Ditto.
+	
+	* Tools/EOModel+GSDoc.m: Remove usage of -version.
+
 2003-01-30  David Ayers  <d.ayers@inode.at>
 
 	* GNUmakefile: Build EOControl before EOAccess.

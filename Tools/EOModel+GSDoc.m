@@ -86,9 +86,6 @@ RCS_ID("$Id$")
 		     ([self name]
 		      ? [NSString stringWithFormat: @" name=\"%@\"",
 				  [self name]] : @""),
-		     ([self version]
-		      ? [NSString stringWithFormat: @" version=\"%f\"",
-				  [self version]] : @""),
 		     ([self adaptorName]
 		      ? [NSString stringWithFormat: @" adaptorName=\"%@\"",
 				  [self adaptorName]] : @""),
