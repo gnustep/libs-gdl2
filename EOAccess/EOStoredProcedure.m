@@ -102,7 +102,7 @@ RCS_ID("$Id$")
 			owner: owner] autorelease];
 }
 
-- initWithPropertyList: (NSDictionary *)propertyList owner: (id)owner
+- (id)initWithPropertyList: (NSDictionary *)propertyList owner: (id)owner
 {
   NSArray *array;
   NSEnumerator *enumerator;

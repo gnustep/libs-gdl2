@@ -3,17 +3,24 @@
 	* EOAccess/EOAttribute.h
 	* EOAccess/EOAttribute.m (_parent, -[setParent:]): Do not retain
 	backward reference.
-	(-[setName:): Mark as editited if parent is an entity.
+	(-[setName:]): Mark as editited if parent is an entity.
 
 	* EOAccess/EOModel.m (-[_updateCache]): New method.
 	* EOAccess/EOEntity.m
 	(-[EOModel _updateCache]): Declare private EOModel method.
 	(-[setName:]): Insure model updates its cache.
-	(-[setModel]): Set instance variable directly without 
+	(-[setModel:]): Set instance variable directly without 
 	retaining it.
-	(-[_setModel]): Remove.
+	(-[_setModel:]): Remove.
 	(-[gcDecrementRefCountOfContainedObjects]): Do not decrement
 	backward reference to owning model.
+
+	* EOAccess/EORelationship.m
+	(-[setDefinition:]): Allow definition to unset.
+	(-[setEntity:]): Mark both old and new entity as edited.
+
+	* EOAccess/EOStoredProcedure.m
+	(-[initWithPropertyList:]): Make return type explicit.
 	
 2004-06-23  David Ayers  <d.ayers@inode.at>
 

@@ -1295,11 +1295,11 @@ relationships. Nil if none" **/
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"definition=%@", definition);
 
+  [self _flushCache];
+  [self willChange];
+
   if (definition)
     {
-      [self _flushCache];
-      [self willChange];
-
       _flags.isToMany = NO;
 
       ASSIGN(_definitionArray, [_entity _parseRelationshipPath: definition]);
@@ -1331,8 +1331,13 @@ relationships. Nil if none" **/
         }
       }
 
-      [_entity _setIsEdited];
     }
+  else /* definition == nil */
+    {
+      DESTROY(_definitionArray);
+    }
+  /* Ayers: Not sure what justifies this. */
+  [_entity _setIsEdited];
 
   EOFLOGObjectFnStop();
 }
@@ -1344,6 +1349,8 @@ relationships. Nil if none" **/
     {
       [self _flushCache];
       [self willChange];
+      [_entity _setIsEdited];
+      [entity _setIsEdited];
       ASSIGN(_entity, entity);
     }
 }
@@ -1353,6 +1360,7 @@ relationships. Nil if none" **/
   //OK
   [self willChange];
   ASSIGN(_userInfo, dictionary);
+  /* Ayers: Not sure what justifies this. */
   [_entity _setIsEdited];
 }
 
@@ -1361,6 +1369,7 @@ relationships. Nil if none" **/
   //OK
   [self willChange];
   ASSIGN(_internalInfo, dictionary);
+  /* Ayers: Not sure what justifies this. */
   [_entity _setIsEdited];
 }
 
@@ -1369,6 +1378,7 @@ relationships. Nil if none" **/
   //OK
   [self willChange];
   ASSIGN(_docComment, docComment);
+  /* Ayers: Not sure what justifies this. */
   [_entity _setIsEdited];
 }
 
@@ -1550,7 +1560,8 @@ relationships. Nil if none" **/
                 EOFLOGObjectLevel(@"EORelationship", @"added");
 
                 [self _joinsChanged];
-                [_entity _setIsEdited];
+		/* Ayers: Not sure what justifies this. */
+		[_entity _setIsEdited];
             }
         }
     }
@@ -1613,6 +1624,7 @@ relationships. Nil if none" **/
         }
 
       [self _joinsChanged];
+      /* Ayers: Not sure what justifies this. */
       [_entity _setIsEdited];
     }
 
