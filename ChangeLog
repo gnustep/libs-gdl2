@@ -1,3 +1,9 @@
+2005-03-17  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOControl/EOFault.m: added instanceMethodForSelector:
+		to temporary fix defaulting problem with 
+		NSAutoreleasePool optimizations
+
 2005-03-10  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOKeyValueCoding: (-unableToSetNullForKey:): Deprecate

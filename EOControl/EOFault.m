@@ -145,6 +145,24 @@ static Class EOFaultClass = NULL;
   return (GSGetMethod(self, sel, NO, YES) != (GSMethod)0);
 }
 
+/**
+ * Returns a pointer to the C function implementing the method used
+ * to respond to messages with aSelector by instances of the receiving
+ * class.
+ * <br />Raises NSInvalidArgumentException if given a null selector.
+ *
+ * It's a temporary fix to support NSAutoreleasePool optimization
+ */
++ (IMP) instanceMethodForSelector: (SEL)aSelector
+{
+  if (aSelector == 0)
+    [NSException raise: NSInvalidArgumentException
+		format: @"%@ null selector given", NSStringFromSelector(_cmd)];
+  /*
+   *	Since 'self' is an class, get_imp() will get the instance method.
+   */
+  return get_imp((Class)self, aSelector);
+}
 
 // Fault class methods
 
