@@ -15,6 +15,14 @@
 	([NSObject-addObject:toPropertyWithKey:]): Use GSSelectorFromName
 	instead of sel_get_any_uid.  Minor optimization.
 	([NSObject-removeObject:fromPropertyWithKey:]): Ditto.
+	* EOControl/EOEditingContext.h/m (_objectBasedChangeInfoForGIDInfo:)
+	Only generate an entry for objects that the reciever actually
+	maps.
+	(-recordForGID:, -recordForObject:) Remove unused undocumented
+	methods.
+	(-updatedObjects, -insertedObjects, -deletedObjects): Reimplement.
+	(-unprocessedObjects, -unprocessedInfo, -pendingInfo)
+	(-hasUnprocessedChanges): Remove.
 	
 2005-02-13  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOControl/EOClassDescription.m:

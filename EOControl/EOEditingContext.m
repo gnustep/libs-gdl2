@@ -471,12 +471,14 @@ _mergeValueForKey(id obj, id value,
             {
               EOGlobalID *gid = GDL2ObjectAtIndexWithImp(gids, oaiIMP, j);
               id obj = EOEditingContext_objectForGlobalIDWithImpPtr(self,&objectForGlobalIDIMP,gid);
-              NSAssert2(obj, @"called with GID %@ not managed by receiver (%p).", gid, self);
-              *valuesP++ = obj;
+	      if (obj)
+		{
+		  *valuesP++ = obj;
+		}
             }
         };
       valueArray[i] = [NSArray arrayWithObjects: valuesPStart
-                               count: cnt];
+                               count: valuesP - valuesPStart];
     }
 
   dict = [NSDictionary dictionaryWithObjects: valueArray
@@ -2681,11 +2683,6 @@ _mergeValueForKey(id obj, id value,
   //Consider OK
   EOGlobalID *gid = nil;
 
-  /*
-    [self recordForObject:object]
-    [self notImplemented:_cmd]; //TODO
-  */
-
   EOFLOGObjectFnStart();
 
   EOFLOGObjectLevelArgs(@"EOEditingContext",
@@ -2699,18 +2696,6 @@ _mergeValueForKey(id obj, id value,
   EOFLOGObjectFnStop();
 
   return gid;
-}
-
-- (NSHashTable*) recordForGID: (EOGlobalID *)globalID
-{
-  [self notImplemented: _cmd]; //TODO
-  return NULL;
-}
-
-- (NSHashTable*) recordForObject: (id)object
-{
-  [self notImplemented: _cmd]; //TODO
-  return NULL;
 }
 
 - (void)setDelegate: (id)delegate
@@ -2939,30 +2924,86 @@ _mergeValueForKey(id obj, id value,
 
 - (NSArray *)updatedObjects
 {
-  NSMutableArray *updatedObjects = [NSMutableArray array];
-  NSHashEnumerator changedEnum = NSEnumerateHashTable(_changedObjects);
+  //TODO: this might need caching.
+  NSMutableSet *objectSet;
+  NSArray *objects;
+  unsigned count;
+  NSHashEnumerator hashEnum;
   id object;
 
-  while ((object = (id)NSNextHashEnumeratorItem(&changedEnum)))
+  count = NSCountHashTable(_changedObjects);
+  count += NSCountHashTable(_unprocessedChanges);
+  objectSet = [NSMutableSet setWithCapacity: count];
+  objects = NSAllHashTableObjects(_changedObjects);
+  [objectSet addObjectsFromArray: objects];
+  objects = NSAllHashTableObjects(_unprocessedChanges);
+  [objectSet addObjectsFromArray: objects];
+
+  hashEnum = NSEnumerateHashTable(_insertedObjects);
+  while ((object = (id)NSNextHashEnumeratorItem(&hashEnum)))
     {
-      if (!NSHashGet(_deletedObjects, (const void*)object))
-          [updatedObjects addObject: object];
+      [objectSet removeObject: object];
     }
+  NSEndHashTableEnumeration(&hashEnum);
 
-//  NSEndHashTableEnumeration(changedEnum);
+  hashEnum = NSEnumerateHashTable(_unprocessedInserts);
+  while ((object = (id)NSNextHashEnumeratorItem(&hashEnum)))
+    {
+      [objectSet removeObject: object];
+    }
+  NSEndHashTableEnumeration(&hashEnum);
 
-  return updatedObjects;
+  hashEnum = NSEnumerateHashTable(_deletedObjects);
+  while ((object = (id)NSNextHashEnumeratorItem(&hashEnum)))
+    {
+      [objectSet removeObject: object];
+    }
+  NSEndHashTableEnumeration(&hashEnum);
+
+  hashEnum = NSEnumerateHashTable(_unprocessedDeletes);
+  while ((object = (id)NSNextHashEnumeratorItem(&hashEnum)))
+    {
+      [objectSet removeObject: object];
+    }
+  NSEndHashTableEnumeration(&hashEnum);
+
+  return [objectSet allObjects];
 }
 
 - (NSArray *)insertedObjects
 {
-  return NSAllHashTableObjects(_insertedObjects);
-  //TODO: remove inserted objectss which are deleted ???
+  //TODO: this might need caching.
+  NSMutableSet *objectSet;
+  NSArray *objects;
+  unsigned count;
+
+  count = NSCountHashTable(_insertedObjects);
+  count += NSCountHashTable(_unprocessedInserts);
+  objectSet = [NSMutableSet setWithCapacity: count];
+  objects = NSAllHashTableObjects(_insertedObjects);
+  [objectSet addObjectsFromArray: objects];
+  objects = NSAllHashTableObjects(_unprocessedInserts);
+  [objectSet addObjectsFromArray: objects];
+  
+  return [objectSet allObjects];
 }
 
 - (NSArray *)deletedObjects
 {
-  return NSAllHashTableObjects(_deletedObjects);
+  //TODO: this might need caching.
+  NSMutableSet *objectSet;
+  NSArray *objects;
+  unsigned count;
+
+  count = NSCountHashTable(_deletedObjects);
+  count += NSCountHashTable(_unprocessedDeletes);
+  objectSet = [NSMutableSet setWithCapacity: count];
+  objects = NSAllHashTableObjects(_deletedObjects);
+  [objectSet addObjectsFromArray: objects];
+  objects = NSAllHashTableObjects(_unprocessedDeletes);
+  [objectSet addObjectsFromArray: objects];
+  
+  return [objectSet allObjects];
 }
 
 
@@ -3179,7 +3220,7 @@ modified state of the object.**/
 
   classDesc = (id)[EOClassDescription classDescriptionForEntityName:
 					entityName];
-#warning (stephane@sente.ch) ERROR: trying to use EOEntity/EOEntityDescription which are defined in EOAccess
+#warning (stephane@sente.ch) ERROR: trying to use EOEntity/EOEntityDescription
   globalID = [[classDesc entity] globalIDForRow: row];
   object = EOEditingContext_objectForGlobalIDWithImpPtr(self,NULL,globalID);
 
@@ -3195,7 +3236,10 @@ modified state of the object.**/
       NSAssert1(objectCopy, @"No Object. classDesc=%@", classDesc);
       [objectCopy updateFromSnapshot: [object snapshot]];
 
-      EOEditingContext_recordObjectGlobalIDWithImpPtr(context,NULL,objectCopy,globalID);
+      EOEditingContext_recordObjectGlobalIDWithImpPtr(context,
+						      NULL,
+						      objectCopy,
+						      globalID);
 
       return objectCopy;
     }
@@ -3734,119 +3778,6 @@ static BOOL usesContextRelativeEncoding = NO;
 
 @end
 
-// Informations
-@implementation EOEditingContext(EOEditingContextInfo)
-
-- (NSDictionary*)unprocessedObjects
-{
-  NSDictionary *infoDict = nil;
-
-  EOFLOGObjectFnStart();
-
-  infoDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                             NSAllHashTableObjects(_unprocessedChanges), @"update",
-                           NSAllHashTableObjects(_unprocessedDeletes), @"delete",
-                           NSAllHashTableObjects(_unprocessedInserts), @"insert",
-                           nil, nil];
-
-  EOFLOGObjectFnStop();
-
-  return infoDict;  
-}
-
-- (NSDictionary*)unprocessedInfo
-{
-  NSDictionary *infoDict = nil;
-  NSHashTable *hashTables[3] = { _unprocessedChanges,
-				 _unprocessedDeletes,
-				 _unprocessedInserts };
-  NSMutableArray *objectsForInfo[3] = { [NSMutableArray array], //inserted
-					[NSMutableArray array], //deleted
-					[NSMutableArray array] }; //updated 
-  id object;
-  int which;
-
-  EOFLOGObjectFnStart();
-
-  for (which = 0; which < 3; which++)
-    {
-      NSHashEnumerator hashEnumerator = NSEnumerateHashTable(hashTables[which]);
-
-      while ((object = (id)NSNextHashEnumeratorItem(&hashEnumerator)))
-        {
-          NSString *info = [NSString stringWithFormat: @"%@ (%p)",
-				     [[object entity] name],
-				     object];
-
-          [objectsForInfo[which] addObject: info];
-        }
-    }
-
-  infoDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                             objectsForInfo[0], @"update",
-                           objectsForInfo[1], @"delete",
-                           objectsForInfo[2], @"insert",
-                           nil, nil];
-
-  NSDebugMLog(@"infoDict=%@", infoDict);
-  EOFLOGObjectFnStop();
-
-  return infoDict;  
-}
-
-- (NSDictionary*)pendingInfo
-{
-  NSDictionary *infoDict = nil;
-  NSHashTable *hashTables[3] = { _insertedObjects,
-				 _deletedObjects,
-				 _changedObjects };
-  NSMutableArray *objectsForInfo[3] = { [NSMutableArray array], //inserted
-					[NSMutableArray array], //deleted
-					[NSMutableArray array] }; //updated 
-  id object;
-  int which;
-
-  EOFLOGObjectFnStart();
-
-  for (which = 0; which < 3; which++)
-    {
-      NSHashEnumerator hashEnumerator = NSEnumerateHashTable(hashTables[which]);
-
-      while ((object = (id)NSNextHashEnumeratorItem(&hashEnumerator)))
-        {
-          NSString *info = [NSString stringWithFormat: @"%@ (%p)",
-				     [[object entity] name],
-				     object];
-
-          [objectsForInfo[which] addObject: info];
-        }
-    }
-
-  infoDict = [NSDictionary dictionaryWithObjectsAndKeys:
-			     objectsForInfo[0], EOInsertedKey,
-			   objectsForInfo[1], EODeletedKey,
-			   objectsForInfo[2], EOUpdatedKey,
-			   nil, nil];
-
-  NSDebugMLog(@"infoDict=%@", infoDict);
-  EOFLOGObjectFnStop();
-
-  return infoDict;  
-}
-
-/** Returns YES if there unprocessed changes or deletes or inserts **/
-- (BOOL)hasUnprocessedChanges
-{
-  if(NSCountHashTable(_unprocessedChanges)
-     || NSCountHashTable(_unprocessedDeletes)
-     || NSCountHashTable(_unprocessedInserts))
-    return YES;
-
-  return NO;
-}
-
-@end
-
 @implementation NSObject (DeallocHack)
 /*
  * This is a real hack that shows that the design of this
@@ -3872,7 +3803,10 @@ static BOOL usesContextRelativeEncoding = NO;
 }
 @end
 
-id EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext* edContext,IMP* impPtr,EOGlobalID* gid)
+id
+EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext *edContext,
+					     IMP              *impPtr,
+					     EOGlobalID       *gid)
 {
   if (edContext)
     {
@@ -3895,7 +3829,10 @@ id EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext* edContext,IMP*
     return nil;
 };
 
-EOGlobalID* EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object)
+EOGlobalID *
+EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext *edContext,
+					     IMP              *impPtr,
+					     id object)
 {
   if (edContext)
     {
@@ -3918,7 +3855,11 @@ EOGlobalID* EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext* edCon
     return nil;
 };
 
-id EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object,EOGlobalID* gid)
+id
+EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext  *edContext,
+						IMP               *impPtr,
+						id                 object,
+						EOGlobalID        *gid)
 {
   if (edContext)
     {
