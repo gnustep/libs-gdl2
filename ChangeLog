@@ -1,3 +1,14 @@
+2004-11-04  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOModelGroup.m ([+globalModelGroup]): Search for
+	.eomodel files as well and call -addModelWithFile: with full
+	path.
+	* EOAccess/EOModel.m ([-initWithContentsOfFile:]): Add assert
+	if file could not be read.
+
+	* EOControl/EOKeyGlobalID.m ([-hash]): Improve quality of hash
+	values.
+
 2004-11-03  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptorContext.h: Only use ASCII characters.

@@ -150,9 +150,9 @@ RCS_ID("$Id$")
   unsigned int hash = 0;
 
   for (i = 0; i < _keyCount; i++)
-    hash += [_keyValues[i] hash];
+    hash ^= [_keyValues[i] hash];
 
-  hash += [_entityName hash];
+  hash ^= [_entityName hash];
 
   return hash;
 }

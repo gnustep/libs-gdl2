@@ -123,10 +123,11 @@ static EOModelGroup *globalModelGroup = nil;
     {
       NSMutableArray *bundles = [NSMutableArray arrayWithCapacity: 2];
       NSBundle *bundle = nil;
-      NSArray *paths = nil;
+      NSMutableArray *paths = nil;
       NSEnumerator *pathsEnum = nil;
       NSEnumerator *bundleEnum = nil;
       NSString *path = nil;
+      id tmp;
 
       globalModelGroup = [EOModelGroup new];
 
@@ -138,8 +139,13 @@ static EOModelGroup *globalModelGroup = nil;
       bundleEnum = [bundles objectEnumerator];
       while ((bundle = [bundleEnum nextObject]))
 	{
-	  paths = [bundle pathsForResourcesOfType: @"eomodeld"
-			  inDirectory: nil];
+	  paths = (id)[NSMutableArray array];
+	  tmp = [bundle pathsForResourcesOfType: @"eomodeld"
+			inDirectory: nil];
+	  [paths addObjectsFromArray: tmp];
+	  tmp = [bundle pathsForResourcesOfType: @"eomodel"
+			inDirectory: nil];
+	  [paths addObjectsFromArray: tmp];
 
 	  if (!paths)
 	    {
@@ -150,8 +156,6 @@ static EOModelGroup *globalModelGroup = nil;
 	  pathsEnum = [paths objectEnumerator];
 	  while ((path = [pathsEnum nextObject]))
 	    {
-	      path = [path stringByDeletingPathExtension];
-	      NSLog(@"%@", path);
 	      [globalModelGroup addModelWithFile: path];
 	    }
 	}

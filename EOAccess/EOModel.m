@@ -579,6 +579,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
         }
 
       fileContents = [NSString stringWithContentsOfFile: indexPath];
+      NSAssert1(fileContents!=nil, @"File %@ could not be read.", indexPath);
       propList = [fileContents propertyList];
       EOFLOGObjectLevelArgs(@"gsdb", @"propList=%@", propList);
       NSAssert1(propList!=nil, @"Model at path %@ is invalid", indexPath);
