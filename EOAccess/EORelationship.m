@@ -1985,8 +1985,8 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 {
   NSArray *destAttributes = nil;
   NSArray *primaryKeyAttributes = nil;
-  int destAttributesCount = nil;
-  int primaryKeyAttributesCount = nil;
+  int destAttributesCount = 0;
+  int primaryKeyAttributesCount = 0;
   BOOL foreignKeyInDestination = NO;
 
   EOFLOGObjectFnStart();

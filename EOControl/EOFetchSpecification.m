@@ -45,7 +45,6 @@ RCS_ID("$Id$")
 #import <EOControl/EODebug.h>
 #import <EOControl/EONSAddOns.h>
 #import <EOControl/EOQualifier.h>
-#import <EOAccess/EODatabaseContext.h>
 
 
 @implementation EOFetchSpecification
@@ -54,7 +53,10 @@ RCS_ID("$Id$")
 {
   if (self == [EOFetchSpecification class])
     {
-      [EODatabaseContext class];  // Insure correct initialization.
+      Class cls = NSClassFromString(@"EODatabaseContext");
+
+      if (cls != Nil)
+	[cls class]; // Insure correct initialization.
     }
 }
 
@@ -126,6 +128,12 @@ RCS_ID("$Id$")
 - (EOFetchSpecification *)fetchSpecificationWithQualifierBindings: (NSDictionary *)bindings
 {
   [self notImplemented: _cmd];
+  return nil;
+}
+
++ (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
+                                      entityNamed: (NSString *)entityName
+{
   return nil;
 }
 

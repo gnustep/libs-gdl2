@@ -1,3 +1,14 @@
+2003-02-02  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOControl/EOGenericRecord.m ([EOGenericRecord +initialize]): import
+	NSAutoreleasePool.
+	* EOControl/EOGlobalID.m ([EOGlobalID +initialize]): removed dependency
+	from EOAccess.
+	* EOControl/EOFetchSpecification.m ([EOFetchSpecification
+	+initialize]): likewise.
+	([EOFetchSpecification +fetchSpecificationNamed:entityNamed:]): readded
+	since it is replaced by the category in EOUtilitites !
+
 2003-01-31  Manuel Guesdon  <mguesdon@orange-concept.com>
 	* EOAccess/EOAdaptorChannel.m:
 		o replaced NSDebugMLLog by EOFLOGObjectLevel/EOFLOGObjectLevelArgs

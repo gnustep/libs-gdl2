@@ -39,6 +39,7 @@
 RCS_ID("$Id$")
 
 #import <Foundation/NSArray.h>
+#import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSDictionary.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSLock.h>
@@ -933,7 +934,7 @@ infinite loop in description **/
 {
   EOGenericRecord *record = nil;
   NSHashEnumerator hashEnum;
-  NSAutoreleasePool *arp=nil;
+  NSAutoreleasePool *arp;
 
   EOFLOGClassFnStart();
   //NSDebugMLog(@"CALCULATE START");

@@ -44,8 +44,6 @@ RCS_ID("$Id$")
 #include <time.h>
 #include <unistd.h>
 
-#import <EOAccess/EODatabaseContext.h>
-
 
 NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 
@@ -56,7 +54,10 @@ NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 {
   if (self == [EOGlobalID class])
     {
-      [EODatabaseContext class]; // Insure correct initialization.
+      Class cls = NSClassFromString(@"EODatabaseContext");
+
+      if (cls != Nil)
+	[cls class]; // Insure correct initialization.
     }
 }
 
