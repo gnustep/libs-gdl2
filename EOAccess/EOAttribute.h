@@ -57,7 +57,6 @@ typedef enum {
 } EOFactoryMethodArgumentType;
 
 typedef enum {
-  EOAdaptorUnknownType = 0, // 0 so it is initialization value
   EOAdaptorNumberType,
   EOAdaptorCharactersType,
   EOAdaptorBytesType,
@@ -97,11 +96,12 @@ typedef enum {
     unsigned int allowsNull:1;
     unsigned int isReadOnly:1;
     unsigned int isParentAnEOEntity:1;
-    unsigned int protoOverride:17;
-    unsigned int unused : 12;
-    unsigned int extraRefCount;
+    unsigned int protoOverride:18;
+    unsigned int isAttributeValueInitialized:1;
+    unsigned int unused : 10;
   } _flags;
     
+  unsigned int extraRefCount;
   NSDictionary *_sourceToDestinationKeyMap;
   EOParameterDirection _parameterDirection;
   NSDictionary *_userInfo;

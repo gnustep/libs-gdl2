@@ -121,11 +121,6 @@ IMP Postgres95Values_newValueForBytesLengthAttributeIMP=NULL;
       return [self newValueForDateType: bytes
 		   length: length
 		   attribute: attribute];
-    case EOAdaptorUnknownType:
-      NSAssert1(NO,
-                @"Bad (EOAdaptorUnknownType) adaptor type for attribute : %@",
-                attribute);
-      return nil;
     default:
       NSAssert2(NO,
                 @"Bad (%d) adaptor type for attribute : %@",

@@ -909,7 +909,7 @@ return nexexp
 
   _valueClass = NSClassFromString(_valueClassName);
 
-  _adaptorValueType=EOAdaptorUnknownType; // reset adaptorValueType
+  _flags.isAttributeValueInitialized = NO;
 
   [self _setOverrideForKeyEnum: 3];//TODO
 }
@@ -1315,7 +1315,7 @@ return nexexp
 
 - (EOAdaptorValueType)adaptorValueType
 {
-  if (_adaptorValueType==EOAdaptorUnknownType)
+  if (!_flags.isAttributeValueInitialized)
     {
       Class adaptorClasses[] = { GDL2NSNumberClass, 
                                  GDL2NSStringClass,
@@ -1326,19 +1326,24 @@ return nexexp
       Class valueClass = Nil;
       int i = 0;
       
-      for ( i = 0; i < 3; i++)
+      _adaptorValueType = EOAdaptorBytesType;
+
+      for ( i = 0; i < 3 && !_flags.isAttributeValueInitialized; i++)
         {
           for ( valueClass = [self _valueClass];
                 valueClass != Nil;
                 valueClass = GSObjCSuper(valueClass))
             {
               if (valueClass == adaptorClasses[i])
-                _adaptorValueType=values[i];
+		{
+		  _adaptorValueType=values[i];
+		  _flags.isAttributeValueInitialized = YES;
+		  break;
+		}    
             }
         }
       
-      if (_adaptorValueType==EOAdaptorUnknownType)
-        _adaptorValueType=EOAdaptorBytesType;
+      _flags.isAttributeValueInitialized = YES;
     };
   return _adaptorValueType;
 }

@@ -1,4 +1,18 @@
-2005-02-10  David Ayers  <d.ayers@inode.at>
+2005-02-15  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAttribute.h/m (EOAdaptorUnknownType): Remove.
+	(protoOverride): Increase range.
+	(isAttributeValueInitialized): New flag.
+	(extraRefCount): Make standalone instance variable.
+	(setValueClassName:): Use isAttributeValueInitialized flag
+	instead of EOAdaptorUnknownType.
+	(adaptorValueType): Use isAttributeValueInitialized flag
+	instead of EOAdaptorUnknownType.
+	* EOAdaptors/Postgres95/Postgres95Values.m
+	(newValueForBytes:length:attribute:): Remove reference to
+	EOAdaptorUnknownType.
+	
+2005-02-14  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOModel.m (-writeToFile:): Clairfy documentation about
 	setting receivers name and path.
