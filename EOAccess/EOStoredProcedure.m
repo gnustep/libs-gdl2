@@ -125,10 +125,10 @@ RCS_ID("$Id$")
       enumerator = [array objectEnumerator];
       while ((attributePList = [enumerator nextObject]))
         {
-	  EOAttribute *attribute = [EOAttribute
-				     attributeWithPropertyList: attributePList
-				     owner: self];
-
+	  EOAttribute *attribute 
+	    = [EOAttribute attributeWithPropertyList: attributePList
+			   owner: self];
+	  [attribute awakeWithPropertyList: attributePList];
 	  [(GCMutableArray *)_arguments addObject: attribute];
         }
     }
@@ -148,7 +148,51 @@ RCS_ID("$Id$")
 
 - (void)encodeIntoPropertyList: (NSMutableDictionary *)propertyList
 {
-  return;
+  unsigned i, count;
+
+  if (_name)
+    {
+      [propertyList setObject: _name forKey: @"name"];
+    }
+
+  if (_externalName)
+    {
+      [propertyList setObject: _externalName forKey: @"externalName"];
+    }
+
+  if (_userInfo)
+    {
+      [propertyList setObject: _userInfo forKey: @"userInfo"];
+    }
+
+  if ((count = [_arguments count]))
+    {
+      NSMutableArray *attributesPList 
+	= [NSMutableArray arrayWithCapacity: count];
+
+      for (i = 0; i < count; i++)
+	{
+	  NSMutableDictionary *attributePList 
+	    = [NSMutableDictionary dictionary];
+	  EOAttribute *attribute
+	    = [_arguments objectAtIndex: i];
+
+	  [attribute encodeIntoPropertyList: attributePList];
+	  [attributesPList addObject: attributePList];
+	}
+
+      [propertyList setObject: attributesPList forKey: @"attributes"];
+    }
+}
+
+- (NSString*) description
+{
+  NSMutableDictionary *plist;
+
+  plist = [NSMutableDictionary dictionaryWithCapacity: 6];
+  [self encodeIntoPropertyList: plist];
+
+  return [plist description];
 }
 
 - (NSString *)name
@@ -207,23 +251,26 @@ RCS_ID("$Id$")
 
 - (void)beautifyName
 {
-  NSArray	*listItems;
-  NSString	*newString = [NSMutableString string];
-  int		 anz, i;
+  NSArray  *listItems;
+  NSString *newString = [NSMutableString string];
+  NSString *tmpString;
+  unsigned  anz, i;
   
   EOFLOGObjectFnStartOrCond2(@"ModelingClasses", @"EOStoredProcedure");
   
   if ((_name) && ([_name length] > 0))
     {
       listItems = [_name componentsSeparatedByString: @"_"];
-      newString = [newString stringByAppendingString: [[listItems objectAtIndex: 0]
-							lowercaseString]];
+      tmpString = [listItems objectAtIndex: 0];
+      tmpString = [tmpString lowercaseString];
+      newString = [newString stringByAppendingString: tmpString];
       anz = [listItems count];
 
       for (i = 1; i < anz; i++)
 	{
-	  newString = [newString stringByAppendingString:
-				   [[listItems objectAtIndex: i] capitalizedString]];
+	  tmpString = [listItems objectAtIndex: i];
+	  tmpString = [tmpString capitalizedString];
+	  newString = [newString stringByAppendingString: tmpString];
 	}
  
     NS_DURING
@@ -237,4 +284,10 @@ RCS_ID("$Id$")
   EOFLOGObjectFnStopOrCond2(@"ModelingClasses", @"EOStoredProcedure");
 }
 
+@end
+
+@implementation EOStoredProcedure (privat)
+- (void)_setIsEdited
+{
+}
 @end

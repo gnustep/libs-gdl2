@@ -198,7 +198,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
    return modelPath;
 }
 
-- (id) init
+- (id)init
 {
   EOFLOGObjectFnStart();
 
@@ -213,6 +213,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 						  NSObjectMapValueCallBacks,
 						  8,
 						  [self zone]);
+      _storedProcedures = [GCMutableArray new];
   
       [[NSNotificationCenter defaultCenter]
         addObserver: self
@@ -360,59 +361,37 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 	   sortedArrayUsingSelector: @selector(compare:)];
 }
 
-- (NSArray*) storedProcedureNames
+- (NSArray *)storedProcedureNames
 {
-
-  NSEnumerator *stEnum;
-  EOStoredProcedure *st;
-  NSMutableArray *stNames = [NSMutableArray arrayWithCapacity:
-					      [_storedProcedures count]];
-
-  stEnum = [_storedProcedures objectEnumerator];
-  while ((st = [stEnum nextObject]))
-    [stNames addObject: st];
-
-  return stNames;
+  /* We do not load procedures lazy 
+     so we can rely on the instance variable.  */
+  return [_storedProcedures valueForKey: @"name"];
 }
 
-- (EOStoredProcedure*) storedProcedureNamed: (NSString *)name
+- (EOStoredProcedure*)storedProcedureNamed: (NSString *)name
 {
-  NSEnumerator *stEnum;
-  EOStoredProcedure *st;
+  EOStoredProcedure *proc;
+  NSString *procName;
+  unsigned i,n;
 
-  stEnum = [_storedProcedures objectEnumerator];
-  while ((st = [stEnum nextObject]))
+  n = [_storedProcedures count];
+  for (i=0; i<n; i++)
     {
-      if ([[st name] isEqual:name])
-	return st;
+      proc = [_storedProcedures objectAtIndex: i];
+      procName = [proc name];
+      if ([procName isEqual: name])
+	{
+	  return proc;
+	}
     }
 
   return nil;
 }
 
-- (NSArray*) storedProcedures
+- (NSArray*)storedProcedures
 {
-  //TODO revoir ?
-  if (!_storedProcedures)
-    {
-      NSArray *storedProcedures = nil;
-      NSArray *storedProcedureNames = [self storedProcedureNames];
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"storedProcedureNames=%@",
-			    storedProcedureNames);
-
-      storedProcedures = [self resultsOfPerformingSelector:
-				 @selector(storedProcedureNamed:)
-			       withEachObjectInArray: storedProcedureNames];
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"storedProcedures=%@", storedProcedures);
-
-      ASSIGN(_storedProcedures, [GCArray arrayWithArray:storedProcedures]);
-/*      [self performSelector:@selector(storedProcedureNamed:)
-            withEachObjectInArray:storedProcedureNames];
-*/
-    }
-
+  /* We do not load procedures lazy 
+     so we can rely on the instance variable.  */
   return _storedProcedures;
 }
 
@@ -615,13 +594,15 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
  * If any of the file operations fail, an NSInvalidArgumentException
  * will be raised.
  */
-- (void) writeToFile: (NSString *)path
+- (void)writeToFile: (NSString *)path
 {
   NSFileManager		*mgr = [NSFileManager defaultManager];
   NSMutableDictionary	*pList;
   NSDictionary		*attributes;
   NSDictionary		*entityPList;
+  NSDictionary		*stProcPList;
   NSEnumerator		*entityEnum;
+  NSEnumerator		*stProcEnum;
   NSString              *fileName;
   NSString              *extension;
   BOOL writeSingleFile;
@@ -637,8 +618,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
   
   writeSingleFile = [extension isEqualToString: @"eomodel"] ? YES : NO;
-
-  [self _setPath: path];
 
   if ([mgr fileExistsAtPath: path])
     {
@@ -666,6 +645,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 		       format: fmt];
 	}
     }
+
+  [self _setPath: path];
 
   pList = [NSMutableDictionary dictionaryWithCapacity: 10];
 
@@ -704,6 +685,25 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 	}
     }
 
+  stProcEnum = [[pList objectForKey: @"storedProcedures"] objectEnumerator];
+  while (writeSingleFile == NO
+	 && (stProcPList = [stProcEnum nextObject]))
+    {
+      NSString *fileName;
+
+      fileName = [stProcPList objectForKey: @"name"];
+      fileName = [fileName stringByAppendingPathExtension: @"storedProcedure"];
+      fileName = [path stringByAppendingPathComponent: fileName];
+      if ([stProcPList writeToFile: fileName atomically: YES] == NO)
+	{
+	  NSString *fmt;
+	  fmt = [NSString stringWithFormat: @"Could not create file: %@",
+			  fileName];
+	  [NSException raise: NSInvalidArgumentException
+		       format: fmt];
+	}
+    }
+
   if (writeSingleFile == NO)
     {
       fileName = [path stringByAppendingPathComponent: @"index.eomodeld"];
@@ -729,14 +729,15 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 @implementation EOModel (EOModelPropertyList)
 
-- (id) initWithTableOfContentsPropertyList: (NSDictionary *)tableOfContents
-                                      path: (NSString *)path
+- (id)initWithTableOfContentsPropertyList: (NSDictionary *)tableOfContents
+                                     path: (NSString *)path
 {
   //OK
   NS_DURING
     {
       if ((self = [self init]))
         {
+	  NSString *modelPath;
           NSString *versionString = nil;
           NSArray  *entities = nil;
           int i, count = 0;
@@ -745,7 +746,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 				tableOfContents);
 
 	  /* The call to _setPath: also sets the name implicitly. */
-          [self _setPath: [isa _formatModelPath: path checkFileSystem: YES]];
+	  modelPath = [isa _formatModelPath: path checkFileSystem: YES];
+	  [self _setPath: modelPath];
           EOFLOGObjectLevelArgs(@"gsdb", @"name=%@ path=%@", _name, _path);
 
           versionString = [tableOfContents objectForKey: @"EOModelVersion"];
@@ -773,47 +775,64 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
           if (_version >= 2)
             {
               NSMutableDictionary *markSP = [NSMutableDictionary dictionary];
-              NSArray *storedProcedures = [tableOfContents
-                                           objectForKey: @"storedProcedures"];
-              EOStoredProcedure *sp = nil;
-              NSEnumerator *enumerator = nil;
+              NSArray *storedProcedures 
+		= [tableOfContents objectForKey: @"storedProcedures"];
 
               count = [storedProcedures count];
-
               for (i = 0; i < count; i++)
                 {
-                  EOStoredProcedure *st;
+                  EOStoredProcedure *proc;
                   NSDictionary *plist;
                   NSString *fileName;
+		  NSString *procName;
+		  NSString *fullPath;
 
-                  fileName = [NSString stringWithFormat: @"%@.storedProcedure",
-                                       [[storedProcedures objectAtIndex: i]
-                                         objectForKey: @"name"]];	  
-                  plist = [[NSString stringWithContentsOfFile:
-                                       [_name stringByAppendingPathComponent:
-                                                fileName]]
-                            propertyList];	  
+		  procName = [storedProcedures objectAtIndex: i];
 
-                  [markSP setObject: plist
-                          forKey: [plist objectForKey: @"name"]];
+                  fileName = [procName stringByAppendingPathExtension:
+					 @"storedProcedure"];
 
-                  st = [EOStoredProcedure storedProcedureWithPropertyList: plist
-                                           owner: self];
-                  [self addStoredProcedure: st];
+		  fullPath = [_path stringByAppendingPathComponent: fileName];
+                  plist 
+		    = [NSDictionary dictionaryWithContentsOfFile: fullPath];
+
+		  NSAssert2([procName isEqual: [plist objectForKey: @"name"]],
+			    @"Name mismatch: index.plist: %@"
+			    @" *.storedProcedure: %@", procName,
+			    [plist objectForKey: @"name"]);
+                  [markSP setObject: plist forKey: procName];
+
+                  proc
+		    = [EOStoredProcedure storedProcedureWithPropertyList: plist
+					 owner: self];
+                  [self addStoredProcedure: proc];
                 }
 
-              enumerator = [_storedProcedures objectEnumerator];
-              while ((sp = [enumerator nextObject]))
-                [sp awakeWithPropertyList: [markSP objectForKey: [sp name]]];
+              count = [_storedProcedures count];
+              for (i = 0; i < count; i++)
+                {
+		  EOStoredProcedure *proc;
+		  NSString *name;
+		  NSDictionary *plist;
+
+		  proc = [_storedProcedures objectAtIndex: i];
+		  name = [proc name];
+		  plist = [markSP objectForKey: name];
+
+		  if (plist)
+		    {
+		      [proc awakeWithPropertyList: plist];
+		    }
+		}
             }
         
           entities = [tableOfContents objectForKey: @"entities"];
           count = [entities count];
 
-          for (i = 0; i < count; i++)
+          for (i=0; i<count; i++)
             {
-              [self _addFakeEntityWithPropertyList:
-                      [entities objectAtIndex: i]];
+	      NSDictionary *entityPList = [entities objectAtIndex: i];
+              [self _addFakeEntityWithPropertyList: entityPList];
             }
         }
     }
@@ -828,11 +847,12 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return self;
 }
 
-- (void) encodeTableOfContentsIntoPropertyList:
+- (void)encodeTableOfContentsIntoPropertyList:
   (NSMutableDictionary *)propertyList
 {
   int i, count;
   NSMutableArray *entitiesArray;
+  NSMutableArray *stProcArray;
 
   [propertyList setObject:
     [[NSNumber numberWithFloat: DEFAULT_MODEL_VERSION] stringValue]
@@ -871,6 +891,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
       [entitiesArray addObject: entityPList];
     }
+
+  stProcArray = [_storedProcedures valueForKey: @"name"];
+  [propertyList setObject: stProcArray forKey: @"storedProcedures"];
 }
 
 - (id) initWithPropertyList: (NSDictionary *)propertyList
@@ -1057,8 +1080,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       for (i = 0; i < count; i++)
         {
 	  NSMutableDictionary *entityPList = [NSMutableDictionary dictionary];
+	  EOEntity *entity = [_entities objectAtIndex: i];
 	  
-	  [[_entities objectAtIndex: i] encodeIntoPropertyList: entityPList];
+	  [entity encodeIntoPropertyList: entityPList];
 	  [entitiesArray addObject: entityPList];
         }
     }
@@ -1068,13 +1092,13 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     {
       NSMutableArray *stArray = [NSMutableArray arrayWithCapacity: count];
 
-      [propertyList setObject: stArray forKey: @"entities"];
+      [propertyList setObject: stArray forKey: @"storedProcedures"];
       for (i = 0; i < count; i++)
         {
 	  NSMutableDictionary *stPList = [NSMutableDictionary dictionary];
+	  EOStoredProcedure *proc = [_storedProcedures objectAtIndex: i];
 
-	  [[_storedProcedures objectAtIndex: i]
-	    encodeIntoPropertyList: stPList];
+	  [proc encodeIntoPropertyList: stPList];
 	  [stArray addObject: stPList];
         }
     }
@@ -1129,14 +1153,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
           [EOClassDescription registerClassDescription: classDescription
                               forClass: entityClass];
-
-          /*      classDescription = [[EOClassDescription new] autorelease];
-                  EOFLOGObjectLevelArgs(@"gsdb",
-		                        @"classDescription=%@ aClass=%@",
-					classDescription, aClass);
-                  [EOClassDescription registerClassDescription: classDescription
-                  forClass: aClass];
-          */
         }
     }
   else if ([notificationName
@@ -1504,7 +1520,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   // TODO;
 }
 
-- (void) addStoredProcedure: (EOStoredProcedure *)storedProcedure
+- (void)addStoredProcedure: (EOStoredProcedure *)storedProcedure
 {
   if ([self storedProcedureNamed: [storedProcedure name]])
     [NSException raise: NSInvalidArgumentException
@@ -1513,27 +1529,32 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
                  NSStringFromClass([self class]),
                  self,
                  [storedProcedure name]];
-  
+  NSAssert(_storedProcedures, @"Uninitialised _storedProcedures!");
   if ([self createsMutableObjects])
     [(GCMutableArray *)_storedProcedures addObject: storedProcedure];
   else
     {
-      _storedProcedures = [[[GCMutableArray alloc] initWithArray:[_storedProcedures autorelease] copyItems:NO]
-			    autorelease];
-      [(GCMutableArray *)_storedProcedures addObject: storedProcedure];
-      _storedProcedures = [[GCArray alloc] initWithArray:_storedProcedures copyItems:NO];
+      NSMutableArray *mCopy = AUTORELEASE([_storedProcedures mutableCopy]);
+      [mCopy removeObject: storedProcedure];
+      mCopy = AUTORELEASE([[GCArray alloc] initWithArray: mCopy
+					   copyItems: NO]);
+      ASSIGN(_storedProcedures, mCopy);
     }
 }
 
-- (void) removeStoredProcedure: (EOStoredProcedure *)storedProcedure
+- (void)removeStoredProcedure: (EOStoredProcedure *)storedProcedure
 {
+  NSAssert(_storedProcedures, @"Uninitialised _storedProcedures!");
+
   if ([self createsMutableObjects])
     [(GCMutableArray *)_storedProcedures removeObject: storedProcedure];
   else
     {
-      _storedProcedures = [[_storedProcedures autorelease] mutableCopy];
-      [(GCMutableArray *)_storedProcedures removeObject: storedProcedure];
-      _storedProcedures = [[GCArray alloc] initWithArray:[_storedProcedures autorelease] copyItems:NO];
+      NSMutableArray *mCopy = AUTORELEASE([_storedProcedures mutableCopy]);
+      [mCopy removeObject: storedProcedure];
+      mCopy = AUTORELEASE([[GCArray alloc] initWithArray: mCopy
+					   copyItems: NO]);
+      ASSIGN(_storedProcedures, mCopy);
     }
 }
 
@@ -1547,18 +1568,21 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   EOFLOGObjectFnStop();
 }
 
-- (void) loadAllModelObjects
+- (void)loadAllModelObjects
 {
-  //Ayers: Review
-  //NSArray *storedProcedures = [self storedProcedures];
-  //TODO something if storedProcedures ?
-  //NSArray *entities = [self entities];
+  NSArray *entityNames = [_entitiesByName allKeys];
+  unsigned i,n = [entityNames count];
 
-  //TODO something if entities ?
-  [self willChange];
+  for (i=0; i<n; i++)
+    {
+      NSString *name = [entityNames objectAtIndex: i];
+      id entity = [_entitiesByName objectForKey: name];
+      [self _verifyBuiltEntityObject: entity
+	    named: name];
+    }
 }
 
-- (NSArray *) referencesToProperty: property
+- (NSArray *) referencesToProperty: (id)property
 {
   // TODO
   [self notImplemented: _cmd];
@@ -1663,7 +1687,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       searchPath =
 	  [searchPath stringByAppendingPathComponent: @"index.eomodeld"];
     }
-        
+  
   searchPath = [searchPath stringByStandardizingPath];
 
   if (chkFS==YES)
@@ -1708,13 +1732,21 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 {
   if (_flags.createsMutableObjects != flag)
     {
+      NSArray *entityArray = [self entities];
       _flags.createsMutableObjects = flag;
       
       /* Do not access _entities until cache is triggered */
       if (_flags.createsMutableObjects)
-	_entities = [[GCMutableArray alloc] initWithArray:[[self entities] autorelease] copyItems:NO];
+	{
+	  entityArray = [[GCMutableArray alloc] initWithArray: entityArray
+						copyItems:NO];
+	}
       else
-	_entities = [[GCArray alloc] initWithArray:[[self entities] autorelease] copyItems:NO];
+	{
+	  entityArray = [[GCArray alloc] initWithArray: entityArray
+					 copyItems:NO];
+	}
+      ASSIGN(_entities, entityArray);
     }
 }
 
@@ -1746,7 +1778,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
           EOFLOGObjectLevelArgs(@"gsdb", @"[self path]=%@", [self path]);
 
           basePath = [self path]; 
-          [RETAIN(entity) autorelease]; //so it won't be lost in _removeEntity
+          AUTORELEASE(RETAIN(entity)); //so it won't be lost in _removeEntity
 
           EOFLOGObjectLevelArgs(@"gsdb", @"basePath =%@", basePath);
 

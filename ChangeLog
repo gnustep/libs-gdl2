@@ -1,3 +1,27 @@
+2005-02-00  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOModel.m (-init): Initialize _storedProcedures.
+	(-storedProcedureNames): Simplify.
+	(-storedProcedureNamed:): Reimplement.
+	(-storedProcedures): Simplify.
+	(-writeToFile:): Call _setPath: after preliminary testing.  Write
+	stored procedures.
+	(-initWithTableOfContentsPropertyList:path:): Reimplement stored
+	procedure handling.
+	(-encodeTableOfContentsIntoPropertyList:): Handle stored
+	procedures.
+	(-encodeIntoPropertyList:): Fix encoding title for stored
+	procedures.
+	(-addStoredProcedure:, -removeStoredProcedure:) Make more thread
+	safe.
+	(-loadAllModelObjects): Implement.
+	* EOAccess/EOStoredProcedure.m (-initWithPropertyList:): Call
+	awakeWithPropertyList: to finish initialization.
+	(-encodeIntoPropertyList:): Implement.
+	(-description): Implement.
+	(-_setIsEdited): Implement.
+	
+	
 2005-02-07  Matt Rice  <ratmice@yahoo.com>
 
 	* EOControl/EOObjectStore.m: Assign correct key names for EOUpdatedKey,
