@@ -48,12 +48,12 @@ RCS_ID("$Id$")
 #include "EOPrivate.h"
 
 // ==== Classes ====
-Class GDL2EODatabaseContextClass=Nil;
-Class GDL2EOAttributeClass=Nil;
+Class GDL2_EODatabaseContextClass=Nil;
+Class GDL2_EOAttributeClass=Nil;
 
 // ==== IMPs ====
-IMP GDL2EODatabaseContext_snapshotForGlobalIDIMP=NULL;
-IMP GDL2EODatabaseContext__globalIDForObjectIMP=NULL;
+IMP GDL2_EODatabaseContext_snapshotForGlobalIDIMP=NULL;
+IMP GDL2_EODatabaseContext__globalIDForObjectIMP=NULL;
 
 // ==== Init Method ====
 void GDL2_EOAccessPrivateInit()
@@ -61,15 +61,15 @@ void GDL2_EOAccessPrivateInit()
   static BOOL initialized=NO;
   if (!initialized)
     {
-      GDL2PrivInit();
+      GDL2_PrivateInit();
 
       // ==== Classes ====
-      GDL2EODatabaseContextClass = [EODatabaseContext class];
-      GDL2EOAttributeClass = [EOAttribute class];
+      GDL2_EODatabaseContextClass = [EODatabaseContext class];
+      GDL2_EOAttributeClass = [EOAttribute class];
 
-      GDL2EODatabaseContext_snapshotForGlobalIDIMP=[GDL2EODatabaseContextClass instanceMethodForSelector:@selector(snapshotForGlobalID:)];
+      GDL2_EODatabaseContext_snapshotForGlobalIDIMP=[GDL2_EODatabaseContextClass instanceMethodForSelector:@selector(snapshotForGlobalID:)];
 
-      GDL2EODatabaseContext__globalIDForObjectIMP=[GDL2EODatabaseContextClass instanceMethodForSelector:@selector(_globalIDForObject:)];
+      GDL2_EODatabaseContext__globalIDForObjectIMP=[GDL2_EODatabaseContextClass instanceMethodForSelector:@selector(_globalIDForObject:)];
 
     };
 }
@@ -87,9 +87,9 @@ EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(dbContext)==GDL2EODatabaseContextClass
-              && GDL2EODatabaseContext_snapshotForGlobalIDIMP)
-            imp=GDL2EODatabaseContext_snapshotForGlobalIDIMP;
+          if (GSObjCClass(dbContext)==GDL2_EODatabaseContextClass
+              && GDL2_EODatabaseContext_snapshotForGlobalIDIMP)
+            imp=GDL2_EODatabaseContext_snapshotForGlobalIDIMP;
           else
             imp=[dbContext methodForSelector:@selector(snapshotForGlobalID:)];
           if (impPtr)
@@ -110,9 +110,9 @@ EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODatabaseContext* dbC
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(dbContext)==GDL2EODatabaseContextClass
-              && GDL2EODatabaseContext__globalIDForObjectIMP)
-            imp=GDL2EODatabaseContext__globalIDForObjectIMP;
+          if (GSObjCClass(dbContext)==GDL2_EODatabaseContextClass
+              && GDL2_EODatabaseContext__globalIDForObjectIMP)
+            imp=GDL2_EODatabaseContext__globalIDForObjectIMP;
           else
             imp=[dbContext methodForSelector:@selector(_globalIDForObject:)];
           if (impPtr)

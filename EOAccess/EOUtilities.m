@@ -173,7 +173,7 @@ static NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException
 	       value, key, entityName);
 
   if (!value)
-    value=GDL2EONull;
+    value=GDL2_EONull;
 
   NSAssert(value, @"No Value"); //Transform it to EONull ?
   NSAssert(key, @"No Key");
@@ -514,7 +514,7 @@ static NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException
         {
           NSDictionary* pk;
           if (!value)
-            value=GDL2EONull;
+            value=GDL2_EONull;
 
           pk = [NSDictionary dictionaryWithObject: value
                              forKey: [(EOAttribute*)[primaryKeyAttributes
@@ -593,7 +593,7 @@ static NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException
   NSAssert([entityName length]>0,@"No entity name");
 
   if (!value)
-    value=GDL2EONull;
+    value=GDL2_EONull;
 
   valueDict = [NSDictionary dictionaryWithObject: value
                             forKey: key];

@@ -197,7 +197,7 @@ RCS_ID("$Id$")
       tmpString = [propertyList objectForKey: @"parameterDirection"];
       if (tmpString)
         {
-	  if ([tmpString isKindOfClass: GDL2NSNumberClass])
+	  if ([tmpString isKindOfClass: GDL2_NSNumberClass])
 	    {
 	      [self setParameterDirection: [tmpString intValue]];
 	    }
@@ -1086,12 +1086,13 @@ return nexexp
   NSData *value = nil;
   Class valueClass = [self _valueClass];
 
-  if (valueClass != Nil && valueClass != GDL2NSDataClass)
+  if (valueClass != Nil && valueClass != GDL2_NSDataClass)
     {
       switch (_argumentType)
         {
 	case EOFactoryMethodArgumentIsNSData:
-	  value = [GDL2NSData_alloc() initWithBytes:bytes length: length]; //For efficiency reasons, the returned value is NOT autoreleased !
+	  //For efficiency reasons, the returned value is NOT autoreleased !
+	  value = [GDL2_alloc(NSData) initWithBytes: bytes length: length];
 
 	  if(_valueFactoryMethod != NULL)
 	    value = [(id)valueClass performSelector: _valueFactoryMethod
@@ -1099,14 +1100,15 @@ return nexexp
 	  break;
 
 	case EOFactoryMethodArgumentIsBytes:
-	  value = [valueClass alloc];//For efficiency reasons, the returned value is NOT autoreleased !
+	  //For efficiency reasons, the returned value is NOT autoreleased !
+	  value = [valueClass allocWithZone: 0];
 
 	  aSignature =
 	    [valueClass
 	      instanceMethodSignatureForSelector: _valueFactoryMethod];
 
-	  anInvocation = [NSInvocation
-			   invocationWithMethodSignature: aSignature];
+	  anInvocation 
+	    = [NSInvocation invocationWithMethodSignature: aSignature];
 
 	  [anInvocation setSelector: _valueFactoryMethod];
 	  [anInvocation setTarget: value];
@@ -1121,7 +1123,8 @@ return nexexp
     }
     
   if(!value)
-    value = [GDL2NSData_alloc() initWithBytes: bytes length: length];//For efficiency reasons, the returned value is NOT autoreleased !
+    //For efficiency reasons, the returned value is NOT autoreleased !
+    value = [GDL2_alloc(NSData) initWithBytes: bytes length: length];
 
   return value;
 }
@@ -1142,35 +1145,44 @@ return nexexp
   id value = nil;
   Class valueClass = [self _valueClass];
 
-  if (valueClass != Nil && valueClass != GDL2NSStringClass)
+  if (valueClass != Nil && valueClass != GDL2_NSStringClass)
     {
       switch (_argumentType)
         {
 	case EOFactoryMethodArgumentIsNSString:
-	  value = [GDL2NSString_alloc() initWithData: GDL2DataWithBytesAndLength(bytes,length)
-                                     encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
+	  {
+	    NSData *data;
+	    NSString *string;
+	    //For efficiency reasons, the returned value is NOT autoreleased !
+	    data = AUTORELEASE([(GDL2_alloc(NSData)) initWithBytes: bytes
+						     length: length]);
+	    string = AUTORELEASE([(GDL2_alloc(NSString)) initWithData: data
+							 encoding: encoding]);
 
-	  value = [(id)valueClass performSelector: _valueFactoryMethod
-			          withObject: [value autorelease]];
-	  break;
+	    value = [((id)valueClass) performSelector: _valueFactoryMethod
+				      withObject: string];
+	    break;
+	  }
 
 	case EOFactoryMethodArgumentIsBytes:
-	  value = [valueClass alloc];//For efficiency reasons, the returned value is NOT autoreleased !
+	  {
+	    //For efficiency reasons, the returned value is NOT autoreleased !
+	    value = [valueClass alloc];
 
-	  aSignature =
-	    [valueClass
-	      instanceMethodSignatureForSelector: _valueFactoryMethod];
+	    aSignature 
+	      = [valueClass instanceMethodSignatureForSelector: _valueFactoryMethod];
 
-	  anInvocation = [NSInvocation
-			   invocationWithMethodSignature: aSignature];
+	    anInvocation 
+	      = [NSInvocation invocationWithMethodSignature: aSignature];
 
-	  [anInvocation setSelector: _valueFactoryMethod];
-	  [anInvocation setTarget: value];
-	  [anInvocation setArgument: &bytes atIndex: 2];
-	  [anInvocation setArgument: &length atIndex: 3];
-	  [anInvocation setArgument: &encoding atIndex: 4];
-	  [anInvocation invoke];
-	  break;
+	    [anInvocation setSelector: _valueFactoryMethod];
+	    [anInvocation setTarget: value];
+	    [anInvocation setArgument: &bytes atIndex: 2];
+	    [anInvocation setArgument: &length atIndex: 3];
+	    [anInvocation setArgument: &encoding atIndex: 4];
+	    [anInvocation invoke];
+	    break;
+	  }
 
 	case EOFactoryMethodArgumentIsNSData:
 	  break;
@@ -1178,9 +1190,14 @@ return nexexp
     }
     
   if(!value)
-    value = [GDL2NSString_alloc()
-                               initWithData: GDL2DataWithBytesAndLength(bytes,length)
-                               encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
+    {
+      NSData *data;
+      //For efficiency reasons, the returned value is NOT autoreleased !
+      data = AUTORELEASE([(GDL2_alloc(NSData)) initWithBytes: bytes
+					       length: length]);
+      value = [(GDL2_alloc(NSString)) initWithData: data
+				      encoding: encoding];
+    }
   
   return value;
 }
@@ -1205,7 +1222,7 @@ return nexexp
   NSCalendarDate *date;
 
   //For efficiency reasons, the returned value is NOT autoreleased !
-  date = [[GDL2NSCalendarDateClass allocWithZone: zone]
+  date = [[GDL2_NSCalendarDateClass allocWithZone: zone]
 	   initWithYear: year
 	   month: month
 	   day: day
@@ -1252,28 +1269,28 @@ return nexexp
     {
 /* Temporary reverted so we can discuss about this
         case EOAdaptorNumberType:
-	  convert = [value isKindOfClass: GDL2NSNumberClass] ? NO : YES;
+	  convert = [value isKindOfClass: GDL2_NSNumberClass] ? NO : YES;
 	  break;
         case EOAdaptorCharactersType:
-	  convert = [value isKindOfClass: GDL2NSStringClass] ? NO : YES;
+	  convert = [value isKindOfClass: GDL2_NSStringClass] ? NO : YES;
 	  break;
         case EOAdaptorBytesType:
-	  convert = [value isKindOfClass: GDL2NSDataClass] ? NO : YES;
+	  convert = [value isKindOfClass: GDL2_NSDataClass] ? NO : YES;
 	  break;
         case EOAdaptorDateType:
-	  convert = [value isKindOfClass: GDL2NSDateClass] ? NO : YES;
+	  convert = [value isKindOfClass: GDL2_NSDateClass] ? NO : YES;
 	  break;
 */
 //TODO It's only a quick Fix
         case EOAdaptorNumberType:
         case EOAdaptorCharactersType:
         case EOAdaptorDateType:
-	  convert = ([value isKindOfClass: GDL2NSNumberClass]
-                     || [value isKindOfClass: GDL2NSStringClass]
-                     || [value isKindOfClass: GDL2NSDateClass]) ? NO : YES;
+	  convert = ([value isKindOfClass: GDL2_NSNumberClass]
+                     || [value isKindOfClass: GDL2_NSStringClass]
+                     || [value isKindOfClass: GDL2_NSDateClass]) ? NO : YES;
 	  break;
         case EOAdaptorBytesType:
-	  convert = [value isKindOfClass: GDL2NSDataClass] ? NO : YES;
+	  convert = [value isKindOfClass: GDL2_NSDataClass] ? NO : YES;
 	  break;
 	default:
 	  [NSException raise: NSInvalidArgumentException
@@ -1281,7 +1298,7 @@ return nexexp
 		       adaptorValueType];
     }
 
-  convert = (value == GDL2EONull) ? NO : convert;
+  convert = (value == GDL2_EONull) ? NO : convert;
   
   if (convert)
     {
@@ -1328,9 +1345,9 @@ return nexexp
 {
   if (!_flags.isAttributeValueInitialized)
     {
-      Class adaptorClasses[] = { GDL2NSNumberClass, 
-                                 GDL2NSStringClass,
-                                 GDL2NSDateClass };
+      Class adaptorClasses[] = { GDL2_NSNumberClass, 
+                                 GDL2_NSStringClass,
+                                 GDL2_NSDateClass };
       EOAdaptorValueType values[] = { EOAdaptorNumberType,
                                       EOAdaptorCharactersType,
                                       EOAdaptorDateType };
@@ -1422,9 +1439,9 @@ return nexexp
 
             if ([*valueP isKindOfClass: valueClass] == NO)
               {
-                if ([*valueP isKindOfClass: GDL2NSStringClass])
+                if ([*valueP isKindOfClass: GDL2_NSStringClass])
                   {
-                    if (valueClass == GDL2NSNumberClass)
+                    if (valueClass == GDL2_NSNumberClass)
                       {
                         char valueTypeChar=[self _valueTypeChar];
                         switch(valueTypeChar)
@@ -1479,24 +1496,23 @@ return nexexp
                             break;
                           };
                       }
-                    else if (valueClass == GDL2NSDecimalNumberClass)
+                    else if (valueClass == GDL2_NSDecimalNumberClass)
                       *valueP = [NSDecimalNumber
 				  decimalNumberWithString: *valueP];
                   
-                    else if (valueClass == GDL2NSDataClass)
+                    else if (valueClass == GDL2_NSDataClass)
                       *valueP = [*valueP
 				  dataUsingEncoding: NSASCIIStringEncoding
 				  allowLossyConversion: YES];
                   
-                    else if (valueClass == GDL2NSCalendarDateClass)
-                      *valueP = [[[GDL2NSCalendarDateClass alloc]
-				   initWithString: *valueP]
-				  autorelease];
+                    else if (valueClass == GDL2_NSCalendarDateClass)
+                      *valueP = AUTORELEASE([(GDL2_alloc(NSCalendarDate))
+					      initWithString: *valueP]);
                   }
               }
             else
               {
-                if ([*valueP isKindOfClass: GDL2NSStringClass])
+                if ([*valueP isKindOfClass: GDL2_NSStringClass])
                   {
 		    unsigned width = [self width];
 
@@ -1509,7 +1525,7 @@ return nexexp
 					    length: width];
                       }
                   }
-                else if ([*valueP isKindOfClass: GDL2NSNumberClass])
+                else if ([*valueP isKindOfClass: GDL2_NSNumberClass])
                   {
                     // TODO ??
                   }

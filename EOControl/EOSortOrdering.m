@@ -64,7 +64,7 @@ RCS_ID("$Id$")
     {
       initialized=YES;
 
-      GDL2PrivInit();
+      GDL2_PrivateInit();
     };
 };
 
@@ -206,15 +206,15 @@ compareUsingSortOrderings(id    left,
       NSComparisonResult (*imp)(id, SEL, id);
 
       /* Use EONull instead of nil. */
-      leftVal  = (leftVal  != nil)?(leftVal) :(GDL2EONull);
-      rightVal = (rightVal != nil)?(rightVal):(GDL2EONull);
+      leftVal  = (leftVal  != nil)?(leftVal) :(GDL2_EONull);
+      rightVal = (rightVal != nil)?(rightVal):(GDL2_EONull);
 
       /* Insure that EONull is not the parameter for 
 	 comparisons with other classes. */
-      if (rightVal == GDL2EONull)
+      if (rightVal == GDL2_EONull)
 	{
 	  rightVal = leftVal;
-	  leftVal  = GDL2EONull;
+	  leftVal  = GDL2_EONull;
 	  inverted = YES;
 	}
 

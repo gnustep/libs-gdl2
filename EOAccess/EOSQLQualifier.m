@@ -380,7 +380,7 @@ when flattened: ???
           tmpQualifier = [EOKeyValueQualifier
 			   qualifierWithKey: attributeName
 			   operatorSelector: sel
-			   value: (attributeValue ? attributeValue : GDL2EONull)];
+			   value: (attributeValue ? attributeValue : GDL2_EONull)];
 
           if (qualifier)//Already a qualifier
             {

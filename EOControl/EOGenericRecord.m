@@ -116,7 +116,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
     {
       initialized=YES;
 
-      GDL2PrivInit();
+      GDL2_PrivateInit();
 
       allGenericRecords = NSCreateHashTable(NSNonOwnedPointerHashCallBacks,
 					    1000);
@@ -230,7 +230,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 
   if (!ok)
     {
-      NSString* name=(stringName ? stringName : GDL2StringWithCString(cStringName));
+      NSString* name=(stringName ? stringName : GDL2_StringWithCString(cStringName));
 
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			    @"dictionary: %p eoMKKDInitializer: %p",
@@ -356,7 +356,7 @@ static const char _c_id[2] = { _C_ID, 0 };
          forKey: key];
   EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
 //
-//  if(value == nil || value == GDL2EONull)
+//  if(value == nil || value == GDL2_EONull)
 //    [dictionary removeObjectForKey:key];
 //  else
 //    {
@@ -472,7 +472,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
           sel = GSSelectorFromName(buf);
 
           if (sel == 0 || 
-	      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+	      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
               // test _key
               buf[3]='_';
@@ -484,7 +484,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
               sel = GSSelectorFromName(&buf[3]);
               
               if (sel == 0 ||
-		  GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+		  GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                 {
                   sel = 0;
                 }
@@ -542,7 +542,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                                         aKey, &buf[1]);
                   sel = GSSelectorFromName(&buf[1]);
                   if (sel == 0 || 
-		      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+		      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                     {
                       // test key
                       buf[4]=lo;
@@ -553,7 +553,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                       sel = GSSelectorFromName(&buf[4]);
                       
                       if (sel == 0 ||
-			  GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+			  GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                         {
                           sel = 0;
                         }
@@ -634,7 +634,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
           sel = GSSelectorFromName(buf);
 
           if (sel == 0 || 
-	      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+	      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
               sel = 0;
               
@@ -695,7 +695,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                   sel = GSSelectorFromName(&buf[1]);
                   
                   if (sel == 0 || 
-		      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+		      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                     {
                       sel = 0;
                     }
@@ -799,7 +799,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                             aKey, &buf[1]);
       sel = GSSelectorFromName(&buf[1]);
 
-      if (sel == 0 || GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+      if (sel == 0 || GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
         {
           // Try _setKey:
           EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
@@ -808,7 +808,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 	  sel = GSSelectorFromName(buf);
 
           if (sel == 0 ||
-	      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+	      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
               sel = 0;
 
@@ -906,7 +906,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
       sel = GSSelectorFromName(&buf[1]);
 
       if (sel == 0 || 
-	  GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+	  GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
         {
           //Test key
 	  buf[4] = lo;
@@ -917,7 +917,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 	  sel = GSSelectorFromName(&buf[4]);
 
           if (sel == 0 ||
-	      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+	      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
             {
               //Test _getKey
 	      buf[4] = hi;
@@ -928,7 +928,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 	      sel = GSSelectorFromName(buf);
               
               if (sel == 0 ||
-		  GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+		  GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                 {
                   // Test _key
 		  buf[3] = '_';
@@ -940,7 +940,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                   sel = GSSelectorFromName(&buf[3]);
 
                   if (sel == 0 ||
-		      GDL2RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+		      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
                     {
                       sel = 0;
                     }
@@ -1044,7 +1044,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
     [dictionary setObject: value
 		forKey: key];
   else
-//        [dictionary setObject: GDL2EONull
+//        [dictionary setObject: GDL2_EONull
 //                       forKey: key];
     [dictionary removeObjectForKey: key];
 
@@ -1072,18 +1072,18 @@ infinite loop in description **/
   toOneKeys = [classDescription toOneRelationshipKeys];
   dict = [NSMutableDictionary dictionaryWithCapacity: [dictionary count]];
 
-  while ((key = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
+  while ((key = GDL2_NextObjectWithImpPtr(enumerator,&enumNO)))
     {
       obj = EOMKKD_objectForKeyWithImpPtr(dictionary,&ofkIMP,key);
       if (!obj)
-        GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
+        GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
       else
         {
           // print out only simple values
           if ([toManyKeys containsObject: key] == NO
 	      && [toOneKeys containsObject: key] == NO)
             {
-              GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,obj,key);
+              GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,obj,key);
             }
         }
     }
@@ -1112,20 +1112,20 @@ infinite loop in description **/
 
   dict = [NSMutableDictionary dictionaryWithCapacity: [dictionary count]];
 
-  while ((key = GDL2NextObjectWithImpPtr(enumerator,&enumNO)))
+  while ((key = GDL2_NextObjectWithImpPtr(enumerator,&enumNO)))
     {
       obj = EOMKKD_objectForKeyWithImpPtr(dictionary,&ofkIMP,key);
 
       if (!obj)
-        GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
+        GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
       else if (_isFault(obj) == YES)
         {
-          GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,
+          GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,
                                         [obj description],key);
         }
-      else if (obj==GDL2EONull)
+      else if (obj==GDL2_EONull)
         {
-          GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
+          GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
         }
       else
         {
@@ -1137,10 +1137,10 @@ infinite loop in description **/
               IMP toManyEnumNO=NULL;
               IMP arrayAO=NULL;
               
-              array = GDL2MutableArrayWithCapacity(8);
+              array = AUTORELEASE([GDL2_alloc(NSMutableArray) initWithCapacity: 8]);
               toManyEnum = [obj objectEnumerator];
               
-              while ((rel = GDL2NextObjectWithImpPtr(toManyEnum,&toManyEnumNO)))
+              while ((rel = GDL2_NextObjectWithImpPtr(toManyEnum,&toManyEnumNO)))
                 {
                   NSString* relDescr=nil;
                   // Avoid infinit loop
@@ -1149,13 +1149,13 @@ infinite loop in description **/
                   else
                     relDescr=[rel description];
                   
-                  GDL2AddObjectWithImpPtr(array,&arrayAO,
+                  GDL2_AddObjectWithImpPtr(array,&arrayAO,
                                           [NSString
                                             stringWithFormat: @"<%@ %p>",
                                             relDescr, NSStringFromClass([rel class])]);
                 }
               
-              GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,
+              GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,
                                             [NSString stringWithFormat:
                                                         @"<%p %@ : %@>",
                                                       obj, [obj class], array],
@@ -1163,7 +1163,7 @@ infinite loop in description **/
             }
           else if ([toOneKeys containsObject: key] != NO)
             {
-              GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,
+              GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,
                                             [NSString
                                               stringWithFormat: @"<%p %@: classDescription=%@>",
                                               obj,
@@ -1173,7 +1173,7 @@ infinite loop in description **/
             }
           else
             {
-              GDL2SetObjectForKeyWithImpPtr(dict,&dictSOFK,obj,key);
+              GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,obj,key);
             }
         }
     }

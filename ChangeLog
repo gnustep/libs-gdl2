@@ -2,6 +2,29 @@
 
 	* EOAccess/EOAdaptor.m (-hasOpenChannels): Make safe for
 	unsigned.
+
+	* EOAccess/EOAttribute.m, EOAccess/EODatabaseContext.m,
+	* EOAccess/EOEntity.m, EOAccess/EOSQLExpression.m
+	* EOAccess/EOPrivate.h, EOAccess/EOPrivate.m,
+	* EOAccess/EOSQLQualifier.m, EOAccess/EOUtilities.m
+	* EOControl/EOClassDescription.m, EOControl/EOEditingContext.m
+	* EOControl/EOGenericRecord.m, EOControl/EOKeyGlobalID.m
+	* EOControl/EOKeyValueCoding.m, EOControl/EOKeyValueQualifier.m
+	* EOControl/EOMutableKnownKeyDictionary.m,
+	* EOControl/EOPrivate.h, EOControl/EOPrivate.m
+	Unify GDL2 identifiers with GDL2_ prefix.  Replace
+	GDL2NSClass_alloc with GDL2_alloc(NSClass).  Replace
+	GDL2NSClassWith* calls with
+	AUTORELEASE([GDL2_alloc(NSCLass) initWith* calls]).
+	Rename GDL2PrivInit to GDL2_PrivateInit.
+	(GDL2_NSArray, GDL2_NSMutableArray_allocWithZoneIMP)
+	(GDL2_NSMutableDictionary_allocWithZoneIMP): New globals.
+	(GDL2_alloc): New macro.
+	(GDL2NSString_alloc, GDL2NSDecimalNumber_alloc)
+	(GDL2NSNumber_alloc, GDL2NSCalendarDate_alloc, GDL2NSData_alloc)
+	(GDL2DataWithBytesAndLength, GDL2MutableArrayWithCapacity)
+	(GDL2MutableArrayWithArray, GDL2MutableArray, GDL2Array)
+	(GDL2MutableDictionaryWithCapacity): Remove.
 	
 2005-02-20  David Ayers  <d.ayers@inode.at>
 

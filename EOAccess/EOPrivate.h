@@ -33,12 +33,12 @@
 @class EODatabaseContext;
 
 // ==== Classes ====
-GDL2ACCESS_EXPORT Class GDL2EODatabaseContextClass;
-GDL2ACCESS_EXPORT Class GDL2EOAttributeClass;
+GDL2ACCESS_EXPORT Class GDL2_EODatabaseContextClass;
+GDL2ACCESS_EXPORT Class GDL2_EOAttributeClass;
 
 // ==== IMPs ====
-GDL2ACCESS_EXPORT IMP GDL2EODatabaseContext_snapshotForGlobalIDIMP;
-GDL2ACCESS_EXPORT IMP GDL2EODatabaseContext__globalIDForObjectIMP;
+GDL2ACCESS_EXPORT IMP GDL2_EODatabaseContext_snapshotForGlobalIDIMP;
+GDL2ACCESS_EXPORT IMP GDL2_EODatabaseContext__globalIDForObjectIMP;
 
 // ==== Init Method ====
 GDL2ACCESS_EXPORT void GDL2_EOAccessPrivateInit();

@@ -83,7 +83,7 @@ initialize(void)
     {
       initialized=YES;
       strictWO = GSUseStrictWO451Compatibility(nil);
-      GDL2PrivInit();
+      GDL2_PrivateInit();
     }
 }
 
@@ -229,7 +229,7 @@ initialize(void)
     {
       result = [self resultsOfPerformingSelector: @selector(valueForKey:)
 		     withObject: key
-		     defaultResult: GDL2EONull];
+		     defaultResult: GDL2_EONull];
     }
 
   EOFLOGObjectFnStopCond(@"EOKVC");
@@ -325,7 +325,7 @@ initialize(void)
       for (i=0; i<count; i++)
         {
           left = result;
-          right = [[GDL2ObjectAtIndexWithImp(self,oaiIMP,i) valueForKey: key] decimalValue];
+          right = [[GDL2_ObjectAtIndexWithImp(self,oaiIMP,i) valueForKey: key] decimalValue];
           NSDecimalAdd(&result, &left, &right, mode);
         }
     };
@@ -363,7 +363,7 @@ initialize(void)
       for (i=0; i<count; i++)
         {
           left = result;
-          right = [[GDL2ObjectAtIndexWithImp(self,oaiIMP,i) valueForKey: key] decimalValue];
+          right = [[GDL2_ObjectAtIndexWithImp(self,oaiIMP,i) valueForKey: key] decimalValue];
           NSDecimalAdd(&result, &left, &right, mode);
         }
     };
@@ -407,17 +407,17 @@ initialize(void)
       id	   currentVal = nil;
       IMP          oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
 
-      for(i=0; i<count && (resultVal == nil || resultVal == GDL2EONull); i++)
+      for(i=0; i<count && (resultVal == nil || resultVal == GDL2_EONull); i++)
 	{
-	  result    = GDL2ObjectAtIndexWithImp(self,oaiIMP,i);
+	  result    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
 	  resultVal = [result valueForKey: key];
 	}          
       for (; i<count; i++)
 	{
-	  current    = GDL2ObjectAtIndexWithImp(self,oaiIMP,i);
+	  current    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
 	  currentVal = [current valueForKey: key];
 
-	  if (currentVal == nil || currentVal == GDL2EONull)
+	  if (currentVal == nil || currentVal == GDL2_EONull)
             continue;
 	  
 	  if ([(NSObject *)resultVal compare: currentVal] == NSOrderedAscending)
@@ -450,17 +450,17 @@ initialize(void)
       unsigned int i = 0;
       IMP oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
 
-      for(i=0; i<count && (resultVal == nil || resultVal == GDL2EONull); i++)
+      for(i=0; i<count && (resultVal == nil || resultVal == GDL2_EONull); i++)
 	{
-	  result    = GDL2ObjectAtIndexWithImp(self,oaiIMP,i);
+	  result    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
 	  resultVal = [result valueForKey: key];
 	}          
       for (; i<count; i++)
 	{
-	  current    = GDL2ObjectAtIndexWithImp(self,oaiIMP,i);
+	  current    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
 	  currentVal = [current valueForKey: key];
 
-	  if (currentVal == nil || currentVal == GDL2EONull) continue;
+	  if (currentVal == nil || currentVal == GDL2_EONull) continue;
 
 	  if ([(NSObject *)resultVal compare: currentVal] == NSOrderedDescending)
 	    {
@@ -1073,7 +1073,7 @@ initialize(void)
 
       if (val == nil)
 	{
-	  val = GDL2EONull;
+	  val = GDL2_EONull;
 	}
 
       [newKeyPaths addObject: keyPath];
@@ -1191,7 +1191,7 @@ initialize(void)
       NS_ENDHANDLER;
         
       if (val == nil)
-	val = GDL2EONull;
+	val = GDL2_EONull;
       
       [newKeyPaths addObject: keyPath];
       [newVals addObject: val];

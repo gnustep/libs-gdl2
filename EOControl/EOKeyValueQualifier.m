@@ -91,7 +91,7 @@ RCS_ID("$Id$")
     {
       initialized=YES;
 
-      GDL2PrivInit();
+      GDL2_PrivateInit();
     };
 }
 
@@ -129,7 +129,7 @@ RCS_ID("$Id$")
       ASSIGNCOPY(_key, key);
       if (value == nil)
 	{
-	  value = GDL2EONull;
+	  value = GDL2_EONull;
 	}
       ASSIGN(_value, value);
     }
@@ -216,11 +216,11 @@ RCS_ID("$Id$")
 
   if (objectValue == nil)
     {
-      objectValue = GDL2EONull;
+      objectValue = GDL2_EONull;
     }
   if (selfValue == nil)
     {
-      selfValue = GDL2EONull;
+      selfValue = GDL2_EONull;
     }
 
   imp = (BOOL (*)(id, SEL, id))[objectValue methodForSelector: _selector];
@@ -238,36 +238,36 @@ RCS_ID("$Id$")
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThan) == YES)
     {
-      if (objectValue==GDL2EONull)
-        return ((selfValue==GDL2EONull) ? NO : YES);
-      else if (selfValue==GDL2EONull)
+      if (objectValue==GDL2_EONull)
+        return ((selfValue==GDL2_EONull) ? NO : YES);
+      else if (selfValue==GDL2_EONull)
         return NO;
       else
         return [objectValue compare: selfValue] == NSOrderedAscending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThan) == YES)
     {
-      if (objectValue==GDL2EONull)
+      if (objectValue==GDL2_EONull)
         return NO;
-      else if (selfValue==GDL2EONull)
+      else if (selfValue==GDL2_EONull)
         return YES;
       else
         return [objectValue compare: selfValue] == NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
     {
-      if (objectValue==GDL2EONull)
+      if (objectValue==GDL2_EONull)
         return YES;
-      else if (selfValue==GDL2EONull)
+      else if (selfValue==GDL2_EONull)
         return NO;
       else
         return [objectValue compare: selfValue] != NSOrderedDescending;
     }
   else if (sel_eq(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
     {
-      if (objectValue==GDL2EONull)
-        return ((selfValue==GDL2EONull) ? YES : NO);
-      else if (selfValue==GDL2EONull)
+      if (objectValue==GDL2_EONull)
+        return ((selfValue==GDL2_EONull) ? YES : NO);
+      else if (selfValue==GDL2_EONull)
         return YES;
       else
         return [objectValue compare: selfValue] != NSOrderedAscending;
@@ -276,9 +276,9 @@ RCS_ID("$Id$")
     {
       //Philosophical question: does nil contains nil ??
 
-      if (objectValue==GDL2EONull) // Let's say nil does contain nothing (even not nil)
+      if (objectValue==GDL2_EONull) // Let's say nil does contain nothing (even not nil)
         return NO;
-      else if (selfValue==GDL2EONull) // Let's say nil is contained by nothing
+      else if (selfValue==GDL2_EONull) // Let's say nil is contained by nothing
         return NO;
       else
         return [(NSString*)objectValue rangeOfString: 
@@ -294,9 +294,9 @@ RCS_ID("$Id$")
     {
       NSEmitTODO();  //TODO
       //How to handle nil like ?
-      if (objectValue==GDL2EONull)
-        return ((selfValue==GDL2EONull) ? YES : NO);
-      else if (selfValue==GDL2EONull)
+      if (objectValue==GDL2_EONull)
+        return ((selfValue==GDL2_EONull) ? YES : NO);
+      else if (selfValue==GDL2_EONull)
         return NO;
       else
         return [(id)objectValue caseInsensitiveCompare: 

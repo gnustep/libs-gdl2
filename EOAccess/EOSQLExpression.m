@@ -367,7 +367,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
       currentEntity = entity;
 
       if (i)
-	GDL2AppendStringWithImp(entitiesString,
+	GDL2_AppendStringWithImp(entitiesString,
                                 entitiesStringAppendStringIMP,@", ");
       else
         entitiesStringAppendStringIMP = [entitiesString methodForSelector:@selector(appendString:)];
@@ -387,7 +387,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 		    @"No external name for entity %@",
                     [currentEntity name]);
 
-	  GDL2AppendStringWithImp(entitiesString,
+	  GDL2_AppendStringWithImp(entitiesString,
                                   entitiesStringAppendStringIMP,tableName);
 
 	  if (_flags.useAliases)
@@ -435,7 +435,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 		    @"No external name for entity %@",
                     [currentEntity name]);
 
-	  GDL2AppendStringWithImp(entitiesString,
+	  GDL2_AppendStringWithImp(entitiesString,
                                   entitiesStringAppendStringIMP,tableName);
 
 	  if (_flags.useAliases)
@@ -443,9 +443,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
               NSString *alias = [_aliasesByRelationshipPath
 				  objectForKey: relationshipPath];
 
-              GDL2AppendStringWithImp(entitiesString,
+              GDL2_AppendStringWithImp(entitiesString,
                                   entitiesStringAppendStringIMP,@" ");
-              GDL2AppendStringWithImp(entitiesString,
+              GDL2_AppendStringWithImp(entitiesString,
                                   entitiesStringAppendStringIMP,alias);
 
               EOFLOGObjectLevelArgs(@"EOSQLExpression",
@@ -1229,9 +1229,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	  string = [value sqlString];
 
 	  EOFLOGObjectLevelArgs(@"EOSQLExpression", @" value %p=%@ null %p=%@",
-				value, value, GDL2EONull, GDL2EONull);
+				value, value, GDL2_EONull, GDL2_EONull);
 
-	  if (value == GDL2EONull)
+	  if (value == GDL2_EONull)
 	    formattedValue = string;
 	  else
 	    formattedValue = [self formatSQLString: [self formatStringValue:
@@ -1279,19 +1279,19 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	      switch (*(s + 1))
 		{
 		case '%':
-		  GDL2AppendStringWithImp(str,appendStringIMP,
-                                          GDL2StringWithCStringAndLength(p,s-p+1));
+		  GDL2_AppendStringWithImp(str,appendStringIMP,
+                                          GDL2_StringWithCStringAndLength(p,s-p+1));
 		  break;
 		case 'P':
 		  if (s != p)
-		    GDL2AppendStringWithImp(str,appendStringIMP,
-                                            GDL2StringWithCStringAndLength(p,s-p));
+		    GDL2_AppendStringWithImp(str,appendStringIMP,
+                                            GDL2_StringWithCStringAndLength(p,s-p));
 		  [str appendString: sqlString];
 		  break;
 		default:
 		  if (s != p)
-		    GDL2AppendStringWithImp(str,appendStringIMP,
-                                            GDL2StringWithCStringAndLength(p,s-p));
+		    GDL2_AppendStringWithImp(str,appendStringIMP,
+                                            GDL2_StringWithCStringAndLength(p,s-p));
 		  break;
 		}
 
@@ -1299,7 +1299,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	    }
 
 	  if (*p)
-	    GDL2AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString: p]);
+	    GDL2_AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString: p]);
 
 	  formatted = str;
 	}
@@ -1753,14 +1753,14 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   //seems OK
   if (sel_eq(selector, EOQualifierOperatorEqual))
     {
-      if (value==GDL2EONull)
+      if (value==GDL2_EONull)
         return @"is";
       else
         return @"=";
     }
   else if (sel_eq(selector, EOQualifierOperatorNotEqual))
     {
-      if (value==GDL2EONull)
+      if (value==GDL2_EONull)
         return @"is not";
       else
         return @"<>";
@@ -2103,47 +2103,47 @@ else if([anAttribute isDerived] == YES)
             {
             case '*':
               if (s != p)
-                GDL2AppendStringWithImp(str,appendStringIMP,
-                                        GDL2StringWithCStringAndLength(p,s-p));
+                GDL2_AppendStringWithImp(str,appendStringIMP,
+                                        GDL2_StringWithCStringAndLength(p,s-p));
               [str appendString: @"%"];
               p = s+1;
               break;
             case '?':
               if (s != p)
-                GDL2AppendStringWithImp(str,appendStringIMP,
-                                        GDL2StringWithCStringAndLength(p,s-p));
-              GDL2AppendStringWithImp(str,appendStringIMP,@"_");
+                GDL2_AppendStringWithImp(str,appendStringIMP,
+                                        GDL2_StringWithCStringAndLength(p,s-p));
+              GDL2_AppendStringWithImp(str,appendStringIMP,@"_");
               p = s+1;
               break;
             case '%':
               if (s != p)
-                GDL2AppendStringWithImp(str,appendStringIMP,
-                                        GDL2StringWithCStringAndLength(p,s-p));
+                GDL2_AppendStringWithImp(str,appendStringIMP,
+                                        GDL2_StringWithCStringAndLength(p,s-p));
               
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  GDL2AppendStringWithImp(str,appendStringIMP,@"%]");
+                  GDL2_AppendStringWithImp(str,appendStringIMP,@"%]");
                   p = s+2; s++;
                 }
               else
                 {
-                  GDL2AppendStringWithImp(str,appendStringIMP,@"[%]");
+                  GDL2_AppendStringWithImp(str,appendStringIMP,@"[%]");
                   p = s+1;
                 }
               break;
             case '_':
               if (s != p)
-                GDL2AppendStringWithImp(str,appendStringIMP,
-                                        GDL2StringWithCStringAndLength(p,s-p));
+                GDL2_AppendStringWithImp(str,appendStringIMP,
+                                        GDL2_StringWithCStringAndLength(p,s-p));
               
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  GDL2AppendStringWithImp(str,appendStringIMP,@"_]");
+                  GDL2_AppendStringWithImp(str,appendStringIMP,@"_]");
                   p = s+2; p++;
                 }
               else
                 {
-                  GDL2AppendStringWithImp(str,appendStringIMP,@"[_]");
+                  GDL2_AppendStringWithImp(str,appendStringIMP,@"[_]");
                   p = s+1;
                 }
               break;
@@ -2151,7 +2151,7 @@ else if([anAttribute isDerived] == YES)
         }
       
       if (*p)
-        GDL2AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString: p]);
+        GDL2_AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString: p]);
       sqlPattern=str;
     };
 
@@ -2175,47 +2175,47 @@ else if([anAttribute isDerived] == YES)
         {
 	case '*':
 	  if (s != p)
-	    GDL2AppendStringWithImp(str,appendStringIMP,
-                                    GDL2StringWithCStringAndLength(p,s-p));
-	  GDL2AppendStringWithImp(str,appendStringIMP,@"%");
+	    GDL2_AppendStringWithImp(str,appendStringIMP,
+                                    GDL2_StringWithCStringAndLength(p,s-p));
+	  GDL2_AppendStringWithImp(str,appendStringIMP,@"%");
 	  p = s+1;
 	  break;
 	case '?':
 	  if (s != p)
-	    GDL2AppendStringWithImp(str,appendStringIMP,
-                                    GDL2StringWithCStringAndLength(p,s-p));
-	  GDL2AppendStringWithImp(str,appendStringIMP,@"_");
+	    GDL2_AppendStringWithImp(str,appendStringIMP,
+                                    GDL2_StringWithCStringAndLength(p,s-p));
+	  GDL2_AppendStringWithImp(str,appendStringIMP,@"_");
 	  p = s+1;
 	  break;
 	case '%':
 	  if (s != p)
-	    GDL2AppendStringWithImp(str,appendStringIMP,
-                                    GDL2StringWithCStringAndLength(p,s-p));
+	    GDL2_AppendStringWithImp(str,appendStringIMP,
+                                    GDL2_StringWithCStringAndLength(p,s-p));
 	  
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      GDL2AppendStringWithImp(str,appendStringIMP,@"%]");
+	      GDL2_AppendStringWithImp(str,appendStringIMP,@"%]");
 	      p = s+2; s++;
 	    }
 	  else
 	    {
-	      GDL2AppendStringWithImp(str,appendStringIMP,@"[%]");
+	      GDL2_AppendStringWithImp(str,appendStringIMP,@"[%]");
 	      p = s+1;
 	    }
 	  break;
 	case '_':
 	  if (s != p)
-	    GDL2AppendStringWithImp(str,appendStringIMP,
-                                    GDL2StringWithCStringAndLength(p,s-p));
+	    GDL2_AppendStringWithImp(str,appendStringIMP,
+                                    GDL2_StringWithCStringAndLength(p,s-p));
 	  
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      GDL2AppendStringWithImp(str,appendStringIMP,@"_]");
+	      GDL2_AppendStringWithImp(str,appendStringIMP,@"_]");
 	      p = s+2; p++;
 	    }
 	  else
 	    {
-	      GDL2AppendStringWithImp(str,appendStringIMP,@"[_]");
+	      GDL2_AppendStringWithImp(str,appendStringIMP,@"[_]");
 	      p = s+1;
 	    }
 	  break;
@@ -2223,7 +2223,7 @@ else if([anAttribute isDerived] == YES)
     }
 
   if (*p)
-    GDL2AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString:p]);
+    GDL2_AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString:p]);
 
   return str;
 }

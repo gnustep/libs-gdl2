@@ -67,7 +67,7 @@ RCS_ID("$Id$")
   if (!initialized)
     {
       initialized=YES;
-      GDL2PrivInit();
+      GDL2_PrivateInit();
     }
 }
 
@@ -270,7 +270,7 @@ RCS_ID("$Id$")
 
       for (i = 0; i < keyCount; i++)
         {
-          NSString *key = GDL2ObjectAtIndexWithImp(keys,objectAtIndexIMP,i);
+          NSString *key = GDL2_ObjectAtIndexWithImp(keys,objectAtIndexIMP,i);
           int destinationIndex =  EOMKKDInitializer_indexForKeyWithImpPtr(self,&indexForKeyIMP,key);
           
           
@@ -318,11 +318,11 @@ RCS_ID("$Id$")
             int sourceIndex = 0;
             
             sourceKey = 
-              GDL2ObjectAtIndexWithImp(sourceKeys,sourceObjectAtIndexIMP,i);
+              GDL2_ObjectAtIndexWithImp(sourceKeys,sourceObjectAtIndexIMP,i);
             EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceKey=%@", sourceKey);
             
             destinationKey = 
-              GDL2ObjectAtIndexWithImp(destinationKeys,destinationObjectAtIndexIMP,i);
+              GDL2_ObjectAtIndexWithImp(destinationKeys,destinationObjectAtIndexIMP,i);
             EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationKey=%@", destinationKey);
             
             destinationIndex =  
@@ -572,7 +572,7 @@ RCS_ID("$Id$")
   if (!initialized)
     {
       initialized=YES;
-      GDL2PrivInit();
+      GDL2_PrivateInit();
     }
 }
 

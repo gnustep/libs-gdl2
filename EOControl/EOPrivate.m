@@ -48,144 +48,155 @@ RCS_ID("$Id$")
 #include "EOPrivate.h"
 
 // ==== Classes ====
-Class GDL2NSArrayClass=Nil;
-Class GDL2NSMutableArrayClass=Nil;
-Class GDL2NSDictionaryClass=Nil;
-Class GDL2NSMutableDictionaryClass=Nil;
-Class GDL2NSStringClass=Nil;
-Class GDL2NSNumberClass=Nil;
-Class GDL2NSDecimalNumberClass=Nil;
-Class GDL2NSCalendarDateClass=Nil;
-Class GDL2NSDateClass=Nil;
-Class GDL2NSAutoreleasePoolClass=Nil;
-Class GDL2NSDataClass=Nil;
-Class GDL2EOFaultClass=Nil;
-Class GDL2MKKDClass=Nil;
-Class GDL2EOMKKDInitializerClass=Nil;
-Class GDL2EOEditingContextClass=Nil;
+Class GDL2_NSArrayClass=Nil;
+Class GDL2_NSMutableArrayClass=Nil;
+Class GDL2_NSDictionaryClass=Nil;
+Class GDL2_NSMutableDictionaryClass=Nil;
+Class GDL2_NSStringClass=Nil;
+Class GDL2_NSNumberClass=Nil;
+Class GDL2_NSDecimalNumberClass=Nil;
+Class GDL2_NSCalendarDateClass=Nil;
+Class GDL2_NSDateClass=Nil;
+Class GDL2_NSAutoreleasePoolClass=Nil;
+Class GDL2_NSDataClass=Nil;
+Class GDL2_EOFaultClass=Nil;
+Class GDL2_MKKDClass=Nil;
+Class GDL2_EOMKKDInitializerClass=Nil;
+Class GDL2_EOEditingContextClass=Nil;
 
 // ==== IMPs ====
-IMP GDL2NSAutoreleasePool_newIMP=NULL;
-IMP GDL2NSNumber_allocWithZoneIMP=NULL;
-IMP GDL2NSDecimalNumber_allocWithZoneIMP=NULL;
-IMP GDL2NSString_allocWithZoneIMP=NULL;
-IMP GDL2NSCalendarDate_allocWithZoneIMP=NULL;
-IMP GDL2NSData_allocWithZoneIMP=NULL;
-IMP GDL2NSData_dataWithBytes_lengthIMP=NULL;
+IMP GDL2_NSAutoreleasePool_newIMP=NULL;
+IMP GDL2_NSNumber_allocWithZoneIMP=NULL;
+IMP GDL2_NSDecimalNumber_allocWithZoneIMP=NULL;
+IMP GDL2_NSString_allocWithZoneIMP=NULL;
+IMP GDL2_NSCalendarDate_allocWithZoneIMP=NULL;
+IMP GDL2_NSData_allocWithZoneIMP=NULL;
+IMP GDL2_NSMutableArray_allocWithZoneIMP=NULL;
+IMP GDL2_NSMutableDictionary_allocWithZoneIMP=NULL;
 
-IMP GDL2NSString_stringWithCString_lengthIMP=NULL;
-IMP GDL2NSString_stringWithCStringIMP=NULL;
-GDL2IMP_NSStringEncoding GDL2NSString_defaultCStringEncodingIMP=NULL;
+IMP GDL2_NSData_dataWithBytes_lengthIMP=NULL;
 
-IMP GDL2MKKD_objectForKeyIMP=NULL;
-IMP GDL2MKKD_setObjectForKeyIMP=NULL;
-IMP GDL2MKKD_removeObjectForKeyIMP=NULL;
-GDL2IMP_BOOL GDL2MKKD_hasKeyIMP=NULL;
-GDL2IMP_UINT GDL2MKKD_indexForKeyIMP=NULL;
-GDL2IMP_UINT GDL2EOMKKDInitializer_indexForKeyIMP=NULL;
+IMP GDL2_NSString_stringWithCString_lengthIMP=NULL;
+IMP GDL2_NSString_stringWithCStringIMP=NULL;
+GDL2IMP_NSStringEncoding GDL2_NSString_defaultCStringEncodingIMP=NULL;
 
-IMP GDL2EOEditingContext_recordObjectGlobalIDIMP=NULL;
-IMP GDL2EOEditingContext_objectForGlobalIDIMP=NULL;
-IMP GDL2EOEditingContext_globalIDForObjectIMP=NULL;
+IMP GDL2_MKKD_objectForKeyIMP=NULL;
+IMP GDL2_MKKD_setObjectForKeyIMP=NULL;
+IMP GDL2_MKKD_removeObjectForKeyIMP=NULL;
+GDL2IMP_BOOL GDL2_MKKD_hasKeyIMP=NULL;
+GDL2IMP_UINT GDL2_MKKD_indexForKeyIMP=NULL;
+GDL2IMP_UINT GDL2_EOMKKDInitializer_indexForKeyIMP=NULL;
 
-IMP GDL2NSMutableArray_arrayWithCapacityIMP=NULL;
-IMP GDL2NSMutableArray_arrayWithArrayIMP=NULL;
-IMP GDL2NSMutableArray_arrayIMP=NULL;
-IMP GDL2NSArray_arrayIMP=NULL;
+IMP GDL2_EOEditingContext_recordObjectGlobalIDIMP=NULL;
+IMP GDL2_EOEditingContext_objectForGlobalIDIMP=NULL;
+IMP GDL2_EOEditingContext_globalIDForObjectIMP=NULL;
 
-IMP GDL2NSMutableDictionary_dictionaryWithCapacityIMP=NULL;
+IMP GDL2_NSMutableArray_arrayWithCapacityIMP=NULL;
+IMP GDL2_NSMutableArray_arrayWithArrayIMP=NULL;
+IMP GDL2_NSMutableArray_arrayIMP=NULL;
+IMP GDL2_NSArray_arrayIMP=NULL;
+
+IMP GDL2_NSMutableDictionary_dictionaryWithCapacityIMP=NULL;
 
 // ==== Constants ====
-NSNumber* GDL2NSNumberBool_Yes=nil;
-NSNumber* GDL2NSNumberBool_No=nil;
+NSNumber* GDL2_NSNumberBool_Yes=nil;
+NSNumber* GDL2_NSNumberBool_No=nil;
 
-EONull* GDL2EONull=nil;
+EONull* GDL2_EONull=nil;
+NSArray* GDL2_NSArray=nil;
 
 // ==== Init Method ====
-void GDL2PrivInit()
+void GDL2_PrivateInit()
 {
   static BOOL initialized=NO;
   if (!initialized)
     {
       // ==== Classes ====
-      GDL2NSArrayClass=[NSArray class];
-      GDL2NSMutableArrayClass=[NSMutableArray class];
-      GDL2NSDictionaryClass=[NSDictionary class];
-      GDL2NSMutableDictionaryClass=[NSMutableDictionary class];
-      GDL2NSStringClass=[NSString class];
-      GDL2NSNumberClass=[NSNumber class];
-      GDL2NSDecimalNumberClass=[NSDecimalNumber class];
-      GDL2NSCalendarDateClass=[NSCalendarDate class];
-      GDL2NSDateClass = [NSDate class];
-      GDL2NSAutoreleasePoolClass = [NSAutoreleasePool class];
-      GDL2NSDataClass = [NSData class];
-      GDL2EOFaultClass = [EOFault class];
-      GDL2MKKDClass = [EOMutableKnownKeyDictionary class];
-      GDL2EOMKKDInitializerClass = [EOMKKDInitializer class];
-      GDL2EOEditingContextClass = [EOEditingContext class];
+      GDL2_NSArrayClass=[NSArray class];
+      GDL2_NSMutableArrayClass=[NSMutableArray class];
+      GDL2_NSDictionaryClass=[NSDictionary class];
+      GDL2_NSMutableDictionaryClass=[NSMutableDictionary class];
+      GDL2_NSStringClass=[NSString class];
+      GDL2_NSNumberClass=[NSNumber class];
+      GDL2_NSDecimalNumberClass=[NSDecimalNumber class];
+      GDL2_NSCalendarDateClass=[NSCalendarDate class];
+      GDL2_NSDateClass = [NSDate class];
+      GDL2_NSAutoreleasePoolClass = [NSAutoreleasePool class];
+      GDL2_NSDataClass = [NSData class];
+      GDL2_EOFaultClass = [EOFault class];
+      GDL2_MKKDClass = [EOMutableKnownKeyDictionary class];
+      GDL2_EOMKKDInitializerClass = [EOMKKDInitializer class];
+      GDL2_EOEditingContextClass = [EOEditingContext class];
 
       // ==== IMPs ====
-      GDL2NSAutoreleasePool_newIMP=
-        [GDL2NSAutoreleasePoolClass methodForSelector:@selector(new)];
+      GDL2_NSAutoreleasePool_newIMP=
+        [GDL2_NSAutoreleasePoolClass methodForSelector:@selector(new)];
 
-      GDL2NSNumber_allocWithZoneIMP=
-        [GDL2NSNumberClass methodForSelector:@selector(allocWithZone:)];
+      GDL2_NSNumber_allocWithZoneIMP=
+        [GDL2_NSNumberClass methodForSelector:@selector(allocWithZone:)];
 
-      GDL2NSDecimalNumber_allocWithZoneIMP=
-        [GDL2NSDecimalNumberClass methodForSelector:@selector(allocWithZone:)];
+      GDL2_NSDecimalNumber_allocWithZoneIMP=
+        [GDL2_NSDecimalNumberClass methodForSelector:@selector(allocWithZone:)];
 
-      GDL2NSString_allocWithZoneIMP=
-        [GDL2NSStringClass methodForSelector:@selector(allocWithZone:)];
+      GDL2_NSString_allocWithZoneIMP=
+        [GDL2_NSStringClass methodForSelector:@selector(allocWithZone:)];
 
-      GDL2NSCalendarDate_allocWithZoneIMP=
-        [GDL2NSCalendarDateClass methodForSelector:@selector(allocWithZone:)];
+      GDL2_NSCalendarDate_allocWithZoneIMP=
+        [GDL2_NSCalendarDateClass methodForSelector:@selector(allocWithZone:)];
 
-      GDL2NSData_allocWithZoneIMP=
-        [GDL2NSDataClass methodForSelector:@selector(allocWithZone:)];
+      GDL2_NSData_allocWithZoneIMP=
+        [GDL2_NSDataClass methodForSelector:@selector(allocWithZone:)];
 
-      GDL2NSData_dataWithBytes_lengthIMP=
-        [GDL2NSDataClass methodForSelector:@selector(dataWithBytes:length:)];
+      GDL2_NSMutableArray_allocWithZoneIMP=
+        [GDL2_NSMutableArrayClass methodForSelector:@selector(allocWithZone:)];
 
-      GDL2NSString_stringWithCString_lengthIMP=
-        [GDL2NSStringClass methodForSelector:@selector(stringWithCString:length:)];
+      GDL2_NSMutableDictionary_allocWithZoneIMP=
+        [GDL2_NSMutableDictionaryClass methodForSelector:@selector(allocWithZone:)];
 
-      GDL2NSString_stringWithCStringIMP=
-        [GDL2NSStringClass methodForSelector:@selector(stringWithCString:)];
+      GDL2_NSData_dataWithBytes_lengthIMP=
+        [GDL2_NSDataClass methodForSelector:@selector(dataWithBytes:length:)];
 
-      GDL2NSString_defaultCStringEncodingIMP=
-        (GDL2IMP_NSStringEncoding)[GDL2NSStringClass methodForSelector:@selector(defaultCStringEncoding)];
+      GDL2_NSString_stringWithCString_lengthIMP=
+        [GDL2_NSStringClass methodForSelector:@selector(stringWithCString:length:)];
 
-      GDL2MKKD_objectForKeyIMP=[GDL2MKKDClass instanceMethodForSelector:@selector(objectForKey:)];
-      GDL2MKKD_setObjectForKeyIMP=[GDL2MKKDClass instanceMethodForSelector:@selector(setObject:forKey:)];
-      GDL2MKKD_removeObjectForKeyIMP=[GDL2MKKDClass instanceMethodForSelector:@selector(removeObjectForKey:)];
-      GDL2MKKD_hasKeyIMP=(GDL2IMP_BOOL)[GDL2MKKDClass instanceMethodForSelector:@selector(hasKey:)];
-      GDL2MKKD_indexForKeyIMP=(GDL2IMP_UINT)[GDL2MKKDClass instanceMethodForSelector:@selector(indexForKey:)];
-      GDL2EOMKKDInitializer_indexForKeyIMP=(GDL2IMP_UINT)[GDL2EOMKKDInitializerClass instanceMethodForSelector:@selector(indexForKey:)];
+      GDL2_NSString_stringWithCStringIMP=
+        [GDL2_NSStringClass methodForSelector:@selector(stringWithCString:)];
 
-      GDL2EOEditingContext_recordObjectGlobalIDIMP==[GDL2EOEditingContextClass instanceMethodForSelector:@selector(recordObject:globalID:)];
-      GDL2EOEditingContext_objectForGlobalIDIMP=[GDL2EOEditingContextClass instanceMethodForSelector:@selector(objectForGlobalID:)];
-      GDL2EOEditingContext_globalIDForObjectIMP=[GDL2EOEditingContextClass instanceMethodForSelector:@selector(globalIDForObject:)];
+      GDL2_NSString_defaultCStringEncodingIMP=
+        (GDL2IMP_NSStringEncoding)[GDL2_NSStringClass methodForSelector:@selector(defaultCStringEncoding)];
 
-      GDL2NSMutableArray_arrayWithCapacityIMP=[GDL2NSMutableArrayClass 
+      GDL2_MKKD_objectForKeyIMP=[GDL2_MKKDClass instanceMethodForSelector:@selector(objectForKey:)];
+      GDL2_MKKD_setObjectForKeyIMP=[GDL2_MKKDClass instanceMethodForSelector:@selector(setObject:forKey:)];
+      GDL2_MKKD_removeObjectForKeyIMP=[GDL2_MKKDClass instanceMethodForSelector:@selector(removeObjectForKey:)];
+      GDL2_MKKD_hasKeyIMP=(GDL2IMP_BOOL)[GDL2_MKKDClass instanceMethodForSelector:@selector(hasKey:)];
+      GDL2_MKKD_indexForKeyIMP=(GDL2IMP_UINT)[GDL2_MKKDClass instanceMethodForSelector:@selector(indexForKey:)];
+      GDL2_EOMKKDInitializer_indexForKeyIMP=(GDL2IMP_UINT)[GDL2_EOMKKDInitializerClass instanceMethodForSelector:@selector(indexForKey:)];
+
+      GDL2_EOEditingContext_recordObjectGlobalIDIMP==[GDL2_EOEditingContextClass instanceMethodForSelector:@selector(recordObject:globalID:)];
+      GDL2_EOEditingContext_objectForGlobalIDIMP=[GDL2_EOEditingContextClass instanceMethodForSelector:@selector(objectForGlobalID:)];
+      GDL2_EOEditingContext_globalIDForObjectIMP=[GDL2_EOEditingContextClass instanceMethodForSelector:@selector(globalIDForObject:)];
+
+      GDL2_NSMutableArray_arrayWithCapacityIMP=[GDL2_NSMutableArrayClass 
                                                 methodForSelector:@selector(arrayWithCapacity:)];
 
-      GDL2NSMutableArray_arrayWithArrayIMP=[GDL2NSMutableArrayClass 
+      GDL2_NSMutableArray_arrayWithArrayIMP=[GDL2_NSMutableArrayClass 
                                              methodForSelector:@selector(arrayWithArray:)];
 
-      GDL2NSMutableArray_arrayIMP=[GDL2NSMutableArrayClass 
+      GDL2_NSMutableArray_arrayIMP=[GDL2_NSMutableArrayClass 
                                     methodForSelector:@selector(array)];
 
-      GDL2NSArray_arrayIMP=[GDL2NSArrayClass 
+      GDL2_NSArray_arrayIMP=[GDL2_NSArrayClass 
                              methodForSelector:@selector(array)];
 
-      GDL2NSMutableDictionary_dictionaryWithCapacityIMP=[GDL2NSMutableDictionaryClass 
+      GDL2_NSMutableDictionary_dictionaryWithCapacityIMP=[GDL2_NSMutableDictionaryClass 
                                     methodForSelector:@selector(dictionaryWithCapacity:)];
 
       // ==== Constants ====
-      ASSIGN(GDL2NSNumberBool_Yes,[GDL2NSNumberClass numberWithBool:YES]);
-      ASSIGN(GDL2NSNumberBool_No,[GDL2NSNumberClass numberWithBool:NO]);
+      ASSIGN(GDL2_NSNumberBool_Yes,[GDL2_NSNumberClass numberWithBool:YES]);
+      ASSIGN(GDL2_NSNumberBool_No,[GDL2_NSNumberClass numberWithBool:NO]);
 
-      ASSIGN(GDL2EONull,[EONull null]);
+      ASSIGN(GDL2_EONull,[EONull null]);
+      ASSIGN(GDL2_NSArray,[NSArray array]);
 
     };
 }
@@ -204,9 +215,9 @@ EOMKKD_objectForKeyWithImpPtr(NSDictionary* mkkd,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_objectForKeyIMP)
-            imp=GDL2MKKD_objectForKeyIMP;
+          if (GSObjCClass(mkkd)==GDL2_MKKDClass
+              && GDL2_MKKD_objectForKeyIMP)
+            imp=GDL2_MKKD_objectForKeyIMP;
           else
             imp=[mkkd methodForSelector:@selector(objectForKey:)];
           if (impPtr)
@@ -231,9 +242,9 @@ EOMKKD_setObjectForKeyWithImpPtr(NSDictionary* mkkd,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_setObjectForKeyIMP)
-            imp=GDL2MKKD_setObjectForKeyIMP;
+          if (GSObjCClass(mkkd)==GDL2_MKKDClass
+              && GDL2_MKKD_setObjectForKeyIMP)
+            imp=GDL2_MKKD_setObjectForKeyIMP;
           else
             imp=[mkkd methodForSelector:@selector(setObject:forKey:)];
           if (impPtr)
@@ -255,9 +266,9 @@ EOMKKD_removeObjectForKeyWithImpPtr(NSDictionary* mkkd,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_removeObjectForKeyIMP)
-            imp=GDL2MKKD_removeObjectForKeyIMP;
+          if (GSObjCClass(mkkd)==GDL2_MKKDClass
+              && GDL2_MKKD_removeObjectForKeyIMP)
+            imp=GDL2_MKKD_removeObjectForKeyIMP;
           else
             imp=[mkkd methodForSelector:@selector(removeObjectForKey:)];
           if (impPtr)
@@ -279,9 +290,9 @@ EOMKKD_hasKeyWithImpPtr(NSDictionary* mkkd,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_hasKeyIMP)
-            imp=GDL2MKKD_hasKeyIMP;
+          if (GSObjCClass(mkkd)==GDL2_MKKDClass
+              && GDL2_MKKD_hasKeyIMP)
+            imp=GDL2_MKKD_hasKeyIMP;
           else
             imp=(GDL2IMP_BOOL)[mkkd methodForSelector:@selector(hasKey:)];
           if (impPtr)
@@ -305,9 +316,9 @@ EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(mkkd)==GDL2MKKDClass
-              && GDL2MKKD_indexForKeyIMP)
-            imp=GDL2MKKD_indexForKeyIMP;
+          if (GSObjCClass(mkkd)==GDL2_MKKDClass
+              && GDL2_MKKD_indexForKeyIMP)
+            imp=GDL2_MKKD_indexForKeyIMP;
           else
             imp=(GDL2IMP_UINT)[mkkd methodForSelector:@selector(indexForKey:)];
           if (impPtr)
@@ -331,9 +342,9 @@ EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(mkkdInit)==GDL2EOMKKDInitializerClass
-              && GDL2EOMKKDInitializer_indexForKeyIMP)
-            imp=GDL2EOMKKDInitializer_indexForKeyIMP;
+          if (GSObjCClass(mkkdInit)==GDL2_EOMKKDInitializerClass
+              && GDL2_EOMKKDInitializer_indexForKeyIMP)
+            imp=GDL2_EOMKKDInitializer_indexForKeyIMP;
           else
             imp=(GDL2IMP_UINT)[mkkdInit methodForSelector:@selector(indexForKey:)];
           if (impPtr)
@@ -359,9 +370,9 @@ EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext *edContext,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(edContext)==GDL2EOEditingContextClass
-              && GDL2EOEditingContext_objectForGlobalIDIMP)
-            imp=GDL2EOEditingContext_objectForGlobalIDIMP;
+          if (GSObjCClass(edContext)==GDL2_EOEditingContextClass
+              && GDL2_EOEditingContext_objectForGlobalIDIMP)
+            imp=GDL2_EOEditingContext_objectForGlobalIDIMP;
           else
             imp=[edContext methodForSelector:@selector(objectForGlobalID:)];
           if (impPtr)
@@ -385,9 +396,9 @@ EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext *edContext,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(edContext)==GDL2EOEditingContextClass
-              && GDL2EOEditingContext_globalIDForObjectIMP)
-            imp=GDL2EOEditingContext_globalIDForObjectIMP;
+          if (GSObjCClass(edContext)==GDL2_EOEditingContextClass
+              && GDL2_EOEditingContext_globalIDForObjectIMP)
+            imp=GDL2_EOEditingContext_globalIDForObjectIMP;
           else
             imp=[edContext methodForSelector:@selector(globalIDForObject:)];
           if (impPtr)
@@ -412,9 +423,9 @@ EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext  *edContext,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(edContext)==GDL2EOEditingContextClass
-              && GDL2EOEditingContext_recordObjectGlobalIDIMP)
-            imp=GDL2EOEditingContext_recordObjectGlobalIDIMP;
+          if (GSObjCClass(edContext)==GDL2_EOEditingContextClass
+              && GDL2_EOEditingContext_recordObjectGlobalIDIMP)
+            imp=GDL2_EOEditingContext_recordObjectGlobalIDIMP;
           else
             imp=[edContext methodForSelector:@selector(recordObject:globalID:)];
           if (impPtr)

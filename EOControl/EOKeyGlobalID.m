@@ -64,7 +64,7 @@ RCS_ID("$Id$")
   static BOOL initialized=NO;
   if (!initialized)
     {
-      GDL2PrivInit();
+      GDL2_PrivateInit();
     };
 };
 
