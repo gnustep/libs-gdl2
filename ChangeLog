@@ -1,3 +1,10 @@
+2004-09-07  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EOAttribute.h
+	* EOAccess/EOAttribute.m (_parent, -[setParent:]): Do not retain
+	backward reference.
+	(-[setName:): Mark as editited if parent is an entity.
+	
 2004-06-23  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAccessFault.m: Include privat headers locally.

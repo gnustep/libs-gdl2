@@ -777,6 +777,11 @@ static Class NSCalendarDateClass;
   [[self validateName: name] raise];
 
   ASSIGN(_name, name);
+  if (_flags.isParentAnEOEntity)
+    {
+      [_parent _setIsEdited];
+    }
+
 }
 
 - (void)setPrototype: (EOAttribute *)prototype 
@@ -1473,7 +1478,7 @@ return nexexp
 {
   //OK
   [self willChange];
-  ASSIGN(_parent, parent);//TODO assign ??
+  _parent = parent;
 
   _flags.isParentAnEOEntity = [_parent isKindOfClass: [EOEntity class]];//??
 }

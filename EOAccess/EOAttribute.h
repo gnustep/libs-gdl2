@@ -108,7 +108,7 @@ typedef enum {
     /* Garbage collectable objects */
 //    EOEntity *_entity;
 //    GCMutableArray *_definitionArray;	// These variables are meaningful only
-  id _parent;
+  id _parent; /* unretained */
   EOAttribute *_prototype;
   EOExpressionArray *_definitionArray;
   EOAttribute *_realAttribute;		// if the attribute is flattened //Not in EOF !
