@@ -782,7 +782,46 @@ static const char _c_id[2] = { _C_ID, NULL };
 }
 
 
+/** used in -decription for self toOne or toMany objects to avoid
+infinite loop in description **/
+- (NSString *)_shortDescription
+{
+  NSArray *toManyKeys = nil;
+  NSArray *toOneKeys = nil;
+  NSEnumerator *enumerator = [dictionary keyEnumerator];
+  NSMutableDictionary *dict;
+  NSString *key = nil;
+  id obj = nil;
 
+  toManyKeys = [classDescription toManyRelationshipKeys];
+  toOneKeys = [classDescription toOneRelationshipKeys];
+  dict = [NSMutableDictionary dictionaryWithCapacity: [dictionary count]];
+
+  while ((key = [enumerator nextObject]))
+    {
+      obj = [dictionary objectForKey: key];
+
+      if (!obj)
+        [dict setObject: @"(null)"
+              forKey: key];
+      else
+        {
+          // print out only simple values
+          if ([toManyKeys containsObject: key] == NO
+	      && [toOneKeys containsObject: key] == NO)
+            {
+              [dict setObject: obj
+                    forKey: key];
+            }
+        }
+    }
+
+  return [NSString stringWithFormat: @"<%s %p : classDescription=%@\nvalues=%@>",
+		   object_get_class_name(self),
+		   (void*)self,
+		   classDescription,
+                   dict];
+}
 
 - (NSString *)description
 {
@@ -793,36 +832,13 @@ static const char _c_id[2] = { _C_ID, NULL };
   NSString *key = nil;
   id obj = nil;
 
-//  printf("descr %p\n",self);
-//  EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
-/*  int num=0;//TODELETE
-  EOFLOGObjectLevelArgs(@"EOGenericRecord",@"self=%p dict=%p enumerator=%@",self,dictionary,enumerator);
-          fflush(stdout);
-          fflush(stderr);
-  EOFLOGObjectLevelArgs(@"EOGenericRecord",@"classDescription=%@",classDescription);
-          fflush(stdout);
-          fflush(stderr);
-*/
   toManyKeys = [classDescription toManyRelationshipKeys];
   toOneKeys = [classDescription toOneRelationshipKeys];
-/*
-  EOFLOGObjectLevelArgs(@"EOGenericRecord",@"AAAA");
-          fflush(stdout);
-          fflush(stderr);
-  EOFLOGObjectLevelArgs(@"EOGenericRecord",@"toManyKeys=%@",toManyKeys);
-          fflush(stdout);
-          fflush(stderr);
-  EOFLOGObjectLevelArgs(@"EOGenericRecord",@"toOneKeys=%@",toOneKeys);
-          fflush(stdout);
-          fflush(stderr);
-*/
+
   dict = [NSMutableDictionary dictionaryWithCapacity: [dictionary count]];
-//  EOFLOGObjectLevelArgs(@"EOGenericRecord",@"Values nb=%d",[dictionary count]);
 
   while ((key = [enumerator nextObject]))
     {
-      //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d key=%@", num, key);
-
       obj = [dictionary objectForKey: key];
 
       if (!obj)
@@ -830,25 +846,16 @@ static const char _c_id[2] = { _C_ID, NULL };
               forKey: key];
       else
         {
-          //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d obj=%@", num, obj);
-          //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d key=%@", num, key);
-          //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d obj=%@", num, obj);
-
           if ([toManyKeys containsObject: key] == NO
 	      && [toOneKeys containsObject: key] == NO)
             {
-              //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d SIMPLE VALUE", num);
-              //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d dict=%@", num, dict);
               [dict setObject: obj
                     forKey: key];
-              //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d dict=%@", num, dict);
             }
           else
             {
-              //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d NOT SIMPLE VALUE", num);
               if ([EOFault isFault: obj] == YES)
                 {
-                  //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d FAULT VALUE", num);
                   [dict setObject: [obj description]
                         forKey: key];
                 }
@@ -858,23 +865,22 @@ static const char _c_id[2] = { _C_ID, NULL };
                   NSMutableArray *array;
                   id rel;
 
-                  //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d TO MANY VALUE", num);
-
                   array = [NSMutableArray arrayWithCapacity: 8];
                   toManyEnum = [obj objectEnumerator];
 
                   while ((rel = [toManyEnum nextObject]))
                     {
-                      /*		  [array addObject:
-                                          [NSString
-                                          stringWithFormat:@"<%@: classDescription=%@>",
-                                          NSStringFromClass([obj class]),
-                                          [obj classDescription]]];
-                      */
+                      NSString* relDescr;
+                      // Avoid infinit loop
+                      if ([rel respondsToSelector: @selector(_shortDescription)])
+                        relDescr=[rel _shortDescription];
+                      else
+                        relDescr=[rel description];
+
                       [array addObject:
                                [NSString
                                  stringWithFormat: @"<%@ %p>",
-                                 rel, NSStringFromClass([rel class])]];
+                                 relDescr, NSStringFromClass([rel class])]];
                     }
 
                   [dict setObject: [NSString stringWithFormat:
@@ -884,7 +890,6 @@ static const char _c_id[2] = { _C_ID, NULL };
                 }
               else
                 {
-                  //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d TO ONE VALUE", num);
                   [dict setObject: [NSString
 				     stringWithFormat: @"<%p %@: classDescription=%@>",
 				     obj,
@@ -892,22 +897,15 @@ static const char _c_id[2] = { _C_ID, NULL };
 				     [obj classDescription]]
                         forKey: key];
                 }
-              //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"%d END VALUE", num);
             }
         }
     }
-
-  //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"END DESCR");
-  //EOFLOGObjectLevelArgs(@"EOGenericRecord", @"dictionary=%@", dictionary);
-//  EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
-//  printf("end descr %p\n",self);
 
   return [NSString stringWithFormat: @"<%s %p : classDescription=%@\nvalues=%@>",
 		   object_get_class_name(self),
 		   (void*)self,
 		   classDescription,
                    dict];
-//  return @"<RECORD>";
 }
 
 //debug only

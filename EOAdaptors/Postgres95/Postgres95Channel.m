@@ -341,8 +341,6 @@ zone:zone
                 }
 
               NSDebugMLLog(@"gsdb", @"value[%d]=%@", i, values[i]);
-              NSDebugMLog(@"TEST attributesToFetch=%@", [[attr entity]
-							  attributesToFetch]);
             }
 
           NSDebugMLLog(@"gsdb", @"values count=%d values=%p", count, values);

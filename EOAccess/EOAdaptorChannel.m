@@ -384,35 +384,44 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
   if (anAttribute)
     {
       EOEntity *entity = [anAttribute entity];
+      EOMKKDInitializer *initializer;
+      int i = 0;
+      int count = [attributes count];
 
-      NSAssert1(entity,@"No entity for attribute %@",anAttribute);
-
+      // We may not have entity for direct SQL calls
+      // We may not have entity for direct SQL calls
       if (entity)
         {
-	  NSArray *attributesToFetch = [entity _attributesToFetch];
-	  EOMKKDInitializer *initializer = [entity _adaptorDictionaryInitializer];
-	  int i = 0;
-	  int count = [attributes count];
+	  //NSArray *attributesToFetch = [entity _attributesToFetch];
+	  initializer = [entity _adaptorDictionaryInitializer];
+        }
+      else
+        {
+	  initializer = [EOMKKDInitializer initializerFromKeyArray: 
+                                             [attributes resultsOfPerformingSelector:
+                                                           @selector(name)]];
+        };
 
-         NSDebugMLLog(@"gsdb",@"\ndictionaryWithObjects:forAttributes:zone: attributes=%@ objects=%p\n",attributes,objects);
-         NSAssert(initializer,@"No initializer");
+      NSDebugMLLog(@"gsdb",
+                   @"\ndictionaryWithObjects:forAttributes:zone: attributes=%@ objects=%p\n",
+                   attributes,objects);
+      NSAssert(initializer,@"No initializer");
+          
+      NSDebugMLLog(@"gsdb",@"initializer=%@",initializer);
+      
+      dict = [[[EOMutableKnownKeyDictionary allocWithZone: zone]
+                initWithInitializer:initializer] autorelease];
+      
+      NSDebugMLLog(@"gsdb", @"dict=%@", dict);
 
-         NSDebugMLLog(@"gsdb",@"initializer=%@",initializer);
-
-         dict = [[[EOMutableKnownKeyDictionary allocWithZone: zone]
-		   initWithInitializer:initializer] autorelease];
-
-         NSDebugMLLog(@"gsdb", @"dict=%@", dict);
-
-         for(i = 0; i < count; i++)
-           {
-             EOAttribute *attribute = (EOAttribute *)[attributes objectAtIndex: i];
-
-             NSDebugMLLog(@"gsdb", @"Attribute=%@ value=%@", attribute, objects[i]);
-
-             [dict setObject: objects[i]
-                   forKey: [attribute name]];
-           }
+      for(i = 0; i < count; i++)
+        {
+          EOAttribute *attribute = (EOAttribute *)[attributes objectAtIndex: i];
+          
+          NSDebugMLLog(@"gsdb", @"Attribute=%@ value=%@", attribute, objects[i]);
+          
+          [dict setObject: objects[i]
+                forKey: [attribute name]];
         }
     }
 

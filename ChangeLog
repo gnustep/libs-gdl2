@@ -1,3 +1,25 @@
+2002-11-26  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOAccess/EOEntity.m:
+		o implemented flattened relationship handling in 
+			-EOEntity _parseRelationshipPath:
+	* EOAccess/EOAccessFault.m:
+		o fixed logs in -EOAccesFaultHandler dealloc
+		o added [super dealloc] in -EOAccesFaultHandler dealloc
+		o added logs in -EOAccessArrayFaultHandler dealloc
+	* EOAdaptors/Postgres95/Postgres95Channel.m:
+		o removed log
+	* EOAccess/EOAdaptorChannel.m
+		o Handle direct SQL query case in 
+			-dictionaryWithObjects:forAttributes:zone:
+	* EOAccess/EOClassDescription.m
+		o implement some cases in -addObject:toBothSidesOfRelationshipWithKey:
+	* EOControl/EOGenericRecord.m:
+		o avoid infinit loop in -description
+	* EOAccess/EODatabaseContext.m
+		o implement some cases in -entitiesOnWhichThisEntityDepends:
+		o changed return type of -entitiesOnWhichThisEntityDepends:
+
 2002-11-25  Richard Frith-macdonald <rfm@gnu.org>
 
 	Tagged all files as 'with-extensions'

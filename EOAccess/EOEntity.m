@@ -3855,8 +3855,17 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 
           if ([relationship isFlattened])
             {
-              NSEmitTODO();  //TODO
-              [self notImplemented: _cmd];//TODO
+              EOExpressionArray *definitionArray=[relationship _definitionArray];
+
+              NSDebugMLog(@"entityName=%@ path=%@",[self name],path);
+              NSDebugMLog(@"relationship=%@",relationship);
+              NSDebugMLog(@"relationship definitionArray=%@",definitionArray);
+
+              // For flattened relationships, we add relationship definition array
+              [expressionArray addObjectsFromArray:definitionArray];
+
+              // Use last relationship  to find destinationEntity,...
+              relationship=[expressionArray lastObject];
             }
           else
             {

@@ -1456,8 +1456,9 @@ toBothSidesOfRelationshipWithKey: (NSString *)key
           // See if inverse relationship is to-many or to-one
           if ([object isToManyKey: inverseKey])
             {
-              NSEmitTODO();  
-              [self notImplemented:_cmd];
+              //TODO VERIFY
+              [object addObject:self
+                      toPropertyWithKey:inverseKey];
             }
           else
             {
@@ -1468,9 +1469,9 @@ toBothSidesOfRelationshipWithKey: (NSString *)key
 
               if (oldObject)
                 {
-                  //TODO self removeObject:oldObject fromPropertyWithKey:key
-                  NSEmitTODO();  
-                  [self notImplemented:_cmd];
+                  //TODO VERIFY
+                  [object removeObject:oldObject
+                          fromPropertyWithKey:inverseKey];
                 }
 
               // Just set self into object relationship property

@@ -138,6 +138,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
       ASSIGNCOPY(gid, globalID);
       ASSIGN(databaseContext, dbcontext);
       ASSIGN(editingContext, ec);
+
+      EOFLOGObjectFnStopOrCond(@"EOAccesFaultHandler");
     }
 
   return self;

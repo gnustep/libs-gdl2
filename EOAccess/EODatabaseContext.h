@@ -254,7 +254,7 @@ It's invoked after prepareForSaveWithCoordinator:editingContext: and before owns
 - (void) createAdaptorOperationsForDatabaseOperation: (EODatabaseOperation*)dbOpe;
 - (NSArray*) orderAdaptorOperations;
 
-- (id) entitiesOnWhichThisEntityDepends: (EOEntity *)entity;
+- (NSArray*) entitiesOnWhichThisEntityDepends: (EOEntity *)entity;
 -(NSArray*)entityNameOrderingArrayForEntities: (NSArray *)entities;
 
 - (BOOL) isValidQualifierTypeForAttribute: (EOAttribute*)attribute;

@@ -4597,7 +4597,7 @@ Raises an exception is the adaptor is unable to perform the operations.
    return orderedAdaptorOpe;
 }
 
-- (id) entitiesOnWhichThisEntityDepends: (EOEntity*)entity
+- (NSArray*) entitiesOnWhichThisEntityDepends: (EOEntity*)entity
 {
   NSMutableArray *entities = nil;
   NSArray *relationships = nil;
@@ -4619,9 +4619,19 @@ Raises an exception is the adaptor is unable to perform the operations.
         {
           if ([relationship isFlattened])
             {
-              NSEmitTODO();
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@", relationship);
-              [self notImplemented: _cmd]; //TODO-NOW
+              //TODO VERIFY
+              EOExpressionArray *definitionArray=[relationship _definitionArray];
+              EORelationship *firstRelationship=[definitionArray objectAtIndex:0];
+              EOEntity *firstDefEntity=[firstRelationship destinationEntity];
+              NSArray *defDependEntities=[self
+                                           entitiesOnWhichThisEntityDepends:firstDefEntity];
+              if ([defDependEntities count]>0)
+                {
+                  if (!entities)
+                    entities = [NSMutableArray array];
+                  
+                  [entities addObjectsFromArray: defDependEntities];
+                };
             }
           else
             {
