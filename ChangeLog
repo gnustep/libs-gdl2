@@ -15,6 +15,8 @@
 	* EOControl/EOFault.m: Include missing header.
 	([EOFault dealloc]): Replace objc_thread_id with GSCurrentThread.
 
+	* Tools/EOModel+GSDoc.m: Fix include.
+
 2003-02-26  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/Postgres95Channel.m: Added missing 

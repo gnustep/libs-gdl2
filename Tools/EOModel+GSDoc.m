@@ -38,7 +38,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSAutoreleasePool.h>
 #include <Foundation/NSDebug.h>
 #else
-#include <Foundation/Foundation>
+#include <Foundation/Foundation.h>
 #endif
 
 
