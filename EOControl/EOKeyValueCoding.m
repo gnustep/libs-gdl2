@@ -74,9 +74,16 @@ RCS_ID("$Id$")
  *  EOKeyValueCodingAdditions implementation
  */
 
+NSString *EOTargetObjectUserInfoKey = @"EOTargetObjectUserInfoKey";
+NSString *EOUnknownUserInfoKey = @"EOUnknownUserInfoKey";
+
 @implementation NSObject (EOKVCPAdditions2)
 
 + (void) flushClassKeyBindings
+{
+}
+
++ (void) flushAllKeyBindings
 {
 }
 

@@ -86,7 +86,7 @@
 @end
 #endif
 
-GDL2CONTROL_EXPORT NSString *EOUnknownKeyException;
+#define EOUnknownKeyException NSUnknownKeyException;
 GDL2CONTROL_EXPORT NSString *EOTargetObjectUserInfoKey;
 GDL2CONTROL_EXPORT NSString *EOUnknownUserInfoKey;
 

@@ -1,3 +1,12 @@
+2003-05-02  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOKeyValueCoding.h: Use base/Foundation
+	NSUnknownKeyException for EOUnknownKeyException to allow use of
+	base/Foundation NSKeyValueCoding.
+	* EOControl/EOKeyValueCoding.m: Add EOTargetObjectUserInfoKey and
+	EOUnknownUserInfoKey.
+	([NSObject +flushAllKeyBindings]): Add method.
+
 2003-04-18  Mirko Viviani  <mirko@objectlab.org>
 
 	* EOAccess/EOAttribute.m ([EOAttribute -awakeWithPropertyList:]): set
