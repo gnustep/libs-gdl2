@@ -1547,7 +1547,8 @@ each key
 				     forKey: @"tableOid"]];
   stmt = [NSS_SWF: @"SELECT attname,typname,attnum "
 		 @"FROM pg_attribute LEFT JOIN pg_type ON atttypid = oid "
-		 @"WHERE attnum > 0 AND attrelid=%@", tableOid];
+		 @"WHERE attnum > 0 AND attrelid=%@"
+		 @"AND attisdropped IS FALSE", tableOid];
 
   EOAdaptorDebugLog(@"Postgres95Adaptor: execute command:\n%@", stmt);
   PQclear(_pgResult);

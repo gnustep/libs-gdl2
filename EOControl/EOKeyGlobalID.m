@@ -118,7 +118,7 @@ RCS_ID("$Id$")
   return [NSArray arrayWithObjects: _keyValues count: _keyCount];
 }
 
-- (BOOL)isEqual: other
+- (BOOL)isEqual: (id)other
 {
   unsigned short oCount;
   int i;
