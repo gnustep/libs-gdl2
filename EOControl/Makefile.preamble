@@ -65,7 +65,12 @@ ADDITIONAL_INSTALL_DIRS =
 # systems where building a shared library requires to pass to the linker
 # all the libraries the target library depends upon.
 
+ifneq ($(FOUNDATION_LIBRARY_NAME),)
 LIBRARIES_DEPEND_UPON = -l$(FOUNDATION_LIBRARY_NAME)
+endif
+ifneq ($(FOUNDATION_LIB),gnu)
+LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
+endif
 
 ifeq ($(FOUNDATION_HAS_KVC), yes)
         ADDITIONAL_OBJCFLAGS := $(ADDITIONAL_OBJCFLAGS) -DFOUNDATION_HAS_KVC=1

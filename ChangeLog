@@ -1,3 +1,16 @@
+2003-01-30  David Ayers  <d.ayers@inode.at>
+
+	* GNUmakefile: Build EOControl before EOAccess.
+	* EOAccess/GNUmakefile: Remove LIBRARIES_DEPEND_UPON handling.
+	* EOControl/GNUmakefile: Ditto.
+	* EOModeler/GNUmakefile: Ditto.
+	* Tools/GNUmakefile: Ditto.
+	* EOAccess/Makefile.preamble: Correct LIBRARIES_DEPEND_UPON
+	handling.
+	* EOControl/Makefile.preamble: Ditto.
+	* EOModeler/Makefile.preamble: Ditto.
+	* Tools/Makefile.preamble: Ditto.
+	
 2003-01-29  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/GNUmakefile:  Test FOUNDATION_LIB to determine whether

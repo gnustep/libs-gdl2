@@ -29,7 +29,7 @@ include ./Version
 #
 # The list of subproject directories
 #
-SUBPROJECTS = EOAccess EOControl EOAdaptors EOModeler Tools
+SUBPROJECTS = EOControl EOAccess EOAdaptors EOModeler Tools
 
 -include Makefile.preamble
 
