@@ -1150,7 +1150,7 @@ _isLike (NSString *self, NSString *regExpr, BOOL isCaseSensative)
 {
   unsigned    max = [self count];
 
-  if (max != 0)
+  if (max != 0 && qualifier != nil)
     {
       unsigned  i;
       id        object;
