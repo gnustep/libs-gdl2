@@ -170,8 +170,10 @@ GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 
 @interface EOLoginPanel : NSObject
 
-- (NSDictionary *)runPanelForAdaptor: (EOAdaptor *)adaptor validate: (BOOL)yn;
-- (NSDictionary *)administraticeConnectionDictionaryForAdaptor: (EOAdaptor *)adaptor;
+- (NSDictionary *)runPanelForAdaptor: (EOAdaptor *)adaptor
+                            validate: (BOOL)yn 
+                      allowsCreation: (BOOL)allowsCreation;
+- (NSDictionary *)administrativeConnectionDictionaryForAdaptor: (EOAdaptor *)adaptor;
 
 @end
 

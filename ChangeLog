@@ -1,5 +1,50 @@
 2003-02-12  David Ayers  <d.ayers@inode.at>
 
+	* EOAccess/EOAdaptor.h
+	([EOLoginPanel administrativeConnectionDictionaryForAdaptor]):
+	Correct spelling.
+	([EOLoginPanel runPanelForAdaptor:validate:]): Move to
+	EODeprecated.h.
+	([EOLoginPanel runPanelForAdaptor:validate:allowsCreation:]):
+	Declared.
+	* EOAccess/EOAdaptor.m:
+	([EOAdaptor adaptorWithModel:]): Reformat.
+	([EOAdaptor adaptorWithName:]): Do not append EOAdaptor
+	redundantly.
+	([EOAdaptor _performAdministativeStatementsForSelector:
+	connectionDictionary:administrativeConnectionDictionary:]):
+	Implemented.
+	([EOAdaptor createDatabaseWithAdministrativeConnectionDictionary:]):
+	Documented and implemented.
+	([EOAdaptor dropDatabaseWithAdministrativeConnectionDictionary]):
+	Ditto.
+	([EOAdaptor runLoginPanelAndValidateConnectionDictionary]):
+	Ditto.
+	([EOAdaptor runLoginPanel]): Ditto.
+	([EOAdaptor assignExternalInfoForAttribute:]): Ditto.
+	([EOAdaptor assignExternalInfoForEntity]): Ditto.
+	([EOAdaptor assignExternalInfoForEntireModel:]): Ditto.
+	([EOAdaptor internalTypeForExternalType:model:]): Documented.
+	([EOAdaptor externalTypesWithModel]): Ditto.
+	([EOAdaptor assignExternalTypeForAttribute]): Ditto.
+	([EOLoginPanel runPanelForAdaptor:validate:allowsCreation:]):
+	Implemented.
+	([EOLoginPanel runPanelForAdaptor:validate:]): Deprecated.
+	* EOAccess/EODeprecated.h
+	([EOLoginPanel runPanelForAdaptor:validate:]): Deprecated.
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m
+	([Postgres95Adaptor
+	createDatabaseWithAdministrativeConnectionDictionary:]): Removed.
+	([Postgres95Adaptor
+	dropDatabaseWithAdministrativeConnectionDictionary:]): Ditto.
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m
+	([Postgres95SQLExpression
+	createDatabaseStatementsForConnectionDictionary:
+	administrativeConnectionDictionary:]): Implemented.
+	([Postgres95SQLExpression
+	dropDatabaseStatementsForConnectionDictionary:
+	administrativeConnectionDictionary:]): Ditto.
+	
 	* EOControl/EOClassDescription.m
 	([EOClassDescription initialize]): Use local 
 	GSLazyRecursiveLock instead of old locking mechanism.

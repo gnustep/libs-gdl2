@@ -89,7 +89,6 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
 
 @implementation EOAdaptor
 
-
 + (id)adaptorWithModel: (EOModel *)model
 {
   //OK
@@ -116,7 +115,11 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
                      [model name]];
       else
         {
-          Class adaptorClass = NSClassFromString([NSString stringWithFormat: @"%@%@", adaptorName, @"Adaptor"]);
+	  NSString *className;
+	  Class adaptorClass;
+
+	  className = [adaptorName stringByAppendingString: @"Adaptor"]; 
+	  adaptorClass  = NSClassFromString(className); 
 
           if(adaptorClass)
             adaptor = AUTORELEASE([[adaptorClass alloc] initWithName: adaptorName]);
@@ -150,7 +153,8 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
                  self];
   
   // append EOAdaptor
-  adaptorName = [adaptorName stringByAppendingString: @"EOAdaptor"];
+  if ([adaptorName hasSuffix: @"EOAdaptor"] == NO)
+    adaptorName = [adaptorName stringByAppendingString: @"EOAdaptor"];
 
   /* Look in application bundle */
   adaptorBundlePath = [bundle pathForResource: adaptorName
@@ -295,6 +299,63 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   
   return adaptorNames;
 }
+
+- (void)_performAdministativeStatementsForSelector: (SEL)sel
+			      connectionDictionary: (NSDictionary *)connDict
+		administrativeConnectionDictionary: (NSDictionary *)admConnDict
+{
+
+  if (admConnDict == nil)
+    {
+      admConnDict 
+	= [[[self class] sharedLoginPanelInstance]
+	    administrativeConnectionDictionaryForAdaptor: self];
+    }
+
+  if (connDict == nil)
+    {
+      connDict = [self connectionDictionary];
+    }
+
+  if (admConnDict != nil)
+    {
+      EOAdaptor        *admAdaptor;
+      EOAdaptorContext *admContext;
+      EOAdaptorChannel *admChannel;
+      NSArray          *stmts;
+      int i;
+
+      stmts = [[self expressionClass] performSelector: sel
+				      withObject: connDict
+				      withObject: admConnDict];
+
+      /*TODO: check if we need a model. */
+      admAdaptor = [EOAdaptor adaptorWithName: [self name]];
+      [admAdaptor setConnectionDictionary: admConnDict];
+
+      admContext = [admAdaptor createAdaptorContext];
+      admChannel = [admContext createAdaptorChannel];
+      NS_DURING
+	{
+	  [admChannel openChannel];
+	  for (i = 0; i < [stmts count]; i++)
+	    {
+	      [admChannel evaluateExpression: [stmts objectAtIndex: i]];
+	    }
+	  [admChannel closeChannel];
+	}
+      NS_HANDLER
+	{
+	  if ([admChannel isOpen])
+	    {
+	      [admChannel closeChannel];
+	    }
+	  [localException raise];
+	}
+      NS_ENDHANDLER;
+    }
+}
+
 
 - (NSArray *)prototypeAttributes
 {
@@ -649,16 +710,34 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   return NO;
 }
  
-//NOT in EOF
+/**
+ * Attempts to create a database using 
+ * the statments returned by the Adaptor's expression class
+ * for @selector(createDatabaseStatementsForConnectionDictionary:administrativeConnectionDictionary:);
+ * using the connectionDictionary as the administrative connection dictionary. 
+ */
 - (void)createDatabaseWithAdministrativeConnectionDictionary: (NSDictionary *)connectionDictionary
 {
-  [self notImplemented: _cmd];
+  SEL sel;
+  sel = @selector(createDatabaseStatementsForConnectionDictionary:administrativeConnectionDictionary:);
+  [self _performAdministativeStatementsForSelector: sel
+	connectionDictionary: [self connectionDictionary]
+	administrativeConnectionDictionary: connectionDictionary];
 }
 
-//NOT in EOF
+/**
+ * Attempts to create a database using 
+ * the statments returned by the Adaptor's expression class
+ * for @selector(createDatabaseStatementsForConnectionDictionary:administrativeConnectionDictionary:);
+ * using the connectionDictionary as the administrative connection dictionary. 
+ */
 - (void)dropDatabaseWithAdministrativeConnectionDictionary: (NSDictionary *)connectionDictionary
 {
-  [self notImplemented: _cmd];
+  SEL sel;
+  sel = @selector(dropDatabaseStatementsForConnectionDictionary:administrativeConnectionDictionary:);
+  [self _performAdministativeStatementsForSelector: sel
+        connectionDictionary: [self connectionDictionary]
+        administrativeConnectionDictionary: connectionDictionary];
 }
 
 - (BOOL) isValidQualifierType: (NSString *)attribute
@@ -673,25 +752,66 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
 
 @implementation EOAdaptor (EOAdaptorLoginPanel)
 
+/**
+ * Invokes [EOLoginPanel-runPanelForAdaptor:validate:allowsCreation:]
+ * for the adaptor's [+sharedLoginPanelInstance],
+ * with YES as the validate flag.
+ * If the user supplies valid connection information,
+ * the reciever's connection dictionary is updated,
+ * and the method return YES.  Otherwise it returns NO.
+ * Subclass shouldn't need to override this method,
+ * yet if the do, they should call this implementation.
+ */
 - (BOOL)runLoginPanelAndValidateConnectionDictionary
 {
-  // TODO
-  NSEmitTODO();  
-  return NO;
+  EOLoginPanel *panel;
+  NSDictionary *connDict;
+
+  panel = [[self class] sharedLoginPanelInstance];
+  connDict = [panel runPanelForAdaptor: self
+		    validate: YES
+		    allowsCreation: NO];
+  if (connDict != nil)
+    {
+      [self setConnectionDictionary: connDict];
+    }
+
+  return (connDict != nil ? YES : NO);
 }
 
+/**
+ * Invokes [EOLoginPanel-runPanelForAdaptor:validate:allowsCreation:]
+ * for the adaptor's [+sharedLoginPanelInstance],
+ * with YES as the validate flag.
+ * Returns the dictionary without
+ * changing the recievers connection dictionary.
+ * Subclass shouldn't need to override this method,
+ * yet if the do, they should call this implementation.
+ */
 - (NSDictionary *)runLoginPanel
 {
-  // TODO
-  [self notImplemented: _cmd];
-  return nil;
+  EOLoginPanel *panel;
+  NSDictionary *connDict;
+
+  panel = [[self class] sharedLoginPanelInstance];
+  connDict = [panel runPanelForAdaptor: self
+		    validate: NO
+		    allowsCreation: NO];
+
+  return connDict;
 }
 
 @end
 
-
 @implementation EOAdaptor (EOExternalTypeMapping)
 
+/**
+ * Subclasses must override this method without invoking this implementation
+ * to return the name of the class used internal to the database
+ * for the extType provided.  
+ * A subclass may use information provided by
+ * an optional model to determine the exact type.
+ */
 + (NSString *)internalTypeForExternalType: (NSString *)extType
 				    model: (EOModel *)model
 {
@@ -699,34 +819,104 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
   return nil;
 }
 
+/**
+ * Subclasses must override this method without invoking this implementation
+ * to return an array of types available for the RDBMS.
+ * A subclass may use information provided by
+ * an optional model to determine the exact available types.
+ */
 + (NSArray *)externalTypesWithModel: (EOModel *)model
 {
   [self subclassResponsibility: _cmd];
   return nil;
 }
 
+/**
+ * Subclasses must override this method without invoking this implementation
+ * to set the the external type according to the internal type information.
+ * It should take into account width, precesion and scale accordingly.
+ */
 + (void)assignExternalTypeForAttribute: (EOAttribute *)attribute
 {
-  return;
+  [self subclassResponsibility: _cmd];
 }
 
+/**
+ * Invokes [+assignExternalTypeForAttribute:] 
+ * and unless the attribute is derived
+ * it sets the column name if it hasn't been set.  
+ * An 'attributeName' result in a column named 'ATTRIBUTE_NAME'.  <br/>
+ * NOTE: This differs from the EOF implementation as EOF unconditionally
+ * sets the the external name attributes that are not derived.
+ * This can cause trouble on certain RDMS which may not support
+ * the extended names used internally in an application.
+ * Subclass shouldn't need to override this method,
+ * yet if the do, they should call this implementation.
+ */
 + (void)assignExternalInfoForAttribute: (EOAttribute *)attribute
 {
-  // TODO
-  NSEmitTODO();  
+  if ([[attribute columnName] length] == 0
+      && [attribute isFlattened] == NO)
+    {
+      NSString *name;
+      name = [NSString externalNameForInternalName: [attribute name] 
+		       separatorString: @"_"
+		       useAllCaps: YES];
+      [attribute setColumnName: name];
+    }
+
   [self assignExternalTypeForAttribute: attribute];
 }
 
+/**
+ * Invokes [+assignExternalInfoForAttribute:]
+ * for each of the model's entities. 
+ * If the externalName of the entity hasn't been set,
+ * this method sets it to a standardized name
+ * according to the entities name.  
+ * An 'entityName' will be converted to 'ENTITY_NAME'. <br/>
+ * Subclass shouldn't need to override this method,
+ * yet if the do, they should call this implementation.
+ */
 + (void)assignExternalInfoForEntity: (EOEntity *)entity
 {
-  // TODO
-  [self notImplemented: _cmd];
+  NSArray  *attributes;
+  unsigned i;
+
+  if ([[entity externalName] length] == 0)
+    {
+      NSString *name;
+      name = [NSString externalNameForInternalName: [entity name] 
+		       separatorString: @"_"
+		       useAllCaps: YES];
+      [entity setExternalName: name];
+    }
+
+  attributes = [entity attributes];
+
+  for (i = 0; i < [attributes count]; i++)
+    {
+      [self assignExternalInfoForAttribute: [attributes objectAtIndex: i]];
+    }
 }
 
+/**
+ * Invokes [+assignExternalInfoForEntity:]
+ * for each of the model's entities. 
+ * Subclass shouldn't need to override this method,
+ * yet if the do, they should call this implementation.
+ */
 + (void)assignExternalInfoForEntireModel: (EOModel *)model
 {
-  // TODO
-  [self notImplemented: _cmd];
+  NSArray  *entities;
+  unsigned i;
+
+  entities = [model entities];
+
+  for (i = 0; i < [entities count]; i++)
+    {
+      [self assignExternalInfoForEntity: [entities objectAtIndex: i]];
+    }
 }
 
 @end
@@ -763,16 +953,28 @@ NSString *EOGeneralAdaptorException = @"EOGeneralAdaptorException";
 
 @implementation EOLoginPanel
 
-- (NSDictionary *) runPanelForAdaptor: (EOAdaptor *)adaptor validate: (BOOL)yn
+- (NSDictionary *) runPanelForAdaptor: (EOAdaptor *)adaptor 
+			     validate: (BOOL)yn 
+		       allowsCreation: (BOOL)allowsCreation
 {
   [self subclassResponsibility: _cmd];
   return nil;
 }
 
-- (NSDictionary *) administraticeConnectionDictionaryForAdaptor: (EOAdaptor *)adaptor
+- (NSDictionary *) administrativeConnectionDictionaryForAdaptor: (EOAdaptor *)adaptor
 {
   [self subclassResponsibility: _cmd];
   return nil;
 }
 
 @end
+
+@implementation EOLoginPanel (Deprecated)
+
+- (NSDictionary *) runPanelForAdaptor: (EOAdaptor *)adaptor validate: (BOOL)yn
+{
+  return [self runPanelForAdaptor: adaptor validate: yn allowsCreation: NO];
+}
+
+@end
+

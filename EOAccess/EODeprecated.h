@@ -30,4 +30,12 @@
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOModelGroup.h>
 
+@interface EOLoginPanel (Depricated)
+/**
+ * Use runPanelForAdaptor:validate:allowsCreation: instead.
+ */
+- (NSDictionary *)runPanelForAdaptor: (EOAdaptor *)adaptor validate: (BOOL)yn;
+
+@end
+
 #endif 

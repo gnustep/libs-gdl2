@@ -339,14 +339,6 @@ static NSString *internalTypeNames[] = {
   return value;
 }
 
-- (void)createDatabaseWithAdministrativeConnectionDictionary: (NSDictionary *)connectionDictionary
-{
-}
-
-- (void)dropDatabaseWithAdministrativeConnectionDictionary: (NSDictionary *)connectionDictionary
-{
-}
-
 /* Private methods for Postgres Adaptor */
 
 - (PGconn *)createPGconn

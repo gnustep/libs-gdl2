@@ -322,6 +322,38 @@ RCS_ID("$Id$")
   return sqlString;
 }
 
++ (NSArray *)createDatabaseStatementsForConnectionDictionary: (NSDictionary *)connDict
+                          administrativeConnectionDictionary: (NSDictionary *)admConnDict
+{
+  NSArray *ret;
+  NSString *databaseName;
+  NSString *stmt;
+  EOSQLExpression *expr;
+
+  databaseName = [connDict objectForKey: @"databaseName"];
+  stmt = [NSString stringWithFormat:@"CREATE DATABASE %@", databaseName];
+  expr = [self expressionForString: stmt];
+  ret = [NSArray arrayWithObject: expr];
+  
+  return ret;
+}
+
++ (NSArray *)dropDatabaseStatementsForConnectionDictionary: (NSDictionary *)connDict
+			administrativeConnectionDictionary: (NSDictionary *)admConnDict
+{
+  NSArray *ret;
+  NSString *databaseName;
+  NSString *stmt;
+  EOSQLExpression *expr;
+
+  databaseName = [connDict objectForKey: @"databaseName"];
+  stmt = [NSString stringWithFormat:@"DROP DATABASE %@", databaseName];
+  expr = [self expressionForString: stmt];
+  ret = [NSArray arrayWithObject: expr];
+  
+  return ret;
+}
+
 + (NSArray *)dropTableStatementsForEntityGroup:(NSArray *)entityGroup
 {
   EOEntity *entity;
