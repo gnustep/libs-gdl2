@@ -50,8 +50,10 @@ RCS_ID("$Id$")
 #include <Foundation/NSUtilities.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSScanner.h>
 #else
 #include <Foundation/Foundation.h>
+#include <GNUstepBase/GSCategories.h>
 #endif
 
 #ifndef GNUSTEP
@@ -1481,23 +1483,249 @@ each key
 
 - (EOModel *)describeModelWithTableNames: (NSArray *)tableNames
 {
-  NSEnumerator *tableEnum;
-  NSString *table;
-  EOModel *model;
-  EOEntity *entity;
-
+  EOModel   *model;
+  EOAdaptor *adaptor;
+  int i,k,n;
+  unsigned int j;
+  adaptor = [[self adaptorContext] adaptor];
   model = AUTORELEASE([[EOModel alloc] init]);
 
-  tableEnum = [tableNames objectEnumerator];
+  [model setAdaptorName: [adaptor name]];
+  [model setConnectionDictionary: [adaptor connectionDictionary]];
 
-  while ((table = [tableEnum nextObject]))
+  for (i = 0; i < [tableNames count]; i++)
     {
+      NSString *tableName;
+      EOEntity *entity;
+      NSString *stmt;
+      EOAttribute *attribute;
+      NSString *externalName;
+      NSString *valueClass = @"NSString";
+      NSString *valueType = nil;
+      NSString *tableOid;
+
+      tableName = [tableNames objectAtIndex: i];
       entity = AUTORELEASE([[EOEntity alloc] init]);
-      [entity setExternalName: table];
+      [entity setName: tableName];
+      [entity setExternalName: tableName];
+      [entity setClassName: @"EOGenericRecord"];
       [model addEntity: entity];
+
+      stmt = [NSS_SWF: @"SELECT oid FROM pg_class WHERE relname = '%@' AND relkind = 'r'",tableName];
+//      NSLog(@"Calling:%@", stmt);
+      _pgResult = PQexec(_pgConn, [stmt cString]);
+
+      if (_pgResult == NULL || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
+        {
+          _pgResult = NULL;
+          [NSException raise: Postgres95Exception
+                    format: @"cannot read type name informations from database."
+                            @"bad response from server"];
+        }
+
+      if (PQntuples(_pgResult) != 1)
+        {
+          _pgResult = NULL;
+          [NSException raise: Postgres95Exception
+                       format: @"Table %@ doesn't exist", tableName];
+        }
+
+      tableOid = [NSString stringWithCString: (char*)PQgetvalue(_pgResult,0,0)];
+      [entity setUserInfo: [NSDictionary dictionaryWithObject:tableOid forKey: @"tableOid"]];
+      stmt = [NSS_SWF: @"SELECT attname,typname,attnum FROM pg_attribute LEFT JOIN pg_type ON atttypid = oid WHERE attnum > 0 AND attrelid=%@", tableOid];
+
+      PQclear(_pgResult);
+//     NSLog(@"Calling: %@",stmt);
+      _pgResult = PQexec(_pgConn, [stmt cString]);
+
+        for (n = 0; n < PQntuples(_pgResult); n++)
+           {
+             externalName = [NSString stringWithCString: PQgetvalue(_pgResult,n,1)];
+             if      ([externalName isEqual: @"bool"])
+               valueClass = @"NSNumber", valueType = @"c";
+             else if ([externalName isEqual: @"char"])
+               valueClass = @"NSNumber", valueType = @"c";
+             else if ([externalName isEqual: @"dt"])
+               valueClass = @"NSCalendarDate", valueType = nil;
+             else if ([externalName isEqual: @"date"])
+               valueClass = @"NSCalendarDate", valueType = nil;
+             else if ([externalName isEqual: @"time"])
+               valueClass = @"NSCalendarDate", valueType = nil;
+             else if ([externalName isEqual: @"float4"])
+               valueClass = @"NSNumber", valueType = @"f";
+             else if ([externalName isEqual: @"float8"])
+               valueClass = @"NSNumber", valueType = @"d";
+             else if ([externalName isEqual: @"int2"])
+               valueClass = @"NSNumber", valueType = @"i";
+             else if ([externalName isEqual: @"int4"])
+               valueClass = @"NSNumber", valueType = @"i";
+             else if ([externalName isEqual: @"int8"])
+               valueClass = @"NSNumber", valueType = @"l";
+             else if ([externalName isEqual: @"oid"])
+               valueClass = @"NSNumber", valueType = @"l";
+             else if ([externalName isEqual: @"varchar"])
+               valueClass = @"NSString", valueType = nil;
+             else if ([externalName isEqual: @"bpchar"])
+               valueClass = @"NSString", valueType = nil;
+             else if ([externalName isEqual: @"text"])
+               valueClass = @"NSString", valueType = nil;
+
+             attribute = AUTORELEASE([EOAttribute new]);
+             [attribute setName: [NSString stringWithCString:
+                                    PQgetvalue(_pgResult,n,0)]];
+             [attribute setColumnName: tableName];
+             [attribute setExternalType: externalName];
+             [attribute setValueType: valueType];
+             [attribute setValueClassName: valueClass];
+             [entity addAttribute: attribute];
+           }
+
+         /* <primary key stuff> */ 
+
+         stmt = [NSS_SWF: @"SELECT indkey FROM pg_index WHERE indrelid='%@' AND indisprimary = 't'",tableOid];
+         PQclear(_pgResult);
+	   // NSLog(@"calling: %@",stmt);
+	    _pgResult = PQexec(_pgConn,[stmt cString]);
+         if (PQntuples(_pgResult))
+	    {
+	        NSString *pkAttNum;
+		    pkAttNum = [[NSString stringWithCString: PQgetvalue(_pgResult,0,0)] stringByReplacingString:@" " withString: @", "];
+            stmt = [NSS_SWF: @"SELECT attname FROM pg_attribute WHERE attrelid='%@' and attnum in (%@)",tableOid,pkAttNum];
+            PQclear(_pgResult);
+           //  NSLog(@"calling: %@",stmt);
+            _pgResult = PQexec(_pgConn,[stmt cString]);
+ 
+            if (PQntuples(_pgResult))
+            {
+	           NSArray *pkeys = AUTORELEASE([NSArray new]);
+		         for (k=0;k<PQntuples(_pgResult);k++)
+			         {
+				           attribute = [entity attributeNamed: [NSString stringWithCString: PQgetvalue(_pgResult,k,0)]];
+	          pkeys = [pkeys arrayByAddingObject: attribute];
+             //     NSLog(@"pk name's %s",PQgetvalue(_pgResult,k,0)); 
+	              }
+		          
+              // NSLog(@"pkeys %@",pkeys);
+	             [entity setPrimaryKeyAttributes: pkeys];
+		          }
+			     }
+          /* </primary key stuff> */
+
     }
+          /* <foreign key stuff> */
+NSArray *entityNames = [model entityNames];
+  for (i = 0; i < [entityNames count]; i++)
+    {
+         EOEntity  *entity;
+         NSString  *stmt;
+         NSString  *tableOid;
+         NSScanner *scanner;
+         NSString  *scanValue;
+         entity = [model entityNamed: [entityNames objectAtIndex:i]];
+         tableOid = [[entity userInfo] objectForKey: @"tableOid"];
+         stmt = [NSS_SWF: @"SELECT tgargs FROM pg_trigger WHERE tgtype=21 AND tgisconstraint='t' AND tgrelid=%@",tableOid];
+        // NSLog(@"Calling: %@",stmt);
+         PQclear(_pgResult);
+         _pgResult = PQexec(_pgConn, [stmt cString]);
+         // if (PQntuples(_pgResult) != 0)
+         for (n = 0; n < PQntuples(_pgResult); n++)
+           {
+            NSString       *sourceTable;
+            NSString       *destinationTable;
+            NSString       *sourceAttribute;
+            NSString       *destinationAttribute;
+            EORelationship *fkRelationship;
+            EOEntity       *destEntity;
+            NSString       *aRelationshipName;
+            EOJoin         *fkJoin;
+            j = 0; 
+            scanner = [NSScanner scannerWithString: [NSString stringWithCString:
+PQgetvalue(_pgResult,n,0)]];
+            [scanner scanUpToString: @"\\000" intoString: &scanValue];
+           //  NSLog(@"constraint name: %@\n",scanValue); //dunno what this is assuming it isn't needed
+            while ([scanner scanString: @"\\000" intoString:&scanValue]==YES)
+                {
+                  [scanner scanUpToString: @"\\000" intoString:&scanValue];
+                  if (![scanValue isEqual: @"\\000"])
+                   {
+                     j++;
+                     switch (j)
+                          {
+                            case 1:
+                             sourceTable= scanValue;
+                             RETAIN(sourceTable);
+                            // NSLog(@"table with foreign key: %@\n",sourceTable);
+                             break;
+                            case 2:
+                             destinationTable = scanValue;
+                             RETAIN(destinationTable);
+                            // NSLog(@"table foreign key references: %@\n",destinationTable);
+                             aRelationshipName = [NSS_SWF:@"to%@",destinationTable];
+                             fkRelationship = [[model entityNamed: sourceTable] relationshipNamed: aRelationshipName];
+                            if (!fkRelationship)
+                             {
+					       destEntity = [model entityNamed: destinationTable];
+                               // NSLog(@"destEntity retainCount %i", [destEntity retainCount]);
+                               // this is ugly we also check it's existance again later... this yeilds interesting retain counts 
+                              if (destEntity) // TODO test what happens if destEntity is nil aka (destEntity isn't in tableNames)
+		             {
+					         fkRelationship = [EORelationship new];
+                                 [fkRelationship setName: aRelationshipName];
+			         [[model entityNamed: sourceTable] addRelationship: fkRelationship];
+                               }
+						     }
+                             break;
+                            case 3:
+                            // NSLog(@"match type: %@\n",scanValue); //dunno what this is assuming it isn't needed
+                             break;
+                            default:
+                             if (j > 3)
+                              {
+                                if ((j % 2) == 0)
+                                 {
+                                   sourceAttribute = scanValue;
+                                   RETAIN(sourceAttribute);
+                              //     NSLog(@"source attribute: %@\n", sourceAttribute);
+                                   break; 
+                                  }
+                               else
+                                 {
+                                   destinationAttribute= scanValue;
+                                   RETAIN(destinationAttribute);
+                               //    NSLog(@"destination attribute: %@\n",destinationAttribute);
+                                   if(destEntity)  // check if no entityNamed: destinationTable aka destinationTable not in tableNames..
+                                    {
+                                     if([[destEntity primaryKeyAttributeNames] containsObject: destinationAttribute]) 
+                                     {
+                                      // NSLog(@"is a primary key");
+                                      [fkRelationship setToMany:NO]; // assuming one to one 
+                                     }
+                                     else
+                                     {
+                                      //NSLog(@"not a primary key");
+                                      [fkRelationship setToMany: YES]; //assuming to one to many
+                                     }
+                                    fkJoin = AUTORELEASE([[EOJoin alloc]
+				              initWithSourceAttribute: [[model entityNamed:sourceTable] attributeNamed: sourceAttribute]
+                                              destinationAttribute: [[model entityNamed: destinationTable] attributeNamed: destinationAttribute]]);
+		                     [fkRelationship addJoin: fkJoin];
+								   }
+                                   RELEASE(destinationAttribute);
+                                   RELEASE(sourceAttribute);
+                                  break;
+                                 }
+                              }
+                          }
+                   }
+                }
+                 RELEASE(sourceTable);
+			 RELEASE(destinationTable);
+//				 NSLog(@"retain counts 3: %i %i %i %i %i",[destinationAttribute retainCount],[destinationTable retainCount],[sourceAttribute retainCount],[sourceTable retainCount],[destEntity retainCount]);
+
+          } 
     
-  return model; //TODO
+    } /*</foreign key stuff>*/
+  return model;
 }
 
 - (void)setDelegate:delegate

@@ -1,3 +1,8 @@
+2003-02-14  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAdaptors/Postgres95/Postgres95Channel.m
+	([Postgres95Channel describeModelWithTableNames:]): Implemented.
+
 2003-02-12  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.h
