@@ -44,8 +44,6 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOQualifier.h>
 #import <EOControl/EODebug.h>
 
-#import <EOAccess/EOSQLExpression.h>
-
 
 @implementation EOAndQualifier
 

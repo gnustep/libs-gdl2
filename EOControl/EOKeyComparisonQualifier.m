@@ -41,8 +41,6 @@ static char rcsId[] = "$Id$";
 #import <EOControl/EOKeyValueCoding.h>
 #import <EOControl/EODebug.h>
 
-#import <EOAccess/EOSQLExpression.h>
-
 
 @implementation EOKeyComparisonQualifier
 
