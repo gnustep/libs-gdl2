@@ -353,17 +353,18 @@ static Class NSCalendarDateClass;
   if (_writeFormat)
     [propertyList setObject: _writeFormat forKey: @"writeFormat"];
   if (_width > 0)
-    [propertyList setObject: [NSNumber numberWithUnsignedInt: _width]
+    [propertyList setObject: [NSString stringWithFormat:@"%u", _width]
 		  forKey: @"width"];
   if (_precision > 0)
-    [propertyList setObject: [NSNumber numberWithUnsignedShort: _precision]
+    [propertyList setObject: [NSString stringWithFormat:@"%hu", _precision]
 		  forKey: @"precision"];
   if (_scale != 0)
-    [propertyList setObject: [NSNumber numberWithShort: _scale]
+    [propertyList setObject: [NSString stringWithFormat:@"%hí", _scale]
 		  forKey: @"scale"];
 
   if (_parameterDirection != 0)
-    [propertyList setObject: [NSNumber numberWithInt: _parameterDirection]
+    [propertyList setObject: [NSString stringWithFormat:@"%d",
+				       (int)_parameterDirection]
 		  forKey: @"parameterDirection"];
 
   if (_userInfo)
