@@ -227,10 +227,15 @@ _mergeValueForKey(id obj, id value,
 {
   if (self == [EOEditingContext class] && defaultParentStore == nil)
     {
+      BOOL gswapp;
+
       defaultParentStore = [EOObjectStoreCoordinator defaultCoordinator];
       null = [EONull null];
       EOEditingContextClass = self;
       EOAssociationClass = NSClassFromString(@"EOAssociation");
+      gswapp = (NSClassFromString(@"GSWApplication") != nil 
+		|| NSClassFromString(@"WOApplication") != nil);
+      [self setUsesContextRelativeEncoding: gswapp];
     }
 }
 
@@ -801,7 +806,8 @@ _mergeValueForKey(id obj, id value,
 
       if (snapshot)
         {
-          NSAssert(gid != tempGID, @"gid and temporary gid are the same");
+          NSAssert2([gid isEqual: tempGID] == NO, 
+		   @"gid %@ and temporary gid %@ are equal", gid, tempGID);
           [_snapshotsByGID setObject: snapshot
                            forKey: gid];
           [_snapshotsByGID removeObjectForKey: tempGID];
@@ -924,16 +930,23 @@ _mergeValueForKey(id obj, id value,
   gids = NSAllMapTableKeys(_objectsByGID);
   [_objectStore invalidateObjectsWithGlobalIDs: gids];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName: EOInvalidatedAllObjectsInStoreNotification
-					object: self
-					userInfo: nil];
+  [[NSNotificationCenter defaultCenter]
+    postNotificationName: EOInvalidatedAllObjectsInStoreNotification
+    object: self
+    userInfo: nil];
 }
 
-//"Receive ???? notification"
-- (void) _invalidatedAllObjectsInStore: (NSNotification*)notification
+- (void)_invalidatedAllObjectsInStore: (NSNotification*)notification
 {
-  NSEmitTODO();
-  [self notImplemented: _cmd]; //TODO
+  if ([notification object] == _objectStore)
+    {
+      [self _sendOrEnqueueNotification: notification
+	    selector: @selector(_resetAllChanges:)];
+      [[NSNotificationCenter defaultCenter]
+	postNotificationName: EOInvalidatedAllObjectsInStoreNotification
+	object: self
+	userInfo: nil];
+    }
 }
 
 - (void) _forgetObjectWithGlobalID:(EOGlobalID*)gid
@@ -3313,16 +3326,15 @@ shouldContinueFetchingWithCurrentObjectCount: (unsigned)count
 @end
 
 @implementation EOEditingContext (EOStateArchiving)
-
-+ (void)setUsesContextRelativeEncoding: (BOOL)yn
+static BOOL usesContextRelativeEncoding = NO;
++ (void)setUsesContextRelativeEncoding: (BOOL)flag
 {
-  [self notImplemented: _cmd]; //TODO
+  usesContextRelativeEncoding = flag ? YES : NO;
 }
 
 + (BOOL)usesContextRelativeEncoding
 {
-  [self notImplemented: _cmd]; //TODO
-  return NO;
+  return usesContextRelativeEncoding;
 }
 
 + (void)encodeObject: (id)object

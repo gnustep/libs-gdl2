@@ -460,21 +460,37 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
                       editingContext: context];
 }
 
+/*
+ * If there is only one store that we are coordinating then all our
+ * objects were also invalidated.
+ */
 - (void) _invalidatedAllObjectsInSubStore: (NSNotification*)notification
 {
-  [self notImplemented: _cmd]; //TODO
+  if ([_stores count] == 1)
+    {
+      NSAssert2([_stores containsObject: [notification object]],
+		@"recived notification %@ for foreign store %@",
+		notification, _stores);
+      [[NSNotificationCenter defaultCenter]
+        postNotificationName: EOInvalidatedAllObjectsInStoreNotification
+        object: self
+        userInfo: nil];
+    }
 }
 
+/*
+ * Let the EOEditingContexts know that some objects changed.
+ */
 - (void) _objectsChangedInSubStore: (NSNotification*)notification
 {
-  EOFLOGObjectFnStart(); //TODO
+  EOFLOGObjectFnStart();
 
   if ([notification object] != self)
     {
       [[NSNotificationCenter defaultCenter]
         postNotificationName: EOObjectsChangedInStoreNotification
         object: self
-        userInfo: [notification userInfo]]; //call _objectsChangedInStore: # EditingContext
+        userInfo: [notification userInfo]];
     }
 
   EOFLOGObjectFnStop();

@@ -1,3 +1,16 @@
+2005-02-10  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOEditingContext.m (_globalIDChanged:): Make assert
+	more accurate.
+	(-_invalidatedAllObjectsInStore:): Implement.
+	(+setUsesContextRelativeEncoding:): Implement.
+	(+usesContextRelativeEncoding): Implement.
+	(+initialize): Set default value of usesContextRelativeEncoding
+	depending on whether we are a gsweb application.
+
+	* EOControl/EOObjectStoreCoordinator.m 
+	(_invalidatedAllObjectsInSubStore:): Implement.
+	
 2005-02-08  Matt Rice  <ratmice@yahoo.com>
 
 	* EOControl/EOEditingContext.m (-_globalIDChanged:): Add key
