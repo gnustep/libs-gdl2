@@ -460,7 +460,7 @@ static EODelayedObserverQueue *observerQueue;
 	      return;
 	    }
 
-	  NSAssert2(observer->_next != nil, @"observer:%@ has ->next:%@",
+	  NSAssert2(observer->_next == nil, @"observer:%@ has ->next:%@",
 		    observer, observer->_next);
 
 	  NSAssert(last != nil, @"Currupted Queue");
