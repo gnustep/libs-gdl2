@@ -57,6 +57,7 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EOGenericRecord.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EORelationship.h>
@@ -172,7 +173,7 @@ static NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException
 	       value, key, entityName);
 
   if (!value)
-    value=[EONull null];
+    value=GDL2EONull;
 
   NSAssert(value, @"No Value"); //Transform it to EONull ?
   NSAssert(key, @"No Key");
@@ -513,7 +514,7 @@ static NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException
         {
           NSDictionary* pk;
           if (!value)
-            value=[EONull null];
+            value=GDL2EONull;
 
           pk = [NSDictionary dictionaryWithObject: value
                              forKey: [(EOAttribute*)[primaryKeyAttributes
@@ -592,7 +593,7 @@ static NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException
   NSAssert([entityName length]>0,@"No entity name");
 
   if (!value)
-    value=[EONull null];
+    value=GDL2EONull;
 
   valueDict = [NSDictionary dictionaryWithObject: value
                             forKey: key];

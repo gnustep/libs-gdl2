@@ -66,6 +66,7 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EOObserver.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
@@ -82,25 +83,14 @@ RCS_ID("$Id$")
 
 @implementation EOAttribute
 
-static EONull *null = nil;
-static Class NSStringClass;
-static Class NSNumberClass;
-static Class NSDecimalNumberClass;
-static Class NSDataClass;
-static Class NSDateClass;
-static Class NSCalendarDateClass;
-
 + (void)initialize
 {
-  if (null == nil)
+  static BOOL initialized=NO; 
+  if (!initialized)
     {
-      null = [EONull null];
-      NSStringClass = [NSString class];
-      NSNumberClass = [NSNumber class];
-      NSDecimalNumberClass = [NSDecimalNumber class];
-      NSDataClass = [NSData class];
-      NSDateClass = [NSDate class];
-      NSCalendarDateClass = [NSCalendarDate class];
+      initialized=YES;
+
+      GDL2PrivInit();
     }
 }
 
@@ -116,8 +106,7 @@ static Class NSCalendarDateClass;
 {
   if ((self = [self init]))
     {
-      //OK
-      NSString *tmpString;
+      NSString *tmpString = nil;
       id tmpObject = nil;
 
       [self setName: [propertyList objectForKey: @"name"]];
@@ -208,7 +197,7 @@ static Class NSCalendarDateClass;
       tmpString = [propertyList objectForKey: @"parameterDirection"];
       if (tmpString)
         {
-	  if ([tmpString isKindOfClass: NSNumberClass])
+	  if ([tmpString isKindOfClass: GDL2NSNumberClass])
 	    {
 	      [self setParameterDirection: [tmpString intValue]];
 	    }
@@ -682,11 +671,10 @@ static Class NSCalendarDateClass;
 {
   if (_valueType)
     return _valueType;
-
-  if([self isFlattened])
+  else if([self isFlattened])
     return [[_definitionArray realAttribute] valueType];
-
-  return [_prototype valueType];
+  else
+    return [_prototype valueType];
 }
 
 @end
@@ -905,17 +893,24 @@ return nexexp
 
   ASSIGN(_valueType, type);
 
+  if ([_valueType length]==1)
+    _valueTypeChar=(char)[_valueType characterAtIndex:0];
+  else
+    _valueTypeChar='\0';
+
   [self _setOverrideForKeyEnum: 4];//TODO
 }
 
 - (void)setValueClassName: (NSString *)name
 {
-  //OK
   [self willChange];
 
   ASSIGN(_valueClassName, name);
 
-  _valueClass = NSClassFromString(_valueClassName);//TODO Do it later !
+  _valueClass = NSClassFromString(_valueClassName);
+
+  _adaptorValueType=EOAdaptorUnknownType; // reset adaptorValueType
+
   [self _setOverrideForKeyEnum: 3];//TODO
 }
 
@@ -1080,12 +1075,12 @@ return nexexp
   NSData *value = nil;
   Class valueClass = [self _valueClass];
 
-  if (valueClass != Nil && valueClass != NSDataClass)
+  if (valueClass != Nil && valueClass != GDL2NSDataClass)
     {
       switch (_argumentType)
         {
 	case EOFactoryMethodArgumentIsNSData:
-	  value = [[NSData alloc] initWithBytes:bytes length: length]; //For efficiency reasons, the returned value is NOT autoreleased !
+	  value = [GDL2NSData_alloc() initWithBytes:bytes length: length]; //For efficiency reasons, the returned value is NOT autoreleased !
 
 	  if(_valueFactoryMethod != NULL)
 	    value = [(id)valueClass performSelector: _valueFactoryMethod
@@ -1115,7 +1110,7 @@ return nexexp
     }
     
   if(!value)
-    value = [[NSData alloc] initWithBytes: bytes length: length];//For efficiency reasons, the returned value is NOT autoreleased !
+    value = [GDL2NSData_alloc() initWithBytes: bytes length: length];//For efficiency reasons, the returned value is NOT autoreleased !
 
   return value;
 }
@@ -1136,15 +1131,15 @@ return nexexp
   id value = nil;
   Class valueClass = [self _valueClass];
 
-  if (valueClass != Nil && valueClass != NSStringClass)
+  if (valueClass != Nil && valueClass != GDL2NSStringClass)
     {
       switch (_argumentType)
         {
 	case EOFactoryMethodArgumentIsNSString:
-	  value = [[NSString alloc] initWithData: [NSData dataWithBytes: bytes
-							  length: length]
-				    encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
-	  
+	  value = [GDL2NSString_alloc() initWithData: [NSData dataWithBytes: bytes
+                                                               length: length]
+                                     encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
+
 	  value = [(id)valueClass performSelector: _valueFactoryMethod
 			          withObject: [value autorelease]];
 	  break;
@@ -1173,9 +1168,9 @@ return nexexp
     }
     
   if(!value)
-    value = [[NSString alloc]
-	      initWithData: [NSData dataWithBytes: bytes length: length]
-	      encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
+    value = [GDL2NSString_alloc()
+                               initWithData: [NSData dataWithBytes: bytes length: length]
+                               encoding: encoding];//For efficiency reasons, the returned value is NOT autoreleased !
   
   return value;
 }
@@ -1200,7 +1195,7 @@ return nexexp
   NSCalendarDate *date;
 
   //For efficiency reasons, the returned value is NOT autoreleased !
-  date = [[NSCalendarDateClass allocWithZone: zone]
+  date = [[GDL2NSCalendarDateClass allocWithZone: zone]
 	   initWithYear: year
 	   month: month
 	   day: day
@@ -1245,17 +1240,30 @@ return nexexp
 
   switch (adaptorValueType)
     {
+/* Temporary reverted so we can discuss about this
         case EOAdaptorNumberType:
-	  convert = [value isKindOfClass: NSNumberClass] ? NO : YES;
+	  convert = [value isKindOfClass: GDL2NSNumberClass] ? NO : YES;
 	  break;
         case EOAdaptorCharactersType:
-	  convert = [value isKindOfClass: NSStringClass] ? NO : YES;
+	  convert = [value isKindOfClass: GDL2NSStringClass] ? NO : YES;
 	  break;
         case EOAdaptorBytesType:
-	  convert = [value isKindOfClass: NSDataClass] ? NO : YES;
+	  convert = [value isKindOfClass: GDL2NSDataClass] ? NO : YES;
 	  break;
         case EOAdaptorDateType:
-	  convert = [value isKindOfClass: NSDateClass] ? NO : YES;
+	  convert = [value isKindOfClass: GDL2NSDateClass] ? NO : YES;
+	  break;
+*/
+//TODO It's only a quick Fix
+        case EOAdaptorNumberType:
+        case EOAdaptorCharactersType:
+        case EOAdaptorDateType:
+	  convert = ([value isKindOfClass: GDL2NSNumberClass]
+                     || [value isKindOfClass: GDL2NSStringClass]
+                     || [value isKindOfClass: GDL2NSDateClass]) ? NO : YES;
+	  break;
+        case EOAdaptorBytesType:
+	  convert = [value isKindOfClass: GDL2NSDataClass] ? NO : YES;
 	  break;
 	default:
 	  [NSException raise: NSInvalidArgumentException
@@ -1263,7 +1271,7 @@ return nexexp
 		       adaptorValueType];
     }
 
-  convert = (value == null) ? NO : convert;
+  convert = (value == GDL2EONull) ? NO : convert;
   
   if (convert)
     {
@@ -1281,8 +1289,10 @@ return nexexp
 	      /* This exception might not be conformant, but seems helpful.  */
 	      [NSException raise: NSInvalidArgumentException
 			   format: @"Value of class: %@ needs conversion "
-			   @"yet no conversion method specified.", 
-			   NSStringFromClass([value class])];
+			   @"yet no conversion method specified. "
+                           @"Attribute is %@. adaptorValueType=%d", 
+			   NSStringFromClass([value class]),
+                           self,adaptorValueType];
 	    }
 	}
       else
@@ -1306,27 +1316,32 @@ return nexexp
 
 - (EOAdaptorValueType)adaptorValueType
 {
-  Class adaptorClasses[] = { NSNumberClass, 
-                             NSStringClass,
-			     NSDateClass };
-  EOAdaptorValueType values[] = { EOAdaptorNumberType,
-                                  EOAdaptorCharactersType,
-				  EOAdaptorDateType };
-  Class valueClass;
-  int i;
-
-  for ( i = 0; i < 3; i++)
+  if (_adaptorValueType==EOAdaptorUnknownType)
     {
-      for ( valueClass = [self _valueClass];
-	    valueClass != Nil;
-	    valueClass = GSObjCSuper(valueClass))
-	{
-	  if (valueClass == adaptorClasses[i])
-	    return values[i];
-	}
-    }
-
-  return EOAdaptorBytesType;
+      Class adaptorClasses[] = { GDL2NSNumberClass, 
+                                 GDL2NSStringClass,
+                                 GDL2NSDateClass };
+      EOAdaptorValueType values[] = { EOAdaptorNumberType,
+                                      EOAdaptorCharactersType,
+                                      EOAdaptorDateType };
+      Class valueClass = Nil;
+      int i = 0;
+      
+      for ( i = 0; i < 3; i++)
+        {
+          for ( valueClass = [self _valueClass];
+                valueClass != Nil;
+                valueClass = GSObjCSuper(valueClass))
+            {
+              if (valueClass == adaptorClasses[i])
+                _adaptorValueType=values[i];
+            }
+        }
+      
+      if (_adaptorValueType==EOAdaptorUnknownType)
+        _adaptorValueType=EOAdaptorBytesType;
+    };
+  return _adaptorValueType;
 }
 
 - (EOFactoryMethodArgumentType)factoryMethodArgumentType
@@ -1389,9 +1404,9 @@ return nexexp
 
             if ([*valueP isKindOfClass: valueClass] == NO)
               {
-                if ([*valueP isKindOfClass: NSStringClass])
+                if ([*valueP isKindOfClass: GDL2NSStringClass])
                   {
-                    if (valueClass == NSNumberClass)
+                    if (valueClass == GDL2NSNumberClass)
                       {
                         if ([[self valueType] isEqualToString: @"i"] == YES)
                           *valueP = [NSNumber numberWithInt:
@@ -1430,24 +1445,24 @@ return nexexp
                           *valueP = [NSNumber numberWithDouble:
                                                  [*valueP doubleValue]];
                       }
-                    else if (valueClass == NSDecimalNumberClass)
+                    else if (valueClass == GDL2NSDecimalNumberClass)
                       *valueP = [NSDecimalNumber
 				  decimalNumberWithString: *valueP];
                   
-                    else if (valueClass == NSDataClass)
+                    else if (valueClass == GDL2NSDataClass)
                       *valueP = [*valueP
 				  dataUsingEncoding: NSASCIIStringEncoding
 				  allowLossyConversion: YES];
                   
-                    else if (valueClass == NSCalendarDateClass)
-                      *valueP = [[[NSCalendarDateClass alloc]
+                    else if (valueClass == GDL2NSCalendarDateClass)
+                      *valueP = [[[GDL2NSCalendarDateClass alloc]
 				   initWithString: *valueP]
 				  autorelease];
                   }
               }
             else
               {
-                if ([*valueP isKindOfClass: NSStringClass])
+                if ([*valueP isKindOfClass: GDL2NSStringClass])
                   {
 		    unsigned width = [self width];
 
@@ -1460,7 +1475,7 @@ return nexexp
 					    length: width];
                       }
                   }
-                else if ([*valueP isKindOfClass: NSNumberClass])
+                else if ([*valueP isKindOfClass: GDL2NSNumberClass])
                   {
                     // TODO ??
                   }
@@ -1515,12 +1530,24 @@ return nexexp
 {
   if (_valueClass)
     return _valueClass;
-
-  if ([self isFlattened])
+  else if ([self isFlattened])
     return [[_definitionArray realAttribute] _valueClass];
-
-  return [_prototype _valueClass];
+  else
+    return [_prototype _valueClass];
 }
+
+- (char)_valueTypeChar
+{
+  char valueTypeChar=_valueTypeChar;
+  if (valueTypeChar=='\0')
+    {
+      // Compute it
+      NSString* valueType=[self valueType];
+      if ([valueType length]==1)
+        valueTypeChar=(char)[valueType characterAtIndex:0];
+    }
+  return valueTypeChar;
+};
 
 @end
 

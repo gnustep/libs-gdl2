@@ -34,6 +34,7 @@
 - (EOAttribute *)realAttribute;
 
 - (Class)_valueClass;
+- (char)_valueTypeChar;
 @end
 
 @interface EOAttribute (EOAttributePrivate2)

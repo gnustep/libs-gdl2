@@ -73,5 +73,6 @@
 
 @end
 
+GDL2ACCESS_EXPORT NSDictionary* EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,EOGlobalID* gid);
 
 #endif /* __EODatabaseContextPriv_h__ */

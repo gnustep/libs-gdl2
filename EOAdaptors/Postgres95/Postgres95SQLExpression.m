@@ -43,6 +43,9 @@ RCS_ID("$Id$")
 #include <Foundation/Foundation.h>
 #endif
 
+#include <Foundation/NSDecimal.h>
+#include <Foundation/NSDecimalNumber.h>
+
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSCategories.h>
@@ -51,6 +54,7 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
@@ -62,6 +66,10 @@ RCS_ID("$Id$")
 #include "Postgres95Values.h"
 
 #include "Postgres95Compatibility.h"
+
+static SEL postgres95FormatSEL=NULL;
+
+static IMP NSCalendarDatePostgres95FormatIMP=NULL;
 
 /* These methods are undocumented but exist in GDL2 and WO4.5. 
    Ayers: Review (Don't rely on them) */
@@ -76,6 +84,20 @@ RCS_ID("$Id$")
 
 
 @implementation Postgres95SQLExpression
+
++ (void) initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      GDL2PrivInit();
+
+      postgres95FormatSEL=@selector(postgres95Format);
+
+      NSCalendarDatePostgres95FormatIMP=[GDL2NSCalendarDateClass 
+                                          methodForSelector:postgres95FormatSEL];
+    };
+};
 
 + (NSString *)formatValue: (id)value
              forAttribute: (EOAttribute *)attribute
@@ -134,9 +156,77 @@ RCS_ID("$Id$")
     {
       EOFLOGObjectLevelArgs(@"EOSQLExpression",
 			    @"float case - value=%@ class=%@",
-			    value, [value class]);      
+			    value, [value class]);
 
-      formatted = [NSString stringWithFormat: @"%@", value];
+      if (_isNilOrEONull(value))
+        formatted=@"NULL";
+      else 
+        {
+          unsigned short precision=[attribute precision];
+          short scale=[attribute scale];
+          EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                                @"float case - value=%@ class=%@ precision=%d scale=%d",
+                                value, [value class],precision,scale);
+          // As far as I understand, we need to try to do complex things if precision!=0 or scale!=0 
+          if (precision==0 && scale==0)
+            {
+              // just convert it to string...
+              formatted = [NSString stringWithFormat: @"%@", value];
+            }
+          else
+            {
+              NSDecimalNumber* decimalValue=nil;
+              if ([value isKindOfClass: GDL2NSDecimalNumberClass] == NO)
+                {
+                  if ([value isKindOfClass: GDL2NSStringClass] == YES)
+                    {
+                      decimalValue=[NSDecimalNumber decimalNumberWithString:value];
+                      EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                                            @"float case - value [%@]=%@ ==> decimalValue=%@",
+                                            value,[value class],decimalValue);
+                    }
+                  else if ([value respondsToSelector: @selector(doubleValue)])
+                    {
+                      decimalValue=(NSDecimalNumber*)[[[NSDecimalNumber alloc]initWithDouble:[value doubleValue]] autorelease];
+                      EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                                            @"float case - value [%@]=%@ ==> decimalValue=%@",
+                                            value,[value class],decimalValue);
+                    }
+                  else if ([value respondsToSelector: @selector(floatValue)])
+                    {
+                      decimalValue=(NSDecimalNumber*)[[[NSDecimalNumber alloc]initWithFloat:[value floatValue]] autorelease];
+                      EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                                            @"float case - value [%@]=%@ ==> decimalValue=%@",
+                                            value,[value class],decimalValue);
+                    }
+                  else if ([value respondsToSelector: @selector(intValue)])
+                    {
+                      decimalValue=(NSDecimalNumber*)[[[NSDecimalNumber alloc]initWithInt:[value intValue]] autorelease];
+                      EOFLOGObjectLevelArgs(@"EOSQLExpression",
+                                            @"float case - value [%@]=%@ ==> decimalValue=%@",
+                                            value,[value class],decimalValue);
+                    };
+                  if (decimalValue)
+                    {
+                      NSDecimal decimal;
+                      NSDecimalNumberHandler* handler=[NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundPlain // Is Plain OK ?
+                                                                              scale:scale
+                                                                              raiseOnExactness:YES
+                                                                              raiseOnOverflow:YES
+                                                                              raiseOnUnderflow:YES
+                                                                              raiseOnDivideByZero:YES];
+                      decimalValue=[decimalValue decimalNumberByRoundingAccordingToBehavior:handler];
+                      decimal=[decimalValue decimalValue];
+                      formatted=NSDecimalString(&decimal,nil);
+                    }
+                  else
+                    {
+                      // Not supported type: just convert it to string...
+                      formatted = [NSString stringWithFormat: @"%@", value];
+                    };
+                };
+            };
+        };
 
       // value was for example 0 length string
       if ([formatted length] == 0)
@@ -148,7 +238,7 @@ RCS_ID("$Id$")
 			    @"BOOL case - value=%@ class=%@",
 			    value, [value class]);          
 
-      if ([value isKindOfClass: [NSNumber class]] == YES)
+      if ([value isKindOfClass: GDL2NSNumberClass] == YES)
         {
           BOOL boolValue = [value boolValue];
 
@@ -208,12 +298,14 @@ RCS_ID("$Id$")
 		    value, value, [value class]);
         }
       // Value can also be a string...
-      if ([value isKindOfClass:[NSDate class]])
+      if ([value isKindOfClass: GDL2NSDateClass])
         {
+          NSString *format = (*NSCalendarDatePostgres95FormatIMP)
+            (GDL2NSCalendarDateClass,postgres95FormatSEL);
+
           formatted = [NSString stringWithFormat: @"'%@'",
                                 [value
-                                  descriptionWithCalendarFormat:
-                                    [NSCalendarDate postgres95Format]//@"%d/%m/%Y %H:%M:%S"
+                                  descriptionWithCalendarFormat:format
                                   timeZone: nil
                                   locale: nil]];
         }
@@ -240,7 +332,7 @@ RCS_ID("$Id$")
 	  PQfreemem (escapedString);
 	}
     }
-  else
+  else // String...
     {
       int length = 0;
 
@@ -289,6 +381,14 @@ RCS_ID("$Id$")
   EOFLOGObjectFnStop();
 
   return formatted;
+}
+
+- (NSString *)externalNameQuoteCharacter
+{
+  if ([EOSQLExpression useQuotedExternalNames])
+    return @"'";
+  else
+    return @"";
 }
 
 - (NSString *)lockClause
@@ -459,7 +559,8 @@ RCS_ID("$Id$")
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entity=%@", entity);
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_aliasesByRelationshipPath=%@",
                         _aliasesByRelationshipPath);
-      
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_flags.hasOuterJoin=%d",
+                        _flags.hasOuterJoin);
 
   contextStackCount=[_contextStack count];
   if (contextStackCount>1 && _flags.hasOuterJoin)
@@ -497,7 +598,7 @@ RCS_ID("$Id$")
               
               EOFLOGObjectLevelArgs(@"EOSQLExpression", 
 				    @"entitiesString=%@", entitiesString);
-              
+
               if (useAliases)
                 [entitiesString appendFormat: @" %@",
                                 [_aliasesByRelationshipPath
@@ -683,6 +784,161 @@ RCS_ID("$Id$")
   EOFLOGObjectFnStop();
 
   return finalEntitiesString;
+}
+
+// Postgres like seems buggy:
+// see http://www.postgresql.org/docs/7.4/interactive/functions-matching.html
+// for exemple "ab" doesn't match [_]b
+
++ (NSString *)sqlPatternFromShellPattern: (NSString *)pattern
+{
+  NSString* sqlPattern=nil;
+  int patternLength=[pattern length];
+  if (patternLength==0)
+    sqlPattern=pattern;
+  else
+    {
+      const char *s, *p, *init = [pattern cString];
+      NSMutableString *str = [NSMutableString stringWithCapacity:
+                                                patternLength];
+      IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
+      
+      for (s = p = init; *s; s++)
+        {
+          switch (*s)
+            {
+            case '*':
+              if (s != p)
+                GDL2AppendStringWithImp(str,appendStringIMP,
+                                        GDL2StringWithCStringAndLength(p,s-p));
+              [str appendString: @"%"];
+              p = s+1;
+              break;
+            case '?':
+              if (s != p)
+                GDL2AppendStringWithImp(str,appendStringIMP,
+                                        GDL2StringWithCStringAndLength(p,s-p));
+              (*appendStringIMP)(str,GDL2_appendStringSEL,@"_");
+              p = s+1;
+              break;
+            case '%':
+              if (s != p)
+                GDL2AppendStringWithImp(str,appendStringIMP,
+                                        GDL2StringWithCStringAndLength(p,s-p));
+              
+              if (s != init && *(s-1) == '[' && *(s+1) == ']')
+                {
+                  (*appendStringIMP)(str,GDL2_appendStringSEL,@"%]");
+                  p = s+2; s++;
+                }
+              else
+                {
+                  (*appendStringIMP)(str,GDL2_appendStringSEL,@"[%]");
+                  p = s+1;
+                }
+              break;
+/*Postgresql doesn't want [_] but want _
+            case '_':
+              if (s != p)
+                (*appendStringIMP)(str,GDL2_appendStringSEL,
+                                   (*stringWithCString_lengthIMP)
+                                   (GDL2NSStringClass,GDL2_stringWithCString_lengthSEL,p,s-p));
+              
+              if (s != init && *(s-1) == '[' && *(s+1) == ']')
+                {
+                  (*appendStringIMP)(str,GDL2_appendStringSEL,@"_]");
+                  p = s+2; p++;
+                }
+              else
+                {
+                  (*appendStringIMP)(str,GDL2_appendStringSEL,@"[_]");
+                  p = s+1;
+                }
+              break;
+*/
+            }
+        }
+      
+      if (*p)
+        (*appendStringIMP)(str,GDL2_appendStringSEL,[NSString stringWithCString:p]);
+
+      sqlPattern=str;
+    };
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"pattern=%@ => %@",
+			pattern,sqlPattern);
+
+  return sqlPattern;
+}
+
++ (NSString *)sqlPatternFromShellPattern: (NSString *)pattern
+                     withEscapeCharacter: (unichar)escapeCharacter
+{
+  const char *s, *p, *init = [pattern cString];
+  NSMutableString *str = [NSMutableString stringWithCapacity:
+					    [pattern length]];
+  IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
+
+  for (s = p = init; *s; s++)
+    {
+      switch (*s)
+        {
+	case '*':
+	  if (s != p)
+            GDL2AppendStringWithImp(str,appendStringIMP,
+                                    GDL2StringWithCStringAndLength(p,s-p));
+	  GDL2AppendStringWithImp(str,appendStringIMP,@"%");
+	  p = s+1;
+	  break;
+	case '?':
+	  if (s != p)
+            GDL2AppendStringWithImp(str,appendStringIMP,
+                                    GDL2StringWithCStringAndLength(p,s-p));
+	  GDL2AppendStringWithImp(str,appendStringIMP,@"_");
+	  p = s+1;
+	  break;
+	case '%':
+	  if (s != p)
+            GDL2AppendStringWithImp(str,appendStringIMP,
+                                    GDL2StringWithCStringAndLength(p,s-p));
+	  
+	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
+	    {
+	      GDL2AppendStringWithImp(str,appendStringIMP,@"%]");
+	      p = s+2; s++;
+	    }
+	  else
+	    {
+	      GDL2AppendStringWithImp(str,appendStringIMP,@"[%]");
+	      p = s+1;
+	    }
+	  break;
+/*Postgresql doesn't want [_] but want _
+	case '_':
+	  if (s != p)
+	    GDL2AppendStringWithImp(str,appendStringIMP,
+            (*stringWithCString_lengthIMP)
+            (GDL2NSStringClass,GDL2_stringWithCString_lengthSEL,p,s-p));
+	  
+	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
+	    {
+	      GDL2AppendStringWithImp(str,appendStringIMP,@"_]");
+	      p = s+2; p++;
+	    }
+	  else
+	    {
+	      GDL2AppendStringWithImp(str,appendStringIMP,@"[_]");
+	      p = s+1;
+	    }
+	  break;
+*/
+        }
+    }
+
+  if (*p)
+    GDL2AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString:p]);
+
+  return str;
 }
 
 - (NSString *)columnTypeStringForAttribute:(EOAttribute *)attribute

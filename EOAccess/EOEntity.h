@@ -273,6 +273,15 @@ GDL2ACCESS_EXPORT NSString *EONextPrimaryKeyProcedureOperation;
 
 @end
 
+/** Useful  private methods made public in GDL2 **/
+@interface EOEntity (EOEntityGDL2Additions)
+
+/** Returns attribute (if any) for path **/
+- (EOAttribute *)attributeForPath: (NSString *)path;
+
+/** Returns relationship (if any) for path **/
+- (EORelationship *)relationshipForPath: (NSString *)path;
+@end
 
 @interface EOEntityClassDescription : EOClassDescription
 {

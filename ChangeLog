@@ -1,3 +1,123 @@
+2005-02-11  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOAccess/EOAdaptor.m:
+		o optimization in 'for' loops
+	* EOAccess/EODatabase.m:
+		o include <EOCOntrol/EOPriv.h>
+		o replaced isNilOrEONull() by _isNilOrEONull()
+	* EOAccess/EODatabaseContext.h:
+		o added _snapshotForGlobalIDIMP
+	* EOAccess/EODatabaseContext.m:
+		o commented  NSEmitTODO in -objectsForSourceGlobalID:relationshipName:editingContext:
+		o added beter exception format in qualifierForLockingAttributes:primaryKeyAttributes:entity:snapshot:
+		o fix compiler warning in -relayPrimaryKey:object:entity:
+		o logs
+		o optimizations in -objectsWithFetchSpecification:editingContext:
+		o replaced isNilOrEONull() by _isNilOrEONull()
+		o replace [EOFault isFault:] by _isFault()
+		o use _snapshotForGlobalIDIMP
+		o IMP usage optimization
+	* EOAccess/EOAttribute.[hm]:
+		o added EOAdaptorUnknownType
+		o added _adaptorValueType and avoid recomputing it each time
+		o added _valueTypeChar to avoid string comparaisons
+		o use EOPriv classes declarations
+		o Temporary reverted David changes in -adaptorValueByConvertingAttributeValue
+	* EOAccess/EOAttributePriv.h:
+		o added _valueTypeChar to avoid string comparaisons
+	* EOAccess/EOEntityPriv.h:
+		o moved -attributeForPath: and -relationshipForPath: to EOEntityGDL2Additions category
+	* EOAccess/EOEntity.h:
+		o moved private -attributeForPath: and -relationshipForPath: to EOEntityGDL2Additions category
+	* EOAccess/EOEntity.m:
+		o better exception in classProperties
+		o fix compiler warning in -setClassProperties:, -setPrimaryKeyAttributes:,
+			-setAttributesUsedForLocking:
+		o moved -attributeForPath: and -relationshipForPath: to EOEntityGDL2Additions category
+		o include <EOCOntrol/EOPriv.h>
+		o replaced [EONull null] by GDL2EONull
+	* EOAccess/EOSQLExpression.m:
+		o optimization in -tableListWithRootEntity:
+		o optimization in -formatSQLString:format:
+		o optimization in +sqlPatternFromShellPattern:
+		o optimization in +sqlPatternFromShellPattern:withEscapeCharacter:
+		o fix in -sqlStringForKeyValueQualifier:
+		o added log in -sqlStringForKeyValueQualifier: for not handled readFormat
+		o added log -addInsertListAttribute:value: for not handled writeFormat
+		o added log -addUpdateListAttribute:value: for not handled writeFormat
+		o changed  EOFLOGObjectFnStart to EOFLOGObjectFnStartCond
+		o changed  EOFLOGObjectFnStop to EOFLOGObjectFnStopCond
+		o include <EOCOntrol/EOPriv.h>
+		o replaced [EONull null] by GDL2EONull
+	* EOAccess/EOSQLQualifier.m:
+		o implemented EOKeyComparisonQualifier -schemaBasedQualifierWithRootEntity
+	* EOAccess/EOUtilities.m:
+		o include <EOCOntrol/EOPriv.h>
+		o replaced [EONull null] by GDL2EONull
+	* EOControl/EOPriv.[hm]:
+		o added. Contains various classes/selectors/IMPs
+	* EOControl/EOClassDescription.m:
+		o handle EONull case in -propagateDeleteForObject:editingContext:, 
+			-addObject:toPropertyWithKey:, -snapshot, -removeObject:fromPropertyWithKey:,
+			_setObject:forBothSidesOfRelationshipWithKey:, addObject:toBothSidesOfRelationshipWithKey:,
+			-removeObject:fromBothSidesOfRelationshipWithKey:
+		o fix compiler warning in -dictionaryForInstanceProperties, -shallowCopy, -updateFromSnapshot:, -snapshot
+		o include <EOCOntrol/EOPriv.h>
+		o replaced [EONull null] by GDL2EONull
+		o replaced isNilOrEONull() by _isNilOrEONull()
+		o fix in -validateForSave
+		o rewritten -validateValue:forKey: selector build
+	* EOControl/EOEditingContext.h:
+		o added -hasUnprocessedChanges
+	* EOControl/EOEditingContext.m:
+		o added -hasUnprocessedChanges
+		o added NS_DURING,... to catch exceptions
+		o replace [EOFault isFault:] by _isFault()
+		o IMP usage optimization
+	* EOControl/EOKeyGlobalID.m:
+		o replaced isNilOrEONull() by _isNilOrEONull()
+		o include <EOCOntrol/EOPriv.h>
+	* EOControl/EOGenericRecord.m:
+		o partially rewritten -description
+		o include <EOCOntrol/EOPriv.h>
+		o replaced isNilOrEONull() by _isNilOrEONull()
+		o replace [EOFault isFault:] by _isFault()
+		o changed variable name type of _infoForInstanceVariableNamed:retType:retSize:retOffset:
+		o rewritten valueForKey:,... to use cString NSKeyValueCoding
+	* EOControl/EOKeyValueCoding.m:
+		o changed NSAssert in NSArray -valueForKey:
+		o optimization in NSDictionary -takeValue:forKeyPath:isSmart:
+		o optimization in NSDictionary -takeStoredValue:forKeyPath:
+		o include <EOCOntrol/EOPriv.h>
+		o replaced [EONull null] by GDL2EONull
+		o include <EOCOntrol/EOPriv.h>
+	* EOControl/EOKeyValueQualifier.m:
+		o fixes for EONull/nil in -evaluateWithObject:
+		o replaced [EONull null] by GDL2EONull
+		o include <EOCOntrol/EOPriv.h>
+	* EOControl/EOSortOrdering.m:
+		o include <EOCOntrol/EOPriv.h>
+		o replaced [EONull null] by GDL2EONull
+	* EOAdaptors/Postgres95SQLExpression.m:
+		o float formatting in +formatValue:forAttribute:
+		o added -externalNameQuoteCharacter
+		o added +sqlPatternFromShellPattern:
+		o added +sqlPatternFromShellPattern:withEscapeCharacter:
+		o replaced isNilOrEONull() by _isNilOrEONull()
+	* EOAdaptors/Postgres95Channel.m:
+		o logs
+	* EOAdaptors/Postgres95Values.m:
+		o logs
+		o fix in +setPostgres95Format:
+		o fix calendard format to handle timezone (%z)
+		o optimizations
+	* EOControl/EOMutableKnownKeyDictionary.m
+		o removed EOMKKDArrayMapping +dictionaryFromDictionary:subsetMapping:
+		o include <EOCOntrol/EOPriv.h>
+		o replaced isNilOrEONull() by _isNilOrEONull()
+	* EOControl/EONSAddOns.[hm]:
+		o added NSString(ShellPattern)
+
 2005-02-10  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOEditingContext.m (_globalIDChanged:): Make assert

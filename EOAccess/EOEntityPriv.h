@@ -126,8 +126,6 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path;
 - (id)classPropertyToManyRelationshipNames;
 - (id)classPropertyToOneRelationshipNames;
 - (id)qualifierForDBSnapshot: (id)param0;
-- (EOAttribute *)attributeForPath: (NSString *)path;
-- (EORelationship *)relationshipForPath: (NSString *)path;
 - (void)_addAttributesToFetchForRelationshipPath: (NSString *)path
 					    atts: (NSMutableDictionary *)atts;
 - (id)dbSnapshotKeys;

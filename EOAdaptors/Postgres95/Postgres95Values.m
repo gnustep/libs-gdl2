@@ -55,7 +55,9 @@ RCS_ID("$Id$")
 
 
 #include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOAttributePriv.h>
 #include <EOControl/EONSAddOns.h>
+#include <EOControl/EOPriv.h>
 
 #include "Postgres95EOAdaptor/Postgres95Adaptor.h"
 #include "Postgres95EOAdaptor/Postgres95Channel.h"
@@ -67,8 +69,24 @@ void __postgres95_values_linking_function (void)
 {
 }
 
+static SEL postgres95FormatSEL=NULL;
+static IMP GDL2NSCalendarDate_postgres95FormatIMP=NULL;
+
 @implementation Postgres95Values
 
++ (void) initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      GDL2PrivInit();
+
+      postgres95FormatSEL=@selector(postgres95Format);
+
+      GDL2NSCalendarDate_postgres95FormatIMP=[GDL2NSCalendarDateClass 
+                                          methodForSelector:postgres95FormatSEL];
+    };
+};
 
 + (id)newValueForBytes: (const void *)bytes
                 length: (int)length
@@ -92,59 +110,105 @@ void __postgres95_values_linking_function (void)
       return [self newValueForDateType: bytes
 		   length: length
 		   attribute: attribute];
+    case EOAdaptorUnknownType:
+      NSAssert1(NO,
+                @"Bad (EOAdaptorUnknownType) adaptor type for attribute : %@",
+                attribute);
+      return nil;
+    default:
+      NSAssert2(NO,
+                @"Bad (%d) adaptor type for attribute : %@",
+                (int)[attribute adaptorValueType],attribute);
+      return nil;
     }
-
-    return nil;
 }
 
 /**
 For efficiency reasons, the returned value is NOT autoreleased !
+bytes is null terminated (cf Postgresql doc) and length is equivalent 
+to strlen(bytes)
 **/
 + (id)newValueForNumberType: (const void *)bytes
                      length: (int)length
                   attribute: (EOAttribute *)attribute
-{
-  NSString *str = nil;
+{  
   id value = nil;
+  NSString* externalType=nil;
+  
+  externalType=[attribute externalType];
 
-  if ([[attribute externalType] isEqualToString: @"bool"])
+  if (length==1 // avoid -isEqualToString if we can :-)
+      && [externalType isEqualToString: @"bool"])
     {
       if (((char *)bytes)[0] == 't' && ((char *)bytes)[1] == 0)
-	return [[NSNumber alloc] initWithBool:YES];
-      if (((char *)bytes)[0] == 'f' && ((char *)bytes)[1] == 0)
-	return [[NSNumber alloc] initWithBool:NO];
+	value=RETAIN(GDL2NSNumberBool_Yes);
+      else if (((char *)bytes)[0] == 'f' && ((char *)bytes)[1] == 0)
+	value=RETAIN(GDL2NSNumberBool_No);
+      else
+        NSAssert1(NO,@"Bad boolean: %@",[NSString stringWithCString:bytes
+                                                  length:length]);
     }
-
-  str = [[NSString alloc] initWithCString:(char *)bytes length:length];
-
-  if ([[attribute valueClassName] isEqualToString: @"NSDecimalNumber"])
-    value = [[NSDecimalNumber alloc] initWithString: str];
-  else if ([[attribute valueType] isEqualToString: @"i"])
-    value = [[NSNumber alloc] initWithInt: [str intValue]];
-  else if ([[attribute valueType] isEqualToString: @"I"])
-    value = [[NSNumber alloc] initWithUnsignedInt: [str unsignedIntValue]];
-  else if ([[attribute valueType] isEqualToString: @"c"])
-    value = [[NSNumber alloc] initWithChar: [str intValue]];
-  else if ([[attribute valueType] isEqualToString: @"C"])
-    value = [[NSNumber alloc] numberWithUnsignedChar: [str unsignedIntValue]];
-  else if ([[attribute valueType] isEqualToString: @"s"])
-    value = [[NSNumber alloc] initWithShort: [str shortValue]];
-  else if ([[attribute valueType] isEqualToString: @"S"])
-    value = [[NSNumber alloc] initWithUnsignedShort: [str unsignedShortValue]];
-  else if ([[attribute valueType] isEqualToString: @"l"])
-    value = [[NSNumber alloc] initWithLong: [str longValue]];
-  else if ([[attribute valueType] isEqualToString: @"L"])
-    value = [[NSNumber alloc] initWithUnsignedLong: [str unsignedLongValue]];
-  else if ([[attribute valueType] isEqualToString: @"u"])
-    value = [[NSNumber alloc] initWithLongLong: [str longLongValue]];
-  else if ([[attribute valueType] isEqualToString: @"U"])
-    value = [[NSNumber alloc] initWithUnsignedLongLong: [str unsignedLongLongValue]];
-  else if ([[attribute valueType] isEqualToString: @"f"])
-    value = [[NSNumber alloc] initWithFloat: [str floatValue]];
   else
-    value = [[NSNumber alloc] initWithDouble: [str doubleValue]];
+    {
+      Class valueClass=[attribute _valueClass];
 
-  [str release];
+      if (valueClass==GDL2NSDecimalNumberClass)
+        {
+          NSString* str = [GDL2NSString_alloc() initWithCString:bytes
+                                             length:length];
+          
+          value = [GDL2NSDecimalNumber_alloc() initWithString: str];
+
+          RELEASE(str);
+        }
+      else
+        {
+          char valueTypeChar=[attribute _valueTypeChar];
+          switch(valueTypeChar)
+            {
+            case 'i':
+              value = [GDL2NSNumber_alloc() initWithInt: atoi(bytes)];
+              break;
+            case 'I':
+              value = [GDL2NSNumber_alloc() initWithUnsignedInt:(unsigned int)atol(bytes)];
+              break;
+            case 'c':
+              value = [GDL2NSNumber_alloc() initWithChar: atoi(bytes)];
+              break;
+            case 'C':
+              value = [GDL2NSNumber_alloc() initWithUnsignedChar: (unsigned char)atoi(bytes)];
+              break;
+            case 's':
+              value = [GDL2NSNumber_alloc() initWithShort: (short)atoi(bytes)];
+              break;
+            case 'S':
+              value = [GDL2NSNumber_alloc() initWithUnsignedShort: (unsigned short)atoi(bytes)];
+              break;
+            case 'l':
+              value = [GDL2NSNumber_alloc() initWithLong: atol(bytes)];
+              break;
+            case 'L':
+              value = [GDL2NSNumber_alloc() initWithUnsignedLong:strtoul(bytes,NULL,10)];
+              break;
+            case 'u':
+              value = [GDL2NSNumber_alloc() initWithLongLong:atoll(bytes)];
+              break;
+            case 'U':
+              value = [GDL2NSNumber_alloc() initWithUnsignedLongLong:strtoull(bytes,NULL,10)];
+              break;
+            case 'f':
+              value = [GDL2NSNumber_alloc() initWithFloat: strtof(bytes,NULL)];
+              break;
+            case 'd':
+            case '\0':
+              value = [GDL2NSNumber_alloc() initWithDouble: strtod(bytes,NULL)];
+              break;
+            default:
+              NSAssert2(NO,@"Unknown attribute valueTypeChar: %c for attribute: %@",
+                        valueTypeChar,attribute);
+            };
+        };
+    };
 
   return value;
 }
@@ -158,7 +222,7 @@ For efficiency reasons, the returned value is NOT autoreleased !
 {
   return [attribute newValueForBytes: bytes
 		    length: length
-		    encoding: [NSString defaultCStringEncoding]];
+		    encoding: [NSString defaultCStringEncoding]];//TODO OPTIM
 }
 
 /**
@@ -170,7 +234,7 @@ For efficiency reasons, the returned value is NOT autoreleased !
 {
   size_t newLength = length;
   unsigned char *decodedBytes = 0;
-  id data;
+  id data = nil;
 
   if ([[attribute externalType] isEqualToString: @"bytea"])
     {
@@ -195,17 +259,27 @@ For efficiency reasons, the returned value is NOT autoreleased !
                    length: (int)length
                 attribute: (EOAttribute *)attribute
 {
-  id d;
-  NSString *str = [NSString stringWithCString: bytes length: length];
-  NSString *format = [NSCalendarDate postgres95Format];
+  id date=nil;
+  NSString *str = [GDL2NSString_alloc() initWithCString:(const char *)bytes
+                                     length:length];
+  NSString *format = (*GDL2NSCalendarDate_postgres95FormatIMP)
+    (GDL2NSCalendarDateClass,postgres95FormatSEL);
 
-  d = [[NSCalendarDate alloc] initWithString: str
-			      calendarFormat: format];
-  // TODO server TZ ?
+  NSDebugMLLog(@"gsdb",@"str=%@ format=%@",str,format);  
 
-  NSDebugMLLog(@"gsdb",@"str=%@ d=%@ format=%@",str,d,format);  
+  date = [GDL2NSCalendarDate_alloc() initWithString: str
+                                  calendarFormat: format];
 
-  return d;
+  NSDebugMLLog(@"gsdb",@"str=%@ d=%@ dtz=%@ format=%@",str,date,[date timeZone],format);  
+
+  //We may have some 'invalid' date so it's better to stop here
+  NSAssert2(date,
+            @"No date created for string '%@' for attribute: %@",
+            str,attribute);
+
+  RELEASE(str);
+
+  return date;
 }
 
 
@@ -327,12 +401,13 @@ if ([type isEqual:@"bytea"])
 
 + (NSString*)postgres95Format
 {
-  return @"%Y-%m-%d %H:%M:%S";
+  return @"%Y-%m-%d %H:%M:%S%z";
 }
 
 + (void)setPostgres95Format: (NSString*)dateFormat
 {
-  NSLog(@"%@ - is deprecated.  The adaptor always uses ISO format.");
+  NSLog(@"%@ - is deprecated.  The adaptor always uses ISO format.",
+        NSStringFromSelector(_cmd));
 }
 
 

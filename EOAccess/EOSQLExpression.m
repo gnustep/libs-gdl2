@@ -63,6 +63,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EONull.h>
+#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
@@ -88,12 +89,20 @@ NSString *EOBindVariableValueKey = @"EOBindVariableValueKey";
 NSString *EOBindVariablePlaceHolderKey = @"EOBindVariablePlaceHolderKey";
 NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
-
 @interface EOSQLExpression(Private)
 + (id)sqlExpressionWithEntity: (EOEntity *)entity;
 @end
 
 @implementation EOSQLExpression
+
++ (void) initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      GDL2PrivInit();
+    };
+};
 
 + (id)sqlExpressionWithEntity: (EOEntity *)entity
 {
@@ -340,12 +349,13 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 // insert: ret quotation_place ?? / select: ret quotation_place t0
 
   NSMutableString *entitiesString = [NSMutableString string];
-  NSEnumerator *relationshipEnum;
-  NSString *relationshipPath;
-  EOEntity *currentEntity;
+  IMP entitiesStringAppendStringIMP = NULL;
+  NSEnumerator *relationshipEnum = nil;
+  NSString *relationshipPath = nil;
+  EOEntity *currentEntity = nil;
   int i = 0;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entity=%@", entity);
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_aliasesByRelationshipPath=%@",
@@ -357,7 +367,10 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
       currentEntity = entity;
 
       if (i)
-	[entitiesString appendString: @", "];
+	GDL2AppendStringWithImp(entitiesString,
+                                entitiesStringAppendStringIMP,@", ");
+      else
+        entitiesStringAppendStringIMP = [entitiesString methodForSelector:GDL2_appendStringSEL];
 
       if ([relationshipPath isEqualToString: @""])
         {
@@ -374,7 +387,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 		    @"No external name for entity %@",
                     [currentEntity name]);
 
-	  [entitiesString appendString: tableName];
+	  GDL2AppendStringWithImp(entitiesString,
+                                  entitiesStringAppendStringIMP,tableName);
 
 	  if (_flags.useAliases)
 	    [entitiesString appendFormat: @" %@",
@@ -385,7 +399,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
         {
 	  NSEnumerator *defEnum = nil;
 	  NSArray *defArray = nil;
-	  NSString *relationshipString;
+	  NSString *relationshipString = nil;
           NSString *tableName = nil;
 
 	  defArray = [relationshipPath componentsSeparatedByString: @"."];
@@ -421,14 +435,18 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 		    @"No external name for entity %@",
                     [currentEntity name]);
 
-	  [entitiesString appendString: tableName];
+	  GDL2AppendStringWithImp(entitiesString,
+                                  entitiesStringAppendStringIMP,tableName);
 
 	  if (_flags.useAliases)
             {
               NSString *alias = [_aliasesByRelationshipPath
 				  objectForKey: relationshipPath];
 
-              [entitiesString appendFormat: @" %@",alias];
+              GDL2AppendStringWithImp(entitiesString,
+                                  entitiesStringAppendStringIMP,@" ");
+              GDL2AppendStringWithImp(entitiesString,
+                                  entitiesStringAppendStringIMP,alias);
 
               EOFLOGObjectLevelArgs(@"EOSQLExpression",
 				    @"appending alias %@ in entitiesString",
@@ -443,7 +461,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
                         @"entitiesString=%@",
                         entitiesString);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return entitiesString;
 }
@@ -456,7 +474,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   NSEnumerator *rowEnum;
   NSString *attributeName;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"row=%@", row);
 
@@ -505,7 +523,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_statement=%@", _statement);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 }
 
 - (void)prepareUpdateExpressionWithRow: (NSDictionary *)row
@@ -519,7 +537,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   NSEnumerator *rowEnum;
   NSString *attributeName;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   rowEnum = [row keyEnumerator];
   while ((attributeName = [rowEnum nextObject]))
@@ -550,7 +568,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   ASSIGN(_statement, statement);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 }
 
 - (void)prepareDeleteExpressionForQualifier: (EOQualifier *)qualifier
@@ -576,7 +594,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   NSString *lockClause = nil;
   NSArray *sortOrderings;
 
-  EOFLOGObjectFnStartOrCond(@"EOSQLExpression");
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   // Turbocat (RawRow Additions)
   if ([fetchSpecification rawRowKeyPaths]) {
@@ -638,7 +656,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 					  _orderByString : nil)
 			   lockClause:lockClause]);
 
-  EOFLOGObjectFnStopOrCond(@"EOSQLExpression");
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 }
 */
 
@@ -659,7 +677,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   //Add Attributes to listString
   int i, count = [attributes count];
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   //OK
   for (i = 0; i < count; i++)
@@ -764,7 +782,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 		    lockClause: lockClauseString];
   ASSIGN(_statement, statement);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 }
 
 - (NSString *)assembleJoinClauseWithLeftName: (NSString *)leftName
@@ -774,7 +792,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   NSString *op = nil;
   NSString *joinClause = nil;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"join parts=%@ %d %@",
 			leftName,
@@ -809,7 +827,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"joinClause=%@", joinClause);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return joinClause;
 }
@@ -820,7 +838,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 {
   NSString *joinClause = nil;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"join parts=%@ %d %@",
 			leftName,
@@ -846,7 +864,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_joinClauseString=%@",
 			_joinClauseString);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 }
 
 /** Build join expression for all used relationships (call this) after all other query parts construction) **/
@@ -856,7 +874,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   NSEnumerator *relationshipEnum;
   NSString *relationshipPath;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_aliasesByRelationshipPath=%@",
 			_aliasesByRelationshipPath);
@@ -950,7 +968,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
         }
     }
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 }
 
 - (NSString *)assembleInsertStatementWithRow: (NSDictionary *)row
@@ -999,7 +1017,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 { //TODO selectString ??
   NSMutableString *sqlString;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attributes=%@", attributes);
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"qualifier=%@", qualifier);
@@ -1038,7 +1056,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
     [sqlString appendFormat: @" ORDER BY %@", orderByClause];
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return sqlString;
 }
@@ -1070,7 +1088,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   NSMutableString *listString;
   NSString *attributeSQLString;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attribute name=%@",
 			[attribute name]);
@@ -1114,7 +1132,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
       writeFormat = [attribute writeFormat];
       if ([writeFormat length] > 0)
         {
-          //TODO
+          NSEmitTODO();  //TODO
+          NSDebugMLog(@"writeFormat '%@' not yet handled",writeFormat);
         }
 
       valueList = [self valueList];
@@ -1128,7 +1147,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
     }
   NS_ENDHANDLER;
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 }
 
 - (void)addUpdateListAttribute: (EOAttribute *)attribute
@@ -1141,7 +1160,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   NSString *valueSQLString;
   NSString *writeFormat;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   attributeSQLString = [self sqlStringForAttribute: attribute];
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attributeSQLString=%@",
@@ -1156,7 +1175,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   if ([writeFormat length] > 0)
     {
-      //TODO
+      NSEmitTODO();  //TODO
+      NSDebugMLog(@"writeFormat '%@' not yet handled",writeFormat);
     }
 
   listString = [self listString];
@@ -1167,7 +1187,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   [self appendItem: sqlStringToAdd
         toListString: listString];
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 }
 
 + (NSString *)formatStringValue: (NSString *)string
@@ -1193,7 +1213,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 //mirko new:return [value sqlString];
   NSString *formattedValue = nil;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @" value=%@ class=%@",
 			value, [value class]);
@@ -1209,9 +1229,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	  string = [value sqlString];
 
 	  EOFLOGObjectLevelArgs(@"EOSQLExpression", @" value %p=%@ null %p=%@",
-				value, value, [EONull null], [EONull null]);
+				value, value, GDL2EONull, GDL2EONull);
 
-	  if ([value isEqual: [EONull null]])
+	  if (value == GDL2EONull)
 	    formattedValue = string;
 	  else
 	    formattedValue = [self formatSQLString: [self formatStringValue:
@@ -1226,7 +1246,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
     }
   NS_ENDHANDLER;
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return formattedValue;
 }
@@ -1236,7 +1256,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 {
   NSString *formatted = nil;  
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @" sqlString=%@ format=%@",
 			sqlString, format);
@@ -1252,25 +1272,26 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	  char *s;
 	  NSMutableString *str = [NSMutableString stringWithCapacity:
 						    [format length]];
+          IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
 
 	  while ((s = strchr(p, '%')))
 	    {
 	      switch (*(s + 1))
 		{
 		case '%':
-		  [str appendString: [NSString stringWithCString: p
-					       length: s-p+1]];
+		  GDL2AppendStringWithImp(str,appendStringIMP,
+                                          GDL2StringWithCStringAndLength(p,s-p+1));
 		  break;
 		case 'P':
 		  if (s != p)
-		    [str appendString: [NSString stringWithCString: p
-						 length: s-p]];
+		    GDL2AppendStringWithImp(str,appendStringIMP,
+                                            GDL2StringWithCStringAndLength(p,s-p));
 		  [str appendString: sqlString];
 		  break;
 		default:
 		  if (s != p)
-		    [str appendString: [NSString stringWithCString: p
-						 length: s-p]];
+		    GDL2AppendStringWithImp(str,appendStringIMP,
+                                            GDL2StringWithCStringAndLength(p,s-p));
 		  break;
 		}
 
@@ -1278,7 +1299,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	    }
 
 	  if (*p)
-	    [str appendString: [NSString stringWithCString: p]];
+	    GDL2AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString: p]);
 
 	  formatted = str;
 	}
@@ -1292,7 +1313,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @" formatted=%@", formatted);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return formatted;
 }
@@ -1306,7 +1327,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   int i, count;
   int nb=0;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"operation=%@ qualifiers=%@",
                         operation, qualifiers);
@@ -1356,7 +1377,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"operation=%@ qualifiers=%@ count=%d nb=%d sqlString=%@",
                         operation, qualifiers, count, nb, sqlString);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return sqlString;
 }
@@ -1366,14 +1387,14 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   //OK
   NSString *sqlString;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   sqlString = [self sqlStringForArrayOfQualifiers: qualifiers
                     operation: @" AND "];
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return sqlString;
 }
@@ -1383,14 +1404,14 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   //OK
   NSString *sqlString;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   sqlString = [self sqlStringForArrayOfQualifiers: qualifiers
 		    operation: @" OR "];
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return sqlString;
 }
@@ -1399,7 +1420,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 {
   NSString *sqlQual = nil;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   sqlQual = [(id)qualifier sqlStringForSQLExpression: self];
   if (sqlQual)
@@ -1407,7 +1428,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlQual=%@", sqlQual);
 
-  EOFLOGObjectFnStop();    
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");    
 
   return sqlQual;
 }
@@ -1424,7 +1445,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOAttribute* attribute=nil;
   NSString* readFormat=nil;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"qualifier=%@", qualifier);
 
@@ -1453,10 +1474,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   if (readFormat)
     {
       NSEmitTODO();  //TODO
+      NSDebugMLog(@"readFormat '%@' not yet handled",readFormat);
     }
-
-  valueSQLString = [self sqlStringForValue: value
-			 attributeNamed: key];//OK
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"valueSQLString=%@ qualifier=%@ [qualifier selector]=%p %@",
 			valueSQLString,
@@ -1465,23 +1484,32 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
                         NSStringFromSelector([qualifier selector]));
 
   selectorSQLString = [self sqlStringForSelector: [qualifier selector]
-			    value: value];//OK //value ?? 
+			    value: value];
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"selectorSQLString=%@",
 			selectorSQLString);
 
-  //??
   if (sel_eq([qualifier selector], EOQualifierOperatorLike))
-    valueSQLString = [[self class] sqlPatternFromShellPattern: valueSQLString];
+    {
+      value = [[self class] sqlPatternFromShellPattern: value];
+      valueSQLString = [self sqlStringForValue: value
+                             attributeNamed: key];
+    }
   else if (sel_eq([qualifier selector], EOQualifierOperatorCaseInsensitiveLike))
     {      
-      valueSQLString = [[self class] sqlPatternFromShellPattern: valueSQLString];
-      //VERIFY
+      value = [[self class] sqlPatternFromShellPattern: value];
+
+      valueSQLString = [self sqlStringForValue: value
+                             attributeNamed: key];
+
       attributeSQLString = [NSString stringWithFormat: @"UPPER(%@)",
 				     attributeSQLString];
       valueSQLString = [NSString stringWithFormat: @"UPPER(%@)",
 				 valueSQLString];
     }
+  else
+    valueSQLString = [self sqlStringForValue: value
+                           attributeNamed: key];
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attributeSQLString=%@",
 			attributeSQLString);
@@ -1507,7 +1535,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return sqlString; //return someting like t1.label = 'XXX'
 }
@@ -1627,7 +1655,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EORelationship *rel = nil;
 
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   NSAssert(entity,@"no entity");
   NSAssert(name,@"no attribute name");
@@ -1714,7 +1742,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
                 attribute);
     }
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return sqlString;
 }
@@ -1725,14 +1753,14 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   //seems OK
   if (sel_eq(selector, EOQualifierOperatorEqual))
     {
-      if ([value isKindOfClass: [[EONull null] class]])
+      if (value==GDL2EONull)
         return @"is";
       else
         return @"=";
     }
   else if (sel_eq(selector, EOQualifierOperatorNotEqual))
     {
-      if ([value isKindOfClass: [[EONull null] class]])
+      if (value==GDL2EONull)
         return @"is not";
       else
         return @"<>";
@@ -1766,7 +1794,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOAttribute *attribute;
   NSString *sqlString = nil;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"value=%@", value);
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attributeName=%@",
@@ -1816,7 +1844,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 				format: [attribute readFormat]];
     }
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
 
   return sqlString;
@@ -1826,7 +1854,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 {
   NSString *sqlString = nil;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"anAttribute=%@",
 			anAttribute);
@@ -1956,7 +1984,7 @@ else if([anAttribute isDerived] == YES)
     }
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return sqlString;
 }
@@ -1965,7 +1993,7 @@ else if([anAttribute isDerived] == YES)
 {
   NSString *sqlString = nil;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"path=%@", path);
 
@@ -2027,7 +2055,7 @@ else if([anAttribute isDerived] == YES)
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"path=%@ sqlString=%@", 
                         path, sqlString);
 
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return sqlString;
 }
@@ -2058,67 +2086,79 @@ else if([anAttribute isDerived] == YES)
 
 + (NSString *)sqlPatternFromShellPattern: (NSString *)pattern
 {
-  const char *s, *p, *init = [pattern cString];
-  NSMutableString *str = [NSMutableString stringWithCapacity:
-					    [pattern length]];
-
-  for (s = p = init; *s; s++)
+  NSString* sqlPattern=nil;
+  int patternLength=[pattern length];
+  if (patternLength==0)
+    sqlPattern=pattern;
+  else
     {
-      switch (*s)
+      const char *s, *p, *init = [pattern cString];
+      NSMutableString *str = [NSMutableString stringWithCapacity:
+                                                patternLength];
+      IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
+
+      for (s = p = init; *s; s++)
         {
-	case '*':
-	  if (s != p)
-	    [str appendString: [NSString stringWithCString: p
-					 length: s-p]];
-	  [str appendString: @"%"];
-	  p = s+1;
-	  break;
-	case '?':
-	  if (s != p)
-	    [str appendString:[NSString stringWithCString: p
-					length: s-p]];
-	  [str appendString: @"_"];
-	  p = s+1;
-	  break;
-	case '%':
-	  if (s != p)
-	    [str appendString:[NSString stringWithCString: p
-					length: s-p]];
-	  
-	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
-	    {
-	      [str appendString: @"%]"];
-	      p = s+2; s++;
-	    }
-	  else
-	    {
-	      [str appendString: @"[%]"];
-	      p = s+1;
-	    }
-	  break;
-	case '_':
-	  if (s != p)
-	    [str appendString:[NSString stringWithCString: p
-					length: s-p]];
-	  
-	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
-	    {
-	      [str appendString: @"_]"];
-	      p = s+2; p++;
-	    }
-	  else
-	    {
-	      [str appendString: @"[_]"];
-	      p = s+1;
-	    }
-	  break;
+          switch (*s)
+            {
+            case '*':
+              if (s != p)
+                GDL2AppendStringWithImp(str,appendStringIMP,
+                                        GDL2StringWithCStringAndLength(p,s-p));
+              [str appendString: @"%"];
+              p = s+1;
+              break;
+            case '?':
+              if (s != p)
+                GDL2AppendStringWithImp(str,appendStringIMP,
+                                        GDL2StringWithCStringAndLength(p,s-p));
+              GDL2AppendStringWithImp(str,appendStringIMP,@"_");
+              p = s+1;
+              break;
+            case '%':
+              if (s != p)
+                GDL2AppendStringWithImp(str,appendStringIMP,
+                                        GDL2StringWithCStringAndLength(p,s-p));
+              
+              if (s != init && *(s-1) == '[' && *(s+1) == ']')
+                {
+                  GDL2AppendStringWithImp(str,appendStringIMP,@"%]");
+                  p = s+2; s++;
+                }
+              else
+                {
+                  GDL2AppendStringWithImp(str,appendStringIMP,@"[%]");
+                  p = s+1;
+                }
+              break;
+            case '_':
+              if (s != p)
+                GDL2AppendStringWithImp(str,appendStringIMP,
+                                        GDL2StringWithCStringAndLength(p,s-p));
+              
+              if (s != init && *(s-1) == '[' && *(s+1) == ']')
+                {
+                  GDL2AppendStringWithImp(str,appendStringIMP,@"_]");
+                  p = s+2; p++;
+                }
+              else
+                {
+                  GDL2AppendStringWithImp(str,appendStringIMP,@"[_]");
+                  p = s+1;
+                }
+              break;
+            }
         }
-    }
+      
+      if (*p)
+        GDL2AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString: p]);
+      sqlPattern=str;
+    };
 
-  if (*p)
-    [str appendString: [NSString stringWithCString: p]];
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"pattern=%@ => %@",
+			pattern,sqlPattern);
 
-  return str;
+  return sqlPattern;
 }
 
 + (NSString *)sqlPatternFromShellPattern: (NSString *)pattern
@@ -2127,6 +2167,7 @@ else if([anAttribute isDerived] == YES)
   const char *s, *p, *init = [pattern cString];
   NSMutableString *str = [NSMutableString stringWithCapacity:
 					    [pattern length]];
+  IMP appendStringIMP = [str methodForSelector:GDL2_appendStringSEL];
 
   for (s = p = init; *s; s++)
     {
@@ -2134,47 +2175,47 @@ else if([anAttribute isDerived] == YES)
         {
 	case '*':
 	  if (s != p)
-	    [str appendString: [NSString stringWithCString: p
-					 length: s-p]];
-	  [str appendString: @"%"];
+	    GDL2AppendStringWithImp(str,appendStringIMP,
+                                    GDL2StringWithCStringAndLength(p,s-p));
+	  GDL2AppendStringWithImp(str,appendStringIMP,@"%");
 	  p = s+1;
 	  break;
 	case '?':
 	  if (s != p)
-	    [str appendString: [NSString stringWithCString: p
-					 length: s-p]];
-	  [str appendString: @"_"];
+	    GDL2AppendStringWithImp(str,appendStringIMP,
+                                    GDL2StringWithCStringAndLength(p,s-p));
+	  GDL2AppendStringWithImp(str,appendStringIMP,@"_");
 	  p = s+1;
 	  break;
 	case '%':
 	  if (s != p)
-	    [str appendString:[NSString stringWithCString: p
-					length: s-p]];
+	    GDL2AppendStringWithImp(str,appendStringIMP,
+                                    GDL2StringWithCStringAndLength(p,s-p));
 	  
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      [str appendString: @"%]"];
+	      GDL2AppendStringWithImp(str,appendStringIMP,@"%]");
 	      p = s+2; s++;
 	    }
 	  else
 	    {
-	      [str appendString: @"[%]"];
+	      GDL2AppendStringWithImp(str,appendStringIMP,@"[%]");
 	      p = s+1;
 	    }
 	  break;
 	case '_':
 	  if (s != p)
-	    [str appendString:[NSString stringWithCString: p
-					length: s-p]];
+	    GDL2AppendStringWithImp(str,appendStringIMP,
+                                    GDL2StringWithCStringAndLength(p,s-p));
 	  
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      [str appendString: @"_]"];
+	      GDL2AppendStringWithImp(str,appendStringIMP,@"_]");
 	      p = s+2; p++;
 	    }
 	  else
 	    {
-	      [str appendString: @"[_]"];
+	      GDL2AppendStringWithImp(str,appendStringIMP,@"[_]");
 	      p = s+1;
 	    }
 	  break;
@@ -2182,7 +2223,7 @@ else if([anAttribute isDerived] == YES)
     }
 
   if (*p)
-    [str appendString:[NSString stringWithCString:p]];
+    GDL2AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString:p]);
 
   return str;
 }
@@ -2252,7 +2293,7 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
   int count = 0;
   int contextStackCurrentIndex = 0;
   
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   contextStackCurrentIndex = [_contextStack count];
 
@@ -2328,7 +2369,7 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
     }
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"alias=%@", alias);
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return alias;
 }
@@ -2343,7 +2384,7 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
   NSArray *pathElements = nil;
   int i, count;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   NSAssert(relationshipPath, @"No relationshipPath");
   NSAssert([relationshipPath length] > 0, @"Empty relationshipPath");
@@ -2398,7 +2439,7 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"flattenRelPath=%@",
 			flattenRelPath);
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return flattenRelPath;
 }
@@ -2417,7 +2458,7 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
   NSString *relPathAlias = nil;
   NSString *attributeColumnName = nil;
 
-  EOFLOGObjectFnStart();
+  EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attribute=%@", attribute);
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"relationshipPath=%@",
@@ -2438,7 +2479,7 @@ All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
 		    attributeColumnName];
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"alias=%@", alias);
-  EOFLOGObjectFnStop();
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return alias;//Like t1.label
 }

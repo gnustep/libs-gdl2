@@ -39,6 +39,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSInvocation.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -144,6 +145,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 {
   if ((self = [super init]))
     {
+  NSDebugFLog(@"INIT EOAccessFaultHandler %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
     }
 
   return self;
@@ -180,8 +183,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 - (void)dealloc
 {
 #ifdef DEBUG
-//  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
-//              (void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
 #endif
 
   DESTROY(gid);
@@ -220,6 +223,10 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 {
   EOFLOGObjectFnStart();
 
+  // We want to be sure that we will not be autoreleased 
+  // in a sub autorelease pool !
+  AUTORELEASE(RETAIN(self)); 
+
   [databaseContext _fireFault: anObject];
 
 //MIRKO: replaced
@@ -236,12 +243,14 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
       [self unableToFaultObject: anObject
             databaseContext: databaseContext];
     }
-
   EOFLOGObjectFnStop();
 }
 
 - (BOOL)shouldPerformInvocation: (NSInvocation *)invocation
 {
+  NSDebugFLLog(@"gsdb",@"invocation selector=%@ target: %p",
+               NSStringFromSelector([invocation selector]),
+               [invocation target]);
   return YES;
 }
 
@@ -317,8 +326,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 - (void)dealloc
 {
 #ifdef DEBUG
-//  NSDebugFLog(@"Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
-//              (void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Dealloc EOAccessArrayFaultHandler %p. ThreadID=%p",
+              (void*)self,(void*)objc_thread_id());
 #endif
 
   DESTROY(sgid);
@@ -357,6 +366,10 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 {
   EOFLOGObjectFnStart();
 
+  // We want to be sure that we will not be autoreleased 
+  // in a sub autorelease pool !
+  AUTORELEASE(RETAIN(self)); 
+
   [databaseContext _fireArrayFault: anObject];
   [(EOCheapCopyMutableArray *)anObject _setCopy: NO];
 
@@ -380,6 +393,9 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
 - (BOOL)shouldPerformInvocation: (NSInvocation *)invocation
 {
+  NSDebugFLLog(@"gsdb",@"invocation selector=%@ target: %p",
+               NSStringFromSelector([invocation selector]),
+               [invocation target]);
   return YES;
 }
 

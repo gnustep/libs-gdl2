@@ -385,8 +385,10 @@ NSString *EOAdministrativeConnectionDictionaryKey
       admChannel = [admContext createAdaptorChannel];
       NS_DURING
 	{
+          int stmtsCount=0;
 	  [admChannel openChannel];
-	  for (i = 0; i < [stmts count]; i++)
+          stmtsCount=[stmts count];
+	  for (i = 0; i < stmtsCount; i++)
 	    {
 	      [admChannel evaluateExpression: [stmts objectAtIndex: i]];
 	    }
@@ -928,8 +930,9 @@ NSString *EOAdministrativeConnectionDictionaryKey
  */
 + (void)assignExternalInfoForEntity: (EOEntity *)entity
 {
-  NSArray  *attributes;
-  unsigned i;
+  NSArray  *attributes=nil;
+  unsigned i=0;
+  int attributesCount=0;
 
   if ([[entity externalName] length] == 0)
     {
@@ -941,8 +944,9 @@ NSString *EOAdministrativeConnectionDictionaryKey
     }
 
   attributes = [entity attributes];
+  attributesCount=[attributes count];
 
-  for (i = 0; i < [attributes count]; i++)
+  for (i = 0; i < attributesCount; i++)
     {
       [self assignExternalInfoForAttribute: [attributes objectAtIndex: i]];
     }
@@ -956,12 +960,14 @@ NSString *EOAdministrativeConnectionDictionaryKey
  */
 + (void)assignExternalInfoForEntireModel: (EOModel *)model
 {
-  NSArray  *entities;
-  unsigned i;
+  NSArray  *entities=nil;
+  unsigned i=0;
+  int entitiesCount=0;
 
   entities = [model entities];
+  entitiesCount=[entities count];
 
-  for (i = 0; i < [entities count]; i++)
+  for (i = 0; i < entitiesCount; i++)
     {
       [self assignExternalInfoForEntity: [entities objectAtIndex: i]];
     }

@@ -71,6 +71,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOFetchSpecification.h>
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOKeyValueCoding.h>
+#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EOCheapArray.h>
 #include <EOControl/EONSAddOns.h>
@@ -126,9 +127,15 @@ static Class _contextClass = Nil;
 
 + (void)initialize
 {
-  if (!_contextClass)
+  static BOOL initialized=NO;
+  if (!initialized)
     {
-      _contextClass = [EODatabaseContext class];
+      initialized=YES;
+
+      GDL2PrivInit();
+
+      _contextClass = GDL2EODatabaseContextClass;
+
       [[NSNotificationCenter defaultCenter]
         addObserver: self
         selector: @selector(_registerDatabaseContext:)
@@ -205,7 +212,7 @@ static Class _contextClass = Nil;
 
   NSDebugMLLog(@"EODatabaseContext",@"database=%p",database);
 
-  if ((self = [super init]))
+  if ((self = [self init]))
     {
       _adaptorContext = RETAIN([[database adaptor] createAdaptorContext]);
 
@@ -402,18 +409,23 @@ static Class _contextClass = Nil;
 - (BOOL)hasBusyChannels
 {
   BOOL busy = NO;
-  int i = 0;
   int count = 0;
 
   count = [_registeredChannels count];  
 
-  for (i = 0 ; !busy && i < count; i++)
+  if (count>0)
     {
-      EODatabaseChannel *channel = [[_registeredChannels objectAtIndex: i]
-				     nonretainedObjectValue];
+      int i = 0;
+      IMP oaiIMP=[_registeredChannels methodForSelector: GDL2_objectAtIndexSEL];
 
-      busy = [channel isFetchInProgress];
-    }
+      for (i = 0 ; !busy && i < count; i++)
+        {
+          EODatabaseChannel *channel = [GDL2ObjectAtIndexWithImp(_registeredChannels,oaiIMP,i)
+                                                                nonretainedObjectValue];
+          
+          busy = [channel isFetchInProgress];
+        }
+    };
 
   return busy;
 }
@@ -426,9 +438,14 @@ static Class _contextClass = Nil;
   count = [_registeredChannels count];
   array = [NSMutableArray arrayWithCapacity: count];
 
-  for (i = 0; i < count; i++)
-    [array addObject: [[_registeredChannels objectAtIndex: i]
-			nonretainedObjectValue]];
+  if (count>0)
+    {
+      IMP oaiIMP=[_registeredChannels methodForSelector: GDL2_objectAtIndexSEL];
+
+      for (i = 0; i < count; i++)
+        [array addObject: [GDL2ObjectAtIndexWithImp(_registeredChannels,oaiIMP,i)
+                                                   nonretainedObjectValue]];
+    };
 
   return array;
 }
@@ -449,16 +466,21 @@ static Class _contextClass = Nil;
 - (void)unregisterChannel: (EODatabaseChannel *)channel
 {
   int i;
-
-  for (i = [_registeredChannels count] - 1; i >= 0; i--)
+  int count= [_registeredChannels count];
+  if (count>0)
     {
-      if ([[_registeredChannels objectAtIndex: i]
-	    nonretainedObjectValue] == channel)
-	{
-	  [_registeredChannels removeObjectAtIndex: i];
-	  break;
-	}
-    }
+      IMP oaiIMP=[_registeredChannels methodForSelector: GDL2_objectAtIndexSEL];
+
+      for (i = count - 1; i >= 0; i--)
+        {
+          if ([GDL2ObjectAtIndexWithImp(_registeredChannels,oaiIMP,i)
+                                       nonretainedObjectValue] == channel)
+            {
+              [_registeredChannels removeObjectAtIndex: i];
+              break;
+            }
+        }
+    };
 }
 
 /** returns a non busy channel if any, nil otherwise **/
@@ -779,8 +801,7 @@ classPropertyNames = [entity classPropertyNames];
   
   NSDebugMLLog(@"EODatabaseContext", @"Record Object");
 
-  [context recordObject: object
-	   globalID: globalID];
+  EOEditingContext_recordObjectGlobalIDWithImpPtr(context,NULL,object,globalID);
 
   EOFLOGObjectFnStop();
 
@@ -861,7 +882,7 @@ classPropertyNames = [entity classPropertyNames];
 */
 
   [self initializeObject: object
-        row: [self snapshotForGlobalID: globalID] //shound be _currentSnapshot
+        row: EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,globalID) //shound be _currentSnapshot
         entity: entity
         editingContext: context];
 
@@ -896,19 +917,24 @@ userInfo = {
 
       NSDebugMLLog(@"EODatabaseContext", @"updatedObjects=%@", updatedObjects);
 
-      for (i = 0; i < count; i++)
+      if (count>0)
         {
-          EOKeyGlobalID *gid=[updatedObjects objectAtIndex: i];
-          NSString *entityName;
-
-          NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
-
-          entityName = [gid entityName];
-
-          NSDebugMLLog(@"EODatabaseContext", @"entityName=%@", entityName);
-
-          [_database invalidateResultCacheForEntityNamed: entityName];
-        }
+          IMP oaiIMP=[updatedObjects methodForSelector: GDL2_objectAtIndexSEL];
+          
+          for (i = 0; i < count; i++)
+            {
+              EOKeyGlobalID *gid=GDL2ObjectAtIndexWithImp(updatedObjects,oaiIMP,i);
+              NSString *entityName;
+              
+              NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
+              
+              entityName = [gid entityName];
+              
+              NSDebugMLLog(@"EODatabaseContext", @"entityName=%@", entityName);
+              
+              [_database invalidateResultCacheForEntityNamed: entityName];
+            }
+        };
     }
 
   EOFLOGObjectFnStop();
@@ -983,12 +1009,19 @@ userInfo = {
       EOGlobalID *snapGID = nil;
       id snapFault = nil;
       int i;
+      IMP addObjectIMP=NULL;
+      IMP oaiIMP=NULL;
 
       [EOFault clearFault: relationshipValue];
 
+      // Be carefull: Never call methodForSelector before clearing fault !
+      addObjectIMP=[relationshipValue methodForSelector:GDL2_addObjectSEL];
+      oaiIMP=[sourceSnapshot methodForSelector: GDL2_objectAtIndexSEL];
+          
+
       for (i = 0; i < sourceSnapshotCount; i++)
         {
-          snapGID = [sourceSnapshot objectAtIndex: i];
+          snapGID = GDL2ObjectAtIndexWithImp(sourceSnapshot,oaiIMP,i);
 
           NSDebugMLLog(@"EODatabaseContext", @"snapGID=%@", snapGID);
 
@@ -998,7 +1031,7 @@ userInfo = {
           NSDebugMLLog(@"EODatabaseContext", @"snapFault=%@",
 		       snapFault);
 
-          [relationshipValue addObject: snapFault];
+          GDL2AddObjectWithImp(relationshipValue,addObjectIMP,snapFault);
         }
 
       objects = relationshipValue;
@@ -1073,9 +1106,9 @@ userInfo = {
         }
 
       //??
-      contextSourceSnapshot = [self snapshotForGlobalID: globalID];
+      contextSourceSnapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,globalID);
 
-      NSEmitTODO();
+      //NSEmitTODO();
       //TODO Why first asking for faultForGlobalID and now asking objectForGlobalID ??
 
       sourceObject = [context objectForGlobalID: globalID];
@@ -1237,6 +1270,8 @@ userInfo = {
 
   if ([objsArray count] > 0)
     {
+      IMP globalIDForObjectIMP=NULL;
+
       qualArray = [NSMutableArray arrayWithCapacity: 5];
 
       if ([relationship isFlattened] == YES)
@@ -1259,9 +1294,10 @@ userInfo = {
       objEnum = [objsArray objectEnumerator];
       while ((obj = [objEnum nextObject]))
         {
+          EOGlobalID* gid=nil;
           relObj = [obj storedValueForKey: [relationship name]];
-          snapshot = [self snapshotForGlobalID:
-                             [context globalIDForObject: relObj]];
+          gid = EOEditingContext_globalIDForObjectWithImpPtr(context,&globalIDForObjectIMP,relObj);
+          snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid);
           
           [qualArray addObject: [relationship
 				  qualifierWithSourceRow: snapshot]];
@@ -1299,7 +1335,6 @@ userInfo = {
   BOOL usesDistinct = NO;
   int num = 0;
   int limit=0;
-  int i = 0;
   id obj = nil;
 
   EOFLOGObjectFnStart();
@@ -1408,12 +1443,23 @@ userInfo = {
 
 		NS_DURING
 		  {
-		    arp = [NSAutoreleasePool new];
+                    SEL fetchObjectSEL=@selector(fetchObject);
+
+                    IMP channelFetchObjectIMP=
+                      [channel methodForSelector:fetchObjectSEL];
+
+                    IMP arrayAddObjectIMP=
+                      [array methodForSelector:GDL2_addObjectSEL];
+
+                    GDL2IMP_UINT arrayIndexOfObjectIdenticalToIMP=
+                      (GDL2IMP_UINT)[array methodForSelector:GDL2_indexOfObjectIdenticalToSEL];
+                    
+		    arp = GDL2NSAutoreleasePool_new();
 		    NSDebugMLLog(@"EODatabaseContext",
 				 @"[channel isFetchInProgress]=%s",
 				 ([channel isFetchInProgress] ? "YES" : "NO"));
 
-		    while ((obj = [channel fetchObject]))
+		    while ((obj = (*channelFetchObjectIMP)(channel,fetchObjectSEL)))
 		      {
 			NSDebugMLLog(@"EODatabaseContext",
 				     @"fetched an object");
@@ -1425,47 +1471,42 @@ userInfo = {
 			NSDebugMLLog(@"EODatabaseContext",
 				     @"object=%@\n\n", obj);
 
-			if (usesDistinct == YES && num)
+			if (usesDistinct == YES
+                            && num > 0
+                            && GDL2IndexOfObjectIdenticalToWithImp(array,arrayIndexOfObjectIdenticalToIMP,obj)!=NSNotFound)
 			  // (stephane@sente) I thought that DISTINCT was done on server-side?!?
 			  {
-			    for (i = 0; i < num; i++)
-			      {
-				if ([[array objectAtIndex: i]
-				      isEqual: obj] == YES)
-				  {
-				    obj = nil;
-				    break;
-				  }
-			      }
-
-			    if (obj == nil)
-			      continue;
+                            obj = nil;
 			  }
-
-			NSDebugMLLog(@"EODatabaseContext", @"AFTER FETCH");
-			[array addObject: obj];
-			NSDebugMLLog(@"EODatabaseContext", @"array count=%d",
-				     [array count]);
-			num++;
-
-			if (limit > 0 && num >= limit)
-			  {
-			    if ([[context messageHandler]
-				  editingContext: context
-				  shouldContinueFetchingWithCurrentObjectCount: num
-				  originalLimit: limit
-				  objectStore: self] == YES)
-			      limit = 0;//??
-			    else
-			      break;
-			  }
-
-			if (autoreleaseStep <= 0)
-			  {
-			    DESTROY(arp);
-			    autoreleaseStep = autoreleaseSteps;
-			    arp = [NSAutoreleasePool new];
-			  }
+                        else
+                          {
+                            NSDebugMLLog(@"EODatabaseContext", @"AFTER FETCH");
+                            GDL2AddObjectWithImp(array,arrayAddObjectIMP,obj);
+                            NSDebugMLLog(@"EODatabaseContext", @"array count=%d",
+                                         [array count]);
+                            num++;
+                            
+                            if (limit > 0 && num >= limit)
+                              {
+                                if ([[context messageHandler]
+                                      editingContext: context
+                                      shouldContinueFetchingWithCurrentObjectCount: num
+                                      originalLimit: limit
+                                      objectStore: self] == YES)
+                                  limit = 0;//??
+                                else
+                                  {
+                                    DESTROY(arp);
+                                    break;
+                                  };
+                              };
+                          };
+                        if (autoreleaseStep <= 0)
+                          {
+                            DESTROY(arp);
+                            autoreleaseStep = autoreleaseSteps;
+                            arp = GDL2NSAutoreleasePool_new();
+                          }
 			else
 			  autoreleaseStep--;
 
@@ -1507,6 +1548,7 @@ userInfo = {
                                        //TODO
                                    };
                                    */
+		    DESTROY(arp);
 		  }
 		NS_HANDLER
 		  {
@@ -1531,7 +1573,6 @@ userInfo = {
         {
           ///TODO MG!!!
           NSMutableArray *cache;
-          NSEnumerator *cacheEnum;
           EOQualifier *qualifier;
           EOGlobalID *gid;
           BOOL isFault;
@@ -1544,8 +1585,24 @@ userInfo = {
               NSMutableDictionary *row = nil;
               EOAdaptorChannel *adaptorChannel = nil;
 
+              IMP channelFetchRowWithZoneIMP=NULL;
+
+              SEL fetchRowWithZoneSEL=@selector(fetchRowWithZone:);
+
+              SEL globalIDForRowSEL=@selector(globalIDForRow:);
+              
+              IMP entityGlobalIDForRowIMP=[entity methodForSelector:globalIDForRowSEL];
+
+              SEL recordSnapshotForGlobalIDSEL=@selector(recordSnapshot:forGlobalID:);
+              IMP databaseRecordSnapshotForGlobalID=[_database methodForSelector:recordSnapshotForGlobalIDSEL];
+
+              IMP cacheAddObjectIMP=NULL;
+                            
               channel = [self availableChannel];
               adaptorChannel = [channel adaptorChannel];
+
+              channelFetchRowWithZoneIMP=
+                [adaptorChannel methodForSelector:fetchRowWithZoneSEL];
 
               if (_flags.beganTransaction == NO
                   && _updateStrategy == EOUpdateWithPessimisticLocking)
@@ -1568,17 +1625,19 @@ userInfo = {
                               entity: entity];
 
               cache = [NSMutableArray arrayWithCapacity: 16];
+              cacheAddObjectIMP=[cache methodForSelector:GDL2_addObjectSEL];
 
-              while ((row = [adaptorChannel fetchRowWithZone: NULL]))
+              while ((row = (*channelFetchRowWithZoneIMP)
+                      (adaptorChannel,fetchRowWithZoneSEL,NULL)))
                 {
                   NSDebugMLLog(@"EODatabaseContext", @"row=%@", row);
 
-                  gid = [entity globalIDForRow: row];
+                  gid = (*entityGlobalIDForRowIMP)(entity,globalIDForRowSEL,row);
                   NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
-                  [_database recordSnapshot: row
-                             forGlobalID: gid];
-                  [cache addObject: gid];
+                  (*databaseRecordSnapshotForGlobalID)
+                    (_database,recordSnapshotForGlobalIDSEL,row,gid);
+                  GDL2AddObjectWithImp(cache,cacheAddObjectIMP,gid);
                 }
 
               NSDebugMLLog(@"EODatabaseContext", @"Finished fetch");
@@ -1589,80 +1648,94 @@ userInfo = {
                          forEntityNamed: entityName];
             }
 
-          cacheEnum = [cache objectEnumerator];
-          while ((gid = [cacheEnum nextObject]))
+          if ([cache count]>0)
             {
-              NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
+              IMP arrayAddObjectIMP=
+                [array methodForSelector:GDL2_addObjectSEL];
+              
+              GDL2IMP_UINT arrayIndexOfObjectIdenticalToIMP=
+                (GDL2IMP_UINT)[array methodForSelector:GDL2_indexOfObjectIdenticalToSEL];
+              
+              NSEnumerator *cacheEnum = [cache objectEnumerator];
 
-              snapshot = [self snapshotForGlobalID: gid];
-              if (snapshot)
+              IMP cacheEnumNextObjectIMP=[cacheEnum methodForSelector:GDL2_nextObjectSEL];
+          
+              EOClassDescription* classDescriptionForInstances=
+                [entity classDescriptionForInstances];
+
+              SEL evaluateWithObjectSEL=@selector(evaluateWithObject:);
+              GDL2IMP_BOOL qualifierEvaluateWithObjectIMP=
+                (GDL2IMP_BOOL)[qualifier methodForSelector:evaluateWithObjectSEL];
+
+              IMP ecObjectForGlobalIDIMP=NULL;
+              IMP ecRecordObjectGlobalIDIMP=NULL;
+
+              while ((gid = GDL2NextObjectWithImp(cacheEnum,cacheEnumNextObjectIMP)))
                 {
-                  if (!qualifier
-		      || [qualifier evaluateWithObject: snapshot] == YES)
+                  NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
+                  
+                  snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid);
+                  if (snapshot)
                     {
-                      obj = [context objectForGlobalID: gid];
-                
-                      isFault = [EOFault isFault: obj];
-                
-                      if (obj == nil || isFault == YES)
+                      if (!qualifier
+                          || (*qualifierEvaluateWithObjectIMP)(qualifier,evaluateWithObjectSEL,snapshot) == YES)
                         {
-                          if (isFault == NO)
+                          obj = EOEditingContext_objectForGlobalIDWithImpPtr(context,&ecObjectForGlobalIDIMP,gid);
+                          
+                          isFault = _isFault(obj);
+                          
+                          if (obj == nil || isFault == YES)
                             {
-                              obj = [[entity classDescriptionForInstances]
-                                      createInstanceWithEditingContext: context
-                                      globalID: gid
-                                      zone: NULL];
-
-                              NSAssert1(obj, @"No Object. [entity classDescriptionForInstances]=%@", [entity classDescriptionForInstances]);
-                              [context recordObject: obj
-                                       globalID: gid];
-                            }
-                          else
-                            {
-                              [self _removeBatchForGlobalID:
-				      (EOKeyGlobalID *)gid
-                                    fault: obj];
-
-                              [EOFault clearFault: obj];
-                            }
-
-                          [context initializeObject: obj
-                                   withGlobalID: gid
-                                   editingContext: context];
-
-                          [obj awakeFromFetchInEditingContext: context];
-                        }
-                
-                      if (usesDistinct == YES && num)
-                        {
-                          for (i = 0; i < num; i++)
-                            {
-                              if ([[array objectAtIndex: i]
-				    isEqual: obj] == YES)
+                              if (isFault == NO)
                                 {
-                                  obj = nil;
-                                  break;
+                                  obj = [classDescriptionForInstances
+                                          createInstanceWithEditingContext: context
+                                          globalID: gid
+                                          zone: NULL];
+                                  
+                                  NSAssert1(obj, @"No Object. [entity classDescriptionForInstances]=%@", [entity classDescriptionForInstances]);
+                                  EOEditingContext_recordObjectGlobalIDWithImpPtr(context,&ecRecordObjectGlobalIDIMP,obj,gid);
                                 }
-                            }
+                              else
+                                {
+                                  [self _removeBatchForGlobalID:
+                                          (EOKeyGlobalID *)gid
+                                        fault: obj];
+                                  
+                                  [EOFault clearFault: obj];
+                                }
 
-                          if (obj == nil)
-                            continue;
-                        }
+                              [context initializeObject: obj
+                                       withGlobalID: gid
+                                       editingContext: context];
+                              
+                              [obj awakeFromFetchInEditingContext: context];
+                            }
                 
-                      [array addObject: obj];
-                      num++;
-                
-                      if (limit && num >= limit)
-                        {
-                          if ([[context messageHandler]
-				editingContext: context
-				shouldContinueFetchingWithCurrentObjectCount: num
-				originalLimit: limit
-				objectStore: self] == YES)
-                            limit = 0;
+                          if (usesDistinct == YES
+                              && num > 0 
+                              && GDL2IndexOfObjectIdenticalToWithImp(array,arrayIndexOfObjectIdenticalToIMP,obj)!=NSNotFound)
+                            {
+                              obj = nil;
+                            }
                           else
-                            break;
-                        }
+                            {
+                              GDL2AddObjectWithImp(array,arrayAddObjectIMP,obj);
+                              num++;
+                              
+                              if (limit && num >= limit)
+                                {
+                                  if ([[context messageHandler]
+                                        editingContext: context
+                                        shouldContinueFetchingWithCurrentObjectCount: num
+                                        originalLimit: limit
+                                        objectStore: self] == YES)
+                                    limit = 0;
+                                  else
+                                    break;
+                                }
+                            };
+                        };
                     }
                 }
             }
@@ -1725,13 +1798,25 @@ userInfo = {
 
                   NS_DURING
                     {                  
-                      arp = [NSAutoreleasePool new];
+                      SEL fetchObjectSEL=@selector(fetchObject);
+                      
+                      IMP channelFetchObjectIMP=
+                        [channel methodForSelector:fetchObjectSEL];
+                      
+                      IMP arrayAddObjectIMP=
+                        [array methodForSelector:GDL2_addObjectSEL];
+                      
+                      GDL2IMP_UINT arrayIndexOfObjectIdenticalToIMP=
+                        (GDL2IMP_UINT)[array methodForSelector:GDL2_indexOfObjectIdenticalToSEL];
+                      
+                      arp = GDL2NSAutoreleasePool_new();
+                      
                       NSDebugMLLog(@"EODatabaseContext",
 				   @"[channel isFetchInProgress]=%s",
 				   ([channel isFetchInProgress] 
 				    ? "YES" : "NO"));
 
-                      while ((obj = [channel fetchObject]))
+                      while ((obj = (*channelFetchObjectIMP)(channel,fetchObjectSEL)))
                         {
                           NSDebugMLLog(@"EODatabaseContext",
 				       @"fetched an object");
@@ -1744,46 +1829,40 @@ userInfo = {
                           NSDebugMLLog(@"EODatabaseContext",
 				       @"object=%@\n\n", obj);
 
-                          if (usesDistinct == YES && num)
+                          if (usesDistinct == YES
+                              && num > 0
+                              && GDL2IndexOfObjectIdenticalToWithImp(array,arrayIndexOfObjectIdenticalToIMP,obj)!=NSNotFound)
                             {
-                              for (i = 0; i < num; i++)
-                                {
-                                  if ([[array objectAtIndex: i]
-					isEqual :obj] == YES)
-                                    {
-                                      obj = nil;
-                                      break;
-                                    }
-                                }
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"Already fetched object=%@\n\n", obj);
+                              obj = nil;
+                            }
+                          else
+                            {
+                              NSDebugMLLog(@"EODatabaseContext", @"AFTER FETCH");
+                              NSAssert(obj,@"No object");
+                              GDL2AddObjectWithImp(array,arrayAddObjectIMP,obj);
+                              NSDebugMLLog(@"EODatabaseContext", @"array count=%d",
+                                           [array count]);
+                              num++;
                               
-                              if (obj == nil)
-                                continue;
-                            }
-
-                          NSDebugMLLog(@"EODatabaseContext", @"AFTER FETCH");
-                          NSAssert(obj,@"No object");
-                          [array addObject: obj];
-                          NSDebugMLLog(@"EODatabaseContext", @"array count=%d",
-				       [array count]);
-                          num++;
-                          
-                          if (limit > 0 && num >= limit)
-                            {
-                              if ([[context messageHandler]
-				    editingContext: context
-				    shouldContinueFetchingWithCurrentObjectCount: num
-				    originalLimit: limit
-				    objectStore: self] == YES)
-                                limit = 0;//??
-                              else
-                                break;
-                            }
-
+                              if (limit > 0 && num >= limit)
+                                {
+                                  if ([[context messageHandler]
+                                        editingContext: context
+                                        shouldContinueFetchingWithCurrentObjectCount: num
+                                        originalLimit: limit
+                                        objectStore: self] == YES)
+                                    limit = 0;//??
+                                  else
+                                    break;
+                                }
+                            };
                           if (autoreleaseStep <= 0)
                             {
                               DESTROY(arp);
                               autoreleaseStep = autoreleaseSteps;
-                              arp = [NSAutoreleasePool new];
+                              arp = GDL2NSAutoreleasePool_new();
                             }
                           else 
                             autoreleaseStep--;
@@ -1826,6 +1905,8 @@ userInfo = {
                         //TODO
                         };
                       */
+
+                      DESTROY(arp);
                     }
                   NS_HANDLER
                     {
@@ -1916,13 +1997,14 @@ userInfo = {
 
   if ([self isObjectLockedWithGlobalID: gid] == NO)
     {
+      snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid);
+
       if (_delegateRespondsTo.shouldLockObject == YES &&
 	 [_delegate databaseContext: self
 		    shouldLockObjectWithGlobalID: gid
 		    snapshot: snapshot] == NO)
 	  return;
 
-      snapshot = [self snapshotForGlobalID: gid];
       /* If we do not have a snapshot yet, the the object
 	 is probably faulted.  The reference implementation seems
 	 to ignore the lock in this case.  We will try to do better
@@ -2055,7 +2137,7 @@ userInfo = {
 	{
 	  if ([_delegate databaseContext: self
 			 shouldInvalidateObjectWithGlobalID: gid
-			 snapshot: [self snapshotForGlobalID: gid]] == YES)
+			 snapshot: EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid)] == YES)
 	    [array addObject: gid];
 	}
     }
@@ -2147,7 +2229,6 @@ forDatabaseOperation:(EODatabaseOperation *)op
   EOGlobalID *gid;
   NSString *key;
   NSArray *classProperties;
-  EONull *null = [EONull null];
   BOOL found = NO;
   int i, count;
   id val;
@@ -2173,31 +2254,36 @@ forDatabaseOperation:(EODatabaseOperation *)op
 						entity:entity]);
 
   [op setDatabaseOperator:operator];
-  [op setDBSnapshot:[self snapshotForGlobalID:globalID]];
+  [op setDBSnapshot:EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,globalID)];
 
   newRow = [op newRow];
 
   classProperties = [entity classProperties];
 
   count = [classProperties count];
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      attribute = [classProperties objectAtIndex:i];
-      if ([attribute isKindOfClass:[EOAttribute class]] == NO)
-	continue;
-
-      key = [attribute name];
-
-      if ([attribute isFlattened] == NO)
-	{
-	  val = [object storedValueForKey:key];
-
-	  if (val == nil)
-	    val = null;
-
-	  [newRow setObject:val forKey:key];
-	}
-    }
+      IMP oaiIMP=[classProperties methodForSelector: GDL2_objectAtIndexSEL];
+          
+      for (i = 0; i < count; i++)
+        {
+          attribute = GDL2ObjectAtIndexWithImp(classProperties,oaiIMP,i);
+          if ([attribute isKindOfClass:GDL2EOAttributeClass] == NO)
+            continue;
+          
+          key = [attribute name];
+          
+          if ([attribute isFlattened] == NO)
+            {
+              val = [object storedValueForKey:key];
+              
+              if (val == nil)
+                val = GDL2EONull;
+              
+              [newRow setObject:val forKey:key];
+            }
+        }
+    };
 
   NSLog(@"** %@ # %@", globalID, [op dbSnapshot]);
   NSLog(@"-- %@", [op newRow]);
@@ -2262,52 +2348,57 @@ forDatabaseOperation:(EODatabaseOperation *)op
 			   noPKObjects);
             }
           count = [array count];
-          for (i = 0; i < count; i++)
+          if (count>0)
             {
-              id object = [array objectAtIndex: i];
-              
-              NSDebugMLLog(@"EODatabaseContext",@"object=%@",object);
-              
-              if ([self ownsObject:object])
+              IMP oaiIMP=[array methodForSelector: GDL2_objectAtIndexSEL];
+          
+              for (i = 0; i < count; i++)
                 {
-                  NSDictionary *objectPK = nil;
-                  EODatabaseOperation *dbOpe = nil;
-                  NSMutableDictionary *newRow = nil;
-                  EOEntity *entity = [_database entityForObject:object];
-      
-                  if (round==0)
-                    [self recordInsertForObject: object];
-                  objectPK = [self _primaryKeyForObject: object
-                                   raiseException: round>0];
+                  id object = GDL2ObjectAtIndexWithImp(array,oaiIMP,i);
                   
-                  NSDebugMLLog(@"EODatabaseContext",@"objectPK=%@", objectPK);
-
-                  if (objectPK)
+                  NSDebugMLLog(@"EODatabaseContext",@"object=%@",object);
+                  
+                  if ([self ownsObject:object])
                     {
-                      dbOpe = [self databaseOperationForObject: object];
+                      NSDictionary *objectPK = nil;
+                      EODatabaseOperation *dbOpe = nil;
+                      NSMutableDictionary *newRow = nil;
+                      EOEntity *entity = [_database entityForObject:object];
+      
+                      if (round==0)
+                        [self recordInsertForObject: object];
+                      objectPK = [self _primaryKeyForObject: object
+                                       raiseException: round>0];
                       
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"object=%p dbOpe=%@",
-				   object,dbOpe);
+                      NSDebugMLLog(@"EODatabaseContext",@"objectPK=%@", objectPK);
                       
-                      newRow=[dbOpe newRow];
-                      NSDebugMLLog(@"EODatabaseContext", @"newRow=%@", newRow);
-                      
-                      [self relayPrimaryKey: objectPK
-                            object: object
-                            entity: entity];
-                      if (round>0)
+                      if (objectPK)
                         {
-                          [noPKObjects removeObjectAtIndex:i];
-                          i--;
-                        };
-                    }
-                  else if (round>0)
-                    {
-                      if (!noPKObjects)
-                        noPKObjects=(NSMutableArray*)[NSMutableArray array];
-                      [noPKObjects addObject:object];
-                    }
+                          dbOpe = [self databaseOperationForObject: object];
+                          
+                          NSDebugMLLog(@"EODatabaseContext",
+                                       @"object=%p dbOpe=%@",
+                                       object,dbOpe);
+                          
+                          newRow=[dbOpe newRow];
+                          NSDebugMLLog(@"EODatabaseContext", @"newRow=%@", newRow);
+                          
+                          [self relayPrimaryKey: objectPK
+                                object: object
+                                entity: entity];
+                          if (round>0)
+                            {
+                              [noPKObjects removeObjectAtIndex:i];
+                              i--;
+                            };
+                        }
+                      else if (round>0)
+                        {
+                          if (!noPKObjects)
+                            noPKObjects=(NSMutableArray*)[NSMutableArray array];
+                          [noPKObjects addObject:object];
+                        }
+                    };
                 }
             }
         }
@@ -2335,7 +2426,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
 
   for (which = 0; which < 3; which++)
     {
-      int i, count;
+      int count = 0;
 
       NSDebugMLLog(@"EODatabaseContext", @"Unprocessed: %@",
 		   [_editingContext unprocessedDescription]);
@@ -2351,430 +2442,450 @@ forDatabaseOperation:(EODatabaseOperation *)op
         objects[which] = [_editingContext updatedObjects];
 
       count = [objects[which] count];
-      NSDebugMLLog(@"EODatabaseContext", @"objects[which]=%@", objects[which]);
+      NSDebugMLLog(@"EODatabaseContext", @"objects count[%d]=%d", which, count);
+      NSDebugMLLog(@"EODatabaseContext", @"objects[%d]=%@", which, objects[which]);
 
-      // For each object
-      for (i = 0; i < count; i++)
+      if (count>0)
         {
-          NSDictionary *currentCommittedSnapshot = nil;
-          NSArray *relationships = nil;
-          EODatabaseOperation *dbOpe = nil;
-          EOEntity *entity = nil;
-          id object = [objects[which] objectAtIndex: i];
+          IMP oaiIMP=[objects[which] methodForSelector: GDL2_objectAtIndexSEL];
+          int i = 0;
 
-//Mirko ??      if ([self ownsObject:object] == YES)
-
-          NSDebugMLLog(@"EODatabaseContext",
-		       @"object %p (class=%@):\n%@",
-		       object,
-		       [object class],
-		       object);
-
-          entity = [_database entityForObject: object]; //OK for Update 
-
-          if (which == 0 || which == 2)//insert or update
+          // For each object
+          for (i = 0; i < count; i++)
             {
-              NSDictionary *pk = nil;
-              NSDictionary *snapshot;
-
-              [self recordUpdateForObject: object //Why ForUpdate ? Becuase PK already generated ?
-                    changes: nil]; //OK for update
-
-              // Get a dictionary of object properties+PK+relationships CURRENT values 
-              snapshot = [object snapshot]; //OK for Update+Insert
-
-              NSDebugMLLog(@"EODatabaseContext", @"snapshot %p: %@",
-			   snapshot, snapshot);
-              NSDebugMLLog(@"EODatabaseContext",
-			   @"currentCommittedSnapshot %p: %@",
-			   currentCommittedSnapshot,
-			   currentCommittedSnapshot);
-
-              // Get a dictionary of object properties+PK+relationships DATABASES values 
-              if (!currentCommittedSnapshot)
-                currentCommittedSnapshot =
-		  [self _currentCommittedSnapshotForObject:object]; //OK For Update
-
-              NSDebugMLLog(@"EODatabaseContext",
-			   @"currentCommittedSnapshot %p: %@",
-			   currentCommittedSnapshot,
-			   currentCommittedSnapshot);
-
-              //TODO so what ?
-
-              // Get the PK
-              pk = [self _primaryKeyForObject: object];//OK for Update
-
-              NSDebugMLLog(@"EODatabaseContext", @"pk=%@", pk);
-
-              if (pk)
-                [self relayPrimaryKey: pk
-                      object: object
-                      entity: entity]; //OK for Update 
-            }
-
-          relationships = [entity relationships]; //OK for Update
-
-          NSDebugMLLog(@"EODatabaseContext",@"object=%p relationships: %@",
-		       object,relationships);
-
-          if (which == 1) //delete        //Not in insert //not in update
-            {
-              int iRelationship = 0;
-              int relationshipsCount = [relationships count];
-
-              for (iRelationship = 0; iRelationship < relationshipsCount;
-		  iRelationship++)
-                {
-                  EORelationship *relationship = 
-		    [relationships objectAtIndex: iRelationship];
-
-                  if ([relationship isToManyToOne])
-                    {
-                      NSEmitTODO();
-                      [self notImplemented: _cmd]; //TODO
-                    }
-                }
-
-              NSDebugMLLog(@"EODatabaseContext",@"object: %@", object);
-
-              [self recordDeleteForObject: object];
-            }
-
-          dbOpe = [self databaseOperationForObject: object];
-
-          NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
-
-          if (which == 0 || which == 2) //insert or update
-            {
-//En update: dbsnapshot
-//en insert : snapshot ? en insert:dbsnap aussi
-              int iRelationship = 0;
+              NSDictionary *currentCommittedSnapshot = nil;
+              NSArray *relationships = nil;
+              EODatabaseOperation *dbOpe = nil;
+              EOEntity *entity = nil;
+              id object = GDL2ObjectAtIndexWithImp(objects[which],oaiIMP,i);
               int relationshipsCount = 0;
-              NSDictionary *snapshot = nil;
-
-              if (which == 0) //Insert //see wotRelSaveChanes.1.log seems to use dbSna for insert !
+              IMP relObjectAtIndexIMP= NULL;
+              
+              //Mirko ??      if ([self ownsObject:object] == YES)
+              
+              NSDebugMLLog(@"EODatabaseContext",
+                           @"object %p (class=%@):\n%@",
+                           object,
+                           [object class],
+                           object);
+              
+              entity = [_database entityForObject: object]; //OK for Update 
+              
+              if (which == 0 || which == 2)//insert or update
                 {
-                  snapshot=[object snapshot];//NEW2
-                  //snapshot=[dbOpe dbSnapshot]; //NEW
-
-                  NSDebugMLog(@"[dbOpe dbSnapshot]=%@", [dbOpe dbSnapshot]);
+                  NSDictionary *pk = nil;
+                  NSDictionary *snapshot;
+                  
+                  [self recordUpdateForObject: object //Why ForUpdate ? Becuase PK already generated ?
+                        changes: nil]; //OK for update
+                  
+                  // Get a dictionary of object properties+PK+relationships CURRENT values 
+                  snapshot = [object snapshot]; //OK for Update+Insert
+                      
+                  NSDebugMLLog(@"EODatabaseContext", @"snapshot %p: %@",
+                               snapshot, snapshot);
                   NSDebugMLLog(@"EODatabaseContext",
-			       @"Insert: [dbOpe snapshot] %p=%@",
-			       snapshot, snapshot);
-                }
-              else //Update
-                {
-                  //NEWsnapshot=[dbOpe dbSnapshot];
-                  snapshot = [object snapshot];
-
+                               @"currentCommittedSnapshot %p: %@",
+                               currentCommittedSnapshot,
+                               currentCommittedSnapshot);
+                      
+                  // Get a dictionary of object properties+PK+relationships DATABASES values 
+                  if (!currentCommittedSnapshot)
+                    currentCommittedSnapshot =
+                      [self _currentCommittedSnapshotForObject:object]; //OK For Update
+                      
                   NSDebugMLLog(@"EODatabaseContext",
-			       @"Update: [object snapshot] %p=%@",
-			       snapshot, snapshot);
+                               @"currentCommittedSnapshot %p: %@",
+                               currentCommittedSnapshot,
+                               currentCommittedSnapshot);
+                      
+                  //TODO so what ?
+                      
+                  // Get the PK
+                  pk = [self _primaryKeyForObject: object];//OK for Update
+                      
+                  NSDebugMLLog(@"EODatabaseContext", @"pk=%@", pk);
+                      
+                  if (pk)
+                    [self relayPrimaryKey: pk
+                          object: object
+                          entity: entity]; //OK for Update 
                 }
-
+                  
+              relationships = [entity relationships]; //OK for Update
+                  
+              NSDebugMLLog(@"EODatabaseContext",@"object=%p relationships: %@",
+                           object,relationships);
+                  
               relationshipsCount = [relationships count];
+              relObjectAtIndexIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
 
-              for (iRelationship = 0; iRelationship < relationshipsCount;
-		   iRelationship++)
+              if (which == 1) //delete        //Not in insert //not in update
+                {                  
+                  if (relationshipsCount>0)
+                    {
+                      int iRelationship = 0;
+
+                      for (iRelationship = 0; iRelationship < relationshipsCount;
+                           iRelationship++)
+                        {
+                          EORelationship *relationship = 
+                            GDL2ObjectAtIndexWithImp(relationships,relObjectAtIndexIMP,iRelationship);
+                          
+                          if ([relationship isToManyToOne])
+                            {
+                              NSEmitTODO();
+                              [self notImplemented: _cmd]; //TODO
+                            }
+                        }
+                    };
+                  NSDebugMLLog(@"EODatabaseContext",@"object: %@", object);
+                      
+                  [self recordDeleteForObject: object];
+                }
+                  
+              dbOpe = [self databaseOperationForObject: object];
+                  
+              NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+                  
+              if (which == 0 || which == 2) //insert or update
                 {
-                  NSArray *classProperties = nil;
-                  EORelationship *relationship = nil;
-                  EORelationship *substitutionRelationship = nil;
-
-                  relationship = [relationships objectAtIndex: iRelationship];
-
-/*
-get rel entity
-entity model
-model modelGroup
-*/
-
-                  NSDebugMLLog(@"EODatabaseContext",
-			       @"HANDLE relationship %@ "
-			       @"for object %p (class=%@):\n%@",
-			       [relationship name],
-			       object,
-			       [object class],
-			       object);
-
-                  substitutionRelationship =
-		    [relationship _substitutionRelationshipForRow: snapshot];
-
-                  classProperties = [entity classProperties];
-
-/*
-rel name ==> toCountry
-
-rel isToMany (0)
-nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (snapshot objectForKey: rel name ) ?
-*/
-                  NSDebugMLLog(@"EODatabaseContext",
-			       @"relationship: %@", relationship);
-                  NSDebugMLLog(@"EODatabaseContext",
-			       @"classProperties: %@",
-			       classProperties);
-
-                  if ([classProperties indexOfObjectIdenticalTo: relationship]
-		      != NSNotFound) //(or subst)
+                  //En update: dbsnapshot
+                  //en insert : snapshot ? en insert:dbsnap aussi
+                  int iRelationship = 0;
+                  int relationshipsCount = 0;
+                  NSDictionary *snapshot = nil;
+                      
+                  if (which == 0) //Insert //see wotRelSaveChanes.1.log seems to use dbSna for insert !
                     {
-                      BOOL valuesAreEqual = NO;
-                      BOOL isToMany = NO;
-                      id relationshipCommitedSnapshotValue = nil;
-                      NSString *relationshipName = [relationship name];
-                      id relationshipSnapshotValue;
-
-                      NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
-                      NSDebugMLLog(@"EODatabaseContext", @"which=%d", which);
-                      //NSDebugMLLog(@"EODatabaseContext",@"OBJECT SNAPSHOT %p:\n%@\n\n",[object snapshot]);
+                      snapshot=[object snapshot];//NEW2
+                      //snapshot=[dbOpe dbSnapshot]; //NEW
+                          
+                      NSDebugMLog(@"[dbOpe dbSnapshot]=%@", [dbOpe dbSnapshot]);
                       NSDebugMLLog(@"EODatabaseContext",
-				   @"snapshot for object %p:\n"
-				   @"snapshot %p (count=%d)= \n%@\n\n",
-				   object, snapshot, [snapshot count],
-				   snapshot);
-
-                      // substitutionRelationship objectForKey:
-                      relationshipSnapshotValue =
-			[snapshot objectForKey: relationshipName];
-
+                                   @"Insert: [dbOpe snapshot] %p=%@",
+                                   snapshot, snapshot);
+                    }
+                  else //Update
+                    {
+                      //NEWsnapshot=[dbOpe dbSnapshot];
+                      snapshot = [object snapshot];
+                          
                       NSDebugMLLog(@"EODatabaseContext",
-				   @"relationshipSnapshotValue "
-				   @"(snapshot %p rel name=%@): %@",
-				   snapshot,
-				   relationshipName,
-				   relationshipSnapshotValue);
+                                   @"Update: [object snapshot] %p=%@",
+                                   snapshot, snapshot);
+                    }
 
-                      if (which == 0) //Insert
-                        currentCommittedSnapshot = [dbOpe dbSnapshot];
-                      else //Update
+                  if (relationshipsCount>0)
+                    {
+                      for (iRelationship = 0; iRelationship < relationshipsCount;
+                           iRelationship++)
                         {
-                          if (!currentCommittedSnapshot)
-                            currentCommittedSnapshot =
-			      [self _currentCommittedSnapshotForObject: object]; //OK For Update
-                        }
-//update: _commited
-//insert: dbSn
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"currentCommittedSnapshot %p: %@",
-				   currentCommittedSnapshot,
-				   currentCommittedSnapshot);
-
-                      relationshipCommitedSnapshotValue =
-			[currentCommittedSnapshot objectForKey:
-						    relationshipName];
-
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"relationshipCommitedSnapshotValue "
-				   @"(snapshot %p rel name=%@): %@",
-				   currentCommittedSnapshot,
-				   relationshipName,
-				   relationshipCommitedSnapshotValue);
-
-                      isToMany = [relationship isToMany];
-
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"isToMany: %s",
-				   (isToMany ? "YES" : "NO"));
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"relationshipSnapshotValue %p=%@",
-				   relationshipSnapshotValue,
-				   relationshipSnapshotValue);
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"relationshipCommitedSnapshotValue %p=%@",
-				   relationshipCommitedSnapshotValue,
-				   ([EOFault isFault:relationshipCommitedSnapshotValue]
-				    ? (NSString*)@"[Fault]" 
-				    : (NSString*)relationshipCommitedSnapshotValue));
-
-                      if (relationshipSnapshotValue
-			  == relationshipCommitedSnapshotValue)
-                        valuesAreEqual = YES;
-                      else if (isNilOrEONull(relationshipSnapshotValue))
-                        valuesAreEqual = isNilOrEONull(relationshipCommitedSnapshotValue);
-                      else if (isNilOrEONull(relationshipCommitedSnapshotValue))
-                        valuesAreEqual = isNilOrEONull(relationshipSnapshotValue);
-                      else if (isToMany)
-                        valuesAreEqual = [relationshipSnapshotValue
-                                           containsIdenticalObjectsWithArray:
-                                             relationshipCommitedSnapshotValue];
-                      else // ToOne bu not same object
-                        valuesAreEqual = NO;
-
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"object=%p valuesAreEqual: %s",
-				   object,(valuesAreEqual ? "YES" : "NO"));
-
-                      if (valuesAreEqual)
-                        {
-                          //Equal Values !
-                        }
-                      else
-                        {
-                          if (isToMany)
+                          NSArray *classProperties = nil;
+                          EORelationship *substitutionRelationship = nil;
+                          
+                          EORelationship *relationship = 
+                            GDL2ObjectAtIndexWithImp(relationships,relObjectAtIndexIMP,iRelationship);
+                          
+                          /*
+                            get rel entity
+                            entity model
+                            model modelGroup
+                          */
+                          
+                          NSDebugMLLog(@"EODatabaseContext",
+                                       @"HANDLE relationship %@ "
+                                       @"for object %p (class=%@):\n%@",
+                                       [relationship name],
+                                       object,
+                                       [object class],
+                                       object);
+                          
+                          substitutionRelationship =
+                            [relationship _substitutionRelationshipForRow: snapshot];
+                          
+                          classProperties = [entity classProperties];
+                          
+                          /*
+                            rel name ==> toCountry
+                            
+                            rel isToMany (0)
+                            nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (snapshot objectForKey: rel name ) ?
+                          */
+                          NSDebugMLLog(@"EODatabaseContext",
+                                       @"relationship: %@", relationship);
+                          NSDebugMLLog(@"EODatabaseContext",
+                                       @"classProperties: %@",
+                                       classProperties);
+                          
+                          if ([classProperties indexOfObjectIdenticalTo: relationship]
+                              != NSNotFound) //(or subst)
                             {
-                              //relationshipSnapshotValue shallowCopy 
-                              // Old Values are removed values
-                              NSArray *oldValues = [relationshipCommitedSnapshotValue arrayExcludingObjectsInArray: relationshipSnapshotValue];
-                              // Old Values are newly added values
-                              NSArray *newValues = [relationshipSnapshotValue arrayExcludingObjectsInArray: relationshipCommitedSnapshotValue];
-
+                              BOOL valuesAreEqual = NO;
+                              BOOL isToMany = NO;
+                              id relationshipCommitedSnapshotValue = nil;
+                              NSString *relationshipName = [relationship name];
+                              id relationshipSnapshotValue = nil;
+                              
+                              NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+                              NSDebugMLLog(@"EODatabaseContext", @"which=%d", which);
+                              //NSDebugMLLog(@"EODatabaseContext",@"OBJECT SNAPSHOT %p:\n%@\n\n",[object snapshot]);
                               NSDebugMLLog(@"EODatabaseContext",
-					   @"oldValues count=%d",
-					   [oldValues count]);
+                                           @"snapshot for object %p:\n"
+                                           @"snapshot %p (count=%d)= \n%@\n\n",
+                                           object, snapshot, [snapshot count],
+                                           snapshot);
+                              
+                              // substitutionRelationship objectForKey:
+                              relationshipSnapshotValue =
+                                [snapshot objectForKey: relationshipName];
+                              
                               NSDebugMLLog(@"EODatabaseContext",
-					   @"oldValues=%@",
-					   oldValues);
-                              NSDebugMLLog(@"EODatabaseContext",
-					   @"newValues count=%d",
-					   [newValues count]);
-                              NSDebugMLLog(@"EODatabaseContext",
-					   @"newValues=%@",
-					   newValues);
-
-                              // Record new values snapshots
-                              if ([newValues count] > 0)
+                                           @"relationshipSnapshotValue "
+                                           @"(snapshot %p rel name=%@): %@",
+                                           snapshot,
+                                           relationshipName,
+                                           relationshipSnapshotValue);
+                              
+                              if (which == 0) //Insert
+                                currentCommittedSnapshot = [dbOpe dbSnapshot];
+                              else //Update
                                 {
-                                  int newValuesCount = [newValues count];
-                                  int iValue;
-                                  NSMutableArray *valuesGIDs =
-				    [NSMutableArray array];
-
-                                  for (iValue = 0;
-				       iValue < newValuesCount;
-				       iValue++)
+                                  if (!currentCommittedSnapshot)
+                                    currentCommittedSnapshot =
+                                      [self _currentCommittedSnapshotForObject: object]; //OK For Update
+                                }
+                              //update: _commited
+                              //insert: dbSn
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"currentCommittedSnapshot %p: %@",
+                                           currentCommittedSnapshot,
+                                           currentCommittedSnapshot);
+                              
+                              relationshipCommitedSnapshotValue =
+                                [currentCommittedSnapshot objectForKey:
+                                                            relationshipName];
+                              
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"relationshipCommitedSnapshotValue "
+                                           @"(snapshot %p rel name=%@): %p",
+                                           currentCommittedSnapshot,
+                                           relationshipName,
+                                           relationshipCommitedSnapshotValue);
+                              
+                              isToMany = [relationship isToMany];
+                              
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"isToMany: %s",
+                                           (isToMany ? "YES" : "NO"));
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"relationshipSnapshotValue %p=%@",
+                                           relationshipSnapshotValue,
+                                           relationshipSnapshotValue);
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"relationshipCommitedSnapshotValue %p=%@",
+                                           relationshipCommitedSnapshotValue,
+                                           (_isFault(relationshipCommitedSnapshotValue)
+                                            ? (NSString*)@"[Fault]" 
+                                            : (NSString*)relationshipCommitedSnapshotValue));
+                              
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"rel name=%@ relationshipCommitedSnapshotValue=%p relationshipSnapshotValue=%p",
+                                           relationshipName,
+                                           relationshipCommitedSnapshotValue,
+                                           relationshipSnapshotValue);
+                              
+                              if (relationshipSnapshotValue
+                                  == relationshipCommitedSnapshotValue)
+                                valuesAreEqual = YES;
+                              else if (_isNilOrEONull(relationshipSnapshotValue))
+                                valuesAreEqual = _isNilOrEONull(relationshipCommitedSnapshotValue);
+                              else if (_isNilOrEONull(relationshipCommitedSnapshotValue))
+                                valuesAreEqual = _isNilOrEONull(relationshipSnapshotValue);
+                              else if (isToMany)
+                                valuesAreEqual = [relationshipSnapshotValue
+                                                   containsIdenticalObjectsWithArray:
+                                                     relationshipCommitedSnapshotValue];
+                              else // ToOne bu not same object
+                                valuesAreEqual = NO;
+                              
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"object=%p valuesAreEqual: %s",
+                                           object,(valuesAreEqual ? "YES" : "NO"));
+                              
+                              if (valuesAreEqual)
+                                {
+                                  //Equal Values !
+                                }
+                              else
+                                {
+                                  if (isToMany)
                                     {
-                                      id aValue = [relationshipSnapshotValue
-						    objectAtIndex: iValue];
-                                      EOGlobalID *aValueGID = [self _globalIDForObject: aValue];
-
-				      NSDebugMLLog(@"EODatabaseContext",
-						   @"YYYY valuesGIDs=%@",
-						   valuesGIDs);
-				      NSDebugMLLog(@"EODatabaseContext",
-						   @"YYYY aValueGID=%@",
-						   aValueGID);
-				      [valuesGIDs addObject:aValueGID];
+                                      //relationshipSnapshotValue shallowCopy 
+                                      // Old Values are removed values
+                                      NSArray *oldValues = [relationshipCommitedSnapshotValue arrayExcludingObjectsInArray: relationshipSnapshotValue];
+                                      // Old Values are newly added values
+                                      NSArray *newValues = [relationshipSnapshotValue arrayExcludingObjectsInArray: relationshipCommitedSnapshotValue];
+                                      
+                                      int oldValuesCount=[oldValues count];
+                                      int newValuesCount=[newValues count];
+                                      
+                                      NSDebugMLLog(@"EODatabaseContext",
+                                                   @"oldValues count=%d",
+                                                   [oldValues count]);
+                                      NSDebugMLLog(@"EODatabaseContext",
+                                                   @"oldValues=%@",
+                                                   oldValues);
+                                      NSDebugMLLog(@"EODatabaseContext",
+                                                   @"newValues count=%d",
+                                                   [newValues count]);
+                                      NSDebugMLLog(@"EODatabaseContext",
+                                                   @"newValues=%@",
+                                                   newValues);
+                                      
+                                      // Record new values snapshots
+                                      if (newValuesCount > 0)
+                                        {
+                                          int iValue;
+                                          NSMutableArray *valuesGIDs = [NSMutableArray array];
+                                          IMP valuesGIDsAddObjectIMP=[valuesGIDs methodForSelector:GDL2_addObjectSEL];
+                                          IMP svObjectAtIndexIMP=[relationshipSnapshotValue methodForSelector: GDL2_objectAtIndexSEL];
+                                          
+                                          for (iValue = 0;
+                                               iValue < newValuesCount;
+                                               iValue++)
+                                            {
+                                              id aValue = GDL2ObjectAtIndexWithImp(relationshipSnapshotValue,svObjectAtIndexIMP,iValue);
+                                              EOGlobalID *aValueGID = [self _globalIDForObject: aValue];
+                                              
+                                              NSDebugMLLog(@"EODatabaseContext",
+                                                           @"YYYY valuesGIDs=%@",
+                                                           valuesGIDs);
+                                              NSDebugMLLog(@"EODatabaseContext",
+                                                           @"YYYY aValueGID=%@",
+                                                           aValueGID);
+                                              GDL2AddObjectWithImp(valuesGIDs,valuesGIDsAddObjectIMP,aValueGID);
+                                            }
+                                          
+                                          [dbOpe recordToManySnapshot:valuesGIDs
+                                                 relationshipName: relationshipName];
+                                        }
+                                      
+                                      // Nullify removed object relation attributes
+                                      if (oldValuesCount > 0)
+                                        {
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"will call nullifyAttributes from source %p (class %@)",
+                                                       object, [object class]);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"object %p=%@ (class=%@)",
+                                                       object, object,
+                                                       [object class]);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"relationshipName=%@",
+                                                       relationshipName);
+                                          
+                                          [self nullifyAttributesInRelationship:
+                                                  relationship
+                                                sourceObject: object
+                                                destinationObjects: oldValues];
+                                        }
+                                      
+                                      // Relay relationship attributes in new objects
+                                      if (newValuesCount > 0)
+                                        {
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"will call relay from source %p (class %@)",
+                                                       object, [object class]);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"object %p=%@ (class=%@)",
+                                                       object, object,
+                                                       [object class]);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"relationshipName=%@",
+                                                       relationshipName);
+                                          
+                                          [self relayAttributesInRelationship:
+                                                  relationship
+                                                sourceObject: object
+                                                destinationObjects: newValues];
+                                        }
                                     }
-
-                                  [dbOpe recordToManySnapshot:valuesGIDs
-                                         relationshipName: relationshipName];
-                                }
-
-                              // Nullify removed object relation attributes
-                              if ([oldValues count] > 0)
-                                {
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"will call nullifyAttributes from source %p (class %@)",
-					       object, [object class]);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"object %p=%@ (class=%@)",
-					       object, object,
-					       [object class]);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"relationshipName=%@",
-					       relationshipName);
-
-                                  [self nullifyAttributesInRelationship:
-					  relationship
-                                        sourceObject: object
-                                        destinationObjects: oldValues];
-                                }
-
-                              // Relay relationship attributes in new objects
-                              if ([newValues count] > 0)
-                                {
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"will call relay from source %p (class %@)",
-					       object, [object class]);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"object %p=%@ (class=%@)",
-					       object, object,
-					       [object class]);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"relationshipName=%@",
-					       relationshipName);
-
-                                  [self relayAttributesInRelationship:
-					  relationship
-                                        sourceObject: object
-                                        destinationObjects: newValues];
+                                  else // To One
+                                    {
+                                      //id destinationObject=[object storedValueForKey:relationshipName];
+                                      
+                                      if (!_isNilOrEONull(relationshipCommitedSnapshotValue)) // a value was removed
+                                        {
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"will call nullifyAttributes from source %p (class %@)",
+                                                       object, [object class]);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"object %p=%@ (class=%@)",
+                                                       object, object,
+                                                       [object class]);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"relationshipName=%@",
+                                                       relationshipName);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"destinationObject %p=%@ (class=%@)",
+                                                       relationshipCommitedSnapshotValue,
+                                                       relationshipCommitedSnapshotValue,
+                                                       [relationshipCommitedSnapshotValue class]);
+                                          
+                                          [self nullifyAttributesInRelationship:
+                                                  relationship
+                                                sourceObject: object
+                                                destinationObject:
+                                                  relationshipCommitedSnapshotValue];
+                                        }
+                                      
+                                      if (!_isNilOrEONull(relationshipSnapshotValue)) // a value was added
+                                        {
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"will call relay from source %p relname=%@",
+                                                       object,
+                                                       relationshipName);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"object %p=%@ (class=%@)",
+                                                       object, object,
+                                                       [object class]);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"relationshipName=%@",
+                                                       relationshipName);
+                                          NSDebugMLLog(@"EODatabaseContext",
+                                                       @"destinationObject %p=%@ (class=%@)",
+                                                       relationshipSnapshotValue,
+                                                       relationshipSnapshotValue,
+                                                       [relationshipSnapshotValue class]);
+                                          
+                                          [self relayAttributesInRelationship:
+                                                  relationship
+                                                sourceObject: object
+                                                destinationObject:
+                                                  relationshipSnapshotValue];
+                                        }
+                                    }
                                 }
                             }
-                          else // To One
+                          else
                             {
-                              //id destinationObject=[object storedValueForKey:relationshipName];
-
-                              if (!isNilOrEONull(relationshipCommitedSnapshotValue)) // a value was removed
-                                {
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"will call nullifyAttributes from source %p (class %@)",
-					       object, [object class]);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"object %p=%@ (class=%@)",
-					       object, object,
-					       [object class]);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"relationshipName=%@",
-					       relationshipName);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"destinationObject %p=%@ (class=%@)",
-					       relationshipCommitedSnapshotValue,
-					       relationshipCommitedSnapshotValue,
-					       [relationshipCommitedSnapshotValue class]);
-
-                                  [self nullifyAttributesInRelationship:
-					  relationship
-                                        sourceObject: object
-                                        destinationObject:
-					  relationshipCommitedSnapshotValue];
-                                }
-
-                              if (!isNilOrEONull(relationshipSnapshotValue)) // a value was added
-                                {
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"will call relay from source %p relname=%@",
-					       object,
-					       relationshipName);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"object %p=%@ (class=%@)",
-					       object, object,
-					       [object class]);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"relationshipName=%@",
-					       relationshipName);
-                                  NSDebugMLLog(@"EODatabaseContext",
-					       @"destinationObject %p=%@ (class=%@)",
-					       relationshipSnapshotValue,
-					       relationshipSnapshotValue,
-					       [relationshipSnapshotValue class]);
-
-				  [self relayAttributesInRelationship:
-					  relationship
-					sourceObject: object
-					destinationObject:
-					  relationshipSnapshotValue];
-				}
+                              //!toMany:
+                              //dbSnapshot was empty
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"will call nullifyAttributesInRelationship on source %p relname=%@",
+                                           object, [relationship name]);
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"object %p=%@ (class=%@)",
+                                           object, object, [object class]);
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"relationshipName=%@",
+                                           [relationship name]);
+                              
+                              [self nullifyAttributesInRelationship: relationship
+                                    sourceObject: object /*CountryLabel*/ 
+                                    destinationObjects: nil];
                             }
-                        }
-                    }
-                  else
-                    {
-                      //!toMany:
-                      //dbSnapshot was empty
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"will call nullifyAttributesInRelationship on source %p relname=%@",
-				   object, [relationship name]);
-		      NSDebugMLLog(@"EODatabaseContext",
-				   @"object %p=%@ (class=%@)",
-				   object, object, [object class]);
-		      NSDebugMLLog(@"EODatabaseContext",
-				   @"relationshipName=%@",
-				   [relationship name]);
-
-                      [self nullifyAttributesInRelationship: relationship
-                            sourceObject: object /*CountryLabel*/ 
-                            destinationObjects: nil];
-                    }
 
 /*
 		  NSMutableDictionary *row;
@@ -2906,11 +3017,12 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
 #endif
 
 */
+                        }
+                    }
                 }
             }
         }
-    }
-
+    }      
 ////FIN
 
 
@@ -2926,7 +3038,6 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
   id object, property;
 
   NSDictionary *snapshot;
-  EONull *null = [EONull null];
 
   changedObjects = [_editingContext updatedObjects];
   NSDebugMLLog(@"EODatabaseContext",@"*r* %@", changedObjects);
@@ -3542,7 +3653,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   //NSAssert(object, @"No object");
 
-  if (!isNilOrEONull(object))
+  if (!_isNilOrEONull(object))
     {
       entity = [_database entityForObject: object];
 
@@ -3617,14 +3728,18 @@ Raises an exception is the adaptor is unable to perform the operations.
 					   objectForKey: @"destinationKeys"];//(customerCode) 
               int i, destinationKeysCount = [destinationKeys count];
               NSMutableDictionary *changes = [NSMutableDictionary dictionaryWithCapacity: destinationKeysCount];
-              id null = [EONull null];
 
-              for (i = 0 ;i < destinationKeysCount; i++)
+              if (destinationKeysCount>0)
                 {
-                  id destinationKey = [destinationKeys objectAtIndex: i];
+                  IMP oaiIMP=[destinationKeys methodForSelector: GDL2_objectAtIndexSEL];
 
-                  [changes setObject: null
-                           forKey: destinationKey];
+                  for (i = 0 ;i < destinationKeysCount; i++)
+                    {
+                      id destinationKey = GDL2ObjectAtIndexWithImp(destinationKeys,oaiIMP,i);
+                      
+                      [changes setObject: GDL2EONull
+                               forKey: destinationKey];
+                    }
                 }
 
               NSAssert1(destinationObject, 
@@ -3662,10 +3777,11 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (destinationObjectsCount > 0)
     {
       int i;
+      IMP oaiIMP=[destinationObjects methodForSelector: GDL2_objectAtIndexSEL];
 
       for (i = 0; i < destinationObjectsCount; i++)
         {
-          id object = [destinationObjects objectAtIndex: i];
+          id object = GDL2ObjectAtIndexWithImp(destinationObjects,oaiIMP,i);
 
           NSDebugMLLog(@"EODatabaseContext",
 		       @"destinationObject %p=%@ (class %@)",
@@ -3698,10 +3814,11 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (destinationObjectsCount > 0)
     {
       int i;
+      IMP oaiIMP=[destinationObjects methodForSelector: GDL2_objectAtIndexSEL];
 
       for (i = 0; i < destinationObjectsCount; i++)
         {
-          id object = [destinationObjects objectAtIndex: i];
+          id object = GDL2ObjectAtIndexWithImp(destinationObjects,oaiIMP,i);
 
           NSDebugMLLog(@"EODatabaseContext",
 		       @"destinationObject %p=%@ (class %@)",
@@ -3776,6 +3893,9 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       if (foreignKeyInDestination || [relationship propagatesPrimaryKey])
         {
+          IMP srcObjectAIndexIMP=[sourceKeys methodForSelector: GDL2_objectAtIndexSEL];
+          IMP dstObjectAIndexIMP=[destinationKeys methodForSelector: GDL2_objectAtIndexSEL];
+
           relayedValues = AUTORELEASE([[sourceNewRow valuesForKeys: sourceKeys]
 			     mutableCopy]);// {code = 0; }
           NSDebugMLLog(@"EODatabaseContext", @"relayedValues=%@",
@@ -3785,8 +3905,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 
           for (i = 0; i < count; i++)
             {
-              NSString *sourceKey = [sourceKeys objectAtIndex: i];
-              NSString *destKey = [destinationKeys objectAtIndex: i];
+              NSString *sourceKey = GDL2ObjectAtIndexWithImp(sourceKeys,srcObjectAIndexIMP,i);
+              NSString *destKey = GDL2ObjectAtIndexWithImp(destinationKeys,dstObjectAIndexIMP,i);
               id sourceValue = [relayedValues objectForKey: sourceKey];
 
 	      NSDebugMLLog(@"EODatabaseContext", @"sourceKey=%@", sourceKey);
@@ -3814,6 +3934,8 @@ Raises an exception is the adaptor is unable to perform the operations.
         {
           //Verify !!
           NSDictionary *destinationValues;
+          IMP srcObjectAIndexIMP=[sourceKeys methodForSelector: GDL2_objectAtIndexSEL];
+          IMP dstObjectAIndexIMP=[destinationKeys methodForSelector: GDL2_objectAtIndexSEL];
 
           NSDebugMLLog(@"EODatabaseContext",
 		       @"Call valuesForKeys destinationObject (%p-<%@>)",
@@ -3839,8 +3961,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 
           for (i = 0; i < count; i++)
             {
-              id destinationKey = [destinationKeys objectAtIndex: i];
-              id sourceKey = [sourceKeys objectAtIndex: i];
+              NSString *sourceKey = GDL2ObjectAtIndexWithImp(sourceKeys,srcObjectAIndexIMP,i);
+              NSString *destinationKey = GDL2ObjectAtIndexWithImp(destinationKeys,dstObjectAIndexIMP,i);
               id destinationValue = [destinationValues
 				      objectForKey: destinationKey];
 
@@ -3850,7 +3972,7 @@ Raises an exception is the adaptor is unable to perform the operations.
               NSDebugMLLog(@"EODatabaseContext",
 			   @"destinationValue=%@", destinationValue);
 
-              if (!isNilOrEONull(destinationValue))//?? or always
+              if (!_isNilOrEONull(destinationValue))//?? or always
                 [relayedValues setObject: destinationValue
                                forKey: sourceKey];
             }
@@ -3892,7 +4014,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 					  [[join destinationAttribute] name]];
 
 			      if (value == nil)
-				value = null;
+				value = GDL2EONull;
 
 			      [row setObject:value
 				   forKey:[[join sourceAttribute] name]];
@@ -3937,7 +4059,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 					  [[join destinationAttribute] name]];
 
 			      if (value == nil)
-				value = null;
+				value = GDL2EONull;
 
 			      [row setObject:value
 				   forKey:[[join sourceAttribute] name]];
@@ -4074,7 +4196,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 			@"CREATED databaseOpe=%@\nfor object %p %@",
 			databaseOpe, object, object);
 
-           snapshot = [self snapshotForGlobalID: gid];//OK
+           snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid);//OK
            NSDebugMLLog(@"EODatabaseContext", @"snapshot %p=%@",
 			snapshot, snapshot);
 
@@ -4101,37 +4223,41 @@ Raises an exception is the adaptor is unable to perform the operations.
            /*if ([object isKindOfClass: [EOGenericRecord class]])
 	     NSDebugMLLog(@"EODatabaseContext", @"dictionary=%@ ",
 	     [object debugDictionaryDescription]);*/
-
-           for (i = 0; i < propNamesCount; i++)
+           if (propNamesCount>0)
              {
-               id value = nil;
-               NSString *key = [classPropertyNames objectAtIndex: i];
+               IMP oaiIMP=[classPropertyNames methodForSelector: GDL2_objectAtIndexSEL];
 
-               NSDebugMLLog(@"EODatabaseContext", @"key=%@", key);
-
-               /*NO !! 
-                 if ([attribute isKindOfClass:[EOAttribute class]] == NO)
-                 continue;
-                 // if ([attribute isFlattened] == NO)
-                 */
-               value = [object storedValueForKey: key]; //OK
-               NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
-			    key, value);
-
-               if (!value)
-		 {
-		   value = [EONull null];
-
-		   [[[entity attributeNamed: key] validateValue: &value]
-		     raise];
-		 }
-
-               NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
-			    key, value);
-
-               [row setObject: value
-                    forKey: key];
-             }
+               for (i = 0; i < propNamesCount; i++)
+                 {
+                   id value = nil;
+                   NSString *key = GDL2ObjectAtIndexWithImp(classPropertyNames,oaiIMP,i);
+                   
+                   NSDebugMLLog(@"EODatabaseContext", @"key=%@", key);
+                   
+                   /*NO !! 
+                     if ([attribute isKindOfClass:[EOAttribute class]] == NO)
+                     continue;
+                     // if ([attribute isFlattened] == NO)
+                     */
+                   value = [object storedValueForKey: key]; //OK
+                   NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
+                                key, value);
+                   
+                   if (!value)
+                     {
+                       value = GDL2EONull;
+                       
+                       [[[entity attributeNamed: key] validateValue: &value]
+                         raise];
+                     }
+                   
+                   NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
+                                key, value);
+                   
+                   [row setObject: value
+                        forKey: key];
+                 }
+             };
 
            newRow = [[NSMutableDictionary alloc]
 		       initWithDictionary: snapshot
@@ -4145,20 +4271,24 @@ Raises an exception is the adaptor is unable to perform the operations.
 
            snapKeyCount = [dbSnapshotKeys count];
 
-           for (i = 0; i < snapKeyCount; i++)
+           if (snapKeyCount>0)
              {
-               id key = [dbSnapshotKeys objectAtIndex: i];
-               id value = [row objectForKey: key]; //Really this key ?
-
-               NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
-			    key, value);
-
-	       //               NSAssert1(value,@"No value for %@",key);
-
-	       if (value)
-		 [newRow setObject: value
-			 forKey: key];
-             }
+               IMP oaiIMP=[dbSnapshotKeys methodForSelector: GDL2_objectAtIndexSEL];
+               for (i = 0; i < snapKeyCount; i++)
+                 {
+                   id key = GDL2ObjectAtIndexWithImp(dbSnapshotKeys,oaiIMP,i);
+                   id value = [row objectForKey: key]; //Really this key ?
+                   
+                   NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
+                                key, value);
+                   
+                   //               NSAssert1(value,@"No value for %@",key);
+                   
+                   if (value)
+                     [newRow setObject: value
+                             forKey: key];
+                 }
+             };
 
            NSDebugMLLog(@"EODatabaseContext", @"newRow=%@", newRow);
 
@@ -4218,8 +4348,13 @@ Raises an exception is the adaptor is unable to perform the operations.
   //Now test if null values
   count = [values count];
 
-  for (i = 0; nullPKValues && i < count; i++)
-    nullPKValues = isNilOrEONull([values objectAtIndex:i]);
+  if (count>0)
+    {
+      IMP oaiIMP=[values methodForSelector: GDL2_objectAtIndexSEL];
+
+      for (i = 0; nullPKValues && i < count; i++)
+        nullPKValues = _isNilOrEONull(GDL2ObjectAtIndexWithImp(values,oaiIMP,i));
+    };
 
   NSDebugMLLog(@"EODatabaseContext", @"nullPKValues=%s",
 	       (nullPKValues ? "YES" : "NO"));
@@ -4268,88 +4403,96 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   count = [relationships count];
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      EORelationship *relationship = [relationships objectAtIndex: i];
-      EORelationship *substRelationship = nil;
-      BOOL propagatesPrimaryKey = NO;
+      IMP oaiIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
 
-      NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
-
-      substRelationship 
-	= [relationship _substitutionRelationshipForRow: dbSnapshot];
-      propagatesPrimaryKey = [substRelationship propagatesPrimaryKey]; //substRelationship or relationship?
-
-      NSDebugMLLog(@"EODatabaseContext",
-		   @"object=%p relationship name=%@ ==> "
-		   @"propagatesPrimaryKey=%s",
-		   object,
-		   [relationship name],
-		   (propagatesPrimaryKey ? "YES" : "NO"));
-
-      if (propagatesPrimaryKey)
+      for (i = 0; i < count; i++)
         {
-          NSString *relName = [substRelationship name]; //this one ??
-
-          NSDebugMLLog(@"EODatabaseContext", @"relName=%@", relName);
-
-          if ([classPropertyNames containsObject: relName])
+          EORelationship *relationship = GDL2ObjectAtIndexWithImp(relationships,oaiIMP,i);
+          EORelationship *substRelationship = nil;
+          BOOL propagatesPrimaryKey = NO;
+          
+          NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
+          
+          substRelationship 
+            = [relationship _substitutionRelationshipForRow: dbSnapshot];
+          propagatesPrimaryKey = [substRelationship propagatesPrimaryKey]; //substRelationship or relationship?
+          
+          NSDebugMLLog(@"EODatabaseContext",
+                       @"object=%p relationship name=%@ ==> "
+                       @"propagatesPrimaryKey=%s",
+                       object,
+                       [relationship name],
+                       (propagatesPrimaryKey ? "YES" : "NO"));
+          
+          if (propagatesPrimaryKey)
             {
-              id value = nil;
-              id snapshot = nil;
-              id snapshotValue = nil;
-              BOOL isToMany = NO;
-
-              value = [object storedValueForKey: relName];
-              NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
-
-              snapshot = [self _currentCommittedSnapshotForObject: object];
-              NSDebugMLLog(@"EODatabaseContext", @"snapshot=%@", snapshot);
-
-              snapshotValue = [snapshot objectForKey:relName];//ret nil
-              NSDebugMLLog(@"EODatabaseContext", @"snapshotValue=%@",
-			   snapshotValue);
-
-              isToMany = [substRelationship isToMany]; //this one ??
-              NSDebugMLLog(@"EODatabaseContext", @"isToMany=%s",
-			   (isToMany ? "YES" : "NO"));
-
-              if (isToMany)
+              NSString *relName = [substRelationship name]; //this one ??
+              
+              NSDebugMLLog(@"EODatabaseContext", @"relName=%@", relName);
+              
+              if ([classPropertyNames containsObject: relName])
                 {
-                  int valueValuesCount = 0;
-                  int iValueValue = 0;
-
-                  value = [value shallowCopy];
-                  valueValuesCount = [value count];
-                  iValueValue = 0;
-
-                  for (iValueValue = 0;
-		       iValueValue < valueValuesCount;
-		       iValueValue++)
-                    {
-                      id valueValue = [value objectAtIndex: iValueValue];
-
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"valueValue=%@", valueValue);
-
-                      [self relayPrimaryKey: pk
-                            sourceObject: object
-                            destObject: valueValue
-                            relationship: substRelationship]; //this one ??
-                    }
-                }
-              else
-                {
+                  id value = nil;
+                  id snapshot = nil;
+                  id snapshotValue = nil;
+                  BOOL isToMany = NO;
+                  
+                  value = [object storedValueForKey: relName];
                   NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
-
-                  // 1:1 relationships may be optional so we may have no value here
-                  if (value)
+                  
+                  snapshot = [self _currentCommittedSnapshotForObject: object];
+                  NSDebugMLLog(@"EODatabaseContext", @"snapshot=%@", snapshot);
+                  
+                  snapshotValue = [snapshot objectForKey:relName];//ret nil
+                  NSDebugMLLog(@"EODatabaseContext", @"snapshotValue=%@",
+                               snapshotValue);
+                  
+                  isToMany = [substRelationship isToMany]; //this one ??
+                  NSDebugMLLog(@"EODatabaseContext", @"isToMany=%s",
+                               (isToMany ? "YES" : "NO"));
+                  
+                  if (isToMany)
                     {
-                      [self relayPrimaryKey: pk
-                            sourceObject: object
-                            destObject: value
+                      int valueValuesCount = 0;
+                      
+                      value = [((NSArray*)value) shallowCopy];
+                      valueValuesCount = [value count];
+                      if (valueValuesCount>0)
+                        {
+                          int iValueValue = 0;
+                          IMP vObjectAtIndexIMP=[value methodForSelector: GDL2_objectAtIndexSEL];
+
+                          for (iValueValue = 0;
+                               iValueValue < valueValuesCount;
+                               iValueValue++)
+                            {
+                              id valueValue = GDL2ObjectAtIndexWithImp(value,vObjectAtIndexIMP,iValueValue);
+                              
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"valueValue=%@", valueValue);
+                              
+                              [self relayPrimaryKey: pk
+                                    sourceObject: object
+                                    destObject: valueValue
+                                    relationship: substRelationship]; //this one ??
+                            }
+                        };
+                    }
+                  else
+                    {
+                      NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
+                      
+                      // 1:1 relationships may be optional so we may have no value here
+                      if (value)
+                        {
+                          [self relayPrimaryKey: pk
+                                sourceObject: object
+                                destObject: value
                             relationship: substRelationship]; //this one ??
-                    };
+                        };
+                    }
                 }
             }
         }
@@ -4615,7 +4758,7 @@ Raises an exception is the adaptor is unable to perform the operations.
  			}       
             
             if (val == nil)
-            val = null;
+            val = GDL2EONull;
             
             [newKeys addObject:key];
             [newVals addObject:val];
@@ -4685,7 +4828,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   //OK for Update - Test for others
   NSArray *attributesToSave = nil;
   NSMutableArray *attributes = nil;
-  int i, count;
+  int count=0;
   EODatabaseOperator dbOperator = EODatabaseNothingOperator;
   EOEntity *entity = [dbOpe entity]; //OK
   NSDictionary *rowDiffs = nil;
@@ -4705,24 +4848,32 @@ Raises an exception is the adaptor is unable to perform the operations.
   attributes = [NSMutableArray array];
 
   count = [attributesToSave count];
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      EOAttribute *attribute = [attributesToSave objectAtIndex: i]; //OK
+      int i=0;
+      IMP attributesAddObjectIMP=[attributes methodForSelector:GDL2_addObjectSEL];
+      IMP attributesToSaveObjectAtIndexIMP=[attributesToSave methodForSelector:GDL2_objectAtIndexSEL];
 
-      NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
-
-      if (![attribute isFlattened] && ![attribute isDerived]) //VERIFY
+      for (i = 0; i < count; i++)
         {
-          [attributes addObject: attribute];
+          EOAttribute *attribute = 
+            GDL2ObjectAtIndexWithImp(attributesToSave,attributesToSaveObjectAtIndexIMP,i);
 
-          if ([rowDiffs objectForKey: [attribute name]]
-              && [attribute isReadOnly])
+          NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
+          
+          if (![attribute isFlattened] && ![attribute isDerived]) //VERIFY
             {
-              NSEmitTODO();
-              [self notImplemented: _cmd]; //TODO: excption ???
+              GDL2AddObjectWithImp(attributes,attributesAddObjectIMP,attribute);
+              
+              if ([rowDiffs objectForKey: [attribute name]]
+                  && [attribute isReadOnly])
+                {
+                  NSEmitTODO();
+                  [self notImplemented: _cmd]; //TODO: excption ???
+                }
             }
         }
-    }
+    };
 
   NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
   NSDebugMLLog(@"EODatabaseContext", @"attributes=%@", attributes);
@@ -4759,26 +4910,31 @@ Raises an exception is the adaptor is unable to perform the operations.
 				     (void **)&dbOpe))
         {
           NSArray *dbOpeAdaptorOperations = [dbOpe adaptorOperations];
-          int i, count = [dbOpeAdaptorOperations count];
+          int count = [dbOpeAdaptorOperations count];
 
           NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
           NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
-          for (i = 0; i < count; i++)
+          if (count>0)
             {
-              EOAdaptorOperation *adaptorOpe = [dbOpeAdaptorOperations
-						 objectAtIndex: i];
-              EOEntity *entity = nil;
+              IMP oaiIMP=[dbOpeAdaptorOperations methodForSelector: GDL2_objectAtIndexSEL];
+              int i=0;
 
-              NSDebugMLLog(@"EODatabaseContext", @"adaptorOpe=%@",
-			   adaptorOpe);
-
-              [adaptorOperations addObject: adaptorOpe];
-              entity = [adaptorOpe entity];
-
-              NSDebugMLLog(@"EODatabaseContext", @"entity=%@", [entity name]);
-              NSHashInsertIfAbsent(entitiesHashTable, entity);
-            }
+              for (i = 0; i < count; i++)
+                {
+                  EOAdaptorOperation *adaptorOpe = GDL2ObjectAtIndexWithImp(dbOpeAdaptorOperations,oaiIMP,i);
+                  EOEntity *entity = nil;
+                  
+                  NSDebugMLLog(@"EODatabaseContext", @"adaptorOpe=%@",
+                               adaptorOpe);
+                  
+                  [adaptorOperations addObject: adaptorOpe];
+                  entity = [adaptorOpe entity];
+                  
+                  NSDebugMLLog(@"EODatabaseContext", @"entity=%@", [entity name]);
+                  NSHashInsertIfAbsent(entitiesHashTable, entity);
+                }
+            };
         }
 
       entities = NSAllHashTableObjects(entitiesHashTable);
@@ -4792,25 +4948,29 @@ Raises an exception is the adaptor is unable to perform the operations.
         int iAdaptoOpe = 0;
         int adaptorOpeCount = [adaptorOperations count];
         int entitiesCount = [entityNameOrderingArray count];
-        int iEntity;
 
-        for (iEntity = 0; iEntity < entitiesCount; iEntity++)
+        if (entitiesCount>0)
           {
-            EOEntity *entity = [entityNameOrderingArray
-				 objectAtIndex: iEntity];          
+            IMP entityObjectAtIndexIMP=[entityNameOrderingArray methodForSelector: GDL2_objectAtIndexSEL];
+            IMP opeObjectAtIndexIMP=[adaptorOperations methodForSelector: GDL2_objectAtIndexSEL];
+            int iEntity=0;
 
-            NSDebugMLLog(@"EODatabaseContext", @"entity=%@", [entity name]);
-
-            for (iAdaptoOpe = 0; iAdaptoOpe < adaptorOpeCount; iAdaptoOpe++)
+            for (iEntity = 0; iEntity < entitiesCount; iEntity++)
               {
-                EOAdaptorOperation *adaptorOpe = [adaptorOperations
-						   objectAtIndex: iAdaptoOpe];
-                EOEntity *opeEntity = [adaptorOpe entity];
-
-                if (opeEntity == entity)
-                  [orderedAdaptorOpe addObject: adaptorOpe];
+                EOEntity *entity = GDL2ObjectAtIndexWithImp(entityNameOrderingArray,entityObjectAtIndexIMP,iEntity);
+                
+                NSDebugMLLog(@"EODatabaseContext", @"entity=%@", [entity name]);
+                
+                for (iAdaptoOpe = 0; iAdaptoOpe < adaptorOpeCount; iAdaptoOpe++)
+                  {
+                    EOAdaptorOperation *adaptorOpe = GDL2ObjectAtIndexWithImp(adaptorOperations,opeObjectAtIndexIMP,iAdaptoOpe);
+                    EOEntity *opeEntity = [adaptorOpe entity];
+                    
+                    if (opeEntity == entity)
+                      [orderedAdaptorOpe addObject: adaptorOpe];
+                  }
               }
-          }
+          };
 
         NSAssert2([orderedAdaptorOpe count] == adaptorOpeCount,
 		  @"Different ordered (%d) an unordered adaptor operations count (%d)",
@@ -4828,64 +4988,70 @@ Raises an exception is the adaptor is unable to perform the operations.
 {
   NSMutableArray *entities = nil;
   NSArray *relationships = nil;
-  int i, count;
+  int count;
 
   EOFLOGObjectFnStart();
 
   relationships = [entity relationships];
   count = [relationships count];
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      EORelationship *relationship = [relationships objectAtIndex: i];
+      IMP oaiIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+      int i=0;
 
-      NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
-
-      if (![relationship isToMany]) //If to many: do nothing
+      for (i = 0; i < count; i++)
         {
-          if ([relationship isFlattened])
+          EORelationship *relationship = GDL2ObjectAtIndexWithImp(relationships,oaiIMP,i);
+          
+          NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
+          
+          if (![relationship isToMany]) //If to many: do nothing
             {
-              //TODO VERIFY
-              EOExpressionArray *definitionArray=[relationship _definitionArray];
-              EORelationship *firstRelationship=[definitionArray objectAtIndex:0];
-              EOEntity *firstDefEntity=[firstRelationship destinationEntity];
-              NSArray *defDependEntities=[self
-                                           entitiesOnWhichThisEntityDepends:firstDefEntity];
-              if ([defDependEntities count]>0)
+              if ([relationship isFlattened])
                 {
-                  if (!entities)
-                    entities = [NSMutableArray array];
-                  
-                  [entities addObjectsFromArray: defDependEntities];
-                };
-            }
-          else
-            {
-              //Here ??
-              EOEntity *destinationEntity = [relationship destinationEntity];
-              EORelationship *inverseRelationship = [relationship
-						      anyInverseRelationship];
-
-              if ([inverseRelationship isToMany])
-                {
-                  //Do nothing ?
+                  //TODO VERIFY
+                  EOExpressionArray *definitionArray=[relationship _definitionArray];
+                  EORelationship *firstRelationship=[definitionArray objectAtIndex:0];
+                  EOEntity *firstDefEntity=[firstRelationship destinationEntity];
+                  NSArray *defDependEntities=[self
+                                               entitiesOnWhichThisEntityDepends:firstDefEntity];
+                  if ([defDependEntities count]>0)
+                    {
+                      if (!entities)
+                        entities = [NSMutableArray array];
+                      
+                      [entities addObjectsFromArray: defDependEntities];
+                    };
                 }
               else
                 {
-                  if ([inverseRelationship propagatesPrimaryKey])
+                  //Here ??
+                  EOEntity *destinationEntity = [relationship destinationEntity];
+                  EORelationship *inverseRelationship = [relationship
+                                                          anyInverseRelationship];
+                  
+                  if ([inverseRelationship isToMany])
                     {
-                      //OK
-                      if (!entities)
-                        entities = [NSMutableArray array];
-
-                      [entities addObject: destinationEntity];
+                      //Do nothing ?
                     }
                   else
                     {
-                      if ([inverseRelationship ownsDestination])
+                      if ([inverseRelationship propagatesPrimaryKey])
                         {
-                          NSEmitTODO();
-                          [self notImplemented: _cmd]; //TODO
+                          //OK
+                          if (!entities)
+                            entities = [NSMutableArray array];
+                          
+                          [entities addObject: destinationEntity];
+                        }
+                      else
+                        {
+                          if ([inverseRelationship ownsDestination])
+                            {
+                              NSEmitTODO();
+                              [self notImplemented: _cmd]; //TODO
+                            }
                         }
                     }
                 }
@@ -4906,33 +5072,39 @@ Raises an exception is the adaptor is unable to perform the operations.
   /*EODatabase *database = [self database];
     NSArray *models = [database models];*/
   NSMutableDictionary *dependsDict = [NSMutableDictionary dictionary];
-  int i, count = [entities count];
+  int count = [entities count];
 
   //TODO NSArray* originalOrdering=...
   /*TODO for each mdoel:
     userInfo (ret nil)
   */
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      //OK
-      EOEntity *entity=[entities objectAtIndex: i];
-      NSArray *dependsEntities = [self
-				   entitiesOnWhichThisEntityDepends: entity];
+      IMP oaiIMP=[entities methodForSelector: GDL2_objectAtIndexSEL];
+      int i=0;
 
-      if ([dependsEntities count])
-        [dependsDict setObject: dependsEntities
-                     forKey: [entity name]];
-    }
-  
-  ordering = [NSMutableArray array];
-  for (i = 0; i < count; i++)
-    {
-      EOEntity *entity = [entities objectAtIndex: i];
-      [self insertEntity: entity
-            intoOrderingArray: ordering
-            withDependencies: dependsDict
-            processingSet: orderedEntities];
+      for (i = 0; i < count; i++)
+        {
+          //OK
+          EOEntity *entity=GDL2ObjectAtIndexWithImp(entities,oaiIMP,i);
+          NSArray *dependsEntities = [self
+                                       entitiesOnWhichThisEntityDepends: entity];
+          
+          if ([dependsEntities count])
+            [dependsDict setObject: dependsEntities
+                         forKey: [entity name]];
+        }
+      
+      ordering = [NSMutableArray array];
+      for (i = 0; i < count; i++)
+        {
+          EOEntity *entity=GDL2ObjectAtIndexWithImp(entities,oaiIMP,i);
+          [self insertEntity: entity
+                intoOrderingArray: ordering
+                withDependencies: dependsDict
+                processingSet: orderedEntities];
+        }
     }
   //TODO
   /*
@@ -4984,32 +5156,38 @@ Raises an exception is the adaptor is unable to perform the operations.
   //TODO finish
   EOEntity *entity = nil;
   NSArray *attributesUsedForLocking = nil;
-  int i, count = 0;
+  int count = 0;
 
   count = [attributes count];
-  
-  for (i = 0; i < count; i++)
+
+  if (count>0)
     {
-      id attribute = [attributes objectAtIndex: i];
+      IMP oaiIMP=[attributes methodForSelector: GDL2_objectAtIndexSEL];
+      int i=0;
 
-      if (!entity)
+      for (i = 0; i < count; i++)
         {
-          entity = [attribute entity];
-          attributesUsedForLocking = [entity attributesUsedForLocking];
+          id attribute = GDL2ObjectAtIndexWithImp(attributes,oaiIMP,i);
+          
+          if (!entity)
+            {
+              entity = [attribute entity];
+              attributesUsedForLocking = [entity attributesUsedForLocking];
+            }
+          
+          if (![self isValidQualifierTypeForAttribute: attribute])
+            {
+              NSEmitTODO();
+              //              [self notImplemented:_cmd]; //TODO
+            }
+          else
+            { 
+              NSEmitTODO();
+              //Nothing ??
+              //              [self notImplemented:_cmd]; //TODO ??
+            }
         }
-
-      if (![self isValidQualifierTypeForAttribute: attribute])
-        {
-          NSEmitTODO();
-          //              [self notImplemented:_cmd]; //TODO
-        }
-      else
-        { 
-          NSEmitTODO();
-          //Nothing ??
-          //              [self notImplemented:_cmd]; //TODO ??
-        }
-    }
+    };
 
  return nil;//??
 }
@@ -5019,7 +5197,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 {
   //TODO
   NSArray *retAttributes = nil;
-  int i, count = 0;
+  int count = 0;
   NSArray *attributesUsedForLocking = nil;
 
   EOFLOGObjectFnStart();
@@ -5027,24 +5205,30 @@ Raises an exception is the adaptor is unable to perform the operations.
   attributesUsedForLocking = [entity attributesUsedForLocking];
   count = [attributes count];
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      id attribute = [attributes objectAtIndex: i];
-      //do this on 1st only
-      BOOL isFlattened = [attribute isFlattened];
+      IMP oaiIMP=[attributes methodForSelector: GDL2_objectAtIndexSEL];
+      int i=0;
 
-      if (isFlattened)
-        { 
-          NSEmitTODO();
-          [self notImplemented: _cmd]; //TODO
-       }
-      else
+      for (i = 0; i < count; i++)
         {
-          NSArray *rootAttributesUsedForLocking = [entity rootAttributesUsedForLocking];
-
-          retAttributes = rootAttributesUsedForLocking;
+          id attribute = GDL2ObjectAtIndexWithImp(attributes,oaiIMP,i);
+          //do this on 1st only
+          BOOL isFlattened = [attribute isFlattened];
+          
+          if (isFlattened)
+            { 
+              NSEmitTODO();
+              [self notImplemented: _cmd]; //TODO
+            }
+          else
+            {
+              NSArray *rootAttributesUsedForLocking = [entity rootAttributesUsedForLocking];
+              
+              retAttributes = rootAttributesUsedForLocking;
+            }
         }
-    }
+    };
 
   EOFLOGObjectFnStop();
 
@@ -5056,31 +5240,37 @@ Raises an exception is the adaptor is unable to perform the operations.
 {
   //TODO
   NSArray *retAttributes = nil;
-  int i, count = 0;
+  int count = 0;
 
   EOFLOGObjectFnStart();
 //TODO
 
   count = [attributes count];
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      id attribute = [attributes objectAtIndex: i];
-      BOOL isFlattened = [attribute isFlattened];
+      IMP oaiIMP=[attributes methodForSelector: GDL2_objectAtIndexSEL];
+      int i=0;
 
-      //call isFlattened on 1st only
-      if (isFlattened)
-        { 
-          NSEmitTODO();
-          [self notImplemented: _cmd]; //TODO
-       }
-      else
+      for (i = 0; i < count; i++)
         {
-          NSArray *primaryKeyAttributes = [entity primaryKeyAttributes];
+          id attribute = GDL2ObjectAtIndexWithImp(attributes,oaiIMP,i);
+          BOOL isFlattened = [attribute isFlattened];
+          
+          //call isFlattened on 1st only
+          if (isFlattened)
+            { 
+              NSEmitTODO();
+          [self notImplemented: _cmd]; //TODO
+            }
+          else
+            {
+              NSArray *primaryKeyAttributes = [entity primaryKeyAttributes];
 
-          retAttributes = primaryKeyAttributes;
+              retAttributes = primaryKeyAttributes;
+            }
         }
-    }
+    };
 
   EOFLOGObjectFnStop();
 
@@ -5108,62 +5298,68 @@ Raises an exception is the adaptor is unable to perform the operations.
   for (which = 0; which < 2; which++)
     {
       NSArray *array = (which == 0 ? primaryKeyAttributes : attributes);
-      int i, count = [array count];
+      int count = [array count];
 
-      for (i = 0; i < count; i++)
+      if (count>0)
         {
-          EOAttribute *attribute = [array objectAtIndex: i];
+          IMP oaiIMP=[array methodForSelector: GDL2_objectAtIndexSEL];
+          int i=0;
 
-          NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
-
-          if (which == 0 || ![primaryKeyAttributes containsObject: attribute])// Test if we haven't already processed it
+          for (i = 0; i < count; i++)
             {
-              if (![self isValidQualifierTypeForAttribute: attribute])
+              EOAttribute *attribute = GDL2ObjectAtIndexWithImp(array,oaiIMP,i);
+              
+              NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
+              
+              if (which == 0 || ![primaryKeyAttributes containsObject: attribute])// Test if we haven't already processed it
                 {
-		  NSLog(@"Invalid externalType for attribute '%@' of entity named '%@' - model '%@'",
-			[attribute name], [[attribute entity] name],
-			[[[attribute entity] model] name]);
-                  NSEmitTODO();
-                  [self notImplemented: _cmd]; //TODO
-                }
-              else
-                {
-                  NSString *attributeName = nil;
-                  NSString *snapName = nil;
-                  id value = nil;
-                  EOQualifier *aQualifier = nil;
-
-                  attributeName = [attribute name];
-                  NSAssert1(attributeName, @"no attribute name for attribute %@", attribute);
-
-                  snapName = [entity snapshotKeyForAttributeName: attributeName];
-                  NSAssert2(snapName, @"no snapName for attribute %@ in entity %@", attributeName, [entity name]);
-
-                  value = [snapshot objectForKey:snapName];
-
-                  if (!value)
+                  if (![self isValidQualifierTypeForAttribute: attribute])
                     {
-                      NSDebugMLLog(@"EODatabaseContext", @"NO VALUE");
+                      NSLog(@"Invalid externalType for attribute '%@' of entity named '%@' - model '%@'",
+                            [attribute name], [[attribute entity] name],
+                            [[[attribute entity] model] name]);
+                      NSEmitTODO();
+                      [self notImplemented: _cmd]; //TODO
                     }
-
-                  NSAssert4(value, @"no value for %@ in %p %@ entity %@", snapName,
-			    snapshot, snapshot, [entity name]);
-
-                  aQualifier = [EOKeyValueQualifier
-				 qualifierWithKey: attributeName
-				 operatorSelector: @selector(isEqualTo:)
-				 value: value];
-
-                  NSDebugMLLog(@"EODatabaseContext", @"aQualifier=%@",
-			       aQualifier);
-
-                  if (!qualifiers)
-                    qualifiers = [NSMutableArray array];
-
-                  [qualifiers addObject: aQualifier];
-
-                  NSDebugMLLog(@"EODatabaseContext", @"qualifiers=%@",
-			       qualifiers);
+                  else
+                    {
+                      NSString *attributeName = nil;
+                      NSString *snapName = nil;
+                      id value = nil;
+                      EOQualifier *aQualifier = nil;
+                      
+                      attributeName = [attribute name];
+                      NSAssert1(attributeName, @"no attribute name for attribute %@", attribute);
+                      
+                      snapName = [entity snapshotKeyForAttributeName: attributeName];
+                      NSAssert2(snapName, @"no snapName for attribute %@ in entity %@", attributeName, [entity name]);
+                      
+                      value = [snapshot objectForKey:snapName];
+                      
+                      if (!value)
+                        {
+                          NSDebugMLLog(@"EODatabaseContext", @"NO VALUE");
+                        }
+                      
+                      NSAssert4(value, @"no value for snapshotKey '%@' in snapshot (address=%p) %@ for entity %@",
+                                snapName, snapshot, snapshot, [entity name]);
+                      
+                      aQualifier = [EOKeyValueQualifier
+                                     qualifierWithKey: attributeName
+                                     operatorSelector: @selector(isEqualTo:)
+                                     value: value];
+                      
+                      NSDebugMLLog(@"EODatabaseContext", @"aQualifier=%@",
+                                   aQualifier);
+                      
+                      if (!qualifiers)
+                        qualifiers = [NSMutableArray array];
+                      
+                      [qualifiers addObject: aQualifier];
+                      
+                      NSDebugMLLog(@"EODatabaseContext", @"qualifiers=%@",
+                                   qualifiers);
+                    }
                 }
             }
         }
@@ -5271,40 +5467,45 @@ Raises an exception is the adaptor is unable to perform the operations.
     }
   else
     {
-      int i, count = [attributes count];
-
-      for (i = 0; i < count; i++)
+      int count = [attributes count];
+      if (count>0)
         {
-          EOAttribute *attribute = [attributes objectAtIndex: i];
-          BOOL isReadOnly = [attribute isReadOnly];
+          IMP oaiIMP=[attributes methodForSelector: GDL2_objectAtIndexSEL];
+          int i=0;
 
-          NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
-          NSDebugMLLog(@"EODatabaseContext", @"isReadOnly=%s",
-		       (isReadOnly ? "YES" : "NO"));
-
-          if (isReadOnly)
+          for (i = 0; i < count; i++)
             {
-              NSEmitTODO();
-              NSDebugMLog(@"attribute=%@", attribute);
-              [self notImplemented: _cmd]; //TODO
-            }
-          else
-            {
-              NSString *attrName = [attribute name];
-              NSString *snapName = nil;
-              id value = nil;
-
-              NSDebugMLLog(@"EODatabaseContext", @"attrName=%@", attrName);
-
-              snapName = [entity snapshotKeyForAttributeName: attrName];
-              NSDebugMLLog(@"EODatabaseContext", @"snapName=%@", snapName);
-
-              value = [changedValues objectForKey: snapName];
-              NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
-
-              if (value)
-                [valuesToWrite setObject: value
-                               forKey: attrName];
+              EOAttribute *attribute = GDL2ObjectAtIndexWithImp(attributes,oaiIMP,i);
+              BOOL isReadOnly = [attribute isReadOnly];
+              
+              NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
+              NSDebugMLLog(@"EODatabaseContext", @"isReadOnly=%s",
+                           (isReadOnly ? "YES" : "NO"));
+              
+              if (isReadOnly)
+                {
+                  NSEmitTODO();
+                  NSDebugMLog(@"attribute=%@", attribute);
+                  [self notImplemented: _cmd]; //TODO
+                }
+              else
+                {
+                  NSString *attrName = [attribute name];
+                  NSString *snapName = nil;
+                  id value = nil;
+                  
+                  NSDebugMLLog(@"EODatabaseContext", @"attrName=%@", attrName);
+                  
+                  snapName = [entity snapshotKeyForAttributeName: attrName];
+                  NSDebugMLLog(@"EODatabaseContext", @"snapName=%@", snapName);
+                  
+                  value = [changedValues objectForKey: snapName];
+                  NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
+                  
+                  if (value)
+                    [valuesToWrite setObject: value
+                                   forKey: attrName];
+                }
             }
         }
     }
@@ -5337,17 +5538,22 @@ Raises an exception is the adaptor is unable to perform the operations.
   BOOL equal;
   int i, count;
   id object;
+  NSString* relationshipName = nil;
+  IMP globalIDForObjectIMP=NULL;
+  IMP toManySnapArrayObjectAtIndexIMP=NULL;
 
   qualifierArray = [NSMutableArray array];
   valuesArray = [NSMutableArray array];
   toManySnapshotArray = [NSMutableArray array];
+  toManySnapArrayObjectAtIndexIMP=[toManySnapshotArray methodForSelector: GDL2_objectAtIndexSEL];
+  relationshipName = [relationship name];
 
   objsEnum = [objects objectEnumerator];
   while ((object = [objsEnum nextObject]))
     {
       values = [NSMutableDictionary dictionaryWithCapacity: 4];
 
-      fault = [object valueForKey: [relationship name]];
+      fault = [object valueForKey: relationshipName];
       [EOFault clearFault: fault];
 
       joinsEnum = [[relationship joins] objectEnumerator];
@@ -5379,45 +5585,62 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   count = [valuesArray count];
 
-  objsEnum = [array objectEnumerator];
-  while ((object = [objsEnum nextObject]))
+  if (count>0)
     {
-      for (i = 0; i < count; i++)
-	{
-	  equal = YES;
+      IMP oaiIMP=[valuesArray methodForSelector: GDL2_objectAtIndexSEL];
 
-	  values = [valuesArray objectAtIndex: i];
-	  keyEnum = [values keyEnumerator];
-	  while ((key = [keyEnum nextObject]))
-	    {
-	      if ([[object valueForKey: key]
-		    isEqual: [values objectForKey:key]] == NO)
-		{
-		  equal = NO;
-		  break;
-		}
-	    }
+      objsEnum = [array objectEnumerator];
+      while ((object = [objsEnum nextObject]))
+        {
+          for (i = 0; i < count; i++)
+            {
+              equal = YES;
+              values = GDL2ObjectAtIndexWithImp(valuesArray,oaiIMP,i);
 
-	  if (equal == YES)
-	    {
-	      [[[objects objectAtIndex: i] valueForKey: [relationship name]]
-		addObject: object];
-	      [[toManySnapshotArray objectAtIndex: i]
-		addObject: [editingContext globalIDForObject: object]];
-
-	      break;
-	    }
+              keyEnum = [values keyEnumerator];
+              while ((key = [keyEnum nextObject]))
+                {
+                  if ([[object valueForKey: key]
+                        isEqual: [values objectForKey:key]] == NO)
+                    {
+                      equal = NO;
+                      break;
+                    }
+                }
+              
+              if (equal == YES)
+                {
+                  EOGlobalID* gid = nil;
+                  id snapshot = GDL2ObjectAtIndexWithImp(toManySnapshotArray,toManySnapArrayObjectAtIndexIMP,i);
+                  
+                  [[[objects objectAtIndex: i] valueForKey: relationshipName]
+                    addObject: object];
+                  
+                  gid=EOEditingContext_globalIDForObjectWithImpPtr(editingContext,&globalIDForObjectIMP,object);
+                  
+                  [snapshot addObject: gid];
+                  
+                  break;
+                }
+            }
 	}
     }
   NSDebugMLLog(@"EODatabaseContext",@"** 3");
 //==> see _registerSnapshot:forSourceGlobalID:relationshipName:editingContext:
 
-  for (i = 0; i < count; i++)
-    [_database recordSnapshot: [toManySnapshotArray objectAtIndex: i]
-	       forSourceGlobalID:
-		 [editingContext globalIDForObject: [objects objectAtIndex: i]]
-	       relationshipName: [relationship name]];
-
+  if (count>0)
+    {
+      for (i = 0; i < count; i++)
+        {
+          id snapshot = GDL2ObjectAtIndexWithImp(toManySnapshotArray,toManySnapArrayObjectAtIndexIMP,i);
+          EOGlobalID* gid=EOEditingContext_globalIDForObjectWithImpPtr(editingContext,
+                                                                       &globalIDForObjectIMP,
+                                                                       [objects objectAtIndex: i]);
+          [_database recordSnapshot: snapshot
+                     forSourceGlobalID: gid
+                     relationshipName: relationshipName];
+        };
+    }
   NSDebugMLLog(@"EODatabaseContext", @"** 4");
 }
 
@@ -5633,7 +5856,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       handler = (EOAccessFaultHandler *)[EOFault handlerForFault: object];
       context = [handler editingContext];
       gid = [handler globalID];
-      snapshot = [self snapshotForGlobalID: gid]; //nil
+      snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid); //nil
 
       if (snapshot)
         {
@@ -6043,7 +6266,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 {
   //OK
   NSDictionary *snapshot = nil;
-  int i, snapshotsDictCount = 0;
+  int snapshotsDictCount = 0;
 
   EOFLOGObjectFnStart();
 
@@ -6052,11 +6275,17 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   snapshotsDictCount = [_uniqueStack count];
 
-  for (i = 0; !snapshot && i < snapshotsDictCount; i++)
+  if (snapshotsDictCount>0)
     {
-      NSDictionary *snapshots = [_uniqueStack objectAtIndex: i];
-      snapshot = [snapshots objectForKey: gid];
-    }
+      int i = 0;
+      IMP oaiIMP=[_uniqueStack methodForSelector: GDL2_objectAtIndexSEL];
+
+      for (i = 0; !snapshot && i < snapshotsDictCount; i++)
+        {
+          NSDictionary *snapshots = GDL2ObjectAtIndexWithImp(_uniqueStack,oaiIMP,i);
+          snapshot = [snapshots objectForKey: gid];
+        }
+    };
 
   NSDebugMLLog(@"EODatabaseContext", @"snapshot for gid %@: %p %@",
 	       gid, snapshot, snapshot);
@@ -6115,25 +6344,39 @@ Raises an exception is the adaptor is unable to perform the operations.
   EOFLOGObjectFnStart();
 
   n = [_uniqueStack count];
-  for (i=0; i<n; i++)
+  if (n>0)
     {
-      snapshots = [_uniqueStack objectAtIndex: i];
-      [snapshots removeObjectsForKeys: gids];
-    }
+      IMP oaiIMP=[_uniqueStack methodForSelector: GDL2_objectAtIndexSEL];
+
+      for (i=0; i<n; i++)
+        {
+          snapshots = GDL2ObjectAtIndexWithImp(_uniqueStack,oaiIMP,i);
+          [snapshots removeObjectsForKeys: gids];
+        }
+    };
 
   n = [_uniqueArrayStack count];
-  for (i=0; i<n; i++)
+  if (n>0)
     {
-      snapshots = [_uniqueArrayStack objectAtIndex: i];
-      [snapshots removeObjectsForKeys: gids];
-    }
+      IMP oaiIMP=[_uniqueArrayStack methodForSelector: GDL2_objectAtIndexSEL];
+
+      for (i=0; i<n; i++)
+        {
+          snapshots = GDL2ObjectAtIndexWithImp(_uniqueArrayStack,oaiIMP,i);
+          [snapshots removeObjectsForKeys: gids];
+        }
+    };
 
   n = [_deleteStack count];
-  for (i=0; i<n; i++)
+  if (n>0)
     {
-      snapshots = [_deleteStack objectAtIndex: i];
-      [snapshots removeObjectsForKeys: gids];
-    }
+      IMP oaiIMP=[_deleteStack methodForSelector: GDL2_objectAtIndexSEL];
+      for (i=0; i<n; i++)
+        {
+          snapshots = GDL2ObjectAtIndexWithImp(_deleteStack,oaiIMP,i);
+          [snapshots removeObjectsForKeys: gids];
+        }
+    };
 
   [_database forgetSnapshotsForGlobalIDs: gids];
   EOFLOGObjectFnStop();
@@ -6161,25 +6404,31 @@ Raises an exception is the adaptor is unable to perform the operations.
     {
       NSMutableDictionary *toManySnapshots = [_uniqueArrayStack lastObject];
       NSArray *keys = [snapshots allKeys];
-      int i, count = [keys count];
+      int count = [keys count];
 
-      for (i = 0; i < count; i++)
-      {
-        id key = [keys objectAtIndex: i];
-        NSDictionary *snapshotsDict = [snapshots objectForKey: key];
-        NSMutableDictionary *currentSnapshotsDict =
-	  [toManySnapshots objectForKey: key];
+      if (count>0)
+        {
+          IMP oaiIMP=[keys methodForSelector: GDL2_objectAtIndexSEL];
+          int i = 0;
 
-        if (!currentSnapshotsDict)
-          {
-            currentSnapshotsDict = (NSMutableDictionary *)[NSMutableDictionary
-							    dictionary];
-            [toManySnapshots setObject: currentSnapshotsDict
-                             forKey: key];
-          }
-
-        [currentSnapshotsDict addEntriesFromDictionary: snapshotsDict];
-      }
+          for (i = 0; i < count; i++)
+            {
+              id key = GDL2ObjectAtIndexWithImp(keys,oaiIMP,i);
+              NSDictionary *snapshotsDict = [snapshots objectForKey: key];
+              NSMutableDictionary *currentSnapshotsDict =
+                [toManySnapshots objectForKey: key];
+              
+              if (!currentSnapshotsDict)
+                {
+                  currentSnapshotsDict = (NSMutableDictionary *)[NSMutableDictionary
+                                                                  dictionary];
+                  [toManySnapshots setObject: currentSnapshotsDict
+                                   forKey: key];
+                }
+              
+              [currentSnapshotsDict addEntriesFromDictionary: snapshotsDict];
+            }
+        };
     }
 
   EOFLOGObjectFnStop();
@@ -6218,8 +6467,9 @@ Raises an exception is the adaptor is unable to perform the operations.
   //really near ok
   NSArray *relationships = nil;
   NSArray *classPropertyAttributeNames = nil;
-  EONull *null = [EONull null];
-  int i, count = 0;
+  int count = 0;
+  IMP objectTakeStoredValueForKeyIMP=NULL;
+  IMP rowObjectForKeyIMP=NULL;
 
   EOFLOGObjectFnStart();
 
@@ -6229,24 +6479,39 @@ Raises an exception is the adaptor is unable to perform the operations.
   count = [classPropertyAttributeNames count];
 
   NSDebugMLLog(@"EODatabaseContext", @"count=%d", count);
-  NSDebugMLLog(@"EODatabaseContext", @"row=%@", row);
+  NSDebugMLLog(@"EODatabaseContext", @"row=%@ class=%@", row,[row class]);
+  //row is usuallly a EOMutableKnownKeyDictionary so will use EOMKKD_objectForKeyWithImpPtr
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      id key = [classPropertyAttributeNames objectAtIndex: i];
-      id value = nil;
+      int i=0;
+      IMP oaiIMP=[classPropertyAttributeNames methodForSelector:GDL2_objectAtIndexSEL];
 
-      NSDebugMLLog(@"EODatabaseContext", @"key=%@", key);
-      value = [row objectForKey: key];
+      NSAssert(!_isFault(object),
+               @"Object is a fault. call -methodForSelector: on it is a bad idea");
 
-      if (value == null)
-	value = nil;
+      objectTakeStoredValueForKeyIMP=[object methodForSelector:GDL2_takeStoredValueForKeySEL];
 
-      NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
+      for (i = 0; i < count; i++)
+        {
+          id key = GDL2ObjectAtIndexWithImp(classPropertyAttributeNames,oaiIMP,i);
+          id value = nil;
+          
+          NSDebugMLLog(@"EODatabaseContext", @"key=%@", key);
+          value = EOMKKD_objectForKeyWithImpPtr(row,&rowObjectForKeyIMP,key);
 
-      [object takeStoredValue: value
-              forKey: key];
-    }
+          if (value == GDL2EONull)
+            value = nil;
+          
+          NSDebugMLLog(@"EODatabaseContext", @"value (%p)", 
+                       value);
+          NSDebugMLLog(@"EODatabaseContext", @"value (%p)=%@ (class: %@)", 
+                       value, value, [value class]);
+          
+          GDL2TakeStoredValueForKeyWithImp(object,objectTakeStoredValueForKeyIMP,
+                                           value,key);
+        }
+    };
 
   relationships = [entity _relationshipsToFaultForRow: row];
 
@@ -6254,59 +6519,73 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   count = [relationships count];
 
-  for (i = 0; i < count; i++)
+  if (count>0)
     {
-      id relObject = nil;
-      EORelationship *relationship = [relationships objectAtIndex: i];
-      NSString *relName = [relationship name];
+      int i=0;
+      IMP oaiIMP=[relationships methodForSelector:GDL2_objectAtIndexSEL];
 
-      NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
-      if ([relationship isToMany])
+      if (!objectTakeStoredValueForKeyIMP)
         {
-          EOGlobalID *gid = [entity globalIDForRow: row];
+          NSAssert(!_isFault(object),
+                   @"Object is a fault. call -methodForSelector: on it is a bad idea");
 
-          relObject = [self arrayFaultWithSourceGlobalID: gid
-			    relationshipName: [relationship name]
-			    editingContext: context];
-        }
-      else if ([relationship isFlattened])
+          objectTakeStoredValueForKeyIMP=[object methodForSelector:GDL2_takeStoredValueForKeySEL];
+        };
+
+      for (i = 0; i < count; i++)
         {
-          // to one flattened relationship like aRelationship.anotherRelationship...
-
-          // I don't know how to handle this case.... May be we shouldn't treat this as real property ??
-          NSEmitTODO();
-          relObject = nil;          
-        }
-      else
-        {          
-          EOMutableKnownKeyDictionary *foreignKeyForSourceRow = nil;
-
-          NSDebugMLLog(@"EODatabaseContext",
-		       @"relationship=%@ foreignKeyInDestination:%d",
-		       [relationship name],
-		       [relationship foreignKeyInDestination]);
-
-          foreignKeyForSourceRow = [relationship _foreignKeyForSourceRow: row];
-
-          NSDebugMLLog(@"EODatabaseContext",
-		       @"row=%@\nforeignKeyForSourceRow:%@",
-		       row, foreignKeyForSourceRow);
+          id relObject = nil;
+          EORelationship *relationship = GDL2ObjectAtIndexWithImp(relationships,oaiIMP,i);
+          NSString *relName = [relationship name];
           
-          if (![foreignKeyForSourceRow
-		 containsObjectsNotIdenticalTo: [EONull null]])
+          NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
+          if ([relationship isToMany])
             {
-              NSEmitTODO();//TODO: what to do if rel is mandatory ?
-              relObject = nil;
+              EOGlobalID *gid = [entity globalIDForRow: row];
+              
+              relObject = [self arrayFaultWithSourceGlobalID: gid
+                                relationshipName: relName
+                                editingContext: context];
+            }
+          else if ([relationship isFlattened])
+            {
+              // to one flattened relationship like aRelationship.anotherRelationship...
+              
+              // I don't know how to handle this case.... May be we shouldn't treat this as real property ??
+              NSEmitTODO();
+              relObject = nil;          
             }
           else
-            {
-              EOEntity *destinationEntity = [relationship destinationEntity];
-              EOGlobalID *relRowGid = [destinationEntity
-					globalIDForRow: foreignKeyForSourceRow];
-
-              NSDebugMLLog(@"EODatabaseContext", @"relRowGid=%@", relRowGid);
-
-              if ([(EOKeyGlobalID*)relRowGid areKeysAllNulls])
+            {          
+              EOMutableKnownKeyDictionary *foreignKeyForSourceRow = nil;
+              
+              NSDebugMLLog(@"EODatabaseContext",
+                           @"relationship=%@ foreignKeyInDestination:%d",
+                           relName,
+                           [relationship foreignKeyInDestination]);
+              
+              foreignKeyForSourceRow = [relationship _foreignKeyForSourceRow: row];
+              
+              NSDebugMLLog(@"EODatabaseContext",
+                           @"row=%@\nforeignKeyForSourceRow:%@",
+                           row, foreignKeyForSourceRow);
+              
+              if (![foreignKeyForSourceRow
+                     containsObjectsNotIdenticalTo: GDL2EONull])
+                {
+                  NSLog(@"foreignKeyForSourceRow=%@",foreignKeyForSourceRow);
+                  NSEmitTODO();//TODO: what to do if rel is mandatory ?
+                  relObject = nil;
+                }
+              else
+                {
+                  EOEntity *destinationEntity = [relationship destinationEntity];
+                  EOGlobalID *relRowGid = [destinationEntity
+                                            globalIDForRow: foreignKeyForSourceRow];
+                  
+                  NSDebugMLLog(@"EODatabaseContext", @"relRowGid=%@", relRowGid);
+                  
+                  if ([(EOKeyGlobalID*)relRowGid areKeysAllNulls])
                 NSWarnLog(@"All key of relRowGid %p (%@) are nulls",
                           relRowGid,
                           relRowGid);
@@ -6361,14 +6640,15 @@ Raises an exception is the adaptor is unable to perform the operations.
 		fault = nil;
 
 */
+                }
             }
+          
+          NSDebugMLLog(@"EODatabaseContext", @"TakeStoredValue");
+          
+          GDL2TakeStoredValueForKeyWithImp(object,objectTakeStoredValueForKeyIMP,
+                                           relObject,relName);
         }
-
-      NSDebugMLLog(@"EODatabaseContext", @"TakeStoredValue");
-
-      [object takeStoredValue: relObject
-              forKey: relName];
-    }
+    };
 
   EOFLOGObjectFnStop();
 }
@@ -6385,15 +6665,22 @@ Raises an exception is the adaptor is unable to perform the operations.
 {
   if (_lockedObjects)
     {
-      unsigned i,n;
+      unsigned n;
       EOGlobalID *gid;
 
       n = [gids count];
-      for (i=0; i<n; i++)
-	{
-	  gid = [gids objectAtIndex: i];
-	  NSHashRemove(_lockedObjects, gid);
-	}
+
+      if (n>0)
+        {
+          IMP oaiIMP=[gids methodForSelector: GDL2_objectAtIndexSEL];
+          unsigned i = 0;
+
+          for (i=0; i<n; i++)
+            {
+              gid = GDL2ObjectAtIndexWithImp(gids,oaiIMP,i);
+              NSHashRemove(_lockedObjects, gid);
+            }
+        };
     }
 }
 
@@ -6575,7 +6862,9 @@ Raises an exception is the adaptor is unable to perform the operations.
   NSAssert2(objectEditingContext, @"No editing context for object %p: %@", 
             object,object);
 
-  gid = [objectEditingContext globalIDForObject: object];
+  gid=EOEditingContext_globalIDForObjectWithImpPtr(objectEditingContext,
+                                                   NULL,
+                                                   object);
   NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
   if (!gid)
@@ -6610,7 +6899,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   EOFLOGObjectFnStart();
 
   NSDebugMLLog(@"EODatabaseContext", @"object=%@", object);
-  NSAssert(!isNilOrEONull(object), @"No object");
+  NSAssert(!_isNilOrEONull(object), @"No object");
 
   entity = [_database entityForObject: object];
   shouldGeneratePrimaryKey = [self _shouldGeneratePrimaryKeyForEntityName:
@@ -6770,7 +7059,6 @@ Raises an exception is the adaptor is unable to perform the operations.
       //	will relay it's pk to parent which is not good
       NSDictionary *objectSnapshot=nil;
       NSArray *relationships=nil;
-      int i=0;
       int relationshipsCount=0;
 
       NSDebugMLLog(@"EODatabaseContext", @"object=%@", object);
@@ -6786,48 +7074,54 @@ Raises an exception is the adaptor is unable to perform the operations.
       
       relationshipsCount = [relationships count];
       
-      for (i = 0; i < relationshipsCount; i++)
+      if (relationshipsCount>0)
         {
-          EORelationship *inverseRelationship = nil;
+          IMP oaiIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+          int i = 0;
 
-          EORelationship *relationship = [relationships objectAtIndex: i];
-          NSDebugMLLog(@"EODatabaseContext", @"relationship=%@",
-		       relationship);
-
-          inverseRelationship = [relationship inverseRelationship];
-          NSDebugMLLog(@"EODatabaseContext", @"inverseRelationship=%@",
-		       inverseRelationship);
-          
-          // if there's inverse relationship with propagates primary key
-          if ([inverseRelationship propagatesPrimaryKey])
+          for (i = 0; i < relationshipsCount; i++)
             {
-              NSString *relationshipName= [relationship name];
-              NSDictionary *relationshipValuePK = nil;
-
-              // get object value for the relationship
-              id relationshipValue
-		= [objectSnapshot valueForKey:relationshipName];
-              NSDebugMLLog(@"EODatabaseContext",
-			   @"entity name=%@ relationship name=%@ Value=%@",
-			   [entity name],
-			   relationshipName, relationshipValue);
-
-              // get relationshipValue pk
-              NSAssert2(!isNilOrEONull(relationshipValue), 
-			@"No relationshipValue for relationship %@ in objectSnapshot %@ ",
-                        relationshipName,
-                        objectSnapshot);
-
-              relationshipValuePK 
-		= [self _primaryKeyForObject: relationshipValue];
-              NSDebugMLLog(@"EODatabaseContext",
-			   @"relationshipValuePK=%@",
-			   relationshipValuePK);
-
-              // force object to relay pk now !
-              [self relayPrimaryKey: relationshipValuePK
-                    object: relationshipValue
-                    entity: [_database entityForObject: relationshipValue]];
+              EORelationship *inverseRelationship = nil;
+              
+              EORelationship *relationship = GDL2ObjectAtIndexWithImp(relationships,oaiIMP,i);
+              NSDebugMLLog(@"EODatabaseContext", @"relationship=%@",
+                           relationship);
+              
+              inverseRelationship = [relationship inverseRelationship];
+              NSDebugMLLog(@"EODatabaseContext", @"inverseRelationship=%@",
+                           inverseRelationship);
+              
+              // if there's inverse relationship with propagates primary key
+              if ([inverseRelationship propagatesPrimaryKey])
+                {
+                  NSString *relationshipName= [relationship name];
+                  NSDictionary *relationshipValuePK = nil;
+                  
+                  // get object value for the relationship
+                  id relationshipValue
+                    = [objectSnapshot valueForKey:relationshipName];
+                  NSDebugMLLog(@"EODatabaseContext",
+                               @"entity name=%@ relationship name=%@ Value=%@",
+                               [entity name],
+                               relationshipName, relationshipValue);
+                  
+                  // get relationshipValue pk
+                  NSAssert2(!_isNilOrEONull(relationshipValue), 
+                            @"No relationshipValue for relationship %@ in objectSnapshot %@ ",
+                            relationshipName,
+                            objectSnapshot);
+                  
+                  relationshipValuePK 
+                    = [self _primaryKeyForObject: relationshipValue];
+                  NSDebugMLLog(@"EODatabaseContext",
+                               @"relationshipValuePK=%@",
+                               relationshipValuePK);
+                  
+                  // force object to relay pk now !
+                  [self relayPrimaryKey: relationshipValuePK
+                        object: relationshipValue
+                        entity: [_database entityForObject: relationshipValue]];
+                };
             };
         };
       pk = [self valuesForKeys: pkNames
@@ -6880,7 +7174,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   NSArray *objects[3];
   NSHashTable *processedEntities = NULL;
   NSMutableArray *entityToProcess = nil;
-  int i, which;
+  int which;
 
   EOFLOGObjectFnStart();
 
@@ -6899,19 +7193,25 @@ Raises an exception is the adaptor is unable to perform the operations.
     {
       int count = [objects[which] count];
 
-      for (i = 0; i < count; i++)
+      if (count>0)
         {
-          id object = [objects[which] objectAtIndex: i];
-          EOEntity *entity = [_database entityForObject: object];
-
-          NSDebugMLLog(@"EODatabaseContext",
-		       @"add entity to process: %@", [entity name]);
-
-          if (entityToProcess)
-            [entityToProcess addObject: entity];
-          else
-            entityToProcess = [NSMutableArray arrayWithObject: entity];
-        }
+          IMP oaiIMP=[objects[which] methodForSelector: GDL2_objectAtIndexSEL];
+          int i = 0;
+          
+          for (i = 0; i < count; i++)
+            {
+              id object = GDL2ObjectAtIndexWithImp(objects[which],oaiIMP,i);
+              EOEntity *entity = [_database entityForObject: object];
+              
+              NSDebugMLLog(@"EODatabaseContext",
+                           @"add entity to process: %@", [entity name]);
+              
+              if (entityToProcess)
+                [entityToProcess addObject: entity];
+              else
+                entityToProcess = [NSMutableArray arrayWithObject: entity];
+            }
+        };
     }
   
   while ([entityToProcess count])
@@ -6924,66 +7224,70 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       if (!NSHashInsertIfAbsent(processedEntities, entity)) //Already processed ?
         {
-          NSArray *relationships = nil;
-          int iRelationship = 0;
-          int relationshipsCount = 0;
+          NSArray *relationships = [entity relationships];
+          int relationshipsCount = [relationships count];
 
-          relationships = [entity relationships];              
-          iRelationship = 0;
-          relationshipsCount = [relationships count];
-
-          for (iRelationship = 0;
-	       iRelationship < relationshipsCount;
-	       iRelationship++)
+          if (relationshipsCount>0)
             {
-              EORelationship *relationship = [relationships objectAtIndex:
-							      iRelationship];
-              NSDebugMLLog(@"EODatabaseContext", 
-			   @"test entity: %@ relationship=%@",
-			   [entity name],
-			   relationship);
-
-              if ([relationship propagatesPrimaryKey])
+              IMP relObjectAtIndexIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+              int iRelationship = 0;
+          
+              for (iRelationship = 0;
+                   iRelationship < relationshipsCount;
+                   iRelationship++)
                 {
-                  EOEntity *destinationEntity = [relationship
-						  destinationEntity];
+                  EORelationship *relationship = GDL2ObjectAtIndexWithImp(relationships,relObjectAtIndexIMP,iRelationship);
                   NSDebugMLLog(@"EODatabaseContext", 
-			       @"test entity: %@ destinationEntity=%@",
-			       [entity name],
-			       [destinationEntity name]);
-
-                  if (destinationEntity)
+                               @"test entity: %@ relationship=%@",
+                               [entity name],
+                               relationship);
+                  
+                  if ([relationship propagatesPrimaryKey])
                     {
-		      NSArray *destAttrs;
-		      NSArray *pkAttrs;
-		      int i, count;
-		      BOOL destPK = NO;
+                      EOEntity *destinationEntity = [relationship
+                                                      destinationEntity];
+                      NSDebugMLLog(@"EODatabaseContext", 
+                                   @"test entity: %@ destinationEntity=%@",
+                                   [entity name],
+                                   [destinationEntity name]);
+                      
+                      if (destinationEntity)
+                        {
+                          NSArray *destAttrs;
+                          NSArray *pkAttrs;
+                          int count;
+                          BOOL destPK = NO;
+                          
+                          destAttrs = [relationship destinationAttributes];
+                          pkAttrs = [destinationEntity primaryKeyAttributes];
+                          count = [destAttrs count];
 
-		      destAttrs = [relationship destinationAttributes];
-		      pkAttrs = [destinationEntity primaryKeyAttributes];
-		      count = [destAttrs count];
-
-		      for (i = 0; i < count; i++)
-			{
-			  if ([pkAttrs containsObject: [destAttrs
-							 objectAtIndex: i]])
-			    destPK = YES;
-			}
-
-		      if (destPK)
-			{
-			  NSDebugMLLog(@"EODatabaseContext",
-				       @"destination entity: %@ "
-				       @"No PK generation [Rel = %@]",
-				       [destinationEntity name],
-				       [relationship name]);
-
-			  if (!_nonPrimaryKeyGenerators)
-			    _nonPrimaryKeyGenerators = NSCreateHashTable(NSObjectHashCallBacks, 32);
-
-			  NSHashInsertIfAbsent(_nonPrimaryKeyGenerators, [destinationEntity name]);
-			  [entityToProcess addObject: destinationEntity];
-			}
+                          if (count>0)
+                            {
+                              IMP destAttrsObjectAtIndexIMP=[relationships methodForSelector: GDL2_objectAtIndexSEL];
+                              int i=0;
+                              for (i = 0; i < count; i++)
+                                {
+                                  if ([pkAttrs containsObject:
+                                                 GDL2ObjectAtIndexWithImp(destAttrs,destAttrsObjectAtIndexIMP,i)])
+                                    destPK = YES;
+                                }
+                            };
+                          if (destPK)
+                            {
+                              NSDebugMLLog(@"EODatabaseContext",
+                                           @"destination entity: %@ "
+                                           @"No PK generation [Rel = %@]",
+                                           [destinationEntity name],
+                                           [relationship name]);
+                              
+                              if (!_nonPrimaryKeyGenerators)
+                                _nonPrimaryKeyGenerators = NSCreateHashTable(NSObjectHashCallBacks, 32);
+                              
+                              NSHashInsertIfAbsent(_nonPrimaryKeyGenerators, [destinationEntity name]);
+                              [entityToProcess addObject: destinationEntity];
+                            }
+                        }
                     }
                 }
             }
@@ -7012,7 +7316,7 @@ If the object has been just inserted, the dictionary is empty.
 
   EOFLOGObjectFnStart();
 
-  gid = [_editingContext globalIDForObject: object];
+  gid = EOEditingContext_globalIDForObjectWithImpPtr(_editingContext,NULL,object);
   dbOpe = [self databaseOperationForGlobalID: gid]; //I'm not sure. Retrieve it directly ?
   dbOperator = [dbOpe databaseOperator];
 
@@ -7020,6 +7324,9 @@ If the object has been just inserted, the dictionary is empty.
     {
     case EODatabaseUpdateOperator:
       snapshot = [_editingContext committedSnapshotForObject: object];//OK
+      NSDebugMLLog(@"EODatabaseContext",
+                   @"snapshot %p=%@",
+                   snapshot);
       break;
 
     case EODatabaseInsertOperator:
@@ -7036,6 +7343,10 @@ If the object has been just inserted, the dictionary is empty.
     case EODatabaseNothingOperator:
       break;
     }
+
+  NSDebugMLLog(@"EODatabaseContext",
+               @"snapshot %p=%@",
+               snapshot);
 
   EOFLOGObjectFnStop();
 
@@ -7061,3 +7372,26 @@ If the object has been just inserted, the dictionary is empty.
 }
 
 @end
+
+NSDictionary* EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,EOGlobalID* gid)
+{
+  if (dbContext)
+    {
+      IMP imp=NULL;
+      if (impPtr)
+        imp=*impPtr;
+      if (!imp)
+        {
+          if (GSObjCClass(dbContext)==GDL2EODatabaseContextClass
+              && GDL2EODatabaseContext_snapshotForGlobalIDIMP)
+            imp=GDL2EODatabaseContext_snapshotForGlobalIDIMP;
+          else
+            imp=[dbContext methodForSelector:GDL2_snapshotForGlobalIDSEL];
+          if (impPtr)
+            *impPtr=imp;
+        }
+      return (*imp)(dbContext,GDL2_snapshotForGlobalIDSEL,gid);
+    }
+  else
+    return nil;
+};

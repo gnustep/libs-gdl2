@@ -63,6 +63,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EOObjectStore.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EODatabaseChannel.h>
 #include <EOAccess/EODatabaseContext.h>
@@ -87,8 +88,11 @@ RCS_ID("$Id$")
 
 + (void)initialize
 {
-  if (self == [EODatabaseChannel class])
+  static BOOL initialized=NO;
+  if (!initialized)
     {
+      initialized=YES;
+      GDL2PrivInit();
       [[NSNotificationCenter defaultCenter]
         addObserver: self
         selector: @selector(_registerDatabaseChannel:)
@@ -317,7 +321,6 @@ RCS_ID("$Id$")
       row = [_adaptorChannel fetchRowWithZone: NULL];
 
       EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);
-      //NSDebugMLog(@"TEST attributesToFetch=%@", [_currentEntity attributesToFetch]);
 
       if (!row)
         {
@@ -345,7 +348,6 @@ RCS_ID("$Id$")
 				isFinal: YES];//OK
 
           EOFLOGObjectLevelArgs(@"gsdb", @"gid=%@", gid);
-          //NSDebugMLog(@"TEST attributesToFetch=%@",[_currentEntity attributesToFetch]);
 
           object = [_currentEditingContext objectForGlobalID: gid]; //OK //nil
 
@@ -359,7 +361,6 @@ RCS_ID("$Id$")
           snapshot = [_databaseContext snapshotForGlobalID: gid]; //OK
 
           EOFLOGObjectLevelArgs(@"gsdb", @"snapshot=%@", snapshot);
-          //NSDebugMLog(@"TEST attributesToFetch=%@", [_currentEntity attributesToFetch]);
 
           if (snapshot)
             {
@@ -391,7 +392,6 @@ RCS_ID("$Id$")
             }
           else
             {
-              //NSDebugMLog(@"TEST attributesToFetch=%@", [_currentEntity attributesToFetch]);
               EOFLOGObjectLevelArgs(@"gsdb", @"database class=%@", [database class]);
 
               NSAssert(database, @"No database-context database");
@@ -422,12 +422,10 @@ RCS_ID("$Id$")
 					      globalID: gid
 					      zone: NULL];
 
-              //NSDebugMLog(@"TEST attributesToFetch=%@", [_currentEntity attributesToFetch]);
               EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
               NSAssert1(object, @"No Object. entityClassDescripton=%@", entityClassDescripton);
 
-              [_currentEditingContext recordObject: object
-                                      globalID: gid];
+              EOEditingContext_recordObjectGlobalIDWithImpPtr(_currentEditingContext,NULL,object,gid);
             }
           else if (object && [EOFault isFault: object])
             {
@@ -480,8 +478,6 @@ RCS_ID("$Id$")
 
 - (BOOL)isFetchInProgress
 {
-  //NSDebugMLog(@"TEST attributesToFetch=%@", [_currentEntity attributesToFetch]);
-
   return [_adaptorChannel isFetchInProgress];
 }
 

@@ -65,6 +65,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOObjectStoreCoordinator.h>
 #include <EOControl/EONull.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 #include "EOEntityPriv.h"
 
@@ -257,14 +258,23 @@ RCS_ID("$Id$")
 
 - (EOQualifier *)schemaBasedQualifierWithRootEntity: (EOEntity *)entity
 {
-  //TODO
-  [self notImplemented: _cmd];
-  return nil;
+  return self; // MG: Not sure
 }
 
 @end
 
 @implementation EOKeyValueQualifier (EOQualifierSQLGeneration)
+
++ (void)initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+
+      GDL2PrivInit();
+    };
+};
 
 - (NSString *)sqlStringForSQLExpression: (EOSQLExpression *)sqlExpression
 {
@@ -346,7 +356,6 @@ when flattened: ???
           NSString *destinationAttributeName;
           EOJoin *join = [joins objectAtIndex: i];
           id attributeValue = nil;
-          EONull *eoNull=[EONull null];
 
           EOFLOGObjectLevelArgs(@"EOQualifier",@"join=%@",join);
 
@@ -371,7 +380,7 @@ when flattened: ???
           tmpQualifier = [EOKeyValueQualifier
 			   qualifierWithKey: attributeName
 			   operatorSelector: sel
-			   value: (attributeValue ? attributeValue : eoNull)];
+			   value: (attributeValue ? attributeValue : GDL2EONull)];
 
           if (qualifier)//Already a qualifier
             {

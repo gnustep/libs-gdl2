@@ -57,7 +57,8 @@ typedef enum {
 } EOFactoryMethodArgumentType;
 
 typedef enum {
-  EOAdaptorNumberType = 0,
+  EOAdaptorUnknownType = 0, // 0 so it is initialization value
+  EOAdaptorNumberType,
   EOAdaptorCharactersType,
   EOAdaptorBytesType,
   EOAdaptorDateType
@@ -84,7 +85,9 @@ typedef enum {
   unsigned int _width;
   unsigned short _precision;
   short _scale;
+  char _valueTypeChar; /** First char of _valueType or \0 **/
   Class _valueClass;
+  EOAdaptorValueType _adaptorValueType;
   EOFactoryMethodArgumentType _argumentType;
   NSString *_valueFactoryMethodName;
   NSString *_adaptorValueConversionMethodName;

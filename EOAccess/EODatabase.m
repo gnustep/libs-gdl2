@@ -57,6 +57,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EONull.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAccessFault.h>
 #include <EOAccess/EOAdaptor.h>
@@ -84,8 +85,16 @@ static NSMutableArray *databaseInstances;
 
 + (void)initialize
 {
-  // THREAD
-  databaseInstances = [NSMutableArray new];
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+
+      GDL2PrivInit();
+
+      // THREAD
+      databaseInstances = [NSMutableArray new];
+    }
 }
 
 + (void)makeAllDatabasesPerform: (SEL)aSelector withObject: anObject
@@ -289,7 +298,7 @@ static NSMutableArray *databaseInstances;
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p (of class %@)",
 			object, [object class]);
-  NSAssert(!isNilOrEONull(object), @"No object");
+  NSAssert(!_isNilOrEONull(object), @"No object");
 
   if ([EOFault isFault: object])
     {

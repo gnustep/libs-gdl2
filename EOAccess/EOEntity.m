@@ -71,6 +71,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EONull.h>
+#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EOCheapArray.h>
@@ -98,6 +99,17 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 
 @implementation EOEntity
+
++ (void)initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+
+      GDL2PrivInit();
+    };
+};
 
 /* Not documented becuase it is not a public method.  */
 - (id) initWithPropertyList: (NSDictionary*)propertyList
@@ -1403,9 +1415,11 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               if (!classProperty)
                   classProperty = [self relationshipNamed: classPropertyName];
 
-              NSAssert2(classProperty,
-                        @"No attribute or relationship named %@ to use as classProperty in entity %@",
+              NSAssert4(classProperty,
+                        @"No attribute or relationship named '%@' (property at index %d) to use as classProperty in entity name '%@' : %@",
                         classPropertyName,
+                        i+1,
+                        [self name],
                         self);
 
               if ([self isValidClassProperty: classProperty])
@@ -1689,7 +1703,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       id value = [row objectForKey: [attr name]];
 
       if (!value)
-        value = [EONull null];
+        value = GDL2EONull;
 
       [dict setObject: value
 	    forKey: [attr name]];
@@ -1740,7 +1754,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       NS_DURING
 	{
           value = [object valueForKey: key];
-          if (value == nil || value == [EONull null] || value == [NSNull null])
+          if (value == nil || value == GDL2EONull || value == [NSNull null])
             isValid = NO;
 	}
       NS_HANDLER
@@ -2115,9 +2129,9 @@ createInstanceWithEditingContext:globalID:zone:
   DESTROY(_classProperties);
   if ([properties isKindOfClass:[GCArray class]]
       || [properties isKindOfClass: [GCMutableArray class]])
-    _classProperties = [[GCMutableArray alloc] initWithArray: properties];
+    _classProperties = [((NSArray*)[GCMutableArray alloc]) initWithArray: properties];
   else
-    _classProperties = [[GCMutableArray alloc] initWithArray: properties]; //TODO
+    _classProperties = [((NSArray*)[GCMutableArray alloc]) initWithArray: properties]; //TODO
 
   [self _setIsEdited]; //To clean cache
 
@@ -2136,9 +2150,9 @@ createInstanceWithEditingContext:globalID:zone:
 
   if ([keys isKindOfClass:[GCArray class]]
       || [keys isKindOfClass: [GCMutableArray class]])
-    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys];
+    _primaryKeyAttributes = [((NSArray*)[GCMutableArray alloc]) initWithArray: keys];
   else
-    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys]; // TODO
+    _primaryKeyAttributes = [((NSArray*)[GCMutableArray alloc]) initWithArray: keys]; // TODO
   
   [self _setIsEdited];//To clean cache
 
@@ -2157,10 +2171,10 @@ createInstanceWithEditingContext:globalID:zone:
   
   if ([attributes isKindOfClass: [GCArray class]]   // TODO
       || [attributes isKindOfClass: [GCMutableArray class]])
-    _attributesUsedForLocking = [[GCMutableArray alloc]
+    _attributesUsedForLocking = [((NSArray*)[GCMutableArray alloc])
 				  initWithArray: attributes];
   else
-    _attributesUsedForLocking = [[GCMutableArray alloc]
+    _attributesUsedForLocking = [((NSArray*)[GCMutableArray alloc])
 				  initWithArray: attributes];
   
   [self _setIsEdited]; //To clean cache
@@ -2414,6 +2428,107 @@ createInstanceWithEditingContext:globalID:zone:
   EOFLOGObjectFnStop();
 
   return _classDescription;
+}
+
+@end
+
+/** Useful  private methods made public in GDL2 **/
+@implementation EOEntity (EOEntityGDL2Additions)
+
+/** Returns attribute (if any) for path **/
+- (EOAttribute*) attributeForPath: (NSString*)path
+{
+  //OK
+  EOAttribute *attribute = nil;
+  NSArray *pathElements = nil;
+  NSString *part = nil;
+  EOEntity *entity = self;
+  int i, count = 0;
+
+  EOFLOGObjectFnStart();
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
+
+  pathElements = [path componentsSeparatedByString: @"."];
+  EOFLOGObjectLevelArgs(@"EOEntity", @"pathElements=%@", pathElements);
+
+  count = [pathElements count];
+
+  for (i = 0; i < count - 1; i++)
+    {      
+      EORelationship *rel = nil;
+
+      part = [pathElements objectAtIndex: i];
+      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@", i, part);
+
+      rel = [entity anyRelationshipNamed: part];
+
+      NSAssert2(rel,
+		@"no relationship named %@ in entity %@",
+		part,
+		[entity name]);
+      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@ rel=%@",
+			    i, part, rel);
+
+      entity = [rel destinationEntity];
+      EOFLOGObjectLevelArgs(@"EOEntity", @"entity name=%@", [entity name]);
+    }
+
+  part = [pathElements lastObject];
+  EOFLOGObjectLevelArgs(@"EOEntity", @"part=%@", part);
+
+  attribute = [entity anyAttributeNamed: part];
+  EOFLOGObjectLevelArgs(@"EOEntity", @"resulting attribute=%@", attribute);
+
+  EOFLOGObjectFnStop();
+
+  return attribute;
+}
+
+/** Returns relationship (if any) for path **/
+- (EORelationship*) relationshipForPath: (NSString*)path
+{
+  //OK ?
+  EORelationship *relationship = nil;
+  EOEntity *entity = self;
+  NSArray *pathElements = nil;
+  int i, count;
+
+  EOFLOGObjectFnStart();
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
+
+  pathElements = [path componentsSeparatedByString: @"."];
+  count = [pathElements count];
+
+  for (i = 0; i < count; i++)
+    {
+      NSString *part = [pathElements objectAtIndex: i];
+
+      relationship = [entity anyRelationshipNamed: part];
+
+      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@ rel=%@",
+			    i, part, relationship);
+
+      if (relationship)
+        {
+          entity = [relationship destinationEntity];
+          EOFLOGObjectLevelArgs(@"EOEntity", @"entity name=%@", [entity name]);
+        }
+      else if (i < (count - 1)) // Not the last part
+        {
+          NSAssert2(relationship,
+                    @"no relationship named %@ in entity %@",
+                    part,
+                    [entity name]);
+        }
+    }
+
+  EOFLOGObjectFnStop();
+
+  EOFLOGObjectLevelArgs(@"EOEntity", @"relationship=%@", relationship);
+
+  return relationship;
 }
 
 @end
@@ -3704,100 +3819,6 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
 - (id) qualifierForDBSnapshot:(id)param0
 {
   return [self notImplemented: _cmd]; //TODO
-}
-
-- (EOAttribute*) attributeForPath: (NSString*)path
-{
-  //OK
-  EOAttribute *attribute = nil;
-  NSArray *pathElements = nil;
-  NSString *part = nil;
-  EOEntity *entity = self;
-  int i, count = 0;
-
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
-
-  pathElements = [path componentsSeparatedByString: @"."];
-  EOFLOGObjectLevelArgs(@"EOEntity", @"pathElements=%@", pathElements);
-
-  count = [pathElements count];
-
-  for (i = 0; i < count - 1; i++)
-    {      
-      EORelationship *rel = nil;
-
-      part = [pathElements objectAtIndex: i];
-      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@", i, part);
-
-      rel = [entity anyRelationshipNamed: part];
-
-      NSAssert2(rel,
-		@"no relationship named %@ in entity %@",
-		part,
-		[entity name]);
-      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@ rel=%@",
-			    i, part, rel);
-
-      entity = [rel destinationEntity];
-      EOFLOGObjectLevelArgs(@"EOEntity", @"entity name=%@", [entity name]);
-    }
-
-  part = [pathElements lastObject];
-  EOFLOGObjectLevelArgs(@"EOEntity", @"part=%@", part);
-
-  attribute = [entity anyAttributeNamed: part];
-  EOFLOGObjectLevelArgs(@"EOEntity", @"resulting attribute=%@", attribute);
-
-  EOFLOGObjectFnStop();
-
-  return attribute;
-}
-
-- (EORelationship*) relationshipForPath: (NSString*)path
-{
-  //OK ?
-  EORelationship *relationship = nil;
-  EOEntity *entity = self;
-  NSArray *pathElements = nil;
-  int i, count;
-
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
-
-  pathElements = [path componentsSeparatedByString: @"."];
-  count = [pathElements count];
-
-  for (i = 0; i < count; i++)
-    {
-      NSString *part = [pathElements objectAtIndex: i];
-
-      relationship = [entity anyRelationshipNamed: part];
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"i=%d part=%@ rel=%@",
-			    i, part, relationship);
-
-      if (relationship)
-        {
-          entity = [relationship destinationEntity];
-          EOFLOGObjectLevelArgs(@"EOEntity", @"entity name=%@", [entity name]);
-        }
-      else if (i < (count - 1)) // Not the last part
-        {
-          NSAssert2(relationship,
-                    @"no relationship named %@ in entity %@",
-                    part,
-                    [entity name]);
-        }
-    }
-
-  EOFLOGObjectFnStop();
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"relationship=%@", relationship);
-
-  return relationship;
 }
 
 - (void) _addAttributesToFetchForRelationshipPath: (NSString*)relPath

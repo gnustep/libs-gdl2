@@ -54,6 +54,7 @@ RCS_ID("$Id$")
 #endif
 
 #include <EOControl/EOObserver.h>
+#include <EOControl/EOPriv.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>

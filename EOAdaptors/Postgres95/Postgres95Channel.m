@@ -67,6 +67,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOFetchSpecification.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPriv.h>
 
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
@@ -161,6 +162,15 @@ pgResultDictionary(PGresult *pgResult)
 }
 
 @implementation Postgres95Channel
+
++ (void) initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      GDL2PrivInit();
+    };
+};
 
 /* Set DateStyle to use ISO format.  */
 - (void)_setDateStyle
@@ -444,8 +454,7 @@ zone:zone
                       else
                         {
                           //For efficiency reasons, the returned value is NOT autoreleased !
-                          values[i] = [[NSNumber alloc]
-					initWithLong: atol(string)];
+                          values[i] = [GDL2NSNumber_alloc() initWithLong: atol(string)];
                         }
                     }
                   else
@@ -457,7 +466,11 @@ zone:zone
                     }
                 }
 
-              NSDebugMLLog(@"gsdb", @"value[%d]=%@", i, values[i]);
+              NSDebugMLLog(@"gsdb", @"value[%d] (%p)=%@ of class: %@", 
+                           i, values[i], values[i], [values[i] class]);
+
+              // We don't want to add nil value to dictionary !
+              NSAssert1(values[i],@"No value for attribute: %@",attr);
             }
 
           NSDebugMLLog(@"gsdb", @"values count=%d values=%p", count, values);
@@ -899,7 +912,6 @@ each key
 
   EOFLOGObjectFnStart();
 
-  NSDebugMLog(@"TEST attributesToFetch=%@", [entity attributesToFetch]);
   NSDebugMLLog(@"gsdb",@"%@ -- %@ 0x%x: isFetchInProgress=%s",
 	       NSStringFromSelector(_cmd),
 	       NSStringFromClass([self class]),
@@ -1366,8 +1378,6 @@ each key
           NSString *externalType;
           NSString *valueClass = @"NSString";
           NSString *valueType = nil;
-          NSDebugMLog(@"TEST attributesToFetch=%@",
-		      [[attribute entity] attributesToFetch]);
 
           if (_origAttributes)
             {
@@ -1396,6 +1406,7 @@ each key
               [attribute setColumnName: @"unknown"];
               [attribute setExternalType: externalType];
 
+              //TODO: Optimize ?
               if      ([externalType isEqual: @"bool"])
                 valueClass = @"NSNumber", valueType = @"c";
               else if ([externalType isEqual: @"char"])
@@ -1436,8 +1447,6 @@ each key
             }
 
           attributes[i] = attribute;
-          NSDebugMLog(@"TEST attributesToFetch=%@",
-		      [[attribute entity] attributesToFetch]);
         }
 
       [self setAttributesToFetch: AUTORELEASE([[NSArray alloc]
@@ -1561,6 +1570,8 @@ each key
       NSString *externalType;
 
       externalType = [NSString stringWithCString: PQgetvalue(_pgResult,n,1)];
+
+      //TODO optimize ?
       if ([externalType isEqual: @"bool"])
 	valueClass = @"NSNumber", valueType = @"c";
       else if ([externalType isEqual: @"char"])
@@ -1749,11 +1760,13 @@ each key
 
 - (EOModel *)describeModelWithTableNames: (NSArray *)tableNames
 {
-  EOModel   *model;
-  EOAdaptor *adaptor;
-  EOEntity  *entity;
-  NSArray   *entityNames;
-  unsigned int i;
+  EOModel   *model=nil;
+  EOAdaptor *adaptor=nil;
+  EOEntity  *entity=nil;
+  NSArray   *entityNames=nil;
+  unsigned int i=0;
+  int tableNamesCount=[tableNames count];
+  int entityNamesCount=0;
 
   adaptor = [[self adaptorContext] adaptor];
   model = AUTORELEASE([[EOModel alloc] init]);
@@ -1761,7 +1774,7 @@ each key
   [model setAdaptorName: [adaptor name]];
   [model setConnectionDictionary: [adaptor connectionDictionary]];
 
-  for (i = 0; i < [tableNames count]; i++)
+  for (i = 0; i < tableNamesCount; i++)
     {
       NSAutoreleasePool *pool = [NSAutoreleasePool new];
       NSString *name;
@@ -1782,7 +1795,8 @@ each key
 
   /* <foreign key stuff> */
   entityNames = [model entityNames];
-  for (i = 0; i < [entityNames count]; i++)
+  entityNamesCount=[entityNames count];
+  for (i = 0; i < entityNamesCount; i++)
     {
       NSAutoreleasePool *pool = [NSAutoreleasePool new];
       NSString *entityName;
@@ -1802,7 +1816,7 @@ each key
       [pool release];
     }
 
-  for (i=0; i < [entityNames count]; i++)
+  for (i=0; i < entityNamesCount; i++)
     {
       NSAutoreleasePool *pool = [NSAutoreleasePool new];
       NSMutableArray *classProperties;
