@@ -1,3 +1,10 @@
+2004-04-17  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.m
+	(vfmaxf) New function.
+	([Postgres95LoginPanel init]): Redo UI layout.
+	([Postgres95LoginPanel _databaseNames]): Reformat.
+	
 2004-04-17  David Ayers  <d.ayers@inode.at>
 
 	* */*.h: Format declarations consistently.  Add -*-objc-*
