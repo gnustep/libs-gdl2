@@ -58,6 +58,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOObjectStore.h>
 #include <EOControl/EOObjectStoreCoordinator.h>
 #include <EOControl/EOEditingContext.h>
+#include <EOControl/EONull.h>
 #include <EOControl/EODebug.h>
 
 /*
@@ -79,6 +80,11 @@ RCS_ID("$Id$")
 @end
 
 @implementation EOKeyValueQualifier
+static EONull *null = nil;
++ (void)initialize
+{
+  null = [EONull null];
+}
 
 /**
  * Returns an autoreleased EOKeyValueQualifier using key, selector and value.  
@@ -112,6 +118,10 @@ RCS_ID("$Id$")
 
       _selector = selector;
       ASSIGNCOPY(_key, key);
+      if (value == nil)
+	{
+	  value = null;
+	}
       ASSIGN(_value, value);
     }
 
@@ -193,6 +203,11 @@ RCS_ID("$Id$")
   BOOL (*imp)(id, SEL, id);
 
   val = [object valueForKey: _key];
+
+  if (val == nil)
+    {
+      val = null;
+    }
 
   imp = (BOOL (*)(id, SEL, id))[val methodForSelector: _selector];
   if (imp != NULL)

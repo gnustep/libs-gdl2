@@ -214,6 +214,7 @@ static id getKey(const char **cFormat, const char **s, BOOL *isKeyValue,
 	  if (value == 0 || value == ' ')
 	    {
 	      *cFormat = *s = *s+3;
+	      *isKeyValue = YES;
 	      return nil;
 	    }
 	}

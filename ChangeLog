@@ -1,5 +1,13 @@
 2003-02-12  David Ayers  <d.ayers@inode.at>
 
+	* EOControl/EOKeyValueQualifier.m
+	([EOKeyValueQualifier initWithKey:operatorSelector:value:]):
+	Use EONull instance if value is nil.
+	([EOKeyValueQualifier evaluateWithObject:]): Use EONull
+	instance if object is nil.
+	* EOControl/EOQualifier.m (getKey): Always interpret 
+	'attName = nil' qualifiers as EOKeyValueQualifiers.
+	
 	* EOControl/EODebug.h/m(EOFLogAssertGood_): Remove dependancy 
 	on superfluous category.
 	([NSObject isa]): Remove category.
