@@ -1,11 +1,11 @@
-2003-04-12  David Ayers  <d.ayers@inode.at>
+2004-04-12  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble:
 	Create symlink before building.  Error reported by Ludovic
 	Marcotte <ludovic@Sophos.ca> and Matt Rice
 	<ratmice@yahoo.com>.
 
-2003-03-29  David Ayers  <d.ayers@inode.at>
+2004-03-29  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/Postgres95SQLExpression.m
 	([Postgres95SQLExpression columnTypeStringForAttribute:]):
@@ -16,19 +16,19 @@
 	Create single global model group and cache it to allow persistant
 	manual adding of models.
 	
-2003-03-19  David Ayers  <d.ayers@inode.at>
+2004-03-19  David Ayers  <d.ayers@inode.at>
 
 	* *.[hm] Use GNUSTEP in favor of NeXT_Foundation_LIBRARY
 	as requested by Marcus Mueller <znek@mulle-kybernetik.com>.
 	
-2003-03-10  David Ayers  <d.ayers@inode.at>
+2004-03-10  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble:
 	Don't remove GNUmakefile on distclean.
 	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile: Add include
 	directive for local GDL2 headers.
 
-2003-03-08  Matt Rice  <ratmice@yahoo.com>
+2004-03-08  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/Postgres95Channel.h
 	([Postgres95Channel describeDatabaseNames]): Declare method.
@@ -38,7 +38,7 @@
 	([Postgres95LoginPanel init]): Added parentheses to assignment
 	to quiet compiler warning.
 	
-2003-03-08  David Ayers  <d.ayers@inode.at>
+2004-03-08  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/Postgres95Adaptor.m
 	([Postgres95Adaptor createPGconn]): Insure cleanup code gets 
@@ -47,7 +47,7 @@
 	* EOAdaptors/Postgres95/LoginPanel/Makefile.postamble: New file
 	to create symlink to be able to include local adaptor headers.
 
-2003-03-06  David Ayers  <d.ayers@inode.at>
+2004-03-06  David Ayers  <d.ayers@inode.at>
 
 	* configure.ac: Replace generation of
 	EOAdaptors/Postgres95/Makefile.preamble with
@@ -68,7 +68,7 @@
 	dropDatabaseStatementsForConnectionDictionary:
 	administrativeConnectionDictionary:]): Remove excess quotes.
 
-2003-03-06  Matt Rice  <ratmice@yahoo.com>
+2004-03-06  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOAdaptor.m
 	([EOAdaptor dropDatabaseWithAdministrativeConnectionDictionary:
@@ -89,11 +89,11 @@
 	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile: New file.
 	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.h/m: Ditto.
 
-2003-03-06  David Ayers  <d.ayers@inode.at>
+2004-03-06  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/Makefile.preamble:  Fix --disable-flattend.
 
-2003-02-26  David Ayers  <d.ayers@inode.at>
+2004-02-26  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EODebug.h: Include missing header for non-*-gnu-*.
 	* EOAccess/EOAdaptor
@@ -112,14 +112,14 @@
 
 	* Tools/EOModel+GSDoc.m: Fix include.
 
-2003-02-26  Matt Rice  <ratmice@yahoo.com>
+2004-02-26  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/Postgres95Channel.m: Added missing 
 	include.
 	([Postgres95Channel _describeForeignKeysForEntity:forModel:]):
 	Fix typo to unsure using correct entity.
 
-2003-02-25  David Ayers  <d.ayers@inode.at>
+2004-02-25  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOCheapArray.m ([EOCheapArray dealloc]): Replace
 	usage of objc_thread_id with GSCurrentThread.
@@ -184,12 +184,12 @@
 	* EOAccess/EOModel.m ([EOModel beautifyNames]): Remove log and 
 	reformat comments. 
 
-2003-02-23  David Ayers  <d.ayers@inode.at>
+2004-02-23  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.m ([EOAdaptor sharedLoginPanelInstance]):
 	Maintain instances on a per class basis as reported by Matt Rice.
 
-2003-02-22  David Ayers  <d.ayers@inode.at>
+2004-02-22  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.h/m: New globals for GDL2 specific
 	administrative key handling.
@@ -202,7 +202,7 @@
 	([EOSQLExpression schemaCreationStatementsForEntities:options:]):
 	Added support for EODropDatabaseKey and EOCreateDatabaseKey.
 
-2003-02-19  David Ayers  <d.ayers@inode.at>
+2004-02-19  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/Makefile.postamble: Remove obsolete dependency and
 	target.  Add dependancy and targets for target specific config.h
@@ -217,12 +217,12 @@
 	* EOControl/EODebug.m (EOFLogC_): Log thread in a portable
 	fashion.
 
-2003-02-14  Matt Rice  <ratmice@yahoo.com>
+2004-02-14  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/Postgres95Channel.m
 	([Postgres95Channel describeModelWithTableNames:]): Implemented.
 
-2003-02-12  David Ayers  <d.ayers@inode.at>
+2004-02-12  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.h
 	([EOLoginPanel administrativeConnectionDictionaryForAdaptor]):
@@ -294,13 +294,13 @@
 	on superfluous category.
 	([NSObject isa]): Remove category.
 	
-2003-02-01  David Ayers  <d.ayers@inode.at>
+2004-02-01  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAdaptor.m ([EOAdaptor adaptorWithName:]): Use
 	NSSearchPathForDirectoriesInDomains() instead of GNUstep
 	specific environment variable.
 
-2003-01-31  David Ayers  <d.ayers@inode.at>
+2004-01-31  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAccessFault.m: Add #includes for non *-gnu-*.
 	* EOAccess/EOAdaptorOperation.m: Ditto.
@@ -328,7 +328,7 @@
 	
 	* Tools/EOModel+GSDoc.m: Remove usage of -version.
 
-2003-01-30  David Ayers  <d.ayers@inode.at>
+2004-01-30  David Ayers  <d.ayers@inode.at>
 
 	* GNUmakefile: Build EOControl before EOAccess.
 	* EOAccess/GNUmakefile: Remove LIBRARIES_DEPEND_UPON handling.
@@ -342,7 +342,7 @@
 	* Tools/Makefile.preamble: Ditto.
 	Add -lgnustep-baseadd as ADDITIONAL_TOOL_LIBS for non-*-gnu-*.
 	
-2003-01-29  David Ayers  <d.ayers@inode.at>
+2004-01-29  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/GNUmakefile:  Test FOUNDATION_LIB to determine whether
 	to link -base or -baseadd.
