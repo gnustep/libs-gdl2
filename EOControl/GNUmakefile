@@ -96,24 +96,24 @@ EODeprecated.h \
 EOControl.h \
 
 
-gdl2control_AUTOGSDOC_HEADERS = $(libgnustep-db2control_HEADER_FILES)
-gdl2control_AUTOGSDOC_SOURCE = $(libgnustep-db2control_OBJC_FILES)
-DOCUMENT_NAME = gdl2control
-gdl2control_HEADER_FILES_DIR = $(HEADER_DIR)
-gdl2control_AGSDOC_FILES = gdl2control.gsdoc $(gdl2control_AUTOGSDOC_HEADERS) 
-#$(gdl2control_AUTOGSDOC_SOURCE)
-gdl2control_AGSDOC_FLAGS = \
-	-Declared Foundation \
+DOCUMENT_NAME = EOControl
+EOControl_AUTOGSDOC_HEADERS = $(libgnustep-db2control_HEADER_FILES)
+EOControl_AUTOGSDOC_SOURCE = $(libgnustep-db2control_OBJC_FILES)
+EOControl_HEADER_FILES_DIR = $(HEADER_DIR)
+EOControl_AGSDOC_FILES = EOControl.gsdoc $(EOControl_AUTOGSDOC_HEADERS) 
+#$(EOControl_AUTOGSDOC_SOURCE)
+EOControl_AGSDOC_FLAGS = \
+	-Declared EOControl \
 	-Standards YES \
 	-SystemProjects System \
-	-Project gdl2control \
+	-Project EOControl \
 	-WordMap '{\
 	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
 	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
 	GS_EXPORT=extern;GS_DECLARE="";\
 	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
-	}' -Up gdl2control
+	}' -Up EOControl
 
 -include Makefile.preamble
 

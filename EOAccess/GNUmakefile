@@ -89,23 +89,23 @@ EODeprecated.h \
 EOAccess.h \
 
 
-gdl2_AUTOGSDOC_HEADERS = $(libgnustep-db2_HEADER_FILES)
-gdl2_AUTOGSDOC_SOURCE = $(libgnustep-db2_OBJC_FILES)
-DOCUMENT_NAME = gdl2
-gdl2_HEADER_FILES_DIR = $(HEADER_DIR)
-gdl2_AGSDOC_FILES = gdl2.gsdoc $(gdl2_AUTOGSDOC_HEADERS) 
-#$(gdl2_AUTOGSDOC_SOURCE)
-gdl2_AGSDOC_FLAGS = \
+DOCUMENT_NAME = EOAccess
+EOAccess_AUTOGSDOC_HEADERS = $(libgnustep-db2_HEADER_FILES)
+EOAccess_AUTOGSDOC_SOURCE = $(libgnustep-db2_OBJC_FILES)
+EOAccess_HEADER_FILES_DIR = $(HEADER_DIR)
+EOAccess_AGSDOC_FILES = EOAccess.gsdoc $(EOAccess_AUTOGSDOC_HEADERS) 
+#$(EOAccess_AUTOGSDOC_SOURCE)
+EOAccess_AGSDOC_FLAGS = \
 	-Declared EOAccess \
 	-Standards YES \
-	-Project gdl2 \
+	-Project EOAccess \
 	-WordMap '{\
 	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
 	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
 	GS_EXPORT=extern;GS_DECLARE="";\
 	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
-	}' -Up gdl2
+	}' -Up EOAccess
 
 
 -include Makefile.preamble

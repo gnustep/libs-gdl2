@@ -30,10 +30,16 @@ include ./Version
 # The list of subproject directories
 #
 SUBPROJECTS = EOControl EOAccess EOAdaptors EOModeler Tools
+DOCUMENT_NAME = GDL2
+
+GDL2_AGSDOC_FILES = GDL2.gsdoc
 
 -include Makefile.preamble
 
 include $(GNUSTEP_MAKEFILES)/aggregate.make
+ifeq ($(doc),yes)
+include $(GNUSTEP_MAKEFILES)/documentation.make
+endif
 
 -include Makefile.postamble
 

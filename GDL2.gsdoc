@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsdoc PUBLIC "-//GNUstep//DTD gsdoc 1.0.1//EN" "http://www.gnustep.org/gsdoc-1_0_1.dtd">
+<gsdoc base="index">
+  <head>
+    <title>GDL2</title>
+    <author name="Mirko Viviani">
+      <email address="mirko.viviani@rccr.cremona.it"/>
+      <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
+    <author name="Manuel Guesdon">
+      <email address="mguesdon@orange-concept.com"/>
+      <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
+    <author name="David Ayers">
+      <email address="d.ayers@inode.at"/>
+      <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
+  </head>
+  <body>
+    <chapter>
+      <heading>GDL2 - GNUstep Database Library 2</heading>
+      <p>The GNUstep Database Library 2 (GDL2) is a set of libraries to map
+      Objective-C objects to rows of relational database management systems
+      (RDBMS).  It aims to be compatible with Enterprise Objects Framework
+      (EOF) as released with WebObjects 4.5 from Apple Inc.</p>
+      <p>GDL2 consists of the following components:</p>
+      <subsubsect>
+        <heading>- <uref url="EOControl/EOControl.html">EOControl</uref></heading>
+        <p>The fundamental abstraction library which includes many non RDBMS
+        related extensions such as KeyValueCoding extensions and other
+        categories.  Most importantly it contains the classes which handle the
+        coordination of object graphs namely EOEditingContext.</p>
+      </subsubsect>
+      <subsubsect>
+        <heading>- <uref url="EOAccess/EOAccess.html">EOAccess</uref></heading>
+	<p>This library implements the underlying mechanism to
+	retrieve and store data in RDBMS.  It defines the abstract
+	classes like EOAdaptor which are subclassed to interface with
+	concrete RDBMS implementations.</p>
+      </subsubsect>
+      <subsubsect>
+        <heading>- EOInterface</heading>
+        <p>This library implements classes used to synchronize UI
+	components such as NSTextFields, NSButtons and NSTableViews
+	with the state of objects which an EOEditingContext contains.</p>
+        <p>*Note this library is still missing in GDL2.  Some people
+	have tried to use 
+        <url url="http://www.mulle-kybernetik.com/software/MulleEOInterface"/>
+        with some success.</p>
+      </subsubsect>
+    </chapter>
+    <back>
+      <index scope="project" type="title" />
+    </back>
+  </body>
+</gsdoc>

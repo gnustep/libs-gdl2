@@ -27,7 +27,7 @@ This library implements the underlying mechanism to retrieve and store
 data in RDBMS.  It defines the abstract classes like EOAdaptor which
 are subclassed to interface with concrete RDBMS implementations.
 
-- EOInterface (gnustep-db2interface)
+- EOInterface
 
 This library implements classes used to synchronize UI components such
 as NSTextFields, NSButtons and NSTableViews with the state of objects

@@ -1,5 +1,20 @@
 2004-11-02  David Ayers  <d.ayers@inode.at>
 
+	* GDL2.gsdoc: New file for documentation project.
+	* GNUmakefile: Build documentation project.
+	* EOAccess/gdl2.gsdoc: Rename to ...
+	* EOAccess/EOAccess.gsdoc: ... new name.
+	* EOControl/gdl2control.gsdoc: Rename to ...
+	* EOControl/EOControl.gsdoc: ... new name.
+	* EOAccess/GNUmakefile: Update documentation project name.
+	* EOControl/GNUmakefile: Ditto.
+	* README: Remove reference to potentially obsolete name.
+
+	* Tools/eomodeltemplate.gsdoc: Update encoding, DTD reference and
+	minor reformatting.
+	* Tools/gdl2gsdoc.gsdoc: Update DTD reference and add myself as
+	coauthor.
+	
 	* EOAccess/EODatabaseContext.h/m: 
 	(EOStoredProcedureNameHintKey, EOCustomQueryExpressionHintKey):
 	Define missing keys.

@@ -1,18 +1,21 @@
 <?xml version="1.0"?>
-<!DOCTYPE gsdoc PUBLIC "-//GNUstep//DTD gsdoc 0.6.7//EN" "http://www.gnustep.org/gsdoc-0_6_7.xml">
+<!DOCTYPE gsdoc PUBLIC "-//GNUstep//DTD gsdoc 1.0.1//EN" "http://www.gnustep.org/gsdoc-1_0_1.dtd">
 <gsdoc base="index">
   <head>
-    <title>GDL2</title>
+    <title>GDL2 Control</title>
     <author name="Mirko Viviani">
       <email address="mirko.viviani@rccr.cremona.it"/>
         <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
     <author name="Manuel Guesdon">
       <email address="mguesdon@orange-concept.com"/>
         <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
+    <author name="David Ayers">
+      <email address="d.ayers@inode.at"/>
+        <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
   </head>
   <body>
     <chapter>
-      <heading>GDL2</heading>
+      <heading>GDL2 Control</heading>
       <p>...
       </p>
     </chapter>
