@@ -27,6 +27,8 @@
 #ifndef __config_h__
 #define __config_h__
 
+#undef HAVE_DECL_PQFREEMEM
+#undef HAVE_DECL_PQUNESCAPEBYTEA
 
 /* Define if Foundation implements KeyValueCoding.  */
 #define FOUNDATION_HAS_KVC 1

@@ -48,6 +48,14 @@ AC_DEFUN(AM_PATH_PGSQL,[
     ifelse([$2], , :, [$2])
   fi
 
+  if test $POSTGRES_DATABASE = yes; then
+    AC_CHECK_DECLS(PQfreemem, , ,[
+#include <libpq-fe.h>])
+    AC_CHECK_DECLS(PQunescapeBytea, , ,[
+#include <libpq-fe.h>])
+  fi
+	
+
   CPPFLAGS="$cppflags_temp"
   LIBS="$libs_temp"
 

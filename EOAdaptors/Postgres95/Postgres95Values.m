@@ -57,10 +57,11 @@ RCS_ID("$Id$")
 #include <EOAccess/EOAttribute.h>
 #include <EOControl/EONSAddOns.h>
 
-#include <Postgres95EOAdaptor/Postgres95Adaptor.h>
-#include <Postgres95EOAdaptor/Postgres95Channel.h>
-#include <Postgres95EOAdaptor/Postgres95Values.h>
+#include "Postgres95EOAdaptor/Postgres95Adaptor.h"
+#include "Postgres95EOAdaptor/Postgres95Channel.h"
+#include "Postgres95EOAdaptor/Postgres95Values.h"
 
+#include "Postgres95Compatibility.h"
 
 void __postgres95_values_linking_function (void)
 {
@@ -167,8 +168,23 @@ For efficiency reasons, the returned value is NOT autoreleased !
                     length: (int)length
                  attribute: (EOAttribute *)attribute
 {
-  return [attribute newValueForBytes: bytes
-		    length: length];
+  size_t newLength = length;
+  unsigned char *decodedBytes = 0;
+  id data;
+
+  if ([[attribute externalType] isEqualToString: @"bytea"])
+    {
+      decodedBytes = PQunescapeBytea((unsigned char *)bytes, &newLength);
+      bytes = decodedBytes;
+    }
+
+  data = [attribute newValueForBytes: bytes
+		    length: newLength];
+  if (decodedBytes)
+    {
+      PQfreemem (decodedBytes);
+    }
+  return data;
 }
 
 

@@ -178,14 +178,16 @@ postgresClientVersion()
 */
 static NSString *externalTypeNames[] = {
 #warning (stephane@sente.ch) Needs to be updated!!!
-  @"numeric", @"varchar",  @"bpchar", @"date",
+  @"numeric", @"varchar", @"bytea", @"date",
   @"boolean", @"bool", 
   @"char", @"char2", @"char4", @"char8", @"char16", @"filename", 
   @"reltime", @"time", @"tinterval", @"abstime", @"timestamp",
   @"real", @"double precision", @"float4", @"float8", 
   @"bigint", @"int8", @"int4", @"int2", 
   @"oid", @"oid8", @"oidint2", @"oidint4", @"oidchar16",
-  @"decimal", @"cid", @"tid", @"xid",
+  @"decimal", @"cid",
+  @"tid", @"xid",
+  @"bpchar",
   nil
 };
 
@@ -197,7 +199,9 @@ static NSString *internalTypeNames[] = {
   @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
   @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
   @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
-  @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber", @"NSDecimalNumber",
+  @"NSDecimalNumber", @"NSDecimalNumber",
+  @"NSDecimalNumber", @"NSDecimalNumber",
+  @"NSData",
   nil
 };
 

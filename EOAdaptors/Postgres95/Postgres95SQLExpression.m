@@ -57,9 +57,11 @@ RCS_ID("$Id$")
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOSchemaGeneration.h>
 
-#include <Postgres95EOAdaptor/Postgres95SQLExpression.h>
-#include <Postgres95EOAdaptor/Postgres95Adaptor.h>
-#include <Postgres95EOAdaptor/Postgres95Values.h>
+#include "Postgres95SQLExpression.h"
+#include "Postgres95Adaptor.h"
+#include "Postgres95Values.h"
+
+#include "Postgres95Compatibility.h"
 
 /* These methods are undocumented but exist in GDL2 and WO4.5. 
    Ayers: Review (Don't rely on them) */
@@ -217,6 +219,26 @@ RCS_ID("$Id$")
         }
       else
         formatted = [NSString stringWithFormat: @"'%@'",value];
+    }
+  else if ([externalType isEqualToString: @"bytea"]) 
+    {
+      unsigned char *escapedString;
+      size_t newLength;
+
+      EOFLOGObjectLevelArgs(@"EOSQLExpression",
+			    @"bytea case - value=%@ class=%@",
+			    value, [value class]);
+
+      escapedString = PQescapeBytea ((unsigned char *)[value bytes],
+				     [value length],
+				     &newLength);
+
+      /* Note that the value returned in newLength is unreliable.  */
+      formatted = [NSString stringWithFormat: @"'%s'", escapedString];
+      if (escapedString)
+	{
+	  PQfreemem (escapedString);
+	}
     }
   else
     {

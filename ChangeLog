@@ -1,3 +1,21 @@
+2004-05-07  Simon Stapleton  <simon@tufty.co.uk>
+	    David Ayers  <d.ayers@inode.at>
+
+	* config.h.in (HAVE_DECL_PQFREEMEM, HAVE_DECL_PQUNESCAPEBYTEA):
+	Added new test markers.
+	* config/postgres.m4; Add tests for new markers.
+	* configure: Regenerated.
+	* EOAdaptors/Postgres95/Postgres95Compatibility.h: New file.
+	
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m: Change default data
+	type for NSData to bytea.
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m
+	([Postgres95SQLExpression formatValue:forAttribute:])
+	Format bytea data.
+	* EOAdaptors/Postgres95/Postgres95Values.m
+	([Postgres95Values newValueForBytesType:length:attribute:]):
+	Decode bytea data.
+	
 2004-09-08  David Ayers  <d.ayers@inode.at>
 
 	* EOAccess/EOAttribute.m (-[copyWithZone:]): Override

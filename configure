@@ -2617,6 +2617,208 @@ echo "${ECHO_T}no" >&6
     enable_pgsql=no
   fi
 
+  if test $POSTGRES_DATABASE = yes; then
+    echo "$as_me:$LINENO: checking whether PQfreemem is declared" >&5
+echo $ECHO_N "checking whether PQfreemem is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_PQfreemem+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <libpq-fe.h>
+
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+#ifndef PQfreemem
+  char *p = (char *) PQfreemem;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_PQfreemem=yes
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+ac_cv_have_decl_PQfreemem=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_PQfreemem" >&5
+echo "${ECHO_T}$ac_cv_have_decl_PQfreemem" >&6
+if test $ac_cv_have_decl_PQfreemem = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_PQFREEMEM 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_PQFREEMEM 0
+_ACEOF
+
+
+fi
+
+
+    echo "$as_me:$LINENO: checking whether PQunescapeBytea is declared" >&5
+echo $ECHO_N "checking whether PQunescapeBytea is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_PQunescapeBytea+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <libpq-fe.h>
+
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+#ifndef PQunescapeBytea
+  char *p = (char *) PQunescapeBytea;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_PQunescapeBytea=yes
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+ac_cv_have_decl_PQunescapeBytea=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_PQunescapeBytea" >&5
+echo "${ECHO_T}$ac_cv_have_decl_PQunescapeBytea" >&6
+if test $ac_cv_have_decl_PQunescapeBytea = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_PQUNESCAPEBYTEA 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_PQUNESCAPEBYTEA 0
+_ACEOF
+
+
+fi
+
+
+    echo "$as_me:$LINENO: checking whether PQresultStatus is declared" >&5
+echo $ECHO_N "checking whether PQresultStatus is declared... $ECHO_C" >&6
+if test "${ac_cv_have_decl_PQresultStatus+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#include <libpq-fe.h>
+
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+#ifndef PQresultStatus
+  char *p = (char *) PQresultStatus;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_have_decl_PQresultStatus=yes
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+ac_cv_have_decl_PQresultStatus=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_have_decl_PQresultStatus" >&5
+echo "${ECHO_T}$ac_cv_have_decl_PQresultStatus" >&6
+if test $ac_cv_have_decl_PQresultStatus = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_PQRESULTSTATUS 1
+_ACEOF
+
+
+else
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_PQRESULTSTATUS 0
+_ACEOF
+
+
+fi
+
+
+  fi
+
+
   CPPFLAGS="$cppflags_temp"
   LIBS="$libs_temp"
 
