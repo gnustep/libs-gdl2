@@ -171,7 +171,7 @@ static id classDelegate = nil;
       if (!classDescription)
         {
           NSLog(@"Warning: No class description for class named: %s",
-		GSObjCName(aClass));
+		GSNameFromClass(aClass));
         }
     }
 
