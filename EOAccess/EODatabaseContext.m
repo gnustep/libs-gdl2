@@ -134,6 +134,13 @@ static Class _contextClass = Nil;
 
   model = [[[EOModelGroup defaultGroup] entityNamed:entityName] model];
 
+  if (model == nil)
+    NSLog(@"%@ -- %@ 0x%x: No model for entity named %@",
+	  NSStringFromSelector(_cmd), 
+	  NSStringFromClass([self class]),
+	  self,
+	  entityName);
+
   dbContext = [EODatabaseContext databaseContextWithDatabase:
 				   [EODatabase databaseWithModel: model]];
 

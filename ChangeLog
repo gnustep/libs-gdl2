@@ -1,3 +1,11 @@
+2002-12-05  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
+	+_registerDatabaseContext:]): added a warning  if the specified model
+	is not found.
+	* EOAdaptors/Postgres95/Makefile.preamble.in (LIBRARIES_DEPEND_UPON):
+	added postgres libs here.
+
 2002-12-04  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* EOModeler/EOModelExtensions.m ([EOEntity -classAttributes]): 

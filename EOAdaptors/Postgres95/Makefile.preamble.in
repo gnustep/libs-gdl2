@@ -47,8 +47,8 @@ ADDITIONAL_CFLAGS =
 # Additional include directories the compiler should search
 ADDITIONAL_INCLUDE_DIRS = -I../.. @POSTGRES_INCLUDES@
 
-# Additional LDFLAGS to pass to the linker
-ADDITIONAL_LDFLAGS = @POSTGRES_LIBS@
+# Libraries linked to the framework
+LIBRARIES_DEPEND_UPON = @POSTGRES_LIBS@
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS = @POSTGRES_LIB_DIRS@
