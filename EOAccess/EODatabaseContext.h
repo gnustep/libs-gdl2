@@ -69,26 +69,20 @@ struct _EOTransactionScope;
   EODatabase *_database;
   EOAdaptorContext *_adaptorContext;
   EOUpdateStrategy _updateStrategy;
-/*TOADD
-    NSMutableArray *_uniqueStack;
-    NSMutableArray *_deleteStack;
-    NSMutableArray *_modifiedObjects;
-*/
+  NSMutableArray *_uniqueStack; /* simple snapshots */
+  NSMutableArray *_deleteStack; 
+
   NSMutableArray *_registeredChannels;
   NSMapTable *_dbOperationsByGlobalID;
   EOObjectStoreCoordinator *_coordinator;	/* unretained */
   EOEditingContext *_editingContext;		/* unretained */
-  id *_lockedObjects;//void*
+  NSHashTable *_lockedObjects;//void*
 /*TO ADD    unsigned int _currentGeneration;
     unsigned int _concurentFetches;
 */
 
-  unsigned int _numLocked;//TO REMOVE
   NSMutableDictionary *_batchFaultBuffer;
   NSMutableDictionary *_batchToManyFaultBuffer;
-
-//  NSMutableDictionary *_snapshots;
-//  NSMutableDictionary *_toManySnapshots;
 
   EOEntity* _lastEntity;
 /*TOADD  
@@ -96,10 +90,7 @@ struct _EOTransactionScope;
     NSDictionary *_currentSnapshot;
     objc_object *_currentBatch;
 */
-  NSMutableArray *_uniqueStack;// snaps
-  NSMutableArray *_uniqueArrayStack;//to many snaps
-  NSMutableArray *_deleteStack;
-
+  NSMutableArray *_uniqueArrayStack; /* to-many snapshots */
   NSHashTable *_nonPrimaryKeyGenerators;
 
   struct {

@@ -161,7 +161,8 @@ static Class _contextClass = Nil;
   if (keyValue)
     entityName = [keyValue entityName];
 
-  model = [[[EOModelGroup defaultGroup] entityNamed:entityName] model];
+  if (entityName)
+    model = [[[EOModelGroup defaultGroup] entityNamed:entityName] model];
 
   if (model == nil)
     NSLog(@"%@ -- %@ 0x%x: No model for entity named %@",
@@ -252,9 +253,6 @@ static Class _contextClass = Nil;
       
 //NO      _lock = [NSRecursiveLock new];
       
-//NO      _numLocked = 0;
-//After      _lockedObjects = NSZoneMalloc(NULL, _LOCK_BUFFER*sizeof(id));
-      
       
       /* //TODO ?
          transactionStackTop = NULL;
@@ -324,7 +322,7 @@ static Class _contextClass = Nil;
     }
 
   if (_lockedObjects)
-      NSZoneFree(NULL, _lockedObjects);         // Turbocat
+    NSResetHashTable(_lockedObjects);
 
   DESTROY(_lock);
 
@@ -1913,18 +1911,29 @@ userInfo = {
   NSMutableDictionary *qualifierSnapshot, *lockSnapshot;
   NSMutableArray *lockAttributes;
   NSEnumerator *attrsEnum;
-  EOQualifier *qualifier;
+  EOQualifier *qualifier = nil;
   EOAttribute *attribute;
 
   if ([self isObjectLockedWithGlobalID: gid] == NO)
     {
-      snapshot = [self snapshotForGlobalID: gid];
-
       if (_delegateRespondsTo.shouldLockObject == YES &&
 	 [_delegate databaseContext: self
 		    shouldLockObjectWithGlobalID: gid
 		    snapshot: snapshot] == NO)
 	  return;
+
+      snapshot = [self snapshotForGlobalID: gid];
+      /* If we do not have a snapshot yet, the the object
+	 is probably faulted.  The reference implementation seems
+	 to ignore the lock in this case.  We will try to do better
+	 and if we can't, we'll acually raise as documented.  */
+      if (snapshot == nil)
+	{
+         id obj = [context objectForGlobalID: gid];
+         if ([EOFault isFault: obj]) [obj self];
+         snapshot = [self snapshotForGlobalID: gid];
+	}
+      NSAssert1(snapshot,@"Could not obtain snapshot for %@", gid);
 
       channel = [self availableChannel];
       entity = [_database entityNamed: [gid entityName]];
@@ -2017,7 +2026,14 @@ userInfo = {
 
 - (void)invalidateAllObjects
 {
-  [self invalidateObjectsWithGlobalIDs: [[_database snapshot] allKeys]];
+  NSDictionary *snapshots;
+  NSArray *gids;
+
+  [_database invalidateResultCache];
+
+  snapshots = [_database snapshot];
+  gids = [snapshots allKeys];
+  [self invalidateObjectsWithGlobalIDs: gids];
 
   [[NSNotificationCenter defaultCenter]
     postNotificationName: EOInvalidatedAllObjectsInStoreNotification
@@ -2044,7 +2060,7 @@ userInfo = {
 	}
     }
 
-  [_database forgetSnapshotsForGlobalIDs: ((id)array ? (id)array : globalIDs)];
+  [self forgetSnapshotsForGlobalIDs: ((id)array ? (id)array : globalIDs)];
 }
 
 @end
@@ -3303,9 +3319,11 @@ Raises an exception is the adaptor is unable to perform the operations.
         }
   }
 
-  if (doIt)
+  /* If a transaction is open, it could be holding locks
+     which we want to release.  */
+  if (doIt || _flags.beganTransaction)
     {
-      if (_flags.beganTransaction != YES)//it is not set here in WO
+      if (_flags.beganTransaction == NO)//it is not set here in WO
         {
           NSEmitTODO();
           [self notImplemented: _cmd]; //TODO
@@ -3495,9 +3513,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       _flags.beganTransaction = NO;
 
-      _numLocked = 0;
-      _lockedObjects = NSZoneRealloc(NULL, _lockedObjects,
-				     _LOCK_BUFFER*sizeof(id));
+      NSResetHashTable(_lockedObjects);
 
       NSResetMapTable(_dbOperationsByGlobalID);
 /* //TODO
@@ -5941,13 +5957,13 @@ Raises an exception is the adaptor is unable to perform the operations.
 }
 
 - (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid
-                                after: (NSTimeInterval)ti
 {
-  [self notImplemented: _cmd];
-  return nil;
+  return [self snapshotForGlobalID: gid
+	       after: EODistantPastTimeInterval];
 }
 
 - (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid
+                                after: (NSTimeInterval)ti
 {
   //OK
   NSDictionary *snapshot = nil;
@@ -5963,7 +5979,8 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (!snapshot)
     {
       NSAssert(_database, @"No database");
-      snapshot = [_database snapshotForGlobalID: gid];
+      snapshot = [_database snapshotForGlobalID: gid
+			    after: ti];
     }
 
   NSDebugMLLog(@"EODatabaseContext", @"snapshot for gid %@: %p %@",
@@ -6093,23 +6110,32 @@ Raises an exception is the adaptor is unable to perform the operations.
 
 - (void)forgetSnapshotsForGlobalIDs: (NSArray *)gids
 {
-  //TODO
-  NSEmitTODO();
+  unsigned i, n;
+  NSMutableDictionary *snapshots;
+  EOFLOGObjectFnStart();
 
-  [self notImplemented: _cmd]; //TODO
-/*
-  int i, count;
-
-  count = [gids count];
-
-  for (i=0; i<count; i++)
+  n = [_uniqueStack count];
+  for (i=0; i<n; i++)
     {
-      id gid = [gids objectAtIndex:i];
-
-      [_snapshots removeObjectForKey:gid];
+      snapshots = [_uniqueStack objectAtIndex: i];
+      [snapshots removeObjectsForKeys: gids];
     }
-*/
 
+  n = [_uniqueArrayStack count];
+  for (i=0; i<n; i++)
+    {
+      snapshots = [_uniqueArrayStack objectAtIndex: i];
+      [snapshots removeObjectsForKeys: gids];
+    }
+
+  n = [_deleteStack count];
+  for (i=0; i<n; i++)
+    {
+      snapshots = [_deleteStack objectAtIndex: i];
+      [snapshots removeObjectsForKeys: gids];
+    }
+
+  [_database forgetSnapshotsForGlobalIDs: gids];
   EOFLOGObjectFnStop();
 }
 
@@ -6163,28 +6189,25 @@ Raises an exception is the adaptor is unable to perform the operations.
 {
   EOFLOGObjectFnStart();
 
-  if (_numLocked && (_numLocked+1) % _LOCK_BUFFER == 0)
-    _lockedObjects = NSZoneRealloc(NULL, _lockedObjects,
-				   (_numLocked+_LOCK_BUFFER)*sizeof(id));
+  if (!_lockedObjects)
+    _lockedObjects = NSCreateHashTable(NSNonOwnedPointerHashCallBacks, _LOCK_BUFFER);
 
-  _lockedObjects[_numLocked++] = globalID;
+  NSHashInsert(_lockedObjects, globalID);
 
   EOFLOGObjectFnStop();
 }
 
 - (BOOL)isObjectLockedWithGlobalID: (EOGlobalID *)globalID
 {
-  int i;
+  BOOL result;
 
   EOFLOGObjectFnStart();
 
-  for (i = 0; i < _numLocked; i++)
-    if ([_lockedObjects[i] isEqual: globalID])
-      return YES;
+  result = (_lockedObjects && NSHashGet(_lockedObjects, globalID) != nil);
 
   EOFLOGObjectFnStop();
 
-  return NO;
+  return result;
 }
 
 - (void)initializeObject: (id)object
@@ -6352,15 +6375,26 @@ Raises an exception is the adaptor is unable to perform the operations.
 
 - (void)forgetAllLocks
 {
- // TODO
-  NSEmitTODO();
-//  [self notImplemented:_cmd];
+  if (_lockedObjects)
+    {
+      NSResetHashTable(_lockedObjects);
+    }
 }
 
 - (void)forgetLocksForObjectsWithGlobalIDs: (NSArray *)gids
-{ // TODO
-  NSEmitTODO();
-  [self notImplemented: _cmd];
+{
+  if (_lockedObjects)
+    {
+      unsigned i,n;
+      EOGlobalID *gid;
+
+      n = [gids count];
+      for (i=0; i<n; i++)
+	{
+	  gid = [gids objectAtIndex: i];
+	  NSHashRemove(_lockedObjects, gid);
+	}
+    }
 }
 
 - (void) _rollbackTransaction
@@ -6517,13 +6551,9 @@ Raises an exception is the adaptor is unable to perform the operations.
     }
 
   _flags.preparingForSave = NO;
-/*
-//TODO HERE or in _commitTransaction ?
-_numLocked = 0;
-      _lockedObjects = NSZoneRealloc(NULL, _lockedObjects,
-				     _LOCK_BUFFER*sizeof(id));
 
-*/
+  //TODO HERE or in _commitTransaction ?
+  NSResetHashTable(_lockedObjects);
 
   EOFLOGObjectFnStop();
 }

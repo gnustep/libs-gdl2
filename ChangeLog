@@ -1,3 +1,29 @@
+2005-02-03  David Ayers  <d.ayers@inode.at>
+	
+	* EOAccess/EODatabaseContext.h/m:(_numLocked): Removed.
+	(_lockedObjects): Use hash table instead of plain memory.
+	(-_registerDatabaseContext:) Only attempt to retrieve entities
+	with valid names.
+	(-dealloc): Update _lockedObjects usage.
+	(-lockObjectWithGlobalID:editingContext:): Inialize local variable.
+	Fire fault if necessary to obtain snapshot and raise upon
+	failure.
+	(-registerLockedObjectWithGlobalID:): Use new hash table.
+	(-isObjectLockedWithGlobalID:): Ditto.
+	(-_cleanUpAfterSave): Ditto.
+	(-invalidateAllObjects): Call -invalidateResultCache and make more
+	gdb friendly.
+	(-invalidateObjectsWithGlobalIDs:): Call
+	forgetSnapshotsForGlobalIDs: on self instead of the _database.
+	(-commitChanges): Execute the commit if a transaction is open
+	to insure held locks are freed server side.
+	(-snapshotForGlobalID): Move implementation to ...
+	(-snapshotForGlobalID:after:): ... here and call this version
+	in the _database.
+	(-forgetSnapshotsForGlobalIDs:): Implement.
+	(-forgetAllLocks): Ditto.
+	(-forgetLocksForObjectsWithGlobalIDs:) Ditto.
+	
 2005-02-02  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOEntity.m (-setName:): Validate the new name and remove
