@@ -1,3 +1,10 @@
+2004-05-16  David Ayers  <d.ayers@inode.at>
+
+	* EOAccess/EODatabaseContext.m: Replace EOFLOGObjectLevel and
+	EOFLOGObjectLevelArgs with NSDebugMLLog.  Remove some superfluos
+	NSLogs and replace others woth NSDebugMLLogs.  Reformat.
+	* EOAccess/EOEntity.m ([EOEntity primaryKeyForGlobalID:]): Ditto.
+	
 2004-05-15  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/Postgres95Channel.m

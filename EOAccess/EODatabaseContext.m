@@ -198,7 +198,7 @@ static Class _contextClass = Nil;
   //OK
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"database=%p",database);
+  NSDebugMLLog(@"EODatabaseContext",@"database=%p",database);
 
   if ((self = [super init]))
     {
@@ -435,9 +435,9 @@ static Class _contextClass = Nil;
 {
 //call channel databaseContext
 //test if not exists  _registeredChannels indexOfObjectIdenticalTo:channel
-  NSLog(@"** REGISTER channel ** debug:%d ** total registered:%d",
-        [[channel adaptorChannel] isDebugEnabled],
-        [_registeredChannels count] + 1);
+  NSDebugLog(@"** REGISTER channel ** debug:%d ** total registered:%d",
+	     [[channel adaptorChannel] isDebugEnabled],
+	     [_registeredChannels count] + 1);
 
   [_registeredChannels addObject:
 			 [NSValue valueWithNonretainedObject: channel]];
@@ -467,23 +467,23 @@ static Class _contextClass = Nil;
 
   channelsEnum = [_registeredChannels objectEnumerator];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"REGISTERED CHANNELS nb=%d",
-                        [_registeredChannels count]);
+  NSDebugMLLog(@"EODatabaseContext",@"REGISTERED CHANNELS nb=%d",
+	       [_registeredChannels count]);
 
   while ((channel = [channelsEnum nextObject]))
     {
       if ([(EODatabaseChannel *)[channel nonretainedObjectValue]
                                isFetchInProgress] == NO)
         {
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",@"CHANNEL %p is not busy",
-		      [channel nonretainedObjectValue]);
+          NSDebugMLLog(@"EODatabaseContext",@"CHANNEL %p is not busy",
+		       [channel nonretainedObjectValue]);
 
           return [channel nonretainedObjectValue];
         }
       else
         {
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",@"CHANNEL %p is busy",
-                                [channel nonretainedObjectValue]);
+          NSDebugMLLog(@"EODatabaseContext",@"CHANNEL %p is busy",
+		       [channel nonretainedObjectValue]);
         }
     }
 
@@ -649,8 +649,8 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   object = [self faultForGlobalID: gid
 		 editingContext: context];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p of class (%@)",
-			object, [object class]);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%p of class (%@)",
+	       object, [object class]);
 
   EOFLOGObjectFnStop();
 
@@ -685,8 +685,8 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p", object);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"globalID=%@", globalID);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%p", object);
+  NSDebugMLLog(@"EODatabaseContext", @"globalID=%@", globalID);
 
   NSAssert(globalID, @"No globalID");
   NSAssert1([globalID isKindOfClass: [EOKeyGlobalID class]],
@@ -703,15 +703,15 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 	      databaseContext: self
 	      editingContext: context];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"handler=%@", handler);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object->class_pointer=%p",
-			GSObjCClass(object));
+  NSDebugMLLog(@"EODatabaseContext", @"handler=%@", handler);
+  NSDebugMLLog(@"EODatabaseContext", @"object->class_pointer=%p",
+	       GSObjCClass(object));
 
   [EOFault makeObjectIntoFault: object
 	   withHandler: handler];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object->class_pointer=%p",
-			GSObjCClass(object));
+  NSDebugMLLog(@"EODatabaseContext", @"object->class_pointer=%p",
+	       GSObjCClass(object));
 
   [self _addBatchForGlobalID: (EOKeyGlobalID*)globalID
         fault: object];
@@ -732,7 +732,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"globalID=%@", globalID);
+  NSDebugMLLog(@"EODatabaseContext", @"globalID=%@", globalID);
 
   isFinal = [(EOKeyGlobalID *)globalID isFinal];
   entity = [self entityForGlobalID: globalID];
@@ -741,8 +741,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 
   classDescription = [entity classDescriptionForInstances];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"classDescription=%@",
-			classDescription);
+  NSDebugMLLog(@"EODatabaseContext", @"classDescription=%@", classDescription);
 
   object = [classDescription createInstanceWithEditingContext: context
 			     globalID: globalID
@@ -764,7 +763,7 @@ classPropertyNames = [entity classPropertyNames];
 	     forKey:pkKey];
     }
 */
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p", object);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%p", object);
 
   if ([(EOKeyGlobalID *)globalID areKeysAllNulls])
     NSWarnLog(@"All key of globalID %p (%@) are nulls",
@@ -776,7 +775,7 @@ classPropertyNames = [entity classPropertyNames];
         editingContext: context
         isComplete: isFinal];//??
   
-  EOFLOGObjectLevel(@"EODatabaseContext", @"Record Object");
+  NSDebugMLLog(@"EODatabaseContext", @"Record Object");
 
   [context recordObject: object
 	   globalID: globalID];
@@ -893,20 +892,18 @@ userInfo = {
       //NSArray *deletedObjects = [userInfo objectForKey: @"deleted"];
       int i, count = [updatedObjects count];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"updatedObjects=%@",
-			    updatedObjects);
+      NSDebugMLLog(@"EODatabaseContext", @"updatedObjects=%@", updatedObjects);
 
       for (i = 0; i < count; i++)
         {
           EOKeyGlobalID *gid=[updatedObjects objectAtIndex: i];
           NSString *entityName;
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
+          NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
           entityName = [gid entityName];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entityName=%@",
-				entityName);
+          NSDebugMLLog(@"EODatabaseContext", @"entityName=%@", entityName);
 
           [_database invalidateResultCacheForEntityNamed: entityName];
         }
@@ -952,30 +949,30 @@ userInfo = {
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"globalID=%@", globalID);
+  NSDebugMLLog(@"EODatabaseContext", @"globalID=%@", globalID);
 
   //First get the id from which we search the source object
   sourceObjectFault = [context faultForGlobalID: globalID
 			       editingContext: context];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceObjectFault %p=%@",
-			sourceObjectFault, sourceObjectFault);
+  NSDebugMLLog(@"EODatabaseContext", @"sourceObjectFault %p=%@",
+	       sourceObjectFault, sourceObjectFault);
 
   // Get the fault value from source object
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationshipName=%@", name);
+  NSDebugMLLog(@"EODatabaseContext", @"relationshipName=%@", name);
 
   relationshipValue = [sourceObjectFault storedValueForKey: name];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationshipValue %p=%@",
-			relationshipValue, relationshipValue);
+  NSDebugMLLog(@"EODatabaseContext", @"relationshipValue %p=%@",
+	       relationshipValue, relationshipValue);
 
   //Try to see if there is a snapshot for the source object
   sourceSnapshot = [_database snapshotForSourceGlobalID: globalID
 			      relationshipName: name];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceSnapshot %p (%@)=%@",
-			sourceSnapshot, [sourceSnapshot class],
-			sourceSnapshot);
+  NSDebugMLLog(@"EODatabaseContext", @"sourceSnapshot %p (%@)=%@",
+	       sourceSnapshot, [sourceSnapshot class],
+	       sourceSnapshot);
 
   sourceSnapshotCount = [sourceSnapshot count];
 
@@ -991,13 +988,13 @@ userInfo = {
         {
           snapGID = [sourceSnapshot objectAtIndex: i];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapGID=%@", snapGID);
+          NSDebugMLLog(@"EODatabaseContext", @"snapGID=%@", snapGID);
 
           snapFault = [context faultForGlobalID: snapGID
 			       editingContext: context]; 
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapFault=%@",
-				snapFault);
+          NSDebugMLLog(@"EODatabaseContext", @"snapFault=%@",
+		       snapFault);
 
           [relationshipValue addObject: snapFault];
         }
@@ -1026,14 +1023,14 @@ userInfo = {
       // Get the source object entity
       entity = [self entityForGlobalID: globalID];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity name=%@",
-			    [entity name]);
+      NSDebugMLLog(@"EODatabaseContext", @"entity name=%@",
+		   [entity name]);
 
       //Get the relationship named 'name'
       relationship = [entity relationshipNamed: name];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
-			    relationship);
+      NSDebugMLLog(@"EODatabaseContext", @"relationship=%@",
+		   relationship);
 
       //Get the max number of fault to fetch
       maxBatch = [relationship numberOfToManyFaultsToBatchFetch];
@@ -1048,8 +1045,8 @@ userInfo = {
 
       //Get the fault entity (aka relationsip destination entity)
       destinationEntity = [relationship destinationEntity];
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destinationEntity name=%@",
-			    [destinationEntity name]);
+      NSDebugMLLog(@"EODatabaseContext", @"destinationEntity name=%@",
+		   [destinationEntity name]);
 
       //Get the destination entity model
       destinationEntityModel = [destinationEntity model];
@@ -1080,12 +1077,11 @@ userInfo = {
       //TODO Why first asking for faultForGlobalID and now asking objectForGlobalID ??
 
       sourceObject = [context objectForGlobalID: globalID];
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceObject=%@",
-			    sourceObject);
-
+      NSDebugMLLog(@"EODatabaseContext", @"sourceObject=%@", sourceObject);
+      
       inverseRelationship = [relationship inverseRelationship];
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"inverseRelationship=%@",
-			    inverseRelationship);
+      NSDebugMLLog(@"EODatabaseContext", @"inverseRelationship=%@",
+		   inverseRelationship);
 
       if (!inverseRelationship)
         {
@@ -1099,23 +1095,21 @@ userInfo = {
       invRelEntityClassProperties = [invRelEntity classProperties];
       invRelName = [inverseRelationship name];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"invRelName=%@",
-			    invRelName);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceObject=%@",
-			    sourceObject);
+      NSDebugMLLog(@"EODatabaseContext", @"invRelName=%@", invRelName);
+      NSDebugMLLog(@"EODatabaseContext", @"sourceObject=%@", sourceObject);
 
       qualifier = [EOKeyValueQualifier qualifierWithKey: invRelName
 				       operatorSelector: @selector(isEqualTo:)
 				       value: sourceObject];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"qualifier=%@", qualifier);
+      NSDebugMLLog(@"EODatabaseContext", @"qualifier=%@", qualifier);
 
       fetchSpec = [EOFetchSpecification fetchSpecification];
 
       [fetchSpec setQualifier: qualifier];
       [fetchSpec setEntityName: [destinationEntity name]];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"fetchSpec=%@", fetchSpec);
+      NSDebugMLLog(@"EODatabaseContext", @"fetchSpec=%@", fetchSpec);
 
       objects = [context objectsWithFetchSpecification: fetchSpec
 			 editingContext: context];
@@ -1126,7 +1120,7 @@ userInfo = {
             editingContext: context];//OK
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"objects=%@", objects);
+  NSDebugMLLog(@"EODatabaseContext", @"objects=%@", objects);
   EOFLOGObjectFnStop();
 
   return objects;
@@ -1168,9 +1162,7 @@ userInfo = {
     {
       [EOObserverCenter enableObserverNotification];
 
-      NSLog(@"EXCEPTION %@", localException);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"EXCEPTION %@",
-			    localException);              
+      NSDebugMLLog(@"EODatabaseContext", @"EXCEPTION %@", localException);
 
       [localException raise];
     }
@@ -1247,8 +1239,8 @@ userInfo = {
 
       if ([relationship isFlattened] == YES)
         {
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"relationship %@ isFlattened", relationship);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"relationship %@ isFlattened", relationship);
 
           relEnum = [[relationship componentRelationships] objectEnumerator];
 
@@ -1310,7 +1302,7 @@ userInfo = {
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"fetch=%@", fetch);
+  NSDebugMLLog(@"EODatabaseContext", @"fetch=%@", fetch);
 
   if (_delegateRespondsTo.shouldFetchObjects == YES)
     {
@@ -1373,14 +1365,10 @@ userInfo = {
           }
 	else
           {
-	    EOFLOGObjectLevelArgs(@"EODatabaseContext", @"channel class %@ [channel isFetchInProgress]=%s",
-				  [channel class],
-				  ([channel isFetchInProgress] ? "YES" : "NO"));
-	    NSLog(@"%@ -- %@ 0x%x: channel isFetchInProgress=%s",
-		  NSStringFromSelector(_cmd),
-		  NSStringFromClass([self class]),
-		  self,
-		  ([channel isFetchInProgress] ? "YES" : "NO"));
+	    NSDebugMLLog(@"EODatabaseContext", 
+			 @"channel class %@ [channel isFetchInProgress]=%s",
+			 [channel class],
+			 ([channel isFetchInProgress] ? "YES" : "NO"));
 
 	    //mirko:
 #if 0
@@ -1389,8 +1377,8 @@ userInfo = {
               {
 		[_adaptorContext beginTransaction];
 
-		EOFLOGObjectLevel(@"EODatabaseContext",
-				  @"BEGAN TRANSACTION FLAG==>YES");
+		NSDebugMLLog(@"EODatabaseContext",
+			     @"BEGAN TRANSACTION FLAG==>YES");
 		_flags.beganTransaction = YES;
               }
 #endif
@@ -1407,35 +1395,33 @@ userInfo = {
 		[channel selectObjectsWithFetchSpecification: fetch
 			 editingContext: context];//OK
 
-		EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				      @"[channel isFetchInProgress]=%s",
-				      ([channel isFetchInProgress] ? "YES" : "NO"));
+		NSDebugMLLog(@"EODatabaseContext",
+			     @"[channel isFetchInProgress]=%s",
+			     ([channel isFetchInProgress] ? "YES" : "NO"));
 
 		limit = [fetch fetchLimit];//OK
 		promptsAfterFetchLimit = [fetch promptsAfterFetchLimit];
 
-		EOFLOGObjectLevel(@"EODatabaseContext", @"Will Fetch");
+		NSDebugMLLog(@"EODatabaseContext", @"Will Fetch");
 
 		NS_DURING
 		  {
 		    arp = [NSAutoreleasePool new];
-		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					  @"[channel isFetchInProgress]=%s",
-					  ([channel isFetchInProgress] ? "YES" : "NO"));
+		    NSDebugMLLog(@"EODatabaseContext",
+				 @"[channel isFetchInProgress]=%s",
+				 ([channel isFetchInProgress] ? "YES" : "NO"));
 
 		    while ((obj = [channel fetchObject]))
 		      {
-			EOFLOGObjectLevel(@"EODatabaseContext",
-					  @"fetched an object");
-			EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					      @"FETCH OBJECT object=%@\n\n",
-					      obj);
-			EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					      @"%d usesDistinct: %s",
-					      num,
-					      (usesDistinct ? "YES" : "NO"));
-			EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					      @"object=%@\n\n", obj);
+			NSDebugMLLog(@"EODatabaseContext",
+				     @"fetched an object");
+			NSDebugMLLog(@"EODatabaseContext",
+				     @"FETCH OBJECT object=%@\n", obj);
+			NSDebugMLLog(@"EODatabaseContext",
+				     @"%d usesDistinct: %s", num,
+				     (usesDistinct ? "YES" : "NO"));
+			NSDebugMLLog(@"EODatabaseContext",
+				     @"object=%@\n\n", obj);
 
 			if (usesDistinct == YES && num)
 			  // (stephane@sente) I thought that DISTINCT was done on server-side?!?
@@ -1454,12 +1440,10 @@ userInfo = {
 			      continue;
 			  }
 
-			EOFLOGObjectLevel(@"EODatabaseContext",
-					  @"AFTER FETCH");
+			NSDebugMLLog(@"EODatabaseContext", @"AFTER FETCH");
 			[array addObject: obj];
-			EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					      @"array count=%d",
-					      [array count]);
+			NSDebugMLLog(@"EODatabaseContext", @"array count=%d",
+				     [array count]);
 			num++;
 
 			if (limit > 0 && num >= limit)
@@ -1483,28 +1467,28 @@ userInfo = {
 			else
 			  autoreleaseStep--;
 
-			EOFLOGObjectLevel(@"EODatabaseContext",
-					  @"WILL FETCH NEXT OBJECT");
-			EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					      @"[channel isFetchInProgress]=%s",
-					      ([channel isFetchInProgress] ? "YES" : "NO"));
+			NSDebugMLLog(@"EODatabaseContext",
+				     @"WILL FETCH NEXT OBJECT");
+			NSDebugMLLog(@"EODatabaseContext",
+				     @"[channel isFetchInProgress]=%s",
+				     ([channel isFetchInProgress] 
+				      ? "YES" : "NO"));
 		      }
 
-		    EOFLOGObjectLevel(@"EODatabaseContext",
-				      @"finished fetch");
-		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					  @"array=%@", array);
-		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					  @"step 0 channel is busy=%d",
-					  (int)[channel isFetchInProgress]);
+		    NSDebugMLLog(@"EODatabaseContext",
+				 @"finished fetch");
+		    NSDebugMLLog(@"EODatabaseContext",
+				 @"array=%@", array);
+		    NSDebugMLLog(@"EODatabaseContext",
+				 @"step 0 channel is busy=%d",
+				 (int)[channel isFetchInProgress]);
 
 		    [channel cancelFetch]; //OK
 
-		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					  @"step 1 channel is busy=%d",
-					  (int)[channel isFetchInProgress]);
-		    EOFLOGObjectLevelArgs(@"EODatabaseContext", @"array=%@",
-					  array);
+		    NSDebugMLLog(@"EODatabaseContext",
+				 @"step 1 channel is busy=%d",
+				 (int)[channel isFetchInProgress]);
+		    NSDebugMLLog(@"EODatabaseContext", @"array=%@", array);
 
                                   //TODO
                                   /*
@@ -1524,9 +1508,8 @@ userInfo = {
 		  }
 		NS_HANDLER
 		  {
-		    EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					  @"AN EXCEPTION: %@",
-					  localException);
+		    NSDebugMLLog(@"EODatabaseContext", @"AN EXCEPTION: %@",
+				 localException);
 
 		    RETAIN(localException);
 		    DESTROY(arp);
@@ -1536,9 +1519,9 @@ userInfo = {
 		NS_ENDHANDLER;
               }
           }
-	EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			      @"step 2 channel is busy=%d",
-			      (int)[channel isFetchInProgress]);
+	NSDebugMLLog(@"EODatabaseContext",
+		     @"step 2 channel is busy=%d",
+		     (int)[channel isFetchInProgress]);
       }
 #endif
 
@@ -1567,8 +1550,8 @@ userInfo = {
                 {
                   [_adaptorContext beginTransaction];
 
-                  EOFLOGObjectLevel(@"EODatabaseContext",
-				    @"BEGAN TRANSACTION FLAG==>YES");
+                  NSDebugMLLog(@"EODatabaseContext",
+			       @"BEGAN TRANSACTION FLAG==>YES");
 
                   _flags.beganTransaction = YES;
                 }
@@ -1586,20 +1569,20 @@ userInfo = {
 
               while ((row = [adaptorChannel fetchRowWithZone: NULL]))
                 {
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"row=%@", row);
+                  NSDebugMLLog(@"EODatabaseContext", @"row=%@", row);
 
                   gid = [entity globalIDForRow: row];
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
+                  NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
                   [_database recordSnapshot: row
                              forGlobalID: gid];
                   [cache addObject: gid];
                 }
 
-              EOFLOGObjectLevel(@"EODatabaseContext", @"Finished fetch");
+              NSDebugMLLog(@"EODatabaseContext", @"Finished fetch");
               [channel cancelFetch];
 
-              EOFLOGObjectLevel(@"EODatabaseContext", @"setResultCache");
+              NSDebugMLLog(@"EODatabaseContext", @"setResultCache");
               [_database setResultCache: cache
                          forEntityNamed: entityName];
             }
@@ -1607,7 +1590,7 @@ userInfo = {
           cacheEnum = [cache objectEnumerator];
           while ((gid = [cacheEnum nextObject]))
             {
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
+              NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
               snapshot = [self snapshotForGlobalID: gid];
               if (snapshot)
@@ -1682,8 +1665,7 @@ userInfo = {
                 }
             }
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"array before sort: %@",
-				array);
+          NSDebugMLLog(@"EODatabaseContext", @"array before sort: %@", array);
 
           if ([fetch sortOrderings])
             array = (id)[array sortedArrayUsingKeyOrderArray:
@@ -1702,24 +1684,19 @@ userInfo = {
             }
           else
             {
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"channel class %@ [channel isFetchInProgress]=%s",
-				    [channel class],
-				    ([channel isFetchInProgress] ? "YES" : "NO"));
+              NSDebugMLLog(@"EODatabaseContext", 
+			   @"channel class %@ [channel isFetchInProgress]=%s",
+			   [channel class],
+			   ([channel isFetchInProgress] ? "YES" : "NO"));
 
-              NSLog(@"%@ -- %@ 0x%x: channel isFetchInProgress=%s",
-                    NSStringFromSelector(_cmd),
-                    NSStringFromClass([self class]),
-                    self,
-                    ([channel isFetchInProgress] ? "YES" : "NO"));
-          
               //mirko:
               if (_flags.beganTransaction == NO
                   && _updateStrategy == EOUpdateWithPessimisticLocking)
                 {
                   [_adaptorContext beginTransaction];
 
-                  EOFLOGObjectLevel(@"EODatabaseContext",
-				    @"BEGAN TRANSACTION FLAG==>YES");
+                  NSDebugMLLog(@"EODatabaseContext",
+			       @"BEGAN TRANSACTION FLAG==>YES");
                   _flags.beganTransaction = YES;
                 }
 
@@ -1734,35 +1711,36 @@ userInfo = {
                   [channel selectObjectsWithFetchSpecification: fetch
                            editingContext: context];//OK
 
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					@"[channel isFetchInProgress]=%s",
-					([channel isFetchInProgress] ? "YES" : "NO"));
+                  NSDebugMLLog(@"EODatabaseContext",
+			       @"[channel isFetchInProgress]=%s",
+			       ([channel isFetchInProgress] 
+				? "YES" : "NO"));
 
                   limit = [fetch fetchLimit];//OK
                   promptsAfterFetchLimit = [fetch promptsAfterFetchLimit];
 
-                  EOFLOGObjectLevel(@"EODatabaseContext", @"Will Fetch");
+                  NSDebugMLLog(@"EODatabaseContext", @"Will Fetch");
 
                   NS_DURING
                     {                  
                       arp = [NSAutoreleasePool new];
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"[channel isFetchInProgress]=%s",
-					    ([channel isFetchInProgress] ? "YES" : "NO"));
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"[channel isFetchInProgress]=%s",
+				   ([channel isFetchInProgress] 
+				    ? "YES" : "NO"));
 
                       while ((obj = [channel fetchObject]))
                         {
-                          EOFLOGObjectLevel(@"EODatabaseContext",
-					    @"fetched an object");
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"FETCH OBJECT object=%@\n\n",
-						obj);
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"%d usesDistinct: %s",
-						num,
-						(usesDistinct ? "YES" : "NO"));
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"object=%@\n\n", obj);
+                          NSDebugMLLog(@"EODatabaseContext",
+				       @"fetched an object");
+                          NSDebugMLLog(@"EODatabaseContext",
+				       @"FETCH OBJECT object=%@\n", obj);
+                          NSDebugMLLog(@"EODatabaseContext",
+				       @"%d usesDistinct: %s",
+				       num,
+				       (usesDistinct ? "YES" : "NO"));
+                          NSDebugMLLog(@"EODatabaseContext",
+				       @"object=%@\n\n", obj);
 
                           if (usesDistinct == YES && num)
                             {
@@ -1780,13 +1758,11 @@ userInfo = {
                                 continue;
                             }
 
-                          EOFLOGObjectLevel(@"EODatabaseContext",
-					    @"AFTER FETCH");
+                          NSDebugMLLog(@"EODatabaseContext", @"AFTER FETCH");
                           NSAssert(obj,@"No object");
                           [array addObject: obj];
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"array count=%d",
-						[array count]);
+                          NSDebugMLLog(@"EODatabaseContext", @"array count=%d",
+				       [array count]);
                           num++;
                           
                           if (limit > 0 && num >= limit)
@@ -1810,28 +1786,28 @@ userInfo = {
                           else 
                             autoreleaseStep--;
 
-                          EOFLOGObjectLevel(@"EODatabaseContext",
-					    @"WILL FETCH NEXT OBJECT");
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"[channel isFetchInProgress]=%s",
-						([channel isFetchInProgress] ? "YES" : "NO"));
+                          NSDebugMLLog(@"EODatabaseContext",
+				       @"WILL FETCH NEXT OBJECT");
+                          NSDebugMLLog(@"EODatabaseContext",
+				       @"[channel isFetchInProgress]=%s",
+				       ([channel isFetchInProgress] 
+					? "YES" : "NO"));
                         }
               
-                      EOFLOGObjectLevel(@"EODatabaseContext",
-					@"finished fetch");
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"array=%@", array);
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"step 0 channel is busy=%d",
-                                            (int)[channel isFetchInProgress]);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"finished fetch");
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"array=%@", array);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"step 0 channel is busy=%d",
+				   (int)[channel isFetchInProgress]);
 
                       [channel cancelFetch]; //OK
 
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"step 1 channel is busy=%d",
-                                            (int)[channel isFetchInProgress]);
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"array=%@",
-                                            array);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"step 1 channel is busy=%d",
+				   (int)[channel isFetchInProgress]);
+                      NSDebugMLLog(@"EODatabaseContext", @"array=%@", array);
 
                       //TODO
                       /*
@@ -1851,9 +1827,8 @@ userInfo = {
                     }
                   NS_HANDLER
                     {
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"AN EXCEPTION: %@",
-					    localException);
+                      NSDebugMLLog(@"EODatabaseContext", @"AN EXCEPTION: %@",
+				   localException);
 
                       RETAIN(localException);
                       DESTROY(arp);
@@ -1863,15 +1838,14 @@ userInfo = {
                   NS_ENDHANDLER;
                 }
             }
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"step 2 channel is busy=%d",
-                                (int)[channel isFetchInProgress]);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"step 2 channel is busy=%d",
+		       (int)[channel isFetchInProgress]);
         }
 
       //VERIFY
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"array before prefetchingRelationshipKeyPaths: %@",
-			    array);
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"array before prefetchingRelationshipKeyPaths: %@", array);
 
       if ([fetch prefetchingRelationshipKeyPaths]) //OK
         qualArray = [NSMutableArray arrayWithCapacity: 5];
@@ -1908,11 +1882,11 @@ userInfo = {
                    fetchSpecification: fetch
                    editingContext: context];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"step 1 channel is busy=%d",
-                            (int)[channel isFetchInProgress]);
+      NSDebugMLLog(@"EODatabaseContext",@"step 1 channel is busy=%d",
+		   (int)[channel isFetchInProgress]);
     }
 
-  //EOFLOGObjectLevelArgs(@"EODatabaseContext", @"array: %@", array);
+  //NSDebugMLLog(@"EODatabaseContext", @"array: %@", array);
   EOFLOGObjectFnStop();
 
   return array;
@@ -2008,8 +1982,8 @@ userInfo = {
 	{
 	  [[[channel adaptorChannel] adaptorContext] beginTransaction];
 
-          EOFLOGObjectLevel(@"EODatabaseContext",
-			    @"BEGAN TRANSACTION FLAG==>YES");
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"BEGAN TRANSACTION FLAG==>YES");
 
 	  _flags.beganTransaction = YES;
 	}
@@ -2249,9 +2223,9 @@ forDatabaseOperation:(EODatabaseOperation *)op
   // We can make 2 rounds to try to get primary key for dependant objects
   for(round=0;round<2;round++)
     {
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"round=%d [noPKObjects count]=%d",
-                            round,[noPKObjects count]);
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"round=%d [noPKObjects count]=%d",
+		   round, [noPKObjects count]);
       if (round==1 && [noPKObjects count]==0)
         break;
       else
@@ -2264,15 +2238,15 @@ forDatabaseOperation:(EODatabaseOperation *)op
           else
             {
               array=noPKObjects;
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",@"noPKObjects=%@",
-				    noPKObjects);
+              NSDebugMLLog(@"EODatabaseContext",@"noPKObjects=%@",
+			   noPKObjects);
             }
           count = [array count];
           for (i = 0; i < count; i++)
             {
               id object = [array objectAtIndex: i];
               
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%@",object);
+              NSDebugMLLog(@"EODatabaseContext",@"object=%@",object);
               
               if ([self ownsObject:object])
                 {
@@ -2286,20 +2260,18 @@ forDatabaseOperation:(EODatabaseOperation *)op
                   objectPK = [self _primaryKeyForObject: object
                                    raiseException: round>0];
                   
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"objectPK=%@",
-					objectPK);
+                  NSDebugMLLog(@"EODatabaseContext",@"objectPK=%@", objectPK);
 
                   if (objectPK)
                     {
                       dbOpe = [self databaseOperationForObject: object];
                       
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"object=%p dbOpe=%@",
-                                            object,dbOpe);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"object=%p dbOpe=%@",
+				   object,dbOpe);
                       
                       newRow=[dbOpe newRow];
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext", 
-					    @"newRow=%@", newRow);
+                      NSDebugMLLog(@"EODatabaseContext", @"newRow=%@", newRow);
                       
                       [self relayPrimaryKey: objectPK
                             object: object
@@ -2345,11 +2317,11 @@ forDatabaseOperation:(EODatabaseOperation *)op
     {
       int i, count;
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"Unprocessed: %@",
-			    [_editingContext unprocessedDescription]);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"Objects: %@",
-			    [_editingContext objectsDescription]);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"which=%d", which);
+      NSDebugMLLog(@"EODatabaseContext", @"Unprocessed: %@",
+		   [_editingContext unprocessedDescription]);
+      NSDebugMLLog(@"EODatabaseContext", @"Objects: %@",
+		   [_editingContext objectsDescription]);
+      NSDebugMLLog(@"EODatabaseContext", @"which=%d", which);
 
       if (which == 0)
         objects[which] = [_editingContext insertedObjects];
@@ -2359,8 +2331,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
         objects[which] = [_editingContext updatedObjects];
 
       count = [objects[which] count];
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"objects[which]=%@",
-			    objects[which]);
+      NSDebugMLLog(@"EODatabaseContext", @"objects[which]=%@", objects[which]);
 
       // For each object
       for (i = 0; i < count; i++)
@@ -2373,11 +2344,11 @@ forDatabaseOperation:(EODatabaseOperation *)op
 
 //Mirko ??      if ([self ownsObject:object] == YES)
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"object %p (class=%@):\n%@",
-                                object,
-                                [object class],
-                                object);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"object %p (class=%@):\n%@",
+		       object,
+		       [object class],
+		       object);
 
           entity = [_database entityForObject: object]; //OK for Update 
 
@@ -2392,29 +2363,29 @@ forDatabaseOperation:(EODatabaseOperation *)op
               // Get a dictionary of object properties+PK+relationships CURRENT values 
               snapshot = [object snapshot]; //OK for Update+Insert
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshot %p: %@",
-				    snapshot, snapshot);
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				    @"currentCommittedSnapshot %p: %@",
-				    currentCommittedSnapshot,
-				    currentCommittedSnapshot);
+              NSDebugMLLog(@"EODatabaseContext", @"snapshot %p: %@",
+			   snapshot, snapshot);
+              NSDebugMLLog(@"EODatabaseContext",
+			   @"currentCommittedSnapshot %p: %@",
+			   currentCommittedSnapshot,
+			   currentCommittedSnapshot);
 
               // Get a dictionary of object properties+PK+relationships DATABASES values 
               if (!currentCommittedSnapshot)
                 currentCommittedSnapshot =
 		  [self _currentCommittedSnapshotForObject:object]; //OK For Update
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				    @"currentCommittedSnapshot %p: %@",
-				    currentCommittedSnapshot,
-				    currentCommittedSnapshot);
+              NSDebugMLLog(@"EODatabaseContext",
+			   @"currentCommittedSnapshot %p: %@",
+			   currentCommittedSnapshot,
+			   currentCommittedSnapshot);
 
               //TODO so what ?
 
               // Get the PK
               pk = [self _primaryKeyForObject: object];//OK for Update
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"pk=%@", pk);
+              NSDebugMLLog(@"EODatabaseContext", @"pk=%@", pk);
 
               if (pk)
                 [self relayPrimaryKey: pk
@@ -2424,8 +2395,8 @@ forDatabaseOperation:(EODatabaseOperation *)op
 
           relationships = [entity relationships]; //OK for Update
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p relationships: %@",
-                                object,relationships);
+          NSDebugMLLog(@"EODatabaseContext",@"object=%p relationships: %@",
+		       object,relationships);
 
           if (which == 1) //delete        //Not in insert //not in update
             {
@@ -2445,15 +2416,14 @@ forDatabaseOperation:(EODatabaseOperation *)op
                     }
                 }
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object: %@",
-                                    object);
+              NSDebugMLLog(@"EODatabaseContext",@"object: %@", object);
 
               [self recordDeleteForObject: object];
             }
 
           dbOpe = [self databaseOperationForObject: object];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+          NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
           if (which == 0 || which == 2) //insert or update
             {
@@ -2469,19 +2439,18 @@ forDatabaseOperation:(EODatabaseOperation *)op
                   //snapshot=[dbOpe dbSnapshot]; //NEW
 
                   NSDebugMLog(@"[dbOpe dbSnapshot]=%@", [dbOpe dbSnapshot]);
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					@"Insert: [dbOpe snapshot] %p=%@",
-					snapshot, snapshot);
+                  NSDebugMLLog(@"EODatabaseContext",
+			       @"Insert: [dbOpe snapshot] %p=%@",
+			       snapshot, snapshot);
                 }
               else //Update
                 {
                   //NEWsnapshot=[dbOpe dbSnapshot];
                   snapshot = [object snapshot];
 
-                  //EOFLOGObjectLevelArgs(@"EODatabaseContext",@"Update: [dbOpe snapshot] %p=%@",snapshot,snapshot);
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					@"Update: [object snapshot] %p=%@",
-					snapshot, snapshot);
+                  NSDebugMLLog(@"EODatabaseContext",
+			       @"Update: [object snapshot] %p=%@",
+			       snapshot, snapshot);
                 }
 
               relationshipsCount = [relationships count];
@@ -2501,17 +2470,13 @@ entity model
 model modelGroup
 */
 
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					@"HANDLE relationship %@ for object %p (class=%@):\n%@",
-                                        [relationship name],
-                                        object,
-                                        [object class],
-                                        object);
-                  NSDebugMLog(@"HANDLE relationship %@ for object %p (class=%@):\n%@",
-                              [relationship name],
-                              object,
-                              [object class],
-                              object);
+                  NSDebugMLLog(@"EODatabaseContext",
+			       @"HANDLE relationship %@ "
+			       @"for object %p (class=%@):\n%@",
+			       [relationship name],
+			       object,
+			       [object class],
+			       object);
 
                   substitutionRelationship =
 		    [relationship _substitutionRelationshipForRow: snapshot];
@@ -2524,11 +2489,11 @@ rel name ==> toCountry
 rel isToMany (0)
 nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (snapshot objectForKey: rel name ) ?
 */
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					@"relationship: %@", relationship);
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					@"classProperties: %@",
-					classProperties);
+                  NSDebugMLLog(@"EODatabaseContext",
+			       @"relationship: %@", relationship);
+                  NSDebugMLLog(@"EODatabaseContext",
+			       @"classProperties: %@",
+			       classProperties);
 
                   if ([classProperties indexOfObjectIdenticalTo: relationship]
 		      != NSNotFound) //(or subst)
@@ -2539,25 +2504,25 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                       NSString *relationshipName = [relationship name];
                       id relationshipSnapshotValue;
 
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@",
-					    dbOpe);
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"which=%d",
-					    which);
-                      //EOFLOGObjectLevelArgs(@"EODatabaseContext",@"OBJECT SNAPSHOT %p:\n%@\n\n",[object snapshot]);
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"snapshot for object %p:\nsnapshot %p (count=%d)= \n%@\n\n",
-					    object, snapshot, [snapshot count],
-					    snapshot);
+                      NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+                      NSDebugMLLog(@"EODatabaseContext", @"which=%d", which);
+                      //NSDebugMLLog(@"EODatabaseContext",@"OBJECT SNAPSHOT %p:\n%@\n\n",[object snapshot]);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"snapshot for object %p:\n"
+				   @"snapshot %p (count=%d)= \n%@\n\n",
+				   object, snapshot, [snapshot count],
+				   snapshot);
 
                       // substitutionRelationship objectForKey:
                       relationshipSnapshotValue =
 			[snapshot objectForKey: relationshipName];
 
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"relationshipSnapshotValue (snapshot %p rel name=%@): %@",
-					    snapshot,
-					    relationshipName,
-					    relationshipSnapshotValue);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"relationshipSnapshotValue "
+				   @"(snapshot %p rel name=%@): %@",
+				   snapshot,
+				   relationshipName,
+				   relationshipSnapshotValue);
 
                       if (which == 0) //Insert
                         currentCommittedSnapshot = [dbOpe dbSnapshot];
@@ -2569,36 +2534,37 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                         }
 //update: _commited
 //insert: dbSn
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"currentCommittedSnapshot %p: %@",
-					    currentCommittedSnapshot,
-					    currentCommittedSnapshot);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"currentCommittedSnapshot %p: %@",
+				   currentCommittedSnapshot,
+				   currentCommittedSnapshot);
 
                       relationshipCommitedSnapshotValue =
 			[currentCommittedSnapshot objectForKey:
 						    relationshipName];
 
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"relationshipCommitedSnapshotValue (snapshot %p rel name=%@): %@",
-					    currentCommittedSnapshot,
-					    relationshipName,
-					    relationshipCommitedSnapshotValue);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"relationshipCommitedSnapshotValue "
+				   @"(snapshot %p rel name=%@): %@",
+				   currentCommittedSnapshot,
+				   relationshipName,
+				   relationshipCommitedSnapshotValue);
 
                       isToMany = [relationship isToMany];
 
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"isToMany: %s",
-					    (isToMany ? "YES" : "NO"));
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"relationshipSnapshotValue %p=%@",
-					    relationshipSnapshotValue,
-					    relationshipSnapshotValue);
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"relationshipCommitedSnapshotValue %p=%@",
-					    relationshipCommitedSnapshotValue,
-					    ([EOFault isFault:relationshipCommitedSnapshotValue] ? 
-                                             (NSString*)@"[Fault]" 
-                                             : (NSString*)relationshipCommitedSnapshotValue));
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"isToMany: %s",
+				   (isToMany ? "YES" : "NO"));
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"relationshipSnapshotValue %p=%@",
+				   relationshipSnapshotValue,
+				   relationshipSnapshotValue);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"relationshipCommitedSnapshotValue %p=%@",
+				   relationshipCommitedSnapshotValue,
+				   ([EOFault isFault:relationshipCommitedSnapshotValue]
+				    ? (NSString*)@"[Fault]" 
+				    : (NSString*)relationshipCommitedSnapshotValue));
 
                       if (relationshipSnapshotValue
 			  == relationshipCommitedSnapshotValue)
@@ -2614,8 +2580,9 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                       else // ToOne bu not same object
                         valuesAreEqual = NO;
 
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p valuesAreEqual: %s",
-                                            object,(valuesAreEqual ? "YES" : "NO"));
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"object=%p valuesAreEqual: %s",
+				   object,(valuesAreEqual ? "YES" : "NO"));
 
                       if (valuesAreEqual)
                         {
@@ -2631,18 +2598,18 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                               // Old Values are newly added values
                               NSArray *newValues = [relationshipSnapshotValue arrayExcludingObjectsInArray: relationshipCommitedSnapshotValue];
 
-                              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						    @"oldValues count=%d",
-						    [oldValues count]);
-                              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						    @"oldValues=%@",
-						    oldValues);
-                              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						    @"newValues count=%d",
-						    [newValues count]);
-                              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						    @"newValues=%@",
-						    newValues);
+                              NSDebugMLLog(@"EODatabaseContext",
+					   @"oldValues count=%d",
+					   [oldValues count]);
+                              NSDebugMLLog(@"EODatabaseContext",
+					   @"oldValues=%@",
+					   oldValues);
+                              NSDebugMLLog(@"EODatabaseContext",
+					   @"newValues count=%d",
+					   [newValues count]);
+                              NSDebugMLLog(@"EODatabaseContext",
+					   @"newValues=%@",
+					   newValues);
 
                               // Record new values snapshots
                               if ([newValues count] > 0)
@@ -2660,12 +2627,12 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
 						    objectAtIndex: iValue];
                                       EOGlobalID *aValueGID = [self _globalIDForObject: aValue];
 
-				      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							    @"YYYY valuesGIDs=%@",
-							    valuesGIDs);
-				      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							    @"YYYY aValueGID=%@",
-							    aValueGID);
+				      NSDebugMLLog(@"EODatabaseContext",
+						   @"YYYY valuesGIDs=%@",
+						   valuesGIDs);
+				      NSDebugMLLog(@"EODatabaseContext",
+						   @"YYYY aValueGID=%@",
+						   aValueGID);
 				      [valuesGIDs addObject:aValueGID];
                                     }
 
@@ -2676,16 +2643,16 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                               // Nullify removed object relation attributes
                               if ([oldValues count] > 0)
                                 {
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"will call nullifyAttributes from source %p (class %@)",
-                                                        object, [object class]);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"object %p=%@ (class=%@)",
-                                                        object, object,
-							[object class]);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"relationshipName=%@",
-                                                        relationshipName);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"will call nullifyAttributes from source %p (class %@)",
+					       object, [object class]);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"object %p=%@ (class=%@)",
+					       object, object,
+					       [object class]);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"relationshipName=%@",
+					       relationshipName);
 
                                   [self nullifyAttributesInRelationship:
 					  relationship
@@ -2696,16 +2663,16 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                               // Relay relationship attributes in new objects
                               if ([newValues count] > 0)
                                 {
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"will call relay from source %p (class %@)",
-                                                        object, [object class]);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"object %p=%@ (class=%@)",
-                                                        object, object,
-							[object class]);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"relationshipName=%@",
-                                                        relationshipName);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"will call relay from source %p (class %@)",
+					       object, [object class]);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"object %p=%@ (class=%@)",
+					       object, object,
+					       [object class]);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"relationshipName=%@",
+					       relationshipName);
 
                                   [self relayAttributesInRelationship:
 					  relationship
@@ -2719,21 +2686,21 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
 
                               if (!isNilOrEONull(relationshipCommitedSnapshotValue)) // a value was removed
                                 {
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"will call nullifyAttributes from source %p (class %@)",
-                                                        object, [object class]);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"object %p=%@ (class=%@)",
-                                                        object, object,
-							[object class]);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"relationshipName=%@",
-                                                        relationshipName);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"destinationObject %p=%@ (class=%@)",
-                                                        relationshipCommitedSnapshotValue,
-                                                        relationshipCommitedSnapshotValue,
-                                                        [relationshipCommitedSnapshotValue class]);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"will call nullifyAttributes from source %p (class %@)",
+					       object, [object class]);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"object %p=%@ (class=%@)",
+					       object, object,
+					       [object class]);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"relationshipName=%@",
+					       relationshipName);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"destinationObject %p=%@ (class=%@)",
+					       relationshipCommitedSnapshotValue,
+					       relationshipCommitedSnapshotValue,
+					       [relationshipCommitedSnapshotValue class]);
 
                                   [self nullifyAttributesInRelationship:
 					  relationship
@@ -2744,22 +2711,22 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
 
                               if (!isNilOrEONull(relationshipSnapshotValue)) // a value was added
                                 {
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"will call relay from source %p relname=%@",
-                                                        object,
-							relationshipName);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"object %p=%@ (class=%@)",
-                                                        object, object,
-							[object class]);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"relationshipName=%@",
-                                                        relationshipName);
-                                  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-							@"destinationObject %p=%@ (class=%@)",
-                                                        relationshipSnapshotValue,
-                                                        relationshipSnapshotValue,
-                                                        [relationshipSnapshotValue class]);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"will call relay from source %p relname=%@",
+					       object,
+					       relationshipName);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"object %p=%@ (class=%@)",
+					       object, object,
+					       [object class]);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"relationshipName=%@",
+					       relationshipName);
+                                  NSDebugMLLog(@"EODatabaseContext",
+					       @"destinationObject %p=%@ (class=%@)",
+					       relationshipSnapshotValue,
+					       relationshipSnapshotValue,
+					       [relationshipSnapshotValue class]);
 
 				  [self relayAttributesInRelationship:
 					  relationship
@@ -2774,15 +2741,15 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
                     {
                       //!toMany:
                       //dbSnapshot was empty
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-                                            @"will call nullifyAttributesInRelationship on source %p relname=%@",
-                                            object, [relationship name]);
-		      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"object %p=%@ (class=%@)",
-					    object, object, [object class]);
-		      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"relationshipName=%@",
-					    [relationship name]);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"will call nullifyAttributesInRelationship on source %p relname=%@",
+				   object, [relationship name]);
+		      NSDebugMLLog(@"EODatabaseContext",
+				   @"object %p=%@ (class=%@)",
+				   object, object, [object class]);
+		      NSDebugMLLog(@"EODatabaseContext",
+				   @"relationshipName=%@",
+				   [relationship name]);
 
                       [self nullifyAttributesInRelationship: relationship
                             sourceObject: object /*CountryLabel*/ 
@@ -2801,7 +2768,7 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
 		  name = [(EORelationship *)property name];
 		  row = [NSMutableDictionary dictionaryWithCapacity:4];
 		  count = [joins count];
-		  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"rel name=%@", name);
+		  NSDebugMLLog(@"EODatabaseContext",@"rel name=%@", name);
 
 		  if ([property isToMany] == YES)
 		    {
@@ -2810,23 +2777,23 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
 		      EOGlobalID *toManyGID;
 		      id toManyObj;
 
-		      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"rel 1 sourceGID=%@", gid);
+		      NSDebugMLLog(@"EODatabaseContext",@"rel 1 sourceGID=%@", gid);
 		      toManySnapshot = AUTORRELEASE([[self snapshotForSourceGlobalID:gid
 		                                           relationshipName:name]
 		                                      mutableCopy]);
 		      if (toManySnapshot == nil)
 			toManySnapshot = [NSMutableArray array];
-		      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"rel 1", name);
+		      NSDebugMLLog(@"EODatabaseContext",@"rel 1", name);
 
 		      newToManySnapshot = [NSMutableArray
 					    arrayWithCapacity:10];
-		      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"rel 1", name);
+		      NSDebugMLLog(@"EODatabaseContext",@"rel 1", name);
 
 		      toManyObjects = [object storedValueForKey:name];
 		      toManyGIDArray = [NSMutableArray
 					 arrayWithCapacity:
 					   [toManyObjects count]];
-		      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"rel 1", name);
+		      NSDebugMLLog(@"EODatabaseContext",@"rel 1", name);
 
 		      enumerator = [toManyObjects objectEnumerator];
 		      while ((toManyObj = [enumerator nextObject]))
@@ -2942,7 +2909,7 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
   EONull *null = [EONull null];
 
   changedObjects = [_editingContext updatedObjects];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"*r* %@", changedObjects);
+  NSDebugMLLog(@"EODatabaseContext",@"*r* %@", changedObjects);
   objsEnum = [changedObjects objectEnumerator];
   while ((object = [objsEnum nextObject]))
     {
@@ -2951,14 +2918,14 @@ nullifyAttributesInRelationship:rel sourceObject:object destinationObject:nil (s
 	  entity = [_database entityForObject:object];
 	  gid = [_editingContext globalIDForObject:object];
 	
-	  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object = %@", object);
+	  NSDebugMLLog(@"EODatabaseContext",@"object = %@", object);
 //OK done
 	  op = [self _dbOperationWithGlobalID:gid
 		     object:object
 		     entity:entity
 		     operator:EODatabaseUpdateOperator];
 ///
-	  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object2");
+	  NSDebugMLLog(@"EODatabaseContext",@"object2");
 
 	  snapshot = [op newRow];
 
@@ -3016,26 +2983,23 @@ but not owned by this context to the coordinator.
   EOFLOGObjectFnStart();
   NSAssert(object, @"No object");
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%@", object);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"changes=%@", changes);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%@", object);
+  NSDebugMLLog(@"EODatabaseContext", @"changes=%@", changes);
 
   [self _assertValidStateWithSelector:
 	  @selector(recordUpdateForObject:changes:)];
 
   dbOpe = [self databaseOperationForObject: object];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p dbOpe=%@",
-                        object,dbOpe);
+  NSDebugMLLog(@"EODatabaseContext",@"object=%p dbOpe=%@", object, dbOpe);
 
   [dbOpe setDatabaseOperator:EODatabaseUpdateOperator];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p dbOpe=%@",
-                        object,dbOpe);
+  NSDebugMLLog(@"EODatabaseContext",@"object=%p dbOpe=%@", object, dbOpe);
 
   if ([changes count])
     {
       [[dbOpe newRow] addEntriesFromDictionary: changes];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p dbOpe=%@",
-                            object,dbOpe);
+      NSDebugMLLog(@"EODatabaseContext",@"object=%p dbOpe=%@", object, dbOpe);
     }
 
   EOFLOGObjectFnStop();
@@ -3049,16 +3013,14 @@ but not owned by this context to the coordinator.
   EOFLOGObjectFnStart();
 
   dbOpe = [self databaseOperationForObject: object];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p dbOpe=%@", 
-                        object,dbOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%p dbOpe=%@", object,dbOpe);
 
   [dbOpe setDatabaseOperator: EODatabaseInsertOperator];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p dbOpe=%@", 
-                        object, dbOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%p dbOpe=%@", object, dbOpe);
 
   snapshot = [dbOpe dbSnapshot]; //TODO: sowhat
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p snapshot=%@", 
-                        object, snapshot);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%p snapshot=%@", 
+	       object, snapshot);
 
 //call snapshot count
 
@@ -3073,7 +3035,7 @@ but not owned by this context to the coordinator.
   EOFLOGObjectFnStart();
 
   dbOpe = [self databaseOperationForObject: object];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
   [dbOpe setDatabaseOperator: EODatabaseDeleteOperator];
   snapshot = [dbOpe dbSnapshot]; //TODO: sowhat
@@ -3097,11 +3059,11 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			@"self=%p preparingForSave=%d beganTransaction=%d",
-			self,
-			(int)_flags.preparingForSave,
-			(int)_flags.beganTransaction);
+  NSDebugMLLog(@"EODatabaseContext",
+	       @"self=%p preparingForSave=%d beganTransaction=%d",
+	       self,
+	       (int)_flags.preparingForSave,
+	       (int)_flags.beganTransaction);
 
   [self _assertValidStateWithSelector: @selector(performChanges)];
 
@@ -3109,14 +3071,13 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   while (NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid, (void **)&dbOpe))
     {
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+      NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
       //REVOIR
       if ([dbOpe databaseOperator] == EODatabaseNothingOperator)
         {
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"Db Ope %@ for Nothing !!!",
-				dbOpe);
+          NSDebugMLLog(@"EODatabaseContext", @"Db Ope %@ for Nothing !!!",
+		       dbOpe);
         }
       else
         {
@@ -3126,42 +3087,42 @@ Raises an exception is the adaptor is unable to perform the operations.
         }
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"orderedAdaptorOperations A=%@",
-			orderedAdaptorOperations);
+  NSDebugMLLog(@"EODatabaseContext", @"orderedAdaptorOperations A=%@",
+	       orderedAdaptorOperations);
 
   orderedAdaptorOperations = [self orderAdaptorOperations];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"orderedAdaptorOperations B=%@",
-			orderedAdaptorOperations);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			@"self=%p preparingForSave=%d beganTransaction=%d",
-			self,
-			(int)_flags.preparingForSave,
-			(int)_flags.beganTransaction);
+  NSDebugMLLog(@"EODatabaseContext", @"orderedAdaptorOperations B=%@",
+	       orderedAdaptorOperations);
+  NSDebugMLLog(@"EODatabaseContext",
+	       @"self=%p preparingForSave=%d beganTransaction=%d",
+	       self,
+	       (int)_flags.preparingForSave,
+	       (int)_flags.beganTransaction);
 
   if ([orderedAdaptorOperations count] > 0)
     {
       EOAdaptorChannel *adaptorChannel = nil;
       EODatabaseChannel *dbChannel = [self _obtainOpenChannel];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"self=%p preparingForSave=%d beganTransaction=%d",
-			    self,
-			    (int)_flags.preparingForSave,
-			    (int)_flags.beganTransaction);                   
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"self=%p preparingForSave=%d beganTransaction=%d",
+		   self,
+		   (int)_flags.preparingForSave,
+		   (int)_flags.beganTransaction);                   
 
       if (_flags.beganTransaction == NO)//MIRKO
 	{
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"self=%p [_adaptorContext transactionNestingLevel]=%d",
-				self,
-				(int)[_adaptorContext transactionNestingLevel]);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"self=%p [_adaptorContext transactionNestingLevel]=%d",
+		       self,
+		       (int)[_adaptorContext transactionNestingLevel]);
 
           if ([_adaptorContext transactionNestingLevel] == 0) //??
             [_adaptorContext  beginTransaction];
 
-          EOFLOGObjectLevel(@"EODatabaseContext",
-			    @"BEGAN TRANSACTION FLAG==>YES");
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"BEGAN TRANSACTION FLAG==>YES");
 
 	  _flags.beganTransaction = YES;
         }
@@ -3175,29 +3136,29 @@ Raises an exception is the adaptor is unable to perform the operations.
                                               adaptorChannel: adaptorChannel];
       NS_DURING
         {
-          EOFLOGObjectLevel(@"EODatabaseContext",
-			    @"performAdaptorOperations:");
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"self=%p preparingForSave=%d beganTransaction=%d",
-				self,
-				(int)_flags.preparingForSave,
-				(int)_flags.beganTransaction);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"performAdaptorOperations:");
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"self=%p preparingForSave=%d beganTransaction=%d",
+		       self,
+		       (int)_flags.preparingForSave,
+		       (int)_flags.beganTransaction);
 
           [adaptorChannel performAdaptorOperations: orderedAdaptorOperations];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"self=%p preparingForSave=%d beganTransaction=%d",
-				self,
-				(int)_flags.preparingForSave,
-				(int)_flags.beganTransaction);
-          EOFLOGObjectLevel(@"EODatabaseContext",
-			    @"after performAdaptorOperations:");
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"self=%p preparingForSave=%d beganTransaction=%d",
+		       self,
+		       (int)_flags.preparingForSave,
+		       (int)_flags.beganTransaction);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"after performAdaptorOperations:");
         }
       NS_HANDLER
 	{
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"Exception in performAdaptorOperations:%@",
-				localException);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"Exception in performAdaptorOperations:%@",
+		       localException);
           [localException raise];
           //MIRKO
           //TODO
@@ -3238,14 +3199,14 @@ Raises an exception is the adaptor is unable to perform the operations.
       NS_ENDHANDLER;
     
 //This is not done by mirko:
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"self=%p preparingForSave=%d beganTransaction=%d",
-			    self,
-			    (int)_flags.preparingForSave,
-			    (int)_flags.beganTransaction);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"self=%p _uniqueStack %p=%@",
-			    self, _uniqueStack, _uniqueStack);
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"self=%p preparingForSave=%d beganTransaction=%d",
+		   self,
+		   (int)_flags.preparingForSave,
+		   (int)_flags.beganTransaction);
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"self=%p _uniqueStack %p=%@",
+		   self, _uniqueStack, _uniqueStack);
 
       dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
 
@@ -3257,8 +3218,8 @@ Raises an exception is the adaptor is unable to perform the operations.
           //call dbOpe adaptorOperations ?
           if ([dbOpe databaseOperator] == EODatabaseNothingOperator)
             {
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				    @"Db Ope %@ for Nothing !!!", dbOpe);
+              NSDebugMLLog(@"EODatabaseContext",
+			   @"Db Ope %@ for Nothing !!!", dbOpe);
             }
           else
             {
@@ -3269,7 +3230,7 @@ Raises an exception is the adaptor is unable to perform the operations.
               id object = nil;
               NSArray *adaptorOpe = nil;
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+              NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
               object = [dbOpe object];
               adaptorOpe = [dbOpe adaptorOperations];
@@ -3277,23 +3238,22 @@ Raises an exception is the adaptor is unable to perform the operations.
               entity = [dbOpe entity];
               dbSnapshotKeys = [entity dbSnapshotKeys];
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbSnapshotKeys=%@",
-				    dbSnapshotKeys);
+              NSDebugMLLog(@"EODatabaseContext", @"dbSnapshotKeys=%@",
+			   dbSnapshotKeys);
 
               newRow = [dbOpe newRow];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRow=%@",
-				    newRow);
+              NSDebugMLLog(@"EODatabaseContext", @"newRow=%@", newRow);
 
               values = [newRow valuesForKeys: dbSnapshotKeys];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				    @"RECORDSNAPSHOT values=%@", values);
+              NSDebugMLLog(@"EODatabaseContext",
+			   @"RECORDSNAPSHOT values=%@", values);
               //if update: forgetSnapshotForGlobalID:
 
               [self recordSnapshot: values
                     forGlobalID: gid];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				    @"self=%p _uniqueStack %p=%@",
-				    self, _uniqueStack, _uniqueStack);
+              NSDebugMLLog(@"EODatabaseContext",
+			   @"self=%p _uniqueStack %p=%@",
+			   self, _uniqueStack, _uniqueStack);
 
               if (databaseOperator == EODatabaseUpdateOperator) //OK for update //Do it forInsert too //TODO
                 {
@@ -3357,8 +3317,8 @@ Raises an exception is the adaptor is unable to perform the operations.
           EOGlobalID *gid = nil;
           EODatabaseOperation *dbOpe = nil;
 
-          EOFLOGObjectLevel(@"EODatabaseContext",
-			    @"BEGAN TRANSACTION FLAG==>NO");
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"BEGAN TRANSACTION FLAG==>NO");
 
           _flags.beganTransaction = NO;
           [_adaptorContext commitTransaction]; //adaptorcontext transactionDidCommit
@@ -3372,7 +3332,7 @@ Raises an exception is the adaptor is unable to perform the operations.
               EOGlobalID *newGID = nil;
               EOEntity *entity = nil;
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+              NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
               [EOObserverCenter suppressObserverNotification];
 
@@ -3423,8 +3383,8 @@ Raises an exception is the adaptor is unable to perform the operations.
                         [object takeStoredValuesFromDictionary:
                         [op rowDiffsForAttributes:attributes]];
                     
-                        EOFLOGObjectLevelArgs(@"EODatabaseContext",@"-_+ %@ # %@", gid, object);
-                        EOFLOGObjectLevelArgs(@"EODatabaseContext",@"-_* %@", [op newRow]);
+                        NSDebugMLLog(@"EODatabaseContext",@"-_+ %@ # %@", gid, object);
+                        NSDebugMLLog(@"EODatabaseContext",@"-_* %@", [op newRow]);
                         [_database recordSnapshot:[op newRow]
                         forGlobalID:gid];
                 
@@ -3441,20 +3401,18 @@ Raises an exception is the adaptor is unable to perform the operations.
                 {
                   [EOObserverCenter enableObserverNotification];
 
-                  NSLog(@"EXCEPTION %@", localException);
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"EXCEPTION %@",
-					localException);
+                  NSDebugMLLog(@"EODatabaseContext", @"EXCEPTION %@",
+			       localException);
 
                   [localException raise];
                 }
               NS_ENDHANDLER;
 
               [EOObserverCenter enableObserverNotification];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+              NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
               dbOpeGID = [dbOpe globalID]; //OK for update 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpeGID=%@",
-				    dbOpeGID);
+              NSDebugMLLog(@"EODatabaseContext", @"dbOpeGID=%@", dbOpeGID);
 
               switch (databaseOperator)
                 {
@@ -3485,7 +3443,7 @@ Raises an exception is the adaptor is unable to perform the operations.
         }
     }
 
-  EOFLOGObjectLevel(@"EODatabaseContext", @"call _cleanUpAfterSave");
+  NSDebugMLLog(@"EODatabaseContext", @"call _cleanUpAfterSave");
 
   [self _cleanUpAfterSave];//OK for update
 
@@ -3494,8 +3452,8 @@ Raises an exception is the adaptor is unable to perform the operations.
       //from mirko. seems ok
       if (gidChangedUserInfo)
         {
-          EOFLOGObjectLevel(@"EODatabaseContext",
-			    @"post EOGlobalIDChangedNotification");
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"post EOGlobalIDChangedNotification");
 
           [[NSNotificationCenter defaultCenter]
             postNotificationName: EOGlobalIDChangedNotification
@@ -3503,8 +3461,8 @@ Raises an exception is the adaptor is unable to perform the operations.
             userInfo: gidChangedUserInfo];
         }
 
-      EOFLOGObjectLevel(@"EODatabaseContext",
-			@"post EOObjectsChangedInStoreNotification");
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"post EOObjectsChangedInStoreNotification");
 
       [[NSNotificationCenter defaultCenter]
 	postNotificationName: @"EOObjectsChangedInStoreNotification"
@@ -3529,8 +3487,7 @@ Raises an exception is the adaptor is unable to perform the operations.
     {
       [_adaptorContext rollbackTransaction];
 
-      EOFLOGObjectLevel(@"EODatabaseContext",
-			@"BEGAN TRANSACTION FLAG==>NO");
+      NSDebugMLLog(@"EODatabaseContext", @"BEGAN TRANSACTION FLAG==>NO");
 
       _flags.beganTransaction = NO;
 
@@ -3559,10 +3516,9 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p keys=%@",
-                        object, keys);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p (class=%@)",
-			object, [object class]);
+  NSDebugMLLog(@"EODatabaseContext",@"object=%p keys=%@", object, keys);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%p (class=%@)",
+	       object, [object class]);
 
   //NSAssert(object, @"No object");
 
@@ -3571,28 +3527,27 @@ Raises an exception is the adaptor is unable to perform the operations.
       entity = [_database entityForObject: object];
 
       NSAssert1(entity, @"No entity for object %@", object);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity name=%@",
-			    [entity name]);
+      NSDebugMLLog(@"EODatabaseContext", @"entity name=%@", [entity name]);
 
       dbOpe = [self databaseOperationForObject: object];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%p", dbOpe);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+      NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%p", dbOpe);
+      NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
       newRow = [dbOpe newRow];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRow=%p", newRow);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRow=%@", newRow);
+      NSDebugMLLog(@"EODatabaseContext", @"newRow=%p", newRow);
+      NSDebugMLLog(@"EODatabaseContext", @"newRow=%@", newRow);
 
       values = [newRow valuesForKeys: keys];
     }
   else
     {
-      EOFLOGObjectLevel(@"EODatabaseContext", @"No object");
+      NSDebugMLLog(@"EODatabaseContext", @"No object");
       values = [NSDictionary dictionary];
     }
 
-//  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"values=%@", values);
+//  NSDebugMLLog(@"EODatabaseContext", @"values=%@", values);
 
   EOFLOGObjectFnStop();
 
@@ -3607,20 +3562,17 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
-			relationship);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceObject=%@",
-			sourceObject);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destinationObject=%@",
-			destinationObject);
+  NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
+  NSDebugMLLog(@"EODatabaseContext", @"sourceObject=%@", sourceObject);
+  NSDebugMLLog(@"EODatabaseContext", @"destinationObject=%@",
+	       destinationObject);
 
   if (destinationObject)
     {
       //Get SourceObject database operation
       sourceDBOpe = [self databaseOperationForObject: sourceObject]; //TODO: useIt
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceDBOpe=%@",
-			    sourceDBOpe);
+      NSDebugMLLog(@"EODatabaseContext", @"sourceDBOpe=%@", sourceDBOpe);
 
       if ([relationship isToManyToOne])
         {
@@ -3634,12 +3586,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 	    [relationship _sourceToDestinationKeyMap]; //{destinationKeys = (customerCode); sourceKeys = (code); }
           BOOL foreignKeyInDestination = [relationship foreignKeyInDestination];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"sourceToDestinationKeyMap=%@",
-                                sourceToDestinationKeyMap);
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"foreignKeyInDestination=%d",
-                                foreignKeyInDestination);
+          NSDebugMLLog(@"EODatabaseContext", @"sourceToDestinationKeyMap=%@",
+		       sourceToDestinationKeyMap);
+          NSDebugMLLog(@"EODatabaseContext", @"foreignKeyInDestination=%d",
+		       foreignKeyInDestination);
 
           if (foreignKeyInDestination)
             {
@@ -3682,9 +3632,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@", relationship);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceObject=%@", sourceObject);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destinationObjects=%@", destinationObjects);
+  NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
+  NSDebugMLLog(@"EODatabaseContext", @"sourceObject=%@", sourceObject);
+  NSDebugMLLog(@"EODatabaseContext", @"destinationObjects=%@", 
+	       destinationObjects);
 
   destinationObjectsCount = [destinationObjects count];
 
@@ -3696,9 +3647,9 @@ Raises an exception is the adaptor is unable to perform the operations.
         {
           id object = [destinationObjects objectAtIndex: i];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"destinationObject %p=%@ (class %@)",
-				object, object, [object class]);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"destinationObject %p=%@ (class %@)",
+		       object, object, [object class]);
 
           [self nullifyAttributesInRelationship: relationship
                 sourceObject: sourceObject
@@ -3717,9 +3668,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@", relationship);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceObject=%@", sourceObject);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destinationObjects=%@", destinationObjects);
+  NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
+  NSDebugMLLog(@"EODatabaseContext", @"sourceObject=%@", sourceObject);
+  NSDebugMLLog(@"EODatabaseContext", @"destinationObjects=%@", 
+	       destinationObjects);
 
   destinationObjectsCount = [destinationObjects count];
 
@@ -3731,8 +3683,9 @@ Raises an exception is the adaptor is unable to perform the operations.
         {
           id object = [destinationObjects objectAtIndex: i];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",@"destinationObject %p=%@ (class %@)",
-                                object,object,[object class]);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"destinationObject %p=%@ (class %@)",
+		       object, object, [object class]);
 
           [self relayAttributesInRelationship: (EORelationship*)relationship
                                  sourceObject: (id)sourceObject
@@ -3753,22 +3706,22 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"relationship=%@",
-                        relationship);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"sourceObject %p=%@ (class=%@)",
-                        sourceObject,sourceObject,[sourceObject class]);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"destinationObject %p=%@ (class=%@)",
-                        destinationObject,destinationObject,[destinationObject class]);
+  NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
+  NSDebugMLLog(@"EODatabaseContext", @"sourceObject %p=%@ (class=%@)",
+	       sourceObject, sourceObject, [sourceObject class]);
+  NSDebugMLLog(@"EODatabaseContext", @"destinationObject %p=%@ (class=%@)",
+	       destinationObject, destinationObject,
+	       [destinationObject class]);
 
   //Get SourceObject database operation
   sourceDBOpe = [self databaseOperationForObject: sourceObject];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceDBOpe=%@", sourceDBOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"sourceDBOpe=%@", sourceDBOpe);
 
   if ([sourceDBOpe databaseOperator] == EODatabaseNothingOperator)
     {
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"Db Ope %@ for Nothing !!!", sourceDBOpe);
+      NSDebugMLLog(@"EODatabaseContext", @"Db Ope %@ for Nothing !!!", 
+		   sourceDBOpe);
     }
 
   if ([relationship isToManyToOne])
@@ -3788,20 +3741,15 @@ Raises an exception is the adaptor is unable to perform the operations.
       BOOL foreignKeyInDestination = [relationship foreignKeyInDestination];
       int i, count;
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
-			    relationship);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"sourceToDestinationKeyMap=%@",
-			    sourceToDestinationKeyMap);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destinationKeys=%@",
-			    destinationKeys);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceKeys=%@",
-			    sourceKeys);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceNewRow=%@",
-			    sourceNewRow);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"foreignKeyInDestination=%s",
-			    (foreignKeyInDestination ? "YES" : "NO"));
+      NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
+      NSDebugMLLog(@"EODatabaseContext", @"sourceToDestinationKeyMap=%@",
+		   sourceToDestinationKeyMap);
+      NSDebugMLLog(@"EODatabaseContext", @"destinationKeys=%@", 
+		   destinationKeys);
+      NSDebugMLLog(@"EODatabaseContext", @"sourceKeys=%@", sourceKeys);
+      NSDebugMLLog(@"EODatabaseContext", @"sourceNewRow=%@", sourceNewRow);
+      NSDebugMLLog(@"EODatabaseContext", @"foreignKeyInDestination=%s",
+		   (foreignKeyInDestination ? "YES" : "NO"));
 
       NSAssert([destinationKeys count] == [sourceKeys count],
                @"destination keys count!=source keys count");
@@ -3810,8 +3758,8 @@ Raises an exception is the adaptor is unable to perform the operations.
         {
           relayedValues = AUTORELEASE([[sourceNewRow valuesForKeys: sourceKeys]
 			     mutableCopy]);// {code = 0; }
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relayedValues=%@",
-				relayedValues);
+          NSDebugMLLog(@"EODatabaseContext", @"relayedValues=%@",
+		       relayedValues);
 
           count = [relayedValues count];
 
@@ -3821,23 +3769,22 @@ Raises an exception is the adaptor is unable to perform the operations.
               NSString *destKey = [destinationKeys objectAtIndex: i];
               id sourceValue = [relayedValues objectForKey: sourceKey];
 
-	      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceKey=%@",
-				    sourceKey);
-	      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destKey=%@",
-				    destKey);
-	      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceValue=%@",
-				    sourceValue);
+	      NSDebugMLLog(@"EODatabaseContext", @"sourceKey=%@", sourceKey);
+	      NSDebugMLLog(@"EODatabaseContext", @"destKey=%@", destKey);
+	      NSDebugMLLog(@"EODatabaseContext", @"sourceValue=%@",
+			   sourceValue);
 
 	      [relayedValues removeObjectForKey: sourceKey];
 	      [relayedValues setObject: sourceValue
 			     forKey: destKey];
             }
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relayedValues=%@",
-				relayedValues);
+          NSDebugMLLog(@"EODatabaseContext", @"relayedValues=%@",
+		       relayedValues);
 
           NSAssert1(destinationObject, 
-                    @"No destinationObject for call of recordUpdateForObject:changes: relayedValues: %@",
+                    @"No destinationObject for call of "
+		    @"recordUpdateForObject:changes: relayedValues: %@",
                     relayedValues);
 
           [self recordUpdateForObject: destinationObject
@@ -3848,29 +3795,27 @@ Raises an exception is the adaptor is unable to perform the operations.
           //Verify !!
           NSDictionary *destinationValues;
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"Call valuesForKeys destinationObject %p (class %@)",
-				destinationObject, [destinationObject class]);
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destinationKeys=%@",
-				destinationKeys);
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
-				relationship);
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceKeys=%@",
-				sourceKeys);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"Call valuesForKeys destinationObject (%p-<%@>)",
+		       destinationObject, [destinationObject class]);
+          NSDebugMLLog(@"EODatabaseContext", @"destinationKeys=%@",
+		       destinationKeys);
+          NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
+          NSDebugMLLog(@"EODatabaseContext", @"sourceKeys=%@", sourceKeys);
 
           //Now take destinationKeys values
           destinationValues = [self valuesForKeys: destinationKeys
 				    object: destinationObject];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destinationValues=%@",
-				destinationValues);
+          NSDebugMLLog(@"EODatabaseContext", @"destinationValues=%@",
+		       destinationValues);
           //And put these values for source keys in the return object (sourceValues)
 
           count = [destinationKeys count];
           relayedValues = (NSMutableDictionary*)[NSMutableDictionary dictionary];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relayedValues=%@",
-				relayedValues);
+          NSDebugMLLog(@"EODatabaseContext", @"relayedValues=%@",
+		       relayedValues);
 
           for (i = 0; i < count; i++)
             {
@@ -3879,20 +3824,19 @@ Raises an exception is the adaptor is unable to perform the operations.
               id destinationValue = [destinationValues
 				      objectForKey: destinationKey];
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destinationKey=%@",
-				    destinationKey);
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"sourceKey=%@",
-				    sourceKey);
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				    @"destinationValue=%@", destinationValue);
+              NSDebugMLLog(@"EODatabaseContext", @"destinationKey=%@",
+			   destinationKey);
+              NSDebugMLLog(@"EODatabaseContext", @"sourceKey=%@", sourceKey);
+              NSDebugMLLog(@"EODatabaseContext",
+			   @"destinationValue=%@", destinationValue);
 
               if (!isNilOrEONull(destinationValue))//?? or always
                 [relayedValues setObject: destinationValue
                                forKey: sourceKey];
             }
           //Put these values in source object database ope new row
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relayedValues=%@",
-				relayedValues);
+          NSDebugMLLog(@"EODatabaseContext", @"relayedValues=%@",
+		       relayedValues);
 
           [sourceNewRow takeValuesFromDictionary: relayedValues];
         }
@@ -3900,8 +3844,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if ([sourceDBOpe databaseOperator] == EODatabaseNothingOperator)
     {
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"Db Ope %@ for Nothing !!!", sourceDBOpe);
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"Db Ope %@ for Nothing !!!", sourceDBOpe);
     }
 
   EOFLOGObjectFnStop();
@@ -3992,18 +3936,15 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   NSAssert(databaseOpe, @"No database operation");
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"databaseOpe=%@", databaseOpe);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"_dbOperationsByGlobalID=%p",
-			_dbOperationsByGlobalID);
+  NSDebugMLLog(@"EODatabaseContext", @"databaseOpe=%@", databaseOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"_dbOperationsByGlobalID=%p",
+	       _dbOperationsByGlobalID);
 
   if (_dbOperationsByGlobalID)
     {
-//      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"_dbOperationsByGlobalID=%@",NSStringFromMapTable(_dbOperationsByGlobalID));
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"_dbOperationsByGlobalID=%@",
-			    [NSDictionary dictionaryWithObjects:
-					    NSAllMapTableValues(_dbOperationsByGlobalID)
-					  forKeys:
-					    NSAllMapTableKeys(_dbOperationsByGlobalID)]);
+//      NSDebugMLLog(@"EODatabaseContext",@"_dbOperationsByGlobalID=%@",NSStringFromMapTable(_dbOperationsByGlobalID));
+      NSDebugMLLog(@"EODatabaseContext", @"_dbOperationsByGlobalID=%@",
+		   NSStringFromMapTable(_dbOperationsByGlobalID));
 
       /*
         // doesn't do this so some db operation are not recorded (when selecting objects)
@@ -4014,22 +3955,19 @@ Raises an exception is the adaptor is unable to perform the operations.
       */
       gid = [databaseOpe globalID];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
+      NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
       NSMapInsert(_dbOperationsByGlobalID, gid, databaseOpe);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"_dbOperationsByGlobalID=%p",
-			    _dbOperationsByGlobalID);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"_dbOperationsByGlobalID=%@",
-			    [NSDictionary dictionaryWithObjects:
-					    NSAllMapTableValues(_dbOperationsByGlobalID)
-					  forKeys:
-					    NSAllMapTableKeys(_dbOperationsByGlobalID)]);
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"_dbOperationsByGlobalID=%p",
+		   _dbOperationsByGlobalID);
+      NSDebugMLLog(@"EODatabaseContext", @"_dbOperationsByGlobalID=%@",
+		   NSStringFromMapTable(_dbOperationsByGlobalID));
     }
   else
     {
-      EOFLOGObjectLevel(@"EODatabaseContext",
-			@"No _dbOperationsByGlobalID");
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"No _dbOperationsByGlobalID");
     }
 
   EOFLOGObjectFnStop();
@@ -4042,23 +3980,19 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"_dbOperationsByGlobalID=%p",
-			_dbOperationsByGlobalID);
+  NSDebugMLLog(@"EODatabaseContext", @"_dbOperationsByGlobalID=%p",
+	       _dbOperationsByGlobalID);
 
   if (_dbOperationsByGlobalID)
     {
-//      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"_dbOperationsByGlobalID=%@",NSStringFromMapTable(_dbOperationsByGlobalID));
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"_dbOperationsByGlobalID=%@",
-			    [NSDictionary dictionaryWithObjects:
-					    NSAllMapTableValues(_dbOperationsByGlobalID)
-					  forKeys:
-					    NSAllMapTableKeys(_dbOperationsByGlobalID)]);
+//      NSDebugMLLog(@"EODatabaseContext",@"_dbOperationsByGlobalID=%@",NSStringFromMapTable(_dbOperationsByGlobalID));
+      NSDebugMLLog(@"EODatabaseContext", @"_dbOperationsByGlobalID=%@",
+		   NSStringFromMapTable(_dbOperationsByGlobalID));
 
       dbOpe = (EODatabaseOperation*)NSMapGet(_dbOperationsByGlobalID,
 					     (const void*)gid);
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"dbOpe=%@",
-                            dbOpe);
+      NSDebugMLLog(@"EODatabaseContext",@"dbOpe=%@", dbOpe);
     }
 
   EOFLOGObjectFnStop();
@@ -4076,18 +4010,17 @@ Raises an exception is the adaptor is unable to perform the operations.
 
    NS_DURING // for trace purpose
      {
-       EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%@", object);
+       NSDebugMLLog(@"EODatabaseContext", @"object=%@", object);
 
        if ([object isKindOfClass: [EOGenericRecord class]])
-	 EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dictionary=%@ ",
-			       [object debugDictionaryDescription]);
+	 NSDebugMLLog(@"EODatabaseContext", @"dictionary=%@ ",
+		      [object debugDictionaryDescription]);
 
        gid = [self _globalIDForObject: object]; //OK
-       EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
+       NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
        databaseOpe = [self databaseOperationForGlobalID: gid]; //OK
-       EOFLOGObjectLevelArgs(@"EODatabaseContext", @"databaseOpe=%@",
-			     databaseOpe);
+       NSDebugMLLog(@"EODatabaseContext", @"databaseOpe=%@", databaseOpe);
 
        if (!databaseOpe)//OK
          {
@@ -4103,50 +4036,50 @@ Raises an exception is the adaptor is unable to perform the operations.
            NSArray *primaryKeyAttributes = nil;
 
            entity = [_database entityForObject: object]; //OK
-           EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity name=%@",
-				 [entity name]);
+           NSDebugMLLog(@"EODatabaseContext", @"entity name=%@",
+			[entity name]);
 
            primaryKeyAttributes = [entity primaryKeyAttributes]; //OK
 
-           EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				 @"primaryKeyAttributes=%@",
-				 primaryKeyAttributes);
+           NSDebugMLLog(@"EODatabaseContext",
+			@"primaryKeyAttributes=%@",
+			primaryKeyAttributes);
 
            databaseOpe = [EODatabaseOperation
 			   databaseOperationWithGlobalID: gid
 			   object: object
 			   entity: entity]; //OK
 
-           EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				 @"CREATED databaseOpe=%@\nfor object %p %@",
-				 databaseOpe, object, object);
+           NSDebugMLLog(@"EODatabaseContext",
+			@"CREATED databaseOpe=%@\nfor object %p %@",
+			databaseOpe, object, object);
 
            snapshot = [self snapshotForGlobalID: gid];//OK
-           EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshot %p=%@",
-				 snapshot, snapshot);
+           NSDebugMLLog(@"EODatabaseContext", @"snapshot %p=%@",
+			snapshot, snapshot);
 
            if (!snapshot)
              snapshot = [NSDictionary dictionary];
 
            [databaseOpe setDBSnapshot: snapshot];
-           EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p databaseOpe=%@",
-                                 object,databaseOpe);
+           NSDebugMLLog(@"EODatabaseContext",@"object=%p databaseOpe=%@",
+			object,databaseOpe);
 
            classPropertyNames = [entity classPropertyNames]; //OK  (code, a3code, numcode, toLabel)
-           EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				 @"classPropertyNames=%@", classPropertyNames);
+           NSDebugMLLog(@"EODatabaseContext",
+			@"classPropertyNames=%@", classPropertyNames);
 
            propNamesCount = [classPropertyNames count];
-           EOFLOGObjectLevelArgs(@"EODatabaseContext", @"propNamesCount=%d",
-				 (int)propNamesCount);
+           NSDebugMLLog(@"EODatabaseContext", @"propNamesCount=%d",
+			(int)propNamesCount);
 
            //TODO: rewrite code: don't use temporary "row"
            row = (NSMutableDictionary*)[NSMutableDictionary dictionary];
-           EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object %p (class %@)=%@ ",
-                                 object,[object class],object);
+           NSDebugMLLog(@"EODatabaseContext",@"object %p (class %@)=%@ ",
+			object,[object class],object);
 
            /*if ([object isKindOfClass: [EOGenericRecord class]])
-	     EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dictionary=%@ ",
+	     NSDebugMLLog(@"EODatabaseContext", @"dictionary=%@ ",
 	     [object debugDictionaryDescription]);*/
 
            for (i = 0; i < propNamesCount; i++)
@@ -4154,7 +4087,7 @@ Raises an exception is the adaptor is unable to perform the operations.
                id value = nil;
                NSString *key = [classPropertyNames objectAtIndex: i];
 
-               EOFLOGObjectLevelArgs(@"EODatabaseContext", @"key=%@", key);
+               NSDebugMLLog(@"EODatabaseContext", @"key=%@", key);
 
                /*NO !! 
                  if ([attribute isKindOfClass:[EOAttribute class]] == NO)
@@ -4162,8 +4095,8 @@ Raises an exception is the adaptor is unable to perform the operations.
                  // if ([attribute isFlattened] == NO)
                  */
                value = [object storedValueForKey: key]; //OK
-               EOFLOGObjectLevelArgs(@"EODatabaseContext", @"key=%@ value=%@",
-				     key, value);
+               NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
+			    key, value);
 
                if (!value)
 		 {
@@ -4173,8 +4106,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 		     raise];
 		 }
 
-               EOFLOGObjectLevelArgs(@"EODatabaseContext", @"key=%@ value=%@",
-				     key, value);
+               NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
+			    key, value);
 
                [row setObject: value
                     forKey: key];
@@ -4184,11 +4117,11 @@ Raises an exception is the adaptor is unable to perform the operations.
 		       initWithDictionary: snapshot
 		       copyItems: NO];
 
-           EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRow=%@", newRow);
+           NSDebugMLLog(@"EODatabaseContext", @"newRow=%@", newRow);
 
            dbSnapshotKeys = [entity dbSnapshotKeys]; //OK (numcode, code, a3code)
-           EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbSnapshotKeys=%@",
-				 dbSnapshotKeys);
+           NSDebugMLLog(@"EODatabaseContext", @"dbSnapshotKeys=%@",
+			dbSnapshotKeys);
 
            snapKeyCount = [dbSnapshotKeys count];
 
@@ -4197,8 +4130,8 @@ Raises an exception is the adaptor is unable to perform the operations.
                id key = [dbSnapshotKeys objectAtIndex: i];
                id value = [row objectForKey: key]; //Really this key ?
 
-               EOFLOGObjectLevelArgs(@"EODatabaseContext", @"key=%@ value=%@",
-				     key, value);
+               NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
+			    key, value);
 
 	       //               NSAssert1(value,@"No value for %@",key);
 
@@ -4207,7 +4140,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 			 forKey: key];
              }
 
-           EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRow=%@", newRow);
+           NSDebugMLLog(@"EODatabaseContext", @"newRow=%@", newRow);
 
            [databaseOpe setNewRow: newRow];
            [self recordDatabaseOperation: databaseOpe];
@@ -4216,10 +4149,7 @@ Raises an exception is the adaptor is unable to perform the operations.
     }
   NS_HANDLER
     {
-      NSLog(@"EXCEPTION %@", localException);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"EXCEPTION %@",
-			    localException);              
-
+      NSDebugMLLog(@"EODatabaseContext", @"EXCEPTION %@", localException);
       [localException raise];
     }
   NS_ENDHANDLER;
@@ -4251,20 +4181,19 @@ Raises an exception is the adaptor is unable to perform the operations.
             pk,relationship,sourceObject);
 
   destAttributes = [relationship destinationAttributes];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destAttributes=%@",
-			destAttributes);
+  NSDebugMLLog(@"EODatabaseContext", @"destAttributes=%@", destAttributes);
 
   destAttributeNames = [destAttributes resultsOfPerformingSelector:
 					 @selector(name)];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"destAttributeNames=%@",
-			destAttributeNames);
+  NSDebugMLLog(@"EODatabaseContext", @"destAttributeNames=%@",
+	       destAttributeNames);
 
   keyValues = [self valuesForKeys: destAttributeNames
 		    object: destObject];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"keyValues=%@", keyValues);
+  NSDebugMLLog(@"EODatabaseContext", @"keyValues=%@", keyValues);
 
   values = [keyValues allValues];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"values=%@", values);
+  NSDebugMLLog(@"EODatabaseContext", @"values=%@", values);
 
   //Now test if null values
   count = [values count];
@@ -4272,8 +4201,8 @@ Raises an exception is the adaptor is unable to perform the operations.
   for (i = 0; nullPKValues && i < count; i++)
     nullPKValues = isNilOrEONull([values objectAtIndex:i]);
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"nullPKValues=%s",
-			(nullPKValues ? "YES" : "NO"));
+  NSDebugMLLog(@"EODatabaseContext", @"nullPKValues=%s",
+	       (nullPKValues ? "YES" : "NO"));
 
   if (nullPKValues)
     {
@@ -4304,18 +4233,18 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"pk=%@", pk);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%@", object);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity=%@", [entity name]);
+  NSDebugMLLog(@"EODatabaseContext", @"pk=%@", pk);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%@", object);
+  NSDebugMLLog(@"EODatabaseContext", @"entity=%@", [entity name]);
 
   relationships = [entity relationships]; //OK
   classPropertyNames = [entity classPropertyNames];
   dbOpe = [self databaseOperationForObject: object];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
   dbSnapshot = [dbOpe dbSnapshot]; //OK
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbSnapshot=%@", dbSnapshot);
+  NSDebugMLLog(@"EODatabaseContext", @"dbSnapshot=%@", dbSnapshot);
 
   count = [relationships count];
 
@@ -4325,24 +4254,24 @@ Raises an exception is the adaptor is unable to perform the operations.
       EORelationship *substRelationship = nil;
       BOOL propagatesPrimaryKey = NO;
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
-			    relationship);
+      NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
 
-      substRelationship = [relationship _substitutionRelationshipForRow:
-					  dbSnapshot];
+      substRelationship 
+	= [relationship _substitutionRelationshipForRow: dbSnapshot];
       propagatesPrimaryKey = [substRelationship propagatesPrimaryKey]; //substRelationship or relationship?
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"object=%p relationship name=%@ ==> propagatesPrimaryKey=%s",
-			    object,
-			    [relationship name],
-			    (propagatesPrimaryKey ? "YES" : "NO"));
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"object=%p relationship name=%@ ==> "
+		   @"propagatesPrimaryKey=%s",
+		   object,
+		   [relationship name],
+		   (propagatesPrimaryKey ? "YES" : "NO"));
 
       if (propagatesPrimaryKey)
         {
           NSString *relName = [substRelationship name]; //this one ??
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relName=%@", relName);
+          NSDebugMLLog(@"EODatabaseContext", @"relName=%@", relName);
 
           if ([classPropertyNames containsObject: relName])
             {
@@ -4352,19 +4281,18 @@ Raises an exception is the adaptor is unable to perform the operations.
               BOOL isToMany = NO;
 
               value = [object storedValueForKey: relName];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"value=%@", value);
+              NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
 
               snapshot = [self _currentCommittedSnapshotForObject: object];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshot=%@",
-				    snapshot);
+              NSDebugMLLog(@"EODatabaseContext", @"snapshot=%@", snapshot);
 
               snapshotValue = [snapshot objectForKey:relName];//ret nil
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshotValue=%@",
-				    snapshotValue);
+              NSDebugMLLog(@"EODatabaseContext", @"snapshotValue=%@",
+			   snapshotValue);
 
               isToMany = [substRelationship isToMany]; //this one ??
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"isToMany=%s",
-				    (isToMany ? "YES" : "NO"));
+              NSDebugMLLog(@"EODatabaseContext", @"isToMany=%s",
+			   (isToMany ? "YES" : "NO"));
 
               if (isToMany)
                 {
@@ -4381,8 +4309,8 @@ Raises an exception is the adaptor is unable to perform the operations.
                     {
                       id valueValue = [value objectAtIndex: iValueValue];
 
-                      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-					    @"valueValue=%@", valueValue);
+                      NSDebugMLLog(@"EODatabaseContext",
+				   @"valueValue=%@", valueValue);
 
                       [self relayPrimaryKey: pk
                             sourceObject: object
@@ -4392,8 +4320,7 @@ Raises an exception is the adaptor is unable to perform the operations.
                 }
               else
                 {
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"value=%@",
-					value);
+                  NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
 
                   // 1:1 relationships may be optional so we may have no value here
                   if (value)
@@ -4422,15 +4349,14 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
   NSAssert(dbOpe, @"No operation");
 
   entity = [dbOpe entity]; //OK
   dbOperator = [dbOpe databaseOperator]; //OK
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"attributes=%@", attributes);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOperator=%d",
-			(int)dbOperator);
+  NSDebugMLLog(@"EODatabaseContext", @"attributes=%@", attributes);
+  NSDebugMLLog(@"EODatabaseContext", @"dbOperator=%d", (int)dbOperator);
 
   switch (dbOperator)
     {
@@ -4438,8 +4364,8 @@ Raises an exception is the adaptor is unable to perform the operations.
       {
         changedValues = [dbOpe rowDiffsForAttributes:attributes];
 
-        EOFLOGObjectLevelArgs(@"EODatabaseContext", @"changedValues %p=%@",
-			      changedValues, changedValues);
+        NSDebugMLLog(@"EODatabaseContext", @"changedValues %p=%@",
+		     changedValues, changedValues);
 
         if ([changedValues count] == 0)        
           isSomethingTodo = NO;
@@ -4453,8 +4379,8 @@ Raises an exception is the adaptor is unable to perform the operations.
       {
         changedValues = [dbOpe newRow]; //OK
 
-        EOFLOGObjectLevelArgs(@"EODatabaseContext", @"changedValues %p=%@",
-			      changedValues, changedValues);
+        NSDebugMLLog(@"EODatabaseContext", @"changedValues %p=%@",
+		     changedValues, changedValues);
       }
       break;
 
@@ -4514,8 +4440,8 @@ Raises an exception is the adaptor is unable to perform the operations.
             NSEmitTODO();
 
             //TODO=self lockingNonQualifiableAttributes:#####  ret nil
-            EOFLOGObjectLevelArgs(@"EODatabaseContext", @"lockingQualifier=%@",
-				  lockingQualifier);
+            NSDebugMLLog(@"EODatabaseContext", @"lockingQualifier=%@",
+			 lockingQualifier);
 
             /*MIRKO for UPDATE:
               //TODO-NOW
@@ -4540,18 +4466,18 @@ Raises an exception is the adaptor is unable to perform the operations.
               dictionaryWithCapacity:16];
               lockSnapshot = [NSMutableDictionary dictionaryWithCapacity:8];
               lockAttributes = [NSMutableArray arrayWithCapacity:8];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",@"lock start %@", snapshot);
+              NSDebugMLLog(@"EODatabaseContext",@"lock start %@", snapshot);
               attrsEnum = [primaryKeyAttributes objectEnumerator];
               while ((attribute = [attrsEnum nextObject]))
               {
               NSString *name = [attribute name];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",@" %@", name);
+              NSDebugMLLog(@"EODatabaseContext",@" %@", name);
               [lockSnapshot setObject:[snapshot objectForKey:name]
               forKey:name];
               }
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",@"lock stop");
+              NSDebugMLLog(@"EODatabaseContext",@"lock stop");
               
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",@"lock start2");
+              NSDebugMLLog(@"EODatabaseContext",@"lock start2");
               attrsEnum = [attrsUsedForLocking objectEnumerator];
               while ((attribute = [attrsEnum nextObject]))
               {
@@ -4572,7 +4498,7 @@ Raises an exception is the adaptor is unable to perform the operations.
                                          forKey:name];
                   }
               }
-            EOFLOGObjectLevelArgs(@"EODatabaseContext",@"lock stop2");
+            NSDebugMLLog(@"EODatabaseContext",@"lock stop2");
             
             qualifier = AUTORELEASE([[EOAndQualifier alloc]
                            initWithQualifiers:
@@ -4593,7 +4519,7 @@ Raises an exception is the adaptor is unable to perform the operations.
                           [lockOperation setAttributes:lockAttributes];
                           [lockOperation setChangedValues:lockSnapshot];
                           
-                          EOFLOGObjectLevelArgs(@"EODatabaseContext",@"*+ %@", lockSnapshot);
+                          NSDebugMLLog(@"EODatabaseContext",@"*+ %@", lockSnapshot);
                           [op addAdaptorOperation:lockOperation];
                           }
             */
@@ -4609,8 +4535,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       adaptorOpe = [EOAdaptorOperation adaptorOperationWithEntity: entity];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"adaptorOpe=%@", 
-			    adaptorOpe);
+      NSDebugMLLog(@"EODatabaseContext", @"adaptorOpe=%@", adaptorOpe);
 
       switch (dbOperator)
         {
@@ -4618,8 +4543,8 @@ Raises an exception is the adaptor is unable to perform the operations.
           procedureOpeName = @"EOInsertProcedure";
           adaptorOperator = EOAdaptorInsertOperator;
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"changedValues %p=%@",
-				changedValues, changedValues);
+          NSDebugMLLog(@"EODatabaseContext", @"changedValues %p=%@",
+		       changedValues, changedValues);
 
           valuesToWrite = [self valuesToWriteForAttributes: attributes
 				entity: entity
@@ -4687,8 +4612,8 @@ Raises an exception is the adaptor is unable to perform the operations.
         break;
 
       case EODatabaseNothingOperator:
-        EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			      @"Db Ope %@ for Nothing !!!", dbOpe);
+        NSDebugMLLog(@"EODatabaseContext",
+		     @"Db Ope %@ for Nothing !!!", dbOpe);
         //Nothing?
         break;
 
@@ -4698,8 +4623,7 @@ Raises an exception is the adaptor is unable to perform the operations.
         break;
       }
 
-    EOFLOGObjectLevelArgs(@"EODatabaseContext", @"adaptorOperator=%d",
-			  adaptorOperator);
+    NSDebugMLLog(@"EODatabaseContext", @"adaptorOperator=%d", adaptorOperator);
 
     // only for insert ??
     storedProcedure = [entity storedProcedureForOperation: procedureOpeName];
@@ -4710,29 +4634,27 @@ Raises an exception is the adaptor is unable to perform the operations.
         [self notImplemented: _cmd]; //TODO
       }
 
-    EOFLOGObjectLevelArgs(@"EODatabaseContext", @"adaptorOperator=%d",
-			  adaptorOperator);
-    EOFLOGObjectLevelArgs(@"EODatabaseContext", @"adaptorOpe=%@", adaptorOpe);
+    NSDebugMLLog(@"EODatabaseContext", @"adaptorOperator=%d",
+		    adaptorOperator);
+    NSDebugMLLog(@"EODatabaseContext", @"adaptorOpe=%@", adaptorOpe);
 
     if (adaptorOpe)
       {
         [adaptorOpe setAdaptorOperator: adaptorOperator];
-        EOFLOGObjectLevelArgs(@"EODatabaseContext", @"valuesToWrite=%@",
-			      valuesToWrite);
+        NSDebugMLLog(@"EODatabaseContext", @"valuesToWrite=%@", valuesToWrite);
 
         if (valuesToWrite)
           [adaptorOpe setChangedValues: valuesToWrite];
 
-        EOFLOGObjectLevelArgs(@"EODatabaseContext", @"lockingQualifier=%@",
-			      lockingQualifier);
+        NSDebugMLLog(@"EODatabaseContext", @"lockingQualifier=%@",
+		     lockingQualifier);
 
         if (lockingQualifier)
           [adaptorOpe setQualifier: lockingQualifier];
 
         [dbOpe addAdaptorOperation: adaptorOpe];
       }
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"adaptorOpe=%@",
-			    adaptorOpe);
+      NSDebugMLLog(@"EODatabaseContext", @"adaptorOpe=%@", adaptorOpe);
   }
 
   EOFLOGObjectFnStop();
@@ -4748,7 +4670,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   EOEntity *entity = [dbOpe entity]; //OK
   NSDictionary *rowDiffs = nil;
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
   [self processSnapshotForDatabaseOperation: dbOpe]; //OK
   dbOperator = [dbOpe databaseOperator]; //OK
@@ -4756,7 +4678,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   if (dbOperator == EODatabaseUpdateOperator) //OK
     {
       rowDiffs = [dbOpe rowDiffs];
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"rowDiffs=%@", rowDiffs);
+      NSDebugMLLog(@"EODatabaseContext", @"rowDiffs=%@", rowDiffs);
     }
 
   attributesToSave = [entity _attributesToSave]; //OK for update, OK for insert
@@ -4767,7 +4689,7 @@ Raises an exception is the adaptor is unable to perform the operations.
     {
       EOAttribute *attribute = [attributesToSave objectAtIndex: i]; //OK
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"attribute=%@", attribute);
+      NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
 
       if (![attribute isFlattened] && ![attribute isDerived]) //VERIFY
         {
@@ -4782,8 +4704,8 @@ Raises an exception is the adaptor is unable to perform the operations.
         }
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"attributes=%@", attributes);
+  NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"attributes=%@", attributes);
 
   [self createAdaptorOperationsForDatabaseOperation: dbOpe
         attributes: attributes];
@@ -4819,8 +4741,8 @@ Raises an exception is the adaptor is unable to perform the operations.
           NSArray *dbOpeAdaptorOperations = [dbOpe adaptorOperations];
           int i, count = [dbOpeAdaptorOperations count];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
+          NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+          NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
           for (i = 0; i < count; i++)
             {
@@ -4828,14 +4750,13 @@ Raises an exception is the adaptor is unable to perform the operations.
 						 objectAtIndex: i];
               EOEntity *entity = nil;
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"adaptorOpe=%@",
-				    adaptorOpe);
+              NSDebugMLLog(@"EODatabaseContext", @"adaptorOpe=%@",
+			   adaptorOpe);
 
               [adaptorOperations addObject: adaptorOpe];
               entity = [adaptorOpe entity];
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity=%@",
-				    [entity name]);
+              NSDebugMLLog(@"EODatabaseContext", @"entity=%@", [entity name]);
               NSHashInsertIfAbsent(entitiesHashTable, entity);
             }
         }
@@ -4844,7 +4765,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       NSFreeHashTable(entitiesHashTable);
 
       entitiesHashTable = NULL;
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entities=%@", entities);
+      NSDebugMLLog(@"EODatabaseContext", @"entities=%@", entities);
 
       {
         NSArray *entityNameOrderingArray = [self entityNameOrderingArrayForEntities:entities];
@@ -4858,8 +4779,7 @@ Raises an exception is the adaptor is unable to perform the operations.
             EOEntity *entity = [entityNameOrderingArray
 				 objectAtIndex: iEntity];          
 
-            EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity=%@",
-				  [entity name]);
+            NSDebugMLLog(@"EODatabaseContext", @"entity=%@", [entity name]);
 
             for (iAdaptoOpe = 0; iAdaptoOpe < adaptorOpeCount; iAdaptoOpe++)
               {
@@ -4899,8 +4819,7 @@ Raises an exception is the adaptor is unable to perform the operations.
     {
       EORelationship *relationship = [relationships objectAtIndex: i];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
-			    relationship);
+      NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
 
       if (![relationship isToMany]) //If to many: do nothing
         {
@@ -5030,12 +4949,9 @@ Raises an exception is the adaptor is unable to perform the operations.
   //TODO REMOVE
   if (!isValid)
     {
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"attribute=%@",
-                            attribute);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"externalType=%@",
-                            externalType);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"entity name=%@",
-                            entity);
+      NSDebugMLLog(@"EODatabaseContext",@"attribute=%@", attribute);
+      NSDebugMLLog(@"EODatabaseContext",@"externalType=%@", externalType);
+      NSDebugMLLog(@"EODatabaseContext",@"entity name=%@", entity);
     }
 
   EOFLOGObjectFnStop();
@@ -5163,10 +5079,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"attributes=%@", attributes);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"primaryKeyAttributes=%@",
-			primaryKeyAttributes);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshot=%@", snapshot);
+  NSDebugMLLog(@"EODatabaseContext", @"attributes=%@", attributes);
+  NSDebugMLLog(@"EODatabaseContext", @"primaryKeyAttributes=%@",
+	       primaryKeyAttributes);
+  NSDebugMLLog(@"EODatabaseContext", @"snapshot=%@", snapshot);
 
   //First use primaryKeyAttributes, next use attributes
   for (which = 0; which < 2; which++)
@@ -5178,8 +5094,7 @@ Raises an exception is the adaptor is unable to perform the operations.
         {
           EOAttribute *attribute = [array objectAtIndex: i];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"attribute=%@",
-				attribute);
+          NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
 
           if (which == 0 || ![primaryKeyAttributes containsObject: attribute])// Test if we haven't already processed it
             {
@@ -5208,7 +5123,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
                   if (!value)
                     {
-                      EOFLOGObjectLevel(@"EODatabaseContext", @"NO VALUE");
+                      NSDebugMLLog(@"EODatabaseContext", @"NO VALUE");
                     }
 
                   NSAssert4(value, @"no value for %@ in %p %@ entity %@", snapName,
@@ -5219,16 +5134,16 @@ Raises an exception is the adaptor is unable to perform the operations.
 				 operatorSelector: @selector(isEqualTo:)
 				 value: value];
 
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"aQualifier=%@",
-					aQualifier);
+                  NSDebugMLLog(@"EODatabaseContext", @"aQualifier=%@",
+			       aQualifier);
 
                   if (!qualifiers)
                     qualifiers = [NSMutableArray array];
 
                   [qualifiers addObject: aQualifier];
 
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"qualifiers=%@",
-					qualifiers);
+                  NSDebugMLLog(@"EODatabaseContext", @"qualifiers=%@",
+			       qualifiers);
                 }
             }
         }
@@ -5239,7 +5154,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   else
     qualifier = [EOAndQualifier qualifierWithQualifierArray: qualifiers];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"qualifier=%@", qualifier);
+  NSDebugMLLog(@"EODatabaseContext", @"qualifier=%@", qualifier);
 
   EOFLOGObjectFnStop();
 
@@ -5270,14 +5185,14 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
   newRow = [dbOpe newRow]; //OK{a3code = Q77; code = Q7; numcode = 007; } //ALLOK
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRow %p=%@", newRow, newRow);
+  NSDebugMLLog(@"EODatabaseContext", @"newRow %p=%@", newRow, newRow);
 
   dbSnapshot = [dbOpe dbSnapshot];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbSnapshot %p=%@",
-			dbSnapshot, dbSnapshot);
+  NSDebugMLLog(@"EODatabaseContext", @"dbSnapshot %p=%@",
+	       dbSnapshot, dbSnapshot);
 
   attrNameEnum = [newRow keyEnumerator];
 
@@ -5287,23 +5202,21 @@ Raises an exception is the adaptor is unable to perform the operations.
       id newRowValue = nil;
       id dbSnapshotValue = nil;
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"attribute=%@", attribute);
+      NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
 
       newRowValue = [newRow objectForKey:attrName];
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"newRowValue=%@",
-			    newRowValue);
+      NSDebugMLLog(@"EODatabaseContext", @"newRowValue=%@", newRowValue);
 
       dbSnapshotValue = [dbSnapshot objectForKey: attrName];
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbSnapshotValue=%@",
-			    dbSnapshotValue);
+      NSDebugMLLog(@"EODatabaseContext", @"dbSnapshotValue=%@",
+		   dbSnapshotValue);
 
       if (dbSnapshotValue && ![newRowValue isEqual: dbSnapshotValue])
         {
           id adaptorValue = [adaptor fetchedValueForValue: newRowValue
 				     attribute: attribute]; //this call is OK
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"adaptorValue=%@",
-				adaptorValue);
+          NSDebugMLLog(@"EODatabaseContext", @"adaptorValue=%@", adaptorValue);
           //TODO-NOW SO WHAT ?? may be replacing newRow diff values by adaptorValue if different ????
         }
     }
@@ -5322,15 +5235,14 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"attributes=%@", attributes);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity=%@", [entity name]);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"changedValues=%@",
-			changedValues);
+  NSDebugMLLog(@"EODatabaseContext", @"attributes=%@", attributes);
+  NSDebugMLLog(@"EODatabaseContext", @"entity=%@", [entity name]);
+  NSDebugMLLog(@"EODatabaseContext", @"changedValues=%@", changedValues);
 
   isReadOnlyEntity = [entity isReadOnly];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"isReadOnlyEntity=%s",
-			(isReadOnlyEntity ? "YES" : "NO"));
+  NSDebugMLLog(@"EODatabaseContext", @"isReadOnlyEntity=%s",
+	       (isReadOnlyEntity ? "YES" : "NO"));
 
   if (isReadOnlyEntity)
     {
@@ -5346,15 +5258,14 @@ Raises an exception is the adaptor is unable to perform the operations.
           EOAttribute *attribute = [attributes objectAtIndex: i];
           BOOL isReadOnly = [attribute isReadOnly];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"attribute=%@",
-				attribute);
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"isReadOnly=%s",
-				(isReadOnly ? "YES" : "NO"));
+          NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
+          NSDebugMLLog(@"EODatabaseContext", @"isReadOnly=%s",
+		       (isReadOnly ? "YES" : "NO"));
 
           if (isReadOnly)
             {
               NSEmitTODO();
-              NSDebugMLog(@"attribute=%@",attribute);
+              NSDebugMLog(@"attribute=%@", attribute);
               [self notImplemented: _cmd]; //TODO
             }
           else
@@ -5363,15 +5274,13 @@ Raises an exception is the adaptor is unable to perform the operations.
               NSString *snapName = nil;
               id value = nil;
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"attrName=%@",
-				    attrName);
+              NSDebugMLLog(@"EODatabaseContext", @"attrName=%@", attrName);
 
               snapName = [entity snapshotKeyForAttributeName: attrName];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapName=%@",
-				    snapName);
+              NSDebugMLLog(@"EODatabaseContext", @"snapName=%@", snapName);
 
               value = [changedValues objectForKey: snapName];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"value=%@", value);
+              NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
 
               if (value)
                 [valuesToWrite setObject: value
@@ -5380,8 +5289,7 @@ Raises an exception is the adaptor is unable to perform the operations.
         }
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"valuesToWrite=%@",
-			valuesToWrite);
+  NSDebugMLLog(@"EODatabaseContext", @"valuesToWrite=%@", valuesToWrite);
 
   EOFLOGObjectFnStop();
 
@@ -5481,7 +5389,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 	    }
 	}
     }
-  EOFLOGObjectLevel(@"EODatabaseContext",@"** 3");
+  NSDebugMLLog(@"EODatabaseContext",@"** 3");
 //==> see _registerSnapshot:forSourceGlobalID:relationshipName:editingContext:
 
   for (i = 0; i < count; i++)
@@ -5490,7 +5398,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 		 [editingContext globalIDForObject: [objects objectAtIndex: i]]
 	       relationshipName: [relationship name]];
 
-  EOFLOGObjectLevel(@"EODatabaseContext", @"** 4");
+  NSDebugMLLog(@"EODatabaseContext", @"** 4");
 }
 
 @end
@@ -5504,7 +5412,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p", object);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%p", object);
 
   if (_delegateRespondsTo.shouldFetchObjectFault == YES)
     fetchIt = [_delegate databaseContext: self
@@ -5520,9 +5428,9 @@ Raises an exception is the adaptor is unable to perform the operations.
       EOKeyGlobalID *gid = [handler sourceGlobalID];
       NSArray *objects = nil;
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationshipName=%@",
-			    relationshipName);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
+      NSDebugMLLog(@"EODatabaseContext", @"relationshipName=%@",
+		   relationshipName);
+      NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
       objects = [context objectsForSourceGlobalID: gid
 			 relationshipName: relationshipName
@@ -5535,32 +5443,32 @@ Raises an exception is the adaptor is unable to perform the operations.
          extraData=[handler extraData];
          RELEASE(handler);
       */
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"NEAR FINISHED 1 object count=%d %p %@",
-			    [object count],
-			    object,
-			    object);
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"NEAR FINISHED 1 objects count=%d %p %@",
-			    [objects count],
-			    objects,
-			    objects);
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"NEAR FINISHED 1 object count=%d %p %@",
+		   [object count],
+		   object,
+		   object);
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"NEAR FINISHED 1 objects count=%d %p %@",
+		   [objects count],
+		   objects,
+		   objects);
 
       if (objects != object)
         {
           //No, not needed      [object removeObjectsInArray:objects];//Because some objects may be here. We don't want duplicate. It's a hack because I don't see why there's objects in object !
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"NEAR FINISHED 1 object count=%d %p %@",
-				[object count],
-				object,
-				object);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"NEAR FINISHED 1 object count=%d %p %@",
+		       [object count],
+		       object,
+		       object);
 
           [object addObjectsFromArray: objects];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"NEAR FINISHED 2 object count=%d %@",
-				[object count],
-				object);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"NEAR FINISHED 2 object count=%d %@",
+		       [object count],
+		       object);
         }
     }
   //END!
@@ -5684,12 +5592,14 @@ Raises an exception is the adaptor is unable to perform the operations.
   EOFLOGObjectFnStart();
 
   //MIRKO
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"Fire Fault: object %p of class %@",
-                        object,[object class]);
+  NSDebugMLLog(@"EODatabaseContext",@"Fire Fault: object %p of class %@",
+	       object,[object class]);
 
   if (_delegateRespondsTo.shouldFetchObjectFault == YES)
-    fetchIt = [_delegate databaseContext: self
-                         shouldFetchObjectFault: object];
+    {
+      fetchIt = [_delegate databaseContext: self
+			   shouldFetchObjectFault: object];
+    }
 
   if (fetchIt)
     {
@@ -5751,8 +5661,8 @@ Raises an exception is the adaptor is unable to perform the operations.
         objects = [self objectsWithFetchSpecification: fetchSpecif
 			editingContext: context];
 
-        EOFLOGObjectLevelArgs(@"EODatabaseContext", @"objects %p=%@ class=%@",
-			      objects, objects, [objects class]);
+        NSDebugMLLog(@"EODatabaseContext", @"objects %p=%@ class=%@",
+		     objects, objects, [objects class]);
       }
     }
 
@@ -5891,20 +5801,19 @@ Raises an exception is the adaptor is unable to perform the operations.
 {
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"globalID=%@", globalID);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"fault=%@", fault);
+  NSDebugMLLog(@"EODatabaseContext", @"globalID=%@", globalID);
+  NSDebugMLLog(@"EODatabaseContext", @"fault=%@", fault);
 
   if (fault)
     {
       EOAccessGenericFaultHandler *handler = nil;
       NSString *entityName = [globalID entityName];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entityName=%@",
-			    entityName);
+      NSDebugMLLog(@"EODatabaseContext", @"entityName=%@", entityName);
 
       handler = [_batchFaultBuffer objectForKey: entityName];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"handler=%@", handler);
+      NSDebugMLLog(@"EODatabaseContext", @"handler=%@", handler);
 
       if (handler)
         {
@@ -6001,10 +5910,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 {
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p database=%p",
-			self, _database);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
-			self, _uniqueStack, _uniqueStack);
+  NSDebugMLLog(@"EODatabaseContext", @"self=%p database=%p",
+	       self, _database);
+  NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
+	       self, _uniqueStack, _uniqueStack);
 
   if ([_uniqueStack count] > 0)
     {
@@ -6021,8 +5930,8 @@ Raises an exception is the adaptor is unable to perform the operations.
       [self notImplemented: _cmd]; //TODO
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
-			self, _uniqueStack, _uniqueStack);
+  NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
+	       self, _uniqueStack, _uniqueStack);
 
   EOFLOGObjectFnStop();
 }
@@ -6041,9 +5950,9 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p database=%p",
-			self, _database);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid %p=%@", gid, gid);
+  NSDebugMLLog(@"EODatabaseContext", @"self=%p database=%p",
+	       self, _database);
+  NSDebugMLLog(@"EODatabaseContext", @"gid %p=%@", gid, gid);
 
   snapshot = [self localSnapshotForGlobalID: gid];
 
@@ -6053,8 +5962,8 @@ Raises an exception is the adaptor is unable to perform the operations.
       snapshot = [_database snapshotForGlobalID: gid];
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshot for gid %@: %p %@",
-			gid, snapshot, snapshot);
+  NSDebugMLLog(@"EODatabaseContext", @"snapshot for gid %@: %p %@",
+	       gid, snapshot, snapshot);
 
   EOFLOGObjectFnStop();
 
@@ -6117,8 +6026,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p database=%p",
-			self, _database);
+  NSDebugMLLog(@"EODatabaseContext", @"self=%p database=%p",
+	       self, _database);
 
   snapshotsDictCount = [_uniqueStack count];
 
@@ -6128,8 +6037,8 @@ Raises an exception is the adaptor is unable to perform the operations.
       snapshot = [snapshots objectForKey: gid];
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshot for gid %@: %p %@",
-			gid, snapshot, snapshot);
+  NSDebugMLLog(@"EODatabaseContext", @"snapshot for gid %@: %p %@",
+	       gid, snapshot, snapshot);
 
   EOFLOGObjectFnStop();
 
@@ -6160,8 +6069,9 @@ Raises an exception is the adaptor is unable to perform the operations.
   //TODO-VERIFY deleteStack
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p database=%p [_uniqueStack count]=%d",
-			self, _database,[_uniqueStack count]);
+  NSDebugMLLog(@"EODatabaseContext",
+	       @"self=%p database=%p [_uniqueStack count]=%d",
+	       self, _database,[_uniqueStack count]);
 
   if ([_uniqueStack count] > 0)
     {
@@ -6286,26 +6196,26 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=0x%x", object);
+  NSDebugMLLog(@"EODatabaseContext", @"object=0x%x", object);
 
   classPropertyAttributeNames = [entity classPropertyAttributeNames];
   count = [classPropertyAttributeNames count];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"count=%d", count);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"row=%@", row);
+  NSDebugMLLog(@"EODatabaseContext", @"count=%d", count);
+  NSDebugMLLog(@"EODatabaseContext", @"row=%@", row);
 
   for (i = 0; i < count; i++)
     {
       id key = [classPropertyAttributeNames objectAtIndex: i];
       id value = nil;
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"key=%@", key);
+      NSDebugMLLog(@"EODatabaseContext", @"key=%@", key);
       value = [row objectForKey: key];
 
       if (value == null)
 	value = nil;
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"value=%@", value);
+      NSDebugMLLog(@"EODatabaseContext", @"value=%@", value);
 
       [object takeStoredValue: value
               forKey: key];
@@ -6313,8 +6223,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   relationships = [entity _relationshipsToFaultForRow: row];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationships=%@",
-			relationships);
+  NSDebugMLLog(@"EODatabaseContext", @"relationships=%@", relationships);
 
   count = [relationships count];
 
@@ -6324,8 +6233,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       EORelationship *relationship = [relationships objectAtIndex: i];
       NSString *relName = [relationship name];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
-			    relationship);
+      NSDebugMLLog(@"EODatabaseContext", @"relationship=%@", relationship);
       if ([relationship isToMany])
         {
           EOGlobalID *gid = [entity globalIDForRow: row];
@@ -6346,15 +6254,16 @@ Raises an exception is the adaptor is unable to perform the operations.
         {          
           EOMutableKnownKeyDictionary *foreignKeyForSourceRow = nil;
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"relationship=%@ foreignKeyInDestination:%d",
-                                [relationship name],[relationship foreignKeyInDestination]);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"relationship=%@ foreignKeyInDestination:%d",
+		       [relationship name],
+		       [relationship foreignKeyInDestination]);
 
           foreignKeyForSourceRow = [relationship _foreignKeyForSourceRow: row];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-                                @"row=%@\nforeignKeyForSourceRow:%@",
-				row,foreignKeyForSourceRow);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"row=%@\nforeignKeyForSourceRow:%@",
+		       row, foreignKeyForSourceRow);
           
           if (![foreignKeyForSourceRow
 		 containsObjectsNotIdenticalTo: [EONull null]])
@@ -6368,8 +6277,7 @@ Raises an exception is the adaptor is unable to perform the operations.
               EOGlobalID *relRowGid = [destinationEntity
 					globalIDForRow: foreignKeyForSourceRow];
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relRowGid=%@",
-				    relRowGid);
+              NSDebugMLLog(@"EODatabaseContext", @"relRowGid=%@", relRowGid);
 
               if ([(EOKeyGlobalID*)relRowGid areKeysAllNulls])
                 NSWarnLog(@"All key of relRowGid %p (%@) are nulls",
@@ -6379,8 +6287,8 @@ Raises an exception is the adaptor is unable to perform the operations.
               relObject = [context faultForGlobalID: relRowGid
 				   editingContext: context];
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relObject=%p (%@)",
-				    relObject, [relObject class]);
+              NSDebugMLLog(@"EODatabaseContext", @"relObject=%p (%@)",
+			   relObject, [relObject class]);
 //end
 /*
 	      NSArray *joins = [(EORelationship *)prop joins];
@@ -6429,7 +6337,7 @@ Raises an exception is the adaptor is unable to perform the operations.
             }
         }
 
-      EOFLOGObjectLevel(@"EODatabaseContext", @"TakeStoredValue");
+      NSDebugMLLog(@"EODatabaseContext", @"TakeStoredValue");
 
       [object takeStoredValue: relObject
               forKey: relName];
@@ -6467,8 +6375,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   NSEmitTODO();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
-			self, _uniqueStack, _uniqueStack);
+  NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
+	       self, _uniqueStack, _uniqueStack);
 
   if ([_uniqueStack count] > 0)
     {
@@ -6495,8 +6403,8 @@ Raises an exception is the adaptor is unable to perform the operations.
       */
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
-			self, _uniqueStack, _uniqueStack);
+  NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
+	       self, _uniqueStack, _uniqueStack);
 
   EOFLOGObjectFnStop();
 }
@@ -6509,8 +6417,8 @@ Raises an exception is the adaptor is unable to perform the operations.
   [_uniqueArrayStack addObject: [NSMutableDictionary dictionary]];
   [_deleteStack addObject: [NSMutableDictionary dictionary]]; //TODO: put an object in the dictionary
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
-			self, _uniqueStack, _uniqueStack);
+  NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
+	       self, _uniqueStack, _uniqueStack);
 
   EOFLOGObjectFnStop();
 }
@@ -6575,7 +6483,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   entity = [dbOpe entity];
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+  NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
 
   if ([entity isReadOnly])
     {
@@ -6624,17 +6532,17 @@ _numLocked = 0;
   EOFLOGObjectFnStart();
   NSAssert(object, @"No object");
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p of class %@",
-                        object,[object class]);
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"_editingContext=%p",
-			_editingContext);
+  NSDebugMLLog(@"EODatabaseContext",@"object=%p of class %@",
+	       object,[object class]);
+  NSDebugMLLog(@"EODatabaseContext", @"_editingContext=%p",
+	       _editingContext);
 
   objectEditingContext = [object editingContext];
   NSAssert2(objectEditingContext, @"No editing context for object %p: %@", 
             object,object);
 
   gid = [objectEditingContext globalIDForObject: object];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
+  NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
   if (!gid)
     {
@@ -6667,15 +6575,15 @@ _numLocked = 0;
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%@", object);
+  NSDebugMLLog(@"EODatabaseContext", @"object=%@", object);
   NSAssert(!isNilOrEONull(object), @"No object");
 
   entity = [_database entityForObject: object];
   shouldGeneratePrimaryKey = [self _shouldGeneratePrimaryKeyForEntityName:
 				     [entity name]];
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			@"object=%p shouldGeneratePrimaryKey=%d",
-                        object,shouldGeneratePrimaryKey);
+  NSDebugMLLog(@"EODatabaseContext",
+	       @"object=%p shouldGeneratePrimaryKey=%d",
+	       object, shouldGeneratePrimaryKey);
 
 /*
   if (shouldGeneratePrimaryKey)
@@ -6684,12 +6592,11 @@ _numLocked = 0;
 
       BOOL isPKValid = NO;
       EOGlobalID *gid = [self _globalIDForObject: object]; //OK
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
+      NSDebugMLLog(@"EODatabaseContext", @"gid=%@", gid);
 
 
       pk = [entity primaryKeyForGlobalID: (EOKeyGlobalID*)gid]; //OK
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p pk=%@",
-                            object,pk);
+      NSDebugMLLog(@"EODatabaseContext",@"object=%p pk=%@", object, pk);
 
       {
         NSDictionary *pk2 = nil;
@@ -6698,8 +6605,7 @@ _numLocked = 0;
         pk2 = [self valuesForKeys: pkNames
 		    object: object];
 
-        EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p pk2=%@",
-                              object,pk2);
+        NSDebugMLLog(@"EODatabaseContext",@"object=%p pk2=%@", object, pk2);
 
         if (pk)
           {
@@ -6721,19 +6627,18 @@ _numLocked = 0;
           pk=pk2;
       }
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p pk=%@",
-                            object,pk);
+      NSDebugMLLog(@"EODatabaseContext",@"object=%p pk=%@", object, pk);
 
       isPKValid = [entity isPrimaryKeyValidInObject: pk];
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"object=%p isPKValid=%d",
-                            object,isPKValid);
+      NSDebugMLLog(@"EODatabaseContext",@"object=%p isPKValid=%d",
+		      object, isPKValid);
       if (isPKValid == NO)
         pk = nil;
 
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			    @"object=%p isPKValid=%d shouldGeneratePrimaryKey=%d",
-                            object,isPKValid,shouldGeneratePrimaryKey);
+      NSDebugMLLog(@"EODatabaseContext",
+		   @"object=%p isPKValid=%d shouldGeneratePrimaryKey=%d",
+		   object, isPKValid, shouldGeneratePrimaryKey);
 
       if (isPKValid == NO && shouldGeneratePrimaryKey)
         {
@@ -6762,9 +6667,9 @@ _numLocked = 0;
 
               pkAttributes = [entity primaryKeyAttributes];
 
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				    @"object=%p pk=%@ [pkAttributes count]=%d",
-                                    object,pk,[pkAttributes count]);
+              NSDebugMLLog(@"EODatabaseContext",
+			   @"object=%p pk=%@ [pkAttributes count]=%d",
+			   object, pk, [pkAttributes count]);
               
               if (pk == nil && [pkAttributes count] == 1)
                 {
@@ -6782,16 +6687,16 @@ _numLocked = 0;
                       
                       if (_flags.beganTransaction == NO)
                         {
-                          EOFLOGObjectLevel(@"EODatabaseContext",
-                                            @"BEGAN TRANSACTION FLAG==>NO");
+                          NSDebugMLLog(@"EODatabaseContext",
+				       @"BEGAN TRANSACTION FLAG==>NO");
                           _flags.beganTransaction = YES;
                         }
                     }
                   
                   pk = [channel primaryKeyForNewRowWithEntity: entity];
                   
-                 EOFLOGObjectLevelArgs(@"EODatabaseContext",
-                                        @"** prepare pk %@", pk);
+                 NSDebugMLLog(@"EODatabaseContext",
+			      @"** prepare pk %@", pk);
                   
                   
                   if (pk == nil && [[pkAttr valueClassName]
@@ -6834,17 +6739,16 @@ _numLocked = 0;
       int i=0;
       int relationshipsCount=0;
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%@", object);
+      NSDebugMLLog(@"EODatabaseContext", @"object=%@", object);
 
       // get object snapshot
       objectSnapshot = [object snapshot];      
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"objectSnapshot=%@",
-                            objectSnapshot);
+      NSDebugMLLog(@"EODatabaseContext", @"objectSnapshot=%@",
+		      objectSnapshot);
 
       // Get object relationships
       relationships = [entity relationships];      
-      EOFLOGObjectLevelArgs(@"EODatabaseContext",@"relationships=%@",
-                            relationships);
+      NSDebugMLLog(@"EODatabaseContext", @"relationships=%@", relationships);
       
       relationshipsCount = [relationships count];
       
@@ -6853,12 +6757,12 @@ _numLocked = 0;
           EORelationship *inverseRelationship = nil;
 
           EORelationship *relationship = [relationships objectAtIndex: i];
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"relationship=%@",
-                                relationship);
+          NSDebugMLLog(@"EODatabaseContext", @"relationship=%@",
+		       relationship);
 
           inverseRelationship = [relationship inverseRelationship];
-          EOFLOGObjectLevelArgs(@"EODatabaseContext", @"inverseRelationship=%@",
-                                inverseRelationship);
+          NSDebugMLLog(@"EODatabaseContext", @"inverseRelationship=%@",
+		       inverseRelationship);
           
           // if there's inverse relationship with propagates primary key
           if ([inverseRelationship propagatesPrimaryKey])
@@ -6869,10 +6773,10 @@ _numLocked = 0;
               // get object value for the relationship
               id relationshipValue
 		= [objectSnapshot valueForKey:relationshipName];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-			       @"entity name=%@ relationship name=%@ Value=%@",
-                                    [entity name],
-				    relationshipName, relationshipValue);
+              NSDebugMLLog(@"EODatabaseContext",
+			   @"entity name=%@ relationship name=%@ Value=%@",
+			   [entity name],
+			   relationshipName, relationshipValue);
 
               // get relationshipValue pk
               NSAssert2(!isNilOrEONull(relationshipValue), 
@@ -6882,9 +6786,9 @@ _numLocked = 0;
 
               relationshipValuePK 
 		= [self _primaryKeyForObject: relationshipValue];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				    @"relationshipValuePK=%@",
-                                    relationshipValuePK);
+              NSDebugMLLog(@"EODatabaseContext",
+			   @"relationshipValuePK=%@",
+			   relationshipValuePK);
 
               // force object to relay pk now !
               [self relayPrimaryKey: relationshipValuePK
@@ -6908,7 +6812,7 @@ _numLocked = 0;
                                             // previous key
     }
   
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"pk=%@", pk);
+  NSDebugMLLog(@"EODatabaseContext", @"pk=%@", pk);
   NSDebugMLog(@"object %p=%@\npk=%@",object, object, pk);
 
   EOFLOGObjectFnStop();
@@ -6926,9 +6830,9 @@ _numLocked = 0;
   if (_nonPrimaryKeyGenerators)
     shouldGeneratePK = !NSHashGet(_nonPrimaryKeyGenerators, entityName);
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"shouldGeneratePK for %@: %s",
-			entityName,
-			(shouldGeneratePK ? "YES" : "NO"));
+  NSDebugMLLog(@"EODatabaseContext", @"shouldGeneratePK for %@: %s",
+	       entityName,
+	       (shouldGeneratePK ? "YES" : "NO"));
   NSAssert(![entityName isEqualToString: @"Country"]
 	   || shouldGeneratePK, @"MGVALID: Failed");
 
@@ -6966,8 +6870,8 @@ _numLocked = 0;
           id object = [objects[which] objectAtIndex: i];
           EOEntity *entity = [_database entityForObject: object];
 
-          EOFLOGObjectLevelArgs(@"EODatabaseContext",
-				@"add entity to process: %@", [entity name]);
+          NSDebugMLLog(@"EODatabaseContext",
+		       @"add entity to process: %@", [entity name]);
 
           if (entityToProcess)
             [entityToProcess addObject: entity];
@@ -6980,8 +6884,7 @@ _numLocked = 0;
     {
       EOEntity *entity = [entityToProcess lastObject];
 
-      EOFLOGObjectLevelArgs(@"EODatabaseContext", @"test entity: %@",
-			    [entity name]);
+      NSDebugMLLog(@"EODatabaseContext", @"test entity: %@", [entity name]);
 
       [entityToProcess removeLastObject];
 
@@ -7001,17 +6904,19 @@ _numLocked = 0;
             {
               EORelationship *relationship = [relationships objectAtIndex:
 							      iRelationship];
-              EOFLOGObjectLevelArgs(@"EODatabaseContext", @"test entity: %@ relationship=%@",
-                                    [entity name],
-                                    relationship);
+              NSDebugMLLog(@"EODatabaseContext", 
+			   @"test entity: %@ relationship=%@",
+			   [entity name],
+			   relationship);
 
               if ([relationship propagatesPrimaryKey])
                 {
                   EOEntity *destinationEntity = [relationship
 						  destinationEntity];
-                  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"test entity: %@ destinationEntity=%@",
-                                        [entity name],
-                                        [destinationEntity name]);
+                  NSDebugMLLog(@"EODatabaseContext", 
+			       @"test entity: %@ destinationEntity=%@",
+			       [entity name],
+			       [destinationEntity name]);
 
                   if (destinationEntity)
                     {
@@ -7033,10 +6938,11 @@ _numLocked = 0;
 
 		      if (destPK)
 			{
-			  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-						@"destination entity: %@ No PrimaryKey Generation [Relationship = %@]",
-						[destinationEntity name],
-						[relationship name]);
+			  NSDebugMLLog(@"EODatabaseContext",
+				       @"destination entity: %@ "
+				       @"No PK generation [Rel = %@]",
+				       [destinationEntity name],
+				       [relationship name]);
 
 			  if (!_nonPrimaryKeyGenerators)
 			    _nonPrimaryKeyGenerators = NSCreateHashTable(NSObjectHashCallBacks, 32);
@@ -7050,9 +6956,9 @@ _numLocked = 0;
         }
     }
 
-  EOFLOGObjectLevelArgs(@"EODatabaseContext",
-                        @"_nonPrimaryKeyGenerators=%@",
-                        NSStringFromHashTable(_nonPrimaryKeyGenerators));
+  NSDebugMLLog(@"EODatabaseContext",
+	       @"_nonPrimaryKeyGenerators=%@",
+	       NSStringFromHashTable(_nonPrimaryKeyGenerators));
   
   EOFLOGObjectFnStop();
 

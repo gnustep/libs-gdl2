@@ -3693,15 +3693,15 @@ createInstanceWithEditingContext:globalID:zone:
 
   EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EOEntity", @"gid=%@", gid);
+  NSDebugMLLog(@"EOEntity", @"gid=%@", gid);
 
   if ([gid isKindOfClass: [EOKeyGlobalID class]]) //if ([gid isFinal])//?? or class test ??//TODO
     {
       NSArray *primaryKeyAttributeNames = [self primaryKeyAttributeNames];
       int count = [primaryKeyAttributeNames count];
 
-      EOFLOGObjectLevelArgs(@"EOEntity", @"primaryKeyAttributeNames=%@",
-			    primaryKeyAttributeNames);
+      NSDebugMLLog(@"EOEntity", @"primaryKeyAttributeNames=%@",
+		   primaryKeyAttributeNames);
 
       if (count > 0)
         {
@@ -3715,8 +3715,8 @@ createInstanceWithEditingContext:globalID:zone:
               NSAssert1(dictionaryForPrimaryKey,
 			@"No dictionaryForPrimaryKey in entity %@",
                         [self name]);
-              EOFLOGObjectLevelArgs(@"EOEntity", @"dictionaryForPrimaryKey=%@",
-				    dictionaryForPrimaryKey);
+              NSDebugMLLog(@"EOEntity", @"dictionaryForPrimaryKey=%@",
+			   dictionaryForPrimaryKey);
 
               for (i = 0; i < count; i++)
                 {
@@ -3729,10 +3729,13 @@ createInstanceWithEditingContext:globalID:zone:
         }
     }
   else
-    NSLog(@"EOEntity (%@): primaryKey is *nil* for globalID = %@", _name, gid);
+    {
+      NSDebugLog(@"EOEntity (%@): primaryKey is *nil* for globalID = %@",
+		 _name, gid);
+    }
 
-  EOFLOGObjectLevelArgs(@"EOEntity", @"dictionaryForPrimaryKey=%@",
-			dictionaryForPrimaryKey);
+  NSDebugMLLog(@"EOEntity", @"dictionaryForPrimaryKey=%@",
+	       dictionaryForPrimaryKey);
 
   EOFLOGObjectFnStop();
 
