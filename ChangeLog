@@ -4,6 +4,10 @@
 	([Postgres95SQLExpression columnTypeStringForAttribute:]):
 	Implement special handling for text types to ignore precision 
 	and width as suggested by Matt Rice <ratmice@yahoo.com>.
+
+	* EOAccess/EOModelGroup.m ([EOModelGroup globalModelGroup]):
+	Create single global model group and cache it to allow persistant
+	manual adding of models.
 	
 2003-03-19  David Ayers  <d.ayers@inode.at>
 

@@ -68,6 +68,7 @@ NSString *EOModelInvalidatedNotification = @"EOModelInvalidatedNotification";
 static id classDelegate = nil;
 static int delegateDefaultModelGroup = 0;
 static EOModelGroup *defaultModelGroup = nil;
+static EOModelGroup *globalModelGroup = nil;
 
 
 + (EOModelGroup *)defaultGroup
@@ -116,44 +117,49 @@ static EOModelGroup *defaultModelGroup = nil;
 
 + (EOModelGroup *)globalModelGroup
 {
-  NSMutableArray *bundles = [NSMutableArray arrayWithCapacity: 2];
-  NSBundle *bundle = nil;
-  NSArray *paths = nil;
-  NSEnumerator *pathsEnum = nil;
-  NSEnumerator *bundleEnum = nil;
-  EOModelGroup *group;
-  NSString *path = nil;
-
   EOFLOGObjectFnStart();
 
-  group = [EOModelGroup new];
-  NSDebugMLLog(@"gsdb", @"group=%p",group);
-
-  [bundles addObjectsFromArray: [NSBundle allBundles]];
-  [bundles addObjectsFromArray: [NSBundle allFrameworks]];
-
-  bundleEnum = [bundles objectEnumerator];
-  while ((bundle = [bundleEnum nextObject]))
+  if (globalModelGroup == nil)
     {
-      paths = [bundle pathsForResourcesOfType: @"eomodeld"
-                      inDirectory: nil];
+      NSMutableArray *bundles = [NSMutableArray arrayWithCapacity: 2];
+      NSBundle *bundle = nil;
+      NSArray *paths = nil;
+      NSEnumerator *pathsEnum = nil;
+      NSEnumerator *bundleEnum = nil;
+      NSString *path = nil;
 
-      if (!paths)
-        {
-          NSLog(@"WARNING: paths for resource of type eomodeld in bundle %@",bundle);
-        }
+      globalModelGroup = [EOModelGroup new];
 
-      pathsEnum = [paths objectEnumerator];
-      while ((path = [pathsEnum nextObject]))
-        {
-          NSLog(@"%@", path);
-          [group addModelWithFile: [path stringByDeletingPathExtension]];
-        }
+      NSDebugMLLog(@"gsdb", @"globalModelGroup=%p",globalModelGroup);
+      
+      [bundles addObjectsFromArray: [NSBundle allBundles]];
+      [bundles addObjectsFromArray: [NSBundle allFrameworks]];
+
+      bundleEnum = [bundles objectEnumerator];
+      while ((bundle = [bundleEnum nextObject]))
+	{
+	  paths = [bundle pathsForResourcesOfType: @"eomodeld"
+			  inDirectory: nil];
+
+	  if (!paths)
+	    {
+	      NSLog(@"WARNING: paths for resource of type eomodeld"
+		    @" in bundle %@",bundle);
+	    }
+
+	  pathsEnum = [paths objectEnumerator];
+	  while ((path = [pathsEnum nextObject]))
+	    {
+	      path = [path stringByDeletingPathExtension];
+	      NSLog(@"%@", path);
+	      [globalModelGroup addModelWithFile: path];
+	    }
+	}
     }
 
   EOFLOGObjectFnStop();
 
-  return group;//MG20030330;[group autorelease]; // TODO release problem with EOModel
+  return globalModelGroup;
 }
 
 /** returns a model group composed of all models in the resource directory
