@@ -1,3 +1,24 @@
+2003-02-17  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOSortOrdering.m: Added documentation.
+	Check FOUNDATION_HAS_KVC to determine whether EONull categories
+	should be applied to NSNull instead.
+	([EOSortOrdering +sortOrderingWithKey:selector:]): Use AUTORELEASE
+	instead of -autorelease.  
+	([EOSortOrdering -initWithKey:selector:]): Use ASSIGNCOPY instead
+	of ASSIGN to set key to insure immutability.
+	([EOSortOrdering -description]): Implemented.
+	([NSArray (EOKeyBasedSorting) compareUsingSortOrderings()): New
+	function.  
+	([NSArray (EOKeyBasedSorting) -sortedArrayUsingKeyOrderArray:]):
+	Reimplemented using [NSArray -sortedArrayUsingFunction:context:]
+	with new compareUsingSortOrderings() function.
+	([NSMutableArray (EOKeyBasedSorting) -sortUsingKeyOrderArray:]):
+	Reimplemented using [NSMutableArray -sortUsingFunction:context:]
+	with new compareUsingSortOrderings() function.
+	([NSMutableArray -_sortUsingKeyOrder:fromIndex:count:]): Removed.
+	
+
 2003-02-13  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOAndQualifier.m: Added documentation.

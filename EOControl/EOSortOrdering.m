@@ -36,6 +36,7 @@
 RCS_ID("$Id$")
 
 #import <Foundation/NSCoder.h>
+#import <Foundation/NSException.h>
 #import <Foundation/NSDebug.h>
 
 #import <EOControl/EOSortOrdering.h>
@@ -43,24 +44,33 @@ RCS_ID("$Id$")
 #import <EOControl/EOKeyValueArchiver.h>
 #import <EOControl/EODebug.h>
 
+#if FOUNDATION_HAS_KVC
+#include <Foundation/NSNull.h>
+#define EONull NSNull
+#endif
 
 @implementation EOSortOrdering
 
-+ (EOSortOrdering *)sortOrderingWithKey: (NSString *)key
-			       selector: (SEL)selector
+/**
+ * Returns an autoreleased EOSortOrdering initilaized with key and selector.  
+ * The selector should take an id as an argument and return an 
+ * NSComparisonResult value.  This method calls
+ * [EOSortOrdering-initWithKey:selector:].
+ */
++ (EOSortOrdering *) sortOrderingWithKey: (NSString *)key
+				selector: (SEL)selector
 {
-  return [[[self alloc] initWithKey: key
-			selector: selector] 
-           autorelease];
+  return AUTORELEASE([[self alloc] initWithKey: key
+				   selector: selector]);
 }
 
-- (void)encodeWithCoder: (NSCoder *)coder
+- (void) encodeWithCoder: (NSCoder *)coder
 {
   [coder encodeValueOfObjCType: @encode(SEL) at: _selector];
   [coder encodeObject: _key];
 }
 
-- (id)initWithCoder: (NSCoder *)coder
+- (id) initWithCoder: (NSCoder *)coder
 {
   self = [super init];
 
@@ -70,22 +80,33 @@ RCS_ID("$Id$")
   return self;
 }
 
-- initWithKey: (NSString *)key selector: (SEL)selector
+/**<init />
+ * Initializes the receiver with a copy of key and the selector.  The selector
+ * should take an id as an argument and return an NSComparisonResult value.  
+ */
+- (id) initWithKey: (NSString *)key selector: (SEL)selector
 {
   self = [super init];
 
-  ASSIGN(_key, key);
+  ASSIGNCOPY(_key, key);
   _selector = selector;
 
   return self;
 }
 
-- (NSString *)key
+/**
+ * Returns the key of the receiver.
+ */
+- (NSString *) key
 {
   return _key;
 }
 
-- (SEL)selector
+/**
+ * Returns the selector of the receiver.  The selector should take an id as
+ * an argument and return an NSComparisonResult value.  
+ */
+- (SEL) selector
 {
   return _selector;
 }
@@ -115,31 +136,96 @@ RCS_ID("$Id$")
   [self notImplemented: _cmd];
 }
 
+/**
+ * Returns a human readable representation of the receiver.
+ */
+- (NSString *) description
+{
+  return [NSString stringWithFormat:@"<%@ %p - %@ %@>",
+		   NSStringFromClass(isa),
+		   (void*)self,
+		   _key,
+		   NSStringFromSelector(_selector)];
+}
 @end
 
 
 @implementation NSArray (EOKeyBasedSorting)
 
-- (NSArray *)sortedArrayUsingKeyOrderArray: (NSArray *)orderArray
+static NSComparisonResult 
+compareUsingSortOrderings(id    left, 
+			  id    right,
+			  void* vpSortOrders)
 {
-  // A fast-coding way
-  //TODO a better way (see sortUsingKeyOrderArray:)
+  static EONull     *null = nil;
+  NSArray           *sortOrders = (NSArray *)vpSortOrders;
+  NSComparisonResult r = NSOrderedSame;
+  unsigned int       i;
+  unsigned int       sortOrdCnt = [sortOrders count];
 
-  if ([self count] <= 1) 
-    return self;
+  if (null == nil)
+    {
+      null = [EONull null];
+    }
+
+  /* Loop over all sort orderings until we have an ordering difference. */
+  for (i=0; (r == NSOrderedSame) && (i < sortOrdCnt); i++)
+    {
+      EOSortOrdering *sortOrd  = [sortOrders objectAtIndex: i];
+      NSString       *key      = [sortOrd key];
+      SEL             compSel  = [sortOrd selector];
+      id              leftVal  = [left  valueForKey: key];
+      id              rightVal = [right valueForKey: key];
+      BOOL            inverted = NO;
+      NSComparisonResult (*imp)(id, SEL, id);
+
+      /* Use EONull instead of nil. */
+      leftVal  = (leftVal  != nil)?(leftVal) :(null);
+      rightVal = (rightVal != nil)?(rightVal):(null);
+
+      /* Insure that EONull is not the parameter for 
+	 comparisons with other classes. */
+      if (rightVal == null)
+	{
+	  rightVal = leftVal;
+	  leftVal  = null;
+	  inverted = YES;
+	}
+
+      imp = (NSComparisonResult (*)(id, SEL, id))
+	[leftVal methodForSelector: compSel];
+      NSCAssert3(imp!=NULL, 
+		 @"Invalid comparison selector:%@ for object:<%@ 0x%x>",
+		 NSStringFromSelector(compSel),
+		 NSStringFromClass([leftVal class]),
+		 leftVal);
+      r = (*imp)(leftVal, compSel, rightVal);
+
+      /* If we inverted the parameters, we must switch the result*/
+      if (inverted == YES)
+	{
+	  r = ~r + 1;
+	}
+    }
+
+  return r;
+}
+
+
+/**
+ * Returns an array contaning the of the objects of the reveiver sorted 
+ * according to the provided array of EOSortOrderings.
+ */
+- (NSArray *) sortedArrayUsingKeyOrderArray: (NSArray *)orderArray
+{
+  if ([self count] <= 1)
+    {
+      return self;
+    }
   else
     {
-      NSMutableArray *sortedArray = [[NSMutableArray alloc]
-				      initWithArray: self copyItems: NO];
-      NSArray *result;
-
-      [sortedArray sortUsingKeyOrderArray: orderArray];
-
-      // make array immutable but don't copy as mutable arrays copy deep
-      result = [NSArray arrayWithArray: sortedArray];
-      [sortedArray release];
-
-      return result;
+      return  [self sortedArrayUsingFunction: compareUsingSortOrderings
+		    context: orderArray];
     }
 }
 
@@ -148,168 +234,17 @@ RCS_ID("$Id$")
 
 @implementation NSMutableArray (EOKeyBasedSorting)
 
-- (void)_sortUsingKeyOrder: (EOSortOrdering *)order
-		 fromIndex: (int)index
-		     count: (int)count
-{
-  /* Shell sort algorithm taken from SortingInAction - a NeXT example */
-#define STRIDE_FACTOR 3	// good value for stride factor is not well-understood
-                        // 3 is a fairly good choice (Sedgewick)
-  unsigned	c, d, stride;
-  BOOL		found;
-#ifdef	GSWARN
-  BOOL		badComparison = NO;
-#endif
-  NSString *orderKey;
-  SEL       orderSel;
-  int       type;
-  EONull   *null = (EONull *)[EONull null];
-
-  orderKey = [order key];
-  orderSel = [order selector];
-
-  type = 1;
-
-  if (sel_eq(orderSel, EOCompareAscending))
-    type = 1;
-  else if (sel_eq(orderSel, EOCompareDescending))
-    type = 2;
-  else if (sel_eq(orderSel, EOCompareCaseInsensitiveAscending))
-    type = 3;
-  else if (sel_eq(orderSel, EOCompareCaseInsensitiveDescending))
-    type = 4;
-
-  stride = 1;
-  while (stride <= count)
-    {
-      stride = stride * STRIDE_FACTOR + 1;
-    }
-    
-  while (stride > (STRIDE_FACTOR - 1))
-    {
-      // loop to sort for each value of stride
-      stride = stride / STRIDE_FACTOR;
-
-      for (c = stride; c < count; c++)
-	{
-	  found = NO;
-	  if (stride > c)
-	    {
-	      break;
-	    }
-
-	  d = c - stride + index;
-	  while (!found)	/* move to left until correct place */
-	    {
-	      id		 a = [self objectAtIndex: d + stride];
-	      id		 b = [self objectAtIndex: d];
-	      id                 aValue = [a valueForKey: orderKey];
-	      id                 bValue = [b valueForKey: orderKey];
-	      NSComparisonResult r;
-
-	      if (aValue == nil)
-		aValue = null;
-	      else if (bValue == nil)
-		{
-		  bValue = aValue;
-		  aValue = null;
-		}
-
-	      switch (type)
-		{
-		default:
-		case 1:
-		  r = [aValue compareAscending: bValue];
-		  break;
-		case 2:
-		  r = [aValue compareDescending: bValue];
-		  break;
-		case 3:
-		  r = [aValue compareCaseInsensitiveAscending: bValue];
-		  break;
-		case 4:
-		  r = [aValue compareCaseInsensitiveDescending: bValue];
-		  break;
-		}
-
-	      if (aValue == null && bValue != nil && bValue != null)
-		r = ~r+1;
-
-	      if (r < 0)
-		{
-#ifdef	GSWARN
-		  if (r != NSOrderedAscending)
-		    {
-		      badComparison = YES;
-		    }
-#endif
-		  IF_NO_GC(RETAIN(a));
-		  [self replaceObjectAtIndex: d + stride withObject: b];
-		  [self replaceObjectAtIndex: d withObject: a];
-		  RELEASE(a);
-		  if ((stride + index) > d)
-		    {
-		      break;
-		    }
-		  d -= stride;		// jump by stride factor
-		}
-	      else
-		{
-#ifdef	GSWARN
-		  if (r != NSOrderedDescending && r != NSOrderedSame)
-		    {
-		      badComparison = YES;
-		    }
-#endif
-		  found = YES;
-		}
-	    }
-	}
-    }
-#ifdef	GSWARN
-  if (badComparison == YES)
-    {
-      NSWarnMLog(@"Detected bad return value from comparison", 0);
-    }
-#endif
-}
-
-- (void)sortUsingKeyOrderArray: (NSArray *)orderArray
+/**
+ * Sorts the reveiver according to the provided array of EOSortOrderings.
+ */
+- (void) sortUsingKeyOrderArray: (NSArray *)orderArray
 {
   int count = [self count];
 
   if (count > 1) 
     {
-      int i, max;
-      //NSString *key;
-
-      max = [orderArray count];
-      for (i = 0; i < max; i++)
-	{
-          EOSortOrdering *order = [orderArray objectAtIndex: i];
-          //id a, b;
-
-          [self _sortUsingKeyOrder: order
-                fromIndex: 0
-                count: count];
-#if 0
-          key = [order key];
-          
-          a = [[self objectAtIndex: i] valueForKey: key];
-          
-          for (i = index; i < (count - 1); i++)
-            {
-              b = [[self objectAtIndex: i + 1] valueForKey: key];
-
-              if ([a compare: b] == NSOrderedSame)
-                {
-                  start = i;
-                }
-
-              a = b;
-            }
-#endif
-        }
+      [self sortUsingFunction: compareUsingSortOrderings
+	    context: orderArray];
     }
 }
 
@@ -318,24 +253,48 @@ RCS_ID("$Id$")
 
 @implementation NSObject (EOSortOrderingComparison)
 
-- (NSComparisonResult)compareAscending: (id)other
+/**
+ * Default implementation of EOCompareAscending.
+ * This implementation returns the result of compare:.  
+ * Concrete classes should either override this method or compare: 
+ * to return a meaningful NSComparisonResult. 
+ */
+- (NSComparisonResult) compareAscending: (id)other
 {
   return [self compare: other];
 }
 
-- (NSComparisonResult)compareDescending: (id)other
+/**
+ * Default implementation of EOCompareDescending.
+ * This implementation returns the inverted result of compare:. 
+ * Concrete classes should either override this method or compare: 
+ * to return a meaningful NSComparisonResult. 
+ */
+- (NSComparisonResult) compareDescending: (id)other
 {
   NSComparisonResult result = [self compare: other];
 
   return (~result + 1);
 }
 
-- (NSComparisonResult)compareCaseInsensitiveAscending: (id)other
+/**
+ * Default implementation of EOCompareCaseInsensitiveAscending.
+ * This implementation returns the result of compare:. 
+ * Concrete classes should either override this method or compare: 
+ * to return a meaningful NSComparisonResult. 
+ */
+- (NSComparisonResult) compareCaseInsensitiveAscending: (id)other
 {
   return [self compare: other];
 }
 
-- (NSComparisonResult)compareCaseInsensitiveDescending: (id)other
+/**
+ * Default implementation of EOCompareCaseInsensitiveDescending.
+ * This implementation returns the inverted result of compare:. 
+ * Concrete classes should either override this method or compare: 
+ * to return a meaningful NSComparisonResult. 
+ */
+- (NSComparisonResult) compareCaseInsensitiveDescending: (id)other
 {
   NSComparisonResult result = [self compare: other];
 
@@ -347,7 +306,13 @@ RCS_ID("$Id$")
 
 @implementation EONull (EOSortOrderingComparison)
 
-- (NSComparisonResult)compareAscending: (id)other
+/**
+ * Implementation of EOCompareAscending for EONull.
+ * When compared to another EONull, return NSOrderedSame.
+ * Otherwise NSOrderdAscening.  This leads to EONulls to be at the begining
+ * of arrays sorted with EOCompareAscending.
+ */
+- (NSComparisonResult) compareAscending: (id)other
 {
   if (other == nil || self == other)
     return NSOrderedSame;
@@ -355,7 +320,13 @@ RCS_ID("$Id$")
   return NSOrderedAscending;
 }
 
-- (NSComparisonResult)compareDescending: (id)other
+/**
+ * Implementation of EOCompareDescending for EONull.
+ * When compared to another EONull, return NSOrderedSame.
+ * Otherwise NSOrderdDescening.  This leads to EONulls to be at the end
+ * of arrays sorted with EOCompareDescending.
+ */
+- (NSComparisonResult) compareDescending: (id)other
 {
   if (other == nil || self == other)
     return NSOrderedSame;
@@ -363,7 +334,13 @@ RCS_ID("$Id$")
   return NSOrderedDescending;
 }
 
-- (NSComparisonResult)compareCaseInsensitiveAscending: (id)other
+/**
+ * Implementation of EOCompareCaseInsensativeAscending for EONull.
+ * When compared to another EONull, return NSOrderedSame.
+ * Otherwise NSOrderdAscening.  This leads to EONulls to be at the begining
+ * of arrays sorted with EOCompareCaseInsensitiveAscending.
+ */
+- (NSComparisonResult) compareCaseInsensitiveAscending: (id)other
 {
   if (other == nil || self == other)
     return NSOrderedSame;
@@ -371,7 +348,13 @@ RCS_ID("$Id$")
   return NSOrderedAscending;
 }
 
-- (NSComparisonResult)compareCaseInsensitiveDescending: (id)other
+/**
+ * Implementation of EOCompareCaseInsensativeDescending for EONull.
+ * When compared to another EONull, return NSOrderedSame.
+ * Otherwise NSOrderdDescening.  This leads to EONulls to be at the end
+ * of arrays sorted with EOCompareCaseInsensativeDescending.
+ */
+- (NSComparisonResult) compareCaseInsensitiveDescending: (id)other
 {
   if (other == nil || self == other)
     return NSOrderedSame;
@@ -382,14 +365,25 @@ RCS_ID("$Id$")
 @end
 
 
+
 @implementation NSString (EOSortOrderingComparison)
 
-- (NSComparisonResult)compareCaseInsensitiveAscending: (id)other
+/**
+ * Implementation of EOCompareCaseInsensativeDescending for NSString.
+ * This method simply returns the result
+ * of calling caseInsensitiveCompare:.
+ */
+- (NSComparisonResult) compareCaseInsensitiveAscending: (id)other
 {
   return [self caseInsensitiveCompare: other];
 }
 
-- (NSComparisonResult)compareCaseInsensitiveDescending: (id)other
+/**
+ * Implementation of EOCompareCaseInsensativeDescending for NSString.
+ * This method simply returns the inverted result
+ * of calling caseInsensitiveCompare:.
+ */
+- (NSComparisonResult) compareCaseInsensitiveDescending: (id)other
 {
   NSComparisonResult result = [self caseInsensitiveCompare: other];
 
