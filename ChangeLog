@@ -13,7 +13,11 @@
 
 	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile: Correct comment
 	identifier.  Include config.mak and other potential makefiles.
-	
+
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m
+	([Postgres95SQLExpression 
+	dropDatabaseStatementsForConnectionDictionary:
+	administrativeConnectionDictionary:]): Remove excess quotes.
 
 2003-03-06  Matt Rice  <ratmice@yahoo.com>
 

@@ -344,7 +344,7 @@ RCS_ID("$Id$")
   databaseName = [connDict objectForKey: @"databaseName"];
   expr = [self expressionForString: nil];
   databaseName = [expr sqlStringForSchemaObjectName: databaseName];
-  stmt = [NSString stringWithFormat:@"DROP DATABASE \"%@\"", databaseName];
+  stmt = [NSString stringWithFormat:@"DROP DATABASE %@", databaseName];
   [expr setStatement: stmt];
   newArray = [NSArray arrayWithObject: expr];
   
