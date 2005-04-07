@@ -1,4 +1,4 @@
-2003-05-02  Stephane Corthesy  <stephane@sente.ch>
+2005-04-07  Stephane Corthesy  <stephane@sente.ch>
 
 	* Tools/eoutil.m: Added -excludedEntities option when dumping;
 	added use of local autorelease pools; splitted SQL execution in
