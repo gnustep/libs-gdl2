@@ -70,6 +70,7 @@ RCS_ID("$Id$")
  Replace all autorelease/release/retain by macros
  Document plist format
  Document usage
+ Optimization: if not -force, do all EOF ops in one go
  */
 
 @interface NSString(eoutil)
@@ -87,6 +88,10 @@ RCS_ID("$Id$")
 
 @end
 
+// TODO
+// Add support to read/write multiple plists, one per entity
+// -source plists    where 'plists' is a directory name (created if necessary)
+// In the directory, create one plist per entity
 
 static BOOL
 usage(BOOL fullUsage)
@@ -96,7 +101,7 @@ usage(BOOL fullUsage)
   if (fullUsage)
     usageString = "Command line utility to perform database and EOF oriented tasks.\n"
       "Syntax: eoutil dump/connect/convert\n"
-      "  eoutil dump <model> [-source <source> [sourcefile]] -dest <dest> [destfile] [-schemaCreate <options>] [-schemaDrop <options>] [-postInstall] [-force] [-connDict <connection dictionary>] [-entities <entities>] [-modelGroup <modelGroup>] [-ascii]\n"
+      "  eoutil dump <model> [-source <source> [sourcefile]] -dest <dest> [destfile] [-schemaCreate <options>] [-schemaDrop <options>] [-postInstall] [-force] [-connDict <connection dictionary>] [-entities <entities>] [-excludedEntities <entities>] [-modelGroup <modelGroup>] [-ascii]\n"
       "\tThis command reads data from <source> and dumps it to <dest>. The dump may\n"
       "\tinclude bits of DML that create bits of database schema. The -source flag is\n"
       "\toptional if only schema is to be created (i.e. no data is being dumped). The\n"
@@ -115,6 +120,7 @@ usage(BOOL fullUsage)
       "\t   force -- Do not quit processing after database error\n"
       "\t   connDict -- A substitute connection dictionary\n"
       "\t   entities -- a subset of the entities in the model (all are used by default)\n"
+      "\t   excludedEntities -- a subset of the entities in the model which shall not be used (all are used by default)\n"
       "\t   modelGroup -- A list of models to create a model group. (Allows you to use\n"
       "\t                 models not in a framework. Model names must be absolute paths.)\n"
       "\t   ascii -- Convert all non-ASCII characters to their nearest ASCII equivalents.\n"
@@ -185,6 +191,53 @@ enum {
 };
 
 
+static void executeSQLStatements(EOModel *srcModel, NSArray *sqlStatements, BOOL force){
+    EODatabaseContext	*aDatabaseContext;
+    EOEditingContext	*anEC = [[EOEditingContext alloc] init];
+    
+    aDatabaseContext =
+	    [EODatabaseContext registeredDatabaseContextForModel: srcModel
+                                              editingContext: anEC];
+    
+    [aDatabaseContext lock];
+    
+    NS_DURING
+    {
+        EODatabaseChannel *aDatabaseChannel = [aDatabaseContext
+            availableChannel];
+        EOAdaptorChannel *anAdaptorChannel = [aDatabaseChannel
+            adaptorChannel];
+        NSEnumerator *anEnum;
+        EOSQLExpression *aStatement;
+        
+        if (![anAdaptorChannel isOpen])
+            [anAdaptorChannel openChannel];
+        
+        anEnum = [sqlStatements objectEnumerator];
+        
+        while ((aStatement = [anEnum nextObject]))
+		{
+            NS_DURING
+                [anAdaptorChannel evaluateExpression: aStatement];
+            NS_HANDLER
+                if(!force)
+                    break;
+            NS_ENDHANDLER;
+		}
+            
+        [aDatabaseContext unlock];
+        [anEC release];
+    }
+    NS_HANDLER
+    {
+        [aDatabaseContext unlock];
+        [anEC release];
+        [localException raise];
+    }
+    NS_ENDHANDLER;
+}
+
+
 static BOOL
 dump(NSArray *arguments)
 {
@@ -196,19 +249,21 @@ dump(NSArray *arguments)
   BOOL			 postInstall = NO;
   BOOL			 force = NO;
   NSDictionary		*aConnectionDictionary = nil;
-  NSMutableArray	*entityNameList = nil;
+  NSMutableArray	*entityNameList = nil, *excludedEntityNameList = nil;
   NSMutableArray	*entitiesList = nil;
   NSMutableArray	*modelList = nil;
   BOOL			 convertsNonASCII = NO;
   NSMutableString	*outputString = [NSMutableString string];
-  NSArray		*statements = nil;
+  NSArray		*initialStatements = nil;
+  NSArray		*endingStatements = nil;
   NSDictionary		*dataDictionary = nil;
   Class			 exprClass;
   NSArray	*postInstallSQLExpressions = nil;
   
   // First, let's parse arguments
-  srcModel = [EOModel modelWithContentsOfFile: [[arguments objectAtIndex: i++]
+  srcModel = [[EOModel alloc] initWithContentsOfFile: [[arguments objectAtIndex: i++]
 						stringByStandardizingPath]];
+  [srcModel autorelease];
 
   while (i < aCount)
     {
@@ -424,9 +479,38 @@ dump(NSArray *arguments)
 	    [NSException raise: NSInvalidArgumentException
 			 format: @"Missing argument(s) after '-entities'"];
         }
+      else if ([anArg isEqualToString: @"-excludedEntities"])
+      {
+          if (excludedEntityNameList)
+              [NSException raise: NSInvalidArgumentException
+                          format: @"More than one occurence of parameter '-excludedEntities'"];
+          
+          excludedEntityNameList = [NSMutableArray array];
+          
+          while (i < aCount)
+          {
+              anArg = [arguments objectAtIndex: i++];
+              
+              if ([anArg hasPrefix: @"-"])
+              {
+                  // We consider it's an option, not an entity name
+                  i--;
+                  break;
+              }
+              
+              if ([excludedEntityNameList containsObject: anArg])
+                  [NSException raise: NSInvalidArgumentException
+                              format: @"Entity name argument '%@' occurs more than once", anArg];
+              
+              [excludedEntityNameList addObject: anArg];
+          }
+          
+          if ([excludedEntityNameList count] == 0)
+              [NSException raise: NSInvalidArgumentException
+                          format: @"Missing argument(s) after '-excludedEntities'"];
+      }
       else if ([anArg isEqualToString: @"-modelGroup"])
 	{
-#warning TODO: test multiple models
 	  if (modelList)
 	    [NSException raise: NSInvalidArgumentException
 			 format: @"More than one occurence of parameter '-modelGroup'"];
@@ -483,10 +567,9 @@ dump(NSArray *arguments)
 
   // Load models
   {
-#warning TODO: test this
     EOModelGroup *defaultModelGroup = [EOModelGroup globalModelGroup];
 
-    (void)[defaultModelGroup addModel: srcModel];
+    [defaultModelGroup addModel: srcModel];
 
     if (modelList)
       {
@@ -513,14 +596,16 @@ dump(NSArray *arguments)
       entitiesList = [NSMutableArray array];
       while ((aString = [anEnum nextObject]))
 	{
-	  EOEntity *anEntity = [[EOModelGroup defaultGroup]
+          if(![excludedEntityNameList containsObject:aString]){
+              EOEntity *anEntity = [[EOModelGroup defaultGroup]
 				 entityNamed: aString];
-
-	if (anEntity == nil)
-	  [NSException raise: NSInvalidArgumentException
-		       format: @"Unknown entity '%@'", aString];
-
-	[entitiesList addObject: anEntity];
+              
+              if (anEntity == nil)
+                  [NSException raise: NSInvalidArgumentException
+                              format: @"Unknown entity '%@'", aString];
+              
+              [entitiesList addObject: anEntity];
+          }
       }
     }
   else
@@ -529,8 +614,11 @@ dump(NSArray *arguments)
       EOEntity		*anEntity;
 
       entitiesList = [NSMutableArray array];
-      while ((anEntity = [anEnum nextObject]))
+      while ((anEntity = [anEnum nextObject])){
+          if(![excludedEntityNameList containsObject:[anEntity name]]){
 	[entitiesList addObject:anEntity];
+          }
+      }
     }
 
   if (aConnectionDictionary)
@@ -542,6 +630,9 @@ dump(NSArray *arguments)
   exprClass = [[EOAdaptor adaptorWithModel: srcModel] expressionClass];
   if (schemaDropOptions != 0 || schemaCreateOptions != 0)
     {
+      // We split SQL execution in two parts: first we drop elements, and create tables,
+      // and in a second phase we create constraints: this allows us to fill in database with data
+      // and then we set the database constraints.
       NSDictionary *aDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
 						  ((schemaDropOptions & databaseOption) ? @"YES":@"NO"), EODropDatabaseKey,
 						((schemaDropOptions & tablesOption) ? @"YES":@"NO"), EODropTablesKey,
@@ -550,67 +641,46 @@ dump(NSArray *arguments)
 						//            ((schemaDropOptions & fkConstraintsOption) ? @"YES":@"NO"), EOForeignKeyConstraintsKey,
 						((schemaCreateOptions & databaseOption) ? @"YES":@"NO"), EOCreateDatabaseKey,
 						((schemaCreateOptions & tablesOption) ? @"YES":@"NO"), EOCreateTablesKey,
-						((schemaCreateOptions & pkSupportOption) ? @"YES":@"NO"), EOCreatePrimaryKeySupportKey,
-						((schemaCreateOptions & pkConstraintsOption) ? @"YES":@"NO"), EOPrimaryKeyConstraintsKey,
-						((schemaCreateOptions & fkConstraintsOption) ? @"YES":@"NO"), EOForeignKeyConstraintsKey,
-						nil];
+                        @"NO", EOCreatePrimaryKeySupportKey,
+                        @"NO", EOPrimaryKeyConstraintsKey,
+                        @"NO", EOForeignKeyConstraintsKey,
+          nil];
       NSEnumerator	*anEnum;
       EOSQLExpression	*aStatement;
 
-      statements = [exprClass schemaCreationStatementsForEntities: entitiesList
-			      options: aDictionary];
+      if([aDictionary count] > 0)
+          initialStatements = [exprClass schemaCreationStatementsForEntities: entitiesList
+                                                                     options: aDictionary];
 
-      if ([destType isEqualToString: @"database"])
-	{
-	  EODatabaseContext	*databaseContext;
-	  EOEditingContext	*anEC = [[EOEditingContext alloc] init];
-
-	  databaseContext =
-	    [EODatabaseContext registeredDatabaseContextForModel: srcModel
-			       editingContext: anEC];
-
-	  [databaseContext lock];
-
-	  NS_DURING
-	    {
-	      EODatabaseChannel *databaseChannel = [databaseContext
-						     availableChannel];
-	      EOAdaptorChannel *adaptorChannel = [databaseChannel
-						   adaptorChannel];
-
-	      if (![adaptorChannel isOpen])
-		[adaptorChannel openChannel];
-
-	      anEnum = [statements objectEnumerator];
-
-	      while ((aStatement = [anEnum nextObject]))
-		{
-		  NS_DURING
-		    [adaptorChannel evaluateExpression: aStatement];
-		  NS_HANDLER
-		    if(!force)
-		      break;
-		  NS_ENDHANDLER;
-		}
-
-	      [databaseContext unlock];
-	      [anEC release];
-	    }
-	  NS_HANDLER
-	    {
-	      [databaseContext unlock];
-	      [anEC release];
-	      [localException raise];
-	    }
-	  NS_ENDHANDLER;
-        }
-      else
-	{
-	  // script
-	  anEnum = [statements objectEnumerator];
-	  while ((aStatement = [anEnum nextObject]))
-	    [exprClass appendExpression: aStatement toScript: outputString];
-        }
+      aDictionary = [NSDictionary dictionaryWithObjectsAndKeys:
+          @"NO", EODropDatabaseKey,
+          @"NO", EODropTablesKey,
+          @"NO", EODropPrimaryKeySupportKey,
+          //            @"NO", EOPrimaryKeyConstraintsKey,
+          //            @"NO", EOForeignKeyConstraintsKey,
+          @"NO", EOCreateDatabaseKey,
+          @"NO", EOCreateTablesKey,
+          ((schemaCreateOptions & pkSupportOption) ? @"YES":@"NO"), EOCreatePrimaryKeySupportKey,
+          ((schemaCreateOptions & pkConstraintsOption) ? @"YES":@"NO"), EOPrimaryKeyConstraintsKey,
+          ((schemaCreateOptions & fkConstraintsOption) ? @"YES":@"NO"), EOForeignKeyConstraintsKey,
+          nil];
+      if([aDictionary count] > 0)
+          endingStatements = [exprClass schemaCreationStatementsForEntities: entitiesList
+                                                                    options: aDictionary];
+      
+      if(initialStatements){
+          if ([destType isEqualToString: @"database"])
+          {
+              executeSQLStatements(srcModel, initialStatements, force);
+          }
+          else
+          {
+              // script
+              anEnum = [initialStatements objectEnumerator];
+              while ((aStatement = [anEnum nextObject]))
+                  [exprClass appendExpression: aStatement toScript: outputString];
+          }
+      }
     }
 
   if (sourceType)
@@ -663,9 +733,10 @@ dump(NSArray *arguments)
 	  dataDictionary = [[NSMutableDictionary alloc] init];
 	  while ((anEntity = [anEnum nextObject]))
 	    {
-	      // Do we also fetch abstract entities??
+	      // We don't fetch abstract entities
 	      if (![anEntity isAbstractEntity])
 		{
+              NSAutoreleasePool *arp = [[NSAutoreleasePool alloc] init];
 		  NSArray		*attributes = [anEntity attributes];
 		  NSEnumerator		*anAttrEnum = [attributes
 							objectEnumerator];
@@ -676,11 +747,11 @@ dump(NSArray *arguments)
 		  NSMutableArray	*rows;
 		  EOFetchSpecification	*fetchSpec;
 		  NSDictionary		*aRawRow;
+          BOOL              usesPlistTypesOnly = [destType isEqualToString: @"plist"];
                     
 		  while ((anAttribute = [anAttrEnum nextObject]))
 		    {
-		      if (![anAttribute isFlattened]
-			  && ![anAttribute isDerived])
+              // We do fetch flattened or derived attributes (but we will not write them)
 			[attributeNames addObject: [anAttribute name]];
 		    }
 
@@ -690,6 +761,10 @@ dump(NSArray *arguments)
 		  [fetchSpec setFetchesRawRows: YES];
 
 		  rows = [NSMutableArray array];
+          // FIXME Problem
+          // If a raw row contains data which does not respect entity's constraints
+          // (e.g. doesn't allow NULL attribute), then an exception is raised,
+          // at least on WO4.5
 		  rawRows = [aContext objectsWithFetchSpecification: fetchSpec];
 		  anAttrEnum = [rawRows objectEnumerator];
 
@@ -716,15 +791,21 @@ dump(NSArray *arguments)
 				  else
 				    [values addObject: aValue];
 				}
-			      /*                                else if ([aValue isKindOfClass:[NSCalendarDate class]])
-								[values addObject:[aValue description]];
-								else if ([aValue isKindOfClass:[NSData class]])
-								[values addObject:[aValue description]];
-								else if ([aValue isKindOfClass:[NSDecimalNumber class]])
-								[values addObject:[aValue stringValue]];
-								else if ([aValue isKindOfClass:[NSNumber class]])
-								[values addObject:[aValue stringValue]];
-			      */
+                  else if(usesPlistTypesOnly){
+                      if ([aValue isKindOfClass:[NSCalendarDate class]]){
+                          // Format is ISO's + milliseconds
+                          [values addObject:[aValue descriptionWithCalendarFormat:@"%Y-%m-%d %H:%M:%S.%F %z" /*local:*/]];
+                      }
+                      else if ([aValue isKindOfClass:[NSData class]])
+                          [values addObject:[aValue description]];
+/*                      else if ([aValue isKindOfClass:[NSDecimalNumber class]])
+                          [values addObject:[aValue stringValue]];*/
+                      else if ([aValue isKindOfClass:[NSNumber class]])
+                          [values addObject:[aValue stringValue]];
+                      else
+                          // FIXME No support for custom data types?
+                          [values addObject: aValue];
+                  }			      
 			      else
 				[values addObject: aValue];
 			    }
@@ -735,6 +816,7 @@ dump(NSArray *arguments)
 		  [(NSMutableDictionary *)dataDictionary
 					  setObject: [NSDictionary dictionaryWithObjectsAndKeys: attributeNames, @"attributeNames", rows, @"rows", nil]
 					  forKey: [anEntity name]];
+          [arp release];
 		}
 	    }
 	  [aContext release];
@@ -777,6 +859,7 @@ dump(NSArray *arguments)
 
 	  while ((anEntityName = [entityNameEnum nextObject]))
 	    {
+          NSAutoreleasePool *arp = [[NSAutoreleasePool alloc] init];
 	      EOEntity			*anEntity = [[EOModelGroup defaultGroup] entityNamed: anEntityName];
 	      NSEnumerator		*aRowEnum = [[[dataDictionary objectForKey: anEntityName] objectForKey: @"rows"] objectEnumerator];
 	      NSMutableDictionary	*aDict = [NSMutableDictionary dictionary];
@@ -803,6 +886,7 @@ dump(NSArray *arguments)
 			     toScript: outputString];
 		  [aDict removeAllObjects];
                 }
+          [arp release];
             }
         }
 
@@ -831,8 +915,11 @@ dump(NSArray *arguments)
 	  EOEntity		*anEntity;
 	  EOEditingContext	*anEC = [[EOEditingContext alloc] init];
 
+      [anEC setUndoManager:nil];
+      
 	  while ((anEntity = [entityEnum nextObject]))
 	    {
+          NSAutoreleasePool *arp = [[NSAutoreleasePool alloc] init];
 	      NSDictionary		*aDictionary = [dataDictionary objectForKey: [anEntity name]];
 	      NSArray			*attributeNames = [aDictionary objectForKey: @"attributeNames"];
 	      NSEnumerator		*anEnum = [attributeNames objectEnumerator];
@@ -845,7 +932,6 @@ dump(NSArray *arguments)
 	      if (![[anEntity className] isEqualToString: @"EOGenericRecord"])
 		[anEntity setClassName: @"EOGenericRecord"];
 
-          // Let's use -[EOEntity attributesToFetch]?
 	      while ((aName = [anEnum nextObject]))
 		{
 		  EOAttribute	*anAttribute = [anEntity attributeNamed: aName];
@@ -853,10 +939,8 @@ dump(NSArray *arguments)
 		  NSCAssert1(anAttribute != nil,
 			     @"'%@' is not a valid attribute name", aName);
 
-#warning Remove also derived attributes
-		  if ([anAttribute isReadOnly])
-		    [anAttribute setReadOnly: NO];
-		  [newClassProperties addObject: anAttribute];
+		  if (![anAttribute isReadOnly] && ![anAttribute isDerived])
+              [newClassProperties addObject: anAttribute];
                 }
 
 	      NSCAssert1([anEntity setClassProperties:[newClassProperties allObjects]], @"Unable to set new class properties from %@", newClassProperties);
@@ -868,29 +952,43 @@ dump(NSArray *arguments)
 		{
 		  [anEntity removeRelationship: aRelationship];
                 }
+          [arp release];
             }
 
 	  entityEnum = [entitiesList objectEnumerator];
 	  while ((anEntity = [entityEnum nextObject]))
 	    {
+          NSAutoreleasePool *arp = [[NSAutoreleasePool alloc] init];
 	      NSDictionary	*aDictionary = [dataDictionary objectForKey: [anEntity name]];
 	      NSEnumerator	*rowEnum = [[aDictionary objectForKey: @"rows"] objectEnumerator];
 	      NSArray		*aRow;
 	      NSArray		*attributeNames = [aDictionary objectForKey: @"attributeNames"];
 	      NSEnumerator	*attrNameEnum = [attributeNames objectEnumerator];
 	      NSString		*anAttrName;
-                
+          NSMutableArray    *filteredAttributeNames = [NSMutableArray array];
+          NSArray       *classPropertyNames = [anEntity classPropertyNames];
+          
+          // First, we filter out given attribute names to retain only
+          // the ones that have a matching class property
+          // (we already cleaned up entities attributes/relationships)
+		  while ((anAttrName = [attrNameEnum nextObject])){
+              if([classPropertyNames containsObject:anAttrName])
+                  [filteredAttributeNames addObject:anAttrName];
+          }
+          
 	      while ((aRow = [rowEnum nextObject]))
 		{
+              NSAutoreleasePool *arp2 = [[NSAutoreleasePool alloc] init];
 		  EOGenericRecord *aRecord = [anEC createAndInsertInstanceOfEntityNamed: [anEntity name]];
-		  int		   i = 0;
 
-		  attrNameEnum = [attributeNames objectEnumerator];
+		  attrNameEnum = [filteredAttributeNames objectEnumerator];
 		  while ((anAttrName = [attrNameEnum nextObject]))
 		    {
-		      NSString	*aStringValue = [aRow objectAtIndex: i++];
+		      NSString	*aStringValue;
 		      id	 aValue = nil;
 
+              i = [attributeNames indexOfObject:anAttrName];
+              aStringValue = [aRow objectAtIndex: i];
 		      if ([aStringValue isEqualToString: @"__NULL__"])
 			aValue = [EONull null];
 		      else
@@ -941,6 +1039,7 @@ dump(NSArray *arguments)
 				// Format is ISO's + milliseconds
 				aValue = [[NSCalendarDate alloc] initWithString:aStringValue calendarFormat:@"%Y-%m-%d %H:%M:%S.%F %z" /*locale:*/];
 			      NSCAssert1(aValue != nil, @"Unable to parse date from '%@'", aStringValue);
+                  [aValue autorelease];
 			    }
 			  else if ([internalType isEqualToString: @"NSData"])
 			    {
@@ -960,21 +1059,34 @@ dump(NSArray *arguments)
 
 		      [aRecord takeStoredValue: aValue forKey: anAttrName];
                     }
-                }
-            }
 
-	  NS_DURING
-	    {
-	      [anEC saveChanges];
-	      [anEC release];
-	    }
-	  NS_HANDLER
-	    {
-	      [anEC release];
-	      NSLog(@"%@", localException);
-	    }
-	  NS_ENDHANDLER;
-	}
+          NS_DURING
+          {
+              [anEC saveChanges];
+          }
+          NS_HANDLER
+          {
+              if(!force){
+                  [anEC release];
+                  [arp2 release];
+                  [arp release];
+                  [localException raise];
+              }
+              else{
+                  NSLog(@"%@", localException);
+                  [anEC revert];
+              }
+          }
+          NS_ENDHANDLER;
+          [arp2 release];
+        }
+          [arp release];
+        }
+          [anEC release];
+      	}
+
+        if(endingStatements)
+            executeSQLStatements(srcModel, endingStatements, force);
 
         if (postInstallSQLExpressions)
         {
@@ -1040,7 +1152,7 @@ convert(NSArray *arguments)
   if ([arguments count] < 4)
     return NO;
 
-  aModel = [EOModel modelWithContentsOfFile:
+  aModel = [[EOModel alloc] initWithContentsOfFile:
 		      [[arguments objectAtIndex: 0]
 			stringByStandardizingPath]];
   newAdaptor = [EOAdaptor adaptorWithName: [arguments objectAtIndex: 1]];
@@ -1051,6 +1163,7 @@ convert(NSArray *arguments)
   [aModel setConnectionDictionary: newConnectionDictionary];
   [[newAdaptor class] assignExternalInfoForEntireModel: aModel];
   [aModel writeToFile: newFilename];
+  [aModel release];
 
   NSLog(@"Converted %@ to %@", [arguments objectAtIndex: 0], newFilename);
     
@@ -1067,11 +1180,12 @@ dbConnect(NSArray *arguments)
   switch ([arguments count])
     {
     case 1:
-      aModel = [EOModel modelWithContentsOfFile:
+      aModel = [[EOModel alloc] initWithContentsOfFile:
 			  [[arguments objectAtIndex: 0]
 			    stringByStandardizingPath]];
       anAdaptor = [EOAdaptor adaptorWithModel: aModel];
       aConnectionDictionary = [aModel connectionDictionary];
+      [aModel release];
 
     default:
       if (anAdaptor == nil)

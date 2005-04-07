@@ -1,3 +1,14 @@
+2003-05-02  Stephane Corthesy  <stephane@sente.ch>
+
+	* Tools/eoutil.m: Added -excludedEntities option when dumping;
+	added use of local autorelease pools; splitted SQL execution in
+	different phases, to allow dropping then re-creating tables, in
+	one shot; now fetches flattened or derived attributes; now can
+	dump NSCalendarDate, NSData, NSNumber correctly; no longer tries
+	to write (in db) flattened or derived or non class-property
+	attributes; now ignores and log exceptions when -force option is
+	used.
+	
 2005-03-17  Manuel Guesdon  <mguesdon@orange-concept.com>
 
 	* EOControl/EOFault.m: added instanceMethodForSelector:
