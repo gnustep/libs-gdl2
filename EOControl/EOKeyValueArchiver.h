@@ -60,13 +60,6 @@
 - (void)encodeInt: (int)intValue
            forKey: (NSString *)key;
 
-- (void)_encodeDictionary: (id)dictionary
-		   forKey: (id)key;
-- (void)_encodeObjects: (id)objects
-		forKey: (id)key;
-- (void)_encodeValue: (id)value
-	      forKey: (id)key;
-
 - (NSDictionary *)dictionary;
 
 - (void)setDelegate: (id)delegate;

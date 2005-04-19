@@ -36,9 +36,10 @@
 #endif
 
 #include <EOControl/EONull.h>
+#include <EOControl/EOKeyValueArchiver.h>
 
 
-@interface EOSortOrdering : NSObject <NSCoding, NSCopying>
+@interface EOSortOrdering : NSObject <NSCoding, NSCopying, EOKeyValueArchiving>
 {
   SEL _selector;
   NSString *_key;

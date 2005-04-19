@@ -1101,8 +1101,11 @@ return nexexp
 	  value = [GDL2_alloc(NSData) initWithBytes: bytes length: length];
 
 	  if(_valueFactoryMethod != NULL)
-	    value = [(id)valueClass performSelector: _valueFactoryMethod
-			            withObject: [value autorelease]];
+            {
+              //TODO: doc says that the returned value is autoreleased !!
+              value = [(id)valueClass performSelector: _valueFactoryMethod
+                           withObject: [value autorelease]];
+            };
 	  break;
 
 	case EOFactoryMethodArgumentIsBytes:
@@ -1242,11 +1245,23 @@ return nexexp
   return date;
 }
 
+/** Returns the name of the method to use for creating a custom class 
+value for this attribute.
+
+See Also: - valueFactoryMethod, -newValueForBytes:length:
+**/
 - (NSString *)valueFactoryMethodName
 {
   return _valueFactoryMethodName;
 }
 
+/** Returns the selector of the method to use for creating a custom class 
+value for this attribute.
+Default implementation returns selector for name returned by 
+-valueFactoryMethodName or NULL if no selector is found.
+
+See Also: - valueFactoryMethodName, -newValueForBytes:length:
+**/
 - (SEL)valueFactoryMethod
 {
   return _valueFactoryMethod;
@@ -1268,12 +1283,16 @@ return nexexp
  */
 - (id)adaptorValueByConvertingAttributeValue: (id)value
 {
-  BOOL convert = NO;
   EOAdaptorValueType adaptorValueType = [self adaptorValueType];
 
-  switch (adaptorValueType)
+  // No conversion for an EONull value
+  if (value != GDL2_EONull)
     {
-/* Temporary reverted so we can discuss about this
+      BOOL convert = NO;
+
+      // Find if we need a conversion
+      switch (adaptorValueType)
+        {
         case EOAdaptorNumberType:
 	  convert = [value isKindOfClass: GDL2_NSNumberClass] ? NO : YES;
 	  break;
@@ -1286,67 +1305,76 @@ return nexexp
         case EOAdaptorDateType:
 	  convert = [value isKindOfClass: GDL2_NSDateClass] ? NO : YES;
 	  break;
-*/
-//TODO It's only a quick Fix
-        case EOAdaptorNumberType:
-        case EOAdaptorCharactersType:
-        case EOAdaptorDateType:
-	  convert = ([value isKindOfClass: GDL2_NSNumberClass]
-                     || [value isKindOfClass: GDL2_NSStringClass]
-                     || [value isKindOfClass: GDL2_NSDateClass]) ? NO : YES;
-	  break;
-        case EOAdaptorBytesType:
-	  convert = [value isKindOfClass: GDL2_NSDataClass] ? NO : YES;
-	  break;
 	default:
 	  [NSException raise: NSInvalidArgumentException
 		       format: @"Illegal adaptorValueType: %d", 
 		       adaptorValueType];
-    }
+        }
 
-  convert = (value == GDL2_EONull) ? NO : convert;
-  
-  if (convert)
-    {
-      SEL sel;
-      sel = [self adaptorValueConversionMethod];
-
-      if (sel == 0)
-	{
-	  if (adaptorValueType == EOAdaptorBytesType)
-	    {
-	      value = [value archiveData];
-	    }
-	  else
-	    {
-	      /* This exception might not be conformant, but seems helpful.  */
-	      [NSException raise: NSInvalidArgumentException
-			   format: @"Value of class: %@ needs conversion "
-			   @"yet no conversion method specified. "
-                           @"Attribute is %@. adaptorValueType=%d", 
-			   NSStringFromClass([value class]),
-                           self,adaptorValueType];
-	    }
-	}
-      else
-	{
-	  value = [value performSelector: sel];
-	}
-    }
-
+      // Do value need conversion ?
+      if (convert)
+        {
+          SEL sel;
+          sel = [self adaptorValueConversionMethod];
+          
+          if (sel == 0)
+            {
+              if (adaptorValueType == EOAdaptorBytesType)
+                {
+                  value = [value archiveData];
+                }
+              else
+                {
+                  /* This exception might not be conformant, but seems helpful.  */
+                  [NSException raise: NSInvalidArgumentException
+                               format: @"Value of class: %@ needs conversion "
+                               @"yet no conversion method specified. "
+                               @"Attribute is %@. adaptorValueType=%d", 
+                               NSStringFromClass([value class]),
+                               self,adaptorValueType];
+                }
+            }
+          else
+            {
+              value = [value performSelector: sel];
+            }
+        }
+    };
   return value;
 }
 
+/** Returns method name to use to convert value of a class 
+different than attribute adaptor value type. 
+
+See also: -adaptorValueByConvertingAttributeValue, -adaptorValueConversionMethod
+**/
 - (NSString *)adaptorValueConversionMethodName
 {
   return _adaptorValueConversionMethodName;
 }
 
+/** Returns selector of the method to use to convert value of a class 
+different than attribute adaptor value type. 
+Default implementation returns selector of method returned by 
+adaptorValueConversionMethodName or NULL if there's not selector for the method
+
+See also: -adaptorValueByConvertingAttributeValue, -adaptorValueConversionMethodName
+**/
 - (SEL)adaptorValueConversionMethod
 {
   return _adaptorValueConversionMethod;
 }
 
+/** Returns an EOAdaptorValueType describing the adaptor 
+(i.e. database) type of data for this attribute.
+
+Returned value can be:
+EOAdaptorBytesType 	Raw bytes (default type)
+EOAdaptorNumberType 	Number value (attribute valueClass is kind of NSNumber)
+EOAdaptorCharactersType String value (attribute valueClass is kind of NSString)
+EOAdaptorDateType 	Date value (attribute valueClass is kind of NSDate)
+
+**/
 - (EOAdaptorValueType)adaptorValueType
 {
   if (!_flags.isAttributeValueInitialized)
@@ -1392,6 +1420,11 @@ return nexexp
 
 @implementation EOAttribute (EOAttributeValueCreationEditing)
 
+/** Set the "factory method" name (the method to invoke to create custom class attribute value). 
+This method must be a class method returning an autoreleased value of attribute valueClass.
+
+See also: -setFactoryMethodArgumentType:
+**/
 - (void)setValueFactoryMethodName: (NSString *)factoryMethodName
 {
   [self willChange];

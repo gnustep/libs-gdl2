@@ -1,7 +1,7 @@
 /** 
    EOKeyValueArchiver.m <title>EOKeyValueArchiver Class</title>
 
-   Copyright (C) 2000-2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2002,2005 Free Software Foundation, Inc.
 
    Author: Manuel Guesdon <mguesdon@orange-concept.com>
    Date: September 2000
@@ -9,7 +9,34 @@
    $Revision$
    $Date$
 
-   <abstract></abstract>
+   <abstract>
+   EOKeyValueArchiver object is used to archive a tree of objects into a 
+   	key/value propertyList.
+   EOKeyValueUnarchiver object is used to unarchive from a propertyList a 
+	tree of objects archived with a EOKeyValueArchiver.
+
+   Example:
+
+   // Archiving:
+   EOKeyValueArchiver* archive=AUTORELEASE([EOKeyValueArchiver new]);
+   [archive setDelegate:MyArchivingDelegate];
+   [archiver encodeObject:anObject
+   forKey:@"anObjectKey"];
+   [archiver encodeInt:125
+   forKey:@"aKey"];
+   ...
+
+   NSDictionary* archivePropertyList=[archiver dictionary];
+
+   // Now unarchive archivePropertyList
+
+   EOKeyValueUnarchiver* unarchiver=AUTORELEASE([[EOKeyValueUnarchiver alloc]initWith:archivePropertyList]);
+   [archive setDelegate:MyUnarchivingDelegate];
+   id anObject=[unarchiver decodeObjectForKey:@"anObjectKey"];
+   int anInt=[unarchiver decodeIntForKey:@"anKey"];
+   [unarchiver finishInitializationOfObjects];
+   [unarchiver awakeObjects]
+   </abstract>
 
    This file is part of the GNUstep Database Library.
 
@@ -52,6 +79,7 @@ RCS_ID("$Id$")
 
 #include <EOControl/EOKeyValueArchiver.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPrivate.h>
 
 
 @interface EOKeyValueArchivingContainer : NSObject
@@ -73,6 +101,17 @@ RCS_ID("$Id$")
 
 
 @implementation EOKeyValueArchivingContainer
+
++ (void)initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+
+      GDL2_PrivateInit();
+    }
+}
 
 + (EOKeyValueArchivingContainer *)keyValueArchivingContainer
 {
@@ -120,13 +159,27 @@ RCS_ID("$Id$")
 
 @end
 
-
 @implementation EOKeyValueArchiver
 
++ (void)initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+
+      GDL2_PrivateInit();
+    }
+}
+
+/** Init method **/
 - (id) init
 {
-  [self notImplemented: _cmd];	//TODOFN
-  return nil;
+  if ((self=[super init]))
+    {
+      _propertyList=[NSMutableDictionary new];
+    };
+  return self;
 }
 
 - (void) dealloc
@@ -135,61 +188,301 @@ RCS_ID("$Id$")
   [super dealloc];
 }
 
-- (id) dictionary
+/** Returns archived object/tree as propertList **/
+- (NSDictionary*) dictionary
 {
+  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
+  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
   return _propertyList;
 }
 
+/** Archives integer 'intValue' as 'key' **/
 - (void) encodeInt: (int)intValue
 	    forKey: (NSString*)key
 {
-  [self notImplemented: _cmd];	//TODOFN
+  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
+
+  NSDebugMLLog(@"gsdb", @"key=%@ intValue=%d",key,intValue);
+  NSAssert(key,@"No key");
+
+  [_propertyList setObject:[NSString stringWithFormat:@"%d",intValue]
+                 forKey:key];
+
+  NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
+
+  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
 }
 
+/** Archives boolean 'yn' as 'key' **/
 - (void) encodeBool: (BOOL)yn
 	     forKey: (NSString*)key
-{
-  [self notImplemented: _cmd];	//TODOFN
+{  
+  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
+
+  NSDebugMLLog(@"gsdb", @"key=%@ yn=%s",key,(yn ? "YES" : "NO"));
+  NSAssert(key,@"No key");
+
+  [_propertyList setObject:(yn ? @"YES" : @"NO")
+                 forKey:key];
+
+  NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
+
+  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
 }
 
-- (void) encodeReferenceToObject: (id)object
-			  forKey: (NSString*)key
-{
-  [self notImplemented: _cmd];	//TODOFN
-}
-
-- (void) encodeObject: (id)object
-	       forKey: (NSString*)key
-{
-  [self notImplemented: _cmd];	//TODOFN
-}
-
-- (void) _encodeDictionary: (id)dictionary
+/** Archives a dictionary for 'key' **/
+- (void) _encodeDictionary: (NSDictionary*)dictionary
 		    forKey: (NSString*)key
 {
-  [self notImplemented: _cmd];	//TODOFN
+  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
+
+  NSDebugMLLog(@"gsdb", @"key=%@ dictionary=%@",key,dictionary);
+  NSAssert(key,@"No key");
+
+  if ([dictionary count]>0)
+    {
+      NSEnumerator* keyEnumerator=nil;
+      NSString* tmpKey=nil;
+      NSMutableDictionary* currentPropertyList=nil;
+
+      // Save current propertyList
+      currentPropertyList=AUTORELEASE(_propertyList);
+      NSDebugMLLog(@"gsdb", @"currentPropertyList=%@",currentPropertyList);
+
+      // Set new empty propertyList to encode each object
+      _propertyList=[NSMutableDictionary new];
+
+      keyEnumerator=[dictionary keyEnumerator];
+      while((tmpKey=[keyEnumerator nextObject]))
+        {
+          id object=[dictionary valueForKey:tmpKey];
+          
+          [self encodeObject:object
+                forKey:tmpKey];          
+        };
+
+      // add _propertyList into current propertyList 
+      // for the key
+      [currentPropertyList setObject:_propertyList
+                           forKey:key];
+
+      // put back current propertyList
+      ASSIGN(_propertyList,currentPropertyList);      
+    }
+  else
+    {
+      [_propertyList setObject:[NSDictionary dictionary]
+                     forKey:key];
+    };
+
+  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
 }
 
-- (void) _encodeObjects: (id)objects
+/** Archives an array objects for 'key' **/
+- (void) _encodeObjects: (NSArray*)objects
 		 forKey: (NSString*)key
 {
-  [self notImplemented: _cmd];	//TODOFN
+  unsigned int count=0;
+
+  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
+
+  NSDebugMLLog(@"gsdb", @"key=%@ objects=%@",key,objects);
+  NSAssert(key,@"No key");
+
+  count=[objects count];
+  if (count>0)
+    {
+      unsigned int i=0;
+      NSMutableDictionary* currentPropertyList=nil;
+      NSMutableArray* archiveArray=(NSMutableArray*)[NSMutableArray array];
+
+      // Save current propertyList
+      currentPropertyList=AUTORELEASE(_propertyList);
+      NSDebugMLLog(@"gsdb", @"currentPropertyList=%@",currentPropertyList);
+
+      // Set new empty propertyList to encode each object
+      _propertyList=[NSMutableDictionary new];
+
+      for(i=0;i<count;i++)
+        {
+          id object=[objects objectAtIndex:i];
+          id encodedObject=nil;
+          
+          [self encodeObject:object
+                forKey:@"voidKey"];
+          
+          encodedObject=[_propertyList objectForKey:@"voidKey"];          
+          NSDebugMLLog(@"gsdb", @"object=%@ encodedObject=%@",object,encodedObject);
+          NSAssert1(encodedObject,@"No encodedObject for %@",object);
+
+          [archiveArray addObject:encodedObject];
+
+          [_propertyList removeObjectForKey:@"voidKey"];
+        };
+
+      // add archiveArray into current propertyList 
+      // for the key
+      [currentPropertyList setObject:archiveArray
+                           forKey:key];
+
+      // put back current propertyList
+      ASSIGN(_propertyList,currentPropertyList);      
+    }
+  else
+    {
+      [_propertyList setObject:[NSArray array]
+                     forKey:key];
+    };
+
+  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
 }
 
 - (void) _encodeValue: (id)value
 	       forKey: (NSString*)key
 {
+  //Private EO methods. Not currently used
   [self notImplemented: _cmd];	//TODOFN
 }
 
+
+/** Archives the object 'object' reference as 'key'
+The receiver gets the reference object by calling 
+its delegate method -archiver:referenceToEncodeForObject:
+**/
+- (void) encodeReferenceToObject: (id)object
+			  forKey: (NSString*)key
+{
+  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
+
+  NSDebugMLLog(@"gsdb", @"key=%@ object=%@",key,object);
+  NSAssert(key,@"No key");
+
+  // object is nil ?
+  if (!object)
+    {
+      //Hum, what to do for nil object ? //TODO
+    }
+  else
+    {
+      // First get object reference
+      if ([_delegate 
+            respondsToSelector:@selector(archiver:referenceToEncodeForObject:)])
+      object = [_delegate archiver:self
+                          referenceToEncodeForObject:object];
+      
+
+      NSDebugMLLog(@"gsdb", @"key=%@ object (reference)=%@",key,object);
+
+      //TODO
+      // What should we do when delegate returns no reference ?
+      // Here we decide to encode it directly...
+     
+      [self encodeObject:object
+            forKey:key];
+    };
+
+  NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
+
+  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+}
+
+/** Archives the object 'object' as 'key'.
+'object' should be a NSString, a NSData, NSArray or NSDictionary or conforms to 
+EOKeyValueArchiving protocol. Raise an exception otherwise.
+**/
+- (void) encodeObject: (id)object
+	       forKey: (NSString*)key
+{
+  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
+
+  NSDebugMLLog(@"gsdb", @"key=%@ object=%@",key,object);
+  NSAssert(key,@"No key");
+
+  // object is nil ?
+  if (!object)
+    {
+      //Hum, what to do for nil object ? //TODO
+    }
+  else if ([object isKindOfClass:GDL2_NSStringClass]
+           || [object isKindOfClass:GDL2_NSDataClass]
+           || [object isKindOfClass:GDL2_NSNumberClass])
+    {
+      // Add NSString & NSData directly (or a copy if it is mutable)
+
+      id objectCopy=[object copy];
+      [_propertyList setObject:objectCopy
+                     forKey:key];
+      DESTROY(objectCopy);
+    }
+  else if ([object isKindOfClass:GDL2_NSDictionaryClass])
+    {
+      [self _encodeDictionary:object
+            forKey:key];
+    }
+  else if ([object isKindOfClass:GDL2_NSArrayClass])
+    {
+      [self _encodeObjects:object
+            forKey:key];
+    }
+  else if ([object conformsToProtocol:@protocol(EOKeyValueArchiving)])
+    {
+      // Object conforms to protocol EOKeyValueArchiving ?
+      
+      // We will encode it in self empty propertyList and put this 
+      // propertyList back and the current propertyList
+
+      // Save current propertyList
+      NSMutableDictionary* currentPropertyList=nil;
+      currentPropertyList=AUTORELEASE(_propertyList);
+      NSDebugMLLog(@"gsdb", @"currentPropertyList=%@",currentPropertyList);
+
+      // Set new empty one as current one
+      _propertyList=[NSMutableDictionary new];
+
+      // add object class name to object propertyList
+      [_propertyList setObject:NSStringFromClass([object class])
+                     forKey:@"class"];
+
+      // Encode object
+      [object encodeWithKeyValueArchiver:self];
+
+      NSDebugMLLog(@"gsdb", @"object propertyList=%@",_propertyList);
+
+      // add object propertyList into current propertyList 
+      // for the key
+      [currentPropertyList setObject:_propertyList
+                           forKey:key];
+
+      // put back current propertyList
+      ASSIGN(_propertyList,currentPropertyList);      
+    }
+  else
+    {
+       [NSException raise:NSInvalidArgumentException
+                    format:@"Don't know how to keyValue archive object %@ for key %@",
+                    object,key];
+                    
+    };
+
+  NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
+
+  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+}
+
+/** Returns receiver's delegate **/
 - (id) delegate
 {
   return _delegate;
 }
 
+/** Set receiver's delegate **/
 - (void) setDelegate: (id)delegate
 {
+  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
+
   _delegate=delegate;
+
+  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
 }
 
 @end
@@ -197,10 +490,14 @@ RCS_ID("$Id$")
 
 @implementation NSObject (EOKeyValueArchiverDelegation)
 
+/** Returns an object to be used as reference for 'archiver' 
+to archive 'object'.
+Should be overriden by EOKeyValueArchiver's delegates 
+**/
 - (id)archiver: (EOKeyValueArchiver *)archiver 
 referenceToEncodeForObject: (id)object
 {
-  [self notImplemented: _cmd];	//TODOFN
+  [self subclassResponsibility:_cmd];
   return nil;
 }
 
@@ -209,6 +506,7 @@ referenceToEncodeForObject: (id)object
 
 @implementation EOKeyValueUnarchiver
 
+/** Inits unarchiver with propertyList 'dictionary' **/
 - (id) initWithDictionary: (NSDictionary*)dictionary
 {
   if ((self = [super init]))
@@ -222,6 +520,8 @@ referenceToEncodeForObject: (id)object
   return self;
 }
 
+/** Finalize unarchiving by calling finishInitializationWithKeyValueUnarchiver:
+on all unarchived objects **/
 - (void) finishInitializationOfObjects
 {
   int i;
@@ -252,6 +552,8 @@ referenceToEncodeForObject: (id)object
   [super dealloc];
 }
 
+/** Finalize unarchiving by calling awakeFromKeyValueUnarchiver: 
+on all unarchived objects **/
 - (void) awakeObjects
 {
   int i;
@@ -275,6 +577,8 @@ referenceToEncodeForObject: (id)object
     }
 }
 
+/** ensure 'object' is awake 
+(has received -awakeFromKeyValueUnarchiver: message) **/
 - (void) ensureObjectAwake: (id)object
 {
   if (object)
@@ -288,28 +592,35 @@ referenceToEncodeForObject: (id)object
     }
 }
 
+/** Returns unarchived integer which was archived as 'key'.
+0 if no object is found **/
 - (int) decodeIntForKey: (NSString*)key
 {
-  id object;
+  id object = nil;
 
   NSDebugMLLog(@"gsdb", @"decodeIntForKey:%@", key);
 
   object = [_propertyList objectForKey: key];
 
-  return [object intValue];
+  return (object ? [object intValue] : 0);
 }
 
+/** Returns unarchived boolean which was archived as 'key'.
+NO if no object is found **/
 - (BOOL) decodeBoolForKey: (NSString*)key
 {
-  id object;
+  id object=nil;
 
   NSDebugMLLog(@"gsdb", @"decodeBoolForKey:%@", key);
 
   object = [_propertyList objectForKey: key];
 
-  return [[_propertyList objectForKey: key] boolValue];
+  return (object ? [[_propertyList objectForKey: key] boolValue] : NO);
 }
 
+/** Returns unarchived object for the reference archived as 'key'. 
+The receiver gets the object for reference by calling 
+its delegate method -archiver:objectForReference: **/
 - (id) decodeObjectReferenceForKey: (NSString*)key
 {
   id objectReference = nil;
@@ -328,6 +639,9 @@ referenceToEncodeForObject: (id)object
   return objectReference;
 }
 
+/** Returns unarchived object for key. 
+The object should be a NSString, NSData, NSArray or NSDictionary or its 
+class instances should implements -initWithKeyValueUnarchiver: **/
 - (id) decodeObjectForKey: (NSString*)key
 {
   id propListObject;
@@ -348,6 +662,7 @@ referenceToEncodeForObject: (id)object
   return obj;
 }
 
+/** Returns YES if there's a value for key 'key' **/
 - (BOOL) isThereValueForKey: (NSString *)key
 {
   return ([_propertyList objectForKey: key] != nil);
@@ -359,7 +674,7 @@ referenceToEncodeForObject: (id)object
 
   NSDebugMLLog(@"gsdb", @"obj:%@", obj);
 
-  if ([obj isKindOfClass: [NSDictionary class]])
+  if ([obj isKindOfClass: GDL2_NSDictionaryClass])
     {
       NSString *className = [obj objectForKey: @"class"];
 
@@ -374,7 +689,7 @@ referenceToEncodeForObject: (id)object
           NSDebugMLLog(@"gsdb", @"ERROR: No retVal for Obj:%@", obj);
         }
     }
-  else if ([obj isKindOfClass: [NSArray class]])
+  else if ([obj isKindOfClass: GDL2_NSArrayClass])
     retVal = [self _objectsForPropertyList: obj];
   else
     retVal=obj;
@@ -415,94 +730,6 @@ referenceToEncodeForObject: (id)object
 
   return dict;
 }
-
-/*
-{
-    batchSize = {AutoInitialized = 1; TypeName = Object; }; 
-    checkOutLength = {AutoInitialized = 1; TypeName = Object; }; 
-    cost = {AutoInitialized = 1; TypeName = Object; }; 
-    currentItem = {TypeName = Object; }; 
-    dateAcquired = {AutoInitialized = 1; TypeName = Object; }; 
-    discInsert = {TypeName = Object; }; 
-    errorString = {AutoInitialized = 1; TypeName = Object; }; 
-    media = {AutoInitialized = 1; TypeName = Object; }; 
-    movieMedia = {TypeName = MovieMedia; }; 
-    movieMediaDataSource = {TypeName = Object; }; 
-    moviemedias = {
-        AutoInitialized = 1; 
-        TypeName = MovieMedias; 
-        initialValue = {
-            class = WODisplayGroup; 
-            dataSource = {
-                class = EODatabaseDataSource; 
-                editingContext = session.defaultEditingContext; 
-                fetchSpecification = {class = EOFetchSpecification; entityName = MovieMedia; isDeep = YES; }; 
-            }; 
-            formatForLikeQualifier = "%@*"; 
-            numberOfObjectsPerBatch = 10; 
-            selectsFirstObjectAfterFetch = YES; 
-        }; 
-    }; 
-    objectArray = {TypeName = Object; }; 
-    ordering = {AutoInitialized = 1; TypeName = Object; }; 
-    orderingsArray = {AutoInitialized = 1; TypeName = Object; }; 
-    rentalType = {AutoInitialized = 1; TypeName = Object; }; 
-    selectedOrderings = {AutoInitialized = 1; TypeName = Object; }; 
-    tapeInsert = {TypeName = Object; }; 
-    yes = {TypeName = Object; }; 
-}
-
- _findTypeForPropertyListDecoding:{TypeName = Object; }
-
-
-//3
-{TypeName = Object; }
-_findTypeForPropertyListDecoding:Object 
-(return Object)
-return {TypeName = Object; } <==
-
-//6 [1]
-{TypeName = Object; }  
-
-_findTypeForPropertyListDecoding:{TypeName = MovieMedia; }
-
-
-
-//A2
- object=
-                                              Description: {
-    AutoInitialized = 1; 
-    TypeName = MovieMedias; 
-    initialValue = {
-        class = WODisplayGroup; 
-        dataSource = {
-            class = EODatabaseDataSource; 
-            editingContext = session.defaultEditingContext; 
-            fetchSpecification = {class = EOFetchSpecification; entityName = MovieMedia; isDeep = YES; }; 
-        }; 
-        formatForLikeQualifier = "%@*"; 
-        numberOfObjectsPerBatch = 10; 
-        selectsFirstObjectAfterFetch = YES; 
-    }; 
-}
-
-_findTypeForPropertyListDecoding:object=
-                                                Description: 1
-_findTypeForPropertyListDecoding
-                                                Description: MovieMedias
-_findTypeForPropertyListDecoding:object=
-                                                Description: {
-    class = WODisplayGroup; 
-    dataSource = {
-        class = EODatabaseDataSource; 
-        editingContext = session.defaultEditingContext; 
-        fetchSpecification = {class = EOFetchSpecification; entityName = MovieMedia; isDeep = YES; }; 
-    }; 
-    formatForLikeQualifier = "%@*"; 
-    numberOfObjectsPerBatch = 10; 
-    selectsFirstObjectAfterFetch = YES; 
-}
-*/
 
 - (id) _objectsForPropertyList: (NSArray*)propList
 {
@@ -585,50 +812,21 @@ _findTypeForPropertyListDecoding:object=
 
   return object;
 }
-/*
-  //EOFetchSpecification
 
-  prop{
-  class = WODisplayGroup; 
-  dataSource = {
-  class = EODatabaseDataSource; 
-  editingContext = session.defaultEditingContext; 
-  fetchSpecification = {class = EOFetchSpecification; entityName = MovieMedia; isDeep = YES; }; 
-  }; 
-  formatForLikeQualifier = "%@*"; 
-  numberOfObjectsPerBatch = 10; 
-  selectsFirstObjectAfterFetch = YES; 
-  }]
-
-
-
-
-  object=
-  Description: {
-  class = WODisplayGroup; 
-  dataSource = {
-  class = EODatabaseDataSource; 
-  editingContext = session.defaultEditingContext; 
-  fetchSpecification = {class = EOFetchSpecification; entityName = MovieMedia; isDeep = YES; }; 
-  }; 
-  formatForLikeQualifier = "%@*"; 
-  numberOfObjectsPerBatch = 10; 
-  selectsFirstObjectAfterFetch = YES; 
-  }
-
-
-*/
-
+/** Returns the parent object for the currently unarchiving object. 
+**/
 - (id) parent
 {
   return _parent;
 }
 
+/** Returns receiver's delegate **/
 - (id) delegate
 {
   return _delegate;
 }
 
+/** Set the receiver's delegate **/
 - (void) setDelegate:(id)delegate
 {
   _delegate=delegate;
@@ -639,10 +837,13 @@ _findTypeForPropertyListDecoding:object=
 
 @implementation NSObject (EOKeyValueUnarchiverDelegation)
 
+/** Returns an object for archived 'reference'.
+Should be overriden by EOKeyValueUnarchiver's delegates 
+**/
 - (id)unarchiver: (EOKeyValueUnarchiver*)archiver 
-objectForReference: (id)keyPath
+objectForReference: (id)reference
 {
-  [self notImplemented: _cmd];	//TODOFN
+  [self subclassResponsibility:_cmd];
   return nil;
 }
 
