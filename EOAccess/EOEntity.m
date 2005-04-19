@@ -2423,7 +2423,7 @@ createInstanceWithEditingContext:globalID:zone:
 - (NSString *)primaryKeyRootName
 {
   if (_parent)
-    return [_parent externalName];//mirko: [_parent primaryKeyRootName];
+    return [_parent primaryKeyRootName];
 
   return _externalName;
 }

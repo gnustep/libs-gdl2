@@ -1987,7 +1987,7 @@ each key
 
   expr = AUTORELEASE([[[_adaptorContext adaptor] expressionClass] new]);
   sequenceName = [NSString stringWithFormat: primaryKeySequenceNameFormat,
-			   [entity externalName]];
+			   [entity primaryKeyRootName]];
   sequenceName = [expr sqlStringForSchemaObjectName: sequenceName];
   sqlString = [NSString stringWithFormat: @"SELECT nextval('%@')",
 			sequenceName];

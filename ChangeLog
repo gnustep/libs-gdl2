@@ -1,9 +1,20 @@
+2005-04-19  David Ayers  <d.ayers@inode.at>
+
+	Fix bug reported by: jim _at_ uchicago dot edu.
+	* EOAccess/EOEntity.m (-primaryKeyRootName): Recurse to through
+	primaryKeyRootName of parent entity.
+	* EOAdaptors/Postgres95/Postgres95Channel.m
+	(primaryKeyForNewRowWithEntity:): Use primaryKeyRootName to
+	construct sequence name.
+	
 2005-04-19  Manuel Guesdon  <mguesdon@orange-concept.com>
 
 	* EOControl/EOKeyValueArchiver.m: implemented EOKeyValueArchiver
 	* EOControl/EOKeyValueArchiver.h: removed private methods
-	* EOControl/EOSortOrdering.h: added EOKeyValueArchiving protocol to EOSortOrdering
-	* EOAccess/EOAttribute.m: put back David changes in -adaptorValueByConvertingAttributeValue
+	* EOControl/EOSortOrdering.h: added EOKeyValueArchiving protocol
+	to EOSortOrdering
+	* EOAccess/EOAttribute.m: put back David changes in
+	-adaptorValueByConvertingAttributeValue 
 		added some docs
 			
 2005-04-07  Stephane Corthesy  <stephane@sente.ch>
