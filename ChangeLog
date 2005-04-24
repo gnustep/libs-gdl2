@@ -1,3 +1,10 @@
+2005-04-24  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m: Removed externalTypeNames
+	and internalTypeNames variables, replaced both with typeNames.
+	(isValidQualifierType:model:): Use new variable.
+	(externalToInternalTypeMap:): Ditto.
+	
 2005-04-19  David Ayers  <d.ayers@inode.at>
 
 	Fix bug reported by: jim _at_ uchicago dot edu.

@@ -173,37 +173,47 @@ postgresClientVersion()
 
 
 /* 
-   The first 4 must correspond to EOAdaptorValueTypes:
-   EOAdaptorNumberType, EOAdaptorCharactersType,
-   EOAdaptorBytesType, EOAdaptorDateType
-*/
-static NSString *externalTypeNames[] = {
-#warning (stephane@sente.ch) Needs to be updated!!!
-  @"numeric", @"varchar", @"bytea", @"date",
-  @"boolean", @"bool", 
-  @"char", @"char2", @"char4", @"char8", @"char16", @"filename", 
-  @"reltime", @"time", @"tinterval", @"abstime", @"timestamp",
-  @"real", @"double precision", @"float4", @"float8", 
-  @"bigint", @"int8", @"integer", @"int4", @"smallint", @"int2", 
-  @"oid", @"oid8", @"oidint2", @"oidint4", @"oidchar16",
-  @"decimal", @"cid",
-  @"tid", @"xid",
-  @"bpchar",
-  nil
-};
-
-static NSString *internalTypeNames[] = {
-  @"NSNumber", @"NSString", @"NSData", @"NSCalendarDate",
-  @"NSNumber", @"NSNumber",
-  @"NSString", @"NSString", @"NSString", @"NSString", @"NSString", @"NSString",
-  @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate", @"NSCalendarDate",
-  @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
-  @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
-  @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber", @"NSNumber",
-  @"NSDecimalNumber", @"NSDecimalNumber",
-  @"NSDecimalNumber", @"NSDecimalNumber",
-  @"NSData",
-  nil
+   The first 4 must correspond to EOAdaptorValueTypes.
+   external type name	internal type name
+ */
+static NSString *typeNames[][2] = {
+  @"numeric",		@"NSNumber",		/* EOAdaptorNumberType */
+  @"varchar",		@"NSString", 		/* EOAdaptorCharactersType */
+  @"bytea",		@"NSData",		/* EOAdaptorBytesType */
+  @"date",		@"NSCalendarDate",	/* EOAdaptorDateType */
+  @"boolean",		@"NSNumber",
+  @"bool",		@"NSNumber",
+  @"char",		@"NSString",
+  @"char2",		@"NSString",
+  @"char4",		@"NSString",
+  @"char8",		@"NSString",
+  @"char16",		@"NSString",
+  @"filename",		@"NSString",
+  @"reltime",		@"NSCalendarDate",
+  @"time",		@"NSCalendarDate",
+  @"tinterval",		@"NSCalendarDate",
+  @"abstime",		@"NSCalendarDate",
+  @"timestamp",		@"NSCalendarDate",
+  @"real",		@"NSNumber",
+  @"double precision", 	@"NSNumber",
+  @"float4",		@"NSNumber",
+  @"float8",		@"NSNumber",
+  @"bigint", 		@"NSNumber",
+  @"int8",		@"NSNumber",
+  @"integer",		@"NSNumber",
+  @"int4",		@"NSNumber",
+  @"smallint",		@"NSNumber",
+  @"int2",		@"NSNumber",
+  @"oid",		@"NSNumber",
+  @"oid8",		@"NSNumber",
+  @"oidint2",		@"NSNumber",
+  @"oidint4",		@"NSNumber",
+  @"oidchar16",		@"NSNumber",
+  @"decimal",		@"NSDecimalNumber",
+  @"cid",		@"NSDecimalNumber",
+  @"tid",		@"NSDecimalNumber",
+  @"xid",		@"NSDecimalNumber",
+  @"bpchar",		@"NSData"
 };
 
 + (NSDictionary *)externalToInternalTypeMap
@@ -212,11 +222,25 @@ static NSString *internalTypeNames[] = {
 
   if (!externalToInternalTypeMap)
   {
-    int i;
+    int i, c;
+    id *externalTypeNames;
+    id *internalTypeNames;
+    size_t size;
 
-    for (i = 0; externalTypeNames[i]; i++);
+    c = sizeof(typeNames) / sizeof(typeNames[0]);
+    size = sizeof(id) * c;
+    externalTypeNames = (id *)NSZoneMalloc([self zone], size); 
+    internalTypeNames = (id *)NSZoneMalloc([self zone], size); 
+
+    for (i = 0; i < c; i++)
+      {
+	externalTypeNames[i] = typeNames[i][0];
+	internalTypeNames[i] = typeNames[i][1];
+      }
 
     externalToInternalTypeMap = [[NSDictionary alloc] initWithObjects: internalTypeNames forKeys: externalTypeNames count: i];
+    NSZoneFree([self zone], externalTypeNames);
+    NSZoneFree([self zone], internalTypeNames);
   }
 
   return externalToInternalTypeMap;
@@ -238,7 +262,7 @@ static NSString *internalTypeNames[] = {
   // TODO
   EOAdaptorValueType value = [attribute adaptorValueType];
 
-  [attribute setExternalType: externalTypeNames[value]];
+  [attribute setExternalType: typeNames[value][0]];
 }
 
 + (void)assignExternalInfoForEntity: (EOEntity *)entity
@@ -281,14 +305,14 @@ static NSString *internalTypeNames[] = {
 - (BOOL)isValidQualifierType: (NSString *)typeName
                        model: (EOModel *)model
 {
-  int i;
+  int i,c;
   
-  for (i = 0; externalTypeNames[i]; i++)
+  for (i = 0, c = sizeof(typeNames) / sizeof(typeNames[0]); i < c; i++)
     {
       //TODO REMOVE
-      NSDebugMLog(@"externalTypeNames[i]=%@", externalTypeNames[i]);
+      NSDebugMLog(@"externalTypeNames[i]=%@", typeNames[i][0]);
 
-      if ([externalTypeNames[i] isEqualToString: typeName])
+      if ([typeNames[i][0] isEqualToString: typeName])
         return YES;
     }
   //TODO REMOVE
