@@ -1,3 +1,20 @@
+2005-04-20  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOControl/EOPriv.h: added GDL2_allocWithZone()
+	* EOAccess/EOAttribute.m:
+		o fixed -validateValue: rewritten following 
+		David Ayers's advices to handle EONull values 
+		validation and fix width validation
+		o fixed -newValueForBytes:length: retain problems and 
+		wrong invocation target 
+		o fixed -newValueForBytes:length:encoding: retain 
+		problems and wrong invocation target 
+		o added comments and doc
+		o added allowsNull in EOAttribute -description
+	* EOControl/EOKeyValueArchiver.m: fixed int and bool 
+		archiving following David Ayers's comments (produce 
+		NSNumber instead of NSString)
+	
 2005-04-24  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/Postgres95Adaptor.m: Removed externalTypeNames

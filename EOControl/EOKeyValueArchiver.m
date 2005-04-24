@@ -68,6 +68,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSDictionary.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSValue.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -205,8 +206,8 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"gsdb", @"key=%@ intValue=%d",key,intValue);
   NSAssert(key,@"No key");
 
-  [_propertyList setObject:[NSString stringWithFormat:@"%d",intValue]
-                 forKey:key];
+  [_propertyList setObject: [NSNumber numberWithInt: intValue]
+                 forKey: key];
 
   NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
 
@@ -222,8 +223,8 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"gsdb", @"key=%@ yn=%s",key,(yn ? "YES" : "NO"));
   NSAssert(key,@"No key");
 
-  [_propertyList setObject:(yn ? @"YES" : @"NO")
-                 forKey:key];
+  [_propertyList setObject: [NSNumber numberWithBool: yn]
+                 forKey: key];
 
   NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
 

@@ -119,6 +119,11 @@ _isNilOrEONull(id obj)
 	(*GDL2_##CLASS_NAME##_allocWithZoneIMP) \
 	(GDL2_##CLASS_NAME##Class,@selector(allocWithZone:),NULL)
 
+// ---- +allocWithZone: ----
+#define GDL2_allocWithZone(CLASS_NAME,ALLOC_ZONE) \
+	(*GDL2_##CLASS_NAME##_allocWithZoneIMP) \
+	(GDL2_##CLASS_NAME##Class,@selector(allocWithZone:),ALLOC_ZONE)
+
 // ---- NSMutableString appendString: ----
 #define GDL2_AppendStringWithImp(string,methodIMP,aString) \
 	(*(methodIMP))((string),@selector(appendString:),(aString))

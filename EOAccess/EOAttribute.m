@@ -441,10 +441,11 @@ RCS_ID("$Id$")
 			     [self columnName],
 			     [self definition]];
 
-  dscr = [dscr stringByAppendingFormat: @"valueClassName=%@ valueType=%@ externalType=%@ isReadOnly=%s isDerived=%s isFlattened=%s>",
+  dscr = [dscr stringByAppendingFormat: @"valueClassName=%@ valueType=%@ externalType=%@ allowsNull=%s isReadOnly=%s isDerived=%s isFlattened=%s>",
 	       [self valueClassName],
 	       [self valueType],
                [self externalType],
+	       ([self allowsNull] ? "YES" : "NO"),
 	       ([self isReadOnly] ? "YES" : "NO"),
 	       ([self isDerived] ? "YES" : "NO"),
 	       ([self isFlattened] ? "YES" : "NO")];
@@ -1078,17 +1079,18 @@ return nexexp
 
 
 /** 
- * Returns an NSString or a custom-class value object
+ * Returns an NSData or a custom-class value object
  * from the supplied set of bytes. 
  * The Adaptor calls this method during value creation
  * when fetching objects from the database. 
  * For efficiency, the returned value is NOT autoreleased.
+ *
+ * NB: The documentation of the reference implementation 
+ * mistakenly claims that it returns an NSString.
  **/
 - (id)newValueForBytes: (const void *)bytes
                 length: (int)length
 {
-  NSMethodSignature *aSignature;
-  NSInvocation *anInvocation;
   NSData *value = nil;
   Class valueClass = [self _valueClass];
 
@@ -1097,43 +1099,79 @@ return nexexp
       switch (_argumentType)
         {
 	case EOFactoryMethodArgumentIsNSData:
-	  //For efficiency reasons, the returned value is NOT autoreleased !
-	  value = [GDL2_alloc(NSData) initWithBytes: bytes length: length];
+          {
+            //For efficiency reasons, the returned value is NOT autoreleased !
+            value = [GDL2_alloc(NSData) initWithBytes: bytes length: length];
+            
+            // If we have a value factiry method, call it to get the final value
+            if(_valueFactoryMethod != NULL)
+              {
+                NSData* tmp = value;
+                // valueFactoryMethod returns an autoreleased value
+                value = [(id)valueClass performSelector: _valueFactoryMethod
+                           withObject: value];
+                if (value != value)
+                  {
+                    RETAIN(value);
+                    RELEASE(tmp);
+                  };
+              };
 
-	  if(_valueFactoryMethod != NULL)
-            {
-              //TODO: doc says that the returned value is autoreleased !!
-              value = [(id)valueClass performSelector: _valueFactoryMethod
-                           withObject: [value autorelease]];
-            };
-	  break;
+            break;
+          }
 
-	case EOFactoryMethodArgumentIsBytes:
-	  //For efficiency reasons, the returned value is NOT autoreleased !
-	  value = [valueClass allocWithZone: 0];
+	case EOFactoryMethodArgumentIsBytes:          
+          {
+            NSMethodSignature *aSignature = nil;
+            NSInvocation *anInvocation = nil;
 
-	  aSignature =
-	    [valueClass
-	      instanceMethodSignatureForSelector: _valueFactoryMethod];
+            // TODO: verify with WO
+            NSAssert2(_valueFactoryMethod,
+                      @"No _valueFactoryMethod (valueFactoryMethodName=%@) in attribute %@",
+                      _valueFactoryMethodName,self);
 
-	  anInvocation 
-	    = [NSInvocation invocationWithMethodSignature: aSignature];
-
-	  [anInvocation setSelector: _valueFactoryMethod];
-	  [anInvocation setTarget: value];
-	  [anInvocation setArgument: &bytes atIndex: 2];
-	  [anInvocation setArgument: &length atIndex: 3];
-	  [anInvocation invoke];
-	  break;
-
+            // First find signature for method
+            aSignature =
+              [valueClass
+                methodSignatureForSelector: _valueFactoryMethod];
+            
+            // Create the invocation object
+            anInvocation 
+              = [NSInvocation invocationWithMethodSignature: aSignature];
+            
+            // Put the selector
+            [anInvocation setSelector: _valueFactoryMethod];
+            
+            // The target is the custom value class
+            [anInvocation setTarget: valueClass];
+            
+            // arguments are buffer pointer and length
+            [anInvocation setArgument: &bytes atIndex: 2];
+            [anInvocation setArgument: &length atIndex: 3];
+            
+            // Let's invoke the method
+            [anInvocation invoke];
+            
+            // Get the returned value
+            [anInvocation getReturnValue: &value];
+            
+            //For efficiency reasons, the returned value is NOT autoreleased !
+            // valueFactoryMethod returns an autoreleased value
+            RETAIN(value);
+            
+            break;
+          }
 	case EOFactoryMethodArgumentIsNSString:
+            // TODO: verify with WO
 	  break;
         }
     }
     
   if(!value)
-    //For efficiency reasons, the returned value is NOT autoreleased !
-    value = [GDL2_alloc(NSData) initWithBytes: bytes length: length];
+    {
+      //For efficiency reasons, the returned value is NOT autoreleased !
+      value = [GDL2_alloc(NSData) initWithBytes: bytes length: length];
+    }
 
   return value;
 }
@@ -1149,9 +1187,7 @@ return nexexp
                 length: (int)length
               encoding: (NSStringEncoding)encoding
 {
-  NSMethodSignature *aSignature;
-  NSInvocation *anInvocation;
-  id value = nil;
+  NSString* value = nil;
   Class valueClass = [self _valueClass];
 
   if (valueClass != Nil && valueClass != GDL2_NSStringClass)
@@ -1160,40 +1196,79 @@ return nexexp
         {
 	case EOFactoryMethodArgumentIsNSString:
 	  {
-	    NSData *data;
-	    NSString *string;
-	    //For efficiency reasons, the returned value is NOT autoreleased !
+	    NSData *data = nil;
+            NSString *string = nil;
+
 	    data = AUTORELEASE([(GDL2_alloc(NSData)) initWithBytes: bytes
 						     length: length]);
-	    string = AUTORELEASE([(GDL2_alloc(NSString)) initWithData: data
-							 encoding: encoding]);
 
-	    value = [((id)valueClass) performSelector: _valueFactoryMethod
-				      withObject: string];
+            string = [(GDL2_alloc(NSString)) initWithData: data
+                                             encoding: encoding];
+
+            // If we have a value factiry method, call it to get the final value
+            if(_valueFactoryMethod != NULL)
+              {                
+                value = [((id)valueClass) performSelector: _valueFactoryMethod
+                                          withObject: string];
+                if ( value != string)
+                  {
+                    //For efficiency reasons, the returned value is NOT autoreleased !
+                    RETAIN(value);
+                    RELEASE(string);
+                  };
+              }
+            else
+              {
+                //For efficiency reasons, the returned value is NOT autoreleased !
+                value = string;
+              };
 	    break;
 	  }
 
 	case EOFactoryMethodArgumentIsBytes:
 	  {
-	    //For efficiency reasons, the returned value is NOT autoreleased !
-	    value = [valueClass alloc];
+            NSMethodSignature *aSignature = nil;
+            NSInvocation *anInvocation = nil;
+            
+            // TODO: verify with WO
+            NSAssert2(_valueFactoryMethod,
+                      @"No _valueFactoryMethod (valueFactoryMethodName=%@) in attribute %@",
+                      _valueFactoryMethodName,self);
 
+            // First find signature for method            
 	    aSignature 
-	      = [valueClass instanceMethodSignatureForSelector: _valueFactoryMethod];
-
+	      = [valueClass methodSignatureForSelector: _valueFactoryMethod];
+            
+            // Create the invocation object
 	    anInvocation 
 	      = [NSInvocation invocationWithMethodSignature: aSignature];
-
+            
+            // Put the selector
 	    [anInvocation setSelector: _valueFactoryMethod];
-	    [anInvocation setTarget: value];
+
+            // The target is the custom value class
+            [anInvocation setTarget: valueClass];
+
+            // arguments are buffer pointer, length and encoding
 	    [anInvocation setArgument: &bytes atIndex: 2];
 	    [anInvocation setArgument: &length atIndex: 3];
 	    [anInvocation setArgument: &encoding atIndex: 4];
-	    [anInvocation invoke];
-	    break;
+
+            // Let's invoke the method
+            [anInvocation invoke];
+            
+            // Get the returned value
+            [anInvocation getReturnValue: &value];
+            
+            //For efficiency reasons, the returned value is NOT autoreleased !
+            // valueFactoryMethod returns an autoreleased value
+            RETAIN(value);
+
+            break;
 	  }
 
 	case EOFactoryMethodArgumentIsNSData:
+          // TODO: verify with WO
 	  break;
         }
     }
@@ -1201,9 +1276,10 @@ return nexexp
   if(!value)
     {
       NSData *data;
-      //For efficiency reasons, the returned value is NOT autoreleased !
       data = AUTORELEASE([(GDL2_alloc(NSData)) initWithBytes: bytes
 					       length: length]);
+
+      //For efficiency reasons, the returned value is NOT autoreleased !
       value = [(GDL2_alloc(NSString)) initWithData: data
 				      encoding: encoding];
     }
@@ -1217,6 +1293,8 @@ return nexexp
  * The Adaptor calls this method during value creation
  * when fetching objects from the database. 
  * For efficiency, the returned value is NOT autoreleased.
+ * Milliseconds are dropped since they cannot be easily be stored in 
+ * NSCalendarDate.
  **/
 - (NSCalendarDate *)newDateForYear: (int)year
                              month: (unsigned)month
@@ -1228,19 +1306,19 @@ return nexexp
                           timezone: (NSTimeZone *)timezone
                               zone: (NSZone *)zone
 {
-  NSCalendarDate *date;
+  NSCalendarDate *date = nil;
+
+  // FIXME: extend initializer to include Milliseconds
 
   //For efficiency reasons, the returned value is NOT autoreleased !
-  date = [[GDL2_NSCalendarDateClass allocWithZone: zone]
-	   initWithYear: year
-	   month: month
-	   day: day
-	   hour: hour
-	   minute: minute
-	   second: second
-	   timeZone: timezone];
-
-// TODO milliseconds ??
+  date = [(GDL2_allocWithZone(NSCalendarDate,zone))
+           initWithYear: year
+           month: month
+           day: day
+           hour: hour
+           minute: minute
+           second: second
+           timeZone: timezone];
 
   return date;
 }
@@ -1410,6 +1488,23 @@ EOAdaptorDateType 	Date value (attribute valueClass is kind of NSDate)
   return _adaptorValueType;
 }
 
+
+/** Returns the type of argument needed by the factoryMethod.
+
+Type can be:
+
+EOFactoryMethodArgumentIsNSData 	
+	method need one parameter: a NSData
+
+EOFactoryMethodArgumentIsNSString 	
+	method need one parameter: a NSString
+
+EOFactoryMethodArgumentIsBytes 	        
+	method need 2 parameters (for data type valueClass): a raw bytes buffer and its length
+	or 3 parameters (for string type valueClass): a raw bytes buffer, its length and the encoding
+
+See also: -valueFactoryMethod, -setFactoryMethodArgumentType:
+**/
 - (EOFactoryMethodArgumentType)factoryMethodArgumentType
 {
   return _argumentType;
@@ -1432,6 +1527,13 @@ See also: -setFactoryMethodArgumentType:
   _valueFactoryMethod = NSSelectorFromString(_valueFactoryMethodName);
 }
 
+/** Set method name to use to convert value of a class 
+different than attribute adaptor value type. 
+
+See also: -adaptorValueByConvertingAttributeValue, -adaptorValueConversionMethod, 
+	-adaptorValueConversionMethodName
+**/
+
 - (void)setAdaptorValueConversionMethodName: (NSString *)conversionMethodName
 {
   [self willChange];
@@ -1440,6 +1542,22 @@ See also: -setFactoryMethodArgumentType:
   _adaptorValueConversionMethod = NSSelectorFromString(_adaptorValueConversionMethodName);
 }
 
+/** Set the type of argument needed by the factoryMethod.
+
+Type can be:
+
+EOFactoryMethodArgumentIsNSData 	
+	method need one parameter: a NSData
+
+EOFactoryMethodArgumentIsNSString 	
+	method need one parameter: a NSString
+
+EOFactoryMethodArgumentIsBytes 	        
+	method need 2 parameters (for data type valueClass): a raw bytes buffer and its length
+	or 3 parameters (for string type valueClass): a raw bytes buffer, its length and the encoding
+
+See also:   -setValueFactoryMethodName:, -factoryMethodArgumentType
+**/
 - (void)setFactoryMethodArgumentType: (EOFactoryMethodArgumentType)argumentType
 {
   [self willChange];
@@ -1451,126 +1569,232 @@ See also: -setFactoryMethodArgumentType:
 
 @implementation EOAttribute (EOAttributeValueMapping)
 
+/** Validates value pointed by valueP, may set changed validated value in 
+valueP and return an validation exception if constraints validation fails.
+valueP must not be NULL.
+
+More details:
+1. raise an exception if [self allowsNull] == NO but *valueP is nil or EONull
+	except if attribute is a primaryKey attribute (reason of this process 
+        exception is currently unknown).
+
+2. if valueClassName isn't set, return nil and leave *valueP unchanged
+
+3. if it can't find the class by name, log message, return nil and 
+	leave *valueP unchanged
+
+4. do the fancy type conversions as necessary (Pretty much the current 
+	handling we have)
+
+5. THEN if width is not 0 call adaptorValueByConvertingAttributeValue: 
+	 on the new value and the if returned value is NSString or NSData 
+	 validate length with width and return a corresponding exception 
+         if it's longer than allowed.
+**/
+
 - (NSException *)validateValue: (id*)valueP
 {
   NSException *exception=nil;
 
   NSAssert(valueP, @"No value pointer");
 
-  if (*valueP == nil && [self allowsNull] == NO)
-    exception = [NSException validationExceptionWithFormat: @"attribute '%@' cannot be nil", [self name]];
-  else if (*valueP)
+  NSDebugMLog(@"In EOAttribute validateValue: value (class=%@) = %@ attribute = %@",
+              [*valueP class],*valueP,self);
+
+  // First check if value is nil or EONull
+  if (_isNilOrEONull(*valueP))
     {
-      //call self valueClassName
-      *valueP = [self adaptorValueByConvertingAttributeValue: *valueP];
-      //call attribute width
-      //end !
+      // Check if this is not allowed
+      if ([self allowsNull] == NO)
+        {
+          NSArray *pkAttributes = [[self entity] primaryKeyAttributes];
 
-      //TODO: revoir
-      {
-        //EOEntity *entity = [self entity];
-        //NSArray *pkAttributes = [entity primaryKeyAttributes];
-        //TODO wowhat
+          // "Primary key attributes are ignored when enforcing allowsNull 
+          // property for attributes.  The values could be handled later 
+          // by automatic PK-generation later
+          if ([pkAttributes indexOfObjectIdenticalTo: self] == NSNotFound)
+            {
+              exception = 
+                [NSException 
+                  validationExceptionWithFormat: 
+                    @"attribute '%@' of entity '%@' cannot be nil or EONull ", 
+                  [self name],[[self entity] name]];
+            };
+        }
+    }
+  else // There's a value.
+    {
+      NSString* valueClassName=[self valueClassName];
 
-        if (*valueP)
-          {
-	    Class valueClass = [self _valueClass];
+      // if there's no valueClassName, leave the value unchanged 
+      // and don't return an exception 
 
-            if ([*valueP isKindOfClass: valueClass] == NO)
-              {
-                if ([*valueP isKindOfClass: GDL2_NSStringClass])
-                  {
-                    if (valueClass == GDL2_NSNumberClass)
-                      {
-                        char valueTypeChar=[self _valueTypeChar];
-                        switch(valueTypeChar)
-                          {
-                          case 'i':
-                            *valueP = [NSNumber numberWithInt:
-                                                  [*valueP intValue]];
-                            break;
-                            case 'I':
-                              *valueP = [NSNumber numberWithUnsignedInt:
-                                                    [*valueP unsignedIntValue]];
+      if (valueClassName)
+        {
+          Class valueClass=[self _valueClass];
+
+          // There's a className but no class !
+          if (!valueClass)
+            {
+              //Log this problem, leave the value unchanged 
+              // and don't return an exception 
+              NSLog(@"No valueClass for valueClassName '%@' in attribute %@",
+                    valueClassName,self);
+            }
+          else
+            {
+              unsigned int width = 0;
+              IMP isKindOfClassIMP=[*valueP  methodForSelector:@selector(isKindOfClass:)];
+
+              // If the value has not the good class we'll try to convert it
+              if ((*isKindOfClassIMP)(*valueP,@selector(isKindOfClass:),
+                                      valueClass) == NO)
+                {
+                  // Is it a string ?
+                  if ((*isKindOfClassIMP)(*valueP,@selector(isKindOfClass:),
+                                          GDL2_NSStringClass))
+                    {
+                      if (valueClass == GDL2_NSNumberClass)
+                        {
+                          char valueTypeChar=[self _valueTypeChar];
+                          switch(valueTypeChar)
+                            {
+                            case 'i':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithInt:
+                                                     [*valueP intValue]];
+                              AUTORELEASE(*valueP);
                               break;
-                          case 'c':
-                            *valueP = [NSNumber numberWithChar:
-                                                  [*valueP intValue]];
-                            break;
-                          case 'C':
-                            *valueP = [NSNumber numberWithUnsignedChar:
-						[*valueP unsignedIntValue]];
-                            break;
-                          case 's':
-                            *valueP = [NSNumber numberWithShort:
-                                                  [*valueP shortValue]];
-                            break;
-                          case 'S':
-                            *valueP = [NSNumber numberWithUnsignedShort:
-                                                  [*valueP unsignedShortValue]];
-                            break;
-                          case 'l':
-                            *valueP = [NSNumber numberWithLong:
-                                                  [*valueP longValue]];
-                            break;
-                          case 'L':
-                            *valueP = [NSNumber numberWithUnsignedLong:
-                                                  [*valueP unsignedLongValue]];
-                            break;
-                          case 'u':
-                            *valueP = [NSNumber numberWithLongLong:
-                                                  [*valueP longLongValue]];
-                            break;
-                          case 'U':
-                            *valueP = [NSNumber numberWithUnsignedLongLong:
-                                                  [*valueP unsignedLongLongValue]];
-                            break;
-                          case 'f':
-                            *valueP = [NSNumber numberWithFloat:
-                                                  [*valueP floatValue]];
-                            break;
-                          default:
-                            *valueP = [NSNumber numberWithDouble:
-                                                  [*valueP doubleValue]];
-                            break;
-                          };
-                      }
-                    else if (valueClass == GDL2_NSDecimalNumberClass)
-                      *valueP = [NSDecimalNumber
-				  decimalNumberWithString: *valueP];
-                  
-                    else if (valueClass == GDL2_NSDataClass)
-                      *valueP = [*valueP
-				  dataUsingEncoding: NSASCIIStringEncoding
-				  allowLossyConversion: YES];
-                  
-                    else if (valueClass == GDL2_NSCalendarDateClass)
-                      *valueP = AUTORELEASE([(GDL2_alloc(NSCalendarDate))
-					      initWithString: *valueP]);
-                  }
-              }
-            else
-              {
-                if ([*valueP isKindOfClass: GDL2_NSStringClass])
-                  {
-		    unsigned width = [self width];
 
-                    if (width && [*valueP length] > width)
-                      {
-                        const char *buf;
-                      
-                        buf = [*valueP cString];
-                        *valueP = [NSString stringWithCString: buf
-					    length: width];
-                      }
-                  }
-                else if ([*valueP isKindOfClass: GDL2_NSNumberClass])
-                  {
-                    // TODO ??
-                  }
-              }
-          }
-      }
+                            case 'I':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithUnsignedInt:
+                                                    [*valueP unsignedIntValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            case 'c':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithChar:
+                                                    [*valueP intValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            case 'C':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithUnsignedChar:
+                                                    [*valueP unsignedIntValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            case 's':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithShort:
+                                                    [*valueP shortValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            case 'S':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithUnsignedShort:
+                                                    [*valueP unsignedShortValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            case 'l':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithLong:
+                                                    [*valueP longValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            case 'L':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithUnsignedLong:
+                                                    [*valueP unsignedLongValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            case 'u':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithLongLong:
+                                                    [*valueP longLongValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            case 'U':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithUnsignedLongLong:
+                                                    [*valueP unsignedLongLongValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            case 'f':
+                              *valueP = [GDL2_alloc(NSNumber) 
+                                                   initWithFloat:
+                                                    [*valueP floatValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+
+                            default:
+                              *valueP = [GDL2_alloc(NSNumber)
+                                                   initWithDouble:
+                                                    [*valueP doubleValue]];
+                              AUTORELEASE(*valueP);
+                              break;
+                            };
+                        }
+                      else if (valueClass == GDL2_NSDecimalNumberClass)
+                        {
+                          *valueP = [GDL2_alloc(NSDecimalNumber)
+                                               initWithString: *valueP];
+                          AUTORELEASE(*valueP);
+                        }
+                      else if (valueClass == GDL2_NSDataClass)
+                        {
+                          //TODO Verify here. 
+                          *valueP = [*valueP
+                                      dataUsingEncoding: 
+                                        [NSString defaultCStringEncoding]];
+                        }
+                      else if (valueClass == GDL2_NSCalendarDateClass)
+                        {
+                          *valueP = AUTORELEASE([(GDL2_alloc(NSCalendarDate))
+                                                  initWithString: *valueP]);
+                        }
+                    }
+                };
+
+              // Now, test width if any
+              width = [self width];
+
+              if (width>0)
+                {
+                  // First convert value to adaptor value
+                  id testValue = [self adaptorValueByConvertingAttributeValue: *valueP];
+
+                  if (testValue)
+                    {
+                      IMP testIsKindOfClassIMP=[testValue  methodForSelector:@selector(isKindOfClass:)];
+
+                      // We can test NSString and NSData type only
+                      if ((*testIsKindOfClassIMP)(testValue,@selector(isKindOfClass:),
+                                              GDL2_NSStringClass)
+                          || (*testIsKindOfClassIMP)(testValue,@selector(isKindOfClass:),
+                                                     GDL2_NSDataClass))
+                        {
+                          unsigned int testValueLength = [testValue length];
+                          if (testValueLength > width)
+                            {
+                              exception = [NSException validationExceptionWithFormat: 
+                                                         @"Value %@ for attribute '%@' is too large",
+                                                       testValue,[self name]];
+                            };
+                        };
+                    };
+                };
+            }
+        }
     }
 
   return exception;
