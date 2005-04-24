@@ -1110,7 +1110,7 @@ return nexexp
                 // valueFactoryMethod returns an autoreleased value
                 value = [(id)valueClass performSelector: _valueFactoryMethod
                            withObject: value];
-                if (value != value)
+                if (value != tmp)
                   {
                     RETAIN(value);
                     RELEASE(tmp);

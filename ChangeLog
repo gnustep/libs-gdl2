@@ -1,4 +1,9 @@
-2005-04-20  Manuel Guesdon  <mguesdon@orange-concept.com>
+2005-04-24  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOAccess/EOAttribute.m:
+		o fixed test error in -newValueForBytes:length:
+
+2005-04-24  Manuel Guesdon  <mguesdon@orange-concept.com>
 
 	* EOControl/EOPriv.h: added GDL2_allocWithZone()
 	* EOAccess/EOAttribute.m:
