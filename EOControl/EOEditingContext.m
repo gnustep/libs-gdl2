@@ -403,28 +403,31 @@ _mergeValueForKey(id obj, id value,
  */
 - (void) _mergeObject: (id)obj withChanges: (NSArray *)changes
 {
-  unsigned int i,n;
-  NSString *key;
-  NSArray *add, *del;
-  NSDictionary *change;
-  id val;
+  unsigned int n;
 
   n = [changes count];
   if (n>0)
     {
-      IMP oaiIMP=[del methodForSelector: @selector(objectAtIndex:)];
+      IMP oaiIMP=[changes methodForSelector: @selector(objectAtIndex:)];
+      unsigned int i;
 
       for(i = 0; i < n; i++)
         {
-          change = GDL2_ObjectAtIndexWithImp(changes,oaiIMP,i);
-          key = [change objectForKey: EOConstKey];
-          val = [change objectForKey: EOConstValue];
+          NSArray *add = nil;
+          NSArray *del = nil;
+
+          NSDictionary* change = GDL2_ObjectAtIndexWithImp(changes,oaiIMP,i);
+
+          NSString* key = [change objectForKey: EOConstKey];
+
+          id val = [change objectForKey: EOConstValue];
           if (val == nil)
             {
               add = [change objectForKey: EOConstAdd];
               del = [change objectForKey: EOConstDel];
               NSAssert(add!=nil && del!=nil,@"Invalid changes dictionary.");
             }
+
           _mergeValueForKey(obj, val, add, del, key);
         }
     };
@@ -805,6 +808,7 @@ _mergeValueForKey(id obj, id value,
         {
           gid = GDL2_ObjectAtIndexWithImp(array, oaiIMP, i);
           obj = NSMapGet(_objectsByGID, gid);
+          NSAssert1(obj,@"No object for gid %@", gid);
           GDL2_AddObjectWithImp(set, aoIMP, obj);
         }
     };

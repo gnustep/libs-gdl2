@@ -1,3 +1,10 @@
+2005-05-03  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOControl/EOEditingContext.m:
+		o fixes in _mergeObject:withChanges:
+		(IMP initialization, variables (re-)initialization)
+		o added NSAssert in -_mutableSetFromToManyArray:
+
 2005-04-24  Manuel Guesdon  <mguesdon@orange-concept.com>
 
 	* EOAccess/EOAttribute.m:
