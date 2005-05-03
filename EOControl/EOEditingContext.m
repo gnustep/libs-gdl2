@@ -787,6 +787,10 @@ _mergeValueForKey(id obj, id value,
   return ([chgs count] == 0) ? nil : chgs;
 }
 
+/*
+ * Filters the objects of array which are managed by the receiver
+ * into a mutable set.
+ */
 - (NSMutableSet *)_mutableSetFromToManyArray: (NSArray *)array
 {
   EOGlobalID *gid;
@@ -797,7 +801,7 @@ _mergeValueForKey(id obj, id value,
   n = [array count];
   set = [NSMutableSet setWithCapacity: n];
 
-  NSAssert(_objectsByGID, @"_objectsByGID does not exist!");
+  NSAssert(_globalIDsByObject, @"_globalIDsByObject does not exist!");
 
   if (n>0)
     {
@@ -806,10 +810,13 @@ _mergeValueForKey(id obj, id value,
 
       for (i=0; i<n; i++)
         {
-          gid = GDL2_ObjectAtIndexWithImp(array, oaiIMP, i);
-          obj = NSMapGet(_objectsByGID, gid);
-          NSAssert1(obj,@"No object for gid %@", gid);
-          GDL2_AddObjectWithImp(set, aoIMP, obj);
+          obj = GDL2_ObjectAtIndexWithImp(array, oaiIMP, i);
+          gid = NSMapGet(_globalIDsByObject, obj);
+	  
+	  if (gid)
+	    {
+	      GDL2_AddObjectWithImp(set, aoIMP, obj);
+	    }
         }
     };
   return set;

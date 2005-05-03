@@ -1,3 +1,10 @@
+2005-05-03  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOEditingContext.m (_mutableSetFromToManyArray:):
+	Add internal documentation.  Filter managed objects instead
+	of attempting to convert gids to objects.  Reported by Manuel
+	Guesdon.
+	
 2005-05-03  Manuel Guesdon  <mguesdon@orange-concept.com>
 
 	* EOControl/EOEditingContext.m:
