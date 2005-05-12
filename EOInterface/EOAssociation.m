@@ -29,6 +29,8 @@
 #include <Foundation/NSBundle.h>
 #include <Foundation/NSNotification.h>
 #include <Foundation/NSMapTable.h>
+#include <Foundation/NSCoder.h>
+#include <Foundation/NSException.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -38,30 +40,6 @@
 #include "EODisplayGroup.h"
 
 #include "EOAssociation.h"
-
-/*++ TEMPORARY LOCAL DEFINITION ++*/
-static inline NSArray *
-GSObjCAllSubclassesOfClass(Class baseClass)
-{
-  if (!baseClass)
-    return nil;
-  
-  {
-    Class aClass;
-    NSMutableArray *result = [NSMutableArray array];
-    #ifdef GNU_RUNTIME
-    for (aClass = baseClass->subclass_list;
-	 aClass;
-	 aClass=aClass->sibling_class)
-      {
-	[result addObject:aClass];
-	[result addObjectsFromArray: GSObjCAllSubclassesOfClass(aClass)];
-      }
-    #endif 
-    return AUTORELEASE([result copy]);
-  }
-}
-/*++ TEMPORARY LOCAL DEFINITION ++*/
 
 @implementation EOAssociation
 static NSArray *_emptyArray = nil;
@@ -141,13 +119,13 @@ static NSMutableArray *_associationClasses = nil;
 	= RETAIN(GSObjCAllSubclassesOfClass([EOAssociation class]));
     }
 
-  [_associationClasses count];
+  count = [_associationClasses count];
   arr = [NSMutableArray arrayWithCapacity: count];
   
   for (i = 0; i < count; i++)
     {
       cls = [_associationClasses objectAtIndex: i];
-      if ([cls isUsableWithObject: cls])
+      if ([cls isUsableWithObject: object])
 	{
 	  [arr addObject: cls];
 	}
@@ -177,16 +155,21 @@ static NSMutableArray *_associationClasses = nil;
 
 - (id)init
 {
-  return [self initWithObject: nil];
+  self = [self initWithObject: nil];
+  return self;
 }
 
 - (id)initWithCoder: (NSCoder *)coder
 {
-  return [self init];
+  _object = [coder decodeObject];
+  self = [self initWithObject:_object];
+  
+  return self;
 }
 
 - (void) encodeWithCoder: (NSCoder*)coder
 {
+  [coder encodeObject:_object];
 }
 
 - (void)dealloc
@@ -204,6 +187,7 @@ static NSMutableArray *_associationClasses = nil;
   NSMapInsert(_displayGroupMap, aspectName, displayGroup);
   NSMapInsert(_displayGroupKeyMap, aspectName, key);
 }
+
 - (void)establishConnection
 {
   if (_isConnected == NO)
@@ -211,10 +195,11 @@ static NSMutableArray *_associationClasses = nil;
       NSMapEnumerator displayGroupEnum;
       EODisplayGroup *displayGroup;
       Class EOObserverCenterClass = [EOObserverCenter class];
+      void *unusedKey;
 
       displayGroupEnum = NSEnumerateMapTable(_displayGroupMap);
       while (NSNextMapEnumeratorPair(&displayGroupEnum,
-				     0, (void*)&displayGroup))
+				     &unusedKey, (void*)&displayGroup))
 	{
 	  [EOObserverCenterClass addObserver: self forObject: displayGroup];
 	}
@@ -224,17 +209,20 @@ static NSMutableArray *_associationClasses = nil;
       //TODO: cause _object to retain us
     }
 }
+
 - (void)breakConnection
 {
   if (_isConnected)
     {
       NSMapEnumerator displayGroupEnum;
       EODisplayGroup *displayGroup;
+      void *unusedKey;
+
       Class EOObserverCenterClass = [EOObserverCenter class];
 
       displayGroupEnum = NSEnumerateMapTable(_displayGroupMap);
       while (NSNextMapEnumeratorPair(&displayGroupEnum,
-				     0, (void *)&displayGroup))
+				     &unusedKey, (void *)&displayGroup))
 	{
 	  [EOObserverCenterClass removeObserver: self forObject: displayGroup];
 	}
@@ -281,23 +269,76 @@ static NSMutableArray *_associationClasses = nil;
 
 - (id)valueForAspect: (NSString *)aspectName
 {
-  return nil;
+  EODisplayGroup *dg = [self displayGroupForAspect: aspectName];
+  NSString *key;
+  
+  if (dg == nil)
+    return nil;
+  
+  key = [self displayGroupKeyForAspect: aspectName];
+  
+  if (key == nil)
+    return nil;
+   
+  return [dg selectedObjectValueForKey: key];
 }
 - (BOOL)setValue: (id)value forAspect: (NSString *)aspectName
 {
-  return NO;
+  EODisplayGroup *dg = [self displayGroupForAspect: aspectName];
+  NSString *key;
+  
+  if (dg == nil)
+    return NO;
+  
+  key = [self displayGroupKeyForAspect: aspectName];
+  
+  if (key == nil)
+    return NO;
+  
+  return [dg setSelectedObjectValue: value forKey: key];
 }
 
 - (id)valueForAspect: (NSString *)aspectName 
 	     atIndex: (unsigned int)index
 {
-  return nil;
+  EODisplayGroup *dg = [self displayGroupForAspect: aspectName];
+  NSString *key;
+
+  if (dg == nil)
+    return nil;
+  
+  key = [self displayGroupKeyForAspect: aspectName];
+  if (key == nil)
+    return NO;
+  
+  return [dg valueForObjectAtIndex:index 
+  			       key: key];
+  
 }
+
 - (BOOL)setValue: (id)value
        forAspect: (NSString *)aspectName
 	 atIndex: (unsigned int)index
 {
-  return NO;
+  EODisplayGroup *dg = [self displayGroupForAspect: aspectName];
+  NSString *key;
+  BOOL flag;
+  
+  if (dg == nil)
+    {
+      return NO;
+    }
+  
+  key = [self displayGroupKeyForAspect: aspectName];
+  
+  if (key == nil)
+    {
+      return NO;
+    }
+  
+  flag = [dg setValue: value forObjectAtIndex: index key: key];
+
+  return flag;
 }
 
 - (BOOL)shouldEndEditingForAspect: (NSString *)aspectName 

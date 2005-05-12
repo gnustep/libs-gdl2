@@ -24,9 +24,11 @@
 */
 
 #ifdef GNUSTEP
-#include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>
+#include <Foundation/NSMapTable.h>
 #include <Foundation/NSNotification.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSValue.h>
 
 #include <AppKit/NSTableView.h>
 #include <AppKit/NSTableColumn.h>
@@ -37,8 +39,10 @@
 #endif
 
 #include "EOColumnAssociation.h"
+#include "EODisplayGroup.h"
 
 @implementation EOTableViewAssociation
+static NSMapTable *tvAssociationMap; 
 + (NSArray *)aspects
 {
   static NSArray *_aspects = nil;
@@ -88,18 +92,77 @@
 
 - (void)establishConnection
 {
+  [super establishConnection];
+  _enabledAspectBound = [self displayGroupForAspect:@"enabled"] != nil;
+  _italicAspectBound = [self displayGroupForAspect:@"italic"] != nil;
+  _colorAspectBound = [self displayGroupForAspect:@"color"] != nil;
+  _boldAspectBound = [self displayGroupForAspect:@"bold"] != nil;
 }
+
 - (void)breakConnection
 {
+  [super breakConnection];
+  _enabledAspectBound = NO;
+  _italicAspectBound = NO;
+  _colorAspectBound = NO;
+  _boldAspectBound = NO;
 }
 
 - (void)subjectChanged
 {
+  
+  EODisplayGroup *dg = [self displayGroupForAspect:@"source"];
+  
+  /* this must be before selection changes in the case where the selected row 
+     is not yet inserted */
+  if ([dg contentsChanged])
+    [[self object] reloadData];
+  
+  if ([dg selectionChanged])
+    {
+      NSArray *selectionIndexes = RETAIN([dg selectionIndexes]);
+      unsigned int i, count, newSel;
+      count = [selectionIndexes count];
+      for (i = 0; i < count; i++)                                                         
+        {
+	  int rowIndex = [[selectionIndexes objectAtIndex:i] intValue];
+	  [[self object] selectRow: rowIndex
+	      byExtendingSelection: (i != 0)]; /* don't extend the first selection */
+	  [[self object] scrollRowToVisible:rowIndex];
+	}
+    }
+  
 }
 
 + (void)bindToTableView: (NSTableView *)tableView
 	   displayGroup: (EODisplayGroup *)displayGroup
 {
+  EOTableViewAssociation *assoc;
+
+  if (!tvAssociationMap)
+    {
+      tvAssociationMap = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks,
+                                   NSNonRetainedObjectMapValueCallBacks,
+                                   0, [self zone]);
+      assoc = [[self allocWithZone:NSDefaultMallocZone()] initWithObject:tableView];
+      NSMapInsert(tvAssociationMap, (void *)tableView, (void *)assoc);
+      [assoc bindAspect:@"source" displayGroup:displayGroup key:@""];
+      [tableView setDataSource:assoc];
+      [tableView setDelegate:assoc];
+      [assoc establishConnection];
+      return;
+    }
+  
+  assoc = (EOTableViewAssociation *)NSMapGet(tvAssociationMap, tableView);
+  if (!assoc)
+    {
+      assoc = [[self allocWithZone:NSDefaultMallocZone()] initWithObject:tableView];
+      [assoc bindAspect:@"source" displayGroup:displayGroup key:@""];
+      [tableView setDataSource:assoc];
+      [tableView setDelegate:assoc];
+      [assoc establishConnection];
+      NSMapInsert(tvAssociationMap, tableView, assoc);
+    } 
 }
 
 - (BOOL)sortsByColumnOrder
@@ -113,12 +176,21 @@
 
 - (EOColumnAssociation *)editingAssociation
 {
-  return nil;
+  int editedColumn = [[self object] editedColumn];
+
+  if (editedColumn == -1)
+    {
+      return nil;
+    }
+  else
+    {
+      return [[[[self object] tableColumns] objectAtIndex:editedColumn] identifier];
+    }
 }
 
 - (int)numberOfRowsInTableView: (NSTableView *)tableView
 {
-  return 0;
+  return [[[self displayGroupForAspect:@"source"] displayedObjects] count];
 }
 
 - (void)tableView: (NSTableView *)tableView
@@ -126,20 +198,33 @@
    forTableColumn: (NSTableColumn *)tableColumn
 	      row: (int)row
 {
+  [(EOColumnAssociation *)[tableColumn identifier] 
+  			    tableView: tableView
+  		       setObjectValue: object
+		       forTableColumn: tableColumn
+			          row: row];
 }
 
 - (id)tableView: (NSTableView *)tableView
 objectValueForTableColumn: (NSTableColumn *)tableColumn
 	    row: (int)row
 {
-  return nil;
+  id object;
+  object = [[tableColumn identifier] tableView: tableView 
+  		   objectValueForTableColumn: tableColumn
+			                 row: row];
+  return object;
 }
 
 - (BOOL)tableView: (NSTableView *)tableView
 shouldEditTableColumn: (NSTableColumn *)tableColumn
 	      row: (int)row
 {
-  return NO;
+  if (_enabledAspectBound)
+    if ([[self valueForAspect: @"enabled" atIndex:row] boolValue] == NO) 
+      return NO;
+
+  return [[tableColumn identifier] tableView:tableView shouldEditTableColumn:tableColumn row:row];
 }
 
 - (void)tableView: (NSTableView *)tableView
@@ -147,29 +232,67 @@ shouldEditTableColumn: (NSTableColumn *)tableColumn
    forTableColumn: (NSTableColumn *)tableColumn
 	      row: (int)row
 {
+  if (_enabledAspectBound)
+    [cell setEnabled: [[self valueForAspect:@"enabled" atIndex: row] boolValue]];
+  /* maybe these should setup an attributed string */
+  if (_italicAspectBound)
+    ; /* TODO */
+  if (_boldAspectBound)
+    ; /* TODO */
+  if (_colorAspectBound)
+    {
+      if ([cell respondsToSelector:@selector(setTextColor:)])
+        [cell setTextColor: [self valueForAspect:@"color" atIndex:row]];
+    }
 }
 
 - (void)tableViewSelectionDidChange: (NSNotification *)notification
 {
+  EODisplayGroup *dg = [self displayGroupForAspect:@"source"];
+  NSMutableArray *selectionIndices = [[NSMutableArray alloc] init];
+  NSTableView *tv = [notification object];
+  NSEnumerator *selectionEnum = [tv selectedRowEnumerator];
+  id index;
+  
+  while ((index = [selectionEnum nextObject]))
+    {
+      [selectionIndices addObject:index];
+    }
+ 
+  [dg setSelectionIndexes: AUTORELEASE(selectionIndices)];
 }
 
 - (BOOL)control: (NSControl *)control
 didFailToFormatString: (NSString *)string
 errorDescription: (NSString *)description
 {
-  return NO;
+  return [[self editingAssociation] 
+  			control: control 
+	  didFailToFormatString: string
+	       errorDescription: description];
 }
 
 - (BOOL)control: (NSControl *)control
   isValidObject: (id)object
 {
-  return NO;
+  return [[self editingAssociation] control: control
+  			      isValidObject: object];
 }
 
 - (BOOL)control: (NSControl *)control
 textShouldBeginEditing: (NSText *)fieldEditor
 {
-  return NO;
+  return [[self editingAssociation] control: control
+  		     textShouldBeginEditing: fieldEditor];
+}
+- (void)controlTextDidEndEditing:(NSNotification *)aNotification
+{
+    [[self displayGroupForAspect:@"source"] endEditing];
 }
 
+- (void) dealloc
+{
+  NSMapRemove(tvAssociationMap, self);
+  [super dealloc];
+}
 @end

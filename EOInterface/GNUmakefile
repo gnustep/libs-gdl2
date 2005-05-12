@@ -27,53 +27,55 @@ include $(GNUSTEP_MAKEFILES)/common.make
 include ../Version
 
 # The library to be compiled
-LIBRARY_NAME=EOInterface
+NATIVE_LIBRARY_NAME=EOInterface
 
 # The C source files to be compiled
 EOInterface_C_FILES = 
 
 # The Objective-C source files to be compiled
-EOInterface_OBJC_FILES = \
-EOActionAssociation.m \
-EOActionCellAssociation.m \
-EOActionInsertionAssociation.m \
-EOAssociation.m \
-EOColumnAssociation.m \
-EOComboBoxAssociation.m \
-EOControlAssociation.m \
-EODetailSelectionAssociation.m \
-EODisplayGroup.m \
-EOGenericControlAssociation.m \
-EOMasterCopyAssociation.m \
-EOMasterDetailAssociation.m \
-EOMasterPeerAssociation.m \
-EOMatrixAssociation.m \
-EOPickTextAssociation.m \
-EOPopUpAssociation.m \
-EORadioMatrixAssociation.m \
-EORecursiveBrowserAssociation.m \
-EOTableViewAssociation.m \
-EOTextAssociation.m \
-NSImage+Additions.m
+EOInterface_OBJC_FILES =	\
+EOActionAssociation.m		\
+EOActionCellAssociation.m	\
+EOActionInsertionAssociation.m	\
+EOAssociation.m			\
+EOColumnAssociation.m		\
+EOComboBoxAssociation.m		\
+EOControlAssociation.m		\
+EODetailSelectionAssociation.m	\
+EODisplayGroup.m		\
+EOGenericControlAssociation.m	\
+EOMasterCopyAssociation.m	\
+EOMasterDetailAssociation.m	\
+EOMasterPeerAssociation.m	\
+EOMatrixAssociation.m		\
+EOPickTextAssociation.m		\
+EOPopUpAssociation.m		\
+EORadioMatrixAssociation.m	\
+EORecursiveBrowserAssociation.m	\
+EOTableViewAssociation.m	\
+EOTextAssociation.m		\
+NSImage+Additions.m		\
+EOAspectConnector.m
 
-EOInterface_HEADER_FILES = \
-EOActionAssociation.h \
-EOActionInsertionAssociation.h \
-EOAssociation.h \
-EOColumnAssociation.h \
-EOComboBoxAssociation.h \
-EOControlAssociation.h \
-EODetailSelectionAssociation.h \
-EODisplayGroup.h \
-EOInterface.h \
-EOMasterCopyAssociation.h \
-EOMasterDetailAssociation.h \
-EOMatrixAssociation.h \
-EOPickTextAssociation.h \
-EOPopUpAssociation.h \
-EORadioMatrixAssociation.h \
-EORecursiveBrowserAssociation.h \
-EOTextAssociation.h
+EOInterface_HEADER_FILES =	\
+EOActionAssociation.h		\
+EOActionInsertionAssociation.h	\
+EOAssociation.h			\
+EOColumnAssociation.h		\
+EOComboBoxAssociation.h		\
+EOControlAssociation.h		\
+EODetailSelectionAssociation.h	\
+EODisplayGroup.h		\
+EOInterface.h			\
+EOMasterCopyAssociation.h	\
+EOMasterDetailAssociation.h	\
+EOMatrixAssociation.h		\
+EOPickTextAssociation.h		\
+EOPopUpAssociation.h		\
+EORadioMatrixAssociation.h	\
+EORecursiveBrowserAssociation.h	\
+EOTextAssociation.h		\
+EOAspectConnector.h		
 
 gdl2_AUTOGSDOC_HEADERS = $(EOInterface_HEADER_FILES)
 gdl2_AUTOGSDOC_SOURCE = $(EOInterface_OBJC_FILES)
@@ -98,7 +100,7 @@ gdl2_AGSDOC_FLAGS = \
 
 -include GNUmakefile.local
 
-include $(GNUSTEP_MAKEFILES)/library.make
+include $(GNUSTEP_MAKEFILES)/native-library.make
 # Only build the doc if doc=yes was passed on the command line
 ifeq ($(doc),yes)
 include $(GNUSTEP_MAKEFILES)/documentation.make

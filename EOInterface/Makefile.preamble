@@ -57,7 +57,7 @@ ADDITIONAL_INSTALL_DIRS =
 # all the libraries the target library depends upon.
 
 ifneq ($(FOUNDATION_LIBRARY_NAME),)
-LIBRARIES_DEPEND_UPON = -l$(FOUNDATION_LIBRARY_NAME)
+LIBRARIES_DEPEND_UPON = $(FND_LIBS) $(GUI_LIBS)
 endif
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd

@@ -27,6 +27,7 @@
 #include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>
 
+#include <AppKit/NSButtonCell.h>
 #include <AppKit/NSMatrix.h>
 #else
 #include <Foundation/Foundation.h>
@@ -35,6 +36,8 @@
 
 #include "EOControlAssociation.h"
 #include "EOMatrixAssociation.h"
+#include "EODisplayGroup.h"
+#include "SubclassFlags.h"
 
 @implementation EOMatrixAssociation
 
@@ -103,13 +106,153 @@
 
 - (void)establishConnection
 {
+
+  EODisplayGroup *dg;
+  if ((dg = [self displayGroupForAspect:@"image"]))
+    { 
+      subclassFlags |= ImageAspectMask;
+      NSArray *dispObj = [dg displayedObjects];
+      int c = [dispObj count];
+      int rows = [_object numberOfRows];
+      int i;
+
+      if (rows < c)
+        {
+          [_object renewRows:[[dg displayedObjects] count] columns:1];
+        }
+      else if (rows > c)
+        {
+          while (rows != c)
+            {
+              [_object removeRow:0];
+              rows--;
+            }
+        }
+      [_object sizeToFit];
+      for (i = 0; i < c; i++)
+        {
+          NSCell *cell = [_object cellAtRow:i column:0]; // column 0???  
+          [cell setImage: [self valueForAspect:@"image" atIndex:i]];
+        }
+    }
+
+  if ((dg = [self displayGroupForAspect:@"title"]))
+    {
+      subclassFlags |= TitleAspectMask;
+      NSArray *dispObj = [dg displayedObjects];
+      int c = [dispObj count];
+      int rows = [_object numberOfRows];
+      int i;
+
+      if (rows < c)
+        {
+          [_object renewRows:[[dg displayedObjects] count] columns:1];
+        }
+      else if (rows > c)
+        {
+          while (rows != c)
+            {
+              [_object removeRow:0];
+              rows--;
+            }
+        }
+      for (i = 0; i < c; i++)
+        {
+          NSCell *cell = [_object cellAtRow:i column:0]; // column 0???  
+          [cell setTitle: [self valueForAspect:@"title" atIndex:i]];
+        }
+    }
+  [_object sizeToFit];
+  [_object sizeToCells];
+  [_object setNeedsDisplay:YES];
+  if ([self displayGroupForAspect:@"enabled"])
+    {
+      subclassFlags |= EnabledAspectMask;
+    }
+  [super establishConnection];
+  [self subjectChanged]; 
 }
 - (void)breakConnection
 {
+  subclassFlags = 0;
+  [super breakConnection];
 }
 
 - (void)subjectChanged
 {
+  EODisplayGroup *dg;
+  if (subclassFlags & EnabledAspectMask)
+    {
+      dg = [self displayGroupForAspect:@"enabled"];
+      if ([dg selectionChanged] || [dg contentsChanged])
+        [_object setEnabled: [[self valueForAspect:@"enabled"] boolValue]];
+    }
+
+  if (subclassFlags & TitleAspectMask)
+    {
+      dg = [self displayGroupForAspect:@"title"];
+      if ([dg selectionChanged] || [dg contentsChanged])
+        {
+	  NSArray *dispObj = [dg displayedObjects];
+	  int c = [dispObj count];
+	  int rows = [_object numberOfRows];
+	  int i;
+
+	  if (rows < c)
+	    { 
+	      [_object renewRows:[[dg displayedObjects] count] columns:1];
+	    }
+	  else if (rows > c)
+	    {
+	      while (rows != c)
+	        {
+	          [_object removeRow:0];
+		  rows--;
+		}
+	    }
+	  for (i = 0; i < c; i++)
+	    {
+	      NSCell *cell = [_object cellAtRow:i column:0]; // column 0???  
+	      [cell setTitle: [self valueForAspect:@"title" atIndex:i]];
+	    }
+          [_object sizeToFit];
+	  [_object sizeToCells];
+	  [_object setNeedsDisplay:YES];
+	}
+    }
+
+  if (subclassFlags & ImageAspectMask)
+    {
+      dg = [self displayGroupForAspect:@"image"];
+      if ([dg selectionChanged] || [dg contentsChanged])
+        {
+          NSArray *dispObj = [dg displayedObjects];
+          int c = [dispObj count];
+          int rows = [_object numberOfRows];
+	  int i;
+
+          if (rows < c)
+            { 
+              [_object renewRows:[[dg displayedObjects] count] columns:1];
+	    } 
+          else if (rows > c)
+            {
+              while (rows != c)
+                {
+                  [_object removeRow:0];
+                  rows--;
+                }
+            }
+	  for (i = 0; i < c; i++)
+            {
+              NSCell *cell = [_object cellAtRow:i column:0]; // column 0???  
+              [cell setImage: [self valueForAspect:@"image" atIndex:i]];
+	    }
+          [_object sizeToFit];
+	  [_object sizeToCells];
+	  [_object setNeedsDisplay:YES];
+        }
+    }
 }
 
 @end

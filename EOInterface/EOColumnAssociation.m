@@ -27,6 +27,7 @@
 #include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>
 
+#include <AppKit/NSCell.h>
 #include <AppKit/NSTableView.h>
 #include <AppKit/NSTableColumn.h>
 #include <AppKit/NSText.h>
@@ -37,7 +38,7 @@
 
 #include "EODisplayGroup.h"
 #include "EOColumnAssociation.h"
-
+#include "SubclassFlags.h"
 
 @implementation EOColumnAssociation
 
@@ -71,7 +72,7 @@
   static NSArray *_keys = nil;
   if (_keys == nil)
     {
-      _keys = [NSArray new];
+      _keys = [[NSArray alloc] initWithObject: @"identifier"];
     }
   return _keys;
 }
@@ -101,23 +102,51 @@
 
 - (void)establishConnection
 {
+  EODisplayGroup *dg = [self displayGroupForAspect:@"value"];
+  [super establishConnection];
+  if (dg) 
+    [EOTableViewAssociation bindToTableView: [[self object] tableView]
+  				displayGroup: dg ];
+  if ([self displayGroupForAspect:@"value"] != nil)
+    subclassFlags |= ValueAspectMask;
+  [[self object] setIdentifier: self];
+  _enabledAspectBound = [self displayGroupForAspect:@"enabled"] != nil;
 }
+
 - (void)breakConnection
 {
+  [super breakConnection];
+  _enabledAspectBound = NO;
 }
 
 - (void)subjectChanged
 {
 }
+
 - (BOOL)endEditing
 {
-  return NO;
+  BOOL flag = YES;
+
+  if (subclassFlags & ValueAspectMask)
+    {
+      NSTableView *tv = [[self object] tableView];
+      int row = tv ? [tv editedRow] : -1;
+      
+      if (row != -1)
+        {
+	  [[[self object] tableView] validateEditing];
+	  [[self displayGroupForAspect:@"value"] associationDidEndEditing:self];
+
+	} 
+    }
+  return flag;
 }
 
 - (void)setSortingSelector: (SEL)selector
 {
   _sortingSelector = selector;
 }
+
 - (SEL)sortingSelector
 {
   return _sortingSelector;
@@ -129,20 +158,24 @@
    forTableColumn: (NSTableColumn *)tableColumn
 	      row: (int)row
 {
+  [self setValue:object forAspect:@"value" atIndex:row];
 }
 
 - (id)tableView: (NSTableView *)tableView
 objectValueForTableColumn: (NSTableColumn *)tableColumn
 	    row: (int)row
 {
-  return nil;
+  return [self valueForAspect:@"value" atIndex:row];
 }
 
 - (BOOL)tableView: (NSTableView *)tableView
 shouldEditTableColumn: (NSTableColumn *)tableColumn
 	      row: (int)row
 {
-  return NO;
+  if (_enabledAspectBound)
+    return [[self valueForAspect:@"enabled"] boolValue];
+  
+  return YES;
 }
 
 - (void)tableView: (NSTableView *)tableView
@@ -150,25 +183,41 @@ shouldEditTableColumn: (NSTableColumn *)tableColumn
    forTableColumn: (NSTableColumn *)tableColumn
 	      row: (int)row
 {
+  if (_enabledAspectBound)
+    [cell setEnabled:[[self valueForAspect:@"value" atIndex:row] boolValue]];
 }
 
 - (BOOL)control: (NSControl *)control
 didFailToFormatString: (NSString *)string
 errorDescription: (NSString *)description
 {
-  return NO;
+  return [self shouldEndEditingForAspect: @"value" 
+  			    invalidInput: string
+			errorDescription: description];;
 }
 
 - (BOOL)control: (NSControl *)control
   isValidObject: (id)object
 {
-  return NO;
+  BOOL flag;
+  /* TODO selected != editing figure this out */
+  flag = [self setValue:object forAspect:@"value"];
+  
+  if (flag)
+    [[self displayGroupForAspect:@"value"] associationDidEndEditing:self];
+    
+  return flag;
 }
 
 - (BOOL)control: (NSControl *)control
 textShouldBeginEditing: (NSText *)fieldEditor
 {
+  BOOL flag = [[self object] isEditable];
+  if (flag)
+    {
+      [[self displayGroupForAspect:@"value"] associationDidBeginEditing:self];
+      return YES;
+    }
   return NO;
 }
-
 @end

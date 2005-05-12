@@ -35,7 +35,9 @@
 #include <AppKit/AppKit.h>
 #endif
 
+#include "EODisplayGroup.h"
 #include "EOTextAssociation.h"
+#include "SubclassFlags.h"
 
 @implementation EOTextAssociation
 
@@ -74,6 +76,7 @@
     }
   return _keys;
 }
+
 + (BOOL)isUsableWithObject: (id)object
 {
   /* NB: NSCStringText is obsolete.  So unless someone asks for it,
@@ -89,22 +92,94 @@
 
 - (void)establishConnection
 {
+  [super establishConnection];
+  if ([self displayGroupForAspect:@"value"])
+    {
+      subclassFlags |= ValueAspectMask;
+      if (subclassFlags & ValueAspectMask)
+	{
+	  id value = [self valueForAspect:@"value"];
+	  if ([value isKindOfClass: [NSString class]])
+	    {
+	      [_object setString:value];
+	    }
+	  else if ([value isKindOfClass: [NSData class]])
+	    {
+	      int oldLength = [[_object string] length];
+	      [_object replaceCharactersInRange:NSMakeRange(0,oldLength)
+					withRTF: value];
+	    }
+	}
+    }
+  if ([self displayGroupForAspect:@"editable"])
+    {
+      subclassFlags |= EditableAspectMask;
+      [_object setEditable: [[self valueForAspect:@"editable"] boolValue]];
+    }
+  [_object setDelegate:self]; 
 }
+
 - (void)breakConnection
 {
+  subclassFlags = 0;
+  [super breakConnection];
 }
 
 - (void)subjectChanged
 {
+  if (subclassFlags & ValueAspectMask)
+    {
+      id value = [self valueForAspect:@"value"];
+      if ([value isKindOfClass: [NSString class]])
+        {
+          [_object setString:value];
+	}
+      else if ([value isKindOfClass: [NSData class]])
+        {
+	  int oldLength = [[_object string] length];
+	  [_object replaceCharactersInRange:NSMakeRange(0,oldLength)
+	  		withRTF: value];
+	}
+    }
+  if (subclassFlags & EditableAspectMask)
+    {
+      [_object setEditable: [[self valueForAspect:@"editable"] boolValue]];
+    }
 }
 - (BOOL)endEditing
 {
-  return NO;
+  BOOL flag = NO;
+  
+  if (subclassFlags & ValueAspectMask)
+    {
+      BOOL isRichText = [_object isRichText];
+      id value;
+      if (isRichText)
+        {
+          value = [_object RTFFromRange:NSMakeRange(0,[[_object string] length])];
+	}
+      else
+        {
+	  value = [[_object string] copy];
+	}
+      flag = [self setValue: value forAspect:@"value"];
+      if (flag)
+        {
+	  [[self displayGroupForAspect:@"value"] associationDidEndEditing: self];       }
+    }
+  /* dunno if this is neccesary */
+  if (flag && (subclassFlags & EditableAspectMask))
+    {
+      [[self displayGroupForAspect:@"editable"] associationDidEndEditing:self];
+    }
+  return flag;
 }
 
 - (BOOL)control: (NSControl *)control isValidObject: (id)object
 {
-  return NO;
+  /* FIXME */
+  NSLog(@"FIXME %@",NSStringFromSelector(_cmd));
+  return YES;
 }
 
 - (void)control: (NSControl *)control
@@ -115,11 +190,20 @@ errorDescription: (NSString *)description
 
 - (BOOL)textShouldBeginEditing: (NSText *) text
 {
-  return NO;
+  EODisplayGroup *dg = [self displayGroupForAspect:@"value"];
+  BOOL flag = [dg endEditing];
+  if (flag == YES)
+    {
+      [dg associationDidBeginEditing:self];
+    }
+  return flag;
 }
+
 - (BOOL)textShouldEndEditing: (NSText *)text
 {
-  return NO;
+  [self endEditing];
+  [[self displayGroupForAspect:@"value"] associationDidEndEditing:self];
+  return YES;
 }
 
 @end

@@ -1,3 +1,103 @@
+2005-05-12  Matt Rice  <ratmice@yahoo.com>
+
+	* ChangeLog: Fix previous ChangeLog entry.
+	* EOInterface/EOActionAssociation.m: Implemented aspects enabled and
+	action.
+	(-establishConnection): Implement
+	(-breakConnection, -subjectChanged, -action): Ditto.
+	* EOInterface/EOAssociation.m (-associationClassesForObject:): Fixed
+	argument passed to -isUsableWithObject:. Assign count 
+	(-init): Assign self.
+	(-establishConnection:): Add unused local variable to pass to
+	NSNextMapEnumeratorPair instead of 0.
+	(-breakConnection:): Ditto.
+	(-initWithCoder:, -encodeWithCoder:): Initial implementation of
+	methods.
+	(-valueForAspect:,-setValue:forAspect:,-valueForAspect:atIndex:): Ditto.
+	(-setValueForAspect:atIndex:): Ditto. 
+	* EOInterface/SubclassFlags.h: New file.
+	* EOInterface/EOAspectConnector.h/m: New file and implementation.
+	* EOInterface/EOColumnAssociation.m: Implemented aspects value and
+	enabled
+	(-objectKeysTaken): Take identifier key.
+	(-establishConnection, -breakConnection, -endEditing): Implement
+	methods.
+	(-tableView:setObjectValueForTableColumn:row:): Ditto.
+	(-tableView:objectValueForTableColumn:row:): Ditto. 
+	(-tableView:willDisplayCell:forTableColumn:row:): Ditto. 
+	(-control:didFailToFormatString:errorDescription:): Ditto.
+	(-control:textShouldBeginEditing:): Ditto.
+	* EOInterface/EOControlAssociation.m: (-control): Ditto
+	(-editingAssociation, -establishConnection, -breakConnection): Ditto.
+	* EOInterface/EOGenericControlAssociation.m: Implemented aspects value
+	and enabled.
+	(+objectKeysTaken): add target key.
+	(-establishConnection: -breakConnection:, -subjectChanged:): Ditto.
+	(-_action:, -endEditing, -control:textShouldBeginEditing:): Ditto.
+	* EOInterface/EOMatrixAssociation.m: Implemented aspects image, title,
+	and enabled.
+	(-establishConnection, -breakConnection, -subjectChanged): Ditto.
+	* EOInterface/EOPopUpAssociation.m: Implemented aspects titles,
+	selectedTitle, selectedTag, selectedObject, enabled.
+	(-initWithObject:, -_action:): Implemented method.
+	(-establishConnection:, -breakConnection, -subjectChanged): Ditto.
+	* EOInterface/EORadioMatrixAssociation.m: Implemented aspects
+	selectedTag, selectedTitle, enabled.
+	(NSCell -_selectCellWithTitle:): Private category.
+	(-initWithObject:, -_action:): Implemented method.
+	(-establishConnection:, -breakConnection, -subjectChanged): Ditto.
+	* EOInterface/EOTableViewAssociation.m: Implemented aspects enabled,
+	tableView.
+	(-establishConnection, -breakConnection, subjectChanged): Implement
+	method. 
+	(-bindToTableView:displayGroup:, -editingAssociation): Ditto.
+	(-numberOfRowsInTableView:):
+	(-tableView:setObjectValue:forTableColumn:row:): Ditto.
+	(-tableView:objectValueForTableColumn:row:): Ditto.
+	(-tableView:shouldEditTableColumn:row:): Ditto.
+	(-tableView:willDisplayCell:forTableColumn:row:): Ditto.
+	(-tableView:selectionDidChange:): Ditto.
+	(-control:didFailToFormatString:errorDescription:): Ditto.
+	(-control:isValidObject:, -control:textShouldBeginEditing:): Ditto.
+	(-dealloc): Ditto.
+	* EOInterface/EOTextAssociation.m: Implemented aspect value, enabled. 
+	(-establishConnection): Implemented method.
+	(-breakConnection, -subjectChanged, -endEditing): Ditto.
+	(-control:isValidObject:,textShouldBeginEditing:): Ditto.
+	(-textShouldEndEditing:): Ditto.
+	* EOInterface/GNUmakefile: Make EOInterface a native-library, whitespace
+	changes.
+	* EOInterface/Makefile.preamble: Change linker flag to use FND_LIBS
+	and GUI_LIBS variables.
+	* EOInterface/EODisplayGroup.h: Comment on whether ivars are retained.
+	* EOInterface/EODisplayGroup.m:
+	(DG_SHOULD_CHANGE_SELECTION_TO_IDX): New macros.
+	(DG_DISPLAY_ARRAY_FOR_OBJECTS, DG_SHOULD_DISPLAY_ALERT): Ditto.
+	(DG_DID_FETCH_OBJECTS, DG_CREATE_OBJECT_FAILED): Ditto.
+	(DG_SHOULD_INSERT_OBJECT, DG_DID_INSERT_OBJECT): Ditto.
+	(DG_DID_CHANGE_SELECTION): Ditto.
+	(NSArray -indexesForObjectsIdenticalTo:): Implement category method.
+	(_presentAlertWithTitle:message:): New private methods.
+	(-_endObserverNotification:): Implement notification observer methods.
+	(-_beginObserverNotification:): Ditto.  
+	(-objectsInvalidatedInEditingContext:): Ditto.
+	(-objectsChangedInEditingContext:): Ditto.
+	(+initialize, -init, -initWithCoder:,): Implement methods.
+	(-encodeWithCoder:, -setDataSource:, -fetch, -allObjects): Ditto.
+	(-setObjectArray:, -redisplay, -updateDisplayedObjects): Ditto.
+	(-selectionIndexes, -setSelectionIndexes, -selectObject): Ditto.
+	(-selectObjectsIdenticalTo:, -clearSelection, -selectedObjects): Ditto.
+	(-selectObjectsIdenticalTo:selectFirstOnNoMatch:): Ditto.
+	(-setSelectedObjects, -selectedObject, -setSelectedObject:): Ditto.
+	(-insertObjectAtIndex:, -insertObject:atIndex:): Ditto.
+	(-setInsertedObjectDefaultValues:, -deleteSelection): Ditto.
+	(-observingAssociations, -endEditing, -fetch:, -insert:): Ditto.
+	(-selectionChanged, -contentsChanged, -valueForObject:key:): Ditto.
+	(-selectedObjectValueForKey:, -valueForObjectAtIndex:): Ditto.
+	(-setValue:forObject:key:, -setSelectedObjectValue:forKey:): Ditto.
+	(-setValue:forObjectAtIndex:key:, -associationDidBeginEditing:): Ditto.
+	(-associationDidEndEditing:): Ditto.
+
 2005-05-11  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/Makefile.preamble: Change link flag to use FND_LIBS variable
@@ -6,8 +106,8 @@
 	* EOAccess/EODatabaseDataSource.m (-entity): Look for entity with the
 	fetch specifications entity name in a model group.
 	(-databaseContext): Return a registered database context.
-	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.m: Cast return
-	value of -initWithIdentifier to remove warning with gcc 3.4
+	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.m: Cast before 
+	calling -initWithIdentifier to remove warning with gcc 3.4
 	* EOControl/EOEditingContext.m (-encodeWithCoder:,-initWithCoder:):
 	initial implementation of methods.
 	* EOControl/EOClassDescription.m (-snapshot): cast 'value' to get

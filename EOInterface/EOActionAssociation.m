@@ -35,6 +35,8 @@
 #endif
 
 #include "EOActionAssociation.h"
+#include "SubclassFlags.h"
+#include "EODisplayGroup.h"
 
 @implementation EOActionAssociation
 
@@ -87,17 +89,57 @@
 
 - (void)establishConnection
 {
+  [super establishConnection];
+  if ([self displayGroupForAspect: @"enabled"] != nil)
+    subclassFlags |= EnabledAspectMask;
+
+  if ([self displayGroupForAspect: @"argument"] != nil)
+    subclassFlags |= ArgumentAspectMask;
+
+  if ([self displayGroupForAspect: @"action"] != nil)
+    subclassFlags |= ActionAspectMask;
+
+  [_object setTarget:self];
+  [_object setAction: @selector(action:)];
 }
 - (void)breakConnection
 {
+  subclassFlags = 0;
+  [super breakConnection];
 }
 
 - (void)subjectChanged
 {
+  if (subclassFlags & EnabledAspectMask)
+    {
+      EODisplayGroup *dg = [self displayGroupForAspect:@"enabled"];
+      if ([dg contentsChanged] || [dg selectionChanged])
+	{	  
+	  BOOL isEnabled;
+	  isEnabled = [[self valueForAspect:@"enabled"] boolValue];
+          [_object setEnabled: isEnabled];
+	}
+    } 
 }
 
 - (void)action: (id)sender
 {
+  if (subclassFlags & ActionAspectMask)
+    {
+      id target = [[self displayGroupForAspect:@"action"] selectedObject];
+      SEL action;
+      
+      action = NSSelectorFromString([self displayGroupKeyForAspect:@"action"]);
+      if (subclassFlags & ArgumentAspectMask)
+        { 
+	  id arg = [self displayGroupForAspect:@"argument"];
+          [target performSelector: action withObject: arg];
+        }
+      else
+        {
+          [target performSelector:action];
+	}
+    }
 }
 
 @end

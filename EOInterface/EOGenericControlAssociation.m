@@ -23,9 +23,11 @@
    59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. 
 */
 
+
 #ifdef GNUSTEP
-#include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSString.h>
 
 #include <AppKit/NSControl.h>
 #include <AppKit/NSText.h>
@@ -35,6 +37,8 @@
 #endif
 
 #include "EOControlAssociation.h"
+#include "EODisplayGroup.h"
+#include "SubclassFlags.h"
 
 @implementation EOGenericControlAssociation
 + (NSArray *)aspects
@@ -67,7 +71,7 @@
   static NSArray *_keys = nil;
   if (_keys == nil)
     {
-      _keys = [[NSArray alloc] initWithObject: @"delegate"];
+      _keys = [[NSArray alloc] initWithObjects: @"delegate", @"target", nil];
     }
   return _keys;
 }
@@ -79,17 +83,64 @@
 
 - (void)establishConnection
 {
+  [super establishConnection];
+  
+  if ([self displayGroupForAspect:@"value"] != nil) 
+    subclassFlags |= ValueAspectMask;
+  
+  if ([self displayGroupForAspect:@"enabled"] != nil)
+    subclassFlags |= EnabledAspectMask;
+    
+  /* where does URL come from, accident or is it undocumented?? */   
+  if ([self displayGroupForAspect:@"URL"] != nil)
+    subclassFlags |= URLAspectMask;
+
+  [[self control] setAction:@selector(_action:)];
+  [[self control] setTarget:self];
+  
+  if ([[self object] respondsToSelector: @selector(setDelegate:)])
+    [[self object] setDelegate:self];
 }
+
 - (void)breakConnection
 {
+  subclassFlags = 0;
+  [super breakConnection];
 }
 
 - (void)subjectChanged
 {
+  if (subclassFlags & ValueAspectMask)
+    {
+      EODisplayGroup *dg = [self displayGroupForAspect:@"value"];
+      [[self control] setObjectValue: [self valueForAspect:@"value"]];
+    }
+  if (subclassFlags & EnabledAspectMask)
+    [[self control] setEnabled: [[self valueForAspect: @"enabled"] boolValue]];
+  
+  [super subjectChanged];
 }
+
+- (void) _action: (id)sender
+{
+  [self endEditing];
+}
+
 - (BOOL)endEditing
 {
-  return NO;
+  BOOL flag = NO;
+
+  if (subclassFlags & ValueAspectMask)
+    {
+      flag = [self setValue: [[self control] objectValue] forAspect: @"value"]; 
+      [[self displayGroupForAspect:@"value"] associationDidEndEditing: self];
+    }
+  /* not sure if this is neccessary */
+  if (subclassFlags & EnabledAspectMask)
+    {
+      [[self displayGroupForAspect:@"enabled"] associationDidEndEditing: self];
+    }
+  return flag;
 }
 
 - (NSControl *)control
@@ -118,7 +169,35 @@ errorDescription: (NSString *)description
 - (BOOL)control: (NSControl *)control
 textShouldBeginEditing: (NSText *)fieldEditor
 {
-  return NO;
+  EODisplayGroup *dg = nil;
+  BOOL flag = NO;
+  
+  /* inform display groups for all aspects that the editing association should
+     change if multiple aspects are bound to the same display group only do so
+     one time */
+  if (subclassFlags & ValueAspectMask)
+    {
+      dg = [self displayGroupForAspect:@"value"];
+      flag = [dg endEditing];
+      if (flag == YES)
+        {
+ 	  [dg associationDidBeginEditing:self];
+        }
+    }
+  /* not sure if this is really neccessary */  
+  if (subclassFlags & EnabledAspectMask)
+    {
+      EODisplayGroup *dg2 = [self displayGroupForAspect:@"enabled"];
+      if (dg2 != dg || flag == NO)
+        {
+	  flag = [dg endEditing];
+	  if (flag == YES)
+	    {
+	      [dg2 associationDidBeginEditing:self];
+	    }
+	}
+    } 
+   return flag;
 }
 
 @end

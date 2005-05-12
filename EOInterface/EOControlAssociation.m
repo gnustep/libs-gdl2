@@ -33,6 +33,9 @@
 #endif
 
 #include "EOControlAssociation.h"
+#include "EODisplayGroup.h"
+#include "SubclassFlags.h"
+#include <Foundation/NSRunLoop.h>
 
 @implementation EOControlAssociation : EOGenericControlAssociation
 
@@ -46,11 +49,14 @@
   return @"EOControlAssoc";
 }
 
-- (void)establishConnection
+- (void) establishConnection 
 {
+  [super establishConnection];
 }
-- (void)breakConnection
+
+- (void) breakConnection
 {
+  [super breakConnection];
 }
 
 - (NSControl *)control
@@ -60,7 +66,7 @@
 
 - (EOGenericControlAssociation *)editingAssociation
 {
-  return nil;
+  return self;
 }
 
 @end

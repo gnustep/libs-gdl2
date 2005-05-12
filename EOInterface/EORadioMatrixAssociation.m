@@ -26,8 +26,9 @@
 #ifdef GNUSTEP
 #include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>
-
+#include <Foundation/NSValue.h>
 #include <AppKit/NSMatrix.h>
+#include <AppKit/NSButtonCell.h>
 #else
 #include <Foundation/Foundation.h>
 #include <AppKit/AppKit.h>
@@ -35,6 +36,35 @@
 
 #include "EOControlAssociation.h"
 #include "EORadioMatrixAssociation.h"
+#include "SubclassFlags.h"
+
+/* GNUstep specific */
+@interface NSMatrix (RadioMatrixTitle)
+-(BOOL) _selectCellWithTitle:(NSString *)title;
+@end
+
+@implementation NSMatrix (RadioMatrixTitle)
+-(BOOL) _selectCellWithTitle:(NSString *)title
+{
+  int i = _numRows;
+
+  while (i-- > 0)
+    {
+      int j = _numCols;
+   
+      while (j-- > 0)
+        {
+          if ([[_cells[i][j] title] isEqual: title])
+            {
+              [self selectCellAtRow:i column:j];
+              return YES;
+            }
+        }
+    }
+  return NO;
+}
+@end
+
 
 @implementation EORadioMatrixAssociation
 
@@ -101,15 +131,60 @@
   return @"selectedTitle";
 }
 
+- (id) initWithObject:(id)anObject
+{
+  self = [super initWithObject:anObject];
+  _tagValueForOther = -1; 
+  return self;
+}
+
 - (void)establishConnection
 {
+  if ([self displayGroupForAspect: @"enabled"])
+    subclassFlags |= EnabledAspectMask;
+  if ([self displayGroupForAspect: @"selectedTag"])
+    subclassFlags |= SelectedTagAspectMask;
+  if ([self displayGroupForAspect: @"selectedTitle"])
+    subclassFlags |= SelectedTitleAspectMask;
+  
+  [super establishConnection];
+  [_object setTarget: self];
+  [_object setAction: @selector(_action:)];
+  [_object setAllowsEmptySelection:YES];
 }
+
 - (void)breakConnection
 {
+  [_object setTarget: nil];
+  [super breakConnection];
+  subclassFlags = 0;
 }
 
 - (void)subjectChanged
 {
+  if (subclassFlags & EnabledAspectMask)
+    [[self object] setEnabled: [[self valueForAspect:@"enabled"] boolValue]];
+  
+  if (subclassFlags & SelectedTagAspectMask)
+    {
+      NSCell *cell;
+      
+      cell = [_object cellWithTag:[[self valueForAspect:@"selectedTag"] intValue]];
+      if (cell)
+        {
+          [_object selectCell:cell];
+	}
+      else
+        {
+	  [_object selectCellWithTag:_tagValueForOther]; 
+	}
+    }
+  /* not sure if this is even supported in the original i suspect not */ 
+  if (subclassFlags & SelectedTitleAspectMask)
+    {
+      if (![_object _selectCellWithTitle:[self valueForAspect:@"selectedTitle"]])
+        [_object selectCellWithTag:_tagValueForOther];
+    }
 }
 
 - (void)setTagValueForOther: (int)value
@@ -122,4 +197,15 @@
   return _tagValueForOther;
 }
 
+- (void) _action:(id)sender
+{
+  if (subclassFlags & SelectedTagAspectMask)
+    [self setValue: [NSNumber numberWithInt: [[_object selectedCell] tag]]
+    	 forAspect: @"selectedTag"];
+  if (subclassFlags & SelectedTitleAspectMask)
+    {
+      [self setValue: [[_object selectedCell] title]
+	   forAspect: @"selectedTitle"];
+    }
+}
 @end

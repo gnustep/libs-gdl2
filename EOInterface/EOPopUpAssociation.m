@@ -34,7 +34,9 @@
 #endif
 
 #include "EOControlAssociation.h"
+#include "EODisplayGroup.h"
 #include "EOPopUpAssociation.h"
+#include "SubclassFlags.h"
 
 @implementation EOPopUpAssociation
 
@@ -89,6 +91,12 @@
   return _classes;
 }
 
+- (id) initWithObject:(id)obj
+{
+  self = [super initWithObject:obj];
+  _tagValueForOther = -1; 
+  return self;
+}
 
 + (NSString *)displayName
 {
@@ -102,22 +110,161 @@
 
 - (void)establishConnection
 {
+  EODisplayGroup *dg;
+  [super establishConnection];
+  if ((dg = [self displayGroupForAspect:@"titles"]))
+    {
+      int i,c;
+      NSArray *dispObj;
+      NSMutableArray *titles = [[NSMutableArray alloc] init];
+      
+      subclassFlags |= TitlesAspectMask;
+      dispObj = [dg displayedObjects];
+      c = [dispObj count];
+      [_object removeAllItems];
+      for (i = 0; i < c; i++)
+        {
+          [_object addItemWithTitle: [self valueForAspect:@"titles" atIndex:i]];
+	  /* hmm used in _action.... :*/
+          [[_object lastItem] setRepresentedObject:[dg valueForObjectAtIndex:i
+		       				        key:@"self"]];
+	}
+    }
+  if ([self displayGroupForAspect:@"selectedTitle"])
+    {
+      subclassFlags |= SelectedTitleAspectMask;
+    }
+  if ([self displayGroupForAspect:@"selectedTag"])
+    {
+      subclassFlags |= SelectedTagAspectMask;
+    }
+  if ([self displayGroupForAspect:@"selectedObject"])
+    {
+      subclassFlags |= SelectedObjectAspectMask;
+    }
+  if ([self displayGroupForAspect:@"enabled"])
+    {
+      subclassFlags |= EnabledAspectMask;
+    }
+
+  if (((subclassFlags & SelectedTitleAspectMask) 
+        && (subclassFlags & (SelectedTagAspectMask | SelectedObjectAspectMask)))
+      || ((subclassFlags & SelectedTagAspectMask)
+       	  && (subclassFlags & (SelectedObjectAspectMask | SelectedTitleAspectMask))))
+    {
+      [[NSException exceptionWithName:NSInternalInconsistencyException 
+	 reason:[NSString stringWithFormat:@"more than one selectedTag, %@ %@",
+	        @"selectedTitle, or selectedObject aspect bound to %@", self]
+       userInfo:nil] raise];
+    }
+  [_object setTarget:self];
+  [_object setAction:@selector(_action:)];
 }
+
 - (void)breakConnection
 {
+  subclassFlags = 0;
+  [super breakConnection];
 }
 
 - (void)subjectChanged
 {
+  EODisplayGroup *dg;
+  
+  if (subclassFlags & TitlesAspectMask)
+    {
+      dg = [self displayGroupForAspect:@"titles"];
+      if ([dg contentsChanged])
+        {
+	  int i,c;
+	  NSArray *dispObj;
+          NSMutableArray *titles = [[NSMutableArray alloc] init]; 
+	  NSString *key = [self displayGroupKeyForAspect:@"titles"];
+
+          dispObj = [dg displayedObjects];
+          c = [dispObj count];
+	  [_object removeAllItems];
+          for (i = 0; i < c; i++)
+            { 
+              [_object addItemWithTitle: [self valueForAspect:@"titles" atIndex:i]];
+               /* hmm */
+              [[_object lastItem] setRepresentedObject:[dg valueForObjectAtIndex:i 
+								key:@"self"]];
+            }
+	}
+    }
+
+  if (subclassFlags & SelectedTagAspectMask)
+    {
+      dg = [self displayGroupForAspect:@"selectedTag"];
+      
+      if ([dg selectionChanged] || [dg contentsChanged])
+        {
+	  int tag = [[self valueForAspect:@"selectedTag"] intValue];
+	  int index = [_object indexOfItemWithTag:tag];
+
+	  [_object selectItemAtIndex:tag];
+	}
+    }
+  else if (subclassFlags & SelectedTitleAspectMask)
+    {
+      NSString *title;
+      dg = [self displayGroupForAspect:@"selectedTitle"];
+      if ([dg selectionChanged] || [dg contentsChanged])
+        {
+	  [_object selectItemWithTitle:[self valueForAspect:@"selectedTitle"]];
+	}
+    }
+  else if (subclassFlags & SelectedObjectAspectMask)
+    {
+      dg = [self displayGroupForAspect:@"selectedObject"];
+      if ([dg selectionChanged] || [dg contentsChanged])
+        { 
+          NSString *titlesKey;
+	  NSString *newTitle;
+	  titlesKey = [self displayGroupKeyForAspect:@"titles"];
+	  newTitle = [[self valueForAspect:@"selectedObject"] 
+	  					valueForKey:titlesKey];
+	  
+          [_object selectItemWithTitle:newTitle];
+	}
+    }
+
+  if (subclassFlags & EnabledAspectMask)
+    {
+      dg = [self displayGroupForAspect:@"enabled"];
+      if ([dg selectionChanged] || [dg contentsChanged])
+        [_object setEnabled: [[self valueForAspect:@"enabled"] boolValue]];
+    } 
 }
 
 - (void)setTagValueForOther: (int)value
 {
   _tagValueForOther = value;
 }
+
 - (int)tagValueForOther
 {
   return _tagValueForOther;
 }
 
+- (void) _action:(id)sender
+{
+  if (subclassFlags & SelectedTagAspectMask)
+    {
+      [self setValue: [NSNumber numberWithInt: [[_object itemAtIndex: [_object indexOfSelectedItem]] tag]] 
+	   forAspect:@"selectedTag"];
+    }
+  else if (subclassFlags & SelectedTitleAspectMask)
+    {
+      [self setValue: [_object titleOfSelectedItem] forAspect:@"selectedTitle"];
+    } 
+  else if (subclassFlags & SelectedObjectAspectMask)
+    { 
+      EODisplayGroup *titlesGroup = [self displayGroupForAspect:@"titles"];
+      id obj = [[_object itemAtIndex:[_object indexOfSelectedItem]] representedObject];
+      [self setValue: obj forAspect:@"selectedObject"];
+    
+    }
+}
 @end

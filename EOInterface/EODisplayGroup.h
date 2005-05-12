@@ -48,11 +48,11 @@
 @interface EODisplayGroup : NSObject <NSCoding>
 {
 @private
-  EODataSource   *_dataSource;
+  EODataSource   *_dataSource; /*Retained*/
   NSMutableArray *_allObjects;
   NSMutableArray *_displayedObjects;
 
-  id              _delegate;
+  id              _delegate;   /*Not Retained*/
 
   NSArray        *_selection;
   NSArray        *_sortOrdering;
