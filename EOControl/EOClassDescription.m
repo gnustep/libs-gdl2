@@ -1211,7 +1211,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 			       @"TOMANY snap=%p key=%@ ==> value %p=%@",
                                snapshot, key, value, value);
                   
-                  value = AUTORELEASE([value shallowCopy]);
+                  value = AUTORELEASE([(NSArray *)value shallowCopy]);
                   NSDebugMLLog(@"gsdb",
 			       @"TOMANY snap=%p key=%@ ==> value %p=%@",
                                snapshot, key, value, value);

@@ -72,7 +72,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOModelGroup.h>
 #include <EOAccess/EODatabase.h>
 #include <EOAccess/EODatabaseContext.h>
-
+#include <EOAccess/EOPrivate.h>
 
 @interface EODatabaseDataSource(Private)
 - (id)_partialInitWithEditingContext: (EOEditingContext*)editingContext
@@ -191,42 +191,56 @@ RCS_ID("$Id$")
 
 - (EOEntity *)entity
 {
-  return [[[self databaseContext] database]
-	   entityNamed: [_fetchSpecification entityName]];
+  EOObjectStore *store;
+  NSString *entityName = [_fetchSpecification entityName];
+  static SEL modelGroupSel = @selector(modelGroup);
+  EOModelGroup *modelGroup = nil;
+  
+  store = [_editingContext rootObjectStore];
+  
+  if ([store isKindOfClass: [EOObjectStoreCoordinator class]])
+    {
+      return [[(EOObjectStoreCoordinator *)store modelGroup] entityNamed: entityName];
+    }
+  else if ([store isKindOfClass:GDL2_EODatabaseContextClass])
+    {
+      EODatabase *database = [(EODatabaseContext *)store database];
+      NSArray *models = [database models];
+      int i, c;
+      
+      for (i = 0, c = [models count]; i < c; i++)
+	{
+	  EOEntity *entity;
+	  
+	  modelGroup = [[models objectAtIndex: i] modelGroup];
+	  entity = [modelGroup entityNamed: entityName];
+	  if (entity)
+	    return entity;
+	}
+      return nil;
+    }
+  else if ([store respondsToSelector:modelGroupSel])
+    {
+      modelGroup = [store performSelector:modelGroupSel];
+    }
+  
+  if (modelGroup != nil)
+    {
+      return [modelGroup entityNamed: entityName];
+    }
+  else
+    {
+      return [[EOModelGroup defaultModelGroup] entityNamed: entityName];
+    }
 }
 
 - (EODatabaseContext *)databaseContext
 {
-  NSArray *stores = nil;
-  EODatabaseContext *store = nil;
-  NSEnumerator *storeEnum = nil;
-  NSString *entityName = nil;
-  id rootStore = nil;
+  EOModel *model;
 
-  entityName = [_fetchSpecification entityName];
-
-  rootStore = [_editingContext rootObjectStore];
-  if ([rootStore isKindOfClass: [EOObjectStoreCoordinator class]] == YES)
-    {
-      stores = [rootStore cooperatingObjectStores];
-
-      storeEnum = [stores objectEnumerator];
-      while ((store = [storeEnum nextObject]))
-	{
-	  if ([store isKindOfClass: [EODatabaseContext class]] == YES)
-	    {
-	      if ([[store database] entityNamed: entityName])
-		break;
-	    }
-	}
-    }
-  else if ([rootStore isKindOfClass: [EODatabaseContext class]] == YES)
-    {
-      if ([[store database] entityNamed: entityName])
-	store = rootStore;
-    }
-
-  return store;
+  model = [[self entity] model];
+  return [EODatabaseContext registeredDatabaseContextForModel:model
+				editingContext:_editingContext];
 }
 
 - (void)setFetchSpecification: (EOFetchSpecification *)fetchSpecification

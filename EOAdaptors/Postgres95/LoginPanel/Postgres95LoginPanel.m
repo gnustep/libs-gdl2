@@ -185,7 +185,7 @@ vfmaxf (int n, float aFloat, ...)
       [tableScrollView setDocumentView: databases]; 
       RELEASE(databases);
        
-      tableColumn = [[NSTableColumn alloc] initWithIdentifier: tableViewTitle];
+      tableColumn = [(NSTableColumn*)[NSTableColumn alloc] initWithIdentifier: tableViewTitle];
       [[tableColumn headerCell] setStringValue: tableViewTitle];    
       [tableColumn setEditable:NO];
       [tableColumn sizeToFit];

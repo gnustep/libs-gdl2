@@ -3541,6 +3541,22 @@ modified state of the object.**/
 		       editingContext: context];
 }
 
+- (void) encodeWithCoder:(NSCoder *)encoder
+{
+  [encoder encodeObject: _delegate];
+  [encoder encodeObject: _messageHandler];
+}
+
+- (id) initWithCoder:(NSCoder *)decoder
+{
+  self = [self init]; 
+  ASSIGN(_delegate, [decoder decodeObject]);
+  ASSIGN(_messageHandler, [decoder decodeObject]); 
+  /* FIXME */
+  ASSIGN(_objectStore, [EOEditingContext defaultParentObjectStore]);
+  return self;
+}
+
 @end
 
 

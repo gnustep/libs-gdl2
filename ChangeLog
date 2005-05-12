@@ -1,3 +1,22 @@
+2005-05-11  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/Makefile.preamble: Change link flag to use FND_LIBS variable
+	defined in base.make
+	* EOControl/Makefile.preamble: Ditto.
+	* EOAccess/EODatabaseDataSource.m (-entity): Look for entity with the
+	fetch specifications entity name in a model group.
+	(-databaseContext): Return a registered database context.
+	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.m: Cast return
+	value of -initWithIdentifier to remove warning with gcc 3.4
+	* EOControl/EOEditingContext.m (-encodeWithCoder:,-initWithCoder:):
+	initial implementation of methods.
+	* EOControl/EOClassDescription.m (-snapshot): cast 'value' to get
+	thwart  warnings.
+	* EOControl/EOFault.m (-superClass): Implement as returning a class.
+	* Tools/gsdoc-model.m: Include headers alphabetically, include 
+	NSCalendarDate.h to thwart warning.
+
+
 2005-05-03  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOEditingContext.m (_mutableSetFromToManyArray:):

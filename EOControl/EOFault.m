@@ -284,7 +284,7 @@ static Class EOFaultClass = NULL;
 
 // Fault Instance methods
 
-- superclass
+- (Class) superclass
 {
   return [[_handler targetClass] superclass];
 }
