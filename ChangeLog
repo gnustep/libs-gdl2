@@ -1,3 +1,49 @@
+2005-05-11  Matt Rice  <ratmice@yahoo.com>
+
+	* GNUmakefile: Compile EOInterface, EOModeler, DBModeler, GDL2Palette
+	if gui is installed.
+	* EOModeler/EOModelExtensions.h: Update copyright header.
+	* EOModeler/EOModelExtensions.m: Ditto.
+	* EOModeler/GNUmakefile: Make EOModeler a native-library, add new files.
+	* EOModeler/Makefile.preamble: Change link flag to use FND_LIBS. 
+	* EOModeler/EODefines.h: New file, initial implementation.
+	* EOModeler/EOMInspector.h/m: Ditto.
+	* EOModeler/EOMInspectorController.h/m: Ditto.
+	* EOModeler/EOModelerApp.h/m: Ditto.
+	* EOModeler/EOModelerDocument.h/m: Ditto.
+	* EOModeler/EOModelerEditor.h/m: Ditto.
+	* DBModeler: New directory.
+	* DBModeler/COPYING: New file...
+	* DBModeler/AdaptorsPanel.h/m: New files.
+	* DBModeler/DefaultColumnProvider.h/m: Ditto.
+	* DBModeler/EOAdditions.h/m: Ditto.
+	* DBModeler/KVDataSource.h/m: Ditto.
+	* DBModeler/MainModelEdtior.h/m: Ditto.
+	* DBModeler/Modeler.m: Ditto.
+	* DBModeler/ModelerAttributeEditor.h/m: Ditto.
+	* DBModeler/ModelerTableEmbedibleEditor.h/m: Ditto.
+	* DBModeler/main.m: Ditto.
+	* DBModeler/GNUmakefile: Ditto.
+	* DBModeler/Resources: New directory.
+	* DBModeler/Resources/ModelDrag.tiff: New file.
+	* DBModeler/Resources/ClassProperty_On.tiff: Ditto.
+	* DBModeler/Resources/Key_On.tiff: Ditto.
+	* DBModeler/Inspectors: New directory.
+	* DBModeler/Inspectors/RelationshipInspector.h/m: New files.
+	* DBModeler/Inspectors/AttributeInspector.h/m: Ditto. 
+	* DBModeler/Inspectors/RelationshipInspector.gorm: New gorm directory.
+	* DBModeler/Inspectors/AttributeInspector.gorm: Ditto.
+	* GDL2Palette: New directory.
+	* GDL2Palette/GNUmakefile: New file.
+	* GDL2Palette/ConnectionInspector.h/m: Ditto.
+	* GDL2Palette/Foundation+Categories.h/m: Ditto.
+	* GDL2Palette/IB+Categories.m: Ditto.
+	* GDL2Palette/Palette.h/m: Ditto.
+	* GDL2Palette/ResourceManager.h/m: Ditto.
+	* GDL2Palette/GDL2ConnectionInspector.gorm: Ditto.
+	* GDL2Palette/GDL2Palette.tiff: Ditto
+	* GDL2Palette/palette.table
+
 2005-05-12  Matt Rice  <ratmice@yahoo.com>
 
 	* ChangeLog: Fix previous ChangeLog entry.

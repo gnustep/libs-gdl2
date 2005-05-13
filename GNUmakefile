@@ -29,7 +29,12 @@ include ./Version
 #
 # The list of subproject directories
 #
-SUBPROJECTS = EOControl EOAccess EOAdaptors EOModeler Tools
+SUBPROJECTS = EOControl EOAccess EOAdaptors Tools
+
+ifeq ($(GUI_MAKE_LOADED),yes)
+SUBPROJECTS += EOInterface EOModeler DBModeler GDL2Palette
+endif
+
 DOCUMENT_NAME = GDL2
 
 GDL2_AGSDOC_FILES = GDL2.gsdoc
