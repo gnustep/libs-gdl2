@@ -1,0 +1,8 @@
+{
+  NOTE = "Automatically generated, do not edit!";
+  NibFile = "";
+  Class = "GDL2Palette";
+  Icon = "GDL2Palette";
+  ExportClasses = ("EODisplayGroup", "EOEditingContext");
+}
+

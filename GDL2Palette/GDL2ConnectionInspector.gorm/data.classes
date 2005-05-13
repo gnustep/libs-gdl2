@@ -1,0 +1,26 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    FirstResponder = {
+	Actions = (
+	    "_connectionsBrowserAction:",
+	    "_oaBrowserAction:",
+	    "_popUpAction:"
+	);
+	Super = NSObject;
+    };
+    GDL2ConnectionInspector = {
+	Actions = (
+	    "_connectionsBrowserAction:",
+	    "_oaBrowserAction:",
+	    "_popUpAction:"
+	);
+	Outlets = (
+	    oaBrowser,
+	    revertButton,
+	    okButton,
+	    popUp,
+	    connectionsBrowser
+	);
+	Super = IBInspector;
+    };
+}

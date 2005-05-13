@@ -1,0 +1,40 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    EOMInspector = {
+	Actions = (
+	);
+	Outlets = (
+	    view,
+	    window
+	);
+	Super = NSObject;
+    };
+    FirstResponder = {
+	Actions = (
+	    "cardinalityChanged:",
+	    "connectionChanged:",
+	    "nameChanged:",
+	    "semanticChanged:"
+	);
+	Super = NSObject;
+    };
+    RelationshipInspector = {
+	Actions = (
+	    "connectionChanged:",
+	    "cardinalityChanged:",
+	    "nameChanged:",
+	    "semanticChanged:"
+	);
+	Outlets = (
+	    name_textField,
+	    model_popup,
+	    destEntity_tableView,
+	    joinCardinality_matrix,
+	    joinSemantic_popup,
+	    srcAttrib_tableView,
+	    destAttrib_tableView,
+	    connect_button
+	);
+	Super = EOMInspector;
+    };
+}
