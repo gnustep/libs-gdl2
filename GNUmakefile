@@ -32,7 +32,7 @@ include ./Version
 SUBPROJECTS = EOControl EOAccess EOAdaptors Tools
 
 ifeq ($(GUI_MAKE_LOADED),yes)
-SUBPROJECTS += EOInterface EOModeler DBModeler GDL2Palette
+SUBPROJECTS += EOInterface EOModeler DBModeler
 endif
 
 DOCUMENT_NAME = GDL2
