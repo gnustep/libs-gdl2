@@ -1,3 +1,19 @@
+2005-05-18  Matt Rice  <ratmice@yahoo.com>
+
+	* EOControl/EOObserver.m (EOObserverCenter): Don't retain observers.
+	Use a GSIArray instaed of NSMutableArray.
+	(+addObserver:forObject:, +removeObserver:forObject:): Ditto.
+	(+initialize, +notifyObserversObjectWillChange:): Ditto.
+	(+observersForObject:, addOmniscientObserver:): Ditto.
+	(+removeOmniscientObserver:): Ditto.
+
+2005-05-17  Matt Rice <ratmice@yahoo.com>
+
+	* GNUmakefile: remove GDL2Palette from top level compilation.
+	* GDL2Palette/GNUmakefile: Fix compilation flags, include gdl2.make
+	relative not the installed version.
+	* DBModeler/GNUmakefile: Ditto.
+
 2005-05-11  Matt Rice  <ratmice@yahoo.com>
 
 	* GNUmakefile: Compile EOInterface, EOModeler, DBModeler, GDL2Palette
