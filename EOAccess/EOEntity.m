@@ -2607,6 +2607,13 @@ createInstanceWithEditingContext:globalID:zone:
   return _flags.createsMutableObjects;
 }
 
+/* throws an exception if _model is not nil, and the model argument is not
+ * identical to the _model ivar. As a special case EOModel -removeEntity: 
+ * is allowed to call this with a nil model, but removeEntity: is responsible
+ * for any bookeeping.
+ *
+ * in other words, this method should not be used to change an entity's model. 
+ */
 - (void)_setModel: (EOModel *)model
 {
   EOFLOGObjectLevelArgs(@"EOEntity", @"setModel=%p", model);
@@ -2619,7 +2626,7 @@ createInstanceWithEditingContext:globalID:zone:
             [_attributesToFetch class],
             _attributesToFetch);
 
-  NSAssert3((_model == nil || _model == model),
+  NSAssert3((_model == nil || _model == model || model == nil),
 	    @"Attempt to set entity: %@ owned by model: %@ to model: @%.",
 	    [self name], [_model name], [model name]);
 

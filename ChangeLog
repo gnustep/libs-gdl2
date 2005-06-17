@@ -1,3 +1,8 @@
+2005-06-17  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/EOEntity.m (-_setModel:): Accept nil argument, comment.
+	* EOAccess/EOModel.m (-removeEntity:): Comment.
+
 2005-05-18  Matt Rice  <ratmice@yahoo.com>
 
 	* EOControl/EOObserver.m (EOObserverCenter): Don't retain observers.

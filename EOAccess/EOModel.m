@@ -1506,6 +1506,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 {
   NSString *className = nil;
 
+  /* as a special case this method can call _setModel: with nil */
   [entity _setModel: nil];
   [_entitiesByName removeObjectForKey: [entity name]];
 
