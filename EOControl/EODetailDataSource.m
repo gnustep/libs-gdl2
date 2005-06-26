@@ -138,8 +138,15 @@ RCS_ID("$Id$")
 
 - (EOClassDescription *)masterClassDescription
 {
-  return [EOClassDescription classDescriptionForEntityName:
-			       _masterClassDescriptionName];
+  if (_masterClassDescriptionName)
+    {
+      return [EOClassDescription classDescriptionForEntityName:
+				   _masterClassDescriptionName];
+    }
+  else
+    {
+      return [_masterDataSource classDescriptionForObjects];
+    }
 }
 
 - (void)setMasterClassDescription: (EOClassDescription *)classDescription
