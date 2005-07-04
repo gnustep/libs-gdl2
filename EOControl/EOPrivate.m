@@ -35,6 +35,10 @@
 RCS_ID("$Id$")
 
 #include <Foundation/Foundation.h>
+#define GSI_ARRAY_TYPES GSUNION_OBJ
+#define GSI_ARRAY_NO_RETAIN 1
+#define GSI_ARRAY_NO_RELEASE 1
+#include <GNUstepBase/GSIArray.h>
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
@@ -436,3 +440,179 @@ EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext  *edContext,
   else
     return nil;
 };
+
+static SEL eqSel;
+
+@interface GDL2NonRetainingMutableArray (PrivateExceptions)
+- (void) _raiseRangeExceptionWithIndex:(unsigned) index from:(SEL)selector;
+@end
+
+/**
+ *  A mutable array which does not retain its objects,
+ *  the caller must remove the object before it is deallocated. 
+ */
+@implementation GDL2NonRetainingMutableArray
+
++ (void) initialize
+{
+ eqSel = NSSelectorFromString(@"isEqual:"); 
+}
+
+- (void) dealloc
+{
+  GSIArrayEmpty(_contents);
+  NSZoneFree([self zone], _contents);
+  [super dealloc];
+}
+
+- (id) init
+{
+  self = [self initWithCapacity:0];
+  return self;
+}
+
+/* designated initializer */
+- (id) initWithCapacity:(unsigned)capacity
+{
+  self = [super init];
+  _contents = NSZoneMalloc([self zone], sizeof(GSIArray_t));
+  _contents = GSIArrayInitWithZoneAndCapacity(_contents, [self zone], capacity);
+  return self; 
+}
+
+- (id) initWithObjects:(id *)objects count:(unsigned)count
+{
+  int i;
+  self = [self initWithCapacity:count];
+  for (i = 0; i < count; i++)
+    GSIArrayAddItem(_contents, (GSIArrayItem)objects[i]);
+  return self;
+}
+
+/* These are *this* subclasses responsibility */
+- (unsigned) count
+{
+  return GSIArrayCount(_contents);
+}
+
+- (id) objectAtIndex:(unsigned) index
+{
+  if (index >= GSIArrayCount(_contents))
+    [self _raiseRangeExceptionWithIndex:index from:_cmd];
+
+  return GSIArrayItemAtIndex(_contents, index).obj;
+}
+
+- (void) addObject:(id)object
+{
+  if (object == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+                  format: @"Attempt to add nil to an array"];
+      return;
+    }
+
+  GSIArrayAddItem(_contents, (GSIArrayItem)object);
+}
+
+- (void) replaceObjectAtIndex:(unsigned)index withObject:(id)object
+{
+  if (object == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+                  format: @"Attempt to add nil to an array"];
+      return;
+    }
+  else if (index >= GSIArrayCount(_contents))
+    {
+      [self _raiseRangeExceptionWithIndex:index from:_cmd];
+      return;
+    }
+   
+  GSIArraySetItemAtIndex(_contents, (GSIArrayItem)object, index);
+}
+
+- (void) insertObject:(id)object atIndex:(unsigned)index
+{
+  if (object == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+  		  format: @"Attempt to add nil to an array"];
+      return;
+    }
+  else if (index >= GSIArrayCount(_contents))
+    {
+      [self _raiseRangeExceptionWithIndex:index from:_cmd];
+    }
+  
+  GSIArrayInsertItem(_contents, (GSIArrayItem)object, index);
+}
+
+- (void) removeObjectAtIndex:(unsigned)index
+{
+  if (index >= GSIArrayCount(_contents))
+    {
+      [self _raiseRangeExceptionWithIndex:index from:_cmd];
+    }
+  GSIArrayRemoveItemAtIndex(_contents, index);
+}
+
+- (void) removeAllObjects
+{
+  GSIArrayRemoveAllItems(_contents);
+}
+
+/* might as well also implement because we can do it faster */
+- (id) lastObject
+{
+  return GSIArrayLastItem(_contents).obj;
+}
+
+- (id) firstObject
+{
+  if (GSIArrayCount(_contents) == 0)
+    return nil;
+  return GSIArrayItemAtIndex(_contents, 0).obj;
+}
+
+/* not only make it faster but work around buggy implementations in gnustep
+ * with an extra release */
+- (void) removeObject:(id)anObject
+{
+  int index = GSIArrayCount(_contents);
+  BOOL (*eq)(id,SEL,id) 
+    = (BOOL (*)(id, SEL, id))[anObject methodForSelector:eqSel];
+  
+  /* iterate backwards, so that all objects equal to 'anObject'
+   * can safely be removed from the array while iterating. */
+  while (index-- > 0)
+    {
+      if ((*eq)(anObject, eqSel, GSIArrayItemAtIndex(_contents, index).obj))
+        {
+	  GSIArrayRemoveItemAtIndex(_contents, index);
+	}
+    }
+}
+
+/* private methods. */
+- (void) _raiseRangeExceptionWithIndex: (unsigned)index from: (SEL)sel
+{
+  NSDictionary *info;
+  NSException  *exception;
+  NSString     *reason;
+  unsigned     count = GSIArrayCount(_contents);
+
+  info = [NSDictionary dictionaryWithObjectsAndKeys:
+    [NSNumber numberWithUnsignedInt: index], @"Index",
+    [NSNumber numberWithUnsignedInt: count], @"Count",
+    self, @"Array", nil, nil];
+
+  reason = [NSString stringWithFormat: @"Index %d is out of range %d (in '%@')",    index, count, NSStringFromSelector(sel)];
+
+  exception = [NSException exceptionWithName: NSRangeException
+                                      reason: reason
+                                    userInfo: info];
+  [exception raise];
+}
+
+@end

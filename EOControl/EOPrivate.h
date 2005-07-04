@@ -27,6 +27,7 @@
 #ifndef __EOControl_EOPrivate_h__
 #define __EOControl_EOPrivate_h__
 
+#include <Foundation/NSArray.h>
 #include "EODefines.h"
 
 @class NSNumber;
@@ -361,5 +362,16 @@ GDL2CONTROL_EXPORT unsigned int EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDIn
 GDL2CONTROL_EXPORT id EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext* edContext,IMP* impPtr,EOGlobalID* gid);
 EOGlobalID* EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object);
 GDL2CONTROL_EXPORT id EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object,EOGlobalID* gid);
+
+
+@interface NSObject (DeallocHack)
+- (void) registerAssociationForDeallocHack:(id)object;
+@end
+
+@interface GDL2NonRetainingMutableArray : NSMutableArray
+{
+  void *_contents;
+}
+@end
 
 #endif /* __EOControl_EOPrivate_h__ */

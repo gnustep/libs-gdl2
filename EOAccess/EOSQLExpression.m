@@ -2554,7 +2554,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   [[NSNotificationCenter defaultCenter] postNotificationName: notifName
 					object: notifDict];
   admDict = [notifDict objectForKey: EOAdministrativeConnectionDictionaryKey];
-
+/* TODO: ayers 
   if (admDict == nil && [admDict count] == 0)
     {
       EOAdaptor    *adaptor;
@@ -2564,7 +2564,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
       panel = [[adaptor class] sharedLoginPanelInstance];
       admDict = [panel administrativeConnectionDictionaryForAdaptor: adaptor];
     }
-
+*/
   stmts = [self performSelector: sel 
 		withObject: connDict 
 		withObject: admDict];

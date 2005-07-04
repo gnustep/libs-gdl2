@@ -52,6 +52,7 @@ RCS_ID("$Id$")
 #endif
 
 #include <EOControl/EODebug.h>
+#include <EOControl/EONSAddOns.h>
 
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAdaptorContext.h>
@@ -102,6 +103,12 @@ NSString *EOAdaptorContextRollbackTransactionNotification = @"EOAdaptorContextRo
 {
   [self subclassResponsibility: _cmd];
   return nil;
+}
+
+- (NSArray *)channels
+{
+  SEL sel = @selector(nonretainedObjectValue);
+  return [_channels resultsOfPerformingSelector: sel];
 }
 
 - (BOOL)hasOpenChannels

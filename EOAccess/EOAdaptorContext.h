@@ -83,6 +83,7 @@ typedef enum {
 
 - (EOAdaptorChannel *)createAdaptorChannel;	// override
 
+- (NSArray *)channels;
 - (BOOL)hasOpenChannels;
 - (BOOL)hasBusyChannels;
 

@@ -1,3 +1,33 @@
+2005-07-03  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/EOAdaptorContext.h/m (-channels:): New method.
+	* EOAccess/EOSQLExpression.m
+	(-_administrativeDatabaseStatementsForSelector:forEntityGroup:):
+	Comment out login panel.
+	* EOAccess/EOUtilities.m: Dont declare EOMoreThanOneException and
+	NSObjectNotAvailableException as static.
+	* EOControl/EOPrivate.h: Declare new class GDL2NonRetainingMutableArray
+	and -registerAssociationForDeallocHack method.
+	* EOControl/EOPrivate.m: New class GDL2NonRetainingMutableArray.
+	* EOControl/EOEditingContext.m:
+	(EOEditingContext -initWithParentObjectStore:): initialize _editors
+	ivar with a non retaining array.
+	(-dealloc): Remove the editing context as an observer for registered
+	objects.
+	(-[NSObject(DeallocHack) dealloc]): for associations, remove the
+	association and object from the private hash table.
+	(-[NSObject(DeallocHack) registerAssociationForDeallocHack]): New
+	method.
+	* EOControl/EOObserver.m (EOObserverCenter): Replace GSIArray usage
+	with GDL2NonRetainingMutableArray.
+	(+addObserver:forObject:, +removeObserver:forObject:): Ditto.
+	(+initialize, +notifyObserversObjectWillChange:): Ditto.
+	(+observersForObject:, +observerForObject:): Ditto.
+	(+addOmniscientObserver:, +removeOmniscientObserver:): Ditto.
+	(EOObserverProxy -initWithTarget:action:priority:): Don't retain
+	target.
+	(EOObserverProxy -dealloc:): Discard pending notifications.
+	
 2005-06-26  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EODetailDataSource.m (masterClassDescription):

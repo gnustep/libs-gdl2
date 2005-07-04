@@ -54,16 +54,7 @@ RCS_ID("$Id$")
 
 #include <EOControl/EOObserver.h>
 #include <EOControl/EODebug.h>
-
-#ifdef GSIArray
-#undef GSIArray
-#endif
-
-#define GSI_ARRAY_TYPES GSUNION_OBJ
-#define GSI_ARRAY_NO_RETAIN	1
-#define GSI_ARRAY_NO_RELEASE	1
-#include <GNUstepBase/GSIArray.h>
-
+#include <EOControl/EOPrivate.h>
 
 @implementation NSObject (EOObserver)
 
@@ -106,7 +97,7 @@ RCS_ID("$Id$")
 @implementation EOObserverCenter
 
 static NSMapTable *observersMap = NULL;
-static GSIArray omniscientObservers = NULL;
+static GDL2NonRetainingMutableArray *omniscientObservers = NULL;
 static unsigned int notificationSuppressCount=0;
 static id lastObject;
 
@@ -116,8 +107,7 @@ static id lastObject;
   observersMap = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
 				  NSNonOwnedPointerMapValueCallBacks,
 				  32);
-  omniscientObservers = NSZoneMalloc(NSDefaultMallocZone(), sizeof(GSIArray_t));
-  GSIArrayInitWithZoneAndCapacity(omniscientObservers, NSDefaultMallocZone(), 32);
+  omniscientObservers = [[GDL2NonRetainingMutableArray alloc] initWithCapacity:32];
   lastObject = nil;
 
   notificationSuppressCount = 0;
@@ -134,15 +124,14 @@ static id lastObject;
  */
 + (void)addObserver: (id <EOObserving>)observer forObject: (id)object
 {
-  GSIArray observersArray;
+  GDL2NonRetainingMutableArray *observersArray;
 
   observersArray = NSMapGet(observersMap, object);
 
-  if (observersArray == NULL)
+  if (observersArray == nil)
     {
-      observersArray = NSZoneMalloc([self zone], sizeof(GSIArray_t));
-      GSIArrayInitWithZoneAndCapacity(observersArray, [self zone], 16);
-      GSIArrayAddItemNoRetain(observersArray, (GSIArrayItem)observer);
+      observersArray = [[GDL2NonRetainingMutableArray alloc] initWithCapacity:16];
+      [observersArray addObject: observer];
 
       /* The object is not retained.  It is the responsibility
 	 of the observer to remove the object before it ceases
@@ -151,13 +140,8 @@ static id lastObject;
     }
   else
     {
-      int i,c;
-      BOOL found = NO;
-
-      for (i = 0, c = GSIArrayCount(observersArray); found == NO && i < c; i++)
-	found = [GSIArrayItemAtIndex(observersArray, i).obj isEqual:observer];
-      if (found == NO)
-	GSIArrayAddItemNoRetain(observersArray, (GSIArrayItem)observer);
+      if (![observersArray containsObject:observer])
+	[observersArray addObject:observer];
       else
 	NSDebugMLog(@"Observer: %@ for object: %@(%p) added multiple times.",
 		    observer, NSStringFromClass(GSObjCClass(object)), object);
@@ -170,22 +154,15 @@ static id lastObject;
  */
 + (void)removeObserver: (id <EOObserving>)observer forObject: (id)object
 {
-  GSIArray observersArray;
+  GDL2NonRetainingMutableArray *observersArray;
 
   observersArray = NSMapGet(observersMap, object);
 
   if (observersArray)
     {
-      int i,c;
+      [observersArray removeObject: observer];
       
-      for (i = 0, c = GSIArrayCount(observersArray); i < c; i++)
-        if ([GSIArrayItemAtIndex(observersArray, i).obj isEqual:observer])
-          {
-	    GSIArrayRemoveItemAtIndex(observersArray, i);
-	    break;
-	  }
-
-      if (!GSIArrayCount(observersArray))
+      if (![observersArray count])
         {
           NSMapRemove(observersMap, object);
 	  /* The object is not released.  It is the responsibility
@@ -221,34 +198,24 @@ static id lastObject;
 	lastObject = nil;
       else if (lastObject != object)
 	{
-          GSIArray observersArray;
-          id<EOObserving> observer;
-	  int i, c;
+	  GDL2NonRetainingMutableArray *observersArray;
+	  int c;
+	  SEL objectWillChangeSel = @selector(objectWillChange:);
 
 	  lastObject = object;
 
 	  observersArray = NSMapGet(observersMap, object);
-	  if (observersArray)
-	    {
-	      c = GSIArrayCount(observersArray);
-              EOFLOGObjectLevelArgs(@"EOObserver", @"observersArray count=%d",
-			      	    c);
+	  c = [observersArray count];
+          EOFLOGObjectLevelArgs(@"EOObserver", @"observersArray count=%d",
+			      	c);
 	      
-	      for (i = 0; i < c; i++)
-	        {
-	          observer = GSIArrayItemAtIndex(observersArray, i).obj;
-	          [observer objectWillChange:object];
-	        }
-	    }
-	  
-	  c = GSIArrayCount(omniscientObservers);
+	  [observersArray makeObjectsPerform:objectWillChangeSel
+		  		  withObject:object];
+	  c = [omniscientObservers count];
           EOFLOGObjectLevelArgs(@"EOObserver", @"omniscientObservers count=%d",
 				c);
-	  for (i = 0; i < c; i++)
-	     {
-	       observer = GSIArrayItemAtIndex(omniscientObservers, i).obj;
-	       [observer objectWillChange:nil];
-	     }
+	  [omniscientObservers makeObjectsPerform:objectWillChangeSel
+		  		       withObject:nil];
 	}
     }
 
@@ -266,14 +233,9 @@ static id lastObject;
  */
 + (NSArray *)observersForObject: (id)object
 {
-  GSIArray observersArray;
-  int c, i;
-  id *observers; 
+  GDL2NonRetainingMutableArray *observersArray;
   observersArray = NSMapGet(observersMap, object);
-  c = GSIArrayCount(observersArray);
-  observers = (id *)GSIArrayItems(observersArray);
-  
-  return [NSArray arrayWithObjects:observers count:c];
+  return [NSArray arrayWithArray:observersArray];
 }
 
 /**
@@ -282,22 +244,18 @@ static id lastObject;
  */
 + (id)observerForObject: (id)object ofClass: (Class)targetClass
 {
-  GSIArray observersArray;
+  GDL2NonRetainingMutableArray *observersArray;
+  unsigned i, count;
 
   observersArray = NSMapGet(observersMap, object);
 
-  if (observersArray)
+  count = [observersArray count];
+  for (i = 0; i < count; i++)
     {
-      unsigned i, count;
-      id observer;
+      id observer = [observersArray objectAtIndex:i];
 
-      count = GSIArrayCount(observersArray);
-      for (i = 0; i < count; i++)
-	{
-	  observer = GSIArrayItemAtIndex(observersArray,i).obj;
-	  if ([observer isKindOfClass: targetClass])
-	    return observer;
-	}
+      if ([observer isKindOfClass: targetClass])
+        return observer;
     }
 
   return nil;
@@ -349,14 +307,8 @@ static id lastObject;
  */
 + (void)addOmniscientObserver: (id <EOObserving>)observer
 {
-  int i,c;
-  BOOL found = NO;
-
-  for (i = 0, c = GSIArrayCount(omniscientObservers); found == NO && i < c; i++)
-     found = [GSIArrayItemAtIndex(omniscientObservers, i).obj isEqual:observer];
-
-  if (found == NO)
-    GSIArrayAddItemNoRetain(omniscientObservers, (GSIArrayItem)observer);
+  if (![omniscientObservers containsObject:observer])
+    [omniscientObservers addObject: observer];
 }
 
 /**
@@ -364,17 +316,7 @@ static id lastObject;
  */
 + (void)removeOmniscientObserver: (id <EOObserving>)observer
 {
-  int i,c;
-  
-  c = GSIArrayCount(omniscientObservers);
-  for (i = 0, c = GSIArrayCount(omniscientObservers); i < c; i++)
-    {
-      if ([GSIArrayItemAtIndex(omniscientObservers, i).obj isEqual:observer])
-	{
-	  GSIArrayRemoveItemAtIndex(omniscientObservers, i);
-	  break;
-	}
-    }
+  [omniscientObservers removeObject: observer];
 }
 
 @end
@@ -679,6 +621,7 @@ static EODelayedObserverQueue *observerQueue;
  * Initializes the receiver to dispatch action to target upon processing
  * [-subjectChanged].  The receiver uses priority for the 
  * [EODelayedObserverQueue].
+ * Target is not retained.
  */
 - (id)initWithTarget: (id)target
 	      action: (SEL)action
@@ -686,16 +629,16 @@ static EODelayedObserverQueue *observerQueue;
 {
   if ((self = [super init]))
     {
-      ASSIGN(_target, target);
+      _target = target;
       _action = action;
       _priority = priority;
     }
   return self;
 }
 
-- (void)dealloc
+- (void) dealloc
 {
-  RELEASE(_target);
+  [self discardPendingNotification];
   [super dealloc];
 }
 

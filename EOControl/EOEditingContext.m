@@ -313,8 +313,7 @@ _mergeValueForKey(id obj, id value,
       _snapshotsByGID = [[NSMutableDictionary alloc] initWithCapacity:16];
       _eventSnapshotsByGID = [[NSMutableDictionary alloc] initWithCapacity:16];
 
-      _editors = [NSMutableArray new];
-      
+      _editors = [GDL2NonRetainingMutableArray new];
       _lock = [NSRecursiveLock new];
 
       _undoManager = [EOUndoManager new];
@@ -371,6 +370,15 @@ _mergeValueForKey(id obj, id value,
 
 - (void)dealloc
 {
+  int i,c;
+  NSArray *registeredObjects = [self registeredObjects];
+  
+  for (i = 0, c = [registeredObjects count]; i < c; i++)
+    {
+      [EOObserverCenter removeObserver:self
+			     forObject:[registeredObjects objectAtIndex:i]];
+    }
+
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 
   DESTROY(_objectStore);
@@ -3825,8 +3833,19 @@ static BOOL usesContextRelativeEncoding = NO;
   if (assocDeallocHT && NSHashGet(assocDeallocHT, self))
     {
       [EOAssociationClass objectDeallocated: self];
+      NSHashRemove(assocDeallocHT,self);
     }
 
   NSDeallocateObject (self);
+}
+
+- (void) registerAssociationForDeallocHack:(id)object
+{
+  if (!assocDeallocHT)
+    {
+      assocDeallocHT = NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 64);
+    }
+
+  NSHashInsert(assocDeallocHT, object);
 }
 @end
