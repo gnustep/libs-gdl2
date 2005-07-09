@@ -1,3 +1,54 @@
+2005-07-09  Matt Rice  <ratmice@yahoo.com>
+
+	* EOModeler/EOMInspectorController.m (-init): Don't release the window
+	on close.
+	(_selectionChanged:): Fix view swapping.  Set view as needing display.
+	* EOModeler/EOModelExtensions.m:
+	(+mutableAttributedStringWithBoldSubstitutionsWithFormat:): Implement.
+	* EOModeler/EOModelerApp.h: Add -removeDocument:, -documentAtPath:,
+	and -loadDocumentAtPath: methods.
+	* EOModeler/EOModelerApp.m (-init:): Add parentheses around
+	assignment.
+	(-allPasteboardTypes): Initial implementation.
+	(-removeDocument:): If removing the active document, set the active
+	document to nil.
+	(-documentWithPath:): Change array iterators to unsigned.
+	(-registerColumNames:forClass:provider:): Ditto.
+	(-modelContainingFetchSpecification:): Temporarily return nil.
+	(-nameForFetchSpecification:): Ditto.
+	* EOModeler/EOModelerDocument.h: Declare consistency check
+	notification constants. Add -adaptor, -appendConsistencyCheckErrorText:,
+	-appendConsistencyCheckSuccessText:, -addEntity:, -addRelationship, 
+	-addAttribute and -delete.
+	* EOModeler/EOModelerDocument.m: Add consistency check notification
+	constants.  Add private category interface.
+	(-firstSelectionOfClass:): Change array iterators to unsigned.
+	Remove debugging logs.
+	(-validateMenuItem:): Initial implementation.
+	(-initWithModel:): Add parentheses around assignment.  Add the model
+	to the default model group.
+	(-dealloc, -delete:): Initial implementation.
+	(-isDirty, -prepareToSave,-checkCloseDocument): Return no temporarily
+	until implemented.
+	(-saveToPath:): Break long messages into separate lines.
+	(-addDefaultEditor:, -addEntity:, -addAttribute:): Ditto. 
+	(-addRelationship:, ):
+	(-activate): Remove commented out code.
+	(-closeEditor:, -checkCloseEditor:): Add comments.
+	(-canFlattenSelectedAttribute): Add temporary return value.
+	(-windowWillClose:): Remove self from the open documents.
+	(-checkConsistency:): Implement.
+	(-appendConsistencyCheckErrorText:): Ditto.
+	(-appendConsistencyCheckSuccessText:): Ditto.
+	* EOModeler/EOModelerEditor.m (-initWithDocument:): Add parentheses
+	around assignment.  Don't retain our document.
+	(-selectionPath:, -viewedObjectPath): Return nil.
+	(-[EOModelerCompoundEditor dealloc]): Implement.
+	(-[EOModelerCompoundEditor initWithParentObject:): Add parentheses
+	around assignment.
+	(-[EOModelerEmbedibleEditor pathViewPreferenceHint:): Return nil.
+	* EOModeler/GNUmakefile: Remove extra whitespace.
+	
 2005-07-08  Matt Rice  <ratmice@yahoo.com>
 
 	* EOInterface/EOAssociation.m: New variable _objectToAssociations.

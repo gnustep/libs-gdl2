@@ -58,13 +58,15 @@ GDL2MODELER_EXPORT NSString *EOMPropertyPboardType;
 - (void)setCurrentEditor:(EOModelerEditor *)editor;
 - (NSArray *)documents;
 - (void) addDocument:(EOModelerDocument *)document;
+- (void) removeDocument:(EOModelerDocument *)document;
 - (NSArray *)columnNamesForClass:(Class)aClass;
 - (id <EOMColumnProvider>) providerForName:(NSString *)name class:(Class)objectClass;
 - (void) registerColumnName:(NSString *)columnNames forClass:(Class)objectClass
 provider:(id <EOMColumnProvider>)provider;
 - (void) registerColumnNames:(NSArray *)columnNames forClass:(Class)objectClass
 provider:(id <EOMColumnProvider>)provider;
-
+- (EOModelerDocument *) documentWithPath:(NSString *)path;
+- (EOModelerDocument *) loadDocumentAtPath:(NSString *)path;
 @end
 
 #endif // __EOModelerApp_H__

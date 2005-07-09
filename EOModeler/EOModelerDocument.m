@@ -25,14 +25,17 @@
   </license>
 **/
 
+#include <AppKit/NSMenuItem.h>
 #include <AppKit/NSOpenPanel.h>
-
+#include <Foundation/NSUndoManager.h>
+#include <Foundation/NSNotification.h>
 #include <EOInterface/EODisplayGroup.h>
 
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOModel.h>
+#include <EOAccess/EOModelGroup.h>
 #include <EOAccess/EORelationship.h>
 
 #include <EOControl/EOEditingContext.h>
@@ -49,6 +52,37 @@
 static Class      _defaultEditorClass;
 static EOModelerEditor *_currentEditorForDocument;
 
+/** Notification sent when beginning consistency checks.
+  * The notifications object is the EOModelerDocument.
+  * The receiver should call -appendConsistencyCheckErrorText:
+  * on the notifications object for any consistency check failures */
+NSString *EOMCheckConsistencyBeginNotification =
+	@"EOMCheckConsistencyBeginNotification";
+
+/** Notification sent when ending consistency checks.
+  * The notifications object is the EOModelerDocument.
+  * The receiver should call -appendConsistencyCheckSuccessText:
+  * on the notifications object for any consistency checks that passed. */
+NSString *EOMCheckConsistencyEndNotification =
+	@"EOMCheckConsistencyEndNotification";
+
+/** Notification sent when beginning EOModel consistency checks.
+  * The notifications object is the EOModelerDocument.
+  * The receiver should call -appendConsistencyCheckErrorText: 
+  * on the notifications object for any consistency check failures
+  * the userInfo dictionary contains an EOModel instance for the 
+  * EOMConsistencyModelObjectKey key. */
+NSString *EOMCheckConsistencyForModelNotification =
+	@"EOMCheckConsistencyForModelNotification";
+NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
+
+/* private methods for the consistency checker implemented in DBModeler */
+@interface NSObject (DBModelerPrivate)
+- (void) showConsistencyCheckResults:(id)sender
+cancelButton:(BOOL)foo
+showOnSuccess:(BOOL)bar;
+@end
+
 @interface EOModelerApp (PrivateStuff)
 - (void) _setActiveDocument:(EOModelerDocument *)newDocument;
 @end
@@ -59,7 +93,7 @@ static EOModelerEditor *_currentEditorForDocument;
 @implementation NSArray (EOMAdditions)
 - (id) firstSelectionOfClass:(Class)aClass
 {
-  int i, c;
+  unsigned i, c;
   id obj;
   for (i = 0, c = [self count]; i < c; i++)
     {
@@ -84,14 +118,9 @@ static EOModelerEditor *_currentEditorForDocument;
             }
         }
     }
+
   if (![obj isKindOfClass:aClass])
     {
-      NSLog(@"blah:");
-      for (i = 0; c < [self count]; i++)
-	 NSLog(@"## %@", [self objectAtIndex:i]);
- /*     [[NSException exceptionWithName:NSInternalInconsistencyException
-                               reason:[NSString stringWithFormat:@"Couldn't find a selected %@", aClass]
-                             userInfo:[NSDictionary dictionaryWithObject:self forKey:@"array"]] raise];*/
       return nil;
     }
   
@@ -101,17 +130,42 @@ static EOModelerEditor *_currentEditorForDocument;
 
 @implementation EOModelerDocument 
 
+- (BOOL) validateMenuItem:(NSMenuItem <NSMenuItem>*)menuItem
+{
+  NSArray *selection = [[EOMApp currentEditor] selectionPath];
+
+  if ([[menuItem title] isEqualToString:@"Add attribute"])
+    return ([selection firstSelectionOfClass:[EOEntity class]] != nil);
+  else if ([[menuItem title] isEqualToString:@"Add relationship"])
+    return ([selection firstSelectionOfClass:[EOAttribute class]] != nil);
+  
+  return YES;
+}
+
 - (id)initWithModel:(EOModel*)model
 {
-  if (self = [super init])
+  if ((self = [super init]))
     {
       _model = RETAIN(model);
+      [[EOModelGroup defaultGroup] addModel:model];
       _userInfo = nil;
       _editors = [[NSMutableArray alloc] init];
       _editingContext = [[EOEditingContext alloc] init];
       [_editingContext insertObject:model];
     }
   return self;
+}
+
+- (void) dealloc
+{
+  [[_editingContext undoManager] removeAllActionsWithTarget:_editingContext];
+  
+  [[EOModelGroup defaultGroup] removeModel:_model];
+  RELEASE(_model);
+  RELEASE(_userInfo);
+  RELEASE(_editors);
+  RELEASE(_editingContext);
+  [super dealloc];
 }
 
 - (EOAdaptor *)adaptor
@@ -135,12 +189,12 @@ static EOModelerEditor *_currentEditorForDocument;
 
 - (BOOL) isDirty
 {
-
+  return NO; /* FIXME*/
 }
 
 - (BOOL) prepareToSave
 {
-
+  return NO; /* FIXME */ 
 }
 
 - (NSString *)documentPath
@@ -156,33 +210,26 @@ static EOModelerEditor *_currentEditorForDocument;
     [_model writeToFile: path];
     return YES;
   NS_HANDLER
-       NSRunAlertPanel(@"Error",@"Save failed: %@",@"Ok",NULL,NULL,[localException reason]);
+       NSRunAlertPanel(@"Error",
+		       @"Save failed: %@",
+		       @"Ok",
+		       NULL,
+		       NULL,
+		       [localException reason]);
     return NO;
   NS_ENDHANDLER
 }
 
 - (BOOL)checkCloseDocument
 {
-
+  /* FIXME */
+  return NO;
 }
 
 - (void)activate
 {
   [EOMApp _setActiveDocument: self];
   [[_editors objectAtIndex:0] activate];
-
-  //[[EOMApp currentEditor] activate];
- // int i,count=[_editors count];
- /* should we really activate the _defaultEditorClass or have some _currentEditor private variable? */
- /* for (i = 0; i < count; i++)
-    { 
-      EOModelerEditor *anEditor = [_editors objectAtIndex:i];
-      if ([anEditor isKindOfClass: _defaultEditorClass])
-        {
-           [anEditor activate];
-        }
-    }
- */
 }
 
 /* Editors stuff */
@@ -200,17 +247,20 @@ static EOModelerEditor *_currentEditorForDocument;
 
 - (void) closeEditor:(EOModelerEditor *)editor
 {
-
+  /* call checkCloseEditor */
 }
 
 - (BOOL)checkCloseEditor:(EOModelerEditor *)editor
 {
-
+  /* FIXME call consistency checker */
+  return NO;
 }
 
 - (EOModelerEditor *) addDefaultEditor
 {
-  EOModelerEditor *defaultEditor = [[_defaultEditorClass alloc] initWithDocument:self];
+  EOModelerEditor *defaultEditor;
+  
+  defaultEditor = [[_defaultEditorClass alloc] initWithDocument:self];
   [self addEditor: defaultEditor];
   _currentEditorForDocument = defaultEditor;
   RELEASE(defaultEditor);
@@ -225,12 +275,16 @@ static EOModelerEditor *_currentEditorForDocument;
   
   if (![_editors containsObject:[EOMApp currentEditor]])
     {
-      [[NSException  exceptionWithName:NSInternalInconsistencyException reason:@"currentEditor not in edited document exception" userInfo:nil] raise]; 
+      [[NSException exceptionWithName:NSInternalInconsistencyException
+	      		       reason:@"current editor not in edited document"
+			       userInfo:nil] raise]; 
       return; 
     }
   
   
-  [newEntity setName: entityCount ? [NSString stringWithFormat: @"Entity%i",entityCount + 1] : @"Entity"];
+  [newEntity setName: entityCount
+	  	      ? [NSString stringWithFormat: @"Entity%i",entityCount + 1]
+		      : @"Entity"];
   [newEntity setClassName:@"EOGenericRecord"];
   attrb = [EOAttribute new];
   [attrb setName:@"Attribute"];
@@ -250,7 +304,9 @@ static EOModelerEditor *_currentEditorForDocument;
   /* the currentEditor must be in this document */
   if (![_editors containsObject:currEd])
     {
-      [[NSException  exceptionWithName:NSInternalInconsistencyException reason:@"currentEditor not in edited document exception" userInfo:nil] raise]; 
+      [[NSException exceptionWithName:NSInternalInconsistencyException
+	      reason:@"current editor not in edited document"
+	      userInfo:nil] raise]; 
       return; 
     }
  
@@ -275,20 +331,45 @@ static EOModelerEditor *_currentEditorForDocument;
 
   if (![_editors containsObject:currentEditor])
     {
-      [[NSException  exceptionWithName:NSInternalInconsistencyException reason:@"currentEditor not in edited document exception" userInfo:nil] raise];
+      [[NSException  exceptionWithName:NSInternalInconsistencyException
+	      	reason:@"currentEditor not in edited document exception"
+		userInfo:nil] raise];
       return;
     }
   
-  srcEntity = [[currentEditor selectionPath] firstSelectionOfClass:[EOEntity class]];
+  srcEntity = [[currentEditor selectionPath]
+	  		firstSelectionOfClass:[EOEntity class]];
   count = [[srcEntity relationships] count];
   newRel = [[EORelationship alloc] init];  
-  [newRel setName: count ? [NSString stringWithFormat:@"Relationship%i", count + 1] : @"Relationship"];
+  [newRel setName: count
+	  	   ? [NSString stringWithFormat:@"Relationship%i", count + 1]
+		   : @"Relationship"];
   [srcEntity addRelationship:newRel];
   [_editingContext insertObject:newRel];
-  //[[(EOModelerCompoundEditor *)[EOMApp currentEditor] activeEditor] setSelectionWithinViewedObject:[NSArray arrayWithObject: srcEntity]];
   [(EOModelerCompoundEditor *)[EOMApp currentEditor] viewSelectedObject];
 }
+- (void)delete:(id)sender
+{
+  NSArray *objects = [[EOMApp currentEditor] selectionWithinViewedObject];
+  unsigned i,c;
 
+  for (i = 0, c = [objects count]; i < c; i++)
+    {
+      id object = [objects objectAtIndex:i];
+      if ([object isKindOfClass:[EOAttribute class]])
+	{
+	  [[object entity] removeAttribute:object];
+	}
+      else if ([object isKindOfClass:[EOEntity class]])
+	{
+	  [[object model] removeEntity:object];
+	}
+      else if ([object isKindOfClass:[EORelationship class]])
+	{
+	  [[object entity] removeRelationship: object];
+	}
+    }
+}
 - (void)addFetchSpecification:(id)sender
 {
 
@@ -306,6 +387,7 @@ static EOModelerEditor *_currentEditorForDocument;
 
 - (BOOL)canFlattenSelectedAttribute;
 {
+  return NO;
   // no idea
 }
 
@@ -393,6 +475,42 @@ static EOModelerEditor *_currentEditorForDocument;
 - (void) windowDidBecomeKey:(NSNotification *)notif
 {
   [self activate];
+}
+
+- (void) windowWillClose:(NSNotification *)notif
+{
+  [EOMApp removeDocument:self];  
+}
+
+static id consistencyChecker;
+- (void) checkConsistency:(id)sender
+{
+  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+  
+  consistencyChecker = [sender representedObject];
+  [center postNotificationName:EOMCheckConsistencyBeginNotification
+	  	object:self];
+  [center postNotificationName:EOMCheckConsistencyForModelNotification
+	  	object:self
+		userInfo:[NSDictionary dictionaryWithObject:[self model]
+	 				forKey:EOMConsistencyModelObjectKey]];
+  [center postNotificationName:EOMCheckConsistencyEndNotification
+	  	object:self];
+
+  [consistencyChecker showConsistencyCheckResults:self 
+	  			cancelButton:NO
+				showOnSuccess:YES];
+  consistencyChecker = nil;  
+}
+
+- (void) appendConsistencyCheckErrorText:(NSAttributedString *)errorText
+{
+  [consistencyChecker appendConsistencyCheckErrorText:errorText];
+}
+
+- (void) appendConsistencyCheckSuccessText:(NSAttributedString *)successText
+{
+  [consistencyChecker appendConsistencyCheckSuccessText:successText];
 }
 
 @end

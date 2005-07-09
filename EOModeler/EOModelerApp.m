@@ -46,7 +46,7 @@ static EOModelerDocument *_activeDocument;
 
 - (id) init
 {
-  if (self = [super init])
+  if ((self = [super init]))
     {
       EOMApp = (EOModelerApp*)NSApp;
       _documents = [[NSMutableArray alloc] init];
@@ -58,7 +58,7 @@ static EOModelerDocument *_activeDocument;
 
 - (NSArray *)allPasteboardTypes
 {
-  
+  return [NSArray arrayWithObject:EOMPropertyPboardType];
 }
 
 - (EOModelerEditor *)currentEditor;
@@ -78,6 +78,8 @@ static EOModelerDocument *_activeDocument;
 
 - (void)removeDocument:(EOModelerDocument *)document
 {
+  if (_activeDocument == document)
+    _activeDocument = nil;
   [_documents removeObject: document];
 }
 
@@ -105,7 +107,7 @@ static EOModelerDocument *_activeDocument;
 
 - (EOModelerDocument *)documentWithPath:(NSString *)path
 {
-  int i = 0;
+  unsigned i = 0;
   for (i=0; i < [_documents count]; i++)
      {
        if ([[[_documents objectAtIndex:i] documentPath] isEqual: path])
@@ -132,7 +134,7 @@ static EOModelerDocument *_activeDocument;
                    forClass:(Class)class
 		   provider:(id <EOMColumnProvider>)provider
 {
-  int i,count = [names count];
+  unsigned i,count = [names count];
   NSMutableDictionary *classDict = [_columnsByClass objectForKey: class];
   
   if (!classDict)
@@ -142,7 +144,7 @@ static EOModelerDocument *_activeDocument;
       RELEASE(classDict);
     }
 
-  for (i=0; i < count; i++)
+  for (i = 0; i < count; i++)
     {
       [classDict setObject:provider forKey:[names objectAtIndex:i]]; 
     }
@@ -168,15 +170,19 @@ static EOModelerDocument *_activeDocument;
 
 + (EOModel *)modelContainingFetchSpecification:(EOFetchSpecification *)fs
 {
-
+  /* TODO */
+  return nil;
 }
 
 + (NSString *)nameForFetchSpecification:(EOFetchSpecification *)fs
 {
-
+  /* TODO */
+  return nil;
 }
+
 -(void)_setActiveDocument:(EOModelerDocument*)ad
 {
   _activeDocument = ad;
 }
+
 @end

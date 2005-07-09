@@ -59,8 +59,6 @@ EOModelerApp.h				\
 EOModelerEditor.h			\
 EODefines.h
 
-
-
 -include Makefile.preamble
 
 -include GNUmakefile.local

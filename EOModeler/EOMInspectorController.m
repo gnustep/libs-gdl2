@@ -58,6 +58,7 @@ static NSBox *_placeHolderView;
 			     styleMask:NSTitledWindowMask | NSClosableWindowMask
 			     backing:NSBackingStoreBuffered
 			     defer:YES];
+  [window setReleasedWhenClosed:NO];
   scrollView = [[NSScrollView alloc] initWithFrame: NSMakeRect(0, 0, 250, 68)];
   _placeHolderView = [[NSBox alloc] initWithFrame:NSMakeRect(0,68,250,333)];
 
@@ -103,17 +104,25 @@ static NSBox *_placeHolderView;
   if ([selection count])
     {
       NSArray *inspectors =  [EOMInspector allInspectorsThatCanInspectObject: [selection objectAtIndex:0]];
-      
+
       if ([inspectors count])
 	{
           inspector = [inspectors objectAtIndex:0];
 	  [inspector prepareForDisplay];
-	  [[window contentView] replaceSubview:[lastInspector view] with:[inspector view]];
+	  if ([lastInspector view])
+	    [[window contentView] removeSubview:[lastInspector view]];
+
+	  if ([inspector view])
+	    [[window contentView] addSubview:[inspector view]];
+	  
+	  [[inspector view] setNeedsDisplay:YES];
 	  [inspector refresh];
 	  lastInspector = inspector;
 	}
       else
 	{
+	  [[lastInspector view] removeFromSuperview];
+	  lastInspector = nil;
 	  NSLog(@"no inspector");
 	}
     }

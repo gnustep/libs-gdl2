@@ -27,12 +27,22 @@
 */
 
 #include <Foundation/NSObject.h>
-
+#include <EOModeler/EODefines.h>
 @class EOModel;
 @class NSMutableArray;
 @class NSDictionary;
 @class EOEditingContext;
 @class EOModelerEditor;
+@class EOAdaptor;
+@class NSAttributedString;
+@class NSString;
+
+GDL2MODELER_EXPORT NSString *EOMCheckConsistencyBeginNotification;
+GDL2MODELER_EXPORT NSString *EOMCheckConsistencyEndNotification;
+GDL2MODELER_EXPORT NSString *EOMCheckConsistencyForModelNotification;
+
+GDL2MODELER_EXPORT NSString *EOMConsistencyModelObjectKey;
+
 
 @interface EOModelerDocument : NSObject
 {
@@ -47,8 +57,16 @@
 - (void) saveAs:(id)sender;
 - (NSString *)documentPath;
 - (EOModel *)model;
+- (EOAdaptor *)adaptor;
 - (EOModelerEditor *) addDefaultEditor;
 - (void) activate;
+- (void) appendConsistencyCheckErrorText:(NSAttributedString *)errorText;
+- (void) appendConsistencyCheckSuccessText:(NSAttributedString *)successText;
+/* actions */
+- (void) addEntity:(id)sender;
+- (void) addRelationship:(id)sender;
+- (void) addAttribute:(id)sender;
+- (void) delete:(id)sender;
 @end
 
 #endif // __EOModelerDocument_H__

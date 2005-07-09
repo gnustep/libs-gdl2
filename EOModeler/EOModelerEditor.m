@@ -25,8 +25,6 @@
   </license>
 **/
 
-//#include <EOModeler/EOModeler.h>
-
 #include <Foundation/NSArray.h>
 #include <Foundation/NSObject.h>
 
@@ -40,12 +38,16 @@
 #include <AppKit/NSView.h>
 
 @implementation EOModelerEditor
+- (void) dealloc
+{
+  [super dealloc];
+}
 
 - (EOModelerEditor *)initWithDocument:(EOModelerDocument *)document
 {
-  if (self = [super init])
+  if ((self = [super init]))
     {
-      ASSIGN(_document,document);
+      _document = document;
     }
   return self;
 }
@@ -63,6 +65,7 @@
 - (NSArray *)selectionPath
 {
   [self subclassResponsibility: _cmd];
+  return nil;
 }
 
 - (void)activate
@@ -88,12 +91,19 @@
 - (NSArray *)viewedObjectPath
 {
   [self subclassResponsibility: _cmd];
+  return nil;
 }
 
 @end
 
 @implementation EOModelerCompoundEditor
-
+- (void) dealloc
+{
+  RELEASE(_editors);
+  RELEASE(_viewedObjectPath);
+  RELEASE(_selectionWithinViewedObject);
+  [super dealloc];
+}
 - (id) initWithDocument:(id)doc
 {
   self = [super initWithDocument:doc];
@@ -308,7 +318,7 @@
 
 - (EOModelerEmbedibleEditor *) initWithParentEditor:(EOModelerCompoundEditor *)parentEditor
 {
-  if (self = [super initWithDocument: [parentEditor document]])
+  if ((self = [super initWithDocument: [parentEditor document]]))
   {
     _parentEditor = parentEditor;
   }
@@ -348,6 +358,7 @@
 - (NSString *)pathViewPreferenceHint
 {
   [self subclassResponsibility: _cmd];
+  return nil; 
 }
 
 - (void)print

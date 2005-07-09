@@ -33,7 +33,11 @@
 
 #include <EOModeler/EOModelExtensions.h>
 #include <EOControl/EODebug.h>
-
+#include <AppKit/NSFont.h>
+#include <AppKit/NSAttributedString.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSScanner.h>
 
 @implementation EOEntity (EOModelExtensions)
 
@@ -261,9 +265,42 @@
 
 + (NSMutableAttributedString *)mutableAttributedStringWithBoldSubstitutionsWithFormat:(NSString *)format, ...
 {
-  [self notImplemented:_cmd];
-
-  return nil;
+  va_list ap;
+  NSMutableAttributedString *s = [[NSMutableAttributedString alloc] init];
+  NSScanner *scanner = [NSScanner scannerWithString:format];
+  NSString *tmp;
+  NSDictionary *boldAttributes;
+  
+  boldAttributes =
+    [[NSDictionary alloc] initWithObjectsAndKeys:
+		[NSFont boldSystemFontOfSize:[NSFont systemFontSize]],
+	  	NSFontAttributeName,
+		nil];
+ 
+  [scanner setCharactersToBeSkipped:nil];
+  if (format == nil)
+    return nil;
+  
+  va_start(ap, format);
+  [scanner scanUpToString:@"%@" intoString:&tmp];
+  [s appendAttributedString:AUTORELEASE([[NSAttributedString alloc]
+		  				initWithString:tmp])];
+  while ([scanner scanString:@"%@" intoString:NULL])
+    {
+      NSAttributedString *boldStr;
+      
+      boldStr = [[NSAttributedString alloc]
+	      		initWithString:(NSString *)va_arg(ap, NSString *)
+	      		    attributes: boldAttributes];
+      [s appendAttributedString:AUTORELEASE(boldStr)];
+      if ([scanner scanUpToString:@"%@" intoString:&tmp])
+        [s appendAttributedString:AUTORELEASE([[NSAttributedString alloc]
+							initWithString:tmp])];
+    }
+  
+  va_end(ap);
+  RELEASE(boldAttributes);
+  return AUTORELEASE(s); 
 }
 
 @end
