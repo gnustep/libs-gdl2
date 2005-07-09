@@ -87,6 +87,7 @@
       
       /* THIS *MUST* be before initColumn:class:name:displayGroup:document calls */
       [tv addTableColumn:tc];
+      RELEASE(tc);
       
       [provider initColumn:tc class:aClass name:columnName
 	      displayGroup:dg document:[self document]]; 
@@ -111,7 +112,7 @@
   
   /* THIS *MUST* be before initColumn:class:name:displayGroup:document calls */
   [tv addTableColumn:tc];
-  
+  RELEASE(tc);  
   /* this requires that the table at least have 1 table column in it...
    * so we have to have another method to setup the default table columns */
   [provider initColumn:tc

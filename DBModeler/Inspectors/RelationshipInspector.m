@@ -11,19 +11,139 @@
 #include <Foundation/NSArray.h>
 
 @implementation RelationshipInspector
+- (EOEntity *)selectedEntity
+{
+  int row = [destEntity_tableView selectedRow];
+  
+  if (row == -1)
+    return nil;
+  
+  return [[[[EOMApp activeDocument] model] entities] objectAtIndex:row];
+}
+
+- (EOAttribute *)selectedDestinationAttribute
+{
+  int row = [destAttrib_tableView selectedRow];
+
+  if (row == -1)
+    return nil;
+  
+  return [[[self selectedEntity] attributes]
+	  	objectAtIndex:[destAttrib_tableView selectedRow]];
+}
+
+- (EOAttribute *)selectedSourceAttribute
+{
+  int row = [srcAttrib_tableView selectedRow];
+
+  if (row == -1)
+    return nil;
+
+  return [[[[self selectedObject] entity] attributes] objectAtIndex:[srcAttrib_tableView selectedRow]];
+}
+
+- (int) indexOfSourceAttribute:(EOAttribute *)srcAttrib
+{
+  id tmp;
+  int row;
+
+  if (srcAttrib == nil) return NSNotFound;
+
+  tmp = [self selectedObject];
+  if (tmp == nil) return NSNotFound;
+  
+  tmp = [tmp entity];
+  if (tmp == nil) return NSNotFound;
+  
+  tmp = [(EOEntity *)tmp attributes];
+  if (tmp == nil) return NSNotFound;
+
+  row = [tmp indexOfObject:srcAttrib];
+  return row;
+}
+
+- (int) indexOfDestinationAttribute:(EOAttribute *)destAttrib
+{
+  id tmp;
+  int row;
+
+  if (destAttrib == nil) return NSNotFound;
+  
+  tmp = [self selectedObject];
+  if (tmp == nil) return NSNotFound;
+
+  tmp = [tmp destinationEntity];
+  if (tmp == nil) return NSNotFound;
+  
+  tmp = [(EOEntity *)tmp attributes];
+  if (tmp == nil) return NSNotFound;
+
+  row = [tmp indexOfObject:destAttrib];
+  return row;
+}
+
+- (EOJoin *) joinWithSource:(EOAttribute *)srcAttrib destination:(EOAttribute *)destAttrib
+{
+  NSArray *joins;
+  int i,c;
+  
+  if (!srcAttrib && !destAttrib)
+    return nil;
+
+  joins = [[self selectedObject] joins];
+  c = [joins count];
+  for (i = 0; i < c; i++)
+    {
+      BOOL flag;
+      id join = [joins objectAtIndex:i];
+	  
+      /* if both arguments are non-nil, both must be equal,
+       * if one argument is nil the non-nil argument must be equal */
+      flag = ((srcAttrib 
+	       && destAttrib
+	       && [srcAttrib isEqual:[join sourceAttribute]]
+	       && [destAttrib isEqual:[join destinationAttribute]])
+	      || (srcAttrib
+	          && (destAttrib ==  nil)
+	          && [srcAttrib isEqual:[join sourceAttribute]])
+	      || (destAttrib
+	          && (srcAttrib == nil)
+		  && [destAttrib isEqual:[join destinationAttribute]]));
+			  
+      if (flag)  
+	{
+	  return join;
+	}
+    }
+  return nil;
+}
+
+- (EOJoin *) selectedJoin
+{
+  return [self joinWithSource:[self selectedSourceAttribute]
+	  	  destination:[self selectedDestinationAttribute]];
+}
+
 - (void) awakeFromNib
 {
   [destEntity_tableView setAllowsEmptySelection:NO];
   [srcAttrib_tableView setAllowsEmptySelection:NO];
   [destAttrib_tableView setAllowsEmptySelection:NO];
 }
+
 - (float) displayOrder
 {
   return 0;
 }
+
 - (BOOL) canInspectObject:(id)anObject
 {
   return [anObject isKindOfClass:[EORelationship class]];
+}
+
+- (void) updateConnectButton
+{
+  [connect_button setState: ([self selectedJoin] != nil) ? NSOnState : NSOffState];
 }
 
 - (void) refresh
@@ -31,14 +151,9 @@
   EOModel *activeModel = [[EOMApp activeDocument] model];
   EOEntity *destEntity;
   EOAttribute *srcAttrib, *destAttrib;
-  NSArray *srcAttribs;
-  NSArray *destAttribs;
+  NSArray *joins;
   unsigned int row;
-
-
   [name_textField setStringValue:[(EORelationship *)[self selectedObject] name]];
-  
-  
   
   /* it is important that the destEntity has a selected row before the destAttrib tableview
    * reloads data */
@@ -51,45 +166,29 @@
         row = 0;
     }
   else if ([destEntity_tableView numberOfRows])
-    row = 0; 
+    row = 0;
+
   [destEntity_tableView selectRow:row byExtendingSelection:NO];
   
-  srcAttribs = [[self selectedObject] sourceAttributes];
-  if (srcAttribs && [srcAttribs count]) 
-    srcAttrib = [srcAttribs objectAtIndex:0];
+  joins = [[self selectedObject] joins];
+  
+  if ([joins count])
+    {
+      EOJoin *join = [joins objectAtIndex:0];
+      srcAttrib = [join sourceAttribute];
+      destAttrib = [join destinationAttribute];
+      row = [self indexOfSourceAttribute:srcAttrib];
+      [srcAttrib_tableView selectRow:row byExtendingSelection:NO];
+      row = [self indexOfDestinationAttribute:srcAttrib];
+      [destAttrib_tableView selectRow:row byExtendingSelection:NO];
+    }
   else
-    srcAttrib = nil;
+    {
+      [srcAttrib_tableView selectRow:0 byExtendingSelection:NO];
+      [destAttrib_tableView selectRow:0 byExtendingSelection:NO];
+    }
 
-  [srcAttrib_tableView reloadData];
-  if (srcAttrib)
-    {
-      // FIXME!!!! when there is no srcAttrib we segfault when calling isEqual: so we use indexOfObjectIdenticalTo:
-      row = [[[[self selectedObject] entity] attributes] indexOfObject:srcAttrib];
-      if (row == NSNotFound)
-        row = 0;
-    }
-  else if ([srcAttrib_tableView numberOfRows])
-    row = 0;
-  [srcAttrib_tableView selectRow:row byExtendingSelection:NO];
-  
-  destAttribs = [[self selectedObject] destinationAttributes];
-  if (destAttribs && [destAttribs count]) 
-    destAttrib = [destAttribs objectAtIndex:0];
-  else
-    destAttrib = nil;
-  [destAttrib_tableView reloadData];
-  if (destAttrib)
-    {
-      // FIXME!!!! when there is no destAttrib we segfault when calling isEqual: so we use indexOfObjectIdenticalTo:
-      row = [[[[self selectedObject] destinationEntity] attributes] indexOfObject:destAttrib];
-      if (row == NSNotFound)
-        row = 0;
-    }
-  else if ([destAttrib_tableView numberOfRows])
-    row = 0;
-  [destAttrib_tableView selectRow:row byExtendingSelection:NO];
-  
-  [connect_button setState: ([[self selectedObject] destinationEntity] == nil) ? NSOffState : NSOnState];
+  [self updateConnectButton]; 
   
   [joinCardinality_matrix selectCellWithTag:[[self selectedObject] isToMany]];
   [joinSemantic_popup selectItemAtIndex: [joinSemantic_popup indexOfItemWithTag: [[self selectedObject] joinSemantic]]];
@@ -110,6 +209,7 @@
       return [[(EOEntity *)[[activeModel entities] objectAtIndex:[destEntity_tableView selectedRow]] attributes] count]; 
 
     }
+  return 0;
 }
 
 - (id) tableView:(NSTableView *)tv
@@ -133,6 +233,8 @@ row:(int)rowIndex
       return [(EOAttribute *)[[(EOEntity *)[[activeModel entities] objectAtIndex:[destEntity_tableView selectedRow]]
 				   attributes] objectAtIndex:rowIndex] name]; 
     } 
+
+  return nil;
 }
 
 - (void) tableViewSelectionDidChange:(NSNotification *)notif
@@ -143,24 +245,76 @@ row:(int)rowIndex
     {
       [destAttrib_tableView reloadData];
     }
+  else if (tv == destAttrib_tableView)
+    {
+      EOJoin *join = [self joinWithSource:nil destination:[self selectedDestinationAttribute]]; 
+      int row = [self indexOfSourceAttribute:[join sourceAttribute]];
+      
+      if (row != NSNotFound)
+        [srcAttrib_tableView selectRow:row byExtendingSelection:NO];
+      
+      [self updateConnectButton];
+    }
+  else if (tv == srcAttrib_tableView)
+    {
+      EOJoin *join = [self joinWithSource:[self selectedSourceAttribute] destination:nil];
+      int row = [self indexOfDestinationAttribute:[join destinationAttribute]];
+      
+      if (row != NSNotFound)
+        [destAttrib_tableView selectRow:row byExtendingSelection:NO];
+      
+      [self updateConnectButton];
+    }
 }
+
+- (BOOL) tableView:(NSTableView *)tv shouldSelectRow:(int)rowIndex
+{
+  if (tv == destEntity_tableView)
+    {
+      return [[self selectedObject] destinationEntity] == nil;
+    }
+  else
+    {
+      return YES;
+    }
+}
+
+- (void) tableView:(NSTableView *)tv willDisplayCell:(NSCell *)cell forTableColumn:(id)tc
+row:(int)row
+{
+  if (tv == destEntity_tableView)
+    {
+      NSColor *enabledText = [NSColor controlTextColor];
+      NSColor *disabledText = [NSColor disabledControlTextColor];
+      BOOL flag = ([[self selectedObject] destinationEntity] == nil);
+      
+      [(NSTextFieldCell *)cell setTextColor:(flag == YES) ? enabledText : disabledText];
+    }
+}
+
 - (void) connectionChanged:(id)sender
 {
-  EOEntity *destEntity;
   EOAttribute *srcAttrib;
   EOAttribute *destAttrib;
-  EOModel *model;
-  EOJoin *newJoin;
+  EOJoin *join;
+  EOEntity *destEnt = [[self selectedObject] destinationEntity];
+  destAttrib = [self selectedDestinationAttribute];
+  srcAttrib = [self selectedSourceAttribute];
+
+  if ([sender state] == NSOnState)
+    {
+      join = [[EOJoin alloc] initWithSourceAttribute:srcAttrib destinationAttribute:destAttrib];
+      [[self selectedObject] addJoin:join];
+      [join release];
+    }
+  else
+    {
+      join = [self joinWithSource:srcAttrib destination:destAttrib];
+      [[self selectedObject] removeJoin:join];
+    }
   
-  model = [[EOMApp activeDocument] model];
-
-  destEntity = [[model entities] objectAtIndex:[destEntity_tableView selectedRow]];
-  destAttrib = [[destEntity attributes] objectAtIndex:[destAttrib_tableView selectedRow]];
-  srcAttrib = [[[[self selectedObject] entity] attributes] objectAtIndex:[srcAttrib_tableView selectedRow]];
-
-  newJoin = [[EOJoin alloc] initWithSourceAttribute:srcAttrib destinationAttribute:destAttrib];
-  [[self selectedObject] addJoin:newJoin];
-  [newJoin release];
+  if (destEnt != [[self selectedObject] destinationEntity])
+    [destEntity_tableView reloadData];
 }
 
 - (void) nameChanged:(id)sender
@@ -182,5 +336,6 @@ row:(int)rowIndex
   /* the tag in the nib for to-one must be 0 to-many 1 */
   [[self selectedObject] setToMany: [[sender selectedCell] tag]];
 }
+
 @end
 

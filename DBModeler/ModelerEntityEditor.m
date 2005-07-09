@@ -67,7 +67,6 @@
     }
   selection = [selection objectAtIndex:0]; 
   flag = [selection isKindOfClass:[EOModel class]];
-  //NSLog(@"%@ %@ %i", [self class], NSStringFromSelector(_cmd), flag);
   return flag;
 }
 
@@ -76,17 +75,21 @@
   return [NSArray arrayWithObjects: [ModelerAttributeEditor class], nil];
 }
 
+- (void) dealloc
+{
+  [EOObserverCenter removeObserver:self forObject:[[self document] model]];
+  RELEASE(_splitView);
+  [dg setDataSource:nil];
+  RELEASE(dg);
+  [super dealloc];
+}
+
 - (id) initWithParentEditor: (EOModelerCompoundEditor *)parentEditor
 {
-  if (self = [super initWithParentEditor:parentEditor])
+  if ((self = [super initWithParentEditor:parentEditor]))
     {
-      id columnProvider;
-      NSTableColumn *tc;
       EOClassDescription *classDescription = nil;
       KVDataSource   *wds;
-      NSArray *columnNames;
-      int i;
-      Class editorClass = [EOEntity class];
       NSScrollView *scrollView;
       NSPopUpButton *cornerView;
       NSMenuItem *mi = [[NSMenuItem alloc] initWithTitle:@"+" action:(SEL)nil keyEquivalent:@""];
@@ -101,7 +104,9 @@
       _bottomTable = [[NSTableView alloc] initWithFrame:NSMakeRect(0,0,10,10)];
       [_topTable setAutoresizesAllColumnsToFit:YES];
       [scrollView setDocumentView:_topTable];
+      RELEASE(_topTable);
       [_splitView addSubview:scrollView];
+      RELEASE(scrollView);
 
       scrollView = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,10,10)];
       [scrollView setHasHorizontalScroller:YES];
@@ -109,7 +114,10 @@
       [scrollView setBorderType: NSBezelBorder];
       [_bottomTable setAutoresizesAllColumnsToFit:YES];
       [scrollView setDocumentView:_bottomTable];
+      RELEASE(_bottomTable);
       [_splitView addSubview:scrollView];
+      RELEASE(scrollView);
+
       
       [DefaultColumnProvider class]; // calls +initialize
       
@@ -125,6 +133,7 @@
       [[cornerView cell] setShowsFirstResponder:NO];
       [[cornerView cell] setShowsStateBy:NSContentsCellMask];
       [[cornerView cell] setMenuItem:mi];
+      RELEASE(mi);
       [[cornerView cell] setImagePosition:NSNoImage];
       
       [_topTable setCornerView:cornerView];
@@ -141,6 +150,7 @@
       dg = [[EODisplayGroup alloc] init];
       [EOObserverCenter addObserver:self forObject:[[self document] model]];
       [dg setDataSource: wds];
+      RELEASE(wds);
       [dg setFetchesOnLoad:YES];
       [dg setDelegate: self]; 
   
@@ -156,6 +166,7 @@
     }
   return self;
 }
+
 - (NSArray *)defaultColumnNamesForClass:(Class)aClass
 {
   NSArray *colNames = [super defaultColumnNamesForClass:aClass];
@@ -194,7 +205,6 @@
 @implementation ModelerEntityEditor (DisplayGroupDelegate)
 - (void) displayGroupDidChangeSelection:(EODisplayGroup *)displayGroup
 {
-  //NSLog(@"didChangeSelection %@ %@",dg,[dg selectedObjects]);
   [self setSelectionWithinViewedObject: [displayGroup selectedObjects]];
 }
 

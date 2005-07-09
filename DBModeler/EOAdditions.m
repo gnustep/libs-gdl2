@@ -108,6 +108,17 @@ static inline void setIsClassProperty(id self, NSNumber *flag)
 {
   /* FIXME */
 }
+
+- (NSNumber *)allowNull
+{
+  return [NSNumber numberWithBool:[self allowsNull]];
+}
+
+- (void) setAllowNull:(NSNumber *)flag
+{
+  [self setAllowsNull:[flag boolValue]];
+}
+
 @end
 
 
@@ -121,4 +132,6 @@ static inline void setIsClassProperty(id self, NSNumber *flag)
 {
   return setIsClassProperty(self, flag);
 }
+
 @end
+

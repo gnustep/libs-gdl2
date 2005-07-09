@@ -48,37 +48,37 @@ static NSMutableDictionary *_aspectsAndKeys;
 
 /*	object			key 			default */
 static id attribute_columns[][3] = {
-	@"allowsNull",		@"Allows null",		nil, 
-	@"isClassProperty",	@"Class property",	uhuh,
-	@"columnName",		@"Column name",		uhuh,
-	@"definition",		@"Definition",		nil,
-	@"externalType",	@"External Type",	uhuh,
-	@"isUsedForLocking",	@"Locking",		uhuh,
-	@"name",		@"Name",		uhuh,
-	@"precision",		@"Precision", 	 	nil,	
-	@"isPrimaryKey",	@"Primary key",		uhuh,
-	@"readFormat",		@"Read format", 	nil,
-	@"scale",		@"Scale",		nil, 
-	@"valueClassName",	@"Value class name",	uhuh,
-	@"valueType",		@"Value type",		nil,
-	@"width",		@"Width",		uhuh, 
-	@"writeFormat",		@"Write format",	nil 
+	{@"allowNull",		@"Allows null",		uhuh}, 
+	{@"isClassProperty",	@"Class property",	uhuh},
+	{@"columnName",		@"Column name",		uhuh},
+	{@"definition",		@"Definition",		nil},
+	{@"externalType",	@"External Type",	uhuh},
+	{@"isUsedForLocking",	@"Locking",		uhuh},
+	{@"name",		@"Name",		uhuh},
+	{@"precision",		@"Precision", 	 	nil},	
+	{@"isPrimaryKey",	@"Primary key",		uhuh},
+	{@"readFormat",		@"Read format", 	nil},
+	{@"scale",		@"Scale",		nil}, 
+	{@"valueClassName",	@"Value class name",	uhuh},
+	{@"valueType",		@"Value type",		nil},
+	{@"width",		@"Width",		uhuh}, 
+	{@"writeFormat",	@"Write format",	nil} 
 };
   
 static id relationship_columns[][3]= {
-	@"isClassProperty",		@"Class Property",	uhuh,
-	@"definition",			@"Definition",		nil, 
-	@"name",			@"Name",		uhuh,
-	@"destinationEntity.name",	@"Destination Entity",  uhuh	
+	{@"isClassProperty",		@"Class property",	uhuh},
+	{@"definition",			@"Definition",		nil}, 
+	{@"name",			@"Name",		uhuh},
+	{@"destinationEntity.name",	@"Destination Entity",  uhuh}	
 	
 };
 
 static id entity_columns[][3] = {
-	 @"name",		@"Name",		uhuh,
-	 @"className",		@"Class name",		uhuh,
-	 @"externalName",	@"External name",	uhuh,
-	 @"externalQuery",	@"External query",	nil,
-	 @"parentEntity.name",	@"Parent",		nil
+	{@"name",		@"Name",		uhuh},
+	{@"className",		@"Class name",		uhuh},
+	{@"externalName",	@"External name",	uhuh},
+	{@"externalQuery",	@"External query",	nil},
+	{@"parentEntity.name",	@"Parent",		nil}
 
 };
 
@@ -101,7 +101,7 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
 {
   id *objects;
   id *keys;
-  int i,c;
+  int i;
   size_t size;
   NSDictionary *tmp;
   size = (count * sizeof(id));
@@ -156,6 +156,7 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
 
 - (NSCell *)cellForColumnNamed:(NSString *)name
 {
+
   /* TODO need a switch button for "Locking" and "Allows null" */
   if ([name isEqual:@"Primary key"])
     {
@@ -168,7 +169,7 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
       [cell setAlternateImage:[NSImage imageNamed:@"Key_On"]];
       [cell setControlSize: NSSmallControlSize];
       [cell setEditable:YES];
-      return cell;
+      return AUTORELEASE(cell);
     }
   else if ([name isEqual:@"Class property"])
     {
@@ -181,7 +182,7 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
       [cell setAlternateImage:[NSImage imageNamed:@"ClassProperty_On"]];
       [cell setControlSize: NSSmallControlSize];
       [cell setEditable:YES];
-      return cell;
+      return AUTORELEASE(cell);
     }
   else if ([name isEqual:@"Locking"])
     {
@@ -194,7 +195,19 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
       [cell setAlternateImage:[NSImage imageNamed:@"ClassProperty_On"]];
       [cell setControlSize: NSSmallControlSize];
       [cell setEditable:YES];
-      return cell;
+      return AUTORELEASE(cell);
+    }
+  else if ([name isEqual:@"Allows null"])
+    {
+      NSButtonCell *cell = [[NSButtonCell alloc] initImageCell:nil];
+
+      [cell setButtonType:NSSwitchButton];
+      [cell setImagePosition:NSImageOnly];
+      [cell setBordered:NO];
+      [cell setBezeled:NO];
+      [cell setControlSize: NSSmallControlSize];
+      [cell setEditable:YES];
+      return AUTORELEASE(cell);
     }
   else
     {
@@ -202,7 +215,7 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
       [cell setEnabled:YES];
       [cell setEditable:YES];
       [cell setScrollable: YES];
-      return cell;
+      return AUTORELEASE(cell);
     }
 }
 

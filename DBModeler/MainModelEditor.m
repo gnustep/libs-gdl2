@@ -23,6 +23,7 @@
     </license>
 **/
 
+#include <Foundation/NSRunLoop.h>
 
 #include "MainModelEditor.h"
 #include "ModelerEntityEditor.h"
@@ -39,6 +40,7 @@
 #include <EOControl/EOObserver.h>
 #include <EOControl/EOEditingContext.h>
 
+#include <AppKit/NSPanel.h>
 #include <AppKit/NSImage.h>
 #include <AppKit/NSOutlineView.h>
 #include <AppKit/NSPasteboard.h>
@@ -47,7 +49,7 @@
 #include <AppKit/NSTableColumn.h>
 
 #include <Foundation/NSNotification.h>
-//#define DEBUG_STUFF 1 
+#define DEBUG_STUFF 0 
 
 @interface ModelerOutlineView : NSOutlineView
 @end
@@ -60,7 +62,8 @@
   id foo = [self itemAtRow:[[dragRows objectAtIndex:0] intValue]];
   NSImage *img = nil;
 
-  if ([foo isKindOfClass: [EOEntity class]])
+  if ([foo isKindOfClass: [EOEntity class]]
+      || [foo isKindOfClass:[EORelationship class]])
     {
       img = [NSImage imageNamed:@"ModelDrag"];
       [img setScalesWhenResized:NO];
@@ -71,7 +74,7 @@
 @implementation MainModelEditor 
 - (id) initWithDocument:(EOModelerDocument *)document
 {
-  if (self = [super initWithDocument:document])
+  if ((self = [super initWithDocument:document]))
     {
       NSTableColumn *_col;
       NSSplitView *vSplit = [[NSSplitView alloc] initWithFrame:NSMakeRect(0,0,400,400)];
@@ -99,6 +102,7 @@
       					styleMask: NSTitledWindowMask | NSMiniaturizableWindowMask | NSClosableWindowMask | NSResizableWindowMask
       					backing:NSBackingStoreBuffered
 					defer:YES];
+      [_window setReleasedWhenClosed:NO];
       
       [sv setHasHorizontalScroller:YES];
       [sv setHasVerticalScroller:YES];
@@ -146,21 +150,7 @@
 {
   if ([[notif object] isKindOfClass:[EOEditingContext class]])
     {
-      int i,c;
-      NSArray *objects = [[notif userInfo] objectForKey:EOUpdatedKey];
-
-      for (i = 0, c = [objects count]; i < c; i++)
-         [_iconPath reloadItem:[objects objectAtIndex:i] reloadChildren:YES];
-#if 0
-      objects = [[notif userInfo] objectForKey:EOInsertedKey];
-      for (i = 0, c = [objects count]; i < c; i++)
-         [_iconPath reloadItem:[objects objectAtIndex:i] reloadChildren:YES];
-     
-      objects = [[notif userInfo] objectForKey:EODeletedKey];
-      for (i = 0, c = [objects count]; i < c; i++)
-         [_iconPath reloadItem:[objects objectAtIndex:i] reloadChildren:YES];
-#endif
-
+      [_iconPath reloadData];
     }
 }
 
@@ -214,10 +204,7 @@
 {
   id selection;
   if ([[self selectionWithinViewedObject] count] == 0)
-    {
-      NSLog(@"view count == 0, obj:");
-      return;
-    }
+    return;
 	  
   selection = [[self selectionWithinViewedObject] objectAtIndex:0];
 #if DEBUG_STUFF == 1 
@@ -235,39 +222,35 @@
          current selection */
       for (i = 0, c = [friends count]; i < c; i++)
         {
-          id friend = [friends objectAtIndex:i];
           for (j = 0,editorsCount = [_editors count]; j < editorsCount; j++)
 	    {
-	      if ([_editors isKindOfClass: friend])
+	      id friendEditor = [_editors objectAtIndex:j];
+              id friendClass = [friends objectAtIndex:i];
+	        
+	      if ([friendEditor isKindOfClass: friendClass])
 	        {
-		  id friendEditor = [_editors objectAtIndex:j];
-		  
-		  if ([friend canSupportCurrentSelection])
+	          if ([friendEditor canSupportCurrentSelection])
 		    {
-		       [self activateEmbeddedEditor:friend];
-  		       [super viewSelectedObject];
-		       return;
+	              [self activateEmbeddedEditor:friendEditor];
+  	              [super viewSelectedObject];
+		      return;
 		    }
 		}
-	    } 
+	    }
 	}
       /* instantiate friends to see if we can support the current selection */ 
       for (i = 0,c = [friends count]; i < c; i++)
          {
            id friendClass = [friends objectAtIndex:i];
            id friend = [[friendClass alloc] initWithParentEditor:self];
+	   if ([friend canSupportCurrentSelection])
 	     {
-	       if ([friend canSupportCurrentSelection])
-	         {
-		   [self activateEmbeddedEditor:friend];
-  		   [super viewSelectedObject];
-		   return;
-		 }
-	       else
-	         {
-		   [friend release];
-		 }
+	       [self activateEmbeddedEditor:friend];
+	       RELEASE(friend);
+  	       [super viewSelectedObject];
+	       return;
 	     }
+	   RELEASE(friend);
 	 }
       /* look for any old editor this isn't very nice...
        * because it only works with registered editors, and we can only
@@ -304,7 +287,7 @@
   else if ([item isKindOfClass:[EORelationship class]])
     ret = 0;
 #if DEBUG_STUFF == 1  
-  NSLog(@"isItemExpandable %i", ret); 
+  NSLog(@"%@\n\t %@ %i", NSStringFromSelector(_cmd), [item class], ret); 
 #endif
   return ret;
 }
@@ -324,7 +307,7 @@
     ret = 0;
   
 #if DEBUG_STUFF == 1  
-  NSLog(@"num children %i %@", ret, [item class]);
+  NSLog(@"%@\n\t %i %@", NSStringFromSelector(_cmd), ret, [item class]);
 #endif
   
   return ret;
@@ -345,7 +328,7 @@
   else if ([item isKindOfClass: [EORelationship class]])
     ret = nil;
 #if DEBUG_STUFF == 1  
-  NSLog(@"child %@ atIndex: %i ofItem %@", [ret class], index, [item class]);
+  NSLog(@"%@\n\tchild %@ atIndex: %i ofItem %@", NSStringFromSelector(_cmd), [ret class], index, [item class]);
 #endif
   return ret;
 }

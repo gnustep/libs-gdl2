@@ -56,10 +56,8 @@
 {
   NSScrollView *scrollView;
   KVDataSource *wds1, *wds2;
-  int i,c;
   NSPopUpButton *cornerView;
   NSMenuItem *mi = [[NSMenuItem alloc] initWithTitle:@"+" action:(SEL)nil keyEquivalent:@""];
-  NSArray *columnNames;
 
   self = [super initWithParentEditor:parentEditor];
   [DefaultColumnProvider class]; 
@@ -175,7 +173,8 @@
     return NO;
   selection = [selection objectAtIndex:0];
   flag = ([selection isKindOfClass:[EOEntity class]]
-          || [selection isKindOfClass:[EORelationship class]]); 
+          || [selection isKindOfClass:[EOAttribute class]]
+          || [selection isKindOfClass:[EORelationship class]]);
   return flag;
 }
 
@@ -232,10 +231,14 @@
 
 - (void) displayGroupDidChangeSelection:(EODisplayGroup *)displayGroup
 {
+
   NSArray *currentSelection = [_parentEditor selectionWithinViewedObject];
   id theSelection;
   int c = [currentSelection count];
-  if (c && c == 1 ) 
+
+  if (!c) 
+    return;
+  else 
     theSelection = [currentSelection objectAtIndex:0];
   
   if ([theSelection isKindOfClass:[EOEntity class]])

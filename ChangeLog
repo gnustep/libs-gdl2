@@ -1,3 +1,66 @@
+2005-07-08  Matt Rice  <ratmice@yahoo.com>
+
+	* DBModeler/AdaptorsPanel.m (-init): Add parenthesis around assignment.
+	Replace label with window title.
+	(-runAdaptorsPanel:): Remove unused variable.
+	* DBModeler/DefaultColumnProvider.m: Add missing braces, remove unused
+	ivars.
+	(-cellForColumnNamed:): Autorelease cells.
+	* DBModeler/EOAdditions.m: New EOAttribute KVC methods -allowNull and
+	-setAllowNull:.
+	* DBModeler/GNUmakefile: Add new to project.
+	* DBModeler/KVDataSource.m (-createObject:): Return nil after throwing
+	exception.
+	* DBModeler/MainModelEditor.m
+	(-dragImageForRows:event:dragImageOffset:):: Enable drag and drop for
+	relationships.
+	(-initWithDocument:): Add parenthesis around assignment. Don't release
+	the document window on close.
+	(-ecStuff:): temporarily reload everything in the outline view when
+	something changes.
+	(-viewSelectedObject:): Remove NSLog.  Rewrite editor activation.
+	Fix leaks.
+	* DBModeler/Modeler.m (-applicationWillFinishLaunching:): Add new menu
+	items. Don't order our menu in.
+	(-new:,-open:): Move document initializition to _newDocumentWithModel:.
+	(-_newDocumentWithModel:,-newFromDatabase:): New methods.
+	(-validateMenuItem:,-generateSQL:): Ditto.
+	* DBModeler/ModelerAttributeEditor.m (-initWithParentEditor:): Remove
+	unused variables.
+	(-displayGroupDidChangeSelection:): return early if there is no longer
+	a selection.
+	* DBModeler/ModelerEntityEditor.m:
+	(-canSupportCurrentSelection): Remove NSLog.
+	(-displayGroupDidChangeSelection:): Ditto.
+	(-dealloc:): New method.
+	(-initWithParentEditor:): Remove unused variables.  Add parens around
+	assignment.  Release local variables.
+	* DBModeler/ModelerTableEmbedibleEditor:
+	(-addDefaultTableColumnsForTableView:displayGroup:): Release table
+	columns.
+	(-addTableColumnForItem:tableView:): Ditto.
+	* DBModeler/Inspectors/RelationshipInspector.m: 
+	(-selectedEntity, -selectedDestinationAttribute): New methods.
+	(-selectedSourceAttribute, -indexOfSourceAttribute:): Ditto.
+	(-indexOfDestinationAttribute:,joinWithSource:destination:): Ditto.
+	(-selectedJoin:,updateConnectButton,): Ditto.
+	(-refresh): Rewrite using new methods.
+	(-numberOfRowsInTableView:): Add fallback return value.
+	(-tableView:objectValueForTableColumn:row:): Ditto.
+	(-tableView:selectionDidChange:): If a source or destination attribute
+	is now selected, select its counterpart.
+	(-tableView:shouldSelectRow:): New method to disallow entity selection 
+	if there is a destination entity.
+	(-tableView:willDisplayCell:forTableColumn:row:): New method, set the
+	cell text color to disabled text color, if we would disallow
+	selection.
+	(-connectionChanged:): Implement disconnection.	
+	* DBModeler/SQLGenerator.h/m: New files initial implementation.
+	* DBModeler/Resources/SQLGenerator.gorm: Ditto.
+	* DBModeler/ConsistencyChecker.h/m: Ditto.
+	* DBModeler/ConsistencyResults.h/m: Ditto.
+	* DBModeler/ConsistencyResults.gorm: Ditto.
+
 2005-07-03  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOAdaptorContext.h/m (-channels:): New method.
@@ -57,6 +120,7 @@
 	* DBModeler/GNUmakefile: Ditto.
 
 2005-05-11  Matt Rice  <ratmice@yahoo.com>
+
 
 	* GNUmakefile: Compile EOInterface, EOModeler, DBModeler, GDL2Palette
 	if gui is installed.
@@ -3892,5 +3956,4 @@
 	-objectStoreForObject:]), ([EOObjectStoreCoordinator
 	-objectStoreForFetchSpecification:]): bug fix: changed notification
 	object.
-
 

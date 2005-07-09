@@ -23,7 +23,9 @@ ADDITIONAL_NATIVE_LIBS += EOInterface gnustep-db2modeler
 $(APP_NAME)_RESOURCE_FILES =		\
 	Resources/Key_On.tiff		\
 	Resources/ClassProperty_On.tiff \
-	Resources/ModelDrag.tiff
+	Resources/ModelDrag.tiff	\
+	Resources/SQLGenerator.gorm	\
+	Resources/ConsistencyResults.gorm
 
 $(APP_NAME)_OBJC_FILES =		\
 	main.m				\
@@ -35,6 +37,9 @@ $(APP_NAME)_OBJC_FILES =		\
 	KVDataSource.m			\
 	ModelerAttributeEditor.m	\
 	EOAdditions.m			\
-	ModelerTableEmbedibleEditor.m	
+	ModelerTableEmbedibleEditor.m	\
+	SQLGenerator.m			\
+	ConsistencyResults.m		\
+	ConsistencyChecker.m
 
 include $(GNUSTEP_MAKEFILES)/application.make

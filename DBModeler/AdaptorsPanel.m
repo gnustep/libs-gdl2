@@ -44,7 +44,7 @@ static NSArray *_adaptorNames;
 
 - (id) init
 {
-  if (self = [super init])
+  if ((self = [super init]))
     {
       _adaptorNames = RETAIN([EOAdaptor availableAdaptorNames]);
       /* redo all these numbers so buttons and labels are on the right? */
@@ -53,15 +53,8 @@ static NSArray *_adaptorNames;
                           styleMask: NSBorderlessWindowMask | NSTitledWindowMask
                             backing: NSBackingStoreBuffered
                               defer: YES];
-
-      _label = [[NSTextField alloc] initWithFrame: NSMakeRect(5,275,80,20)];
-      [_label setStringValue: @"New model"];
-      [_label setEditable: NO];
-      [_label setSelectable: NO];
-      [_label setBezeled: NO];
-      [_label setBordered: NO];
-      [_label setBackgroundColor: [NSColor windowBackgroundColor]];
-
+      [_window setTitle: @"Select adaptor"];
+      
       brws_adaptors = [[NSBrowser alloc] initWithFrame: NSMakeRect(5,30,190,240)];
       [brws_adaptors setDelegate: self];
       [brws_adaptors addColumn];
@@ -80,7 +73,6 @@ static NSArray *_adaptorNames;
       [btn_cancel setTarget: self];
       [btn_cancel setAction: @selector(cancel:)];
     
-      [[_window contentView] addSubview: _label];
       [[_window contentView] addSubview: brws_adaptors];
       [[_window contentView] addSubview: btn_ok];
       [[_window contentView] addSubview: btn_cancel];
@@ -96,7 +88,6 @@ static NSArray *_adaptorNames;
 - (NSString *) runAdaptorsPanel
 {
   NSString *selection;
-  BOOL response = NO;
 
   if ([NSApp runModalForWindow:_window] == NSRunAbortedResponse)
     {

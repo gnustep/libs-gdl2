@@ -23,10 +23,13 @@
     </license>
 **/
 
-#include "Modeler.h"
 #include "AdaptorsPanel.h"
+#include "ConsistencyChecker.h"
+#include "ConsistencyResults.h"
 #include "MainModelEditor.h"
+#include "Modeler.h"
 #include "ModelerEntityEditor.h"
+#include "SQLGenerator.h"
 
 #include <EOModeler/EOModelerApp.h>
 #include <EOModeler/EOModelerEditor.h>
@@ -34,12 +37,14 @@
 #include <EOModeler/EOMInspectorController.h>
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOModelGroup.h>
+#include <EOAccess/EOAdaptorChannel.h>
+#include <EOAccess/EOAdaptorContext.h>
+#include <EOAccess/EOAdaptor.h>
 
 #include <AppKit/NSOpenPanel.h>
 
 #include <Foundation/NSObject.h>
 
-/* TODO validate menu items.. */
 @interface NSMenu (im_lazy)
 -(id <NSMenuItem>) addItemWithTitle: (NSString *)s;
 -(id <NSMenuItem>) addItemWithTitle: (NSString *)s  action: (SEL)sel;
@@ -63,6 +68,7 @@
 
 
 @implementation Modeler
+
 -(void)bundleDidLoad:(NSNotification *)not
 {
   /* a place to put breakpoints? */ 
@@ -98,10 +104,12 @@
   /* useful method for setting breakpoints after an adaptor is loaded */
    
   mainMenu = [[NSMenu alloc] init];
+  [mainMenu setAutoenablesItems:YES];
   subMenu = [[NSMenu alloc] init];
+  [subMenu setAutoenablesItems:YES];
 
-  [subMenu addItemWithTitle: _(@"Info..")
-                     action: @selector(:orderFrontStandardInfoPanel:)];
+  [subMenu addItemWithTitle: _(@"Info...")
+                     action: @selector(orderFrontStandardInfoPanel:)];
 
   [subMenu addItemWithTitle: _(@"Preferences...")
                      action: @selector(openPrefs:)];
@@ -109,14 +117,34 @@
   [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle: _(@"Info")]];
   [subMenu release];
   subMenu = [[NSMenu alloc] init];
+  
+  subMenu = [[NSMenu alloc] init];
+  [subMenu setAutoenablesItems:YES];
 
+  [subMenu addItemWithTitle: _(@"Copy")
+                     action: @selector(copy:)
+	      keyEquivalent:@"c"];
+  [subMenu addItemWithTitle: _(@"Cut")
+                     action: @selector(cut:)
+	      keyEquivalent:@"x"];
+  [subMenu addItemWithTitle: _(@"Paste")
+                     action: @selector(paste:)
+	      keyEquivalent:@"v"];
+  [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle: _(@"Edit")]];
+  [subMenu release];
+  subMenu = [[NSMenu alloc] init];
+   
+ 
   [subMenu addItemWithTitle: _(@"New...")
                      action: @selector(new:)
               keyEquivalent: @"n"];
+  [subMenu addItemWithTitle: _(@"New from databse...")
+                     action: @selector(newFromDatabase:)
+              keyEquivalent: @""]; 
 
   [subMenu addItemWithTitle: _(@"Open")
                      action: @selector(open:)
-              keyEquivalent: @""];
+              keyEquivalent: @"o"];
 	      
   [subMenu addItemWithTitle: _(@"Save")
                      action: @selector(save:)
@@ -138,10 +166,11 @@
                      action: @selector(switchAdaptor:)
               keyEquivalent: @""];
 	      
-  [subMenu addItemWithTitle: _(@"Check consistency")
+  [ConsistencyChecker class];
+  [[subMenu addItemWithTitle: _(@"Check consistency")
                      action: @selector(checkConsistency:)
-              keyEquivalent: @""]; 
-
+              keyEquivalent: @""] setRepresentedObject:[ConsistencyResults sharedConsistencyPanel]];
+  
   [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle:_(@"Model")]];
   [subMenu release];
 
@@ -150,10 +179,16 @@
   [subMenu addItemWithTitle:_(@"Inspector")
 	  	action: @selector(showInspector:)
 		keyEquivalent: @"i"];
+  
+  [subMenu addItemWithTitle: _(@"Generate SQL")
+                     action: @selector(generateSQL:)
+              keyEquivalent: @""]; 
+
   [mainMenu setSubmenu:subMenu forItem:[mainMenu addItemWithTitle:_(@"Tools")]];
   [subMenu release];
 
   subMenu = [[NSMenu alloc] init];
+  [subMenu setAutoenablesItems:YES];
   [subMenu addItemWithTitle: _(@"Add entity")
                      action: @selector(addEntity:)
               keyEquivalent: @"e"];
@@ -165,6 +200,9 @@
   [subMenu addItemWithTitle: _(@"Add relationship")
                      action: @selector(addRelationship:)
               keyEquivalent: @"r"];
+  [subMenu addItemWithTitle: _(@"delete")
+                     action: @selector(delete:)
+              keyEquivalent: @""];
 
   [mainMenu setSubmenu:subMenu forItem:[mainMenu addItemWithTitle:_(@"Property")]];
   [subMenu release];
@@ -178,33 +216,66 @@
 	       keyEquivalent: @"q"];
 	       
   [NSApp setMainMenu: mainMenu];
-  /* make this a bundle? */
+  /* make this a default? */
   [EOModelerDocument setDefaultEditorClass: NSClassFromString(@"MainModelEditor")];
-  [[mainMenu window] makeKeyAndOrderFront:self];
+}
+
+- (void) _newDocumentWithModel:(EOModel *)newModel
+{
+  EOModelerDocument *newModelerDoc;
+  EOModelerCompoundEditor *editor;
+  newModelerDoc = [[EOModelerDocument alloc] initWithModel: newModel];
+  RELEASE(newModel);
+  editor = (EOModelerCompoundEditor*)[newModelerDoc addDefaultEditor];
+  [EOMApp setCurrentEditor: editor];
+  [EOMApp addDocument: newModelerDoc];
+  RELEASE(newModelerDoc);
+  [newModelerDoc activate];
 }
 
 - (void)new:(id)sender
 {
-  /* this entire function -really- seems to belong somewhere else */
-  EOModelerCompoundEditor *editor;
-  EOModelerDocument *newModelerDoc;
   EOModel           *newModel = [[EOModel alloc] init];
-  EOAdaptor         *newAdaptor;
   NSString		*modelName;
   unsigned int nDocs;
 
-  //[newModel setCreateMutableObjects:YES];
   nDocs = [[EOMApp documents] count];
       
   modelName=[NSString stringWithFormat:@"Model_%u",++nDocs];
   [newModel setName:modelName];
-  [[EOModelGroup defaultGroup] addModel:newModel];
-  
-  newModelerDoc = [[EOModelerDocument alloc] initWithModel: newModel];
-  editor = (EOModelerCompoundEditor*)[newModelerDoc addDefaultEditor];
-  [EOMApp setCurrentEditor: editor];
-  [EOMApp addDocument: newModelerDoc];
-  [newModelerDoc activate];
+  [self _newDocumentWithModel:newModel];
+}
+
+- (void) newFromDatabase:(id)sender
+{
+  NSString *adaptorName;
+  EOAdaptor *adaptor;
+  EOAdaptorChannel *channel;
+  EOAdaptorContext *ctxt;
+  EOModel *newModel;
+  AdaptorsPanel *adaptorsPanel = [[AdaptorsPanel alloc] init];
+
+  adaptorName = [adaptorsPanel runAdaptorsPanel];
+  RELEASE(adaptorsPanel);
+  adaptor = [EOAdaptor adaptorWithName:adaptorName];
+  [adaptor setConnectionDictionary:[adaptor runLoginPanel]];
+  ctxt = [adaptor createAdaptorContext];
+  channel = [ctxt createAdaptorChannel];
+  [channel openChannel];
+  newModel = [channel describeModelWithTableNames:[channel describeTableNames]];
+  [newModel setConnectionDictionary:[adaptor connectionDictionary]];
+  [newModel setName: [[adaptor connectionDictionary] objectForKey:@"databaseName"]];
+  [channel closeChannel];
+  [self _newDocumentWithModel:newModel];
+}
+
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
+{
+  if ([[menuItem title] isEqualToString:@"Set Adaptor Info"])
+    {
+      return ([EOMApp activeDocument] != nil);
+    }
+  return YES;
 }
 
 - (void) setAdaptor:(id)sender
@@ -229,6 +300,7 @@
 - (void) open:(id)sender
 {
   NSOpenPanel *panel = [NSOpenPanel openPanel];
+
   if ([panel runModalForTypes:[NSArray arrayWithObject:@"eomodeld"]] == NSOKButton)
     {
       NSArray *modelPaths = [panel filenames];
@@ -238,13 +310,17 @@
         {
 	  NSString *modelPath = [modelPaths objectAtIndex:i];
           EOModel *model = [[EOModel alloc] initWithContentsOfFile:modelPath];
-	  EOModelerDocument *newDoc = [[EOModelerDocument alloc] initWithModel:model];
-          EOModelerEditor *editor = (EOModelerCompoundEditor*)[newDoc addDefaultEditor];
-          [EOMApp setCurrentEditor: editor];
-          [EOMApp addDocument: newDoc];
-	  [newDoc activate];
+	  
+	  [self _newDocumentWithModel:model];
+	  RELEASE(model);
 	}
     }
 }
+
+- (void) generateSQL:(id)sender
+{
+  [[SQLGenerator sharedGenerator] openSQLGenerator:self];
+}
+
 @end
 
