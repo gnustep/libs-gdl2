@@ -102,13 +102,17 @@
 
 - (void)establishConnection
 {
-  EODisplayGroup *dg = [self displayGroupForAspect:@"value"];
+  EODisplayGroup *dg;
+  
   [super establishConnection];
+  dg = [self displayGroupForAspect:@"value"];
+
   if (dg) 
-    [EOTableViewAssociation bindToTableView: [[self object] tableView]
-  				displayGroup: dg ];
-  if ([self displayGroupForAspect:@"value"] != nil)
-    subclassFlags |= ValueAspectMask;
+    {
+      [EOTableViewAssociation bindToTableView: [[self object] tableView]
+  			  	 displayGroup: dg];
+      subclassFlags |= ValueAspectMask;
+    }
   [[self object] setIdentifier: self];
   _enabledAspectBound = [self displayGroupForAspect:@"enabled"] != nil;
 }

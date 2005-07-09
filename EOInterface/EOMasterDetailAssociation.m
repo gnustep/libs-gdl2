@@ -34,6 +34,7 @@
 
 #include "EODisplayGroup.h"
 #include "EOMasterDetailAssociation.h"
+#include "SubclassFlags.h"
 
 @implementation EOMasterDetailAssociation
 
@@ -77,13 +78,42 @@
 
 - (void)establishConnection
 {
+  EODisplayGroup *parent = [self displayGroupForAspect:@"parent"];
+
+  [super establishConnection];
+  if (parent)
+    {
+      EODetailDataSource *ds = [_object dataSource];
+      subclassFlags |= ParentAspectMask;
+      [ds setMasterClassDescription:[[parent dataSource]
+	      				classDescriptionForObjects]];
+      [ds setDetailKey:[self displayGroupKeyForAspect:@"parent"]];
+    }
 }
+
 - (void)breakConnection
 {
+  [super breakConnection];
+  subclassFlags = 0;
 }
 
 - (void)subjectChanged
 {
+  if (subclassFlags & ParentAspectMask)
+    {
+      id selectedObject = [[self displayGroupForAspect:@"parent"]
+	      				selectedObject];
+      id key = [self displayGroupKeyForAspect:@"parent"];
+      if (selectedObject)
+	{
+          [[_object dataSource]
+	    qualifyWithRelationshipKey:key
+		    	      ofObject:selectedObject];
+	  
+	  if ([_object fetch])
+	    [_object redisplay];
+	}
+    }
 }
 
 - (EOObserverPriority)priority

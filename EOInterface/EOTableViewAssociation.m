@@ -102,6 +102,7 @@ static NSMapTable *tvAssociationMap;
 - (void)breakConnection
 {
   [super breakConnection];
+  NSMapRemove(tvAssociationMap, _object);
   _enabledAspectBound = NO;
   _italicAspectBound = NO;
   _colorAspectBound = NO;
@@ -121,7 +122,7 @@ static NSMapTable *tvAssociationMap;
   if ([dg selectionChanged])
     {
       NSArray *selectionIndexes = RETAIN([dg selectionIndexes]);
-      unsigned int i, count, newSel;
+      unsigned int i, count;
       count = [selectionIndexes count];
       for (i = 0; i < count; i++)                                                         
         {
@@ -130,6 +131,7 @@ static NSMapTable *tvAssociationMap;
 	      byExtendingSelection: (i != 0)]; /* don't extend the first selection */
 	  [[self object] scrollRowToVisible:rowIndex];
 	}
+      RELEASE(selectionIndexes);
     }
   
 }
@@ -141,7 +143,7 @@ static NSMapTable *tvAssociationMap;
 
   if (!tvAssociationMap)
     {
-      tvAssociationMap = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks,
+      tvAssociationMap = NSCreateMapTableWithZone(NSNonRetainedObjectMapKeyCallBacks,
                                    NSNonRetainedObjectMapValueCallBacks,
                                    0, [self zone]);
       assoc = [[self allocWithZone:NSDefaultMallocZone()] initWithObject:tableView];
@@ -150,6 +152,7 @@ static NSMapTable *tvAssociationMap;
       [tableView setDataSource:assoc];
       [tableView setDelegate:assoc];
       [assoc establishConnection];
+      RELEASE(assoc);
       return;
     }
   
@@ -161,6 +164,7 @@ static NSMapTable *tvAssociationMap;
       [tableView setDataSource:assoc];
       [tableView setDelegate:assoc];
       [assoc establishConnection];
+      RELEASE(assoc);
       NSMapInsert(tvAssociationMap, tableView, assoc);
     } 
 }
@@ -292,7 +296,6 @@ textShouldBeginEditing: (NSText *)fieldEditor
 
 - (void) dealloc
 {
-  NSMapRemove(tvAssociationMap, self);
   [super dealloc];
 }
 @end

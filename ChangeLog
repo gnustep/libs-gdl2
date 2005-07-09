@@ -1,5 +1,47 @@
 2005-07-08  Matt Rice  <ratmice@yahoo.com>
 
+	* EOInterface/EOAssociation.m: New variable _objectToAssociations.
+	(+objectDeallocated:): New private method.
+	(+initialize): initialize _objectToAssociations.
+	(-dealloc): Discard any pending notifications.
+	(-establishConnection): Retain display groups we're bound to.
+	Retain our self and register our object for dealloc notification.
+	(-breakConnection): Release display groups we're bound to. Release
+	our self and discard any pending notifications.
+	(-subjectChanged): Add comment
+	* EOInterface/EOColumnAssociation.m (-establishConnection): Assign our
+	dg ivar after establishing connection.  Use the dg ivar and move 2 if
+	statements into one.
+	* EOInterface/EODisplayGroup.m: Remove debugging class/category for
+	emptyArray and emptyDictionary.
+	(-indexesForObjectsIndeticalTo:): Fix typo by renaming to
+	-indexesForObjectsIdenticalTo:.
+	(-dealloc): Remove our self as an observer for any notifications,
+	as an editor or message handler for our editing context, our observer
+	proxies as observers from the observer center. Don't release 
+	array/dictionary ivars that are emptyArray or emptyDictionary.
+	(-setSelectionIndexes:): Update to reflect change in method name.
+	(-deleteSelection): Remove unused local var.
+	(-fetch:): Call -redisplay.
+	(-updatedObjectIndex:): Return -1 instead of 0 until this is
+	implemented.
+	(-setValue:forObject:key:): fix comment in exception handlers.
+	* EOInterface/EOGenericControlAssociation.m:
+	(-subjectChanged:): Remove unused local variable.
+	* EOMasterDetailAssociation.m:
+	(-establishConnection, -breakConnection, -subjectChanged): Implement.
+	* EOInterface/EOPopUpAssociation.m: Remove unused local variables.
+	* EOInterface/EOTableViewAssociation.m:
+	(-breakConnection:): Remove our NSTableView object from the map table.
+	(-subjectChanged:): Remove unused local variables. Release temporary
+	retain on selection indexes.
+	(+bindToTableView:displayGroup:): Don't retain the table views in the
+	map table.  Release the newly created association.
+	(-dealloc): Remove self from the tvAssociationMap.
+	* EOInterface/SubclassFlags.h: Fix bitmask on MatchKey1AspectMask.
+	
+2005-07-08  Matt Rice  <ratmice@yahoo.com>
+
 	* DBModeler/AdaptorsPanel.m (-init): Add parenthesis around assignment.
 	Replace label with window title.
 	(-runAdaptorsPanel:): Remove unused variable.

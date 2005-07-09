@@ -112,7 +112,6 @@
 {
   if (subclassFlags & ValueAspectMask)
     {
-      EODisplayGroup *dg = [self displayGroupForAspect:@"value"];
       [[self control] setObjectValue: [self valueForAspect:@"value"]];
     }
   if (subclassFlags & EnabledAspectMask)

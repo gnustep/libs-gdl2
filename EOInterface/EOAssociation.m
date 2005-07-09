@@ -41,9 +41,26 @@
 
 #include "EOAssociation.h"
 
+/* For GDL2NonRetainingArray */
+#include "../EOControl/EOPrivate.h"
+
 @implementation EOAssociation
 static NSArray *_emptyArray = nil;
 static NSMutableArray *_associationClasses = nil;
+static NSMapTable *_objectToAssociations;
+
++ (void) objectDeallocated:(id)object
+{
+  GDL2NonRetainingMutableArray *associations;
+  associations = NSMapGet(_objectToAssociations, object);
+  
+  if (associations)
+    {
+      [associations makeObjectsPerform: @selector(breakConnection)];
+      NSMapRemove(_objectToAssociations, object);
+    }
+}
+
 + (void)bundleLoaded: (NSNotification *)notification
 {
   DESTROY(_associationClasses);
@@ -60,6 +77,9 @@ static NSMutableArray *_associationClasses = nil;
 	  selector: @selector(bundleLoaded:)
 	  name: NSBundleDidLoadNotification
 	  object: nil];
+     _objectToAssociations = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
+		     			     NSObjectMapValueCallBacks,
+					     32);
     }
 }
 
@@ -174,9 +194,9 @@ static NSMutableArray *_associationClasses = nil;
 
 - (void)dealloc
 {
+  [self discardPendingNotification];
   NSFreeMapTable (_displayGroupMap);
   NSFreeMapTable (_displayGroupKeyMap);
-
   [super dealloc];
 }
 
@@ -196,17 +216,38 @@ static NSMutableArray *_associationClasses = nil;
       EODisplayGroup *displayGroup;
       Class EOObserverCenterClass = [EOObserverCenter class];
       void *unusedKey;
+      GDL2NonRetainingMutableArray *associations;
 
       displayGroupEnum = NSEnumerateMapTable(_displayGroupMap);
       while (NSNextMapEnumeratorPair(&displayGroupEnum,
 				     &unusedKey, (void*)&displayGroup))
 	{
+	  [displayGroup retain];
 	  [EOObserverCenterClass addObserver: self forObject: displayGroup];
 	}
       NSEndMapTableEnumeration (&displayGroupEnum);
-      _isConnected = YES;
       
-      //TODO: cause _object to retain us
+      /* registerAssociationForDeallocHack is implemented in
+         EOControl/EOEditingContext.m this causes +objectDeallocated:
+	 to be called when '_object' is deallocated, which will break the
+	 connection which releases the association instance. */
+      [self retain];
+      [self registerAssociationForDeallocHack:_object];
+
+      associations = (id)NSMapGet(_objectToAssociations, _object);
+
+      if (!associations)
+	{
+	  associations = [[GDL2NonRetainingMutableArray alloc] initWithCapacity:32];
+          [associations addObject:self];
+	  NSMapInsert(_objectToAssociations, _object, associations);
+	}
+      else
+	{
+	  [associations addObject:self];
+	}
+      
+      _isConnected = YES;
     }
 }
 
@@ -224,12 +265,14 @@ static NSMutableArray *_associationClasses = nil;
       while (NSNextMapEnumeratorPair(&displayGroupEnum,
 				     &unusedKey, (void *)&displayGroup))
 	{
+	  [displayGroup release];
 	  [EOObserverCenterClass removeObserver: self forObject: displayGroup];
 	}
+
       NSEndMapTableEnumeration (&displayGroupEnum);
-      _isConnected = YES;
-      
-      //TODO: cause _object to release us
+      [self discardPendingNotification];
+      _isConnected = NO;
+      [self release]; 
     }
 }
 
@@ -253,11 +296,13 @@ static NSMutableArray *_associationClasses = nil;
 {
   return NSMapGet(_displayGroupMap, aspectName);
 }
+
 - (NSString *)displayGroupKeyForAspect: (NSString *)aspectName;
 {
   return NSMapGet(_displayGroupKeyMap, aspectName);
 }
 
+/** Implemented by subclasses. */
 - (void)subjectChanged
 {
 }
@@ -282,6 +327,7 @@ static NSMutableArray *_associationClasses = nil;
    
   return [dg selectedObjectValueForKey: key];
 }
+
 - (BOOL)setValue: (id)value forAspect: (NSString *)aspectName
 {
   EODisplayGroup *dg = [self displayGroupForAspect: aspectName];

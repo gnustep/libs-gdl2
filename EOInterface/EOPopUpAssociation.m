@@ -116,7 +116,6 @@
     {
       int i,c;
       NSArray *dispObj;
-      NSMutableArray *titles = [[NSMutableArray alloc] init];
       
       subclassFlags |= TitlesAspectMask;
       dispObj = [dg displayedObjects];
@@ -178,8 +177,6 @@
         {
 	  int i,c;
 	  NSArray *dispObj;
-          NSMutableArray *titles = [[NSMutableArray alloc] init]; 
-	  NSString *key = [self displayGroupKeyForAspect:@"titles"];
 
           dispObj = [dg displayedObjects];
           c = [dispObj count];
@@ -201,14 +198,12 @@
       if ([dg selectionChanged] || [dg contentsChanged])
         {
 	  int tag = [[self valueForAspect:@"selectedTag"] intValue];
-	  int index = [_object indexOfItemWithTag:tag];
 
 	  [_object selectItemAtIndex:tag];
 	}
     }
   else if (subclassFlags & SelectedTitleAspectMask)
     {
-      NSString *title;
       dg = [self displayGroupForAspect:@"selectedTitle"];
       if ([dg selectionChanged] || [dg contentsChanged])
         {
@@ -261,7 +256,6 @@
     } 
   else if (subclassFlags & SelectedObjectAspectMask)
     { 
-      EODisplayGroup *titlesGroup = [self displayGroupForAspect:@"titles"];
       id obj = [[_object itemAtIndex:[_object indexOfSelectedItem]] representedObject];
       [self setValue: obj forAspect:@"selectedObject"];
     

@@ -73,49 +73,15 @@ RCS_ID("$Id$")
      @selector(displayGroup:didInsertObject:)
 #define DG_DID_CHANGE_SELECTION \
      @selector(displayGroupDidChangeSelection:)
-/* undocumented notification */
 
+/* undocumented notification */
 NSString *EODisplayGroupWillFetchNotification = @"EODisplayGroupWillFetch";
 
-@interface EOIEmptyArray : NSArray
-@end
-
-@implementation EOIEmptyArray : NSArray
-- (void) release
-{
-  [super release];
-}
-- (void) dealloc
-{
-  [super dealloc];
-}
-- (id) autorelease
-{
-  return [super autorelease];
-}
-@end
-@interface GSInlineArray : NSObject
-@end
-@implementation GSInlineArray(foo)
-- (void) release
-{  
-  
-}
-- (void) dealloc
-{
-
-}
-
-- (id) autorelease
-{
-  return self;
-}
-@end
 @interface NSArray (private)
-- (NSArray *)indexesForObjectsIndenticalTo: (NSArray *)array;
+- (NSArray *)indexesForObjectsIdenticalTo: (NSArray *)array;
 @end
 @implementation NSArray (private)
-- (NSArray *)indexesForObjectsIndenticalTo: (NSArray *)array
+- (NSArray *)indexesForObjectsIdenticalTo: (NSArray *)array
 {
   unsigned idx, i, c = [array count];
   NSMutableArray *indices = (id)[NSMutableArray arrayWithCapacity: c];
@@ -174,8 +140,8 @@ NSString *EODisplayGroupWillFetchNotification = @"EODisplayGroupWillFetch";
 
 @implementation EODisplayGroup
 
-static EOIEmptyArray *emptyArray;
-static NSDictionary *emptyDictionary;
+NSArray *emptyArray;
+NSDictionary *emptyDictionary;
 + (void)initialize
 {
   if (emptyArray == nil)
@@ -250,18 +216,31 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 - (void)dealloc
 {
-  DESTROY(_dataSource);
-  DESTROY(_allObjects);
-  DESTROY(_displayedObjects);
+  EOEditingContext *context = [_dataSource editingContext];
 
-  DESTROY(_selection);
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+  [context removeEditor:self];
+  if ([context messageHandler] == self)
+    [context setMessageHandler:nil];
+
+  DESTROY(_dataSource);
+  if (_allObjects != emptyArray)
+    DESTROY(_allObjects);
+  DESTROY(_displayedObjects);
+  if (_selection != emptyArray)
+    DESTROY(_selection);
   DESTROY(_sortOrdering);
   DESTROY(_qualifier);
   DESTROY(_localKeys);
   DESTROY(_selectedObjects);
+  [EOObserverCenter removeObserver:_observerNotificationBeginProxy
+			 forObject:self];
+  [EOObserverCenter removeObserver:_observerNotificationEndProxy
+			 forObject:self];
   DESTROY(_observerNotificationBeginProxy);
   DESTROY(_observerNotificationEndProxy);
-  DESTROY(_insertedObjectDefaultValues);
+  if (_insertedObjectDefaultValues != emptyDictionary)
+    DESTROY(_insertedObjectDefaultValues);
   DESTROY(_savedAllObjects);
   DESTROY(_queryMatch);
   DESTROY(_queryMin);
@@ -670,9 +649,9 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 	    }
 	  ASSIGNCOPY(_selectedObjects, newObjects);
 	  newSelection =
-	    [_displayedObjects indexesForObjectsIndenticalTo: _selectedObjects];
+	    [_displayedObjects indexesForObjectsIdenticalTo: _selectedObjects];
 	  /* don't release emptyArray */
-	  (_selection == emptyArray) ? _selection = newSelection : ASSIGN(_selection, newSelection);
+	  (_selection == emptyArray) ? _selection = RETAIN(newSelection) : ASSIGN(_selection, newSelection);
 	  _flags.didChangeSelection = YES;
 	  if ([_delegate respondsToSelector: DG_DID_CHANGE_SELECTION])
 	    {
@@ -704,7 +683,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
   NSArray *indices;
   if (selection && [selection count])
     {
-      indices = [_displayedObjects indexesForObjectsIndenticalTo: selection];
+      indices = [_displayedObjects indexesForObjectsIdenticalTo: selection];
       if (indices && ![indices count])
         {
 	  indices = nil;
@@ -885,7 +864,6 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 }
 - (BOOL)deleteSelection
 {
-  BOOL flag;
   if ([self endEditing])
     {
       NSArray *selections = [self selectedObjects];
@@ -958,6 +936,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 - (void)fetch: (id)sender
 {
   [self fetch];
+  [self redisplay];
 }
 
 - (void)insert: (id)sender
@@ -1006,7 +985,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 }
 - (int)updatedObjectIndex
 {
-  return 0;
+  return -1;
 }
 
 - (id)valueForObject: (id)object key: (NSString *)key
@@ -1034,7 +1013,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
       [object takeValue:value forKeyPath:key];
     }
   NS_HANDLER
-     /* use NSLog because -userInfo may contain useful information. */
+     /* -userInfo likely contains useful information... */
      NSLog(@"Exception in %@ name:%@ reason:%@ userInfo:%@", NSStringFromSelector(_cmd), [localException name], [localException reason], [localException userInfo]); 
     return NO;
   NS_ENDHANDLER
@@ -1053,7 +1032,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
     
   if (exception)
     {
-      /* use NSLog because -userInfo may contain useful information. */
+      /* -userInfo likely contains useful information... */
       NSLog(@"Exception in %@ name:%@ reason:%@ userInfo:%@", NSStringFromSelector(_cmd), [exception name], [exception reason], [exception userInfo]); 
     }
   return (exception == nil);

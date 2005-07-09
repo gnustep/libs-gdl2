@@ -81,9 +81,9 @@
 #define ParentAspectMask	0x1
 
 /* EOPickTextAssociation:3 (matchKey2, matchKey3, matchKey1) */
-#define MatchKey1AspectMask 0x0
 #define MatchKey2AspectMask 0x1
 #define MatchKey3AspectMask 0x2
+#define MatchKey1AspectMask 0x4
 
 /* EORadioMatrixAssociation:3 (enabled, selectedTitle, selectedTag) */
 //	EnabledAspectMask	0x1
