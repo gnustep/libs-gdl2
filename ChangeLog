@@ -1,3 +1,14 @@
+2005-07-09  Matt Rice <ratmice@yahoo.com>
+
+	* DBModeler/ConsistencyChecker.m: New variable doc.
+	(+endConsistencyCheck:): Use the notification object. Use unsigned for
+	array iterators.
+	(pass): Use the new doc variable.
+	(+attributeDetailsCheck:): Use unsigned for array iterators.
+	(+inheritanceCheckForModel:, +relationshipCheckForModel:): Ditto.
+	(+primaryKeyCheckForModel:, +externalNameCheckForModel): Ditto.
+	(+modelConsistencyCheck:): Assign doc to the notification object.
+	
 2005-07-09  Matt Rice  <ratmice@yahoo.com>
 
 	* EOModeler/EOMInspectorController.m (-init): Don't release the window

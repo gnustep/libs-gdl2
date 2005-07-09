@@ -40,6 +40,7 @@
 	mutableAttributedStringWithBoldSubstitutionsWithFormat
 
 static NSMutableArray *successText;
+static EOModelerDocument *doc;
 
 @implementation ConsistencyChecker
 +(void) initialize
@@ -71,12 +72,13 @@ static NSMutableArray *successText;
 
 + (void) endConsistencyCheck:(NSNotification *)notif
 {
-  int i,c;
-
+  unsigned i,c;
+  doc = [notif object];
   for (i = 0, c = [successText count]; i < c; i++)
      {
-       [[EOMApp activeDocument] appendConsistencyCheckSuccessText:[successText objectAtIndex:i]]; 
+       [doc appendConsistencyCheckSuccessText:[successText objectAtIndex:i]]; 
      }
+  doc = nil;
   [successText removeAllObjects];
 }
 /* helper functions */
@@ -87,7 +89,7 @@ static void pass(BOOL flag, NSAttributedString *as)
       [successText addObject:as];
     }
   else
-    [[EOMApp activeDocument] appendConsistencyCheckErrorText: as];
+    [doc appendConsistencyCheckErrorText: as];
 }
 
 static BOOL isInvalid(NSString *str)
@@ -98,19 +100,19 @@ static BOOL isInvalid(NSString *str)
 + (void) attributeDetailsCheckForModel:(EOModel *)model
 {
   NSArray *ents = [model entities];
-  int i, c;
+  unsigned i, c;
   BOOL flag = YES; 
+  
   for (i = 0, c = [ents count]; i < c; i++)
     {
       EOEntity *entity = [ents objectAtIndex:i];
       NSArray *arr = [entity attributes];
-      int j,d;
+      unsigned j, d;
 
       for (j = 0, d = [arr count]; j < d; j++)
 	{
 	  EOAttribute *attrib = [arr objectAtIndex:j];
 	  NSString *className = [attrib valueClassName];
-
 
 	  if ([[attrib className] isEqualToString:@"NSNumber"])
 	    {
@@ -139,11 +141,12 @@ static BOOL isInvalid(NSString *str)
       for (j = 0, d = [arr count]; j < d; j++)
         { 
 	  EORelationship *rel = [arr objectAtIndex:j];
+	  
 	  if ([rel propagatesPrimaryKey] == YES)
 	    {
 	      NSArray *attribs = [rel sourceAttributes];
 	      NSArray *pkAttribs = [[rel entity] primaryKeyAttributes];
-	      int k, e;
+	      unsigned k, e;
 	      id pkey;
 	      BOOL ok = YES;
 
@@ -195,24 +198,25 @@ static BOOL isInvalid(NSString *str)
 {
   BOOL flag = YES; 
   NSArray *ents = [model entities];
-  int i,c;
+  unsigned i,c;
   
   for (i = 0, c = [ents count]; i < c; i++)
     { 
       EOEntity *ent = [ents objectAtIndex:i];
       NSArray *subEnts = [ent subEntities];
-      int j, d;
+      unsigned j, d;
       
       for (j = 0, d = [subEnts count]; j < d; j++)
         {
 	  EOEntity *subEnt = [subEnts objectAtIndex:j];
           NSArray *arr = [ent attributes];
 	  NSArray *subArr = [subEnt attributes];
-	  int k, e;
+	  unsigned k, e;
 	  
 	  for (k = 0, e = [arr count]; k < e; k++) 
             {
 	      EOAttribute *attrib = [arr objectAtIndex:k];
+	      
 	      if (![subArr containsObject:[(EOAttribute *)attrib name]])
 		{
 		  pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' missing parent's '%@' attribute",[(EOEntity *)subEnt name], [(EOAttribute *)attrib name]]);
@@ -225,6 +229,7 @@ static BOOL isInvalid(NSString *str)
 	    {
 	      EORelationship *rel = [arr objectAtIndex:k];
 	      EORelationship *subRel = [subEnt relationshipNamed:[(EORelationship *)rel name]];
+	      
 	      if (!subRel || ![[rel definition] isEqual:[subRel definition]])
 		{
 		  pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' missing relationship '%@' or definitions do not match", [(EOEntity *)subEnt name], [(EORelationship *)rel name]]);
@@ -258,14 +263,14 @@ static BOOL isInvalid(NSString *str)
 {
   /* TODO */
   NSArray *ents = [model entities];
-  int i, c;
+  unsigned i, c;
   BOOL flag = YES;
   
   for (i = 0, c = [ents count]; i < c; i++)
     {
       EOEntity *ent = [ents objectAtIndex:i];
       NSArray *arr = [ent relationships];
-      int j, d;
+      unsigned j, d;
       
       for (j = 0, d = [arr count]; j < d; j++)
 	{
@@ -279,7 +284,8 @@ static BOOL isInvalid(NSString *str)
 
 	  if ([rel isToMany] == NO)
             {
-	      NSArray *pkAttribs = [[rel destinationEntity] primaryKeyAttributes];
+	      NSArray *pkAttribs = [[rel destinationEntity]
+		      				primaryKeyAttributes];
 	      NSArray *attribs = [rel destinationAttributes];
 	      
 	      if (![pkAttribs isEqual:attribs])
@@ -293,9 +299,8 @@ static BOOL isInvalid(NSString *str)
 	    {
 	      NSArray *pkAttribs = [[rel entity] primaryKeyAttributes];
 	      NSArray *attribs = [rel sourceAttributes];
-	      int k,e;
+	      unsigned k, e;
 	      BOOL ok = YES;
-	      
 
 	      for (k = 0, e = [pkAttribs count]; ok == YES && k < e; k++) 
 		 {
@@ -337,13 +342,14 @@ static BOOL isInvalid(NSString *str)
 + (void) primaryKeyCheckForModel:(EOModel *)model
 {
   NSArray *ents = [model entities];
-  int i,c;
+  unsigned i,c;
   BOOL flag = YES;
 
   for (i = 0, c = [ents count]; i < c; i++)
      {
        EOEntity *entity = [ents objectAtIndex:i];
        NSArray *arr = [entity primaryKeyAttributes];
+       
        if (![arr count])
  	 {
            pass(NO,[MY_PRETTY: @"Fail: Entity '%@' does not have a primary key.\n", [(EOEntity *)entity name]]);
@@ -358,7 +364,7 @@ static BOOL isInvalid(NSString *str)
 {
   NSArray *ents = [model entities];
   NSArray *arr;
-  int i,c,j,d;
+  unsigned i, c, j, d;
   BOOL flag = YES;
   for (i = 0,c = [ents count]; i < c; i++)
     {
@@ -373,7 +379,8 @@ static BOOL isInvalid(NSString *str)
       arr = [entity attributes];
       for (j = 0, d = [arr count]; j<d; j++)
         {
-          EOAttribute *attrib = [arr objectAtIndex:j]; 
+          EOAttribute *attrib = [arr objectAtIndex:j];
+	  
           extName = [attrib columnName];
           if (isInvalid(extName))
 	    {
@@ -397,12 +404,13 @@ static BOOL isInvalid(NSString *str)
 + (void) modelConsistencyCheck:(NSNotification *)notif
 {
   EOModel *model = [[notif userInfo] objectForKey:EOMConsistencyModelObjectKey];
+  doc = [notif object];
   /* TODO user defaults */
   [self attributeDetailsCheckForModel:model];
   [self primaryKeyCheckForModel:model];
   [self externalNameCheckForModel:model];
   [self relationshipCheckForModel:model];
   [self inheritanceCheckForModel:model];
-
+  doc = nil;
 }
 @end
