@@ -1,0 +1,26 @@
+{
+    ApplicationDescription = "GDL2 EOModel editor";
+    ApplicationIcon = DBModeler;
+    ApplicationName = DBModeler;
+    ApplicationRelease = "0.0.0 (Alpha)";
+    ApplicationURL = "http://mediawiki.gnustep.org/index.php/DBModeler";
+    Authors = (
+        "Matt Rice <ratmice@yahoo.com>"
+    );
+    Copyright = "Copyright \U00A9 2005 Free Software Foundation";
+    CopyrightDescription = "Released under the GNU GPL. See COPYING for details.";
+    FullVersionID = 0.0.0;
+    GSMainMarkupFile = "";
+    NSExecutable = DBModeler;
+    NSIcon = DBModeler.tiff;
+    NSRole = "Editor";
+    NSTypes = (
+      {
+        NSUnixExtensions = ( "eomodeld", "eomodel" );
+        NSIcon = "EOModel.tiff";
+      }
+    );
+
+    NSMainNibFile = "";
+    NSPrincipalClass = NSApplication;
+}

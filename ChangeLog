@@ -1,3 +1,9 @@
+2005-07-10  Peter Cooper  <comrade@obverse.com.au>
+
+	* DBModeler/Resources/Info-gnustep.plist: New file.
+	* DBModeler/Modeler.m (-applicationWillFinishLaunching:): Rearrange
+	menu layout.
+
 2005-07-09  Matt Rice <ratmice@yahoo.com>
 
 	* DBModeler/ConsistencyChecker.m: New variable doc.

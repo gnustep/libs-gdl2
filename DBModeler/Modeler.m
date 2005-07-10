@@ -116,22 +116,7 @@
 
   [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle: _(@"Info")]];
   [subMenu release];
-  subMenu = [[NSMenu alloc] init];
-  
-  subMenu = [[NSMenu alloc] init];
-  [subMenu setAutoenablesItems:YES];
 
-  [subMenu addItemWithTitle: _(@"Copy")
-                     action: @selector(copy:)
-	      keyEquivalent:@"c"];
-  [subMenu addItemWithTitle: _(@"Cut")
-                     action: @selector(cut:)
-	      keyEquivalent:@"x"];
-  [subMenu addItemWithTitle: _(@"Paste")
-                     action: @selector(paste:)
-	      keyEquivalent:@"v"];
-  [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle: _(@"Edit")]];
-  [subMenu release];
   subMenu = [[NSMenu alloc] init];
    
  
@@ -172,6 +157,23 @@
               keyEquivalent: @""] setRepresentedObject:[ConsistencyResults sharedConsistencyPanel]];
   
   [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle:_(@"Model")]];
+  [subMenu release];
+
+  subMenu = [[NSMenu alloc] init];
+  
+  subMenu = [[NSMenu alloc] init];
+  [subMenu setAutoenablesItems:YES];
+
+  [subMenu addItemWithTitle: _(@"Copy")
+                     action: @selector(copy:)
+	      keyEquivalent:@"c"];
+  [subMenu addItemWithTitle: _(@"Cut")
+                     action: @selector(cut:)
+	      keyEquivalent:@"x"];
+  [subMenu addItemWithTitle: _(@"Paste")
+                     action: @selector(paste:)
+	      keyEquivalent:@"v"];
+  [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle: _(@"Edit")]];
   [subMenu release];
 
   
