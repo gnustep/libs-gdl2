@@ -25,6 +25,7 @@ $(APP_NAME)_RESOURCE_FILES =		\
 	Resources/ClassProperty_On.tiff \
 	Resources/ModelDrag.tiff	\
 	Resources/SQLGenerator.gorm	\
+	Resources/Info-gnustep.plist    \
 	Resources/ConsistencyResults.gorm
 
 $(APP_NAME)_OBJC_FILES =		\

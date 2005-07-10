@@ -1,3 +1,7 @@
+2005-07-10 Peter Cooper  <comrade@obverse.com.au>
+	    
+	* DBModeler/GNUmakefile: Add Info-gnustep.plist to project.
+
 2005-07-10  Peter Cooper  <comrade@obverse.com.au>
 
 	* DBModeler/Resources/Info-gnustep.plist: New file.
