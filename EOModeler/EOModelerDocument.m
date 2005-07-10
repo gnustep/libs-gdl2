@@ -408,18 +408,15 @@ showOnSuccess:(BOOL)bar;
 
 - (void)saveAs:(id)sender
 {
-  NSString *path = [_model path];
-  if (!path)
-    {
-      id savePanel = [NSSavePanel savePanel];
-      int result = [savePanel runModal];
+  NSString *path; 
+  id savePanel = [NSSavePanel savePanel];
+  int result = [savePanel runModal];
 
-      if (result == NSOKButton)
-	{
-	  path = [savePanel filename];
-	}
+  if (result == NSOKButton)
+    {
+      path = [savePanel filename];
+      [self saveToPath: path];
     }
-  [self saveToPath: path];
 }
 
 - (void)revertToSaved:(id)sender

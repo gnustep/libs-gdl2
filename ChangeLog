@@ -1,3 +1,14 @@
+2005-07-10 Matt Rice <ratmice@yahoo.com>
+	
+	* DBModeler/Modeler.m (_newDocumentWithModel:): Don't release the
+	model.
+	(-new:): Release the model here.
+	(-newFromDatabase:): Ditto, and add error handling.
+	(-open:): Ditto.
+	(-application:openFile:): New method.
+	* EOModeler/EOModelerDocument.m (-saveAs:): Add error handling, and
+	remove check for an existing name.
+
 2005-07-10 Peter Cooper  <comrade@obverse.com.au>
 	    
 	* DBModeler/GNUmakefile: Add Info-gnustep.plist to project.

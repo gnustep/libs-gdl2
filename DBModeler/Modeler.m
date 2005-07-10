@@ -44,6 +44,7 @@
 #include <AppKit/NSOpenPanel.h>
 
 #include <Foundation/NSObject.h>
+#include <Foundation/NSFileManager.h>
 
 @interface NSMenu (im_lazy)
 -(id <NSMenuItem>) addItemWithTitle: (NSString *)s;
@@ -227,7 +228,6 @@
   EOModelerDocument *newModelerDoc;
   EOModelerCompoundEditor *editor;
   newModelerDoc = [[EOModelerDocument alloc] initWithModel: newModel];
-  RELEASE(newModel);
   editor = (EOModelerCompoundEditor*)[newModelerDoc addDefaultEditor];
   [EOMApp setCurrentEditor: editor];
   [EOMApp addDocument: newModelerDoc];
@@ -246,29 +246,42 @@
   modelName=[NSString stringWithFormat:@"Model_%u",++nDocs];
   [newModel setName:modelName];
   [self _newDocumentWithModel:newModel];
+  RELEASE(newModel);
 }
 
 - (void) newFromDatabase:(id)sender
 {
   NSString *adaptorName;
-  EOAdaptor *adaptor;
-  EOAdaptorChannel *channel;
-  EOAdaptorContext *ctxt;
-  EOModel *newModel;
   AdaptorsPanel *adaptorsPanel = [[AdaptorsPanel alloc] init];
 
   adaptorName = [adaptorsPanel runAdaptorsPanel];
   RELEASE(adaptorsPanel);
-  adaptor = [EOAdaptor adaptorWithName:adaptorName];
-  [adaptor setConnectionDictionary:[adaptor runLoginPanel]];
-  ctxt = [adaptor createAdaptorContext];
-  channel = [ctxt createAdaptorChannel];
-  [channel openChannel];
-  newModel = [channel describeModelWithTableNames:[channel describeTableNames]];
-  [newModel setConnectionDictionary:[adaptor connectionDictionary]];
-  [newModel setName: [[adaptor connectionDictionary] objectForKey:@"databaseName"]];
-  [channel closeChannel];
-  [self _newDocumentWithModel:newModel];
+  
+  if (adaptorName)
+    {
+      EOAdaptor *adaptor;
+      EOAdaptorChannel *channel;
+      EOAdaptorContext *ctxt;
+      EOModel *newModel;
+      NSDictionary *connDict;
+      
+      adaptor = [EOAdaptor adaptorWithName:adaptorName];
+      connDict = [adaptor runLoginPanel];
+
+      if (connDict)
+	{
+	  [adaptor setConnectionDictionary:[adaptor runLoginPanel]];
+	  ctxt = [adaptor createAdaptorContext];
+	  channel = [ctxt createAdaptorChannel];
+	  [channel openChannel];
+	  newModel = [channel describeModelWithTableNames:[channel describeTableNames]];
+	  [newModel setConnectionDictionary:[adaptor connectionDictionary]];
+	  [newModel setName: [[adaptor connectionDictionary] objectForKey:@"databaseName"]];
+	  [channel closeChannel];
+	  [self _newDocumentWithModel:newModel];
+	  RELEASE(newModel);
+	}
+    }
 }
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
@@ -299,11 +312,34 @@
   [EOMInspectorController showInspector];
 }
 
+- (void) application:(NSApplication *)theApp openFile:(NSString *)filename
+{
+  NSFileManager *fm = [NSFileManager defaultManager];
+  NSString *pathExt = [[filename pathExtension] lowercaseString];
+  
+  if ([fm isReadableFileAtPath:filename] == YES
+      && ([pathExt isEqual:@"eomodeld"]
+          || [pathExt isEqual:@"eomodel"]))
+    {
+      EOModel *model;
+
+      NS_DURING
+	model = [[EOModel alloc] initWithContentsOfFile:filename];
+      NS_HANDLER
+	return;
+      NS_ENDHANDLER
+
+      [self _newDocumentWithModel:model];
+      RELEASE(model);
+    }
+}
+
 - (void) open:(id)sender
 {
   NSOpenPanel *panel = [NSOpenPanel openPanel];
+  NSFileManager *fm = [NSFileManager defaultManager];
 
-  if ([panel runModalForTypes:[NSArray arrayWithObject:@"eomodeld"]] == NSOKButton)
+  if ([panel runModalForTypes:[NSArray arrayWithObjects:@"eomodeld",@"eomodel",nil]] == NSOKButton)
     {
       NSArray *modelPaths = [panel filenames];
       int i,c;
@@ -311,10 +347,23 @@
       for (i = 0, c = [modelPaths count]; i < c; i++)
         {
 	  NSString *modelPath = [modelPaths objectAtIndex:i];
-          EOModel *model = [[EOModel alloc] initWithContentsOfFile:modelPath];
-	  
-	  [self _newDocumentWithModel:model];
-	  RELEASE(model);
+          NSString *pathExt = [[modelPath pathExtension] lowercaseString];
+
+	  if ([fm isReadableFileAtPath:modelPath] == YES
+	      && ([pathExt isEqual:@"eomodeld"]
+		  || [pathExt isEqual:@"eomodel"]))
+	    {
+	      EOModel *model;
+	      
+	      NS_DURING
+		model = [[EOModel alloc] initWithContentsOfFile:modelPath];
+	      NS_HANDLER
+		return;
+	      NS_ENDHANDLER
+
+	      [self _newDocumentWithModel:model];
+	      RELEASE(model);
+	    }
 	}
     }
 }
