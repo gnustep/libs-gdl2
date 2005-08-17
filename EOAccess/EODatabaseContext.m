@@ -329,7 +329,9 @@ static Class _contextClass = Nil;
     }
 
   if (_lockedObjects)
-    NSResetHashTable(_lockedObjects);
+    {
+      NSResetHashTable(_lockedObjects);
+    }
 
   DESTROY(_lock);
 
@@ -3622,7 +3624,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 
       _flags.beganTransaction = NO;
 
-      NSResetHashTable(_lockedObjects);
+      if (_lockedObjects)
+	{
+	  NSResetHashTable(_lockedObjects);
+	}
 
       NSResetMapTable(_dbOperationsByGlobalID);
 /* //TODO
@@ -6458,7 +6463,10 @@ Raises an exception is the adaptor is unable to perform the operations.
   EOFLOGObjectFnStart();
 
   if (!_lockedObjects)
-    _lockedObjects = NSCreateHashTable(NSNonOwnedPointerHashCallBacks, _LOCK_BUFFER);
+    {
+      _lockedObjects 
+	= NSCreateHashTable(NSNonOwnedPointerHashCallBacks, _LOCK_BUFFER);
+    }
 
   NSHashInsert(_lockedObjects, globalID);
 
@@ -6865,7 +6873,10 @@ Raises an exception is the adaptor is unable to perform the operations.
   _flags.preparingForSave = NO;
 
   //TODO HERE or in _commitTransaction ?
-  NSResetHashTable(_lockedObjects);
+  if (_lockedObjects)
+    {
+      NSResetHashTable(_lockedObjects);
+    }
 
   EOFLOGObjectFnStop();
 }

@@ -10,6 +10,10 @@
 	propagated yet.
 	* EOControl/EOPrivate.h (EOHashAddTable): New compatibility 
 	function.
+
+	* EOAccess/EODatabaseContext.m ([-dealloc], [-rollbackChanges])
+	([-_cleanUpAfterSave]): Guard against missing hash table.
+	([-registerLockedObjectWithGlobalID:]): Reformat.
 	
 2005-07-10 Matt Rice <ratmice@yahoo.com>
 	
