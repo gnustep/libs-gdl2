@@ -3,6 +3,13 @@
 	* COPYING.LIB: Update to LGPL 2.1.
 	* configure: Regenerate.
 	* Update FSF Address and Copyright years.
+
+	* EOControl/EOEditingContext.m ([-_processRecentChanges]):
+	Invert logic for propagating deletes.
+	([-saveChanges]): Propagate deletes if they were not
+	propagated yet.
+	* EOControl/EOPrivate.h (EOHashAddTable): New compatibility 
+	function.
 	
 2005-07-10 Matt Rice <ratmice@yahoo.com>
 	

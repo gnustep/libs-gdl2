@@ -28,6 +28,7 @@
 #define __EOControl_EOPrivate_h__
 
 #include <Foundation/NSArray.h>
+#include <Foundation/NSHashTable.h>
 #include "EODefines.h"
 
 @class NSNumber;
@@ -363,6 +364,13 @@ GDL2CONTROL_EXPORT id EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingCont
 EOGlobalID* EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object);
 GDL2CONTROL_EXPORT id EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object,EOGlobalID* gid);
 
+
+// ==== hash convienience functions ====
+
+GDL2CONTROL_EXPORT void EOHashAddTable(NSHashTable *to, NSHashTable *from);
+
+
+// ==== Memory Management Utilities ====
 
 @interface NSObject (DeallocHack)
 - (void) registerAssociationForDeallocHack:(id)object;

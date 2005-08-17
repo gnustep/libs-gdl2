@@ -441,6 +441,19 @@ EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext  *edContext,
     return nil;
 };
 
+void EOHashAddTable(NSHashTable *to, NSHashTable *from)
+{
+  NSHashEnumerator hEnum;
+  void *content;
+
+  hEnum = NSEnumerateHashTable (from);
+  while ((content = NSNextHashEnumeratorItem (&hEnum)))
+    {
+      NSHashInsert(to, content);
+    }
+  NSEndHashTableEnumeration(&hEnum);
+}
+
 static SEL eqSel;
 
 @interface GDL2NonRetainingMutableArray (PrivateExceptions)

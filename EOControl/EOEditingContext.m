@@ -1546,7 +1546,7 @@ _mergeValueForKey(id obj, id value,
           [self _registerClearStateWithUndoManager];
 
           /* Propagate deletes.  */
-          if (_flags.propagatesDeletesAtEndOfEvent == NO
+          if (_flags.propagatesDeletesAtEndOfEvent == YES
               && [_undoManager isUndoing] == NO
               && [_undoManager isRedoing] == NO)
             {
@@ -2560,7 +2560,49 @@ _mergeValueForKey(id obj, id value,
       if (_delegateRespondsTo.willSaveChanges)
         [_delegate editingContextWillSaveChanges: self];
 
-      [self _processRecentChanges]; // filled lists _changedObjects, _deletedObjects, _insertedObjects, breaks relations
+      /* Update _changedObjects, _deletedObjects, _insertedObjects,
+	 breaks relations and propagate deletes.  */
+      
+      [self _processRecentChanges]; 
+
+      /* Ayers 17.08.2005:  We need to force _processRecentChanges
+	 to propagate deletes now.  So we copy all processed objects
+	 to the unprocessed lists and temporarily change the
+	 the state of propagatesDeletesAtEndOfEvent and call
+	 _processRecentChanges again.
+	 This actually has implications wrt multithreaded access,
+	 but this is called under a lock so multiple savesChanges
+	 are protected.  What is not protected is methods which do not
+	 lock but query the flag either directly or via method call.
+         We could add a lock in the accessor method and read the state
+	 into a local variable during a locked access and never access
+	 the variable directly but this could have a significant
+	 performance impact.  */
+
+      if (!_flags.propagatesDeletesAtEndOfEvent)
+	{
+	  _flags.propagatesDeletesAtEndOfEvent = YES;
+	  _flags.useCommittedSnapshot = YES;
+
+	  EOHashAddTable(_unprocessedInserts,_insertedObjects);
+	  EOHashAddTable(_unprocessedChanges,_changedObjects);
+	  EOHashAddTable(_unprocessedDeletes,_deletedObjects);
+
+	  NS_DURING
+	    {
+	      [self _processRecentChanges];
+	    }
+	  NS_HANDLER
+	    {
+	      _flags.propagatesDeletesAtEndOfEvent = NO;
+	      _flags.useCommittedSnapshot = NO;
+	      [localException raise];
+	    }
+	  NS_ENDHANDLER;
+
+	  _flags.propagatesDeletesAtEndOfEvent = NO;
+	  _flags.useCommittedSnapshot = NO;
+	}
 
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			    [self unprocessedDescription]);
