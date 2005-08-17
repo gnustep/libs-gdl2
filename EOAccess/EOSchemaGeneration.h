@@ -1,7 +1,7 @@
 /* 
    EOSchemaGeneration.h
 
-   Copyright (C) 2004 Free Software Foundation, Inc.
+   Copyright (C) 2004,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@e-cremona.it>
    Date: April 2004
@@ -21,7 +21,7 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; see the file COPYING.LIB.
    If not, write to the Free Software Foundation,
-   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
 #ifndef __EOSchemaGeneration_h__

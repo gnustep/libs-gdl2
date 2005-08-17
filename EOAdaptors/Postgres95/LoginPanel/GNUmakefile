@@ -1,7 +1,7 @@
 # -*-Makefile-*-
 #  GNUmakefile
 #
-#  Copyright (C) 2004 Free Software Foundation, Inc.
+#  Copyright (C) 2004, 2005 Free Software Foundation, Inc.
 #
 #  Author: Matt Rice  <ratmice@yahoo.com>
 #  Date: February 2004
@@ -19,9 +19,9 @@
 #  Lesser General Public License for more details.
 #
 #  You should have received a copy of the GNU Lesser General Public License 
-#  along with the GNUstep Database Library; see the file COPYING. If not, 
-#  write to the Free Software Foundation, Inc., 
-#  59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. 
+#  along with the GNUstep Database Library; see the file COPYING. 
+#  If not, write to the Free Software Foundation, Inc., 
+#  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. 
 
 include $(GNUSTEP_MAKEFILES)/common.make
 

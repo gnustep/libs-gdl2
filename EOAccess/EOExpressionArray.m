@@ -1,7 +1,7 @@
 /** 
    EOExpressionArray.m <title>EOExpressionArray</title>
 
-   Copyright (C) 1996-2002 Free Software Foundation, Inc.
+   Copyright (C) 1996-2002,2003,2004,2005 Free Software Foundation, Inc.
 
    Author: Ovidiu Predescu <ovidiu@bx.logicnet.ro>
    Date: September 1996
@@ -30,7 +30,7 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; see the file COPYING.LIB.
    If not, write to the Free Software Foundation,
-   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
    </license>
 **/
 

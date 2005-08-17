@@ -1,7 +1,7 @@
 # configure.in for GDL2 library
 # Process this file with autoconf to produce a configure script.
 #
-#   Copyright (C) 2002 Free Software Foundation, Inc.
+#   Copyright (C) 2002,2004,2005 Free Software Foundation, Inc.
 #
 #   Written by: Mirko Viviani <mirko.viviani@rccr.cremona.it>
 #
@@ -18,8 +18,9 @@
 #   Library General Public License for more details.
 #
 #   You should have received a copy of the GNU Library General Public
-#   License along with this library; if not, write to the Free
-#   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA
+#   License along with this library; 
+#   If not, write to the Free Software Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 
 builtin(include, config/postgres.m4)dnl
 

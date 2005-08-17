@@ -1,7 +1,7 @@
 /* -*-objc-*-
    EOModelExtensions.h
 
-   Copyright (C) 2001 Free Software Foundation, Inc.
+   Copyright (C) 2001,2002,2003,2004,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
    Date: June 2001
