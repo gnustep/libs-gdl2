@@ -1211,7 +1211,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                   NSDebugMLLog(@"gsdb",
 			       @"TOMANY snap=%p key=%@ ==> value %p=%@",
                                snapshot, key, value, value);
-                  
+
                   value = AUTORELEASE([(NSArray *)value shallowCopy]);
                   NSDebugMLLog(@"gsdb",
 			       @"TOMANY snap=%p key=%@ ==> value %p=%@",
@@ -1475,6 +1475,10 @@ toPropertyWithKey: (NSString *)key
                     }
                   else
                     {
+                      NSDebugMLLog(@"gsdb", 
+                                   @"Object %p not already in too many val=%@ (%@)",
+                                   object, val, [val class]);
+
                       if ([val isKindOfClass: GDL2_NSMutableArrayClass])
                         {
                           EOFLOGObjectLevel(@"gsdb", @"to many2");
@@ -1619,10 +1623,9 @@ toPropertyWithKey: (NSString *)key
 forBothSidesOfRelationshipWithKey: (NSString*)key
 {
   //Near OK
-  NSString *inverseKey;
-  id oldObject;
 
   EOFLOGObjectFnStart();
+
   NSDebugMLLog(@"gsdb", @"self=%@", self);
   NSDebugMLLog(@"gsdb", @"object=%@", object);
   NSDebugMLLog(@"gsdb", @"key=%@", key);
@@ -1633,51 +1636,33 @@ forBothSidesOfRelationshipWithKey: (NSString*)key
     }
   else
     {
-      inverseKey = [self inverseForRelationshipKey:key];
-      NSDebugMLLog(@"gsdb", @"inverseKey=%@", inverseKey);
-
-      oldObject = [self valueForKey: key];
+      id oldObject = [self valueForKey: key];
       NSDebugMLLog(@"gsdb", @"oldObject=%@", oldObject);
 
-      if (inverseKey)
+      if (object!=oldObject) // Don't put it again if it is already set
         {
-          if (oldObject==GDL2_EONull)
-            {
-              NSWarnMLog(@"Warning: oldObject is an EONull. self=%@ key=%@ object=%@",self,key,object);
-            }
-          else
-            {
-              [oldObject removeObject: self
-                         fromPropertyWithKey: inverseKey];
-              [object addObject: self
-                      toPropertyWithKey: inverseKey];
-              /*      if ([object isToManyKey:inverseKey])
-                      {
-                      //??
-                      EOFLOGObjectLevel(@"gsdb",@"Inverse is to many");
-                      [oldObject removeObject:self
-                      fromPropertyWithKey:inverseKey];
-                      [object addObject:self
-                      toPropertyWithKey:inverseKey];
-                      }
-                      else
-                      {
-                      EOFLOGObjectLevel(@"gsdb",@"Inverse is not to many");
-                      //OK
-                      //MIRKO      if ((inverseKey = [oldObject inverseForRelationshipKey:key]))
-                      //MIRKO [oldObject removeObject:self
-                      //           fromPropertyWithKey:inverseKey];
-                      [oldObject takeValue:nil
-                      forKey:inverseKey];
-                      [object  takeValue:self
-                      forKey:inverseKey];
-                      };
-              */
-            }
-        }
+          NSString *inverseKey = NULL;
+          inverseKey = [self inverseForRelationshipKey:key];
+          NSDebugMLLog(@"gsdb", @"inverseKey=%@", inverseKey);
 
-      [self takeValue: object
-            forKey: key];
+          if (inverseKey)
+            {
+              if (oldObject==GDL2_EONull)
+                {
+                  NSWarnMLog(@"Warning: oldObject is an EONull. self=%@ key=%@ object=%@",self,key,object);
+                }
+              else
+                {
+                  [oldObject removeObject: self
+                             fromPropertyWithKey: inverseKey];
+                  [object addObject: self
+                          toPropertyWithKey: inverseKey];
+                }
+            }
+          
+          [self takeValue: object
+                forKey: key];
+        }
     }
 
   NSDebugMLLog(@"gsdb", @"self=%@", self);
@@ -1741,16 +1726,20 @@ toBothSidesOfRelationshipWithKey: (NSString *)key
 
                       NSDebugMLLog(@"gsdb", @"oldObject=%@", oldObject);
 
-                      if (oldObject)
+                      // Don't put it again if it already set
+                      if (object!=oldObject)
                         {
-                          //TODO VERIFY
-                          [object removeObject:oldObject
-                                  fromPropertyWithKey:inverseKey];
-                        }
-
-                      // Just set self into object relationship property
-                      [object takeValue: self
-                              forKey: inverseKey];
+                          if (oldObject)
+                            {
+                              //TODO VERIFY
+                              [object removeObject:oldObject
+                                      fromPropertyWithKey:inverseKey];
+                            }
+                          
+                          // Just set self into object relationship property
+                          [object takeValue: self
+                                  forKey: inverseKey];
+                        };
                     }
                 }
             }

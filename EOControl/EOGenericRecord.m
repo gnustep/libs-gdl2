@@ -307,8 +307,6 @@ static const char _c_id[2] = { _C_ID, 0 };
 			@"Super InstanceVar named %@: offset=%u",
 			aKey, offset);
 
-  [self willChange];
-
   if (offset == UINT_MAX)
     {
       if (anObject)
@@ -724,8 +722,12 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 - (void)smartTakeValue: (id)anObject 
                 forKey: (NSString *)aKey
 {
-  BOOL	isToMany = [[classDescription toManyRelationshipKeys]
-		     containsObject: aKey];
+  BOOL	isToMany = NO;
+
+  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
+
+  isToMany=[[classDescription toManyRelationshipKeys]
+             containsObject: aKey];
 
   //NSDebugMLog(@"aKey=%@ rel=%@ anObject=%@", aKey, rel, anObject);
   //NSDebugMLog(@"[rel isBidirectional]=%d", [rel isBidirectional]);
@@ -755,6 +757,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   else
     [self takeValue: anObject
           forKey: aKey];
+
+  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
 }
 
 //MG#if !FOUNDATION_HAS_KVC
@@ -783,6 +787,10 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
       GDL2IMP_BOOL rtsIMP=NULL;
       GDL2IMP_BOOL infoVarIMP=NULL;
 
+      // We'll call willChange if we modify ivar directly or call a _setMethod
+      // otherwise, the setMethod should do it
+      BOOL shouldCallWillChange=NO; //OXYMIUM
+
       strcpy(buf, "_set");
       [aKey getCString: &buf[4]];
       lo = buf[4];
@@ -807,8 +815,12 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                                 aKey, buf);
 	  sel = GSSelectorFromName(buf);
 
-          if (sel == 0 ||
-	      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
+          if (sel != 0 &&
+	      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == YES)
+            {
+              shouldCallWillChange=YES;
+            }
+          else
             {
               sel = 0;
 
@@ -832,7 +844,12 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                                                         nil,     // stringName
                                                         &type,   // retType
                                                         &size,   // retSize
-                                                        &off)==NO) // retOffset
+                                                        &off)==YES) // retOffset
+                    {
+                      // We'll call willChange
+                      shouldCallWillChange=YES;
+                    }
+                  else
                     {
                       // Test key                      
                       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
@@ -849,14 +866,20 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
                                                         &type,   // retType
                                                         &size,   // retSize
                                                         &off); // retOffset
+                      // We'll call willChange
+                      shouldCallWillChange=YES;
                     }
                 }
             }
         }
       
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-                            @"aKey=%@ sel=%@ offset=%u",
-                            aKey, NSStringFromSelector(sel), off);
+                            @"aKey=%@ sel=%@ offset=%u shouldCallWillChange=%d",
+                            aKey, NSStringFromSelector(sel), off,
+                            shouldCallWillChange);
+
+      if (shouldCallWillChange)
+        [self willChange];
 
       [self _setValueForKey: aKey
             object: anObject

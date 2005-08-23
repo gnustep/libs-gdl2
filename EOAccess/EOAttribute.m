@@ -1596,6 +1596,8 @@ More details:
 {
   NSException *exception=nil;
 
+  EOFLOGObjectFnStart();
+
   NSAssert(valueP, @"No value pointer");
 
   NSDebugMLog(@"In EOAttribute validateValue: value (class=%@) = %@ attribute = %@",
@@ -1796,6 +1798,8 @@ More details:
             }
         }
     }
+
+  EOFLOGObjectFnStop();
 
   return exception;
 }
