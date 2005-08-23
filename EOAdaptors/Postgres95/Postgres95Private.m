@@ -80,12 +80,15 @@ PSQLA_PrivInit(void)
   static BOOL initialized=NO;
   if (!initialized)
     {
+      initialized = YES;
+
       // ==== Classes ====
       PSQLA_NSMutableArrayClass=[NSMutableArray class];
       PSQLA_NSStringClass=[NSString class];
       PSQLA_NSNumberClass=[NSNumber class];
       PSQLA_NSDecimalNumberClass=[NSDecimalNumber class];
       PSQLA_NSCalendarDateClass=[NSCalendarDate class];
+      PSQLA_NSDateClass=[NSDate class];
       PSQLA_EOAttributeClass = [EOAttribute class];
       PSQLA_Postgres95ValuesClass = [Postgres95Values class];
 

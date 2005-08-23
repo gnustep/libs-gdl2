@@ -86,6 +86,7 @@ RCS_ID("$Id$")
   static BOOL initialized=NO;
   if (!initialized)
     {
+      initialized=YES;
       PSQLA_PrivInit();
     };
 };

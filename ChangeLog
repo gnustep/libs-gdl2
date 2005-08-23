@@ -1,5 +1,12 @@
 2005-08-23  Manuel Guesdon  <mguesdon@orange-concept.com>
 	
+	* EOAdaptors/Postgres95/Postgres95Private.m: added 
+	PSQLA_NSDateClass initialization in PSQLA_PrivInit()
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m: 
+	fix initialized in +initialize
+
+2005-08-23  Manuel Guesdon  <mguesdon@orange-concept.com>
+	
 	* EOControl/EOGenericRecord.m: fix -willChange call (don't call 
 	it for takeStoredValue:forKey and for -setXX method).
 	* EOControl/EOClassDescription.m: check if value is not 
