@@ -1675,6 +1675,19 @@ _mergeValueForKey(id obj, id value,
                   if (add == NO) continue;
 
                   [insertedAndDeleted addObject: obj];
+
+                  /* We also remove it for all changes so we won't try to update 
+                     this non inserted object
+                     Set EOEditingContext03.m in Testsuite. */
+                  //FIXME: not sure about undo impact
+                  if (NSHashGet(_unprocessedChanges, obj))
+                    {
+                      NSHashRemove(_unprocessedChanges, obj);
+                    }
+                  if (NSHashGet(_changedObjects, obj))
+                    {
+                      NSHashRemove(_changedObjects, obj);
+                    }
                 }
               else
                 {
