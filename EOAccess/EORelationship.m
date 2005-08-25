@@ -1327,6 +1327,9 @@ relationships. Nil if none" **/
     {
       _flags.isToMany = NO;
 
+      NSAssert1(_entity,@"No entity for relationship %@",
+                self);
+
       ASSIGN(_definitionArray, [_entity _parseRelationshipPath: definition]);
 
       EOFLOGObjectLevelArgs(@"EORelationship", @"_definitionArray=%@", _definitionArray);

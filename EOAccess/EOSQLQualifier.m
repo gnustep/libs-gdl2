@@ -161,12 +161,22 @@ RCS_ID("$Id$")
           if (schemaBasedQualifierTmp != qualifier)
             atLeastOneDifferentQualifier = YES;
 
-	  [qualifiers addObject: schemaBasedQualifierTmp];
+          // Allows nil schemaBasedQualifier
+          if (schemaBasedQualifierTmp)
+            [qualifiers addObject: schemaBasedQualifierTmp];
 	}
 
       // If we've found at least a different qualifier, return a new EOAndQualifier
       if (atLeastOneDifferentQualifier)
-          returnedQualifier = [[self class] qualifierWithQualifierArray:qualifiers];
+        {
+          if ([qualifiers count]>0)
+            {
+              returnedQualifier = [[self class] 
+                                    qualifierWithQualifierArray:qualifiers];
+            }
+          else
+            returnedQualifier = nil;
+        };
     }
 
   EOFLOGObjectFnStop();
@@ -234,12 +244,22 @@ RCS_ID("$Id$")
           if (schemaBasedQualifierTmp != qualifier)
             atLeastOneDifferentQualifier = YES;
 
-	  [qualifiers addObject: schemaBasedQualifierTmp];
+          // Allows nil schemaBasedQualifier
+          if (schemaBasedQualifierTmp)
+            [qualifiers addObject: schemaBasedQualifierTmp];
 	}
 
       // If we've found at least a different qualifier, return a new EOOrQualifier
       if (atLeastOneDifferentQualifier)
-          returnedQualifier = [[self class] qualifierWithQualifierArray:qualifiers];
+        {
+          if ([qualifiers count]>0)
+            {
+              returnedQualifier = [[self class] 
+                                    qualifierWithQualifierArray:qualifiers];
+            }
+          else
+            returnedQualifier = nil;
+        };
     }
 
   EOFLOGObjectFnStop();
@@ -290,12 +310,20 @@ RCS_ID("$Id$")
 
   EOFLOGObjectFnStart();
 
+  EOFLOGObjectLevelArgs(@"EOQualifier", @"self=%@", self);
+
   key = [self key];
   EOFLOGObjectLevelArgs(@"EOQualifier", @"key=%@", key);
+  
+  // 2 cases: key finish by an attrbue name  (attrName or rel1.rel2.rel3.attrName)
+  // or by an relationship  (rel1 or rel1.rel2.rel3)
+
+  // So find which one is it for key
 
   relationship = [entity relationshipForPath: key];
   EOFLOGObjectLevelArgs(@"EOQualifier", @"relationship=%@", relationship);
 
+  // It's a relationship (case 2), so we'll have to work
   if (relationship)
     {
       EORelationship *destinationRelationship;
@@ -308,11 +336,46 @@ RCS_ID("$Id$")
       int i, count;
       SEL sel = NULL;
 
+      // keyPrefix for new qualifier attribute names
+      NSString* keyPrefix=nil; 
+
+      NSString* relName=[relationship name];
+
+      // Verify if key is a single relationship or a relationship key path
+      if (![key isEqualToString:relName])
+        {
+          // It is a relationship key path: we'll have to prefix join(s) 
+          // attribute name
+          // keyPrefix is the keyPath without last relationship name
+          // ex: rel1.rel2. if key was rel1.rel2.rel3
+          keyPrefix=[key stringByDeletingSuffix:relName];
+        };
+
+      // if relationship is flattened, we'll have to add 
+      // last relationship path prefix to keyPrefix !
       if ([relationship isFlattened])
-        destinationRelationship = [relationship lastRelationship];
+        {
+          NSString* relDef=nil;
+          destinationRelationship = [relationship lastRelationship];
+          
+          relDef=[relationship definition];
+
+          // something like rel1.rel2.relA.relB. or relA.relB.
+          if (keyPrefix)
+            keyPrefix=[keyPrefix stringByAppendingString:relDef];
+          else
+            keyPrefix=relDef;
+
+          keyPrefix=[keyPrefix stringByAppendingString:@"."];
+        }
       else
-        destinationRelationship = relationship;
-      
+        {
+          destinationRelationship = relationship;
+        };
+
+      EOFLOGObjectLevelArgs(@"EOQualifier", @"key=%@ keyPrefix=%@", 
+                            key, keyPrefix);
+
       joins = [destinationRelationship joins];
       count = [joins count];
 
@@ -343,11 +406,6 @@ RCS_ID("$Id$")
       EOFLOGObjectLevelArgs(@"EOQualifier", @"keyValues=%@", keyValues);
 
       sel = [self selector];
-      /*
-when flattened: ???
-             entity relationshipForPath:key
-             and get joins on it ?
-      */
 
       for (i = 0; i < count; i++)
         {
@@ -365,9 +423,7 @@ when flattened: ???
           if (destinationRelationship != relationship)
             {
               // flattened: take destattr
-              attributeName = [NSString stringWithFormat: @"%@.%@",
-					key, destinationAttributeName];
-              //==> rel.attr
+              attributeName = destinationAttributeName;
             }
           else
             {
@@ -376,11 +432,27 @@ when flattened: ???
               attributeName = [sourceAttribute name];
             }
 
+          if (keyPrefix)
+            attributeName=[keyPrefix stringByAppendingString:attributeName];
+
+          EOFLOGObjectLevelArgs(@"EOQualifier", 
+                                @"key=%@ keyPrefix=%@ attributeName=%@", 
+                                key, keyPrefix,attributeName);
+
           attributeValue = [keyValues objectForKey:destinationAttributeName];
+
+          EOFLOGObjectLevelArgs(@"EOQualifier", 
+                                @"destinationAttributeName=%@ attributeValue=%@", 
+                                destinationAttributeName, attributeValue);
+
           tmpQualifier = [EOKeyValueQualifier
 			   qualifierWithKey: attributeName
 			   operatorSelector: sel
 			   value: (attributeValue ? attributeValue : GDL2_EONull)];
+
+          EOFLOGObjectLevelArgs(@"EOQualifier", 
+                                @"tmpQualifier=%@", 
+                                tmpQualifier);
 
           if (qualifier)//Already a qualifier
             {
@@ -402,8 +474,11 @@ when flattened: ???
           qualifier = [EOAndQualifier qualifierWithQualifierArray: qualifiers];
         }
     }
-  else
+  else // It's not a relationship. Nothing to do.
     qualifier = self;
+
+  EOFLOGObjectLevelArgs(@"EOQualifier", @"self=%@", self);
+  EOFLOGObjectLevelArgs(@"EOQualifier", @"result qualifier=%@", qualifier);
 
   EOFLOGObjectFnStop();
 

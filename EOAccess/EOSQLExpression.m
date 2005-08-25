@@ -1454,13 +1454,15 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
             [qualifier class],
             qualifier);
 
-  key = [qualifier key];//OK
+  key = [qualifier key];
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"key=%@", key);
+  NSAssert1([key length]>0,
+           @"No key in EOKeyValueQualifier: %@",qualifier);
 
-  value = [qualifier value];//OK
+  value = [qualifier value];
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"value=%@", value);
 
-  attributeSQLString = [self sqlStringForAttributeNamed: key];//OK
+  attributeSQLString = [self sqlStringForAttributeNamed: key];
 
   NSAssert1(attributeSQLString, @"No sqlStringForAttributeNamed:%@", key);
   EOFLOGObjectLevelArgs(@"EOSQLExpression",@"attributeSQLString=%@",
@@ -1468,6 +1470,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   attribute = [_entity attributeForPath: key];
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attribute=%@", attribute);
+  NSAssert3(attribute,
+            @"No attribute forKeyPath: '%@' in entity named '%@' in EOKeyValueQualifier: %@",
+            key,_entity,qualifier);
 
   readFormat = [attribute readFormat];
 

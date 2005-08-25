@@ -1,3 +1,15 @@
+2005-08-25  Manuel Guesdon  <mguesdon@orange-concept.com>
+
+	* EOAccess/EOSQLQualifier.m: change in EOAndQualifier and 
+	EOOrQualifier -schemaBasedQualifierWithRootEntity to allow 
+	nil schemaBasedQualifier.
+	fix in EOKeyValueQualifier -schemaBasedQualifierWithRootEntity: 
+	to handle key like rel1.rel2.rel3 (see Testsuite 
+	EOKeyValueQualifier01.m)
+	* EOAccess/EOSQLExpression.m: added NSAssert in 
+	-sqlStringForKeyValueQualifier:
+	* EOAccess/EORelationship.m: added NSAssert in setDefinition:
+
 2005-08-24  Manuel Guesdon  <mguesdon@orange-concept.com>
 	
 	* EOControl/EOEditingContext.m: fix _processRecentChanges
