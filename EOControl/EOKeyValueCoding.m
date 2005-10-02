@@ -104,15 +104,22 @@ initialize(void)
 			@selector(GDL2KVCNSObjectICategoryID), YES);
 }
 
-- (void) unableToSetNullForKey: (NSString *)key
+
+/* This is what -base(add) will call.  It should invoke what the API
+   specifies should be overridden.  */
+- (void) setNilValueForKey: (NSString*)aKey
 {
-  GSOnceMLog(@"This method is deprecated, use -unableToSetNilForKey:!");
-  [self unableToSetNilForKey: key];
+  [self unableToSetNilForKey: aKey];
 }
 
-- (void) setNilValueForKey: (NSString *)key
+
+/* This is what should be overridden according to the API.*/
+- (void) unableToSetNilForKey: (NSString *)key
 {
-  [self unableToSetNilForKey: key];
+  [NSException raise: NSInvalidArgumentException
+	       format: @"%@ -- %@ 0x%x: Given nil value to set for key \"%@\"",
+	       NSStringFromSelector(_cmd), NSStringFromClass([self class]), 
+	       self, key];
 }
 
 /* See EODeprecated.h. */
@@ -125,14 +132,93 @@ initialize(void)
 {
 }
 
-/* See header file for documentation. */
-- (void) unableToSetNilForKey: (NSString *)key
+- (void) takeValue: (id)anObject forKey: (NSString*)aKey
 {
-  [NSException raise: NSInvalidArgumentException
-	       format: @"%@ -- %@ 0x%x: Given nil value to set for key \"%@\"",
-	       NSStringFromSelector(_cmd), NSStringFromClass([self class]), 
-	       self, key];
+  SEL		sel = 0;
+  const char	*type = 0;
+  int		off;
+  unsigned	size = [aKey length];
+
+  if (size > 0)
+    {
+      const char	*name;
+      char		buf[size+6];
+      char		lo;
+      char		hi;
+
+      strcpy(buf, "_set");
+      [aKey getCString: &buf[4]];
+      lo = buf[4];
+      hi = islower(lo) ? toupper(lo) : lo;
+      buf[4] = hi;
+      buf[size+4] = ':';
+      buf[size+5] = '\0';
+
+      name = &buf[1];	// setKey:
+      type = NULL;
+      sel = GSSelectorFromName(name);
+      if (sel == 0 || [self respondsToSelector: sel] == NO)
+	{
+	  name = buf;	// _setKey:
+	  sel = GSSelectorFromName(name);
+	  if (sel == 0 || [self respondsToSelector: sel] == NO)
+	    {
+	      sel = 0;
+	      if ([[self class] accessInstanceVariablesDirectly] == YES)
+		{
+		  buf[size+4] = '\0';
+		  buf[3] = '_';
+		  buf[4] = lo;
+		  name = &buf[4];	// key
+		  if (GSObjCFindVariable(self, name, &type, &size, &off) == NO)
+		    {
+		      name = &buf[3];	// _key
+		      GSObjCFindVariable(self, name, &type, &size, &off);
+		    }
+		}
+	    }
+	}
+    }
+  GSObjCSetValue(self, aKey, anObject, sel, type, size, off);
 }
+
+
+- (void) takeValue: (id)anObject forKeyPath: (NSString*)aKey
+{
+  NSRange	r = [aKey rangeOfString: @"."];
+
+  if (r.length == 0)
+    {
+      [self takeValue: anObject forKey: aKey];
+    }
+  else
+    {
+      NSString	*key = [aKey substringToIndex: r.location];
+      NSString	*path = [aKey substringFromIndex: NSMaxRange(r)];
+
+      [[self valueForKey: key] takeValue: anObject forKeyPath: path];
+    }
+}
+
+
+- (void) takeValuesFromDictionary: (NSDictionary*)aDictionary
+{
+  NSEnumerator	*enumerator = [aDictionary keyEnumerator];
+  NSNull	*null = [NSNull null];
+  NSString	*key;
+
+  while ((key = [enumerator nextObject]) != nil)
+    {
+      id obj = [aDictionary objectForKey: key];
+
+      if (obj == null)
+	{
+	  obj = nil;
+	}
+      [self takeValue: obj forKey: key];
+    }
+}
+
 @end
 
 

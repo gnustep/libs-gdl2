@@ -58,7 +58,9 @@
 - (id)valueForKey: (NSString *)key;
 
 /**
- * Unimplemented here.  Relies on NSKeyValueCoding.
+ * Overrides the implementation of gnustep-base/Foundation this method
+ * is currently deprecated in favor of setValue:forKey: yet we aim
+ * to maintain WebObjects 4.5 compatibility.
  */
 - (void)takeValue: (id)value forKey: (NSString *)key;
 
@@ -103,10 +105,10 @@
 
 /**
  * This method is invoked by the EOKeyValueCoding mechanism when an attempt
- * is made to set an null value for a scalar attribute.  This implementation
- * raises an NSInvalidArgument exception. <br/>
+ * is made to set an null value for a scalar attribute.
  * Contrary to the TOC of the documentation, this method is called
  * unableToSetNilForKey: and not unableToSetNullForKey:<br/>
+ * This implementation raises an NSInvalidArgument exception. <br/>
  * The NSKeyValueCoding -setNilValueForKey: is overriden to invoke this
  * method instead.  We manipulate the runtime to insure that our implementation
  * of unableToSetNilForKey: is used in favor of the one in gnustep-base or
@@ -124,7 +126,9 @@
 - (id)valueForKeyPath: (NSString *)keyPath;
 
 /**
- * Unimplemented here.  Relies on NSKeyValueCoding.
+ * Overrides the implementation of gnustep-base/Foundation this method
+ * is currently deprecated in favor of setValue:forKeyPath: yet we aim
+ * to maintain WebObjects 4.5 compatibility.
  */
 - (void)takeValue: (id)value forKeyPath: (NSString *)keyPath;
 
@@ -134,7 +138,9 @@
 - (NSDictionary *)valuesForKeys: (NSArray *)keys;
 
 /**
- * Unimplemented here.  Relies on NSKeyValueCoding.
+ * Overrides the implementation of gnustep-base/Foundation this method
+ * is currently deprecated in favor of setValue:forKeyPath: yet we aim
+ * to maintain WebObjects 4.5 compatibility.
  */
 - (void)takeValuesFromDictionary: (NSDictionary *)dictionary; 
 

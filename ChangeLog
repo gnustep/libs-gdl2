@@ -6,6 +6,14 @@
 	* EOControl/EOOrQualifier.m: ([-description]) Make qualifiers
 	user presentable like in WO.
 	(-[debugDescription]): New deprecated method for old description.
+
+	* EOControl/EOKeyValueCoding.h/m
+	(unableToSetNullForKey:): Remove deprecated -base/Foundation hook.
+	(setNilValueForKey:) Override new hook to call unableToSetNilForKey:.
+	(unableToSetNilForKey:): Raise exception as documented.
+	(takeValue:forKey:): Implement here to avoid deprecation warning.
+	(takeValue:forKeyPath:): Ditto.
+	(takeValuesFromDictionary:): Ditto.
 	
 2005-08-25  Manuel Guesdon  <mguesdon@orange-concept.com>
 
