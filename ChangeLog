@@ -1,3 +1,12 @@
+2005-10-02  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOAndQualifier.m,
+	* EOControl/EOKeyComparisonQualifier.m,
+	* EOControl/EOKeyValueQualifier.m,
+	* EOControl/EOOrQualifier.m: ([-description]) Make qualifiers
+	user presentable like in WO.
+	(-[debugDescription]): New deprecated method for old description.
+	
 2005-08-25  Manuel Guesdon  <mguesdon@orange-concept.com>
 
 	* EOAccess/EOSQLQualifier.m: change in EOAndQualifier and 

@@ -243,6 +243,22 @@ RCS_ID("$Id$")
     {
       selectorString = NSStringFromSelector(_selector);
     }
+  return [NSString stringWithFormat:@"(%@ %@ %@)",
+		   _leftKey,
+		   selectorString,
+		   _rightKey];
+}
+/**
+ * Deprecated debug description.  Expect it to be removed.
+ */
+- (NSString *) debugDescription
+{
+  NSString *selectorString;
+  selectorString = [isa stringForOperatorSelector: _selector];
+  if (selectorString == nil)
+    {
+      selectorString = NSStringFromSelector(_selector);
+    }
   return [NSString stringWithFormat:@"<%s %p - %@ %@ %@>",
 		   object_get_class_name(self),
 		   (void*)self,

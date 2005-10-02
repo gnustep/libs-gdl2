@@ -216,7 +216,20 @@ RCS_ID("$Id$")
   return nil;
 }
 
-- (id) description
+- (NSString *) description
+{
+  NSString *dscr;
+  
+  dscr = [NSString stringWithFormat: @"(%@)",
+		   [_qualifiers componentsJoinedByString: @" OR "]];
+
+  return dscr;
+}
+
+/**
+ * Deprecated debug description.  Expect it to be removed.
+ */
+- (NSString *)debugDescription
 {
   NSString *dscr;
 
