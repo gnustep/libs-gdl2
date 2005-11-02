@@ -209,6 +209,8 @@ static NSString *typeNames[][2] = {
   @"oidint2",		@"NSNumber",
   @"oidint4",		@"NSNumber",
   @"oidchar16",		@"NSNumber",
+  @"serial",		@"NSNumber",
+  @"serial8",		@"NSNumber",
   @"decimal",		@"NSDecimalNumber",
   @"cid",		@"NSDecimalNumber",
   @"tid",		@"NSDecimalNumber",

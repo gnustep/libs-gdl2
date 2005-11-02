@@ -1,3 +1,8 @@
+2005-11-02  David Ayers  <d.ayers@inode.at>
+
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m (typeNames): Add
+	serial and serial8 from patch 1777 from Simon Stapleton.
+	
 2005-10-02  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOAndQualifier.m,
