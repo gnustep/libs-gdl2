@@ -47,6 +47,7 @@
 @class NSAutoreleasePool;
 @class NSUndoManager;
 
+@class EOSharedEditingContext;
 
 @interface EOEditingContext : EOObjectStore <EOObserving>
 {
@@ -98,8 +99,8 @@
     unsigned willSaveChanges:1;
   } _delegateRespondsTo;
   
-  NSRecursiveLock*_lock;
-  id _sharedContext;
+  NSRecursiveLock *_lock;
+  EOSharedEditingContext *_sharedContext;
   int _lockCount;
   id _notificationQueue;
   NSAutoreleasePool * _lockPool;
@@ -176,6 +177,9 @@
 
 - (BOOL)locksObjectsBeforeFirstModification;
 - (void)setLocksObjectsBeforeFirstModification: (BOOL)yn;
+
+- (EOSharedEditingContext *)sharedEditingContext;
+- (void)setSharedEditingContext:(EOSharedEditingContext *)sharedEditingContext;
 
 /** Returns a dictionary containing a snapshot of object 
 that reflects its committed values (last values putted in 

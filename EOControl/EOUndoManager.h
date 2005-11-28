@@ -33,7 +33,6 @@
 #include <Foundation/Foundation.h>
 #endif
 
-
 @interface EOUndoManager : NSUndoManager
 
 - (void)forgetAllWithTarget: (id)param0;

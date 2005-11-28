@@ -59,6 +59,7 @@ EOGlobalID.m \
 EOKeyGlobalID.m \
 EOObserver.m \
 EOEditingContext.m \
+EOSharedEditingContext.m \
 EODataSource.m \
 EODetailDataSource.m \
 EOUndoManager.m \
@@ -88,6 +89,7 @@ EOGlobalID.h \
 EOKeyGlobalID.h \
 EOObserver.h \
 EOEditingContext.h \
+EOSharedEditingContext.h \
 EODataSource.h \
 EODetailDataSource.h \
 EOArrayDataSource.h \

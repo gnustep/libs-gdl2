@@ -44,16 +44,17 @@ RCS_ID("$Id$")
 
 #include <GNUstepBase/GSLock.h>
 
-#include <EOControl/EOEditingContext.h>
-#include <EOControl/EOObjectStoreCoordinator.h>
-#include <EOControl/EOGlobalID.h>
-#include <EOControl/EOClassDescription.h>
-#include <EOControl/EOKeyValueCoding.h>
-#include <EOControl/EOFault.h>
-#include <EOControl/EONull.h>
-#include <EOControl/EONSAddOns.h>
-#include <EOControl/EODeprecated.h>
-#include <EOControl/EODebug.h>
+#include "EOEditingContext.h"
+#include "EOSharedEditingContext.h"
+#include "EOObjectStoreCoordinator.h"
+#include "EOGlobalID.h"
+#include "EOClassDescription.h"
+#include "EOKeyValueCoding.h"
+#include "EOFault.h"
+#include "EONull.h"
+#include "EONSAddOns.h"
+#include "EODeprecated.h"
+#include "EODebug.h"
 
 #include "EOPrivate.h"
 
@@ -71,42 +72,48 @@ RCS_ID("$Id$")
 @interface EOEntityClassDescription : EOClassDescription
 - (NSObject *) entity;
 @end
+@interface EOSharedEditingContext (Privat)
++ (EOSharedEditingContext *)_defaultSharedEditingContext;
+@end
 
 @interface EOEditingContext(EOEditingContextPrivate)
-- (void) incrementUndoTransactionID;
-- (BOOL) handleError: (NSException *)exception;
-- (BOOL) handleErrors: (NSArray *)exceptions;
+- (void)incrementUndoTransactionID;
+- (BOOL)handleError: (NSException *)exception;
+- (BOOL)handleErrors: (NSArray *)exceptions;
 
-- (void) _enqueueEndOfEventNotification;
-- (void) _sendOrEnqueueNotification: (NSNotification *)notification
-                           selector: (SEL)selector;
+- (void)_enqueueEndOfEventNotification;
+- (void)_sendOrEnqueueNotification: (NSNotification *)notification
+			  selector: (SEL)selector;
 
-- (void) _insertObject: (id)object
-          withGlobalID: (EOGlobalID *)gid;
+- (void)_insertObject: (id)object
+	 withGlobalID: (EOGlobalID *)gid;
 
-- (void) _processObjectStoreChanges: (NSDictionary *)changes;
-- (void) _processDeletedObjects;
-- (void) _processOwnedObjectsUsingChangeTable: (NSHashTable*)changeTable
-                                  deleteTable: (NSHashTable*)deleteTable;
+- (void)_processObjectStoreChanges: (NSDictionary *)changes;
+- (void)_processDeletedObjects;
+- (void)_processOwnedObjectsUsingChangeTable: (NSHashTable*)changeTable
+				 deleteTable: (NSHashTable*)deleteTable;
 - (void)_processNotificationQueue;
 
-- (void) _observeUndoManagerNotifications;
+- (void)_observeUndoManagerNotifications;
 
-- (void) _registerClearStateWithUndoManager;
+- (void)_registerClearStateWithUndoManager;
 
-- (void) _forgetObjectWithGlobalID:(EOGlobalID *)gid;
+- (void)_forgetObjectWithGlobalID:(EOGlobalID *)gid;
 
-- (void) _invalidateObject:(id)obj withGlobalID: (EOGlobalID *)gid;
-- (void) _invalidateObjectsWithGlobalIDs: (NSArray*)gids;
-- (NSDictionary *) _objectBasedChangeInfoForGIDInfo: (NSDictionary *)changes;
+- (void)_invalidateObject:(id)obj withGlobalID: (EOGlobalID *)gid;
+- (void)_invalidateObjectsWithGlobalIDs: (NSArray*)gids;
+- (NSDictionary *)_objectBasedChangeInfoForGIDInfo: (NSDictionary *)changes;
 
 - (NSMutableSet *)_mutableSetFromToManyArray: (NSArray *)array;
 - (NSArray *)_uncommittedChangesForObject: (id)obj
                              fromSnapshot: (NSDictionary *)snapshot;
 - (NSArray *)_changesFromInvalidatingObjectsWithGlobalIDs: (NSArray *)globalIDs;
 
-- (void) _resetAllChanges;
-
+- (void)_resetAllChanges;
+- (void)_defaultSharedEditingContextWasInitialized:(NSNotification *)notification;
+- (void)_defaultEditingContextNowInitialized:(NSDictionary *)userInfo;
+- (void)_objectsInitializedInSharedContext:(NSNotification *)notification;
+- (void)_processInitializedObjectsInSharedContext:(NSDictionary *)userInfo;
 @end
 
 @interface EOThreadSafeQueue : NSObject
@@ -172,6 +179,8 @@ NSString *EOObjectsChangedInEditingContextNotification
       = @"EOObjectsChangedInEditingContextNotification";
 NSString *EOEditingContextDidSaveChangesNotification 
       = @"EOEditingContextDidSaveChangesNotification";
+NSString *EOEditingContextDidChangeSharedEditingContextNotification
+      = @"EOEditingContextDidChangeSharedEditingContextNotification";
 
 /* Local constants */
 NSString *EOConstObject = @"EOConstObject";
@@ -292,6 +301,7 @@ _mergeValueForKey(id obj, id value,
   //OK
   if ((self = [super init]))
     {
+      NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
       _flags.propagatesDeletesAtEndOfEvent = YES; //Default behavior
       ASSIGN(_objectStore, [EOEditingContext defaultParentObjectStore]); //parentObjectStore instead of defaultParentObjectStore ?
 
@@ -317,46 +327,56 @@ _mergeValueForKey(id obj, id value,
       _lock = [NSRecursiveLock new];
 
       _undoManager = [EOUndoManager new];
-
       [self _observeUndoManagerNotifications];
+
+      _sharedContext = [EOSharedEditingContext _defaultSharedEditingContext];
+      if (_sharedContext)
+	{
+	  [nc addObserver: self
+	      selector: @selector(_objectsInitializedInSharedContext:)
+	      name: EOSharedEditingContextInitializedObjectsNotification
+	      object: _sharedContext];
+	}
+      else
+	{
+	  [nc addObserver: self
+	      selector: @selector(_defaultSharedEditingContextWasInitialized:)
+	      name: EODefaultSharedEditingContextWasInitializedNotification
+	      object: nil];
+	}
 
 /*
   [self setStopsValidationAfterFirstError:YES];
   [self setPropagatesDeletesAtEndOfEvent:YES];
 */
 
-      [[NSNotificationCenter defaultCenter]
-        addObserver: self
-        selector: @selector(_objectsChangedInStore:)
-        name: EOObjectsChangedInStoreNotification
-        object: _objectStore];
+      [nc addObserver: self
+	  selector: @selector(_objectsChangedInStore:)
+	  name: EOObjectsChangedInStoreNotification
+	  object: _objectStore];
 
-      [[NSNotificationCenter defaultCenter]
-        addObserver: self
-        selector: @selector(_invalidatedAllObjectsInStore:)
-        name: EOInvalidatedAllObjectsInStoreNotification
-        object: _objectStore];
+      [nc addObserver: self
+	  selector: @selector(_invalidatedAllObjectsInStore:)
+	  name: EOInvalidatedAllObjectsInStoreNotification
+	  object: _objectStore];
 
-      [[NSNotificationCenter defaultCenter]
-        addObserver: self
-        selector: @selector(_globalIDChanged:)
-        name: EOGlobalIDChangedNotification
-        object: nil];
+      [nc addObserver: self
+	  selector: @selector(_globalIDChanged:)
+	  name: EOGlobalIDChangedNotification
+	  object: nil];
 
-      [[NSNotificationCenter defaultCenter]
-        addObserver: self
-        selector: @selector(_eoNowMultiThreaded:)
-        name: NSWillBecomeMultiThreadedNotification
-        object: nil];
-/*
+      [nc addObserver: self
+	  selector: @selector(_eoNowMultiThreaded:)
+	  name: NSWillBecomeMultiThreadedNotification
+	  object: nil];
+      /*
       [self setStopsValidationAfterFirstError:NO];
       
-      [[NSNotificationCenter defaultCenter]
-        addObserver:self
-        selector:@selector(_objectsChangedInSubStore:)
-        name:EOObjectsChangedInStoreNotification
-        object:nil];
-*/    
+      [nc addObserver:self
+	  selector:@selector(_objectsChangedInSubStore:)
+	  name:EOObjectsChangedInStoreNotification
+	  object:nil];
+      */
     }
 
   return self;
@@ -372,7 +392,8 @@ _mergeValueForKey(id obj, id value,
 {
   int i,c;
   NSArray *registeredObjects = [self registeredObjects];
-  
+
+  if (_sharedContext) [self setSharedEditingContext: nil];
   for (i = 0, c = [registeredObjects count]; i < c; i++)
     {
       [EOObserverCenter removeObserver:self
@@ -2743,6 +2764,10 @@ _mergeValueForKey(id obj, id value,
                         self, globalID);
 
   object = NSMapGet(_objectsByGID, globalID);
+  if (object == nil && _sharedContext)
+    {
+      object = [_sharedContext objectForGlobalID: globalID];
+    }
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", 
                         @"EditingContext: %p gid=%@ object=%p", 
@@ -2765,6 +2790,10 @@ _mergeValueForKey(id obj, id value,
 			self, _globalIDsByObject, object);
 
   gid = NSMapGet(_globalIDsByObject, object);
+  if (gid == nil && _sharedContext)
+    {
+      gid = [_sharedContext globalIDForObject: object];
+    }
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
 
@@ -3149,6 +3178,66 @@ _mergeValueForKey(id obj, id value,
   _flags.autoLocking = flag;
 }
 
+- (EOSharedEditingContext *)sharedEditingContext
+{
+  return _sharedContext;
+}
+- (void)setSharedEditingContext:(EOEditingContext *)sharedEditingContext
+{
+  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+  NSArray *sharedGIDs;
+  NSArray *localGIDs;
+  _flags.ignoreSharedContextNotifications = YES;
+  if (sharedEditingContext == nil)
+    {
+      [nc removeObserver: self
+	  name: EODefaultSharedEditingContextWasInitializedNotification
+	  object: nil];
+    }
+  if (_sharedContext == sharedEditingContext) return;
+  if (sharedEditingContext == nil)
+    {
+      [nc removeObserver: self
+	  name: EOSharedEditingContextInitializedObjectsNotification
+	  object: _sharedContext];
+      /* FIXME: Find out with which configuration this notification is
+	 actually processed.  */
+      [nc postNotificationName: EOEditingContextDidChangeSharedEditingContextNotification
+	  object: self];
+      return;
+    }
+  if (![sharedEditingContext isKindOfClass: [EOSharedEditingContext class]])
+    {
+      [NSException raise: NSInvalidArgumentException
+		   format: @"Attempt to set illegal object as EOSharedEditingContext"];
+    }
+  sharedGIDs = NSAllMapTableKeys(sharedEditingContext->_globalIDsByObject);
+  localGIDs = NSAllMapTableKeys(_globalIDsByObject);
+  if ([sharedGIDs count] && [localGIDs count])
+    {
+      NSDictionary *userInfo = [NSDictionary dictionaryWithObject: sharedGIDs
+					     forKey: @"initialized"];
+      [self _processInitializedObjectsInSharedContext: userInfo];
+    }
+  if (_sharedContext != nil)
+    {
+      [nc removeObserver: self
+	  name: EOSharedEditingContextInitializedObjectsNotification
+	  object: _sharedContext];
+    }
+  ASSIGN(_sharedContext,sharedEditingContext);
+  [nc addObserver: self
+      selector: @selector(_objectsInitializedInSharedContext:)
+      name: EOSharedEditingContextInitializedObjectsNotification
+      object: _sharedContext];
+  [nc removeObserver: self
+      name: EODefaultSharedEditingContextWasInitializedNotification
+      object: nil];
+  /* FIXME: Find out with which configuration this notification is
+     actually processed.  */
+  [nc postNotificationName: EOEditingContextDidChangeSharedEditingContextNotification
+      object: self];
+}
 
 // Snapshotting
 
@@ -3264,6 +3353,11 @@ modified state of the object.**/
 {
   //OK
   id object = EOEditingContext_objectForGlobalIDWithImpPtr(self,NULL,globalID);
+  if (!object && _sharedContext)
+    {
+      object = [_sharedContext faultForGlobalID: globalID
+			       editingContext: context];
+    }
 
   if (!object)
     {
@@ -3390,6 +3484,13 @@ modified state of the object.**/
 
   if (self == context)
     {
+      if (NSMapGet(_objectsByGID, globalID) == nil
+	  && _sharedContext && [_sharedContext objectForGlobalID: globalID])
+	{
+	  _flags.ignoreChangeNotification = NO;
+	  [NSException raise: NSInvalidArgumentException
+		       format: @"Attempt to initialize object contained in EOSharedEditingContext"];
+	}
       objectStore = [(EOObjectStoreCoordinator*)_objectStore objectStoreForGlobalID: globalID];
       [objectStore initializeObject: object
                    withGlobalID: globalID
@@ -3449,12 +3550,20 @@ modified state of the object.**/
        editingContext: (EOEditingContext *)context
 {
   //Near OK
-  if (object)
+  if (object && [EOFault isFault: object] == NO)
     {
       //call globalID isTemporary //ret NO
       if (self == context)//??
         {
           //NO: in EODatabaseConetxt [object clearProperties];
+
+	  if (NSMapGet(_objectsByGID, globalID) == nil
+	      && _sharedContext 
+	      && [_sharedContext objectForGlobalID: globalID])
+	    {
+	      [NSException raise: NSInvalidArgumentException
+			   format: @"Attempt to initialize object contained in EOSharedEditingContext"];
+	    }
 
           //OK
           [_objectStore refaultObject: object
@@ -3620,6 +3729,55 @@ modified state of the object.**/
   return self;
 }
 
+- (void)_processInitializedObjectsInSharedContext:(NSDictionary *)userInfo
+{
+  NSArray *localGIDs = NSAllMapTableKeys(_objectsByGID);
+  NSArray *newGIDs = [userInfo objectForKey:@"initialized"];
+  if ([localGIDs count] && [newGIDs count])
+    {
+      NSSet *localSet = [NSSet setWithArray: localGIDs];
+      NSSet *newSet = [NSSet setWithArray: newGIDs];
+      if ([localSet intersectsSet: newSet])
+	{
+	  [NSException raise: NSInvalidArgumentException
+		       format: @"An EOSharedEditingContext attempted to register an object which is already with an EOEditingContext"];
+	}
+    }
+  
+}
+
+/*
+ * This method is invoked when the default EOSharedEditingContext is
+ * initilized.  This causes all EOEditingConexts which are not
+ * ignoring shared context notifications and do not contain any
+ * registered objects to register the default shared context as
+ * their shared context.
+ */
+- (void)_defaultEditingContextNowInitialized:(NSDictionary *)userInfo
+{
+  if (_flags.ignoreSharedContextNotifications) return;
+  if ([[self registeredObjects] count] == 0)
+    {
+      EOSharedEditingContext *sc 
+	= [EOSharedEditingContext _defaultSharedEditingContext];
+      [self setSharedEditingContext: sc];
+    }
+  [[NSNotificationCenter defaultCenter]
+    removeObserver: self
+    name: EODefaultSharedEditingContextWasInitializedNotification
+    object: nil];
+}
+
+- (void)_objectsInitializedInSharedContext:(NSNotification *)notification
+{
+  [self _sendOrEnqueueNotification: notification
+	selector: @selector(_processInitializedObjectsInSharedContext:)];
+}
+- (void)_defaultSharedEditingContextWasInitialized:(NSNotification *)notification
+{
+  [self _sendOrEnqueueNotification: notification
+	selector: @selector(_defaultEditingContextNowInitialized:)];
+}
 @end
 
 
@@ -3866,7 +4024,6 @@ static BOOL usesContextRelativeEncoding = NO;
 {
   [self notImplemented: _cmd]; //TODO
 }
-
 @end
 
 @implementation NSObject (DeallocHack)
@@ -3903,4 +4060,5 @@ static BOOL usesContextRelativeEncoding = NO;
 
   NSHashInsert(assocDeallocHT, object);
 }
+
 @end

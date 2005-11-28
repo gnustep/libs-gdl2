@@ -1,3 +1,20 @@
+2005-11-28  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOSharedEditingContext.[hm]: New files.
+	* EOControl/EOEditingContext.[hm]: Use EOSharedEditingContext.
+	(sharedEditingContext, setSharedEditingContext:): New methods.
+	(-initWithParentObjectStore:): Handle EOSharedEditingContext.
+	(-dealloc, -faultForGlobalID:editingContext:): Ditto.
+	(-objectForGlobalID:, -globalIDForObject:): Ditto.
+	(-initializeObject:withGlobalID:editingContext:): Ditto.
+	(-refaultObject:withGlobalID:editingContext:): Ditto.
+	(-_processInitializedObjectsInSharedContext:): New method.
+	(-_defaultEditingContextNowInitialized:): Ditto.
+	(-_objectsInitializedInSharedContext:) Ditto.
+	(-_defaultSharedEditingContextWasInitialized:) Ditto.
+	* EOControl/EOControl.h: Added EOSharedEditingContext.h.
+	* EOControl/GNUmakefile: Added EOSharedEditingContext.[hm].
+	
 2005-11-02  David Ayers  <d.ayers@inode.at>
 
 	* EOAdaptors/Postgres95/Postgres95Adaptor.m (typeNames): Add
