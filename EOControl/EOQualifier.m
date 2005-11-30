@@ -100,6 +100,32 @@ NSString *EOQualifierVariableSubstitutionException=@"EOQualifierVariableSubstitu
 @end
 
 @implementation EOQualifier
+static SEL cimSEL = NULL;
+static NSCharacterSet *spaceSet;
+static NSCharacterSet *alnumSet;
+static NSCharacterSet *digitSet;
+static BOOL (*spaceCIM)(id,SEL,unichar);
+static BOOL (*alnumCIM)(id,SEL,unichar);
+static BOOL (*digitCIM)(id,SEL,unichar);
++ (void)initialize
+{
+  if (cimSEL == NULL)
+    {
+      cimSEL = @selector(characterIsMember:);
+
+      spaceSet
+	= RETAIN([NSCharacterSet whitespaceAndNewlineCharacterSet]);
+      spaceCIM = (BOOL(*)(id,SEL,unichar))[spaceSet methodForSelector: cimSEL];
+
+      alnumSet
+	= RETAIN([NSCharacterSet alphanumericCharacterSet]);
+      alnumCIM = (BOOL(*)(id,SEL,unichar))[alnumSet methodForSelector: cimSEL];
+
+      digitSet
+	= RETAIN([NSCharacterSet decimalDigitCharacterSet]);
+      digitCIM = (BOOL(*)(id,SEL,unichar))[digitSet methodForSelector: cimSEL];
+    }
+}
 
 /**
  * Returns an autoreleased qualifier which is constructed by calling
@@ -146,53 +172,59 @@ NSString *EOQualifierVariableSubstitutionException=@"EOQualifierVariableSubstitu
 #endif
 }
 
-static NSString *getOperator(const char **cFormat, const char **s)
+static NSString *getOperator(const unichar **cFormat, const unichar **s)
 {
   NSString *operator;
 
-  while (**s && isspace(**s))
+  while (**s && spaceCIM(spaceSet,cimSEL,**s))
     (*s)++;
 
   *cFormat = *s;
 
-  if (isalnum(**s))
+  if (alnumCIM(alnumSet,cimSEL,**s))
     {
-      while (**s && !isspace(**s) && **s != '%' && **s != '\'')
+      while (**s && !spaceCIM(spaceSet,cimSEL,**s) 
+	     && **s != '%' && **s != '\'')
         {
 	  (*s)++;
         }
 
-      operator = [NSString stringWithCString: *cFormat length: *s - *cFormat];
+      operator = [NSString stringWithCharacters: *cFormat
+			   length: *s - *cFormat];
     }
   else
     {
-      while (**s && !isalnum(**s) && !isspace(**s) && **s != '%' && **s != '\'')
+      while (**s && !alnumCIM(alnumSet, cimSEL, **s) 
+	     && !spaceCIM(spaceSet, cimSEL, **s)
+	     && **s != '%' && **s != '\'')
         {
-	  NSDebugLog(@"avoid gcc 3.1.1 bug which optimizes to segfault", "");
+	  NSDebugLog(@"avoid gcc 3.1.1 bug which optimizes to segfault",
+		     @"avoid gcc 3.1.1 bug which optimizes to segfault");
 	  (*s)++;
         }
 
-      operator = [NSString stringWithCString: *cFormat length: *s - *cFormat];
+      operator = [NSString stringWithCharacters: *cFormat 
+			   length: *s - *cFormat];
     }
 
   *cFormat = *s;
 
   return operator;
 }
-        
+
 static id
-getKey(const char **cFormat, 
-       const char **s,
+getKey(const unichar **cFormat, 
+       const unichar **s,
        BOOL *isKeyValue,
        va_list *args)
 {
   NSMutableString *key;
   NSString *classString = nil;
-  char quoteChar;
+  unichar quoteChar;
   BOOL quoted = NO;
   BOOL literalNumber = NO;
 
-  while (**s && isspace(**s))
+  while (**s && spaceCIM(spaceSet, cimSEL, **s))
     (*s)++;
 
   if (isKeyValue)
@@ -206,15 +238,15 @@ getKey(const char **cFormat,
 
 	  NSCAssert(*s, @"Illegal Qualifer format missing bracket.");
 
-	  classString = [NSString stringWithCString: *cFormat
+	  classString = [NSString stringWithCharacters: *cFormat
 				  length: *s - *cFormat];
 
 	  (*s)++; *cFormat = *s;
         }
   
-      if (!strncmp("nil", *s, 3))
+      if ((*s)[0] == 'n' && (*s)[1] == 'i' && (*s)[2] == 'l')
 	{
-	  char value = *(*s+3);
+	  unichar value = *(*s+3);
 
 	  if (value == 0 || value == ' ')
 	    {
@@ -239,7 +271,7 @@ getKey(const char **cFormat,
       while (**s && **s != quoteChar)
 	(*s)++;
 
-      key = [NSString stringWithCString: *cFormat length: *s - *cFormat];
+      key = [NSString stringWithCharacters: *cFormat length: *s - *cFormat];
       (*s)++; // skip closing quote
     }
   else
@@ -247,14 +279,16 @@ getKey(const char **cFormat,
       key = [NSMutableString stringWithCapacity:8];
 
       if (classString == nil 
-	  && (isdigit(**s) || (**s == '-' && isdigit(*(*s+1)))))
+	  && (digitCIM(digitSet, cimSEL, **s) 
+	      || (**s == '-' && digitCIM(digitSet, cimSEL, *(*s+1)))))
 	{
 	  classString = @"NSNumber";
 	  literalNumber = YES;
 	}
 	
-      while (**s && (isalnum(**s) || **s == '@' || **s == '#' || **s == '_'
-		     || **s == '$' || **s == '%' || **s == '.' || **s == '-'))
+      while (**s && (alnumCIM(alnumSet,cimSEL,**s) 
+		     || **s == '@' || **s == '#' || **s == '_' || **s == '$' 
+		     || **s == '%' || **s == '.' || **s == '-'))
         {
 	  if (**s == '%')
 	    {
@@ -263,8 +297,9 @@ getKey(const char **cFormat,
 	      double argFloat; 
 	      /* 'float' is promoted to 'double' when passed through '...'
 		 (so you should pass 'double' not 'float' to `va_arg')
-		 Ayers: I believe the compiler should does promotion implicitly
-		 but there are buggy compilers so cast to be safe.  */
+		 Ayers: I believe the compiler should do this promotion
+		 implicitly but there are buggy compilers so cast to 
+		 be safe.  */
 
 	      int argInt;
 
@@ -278,8 +313,8 @@ getKey(const char **cFormat,
 		case '@':
 		  argObj = va_arg(*args, id);
 
-		  if (isKeyValue && *isKeyValue == YES && quoted == NO
-		      && classString == nil)
+		  if (isKeyValue && *isKeyValue == YES 
+		      && quoted == NO && classString == nil)
 		    {
 		      *cFormat = *s = *s+2;
 		      return argObj;
@@ -287,8 +322,12 @@ getKey(const char **cFormat,
 		  else
 		    {
 		      if (*cFormat != *s)
-			[key appendString: [NSString stringWithCString: *cFormat
-						     length: *s - *cFormat]];
+			{
+			  NSString *str 
+			    = [NSString stringWithCharacters: *cFormat
+					length: *s - *cFormat];
+			  [key appendString: str];
+			}
 
 		      [key appendString: [argObj description]];
 		      *cFormat = *s+2;
@@ -299,20 +338,25 @@ getKey(const char **cFormat,
 		case 's':
 		  argString = va_arg(*args, const char *);
 
-		  if (isKeyValue && *isKeyValue == YES && quoted == NO
-		      && classString == nil)
+		  if (isKeyValue && *isKeyValue == YES
+		      && quoted == NO && classString == nil)
 		    {
 		      *cFormat = *s = *s + 2;
 		      return [NSString stringWithCString: argString];
 		    }
 		  else
 		    {
+		      NSString *str;
 		      if (*cFormat != *s)
-			[key appendString: [NSString stringWithCString: *cFormat
-						     length: *s - *cFormat]];
+			{
+			  str = [NSString stringWithCharacters: *cFormat
+					  length: *s - *cFormat];
+			  [key appendString: str];
+			}
 
-		      [key appendString: [NSString
-					   stringWithCString: argString]];
+		      str = [NSString stringWithCString: argString];
+		      [key appendString: str];
+
 		      *cFormat = *s + 2;
 		      (*s)++;
 		    }
@@ -321,27 +365,34 @@ getKey(const char **cFormat,
 		case 'd':
 		  argInt = va_arg(*args, int);
 
-		  if (isKeyValue && *isKeyValue == YES && quoted == NO
-		      && classString == nil)
+		  if (isKeyValue && *isKeyValue == YES
+		      && quoted == NO && classString == nil)
 		    {
 		      *cFormat = *s = *s + 2;
 		      return [NSNumber numberWithInt: argInt];
 		    }
 		  else
 		    {
+		      NSString *str;
 		      if(*cFormat != *s)
-			[key appendString: [NSString stringWithCString: *cFormat
-						     length: *s - *cFormat]];
+			{
+			  str = [NSString stringWithCharacters: *cFormat
+					  length: *s - *cFormat];
+			  [key appendString: str];
+			}
 
-		      [key appendString: [NSString stringWithFormat: @"%d",
-						   argInt]];
+		      str = [NSString stringWithFormat: @"%d", argInt];
+		      [key appendString: str];
+
 		      *cFormat = *s + 2;
 		      (*s)++;
 		    }
 		  break;
 
 		case 'f':
-		  argFloat = va_arg(*args, double);// `float' is promoted to `double' when passed through `...' (so you should pass `double' not `float' to `va_arg')
+		  /* 'float' is promoted to 'double' when passed through '...'
+		     (so you should pass `double' not `float' to `va_arg') */
+		  argFloat = va_arg(*args, double);
 
 		  if (isKeyValue && *isKeyValue == YES && quoted == NO
 		      && classString == nil)
@@ -351,12 +402,18 @@ getKey(const char **cFormat,
 		    }
 		  else
 		    {
-		      if (*cFormat != *s)
-			[key appendString: [NSString stringWithCString: *cFormat
-						     length: *s - *cFormat]];
+		      NSString *str;
 
-		      [key appendString: [NSString stringWithFormat: @"%f",
-						   argFloat]];
+		      if (*cFormat != *s)
+			{
+			  str = [NSString stringWithCharacters: *cFormat
+					  length: *s - *cFormat];
+			  [key appendString: str];
+			}
+				 
+		      str = [NSString stringWithFormat: @"%f", argFloat];
+		      [key appendString: str];
+
 		      *cFormat = *s + 2;
 		      (*s)++;
 		    }
@@ -365,14 +422,21 @@ getKey(const char **cFormat,
 		case '%':
 		  *cFormat = *s + 2;
 		  (*s)++;
-		  [key appendString: [NSString stringWithCString: *cFormat
+		  [key appendString: [NSString stringWithCharacters: *cFormat
 					       length: *s - *cFormat]];
 		  break;
 
 		default:
-		  [NSException raise: NSInvalidArgumentException
-			       format: @"%@ -- %@: unrecognized character (%c) in the conversion specification", @"qualifierParser", @"EOQualifier", *(*s + 1)];
-		  break;
+		  {
+		    NSString *fmt 
+		      = @"%@ -- %@: unrecognized character (%@) in the conversion specification";
+		    NSString *specChar 
+		      = [NSString stringWithCharacters: (*s + 1) length: 1];
+		    [NSException raise: NSInvalidArgumentException
+				 format: fmt, @"EOQualifier", 
+				 @"qualifierParser", specChar];
+		    break;
+		  } 
 		}
 	    }
 
@@ -380,8 +444,11 @@ getKey(const char **cFormat,
         }
 
       if (*cFormat != *s)
-	[key appendString: [NSString stringWithCString: *cFormat
-				     length: *s - *cFormat]];
+	{
+	  NSString *str = [NSString stringWithCharacters: *cFormat
+				    length: *s - *cFormat];
+	  [key appendString: str];
+	}
     }
 
   if (isKeyValue)
@@ -390,8 +457,8 @@ getKey(const char **cFormat,
 
       if (classString)
         {
-          key = AUTORELEASE([[NSClassFromString(classString) alloc]
-			      initWithString: key]);
+	  Class cls = NSClassFromString(classString);
+          key = AUTORELEASE([[cls alloc] initWithString: key]);
         }
     }
     
@@ -400,14 +467,16 @@ getKey(const char **cFormat,
   return key;
 }
 
-static BOOL isNotQualifier(const char **cFormat, const char **s)
+static BOOL isNotQualifier(const unichar **cFormat, const unichar **s)
 {
-  while (**s && isspace(**s))
+  while (**s && spaceCIM(spaceSet,cimSEL,**s))
     (*s)++;
 
   *cFormat = *s;
 
-  if (!strncasecmp(*s, "not", 3))
+  if (((*s)[0]=='n' || (*s)[0]=='N')
+      && ((*s)[1]=='o' || (*s)[1]=='O')
+      && ((*s)[2]=='t' || (*s)[2]=='T'))
     {
       switch ((*s)[3])
         {
@@ -422,14 +491,16 @@ static BOOL isNotQualifier(const char **cFormat, const char **s)
   return NO;
 }
 
-static Class whichQualifier(const char **cFormat, const char **s)
+static Class whichQualifier(const unichar **cFormat, const unichar **s)
 {
-  while (**s && isspace(**s))
+  while (**s && spaceCIM(spaceSet,cimSEL,**s))
     (*s)++;
 
   *cFormat = *s;
 
-  if (!strncasecmp(*s, "and", 3))
+  if (((*s)[0]=='a' || (*s)[0]=='A')
+      && ((*s)[1]=='n' || (*s)[1]=='N')
+      && ((*s)[2]=='d' || (*s)[2]=='D'))
     {
       switch ((*s)[3])
         {
@@ -440,7 +511,8 @@ static Class whichQualifier(const char **cFormat, const char **s)
 	  return [EOAndQualifier class];
         }
     }
-  else if (!strncasecmp(*s, "or", 2))
+  else if (((*s)[0]=='o' || (*s)[0]=='O')
+	   && ((*s)[1]=='r' || (*s)[1]=='R'))
     {
       switch ((*s)[2])
         {
@@ -458,8 +530,9 @@ static Class whichQualifier(const char **cFormat, const char **s)
 + (EOQualifier *)qualifierWithQualifierFormat: (NSString *)format
 				   varargList: (va_list)args
 {
-  const char *s;
-  const char *cFormat;
+  unichar *s0;
+  const unichar *s;
+  const unichar *cFormat;
   NSMutableArray *bracketStack = nil;
   NSMutableArray *qualifierArray = nil;
   NSMutableArray *parentQualifiers = nil;
@@ -472,15 +545,21 @@ static Class whichQualifier(const char **cFormat, const char **s)
   BOOL notQual;
   Class lastQualifierClass = Nil;
   Class qualifierClass = Nil;
+  unsigned formatLen;
 
   bracketStack = [NSMutableArray array];
   parentQualifiers = [NSMutableArray array];
 
-  cFormat = s = [format cString];
+  formatLen = [format length];
+  s0 = GSAutoreleasedBuffer((formatLen+1) * sizeof(unichar));
+  [format getCharacters: s0];
+  s0[formatLen] = '\0';
+
+  cFormat = s = s0;
 
   while (*s)
     {
-      while (*s && isspace(*s))
+      while (*s && spaceCIM(spaceSet,cimSEL,*s))
         (s)++;
 
       while (*s == '(' )
@@ -488,10 +567,11 @@ static Class whichQualifier(const char **cFormat, const char **s)
 	NSMutableDictionary *state;
 
 	state = [NSMutableDictionary dictionaryWithCapacity:4];
-	if (lastQualifierClass != NULL)
+	if (lastQualifierClass != Nil)
 	  {
-	    [state setObject: lastQualifierClass forKey: @"lastQualifierClass"];
-	    lastQualifierClass = NULL;
+	    [state setObject: lastQualifierClass
+		   forKey: @"lastQualifierClass"];
+	    lastQualifierClass = Nil;
 	  }
 	if (qualifierArray != nil)
 	  {
@@ -509,7 +589,7 @@ static Class whichQualifier(const char **cFormat, const char **s)
 	[bracketStack addObject:state];
 
 	(s)++; // skip '('
-	while (*s && isspace(*s))
+	while (*s && spaceCIM(spaceSet, cimSEL, *s))
 	  (s)++;
       }
       
@@ -520,11 +600,14 @@ static Class whichQualifier(const char **cFormat, const char **s)
 
       operatorSelector = [EOQualifier operatorSelectorForString: operator];
       if (!operatorSelector)
-        [NSException raise: NSInvalidArgumentException
-		     format: @"%@ -- %@ 0x%x: no operator or unknown operator: '%@'",
-                     NSStringFromSelector(_cmd),
-		     NSStringFromClass([self class]), self,
-                     operator];
+	{
+	  [NSException raise: NSInvalidArgumentException
+		       format: @"%@ -- %@ 0x%x: no operator or unknown operator: '%@'",
+		       NSStringFromClass([self class]),
+		       NSStringFromSelector(_cmd),
+		       self,
+		       operator];
+	}
 
       EOFLOGObjectLevelArgs(@"EOQualifier",
 			    @"leftKey=%@ operatorSelector=%s rightKey=%@ class=%@",
@@ -554,49 +637,50 @@ static Class whichQualifier(const char **cFormat, const char **s)
 			    @"qualifier=%@",
 			    qualifier);
 
-      while (*s && isspace(*s))
+      while (*s && spaceCIM(spaceSet,cimSEL,*s))
         (s)++;
 
       while (*s == ')' )
-      {
-        NSMutableDictionary *state;
+	{
+	  NSMutableDictionary *state;
 
-        /* clean up inner qualifier */
-        if (qualifierArray != nil)
-	  {
-	    [qualifierArray addObject:qualifier];
-	    qualifier = AUTORELEASE([[qualifierClass alloc]
-				      initWithQualifierArray: qualifierArray]);
-	    qualifierArray = nil;
-	  }
+	  /* clean up inner qualifier */
+	  if (qualifierArray != nil)
+	    {
+	      [qualifierArray addObject:qualifier];
+	      qualifier 
+		= AUTORELEASE([[qualifierClass alloc]
+				initWithQualifierArray: qualifierArray]);
+	      qualifierArray = nil;
+	    }
 
-	while ([parentQualifiers count] != 0)
-	  {
-	    id       parent;
-	    NSArray *quals;
+	  while ([parentQualifiers count] != 0)
+	    {
+	      id       parent;
+	      NSArray *quals;
 	    
-	    parent = [parentQualifiers lastObject];
-	    quals = [[parent qualifiers] arrayByAddingObject: qualifier];
-	    qualifier = AUTORELEASE([[[parent class] alloc]
+	      parent = [parentQualifiers lastObject];
+	      quals = [[parent qualifiers] arrayByAddingObject: qualifier];
+	      qualifier = AUTORELEASE([[[parent class] alloc]
 					initWithQualifierArray: quals]);
-	    [parentQualifiers removeLastObject];
-	  }
+	      [parentQualifiers removeLastObject];
+	    }
 
-	DESTROY(parentQualifiers);
+	  DESTROY(parentQualifiers);
 
-	/* pop bracketStack */
-	state = [bracketStack lastObject];
-	qualifierArray = [state objectForKey:@"qualifierArray"];
-	lastQualifierClass = [state objectForKey:@"lastQualifierClass"];
-	qualifierClass = [state objectForKey:@"qualifierClass"];
-	parentQualifiers = [state objectForKey:@"parentQualifiers"];
+	  /* pop bracketStack */
+	  state = [bracketStack lastObject];
+	  qualifierArray = [state objectForKey:@"qualifierArray"];
+	  lastQualifierClass = [state objectForKey:@"lastQualifierClass"];
+	  qualifierClass = [state objectForKey:@"qualifierClass"];
+	  parentQualifiers = [state objectForKey:@"parentQualifiers"];
 
-	[bracketStack removeLastObject];
+	  [bracketStack removeLastObject];
 
-	(s)++; // skip ')'
-        while (*s && isspace(*s))
-          (s)++;
-      }
+	  (s)++; // skip ')'
+	  while (*s && spaceCIM(spaceSet,cimSEL,*s))
+	    (s)++;
+	}
 
       qualifierClass = whichQualifier(&cFormat, &s);
       EOFLOGObjectLevelArgs(@"EOQualifier", @"qualifierClass=%@",

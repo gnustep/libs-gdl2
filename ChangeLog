@@ -1,3 +1,13 @@
+2005-11-30  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOQualifier.m (cimSEL, spaceSet, alnumSet, digitSet)
+	(spaceCIM, alnumCIM, digitCIM): New static globals for unichar
+	handling.
+	([+initialize]): Initialize new variables.
+	(getOperator, getKey, isNotQualifier, whichQualifier): Use
+	unichar instead of char.
+	([+qualifierWithQualifierFormat:varargList:]): Ditto.
+	
 2005-11-28  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOSharedEditingContext.[hm]: New files.
