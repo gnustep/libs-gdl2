@@ -1154,7 +1154,7 @@ _isLike (NSString *self, NSString *regExpr, BOOL isCaseSensative)
   NSString *scanned;
   unsigned c = 0;
   unsigned i = 0;
-  GDL2_BUFFER (tokens, [regExpr cStringLength], id);
+  GDL2_BUFFER (tokens, [regExpr length], id);
 
   if ([self isEqual: regExpr])
     {
@@ -1181,9 +1181,15 @@ _isLike (NSString *self, NSString *regExpr, BOOL isCaseSensative)
 	  if ([regExScanner scanCharactersFromSet: isLikeWildCardSet
 			    intoString: &scanned])
 	    {
-	      const char *cScanned;
+	      unsigned scannedLen;
+	      unichar *cScanned;
 
-	      for (cScanned = [scanned cString]; *cScanned != 0; cScanned++)
+	      scannedLen = [scanned length];
+	      cScanned = GSAutoreleasedBuffer((scannedLen+1) * sizeof(unichar));
+	      [scanned getCharacters: cScanned];
+	      cScanned[scannedLen] = 0;
+
+	      for (; *cScanned != 0; cScanned++)
 		{
 		  if (*cScanned == '?' 
 		      && tokens[c - 1] != isLikeWildCardTokenS)
