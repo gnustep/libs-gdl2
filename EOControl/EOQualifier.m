@@ -246,9 +246,9 @@ getKey(const unichar **cFormat,
   
       if ((*s)[0] == 'n' && (*s)[1] == 'i' && (*s)[2] == 'l')
 	{
-	  unichar value = *(*s+3);
+	  unichar value = (*s)[3];
 
-	  if (value == 0 || value == ' ')
+	  if (value != '_' && !alnumCIM(alnumSet,cimSEL,value))
 	    {
 	      *cFormat = *s = *s+3;
 	      *isKeyValue = YES;

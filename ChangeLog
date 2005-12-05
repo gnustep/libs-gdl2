@@ -1,3 +1,8 @@
+2005-12-05  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOQualifier.m (getKey): Fix parsing of 'nil'
+	EOKeyValueQualifiers.
+	
 2005-11-30  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOQualifier.m (cimSEL, spaceSet, alnumSet, digitSet)
