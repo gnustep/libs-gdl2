@@ -67,6 +67,7 @@ EOMutableKnownKeyDictionary.m \
 EONSAddOns.m \
 EOCheapArray.m \
 EOArrayDataSource.m \
+EOMultiReaderLock.m \
 EODebug.m \
 EOPrivate.m
 
@@ -93,6 +94,7 @@ EOSharedEditingContext.h \
 EODataSource.h \
 EODetailDataSource.h \
 EOArrayDataSource.h \
+EOMultiReaderLock.h \
 EODebug.h \
 EONSAddOns.h \
 EODefines.h \

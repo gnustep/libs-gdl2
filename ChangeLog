@@ -2,6 +2,10 @@
 
 	* AUTHORS: Add Matt Rice.
 	* GDL2.gsdoc: Ditto.
+
+	* EOControl/EOMultiReaderLock.[h/m]: New files.
+	* EOControl/EOControl.h: Add EOMultiReaderLock.h.
+	* EOControl/GNUmakefile: Add EOMultiReaderLock.h/m.
 	
 2005-12-05  David Ayers  <d.ayers@inode.at>
 

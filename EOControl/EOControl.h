@@ -47,6 +47,7 @@
 #include <EOControl/EOArrayDataSource.h>
 #include <EOControl/EODetailDataSource.h>
 #include <EOControl/EOObserver.h>
+#include <EOControl/EOMultiReaderLock.h>
 #include <EOControl/EODebug.h>
 
 
