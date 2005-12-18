@@ -68,6 +68,8 @@ EONSAddOns.m \
 EOCheapArray.m \
 EOArrayDataSource.m \
 EOMultiReaderLock.m \
+EOEvent.m \
+EOEventCenter.m \
 EODebug.m \
 EOPrivate.m
 
@@ -95,6 +97,8 @@ EODataSource.h \
 EODetailDataSource.h \
 EOArrayDataSource.h \
 EOMultiReaderLock.h \
+EOEvent.h \
+EOEventCenter.h \
 EODebug.h \
 EONSAddOns.h \
 EODefines.h \

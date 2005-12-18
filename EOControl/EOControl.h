@@ -48,6 +48,8 @@
 #include <EOControl/EODetailDataSource.h>
 #include <EOControl/EOObserver.h>
 #include <EOControl/EOMultiReaderLock.h>
+#include <EOControl/EOEvent.h>
+#include <EOControl/EOEventCenter.h>
 #include <EOControl/EODebug.h>
 
 

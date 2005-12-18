@@ -9,6 +9,11 @@
 
 	* EOAccess/EOAttribute.m: Translate comment to avoid
 	non-ASCII encoding.
+
+	* EOControl/EOEvent.[hm]: New files.
+	* EOControl/EOEventCenter.[hm]: New files.
+	* EOControl/EOControl.h: Add EOEvent.h and EOEventCenter.h.
+	* EOControl/GNUmakefile: Add EOEvent.h/m and EOEventCenter.h/m.
 	
 2005-12-05  David Ayers  <d.ayers@inode.at>
 
