@@ -1,3 +1,13 @@
+2005-12-18  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAdaptors/Postgres95/LoginPanel/postgreslogo.tif: New file.
+	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile: Add postgreslogo.tif
+	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.[h/m]: Show
+	logo, and make the login panel more visually appealing. Switch
+	databases table view to a NSComboBox. 
+	* DBModeler/KVDataSource.m: Return nil in unimplemented methods with
+	return values.
+
 2005-12-18  David Ayers  <d.ayers@inode.at>
 
 	* AUTHORS: Add Matt Rice.

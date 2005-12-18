@@ -122,12 +122,13 @@ return self;
 
 - (void) qualifyWithRelationshipKey:(NSString *)key ofObject:(id) sourceObject
 {
-
+  // FIXME 
 }
 
 - (EODataSource *) dataSourceQualifiedByKey: (NSString *)key
 {
-
+  // FIXME
+  return nil;
 }
 
 - (EOClassDescription *)classDescriptionForObjects
@@ -137,6 +138,7 @@ return self;
 
 - (NSArray *)qualifierBindingKeys
 {
+  // FIXME
   return nil;
 }
 

@@ -32,18 +32,23 @@
 {
   /* gui stuff */ 
   NSWindow *_win;
-  NSScrollView *tableScrollView; 
-  NSTableView *databases;
+  NSComboBox *databasesCombo;
+  NSImageView *logo;
+
   NSButton *okButton; 
   NSButton *cancelButton;
-  NSButton *showDatabasesButton;
   NSButton *newDatabaseButton;
+  
   NSTextField *userNameLabel;
-  NSTextField *databaseLabel;
   NSTextField *passwdLabel;
-  NSTextField *databaseField;
+  NSTextField *hostLabel;
+  NSTextField *portLabel;
+  NSTextField *databaseLabel;
+
   NSTextField *userNameField;
   NSSecureTextField *passwdField;
+  NSTextField *hostField;
+  NSTextField *portField;
   
   NSArray *_databases;
 }

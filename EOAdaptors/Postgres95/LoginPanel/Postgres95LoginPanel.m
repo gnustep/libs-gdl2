@@ -38,16 +38,14 @@
 static BOOL insideModalLoop;
 
 static NSString *windowTitle = @"Postgresql login";
-static NSString *tableViewTitle = @"Databases";
 static NSString *newDatabaseTitle = @"New";
 static NSString *userNameTitle = @"Username: ";
 static NSString *passwordTitle = @"Password: ";
 static NSString *databaseNameTitle = @"Database: ";
-static NSString *showDatabasesTitle = @"List";
-static NSString *okTitle = @"Ok";
+static NSString *hostTitle = @"Host: ";
+static NSString *portTitle = @"Port: ";
+static NSString *okTitle = @"OK";
 static NSString *cancelTitle = @"Cancel";
-// used to size text fields using the default font size...
-static NSString *someString = @"wwwwwwww";
 
 
 
@@ -91,44 +89,135 @@ vfmaxf (int n, float aFloat, ...)
   DESTROY(_win);
 }
 
+- (NSString *) logoPath
+{
+  return [[NSBundle bundleForClass: [self class]]
+	  	pathForImageResource:@"postgreslogo"];
+}
+
 - (id)init
 {
   if ((self = [super init]))
     {
-      NSTableColumn *tableColumn;
       NSRect rect1,rect2,rect3; 
-      float maxLabelWidth;
       float maxLabelHeight;
       float maxButtonWidth;
       float maxButtonHeight;
-// this doesn't have a height because it'll be the same as the label
+      // this doesn't have a height because it'll be the same as the label
       float maxFieldWidth;
 
       float spacer = 3.0;
+      float lalign;
       NSRect tempRect;
       NSSize screenSize = [[NSScreen mainScreen] frame].size;
+      NSImage *logoImg = [[NSImage alloc] initWithContentsOfFile: [self logoPath]]; 
       
-      _databases = nil;
-      
-      showDatabasesButton =
-        [[NSButton alloc] initWithFrame: NSMakeRect(spacer,spacer,0,0)];
-      [showDatabasesButton setTarget:self];
-      [showDatabasesButton setAction:@selector(showDatabases:)];
-      [showDatabasesButton setTitle:showDatabasesTitle];
-      [showDatabasesButton setEnabled:YES];
-      [showDatabasesButton sizeToFit];
+      NSSize tmpSize = [logoImg size];
 
-      newDatabaseButton =
-	[[NSButton alloc] 
-	  initWithFrame:NSMakeRect(spacer +
-				   [showDatabasesButton frame].origin.x +
-				   [showDatabasesButton frame].size.width,
-				   spacer,0,0)];
-      [newDatabaseButton setTarget:self];
-      [newDatabaseButton setAction:@selector(newDatabase:)];
-      [newDatabaseButton setTitle:newDatabaseTitle];
-      [newDatabaseButton setEnabled:NO];
-      [newDatabaseButton sizeToFit];
+      _databases = nil;
+      logo = [[NSImageView alloc] initWithFrame:NSMakeRect(0, 0, tmpSize.width, tmpSize.height)];
+      [logo setImage: logoImg]; 
+      [logo setEditable:NO];
+      RELEASE(logoImg);
+      
+
+
+      
+      userNameLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(0,0,0,0)];
+      [userNameLabel setStringValue:userNameTitle]; 
+      [userNameLabel setAlignment:NSRightTextAlignment];
+      [userNameLabel setEditable:NO]; 
+      [userNameLabel setSelectable:NO]; 
+      [userNameLabel setDrawsBackground:NO]; 
+      [userNameLabel setBordered:YES];
+      [userNameLabel setBezeled:YES];
+      [userNameLabel sizeToFit];
+      [userNameLabel setBordered:NO];
+      [userNameLabel setBezeled:NO];
+      
+      passwdLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(0,0,0,0)];
+      [passwdLabel setStringValue:passwordTitle];
+      [passwdLabel setAlignment:NSRightTextAlignment];
+      [passwdLabel setEditable:NO];
+      [passwdLabel setSelectable:NO];
+      [passwdLabel setDrawsBackground:NO];
+      [passwdLabel setBordered:YES];
+      [passwdLabel setBezeled:YES];
+      [passwdLabel sizeToFit];
+      [passwdLabel setBordered:NO];
+      [passwdLabel setBezeled:NO];
+      
+      databaseLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(0,0,0,0)];
+      [databaseLabel setStringValue:databaseNameTitle];
+      [databaseLabel setAlignment:NSRightTextAlignment];
+      [databaseLabel setEditable:NO];
+      [databaseLabel setSelectable:NO];
+      [databaseLabel setDrawsBackground:NO];
+      [databaseLabel setBordered:YES];
+      [databaseLabel setBezeled:YES];
+      [databaseLabel sizeToFit];
+      [databaseLabel setBordered:NO];
+      [databaseLabel setBezeled:NO];
+
+      hostLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(0,0,0,0)];
+      [hostLabel setStringValue:hostTitle];
+      [hostLabel setAlignment:NSRightTextAlignment];
+      [hostLabel setEditable:NO];
+      [hostLabel setSelectable:NO];
+      [hostLabel setDrawsBackground:NO];
+      [hostLabel setBordered:YES];
+      [hostLabel setBezeled:YES];
+      [hostLabel sizeToFit];
+      [hostLabel setBordered:NO];
+      [hostLabel setBezeled:NO];
+      
+      portLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(0,0,0,0)];
+      [portLabel setStringValue:portTitle];
+      [portLabel setAlignment:NSRightTextAlignment];
+      [portLabel setEditable:NO];
+      [portLabel setSelectable:NO];
+      [portLabel setDrawsBackground:NO];
+      [portLabel setBordered:YES];
+      [portLabel setBezeled:YES];
+      [portLabel sizeToFit];
+      [portLabel setBordered:NO];
+      [portLabel setBezeled:NO];
+
+
+      
+      lalign = vfmaxf(3, [databaseLabel frame].size.width,
+		      [passwdLabel frame].size.width,
+		      [userNameLabel frame].size.width);
+      maxLabelHeight = vfmaxf(3, [databaseLabel frame].size.height,
+		      	      [passwdLabel frame].size.height,
+			      [userNameLabel frame].size.height);
+      
+      [databaseLabel setFrame: NSMakeRect(spacer,
+		      			  (maxLabelHeight + spacer * 2) * 2,
+					  lalign,
+					  maxLabelHeight)];
+      [portLabel setFrame: NSMakeRect(spacer,
+                                        (maxLabelHeight + spacer * 2) * 3,
+                                        lalign,
+                                          maxLabelHeight)];
+      [hostLabel setFrame: NSMakeRect(spacer,
+                                        (maxLabelHeight + spacer * 2) * 4,
+                                        lalign,
+                                          maxLabelHeight)];
+      [passwdLabel setFrame: NSMakeRect(spacer,
+		      			(maxLabelHeight + spacer * 2) * 5,
+					lalign,
+					  maxLabelHeight)];
+      [userNameLabel setFrame: NSMakeRect(spacer,
+			      	  	  (maxLabelHeight + spacer * 2) * 6,
+				          lalign,
+					  maxLabelHeight)];
+     
+      rect1 = [userNameLabel frame];
+      rect2 = [logo frame];
+      [logo setFrame:NSMakeRect(spacer * 2,
+		      		rect1.origin.y + rect1.size.height + (spacer * 2),
+				rect2.size.width, rect2.size.height)];
 
       okButton = [[NSButton alloc] initWithFrame:NSMakeRect(0,0,0,0)];
       [okButton setTitle:okTitle];
@@ -145,17 +234,28 @@ vfmaxf (int n, float aFloat, ...)
       [cancelButton setTarget:self];
       [cancelButton setAction:@selector(cancel:)];
       [cancelButton sizeToFit];
+      
+      newDatabaseButton = [[NSButton alloc] initWithFrame:NSMakeRect(0,0,0,0)];
+      [newDatabaseButton setTarget:self];
+      [newDatabaseButton setAction:@selector(newDatabase:)];
+      [newDatabaseButton setTitle:newDatabaseTitle];
+      [newDatabaseButton setEnabled:NO];
+      [newDatabaseButton sizeToFit];
 
       rect1 = [cancelButton frame];
       rect2 = [okButton frame];
+      rect3 = [newDatabaseButton frame];
 
-      maxButtonWidth  = vfmaxf(2,rect1.size.width,rect2.size.width);
-      maxButtonHeight = vfmaxf(2,rect1.size.height,rect2.size.height);
+      maxButtonWidth  = vfmaxf(3, rect1.size.width, rect2.size.width,
+		      	       rect3.size.width);
+      maxButtonHeight = vfmaxf(3, rect1.size.height, rect2.size.height,
+		      	       rect3.size.width);
 
       tempRect = NSMakeRect(rect1.origin.x,
 			    rect1.origin.y,
 			    maxButtonWidth,
 			    maxButtonHeight);
+      
       [cancelButton setFrame:tempRect];
       tempRect = NSMakeRect(rect1.origin.x +
 			    maxButtonWidth + spacer,
@@ -164,177 +264,71 @@ vfmaxf (int n, float aFloat, ...)
 			    maxButtonHeight);
       [okButton setFrame:tempRect];
 
-
-
-      tableScrollView = [[NSScrollView alloc] 
-			  initWithFrame: NSMakeRect(0,0,0,0)];
-      [tableScrollView setHasHorizontalScroller:YES];
-      [tableScrollView setHasVerticalScroller:YES];
-      [tableScrollView setBorderType: NSLineBorder]; 
-       
-      databases = [[NSTableView alloc] 
-		    initWithFrame: NSMakeRect(0,0,maxButtonWidth*2,0)];
-      [databases setDataSource:self];
-      [databases setDelegate:self];
-      [databases setAllowsColumnSelection:NO];
-      [databases setAutoresizesAllColumnsToFit:YES]; 
-      [databases setTarget:self]; 
-      [databases setAction:@selector(tableAction:)];
-      [databases setDoubleAction:@selector(doubleAction:)];
-      
-      [tableScrollView setDocumentView: databases]; 
-      RELEASE(databases);
-       
-      tableColumn = [(NSTableColumn*)[NSTableColumn alloc] initWithIdentifier: tableViewTitle];
-      [[tableColumn headerCell] setStringValue: tableViewTitle];    
-      [tableColumn setEditable:NO];
-      [tableColumn sizeToFit];
-      [tableColumn setMinWidth: [tableColumn width]];
-      [tableColumn setResizable:YES];
-      [databases addTableColumn: tableColumn]; 
-      [databases sizeToFit]; 
-      
-      /* resize the table view so no horizontal scroller shows up.. 
-         add 3 to the width because of the scroll view border,
-	 and make it square */
-      [tableScrollView setFrame:
-          NSMakeRect(spacer,
-                     spacer + [showDatabasesButton frame].origin.y +
-		     [showDatabasesButton frame].size.height,
-                     3+[[tableScrollView verticalScroller] frame].size.width +
-		     [databases frame].size.width,
-                     3+[[tableScrollView verticalScroller] frame].size.width +
-		     [databases frame].size.width)];
-      RELEASE(tableColumn); 
-      
-      userNameLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(0,0,0,0)];
-      [userNameLabel setStringValue:userNameTitle]; 
-      [userNameLabel setAlignment:NSRightTextAlignment];
-      [userNameLabel setEditable:NO]; 
-      [userNameLabel setSelectable:NO]; 
-      [userNameLabel setDrawsBackground:NO]; 
-      [userNameLabel setBordered:NO];
-      [userNameLabel setBezeled:NO];
-      [userNameLabel sizeToFit];
-
-      passwdLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(0,0,0,0)];
-      [passwdLabel setStringValue:passwordTitle];
-      [passwdLabel setAlignment:NSRightTextAlignment];
-      [passwdLabel setEditable:NO];
-      [passwdLabel setSelectable:NO];
-      [passwdLabel setDrawsBackground:NO];
-      [passwdLabel setBordered:NO];
-      [passwdLabel setBezeled:NO];
-      [passwdLabel sizeToFit];
-
-      databaseLabel = [[NSTextField alloc] initWithFrame: NSMakeRect(0,0,0,0)];
-      [databaseLabel setStringValue:databaseNameTitle];
-      [databaseLabel setAlignment:NSRightTextAlignment];
-      [databaseLabel setEditable:NO];
-      [databaseLabel setSelectable:NO];
-      [databaseLabel setDrawsBackground:NO];
-      [databaseLabel setBordered:NO];
-      [databaseLabel setBezeled:NO];
-      [databaseLabel sizeToFit];
-       
-      rect1=[databaseLabel frame];
-      rect2=[userNameLabel frame];
-      rect3=[passwdLabel frame]; 
-      
-      maxLabelWidth = vfmaxf(3,
-			     rect1.size.width,
-			     rect2.size.width,
-			     rect3.size.width);
-
-      maxLabelHeight = vfmaxf(3,
-			      rect1.size.height,
-			      rect2.size.height,
-			      rect3.size.height);
-      
-      tempRect = [databaseLabel frame]; 
-      tempRect.size.width  = maxLabelWidth;
-      tempRect.size.height = maxLabelHeight;
-      tempRect.origin.x = [tableScrollView frame].origin.x +
-	                  [tableScrollView frame].size.width + spacer; 
-      tempRect.origin.y = [okButton frame].origin.y +
-	                  [okButton frame].size.height + (spacer*2);
-      [databaseLabel setFrame:tempRect]; 
-      
-      tempRect = [passwdLabel frame]; 
-      tempRect.size.width  = maxLabelWidth;
-      tempRect.size.height = maxLabelHeight;
-      tempRect.origin.x = [tableScrollView frame].origin.x +
-	                  [tableScrollView frame].size.width + spacer; 
-      tempRect.origin.y = [databaseLabel frame].origin.y + 
-	                  [databaseLabel frame].size.height + (spacer*3);
-      [passwdLabel setFrame:tempRect];
-      
-      tempRect = [userNameLabel frame]; 
-      tempRect.size.width  = maxLabelWidth;
-      tempRect.size.height = maxLabelHeight;
-      tempRect.origin.x = [tableScrollView frame].origin.x +
-	                  [tableScrollView frame].size.width + spacer; 
-      tempRect.origin.y = [passwdLabel frame].origin.y + 
-	                  [databaseLabel frame].size.height + (spacer*3);
-      [userNameLabel setFrame:tempRect];
-      
       tempRect = NSMakeRect([userNameLabel frame].origin.x +
 			    [userNameLabel frame].size.width+spacer,
 			    [userNameLabel frame].origin.y,
-			    0,0);
+			    300,maxLabelHeight);
       userNameField = [[NSTextField alloc] initWithFrame: tempRect];
-       
-      [userNameField setStringValue:someString];
-      [userNameField sizeToFit];
       [userNameField setStringValue:NSUserName()]; 
       [userNameField setTarget:self];
       [userNameField setAction:@selector(ok:)];
       
+      tempRect = NSMakeRect([hostLabel frame].origin.x +
+                            [hostLabel frame].size.width+spacer,
+                            [hostLabel frame].origin.y,
+                            300,maxLabelHeight);
+      hostField = [[NSTextField alloc] initWithFrame: tempRect];
+      [hostField setStringValue:@""];
+      [hostField setTarget:self];
+      [hostField setAction:@selector(ok:)];
+
+      tempRect = NSMakeRect([portLabel frame].origin.x +
+                            [portLabel frame].size.width+spacer,
+                            [portLabel frame].origin.y,
+                            50,maxLabelHeight);
+      portField = [[NSTextField alloc] initWithFrame: tempRect];
+      [portField setStringValue:@""];
+      [portField setTarget:self];
+      [portField setAction:@selector(ok:)];
+
       maxFieldWidth=[userNameField frame].size.width; 
 
       tempRect = NSMakeRect([passwdLabel frame].origin.x +
 			    [passwdLabel frame].size.width + spacer,
 			    [passwdLabel frame].origin.y,
-			    0, 0);
+			    300, maxLabelHeight);
       passwdField = [[NSSecureTextField alloc] initWithFrame: tempRect];
-
-      [passwdField setStringValue:someString];
-      [passwdField sizeToFit]; 
       [passwdField setStringValue:@""];
       [passwdField setTarget:self];
-      [passwdField setAction:@selector(self:)];
+      [passwdField setAction:@selector(ok:)];
 
       tempRect = NSMakeRect([databaseLabel frame].origin.x +
 			    [databaseLabel frame].size.width + spacer,
 			    [databaseLabel frame].origin.y,
-			    0,0); 
-      databaseField = [[NSTextField alloc] initWithFrame: tempRect];
+			    300 - maxButtonWidth - (spacer * 3),maxLabelHeight); 
+      databasesCombo = [[NSComboBox alloc] initWithFrame:tempRect];
+      [databasesCombo setStringValue:@""];
+      [databasesCombo setUsesDataSource:YES];
+      [databasesCombo setDataSource:self];
+      [databasesCombo setDelegate:self];
 
-      [databaseField setStringValue:someString];
-      [databaseField sizeToFit];
-      [databaseField setStringValue:@""];
-      [databaseField setTarget:self];
-      [databaseField setAction:@selector(ok:)];
+      tempRect = [newDatabaseButton frame];
+      tempRect.origin.x = [databasesCombo frame].origin.x + [databasesCombo frame].size.width + (spacer * 2);
+      tempRect.origin.y = [databasesCombo frame].origin.y;
+      tempRect.size.width = maxButtonWidth;
+      [newDatabaseButton setFrame: tempRect]; 
       
-      /* make a rect that will fit all the controls, 
-	 center it and create a window that size
-         add all subviews.. */
-
-      tempRect = NSMakeRect(0,0,
-		            (spacer *6)+[tableScrollView frame].size.width +
-			    vfmaxf(2,
-				   (maxLabelWidth+maxFieldWidth),
-				   (maxButtonWidth*2)),
-		            vfmaxf(2,
-				   ([tableScrollView frame].origin.y +
-				    [tableScrollView frame].size.height +
-				    spacer),
-				   (maxLabelHeight*3)+
-				   maxButtonHeight + (spacer *5)));
-       
+      /* make a window that will fit all the controls, 
+	 center it, add all subviews.. */
+      tempRect.size.width = vfmaxf(3,
+		      		   [logo frame].origin.x + [logo frame].size.width, 
+		      		   [userNameField frame].origin.x + [userNameField frame].size.width,
+				   [newDatabaseButton frame].origin.x + [newDatabaseButton frame].size.width) + spacer;
+      tempRect.size.height = [logo frame].origin.y + [logo frame].size.height + (spacer * 2);
+      
       tempRect.origin.x = (screenSize.width/2) - (tempRect.size.width/2);
       tempRect.origin.y = (screenSize.height/2) - (tempRect.size.height/2);
-
+      
       _win = [[NSWindow alloc] initWithContentRect: tempRect 
 			       styleMask: NSTitledWindowMask
 			       backing: NSBackingStoreRetained
@@ -344,36 +338,44 @@ vfmaxf (int n, float aFloat, ...)
       rect1 = [NSWindow contentRectForFrameRect:[_win frame]
 			styleMask:[_win styleMask]];  
       [_win setMinSize: rect1.size]; 
-      [[_win contentView] addSubview: showDatabasesButton];
-      RELEASE(showDatabasesButton);
+      
       [[_win contentView] addSubview: newDatabaseButton];
       RELEASE(newDatabaseButton);
-      [[_win contentView] addSubview:tableScrollView];  
-      RELEASE(tableScrollView);
       [[_win contentView] addSubview: userNameLabel];
       RELEASE(userNameLabel);
       [[_win contentView] addSubview: databaseLabel];
       RELEASE(databaseLabel);
       [[_win contentView] addSubview: passwdLabel];
       RELEASE(passwdLabel);
+      [[_win contentView] addSubview: portLabel];
+      RELEASE(portLabel);
+      [[_win contentView] addSubview: hostLabel];
+      RELEASE(hostLabel);
       [[_win contentView] addSubview: userNameField];
       RELEASE(userNameField);
       [[_win contentView] addSubview: passwdField];
       RELEASE(passwdField);
-      [[_win contentView] addSubview: databaseField];
-      RELEASE(databaseField);
+      [[_win contentView] addSubview: databasesCombo];
+      RELEASE(databasesCombo);
+      [[_win contentView] addSubview: hostField];
+      RELEASE(hostField);
+
+      [[_win contentView] addSubview: portField];
+      RELEASE(portField);
+
+      [[_win contentView] addSubview: logo];
+      RELEASE(logo);
       
       [[_win contentView] addSubview: okButton];
       [[_win contentView] addSubview: cancelButton];
 
       [okButton setFrame:NSMakeRect(tempRect.size.width -
-				      [okButton frame].size.width-spacer,
+				      [okButton frame].size.width-(spacer * 2),
 				    spacer,
 				    [okButton frame].size.width,
 				    [okButton frame].size.height)];
       [cancelButton setFrame:NSMakeRect([okButton frame].origin.x -
-					  [cancelButton frame].size.width -
-					  spacer,
+				        [cancelButton frame].size.width - (spacer * 2),
 					spacer,
 					[cancelButton frame].size.width,
 					[cancelButton frame].size.height)]; 
@@ -381,15 +383,14 @@ vfmaxf (int n, float aFloat, ...)
       RELEASE(cancelButton);
 
       [userNameField setNextKeyView:passwdField]; 
-      [passwdField setNextKeyView:databaseField];
-      [databaseField setNextKeyView:showDatabasesButton]; 
-      [showDatabasesButton setNextKeyView:newDatabaseButton];
-      [newDatabaseButton setNextKeyView:databases];
-      [databases setNextKeyView:okButton];
+      [passwdField setNextKeyView: hostField];
+      [hostField setNextKeyView: portField];
+      [portField setNextKeyView: databasesCombo];
+      [databasesCombo setNextKeyView:newDatabaseButton];
+      [newDatabaseButton setNextKeyView:okButton];
       [okButton setNextKeyView:cancelButton];
       [cancelButton setNextKeyView:userNameField];
       [_win makeFirstResponder:userNameField]; 
-
     }
   return self;
 }
@@ -413,11 +414,17 @@ vfmaxf (int n, float aFloat, ...)
     [NSDictionary dictionaryWithObjects:
                        [NSArray arrayWithObjects:@"template1", 
                                                  [userNameField stringValue],
-						 [passwdField stringValue],nil]
+						 [passwdField stringValue],
+						 [hostField stringValue],
+						 [portField stringValue],
+						 nil]
                                 forKeys:[NSArray 
 					  arrayWithObjects:@"databaseName",
 					                   @"userName",
-							   @"password",nil]]];
+							   @"password",
+							   @"databaseServer",
+							   @"port",
+							   nil]]];
   adaptor = [EOAdaptor adaptorWithModel: aMod];
   context = [adaptor createAdaptorContext];
   channel = [context createAdaptorChannel];
@@ -524,12 +531,18 @@ vfmaxf (int n, float aFloat, ...)
       {
         insideModalLoop = NO;
 	connDict = [[NSDictionary alloc] 
-	                initWithObjectsAndKeys:[databaseField stringValue],
+	                initWithObjectsAndKeys:[databasesCombo stringValue],
 					       @"databaseName", 
 					       [userNameField stringValue],
 					       @"userName", 
 					       [passwdField stringValue],
-					       @"password", 
+					       @"password",
+					       [adaptor name],
+					       @"adaptorName",
+					       [hostField stringValue],
+					       @"databaseServer",
+					       [portField stringValue],
+					       @"port",
 					       nil];
         [adaptor setConnectionDictionary:connDict];
 	
@@ -568,7 +581,7 @@ vfmaxf (int n, float aFloat, ...)
 -(void)showDatabases:(id)sender
 {
   ASSIGN(_databases,[self _databaseNames]);
-  [databases reloadData];
+  [databasesCombo reloadData];
 }
 
 
@@ -580,7 +593,7 @@ vfmaxf (int n, float aFloat, ...)
   NSString *reason; 
   
   connDict=[[NSDictionary alloc] 
-               initWithObjectsAndKeys:[databaseField stringValue],
+               initWithObjectsAndKeys:[databasesCombo stringValue],
 	                              @"databaseName",
 			              nil];
   adminDict=[[NSDictionary alloc] 
@@ -629,23 +642,19 @@ vfmaxf (int n, float aFloat, ...)
 
 /* databases table stuff */
 
--(int)numberOfRowsInTableView:(NSTableView *)tableView
+-(int)numberOfItemsInComboBox:(NSComboBox*)cbox
 {
    return [_databases count];
 }
 
-- (void)tableViewSelectionDidChange:(NSNotification *) not
-{
-  [databaseField setStringValue: 
-             [_databases objectAtIndex:
-                                [databases selectedRow]]]; 
-}
-
-- (id)tableView:(NSTableView *) tableView
-      objectValueForTableColumn:(NSTableColumn *) tableColumn
-      row:(int) row
+- (id)comboBox:(NSComboBox*) cbox 
+      objectValueForItemAtIndex:(int)row
 {
   return [_databases objectAtIndex:row];
+}
+- (void) comboBoxWillPopUp:(NSNotification *)notif
+{
+  [self showDatabases:self]; 
 }
 
 @end
