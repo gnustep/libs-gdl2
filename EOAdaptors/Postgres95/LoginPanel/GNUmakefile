@@ -32,6 +32,7 @@ BUNDLE_NAME=
 endif
 endif
 
+LoginPanel_RESOURCE_FILES = postgreslogo.tif
 LoginPanel_OBJC_FILES = Postgres95LoginPanel.m
 LoginPanel_PRINCIPAL_CLASS = Postgres95LoginPanel
 
