@@ -8,6 +8,9 @@
 	* DBModeler/KVDataSource.m: Return nil in unimplemented methods with
 	return values.
 
+	* EOAdaptors/Postgres95/Postgres95Adaptor.m: Add braces to typeNames
+	to avoid warnings
+
 2005-12-18  David Ayers  <d.ayers@inode.at>
 
 	* AUTHORS: Add Matt Rice.

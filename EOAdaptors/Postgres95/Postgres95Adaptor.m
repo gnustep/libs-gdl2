@@ -177,45 +177,45 @@ postgresClientVersion()
    external type name	internal type name
  */
 static NSString *typeNames[][2] = {
-  @"numeric",		@"NSNumber",		/* EOAdaptorNumberType */
-  @"varchar",		@"NSString", 		/* EOAdaptorCharactersType */
-  @"bytea",		@"NSData",		/* EOAdaptorBytesType */
-  @"date",		@"NSCalendarDate",	/* EOAdaptorDateType */
-  @"boolean",		@"NSNumber",
-  @"bool",		@"NSNumber",
-  @"char",		@"NSString",
-  @"char2",		@"NSString",
-  @"char4",		@"NSString",
-  @"char8",		@"NSString",
-  @"char16",		@"NSString",
-  @"filename",		@"NSString",
-  @"reltime",		@"NSCalendarDate",
-  @"time",		@"NSCalendarDate",
-  @"tinterval",		@"NSCalendarDate",
-  @"abstime",		@"NSCalendarDate",
-  @"timestamp",		@"NSCalendarDate",
-  @"real",		@"NSNumber",
-  @"double precision", 	@"NSNumber",
-  @"float4",		@"NSNumber",
-  @"float8",		@"NSNumber",
-  @"bigint", 		@"NSNumber",
-  @"int8",		@"NSNumber",
-  @"integer",		@"NSNumber",
-  @"int4",		@"NSNumber",
-  @"smallint",		@"NSNumber",
-  @"int2",		@"NSNumber",
-  @"oid",		@"NSNumber",
-  @"oid8",		@"NSNumber",
-  @"oidint2",		@"NSNumber",
-  @"oidint4",		@"NSNumber",
-  @"oidchar16",		@"NSNumber",
-  @"serial",		@"NSNumber",
-  @"serial8",		@"NSNumber",
-  @"decimal",		@"NSDecimalNumber",
-  @"cid",		@"NSDecimalNumber",
-  @"tid",		@"NSDecimalNumber",
-  @"xid",		@"NSDecimalNumber",
-  @"bpchar",		@"NSData"
+{@"numeric",		@"NSNumber"},		/* EOAdaptorNumberType */
+{@"varchar",		@"NSString"}, 		/* EOAdaptorCharactersType */
+{@"bytea",		@"NSData"},		/* EOAdaptorBytesType */
+{@"date",		@"NSCalendarDate"},	/* EOAdaptorDateType */
+{@"boolean",		@"NSNumber"},
+{@"bool",		@"NSNumber"},
+{@"char",		@"NSString"},
+{@"char2",		@"NSString"},
+{@"char4",		@"NSString"},
+{@"char8",		@"NSString"},
+{@"char16",		@"NSString"},
+{@"filename",		@"NSString"},
+{@"reltime",		@"NSCalendarDate"},
+{@"time",		@"NSCalendarDate"},
+{@"tinterval",		@"NSCalendarDate"},
+{@"abstime",		@"NSCalendarDate"},
+{@"timestamp",		@"NSCalendarDate"},
+{@"real",		@"NSNumber"},
+{@"double precision", 	@"NSNumber"},
+{@"float4",		@"NSNumber"},
+{@"float8",		@"NSNumber"},
+{@"bigint", 		@"NSNumber"},
+{@"int8",		@"NSNumber"},
+{@"integer",		@"NSNumber"},
+{@"int4",		@"NSNumber"},
+{@"smallint",		@"NSNumber"},
+{@"int2",		@"NSNumber"},
+{@"oid",		@"NSNumber"},
+{@"oid8",		@"NSNumber"},
+{@"oidint2",		@"NSNumber"},
+{@"oidint4",		@"NSNumber"},
+{@"oidchar16",		@"NSNumber"},
+{@"serial",		@"NSNumber"},
+{@"serial8",		@"NSNumber"},
+{@"decimal",		@"NSDecimalNumber"},
+{@"cid",		@"NSDecimalNumber"},
+{@"tid",		@"NSDecimalNumber"},
+{@"xid",		@"NSDecimalNumber"},
+{@"bpchar",		@"NSData"}
 };
 
 + (NSDictionary *)externalToInternalTypeMap
