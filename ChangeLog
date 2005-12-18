@@ -21,6 +21,9 @@
 	(-[EOTemporaryGlobalID copyWithZone:]): Remove.
 	(-[EOTemporaryGlobalID description]): Implement.
 	* EOControl/EOKeyGlobalID.m (-[EOKeyGlobalID copyWithZone:]): Remove.
+
+	* EOControl/EOEditingContext.m (-[forgetObject:]: Clear registered
+	snapshots.
 	
 2005-12-05  David Ayers  <d.ayers@inode.at>
 

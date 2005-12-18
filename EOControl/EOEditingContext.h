@@ -23,8 +23,8 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef	__EOEditingContext_h__
-#define	__EOEditingContext_h__
+#ifndef	__EOControl_EOEditingContext_h__
+#define	__EOControl_EOEditingContext_h__
 
 #ifdef GNUSTEP
 #include <Foundation/NSHashTable.h>

@@ -3012,6 +3012,8 @@ _mergeValueForKey(id obj, id value,
                         @"forgetObject gid: %@",
                         gid);
 
+  [self clearOriginalSnapshotForObject: object];
+  [_eventSnapshotsByGID removeObjectForKey: gid];
   NSMapRemove(_globalIDsByObject, object);
   NSMapRemove(_objectsByGID, gid);
 
