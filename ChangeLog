@@ -6,6 +6,9 @@
 	* EOControl/EOMultiReaderLock.[h/m]: New files.
 	* EOControl/EOControl.h: Add EOMultiReaderLock.h.
 	* EOControl/GNUmakefile: Add EOMultiReaderLock.h/m.
+
+	* EOAccess/EOAttribute.m: Translate comment to avoid
+	non-ASCII encoding.
 	
 2005-12-05  David Ayers  <d.ayers@inode.at>
 

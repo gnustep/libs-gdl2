@@ -1030,7 +1030,7 @@ return nexexp
 				     capitalizedString]];
 	}
     
-    //#warning ergÙnzen um alle components (attributes, ...)
+    //#warning add all components (attributes, ...)
     
     // Exception abfangen
     NS_DURING
