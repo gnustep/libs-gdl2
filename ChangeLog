@@ -14,6 +14,13 @@
 	* EOControl/EOEventCenter.[hm]: New files.
 	* EOControl/EOControl.h: Add EOEvent.h and EOEventCenter.h.
 	* EOControl/GNUmakefile: Add EOEvent.h/m and EOEventCenter.h/m.
+
+	* EOControl/EOGlobalID.m (-[EOGlobalID copyWithZone:]): Optimize
+	to return self as GIDs are immutable and they are used as dictionary
+	keys which are generally copied.
+	(-[EOTemporaryGlobalID copyWithZone:]): Remove.
+	(-[EOTemporaryGlobalID description]): Implement.
+	* EOControl/EOKeyGlobalID.m (-[EOKeyGlobalID copyWithZone:]): Remove.
 	
 2005-12-05  David Ayers  <d.ayers@inode.at>
 

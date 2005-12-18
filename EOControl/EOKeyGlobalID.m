@@ -188,25 +188,6 @@ RCS_ID("$Id$")
   return self;
 }
 
-- (id)copyWithZone: (NSZone *)zone
-{
-  EOKeyGlobalID *gid = [super copyWithZone: zone];
-  int i;
-
-  ASSIGN(gid->_entityName, _entityName);
-  gid->_keyCount = _keyCount;
-
-  gid->_keyValues = NSZoneMalloc(zone, _keyCount * sizeof(id));
-
-  for (i = 0; i < _keyCount; i++)
-    {
-      gid->_keyValues[i] = nil;
-      ASSIGN(gid->_keyValues[i], _keyValues[i]);
-    }
-
-  return gid;
-}
-
 - (BOOL) isFinal
 {
 //  [self notImplemented:_cmd]; //TODO

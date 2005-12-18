@@ -87,9 +87,7 @@ NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 
 - (id)copyWithZone: (NSZone *)zone
 {
-  EOGlobalID *gid = [[[self class] alloc] init];
-
-  return gid;
+  return RETAIN(self);
 }
 
 @end
@@ -98,7 +96,6 @@ NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 @implementation EOTemporaryGlobalID
 
 static unsigned short sequence = (unsigned short)-1;
-
 
 + (EOTemporaryGlobalID *)temporaryGlobalID
 {
@@ -223,14 +220,28 @@ static unsigned short sequence = (unsigned short)-1;
   return self;
 }
 
-- (id)copyWithZone: (NSZone *)zone
+- (NSString *)description
 {
-  EOTemporaryGlobalID *gid = [super copyWithZone:zone];
+  unsigned char dst[(EOUniqueBinaryKeyLength<<1)   /* 2 x buffer */
+		    + (EOUniqueBinaryKeyLength>>2) /* + 1 space per 4 byte */
+		    + 1];                          /* + terminator */
+  unsigned int i,j;
 
-  gid->_refCount = _refCount;
-  memcpy(gid->_bytes, _bytes, sizeof(_bytes));
+  #define num2char(num) ((num) < 0xa ? ((num)+'0') : ((num)+0x57))
+  for (i = 0, j = 0; i < EOUniqueBinaryKeyLength; i++, j++)
+    {
+      dst[j] = num2char((_bytes[i]>>4) & 0x0f);
+      dst[++j] = num2char(_bytes[i] & 0x0f);
 
-  return gid;
+      /* Insert a space per 4 bytes.  */
+      if ((i & 3) == 3 && i < EOUniqueBinaryKeyLength-1)
+	{
+	  dst[++j] = ' ';
+	}
+    }
+  dst[j] = 0;
+  return [NSString stringWithFormat: @"<%@ %s>",
+		   GSClassNameFromObject(self), dst];
 }
 
 @end
