@@ -1,3 +1,8 @@
+2005-12-18  David Ayers  <d.ayers@inode.at>
+
+	* AUTHORS: Add Matt Rice.
+	* GDL2.gsdoc: Ditto.
+	
 2005-12-05  David Ayers  <d.ayers@inode.at>
 
 	* EOControl/EOQualifier.m (getKey): Fix parsing of 'nil'
