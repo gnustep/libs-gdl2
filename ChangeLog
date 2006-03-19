@@ -21,6 +21,9 @@
 	* EOAdaptors/Postgres95/Postgres95SQLExpression.m: Fix warning.
 	* EOAdaptors/Postgres95/Postgres95Values.m: Remove c99 usage.
 	
+	* EOAccess/EOEntity.m (-relationships): Fix whitespace from previous
+	commit.
+	
 2005-12-18  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/LoginPanel/postgreslogo.tif: New file.

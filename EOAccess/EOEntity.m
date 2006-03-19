@@ -1294,25 +1294,27 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 						   objectAtIndex: i];
 			if ([relPList isKindOfClass: [EORelationship class]])
 			  continue;
-			{
-                        NSString *relName = [relNames objectAtIndex: i];
-                        EORelationship *relationship = [self relationshipNamed:
-							       relName];
+			
+			  {
+                            NSString *relName = [relNames objectAtIndex: i];
+                            EORelationship *relationship;
+			  
+			    relationship = [self relationshipNamed: relName];
 
-                        EOFLOGObjectLevelArgs(@"EOEntity", @"relName=%@",
-					      relName);
+                            EOFLOGObjectLevelArgs(@"EOEntity", @"relName=%@",
+						  relName);
 
-                        if ((pass == 0
-			     && ![relPList objectForKey: @"definition"]) 
-                            || (pass == 1
-				&& [relPList objectForKey: @"definition"]))
-                          {
-                            EOFLOGObjectLevelArgs(@"EOEntity", @"XXX REL: self=%p AWAKE relationship=%@",
-						  self, relationship);
+ 			    if ((pass == 0
+			         && ![relPList objectForKey: @"definition"]) 
+                                || (pass == 1
+				    && [relPList objectForKey: @"definition"]))
+                              {
+                                EOFLOGObjectLevelArgs(@"EOEntity", @"XXX REL: self=%p AWAKE relationship=%@",
+						      self, relationship);
 
-                            [relationship awakeWithPropertyList: relPList];
-                          }
-			}
+                                [relationship awakeWithPropertyList: relPList];
+                              }
+			  }
                       }
                   }
               }
