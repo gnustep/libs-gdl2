@@ -810,17 +810,21 @@ to know what to-many mean :-)  **/
 - (BOOL)referencesProperty: (id)property
 {
   BOOL referencesProperty = NO;
+  NSArray *srcAttribs = [self sourceAttributes];
+  NSArray *destAttribs = [self destinationAttributes];
+  NSArray *compRels = [self componentRelationships];
 
   NSEmitTODO();  //TODO
   EOFLOGObjectLevelArgs(@"EORelationship", @"in referencesProperty:%@",
 			property);
 
-  referencesProperty = ([[self sourceAttributes]
-			  indexOfObject: property] != NSNotFound
-			|| [[self destinationAttributes]
-			     indexOfObject: property] != NSNotFound
-			|| [[self componentRelationships]
-			     indexOfObject: property] != NSNotFound);
+  referencesProperty =
+	  	((srcAttribs
+		  && [srcAttribs indexOfObject: property] != NSNotFound)
+		|| (destAttribs
+		    && [destAttribs indexOfObject: property] != NSNotFound)
+		|| (compRels
+		    && [compRels indexOfObject: property] != NSNotFound));
 
   return referencesProperty;
 }
@@ -1218,6 +1222,7 @@ relationships. Nil if none" **/
   int exc = 0;
   NSArray *storedProcedures = nil;
 
+  if ([_name isEqual:name]) return nil;
   if (!name || ![name length])
     exc++;
   if (!exc)

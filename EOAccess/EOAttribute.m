@@ -708,6 +708,7 @@ RCS_ID("$Id$")
   const char *p, *s = [name cString];
   int exc = 0;
 
+  if ([_name isEqual:name]) return nil;
   if (!name || ![name length]) exc++;
 
   if (!exc)

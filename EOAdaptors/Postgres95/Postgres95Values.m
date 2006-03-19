@@ -203,7 +203,7 @@ to strlen(bytes)
               value = [PSQLA_alloc(NSNumber) initWithUnsignedLongLong:strtoull(bytes,NULL,10)];
               break;
             case 'f':
-              value = [PSQLA_alloc(NSNumber) initWithFloat: strtof(bytes,NULL)];
+              value = [PSQLA_alloc(NSNumber) initWithFloat: (float)strtod(bytes,NULL)];
               break;
             case 'd':
             case '\0':

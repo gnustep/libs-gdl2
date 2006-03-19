@@ -74,8 +74,11 @@ RCS_ID("$Id$")
 #include <EOAccess/EOAccessFault.h>
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAttribute.h>
+#include <EOAccess/EORelationship.h>
 
 #include "EOEntityPriv.h"
+#include "EOPrivate.h"
+#include "EOAttributePriv.h"
 
 #define DEFAULT_MODEL_VERSION 2
 
@@ -1599,12 +1602,45 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
 }
 
+/**
+ * Returns an array of flattened attributes and relationships in the receiver's
+ * entities that reference property, or nil if nothing references it.
+ */
 - (NSArray *) referencesToProperty: (id)property
 {
-  // TODO
-  [self notImplemented: _cmd];
-
-  return nil;
+  // TODO test
+  NSEnumerator *entityEnumerator = [[self entities] objectEnumerator];
+  IMP enumNO=NULL;
+  EOEntity *ent;
+  NSMutableArray *refProps = [NSMutableArray array];
+  
+  while ((ent = GDL2_NextObjectWithImpPtr(entityEnumerator,&enumNO)))
+    {
+      NSEnumerator *propEnumerator = [[ent attributes] objectEnumerator];
+      EOAttribute *attr;
+      EORelationship *rel;
+      IMP propEnumNO=NULL;
+      
+      while ((attr = GDL2_NextObjectWithImpPtr(propEnumerator,&propEnumNO)))
+	{
+          if ([attr isFlattened] && [[attr realAttribute] isEqual: property])
+	    {
+	      [refProps addObject:attr];
+	    }
+	}
+      
+      propEnumerator = [[ent relationships] objectEnumerator];
+      propEnumNO = NULL;
+      while ((rel = GDL2_NextObjectWithImpPtr(propEnumerator, &propEnumNO)))
+	{
+	  if ([rel referencesProperty:property])
+	    {
+	      [refProps addObject:rel];
+	    }
+	}
+    }	
+  
+  return [refProps count] ? [NSArray arrayWithArray:refProps] : nil;
 }
 
 - (NSArray *) externalModelsReferenced

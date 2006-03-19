@@ -1219,7 +1219,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
               for (i = 0; i < count; i++)
                 {
-                  NSDictionary *attrPList = [relationshipPLists
+                  id attrPList = [relationshipPLists
 					      objectAtIndex: i];
                   EORelationship *relationship = nil;
                   NSString *relationshipName = nil;
@@ -1227,9 +1227,11 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                   EOFLOGObjectLevelArgs(@"EOEntity", @"attrPList: %@",
 					attrPList);
 
-                  relationship = [EORelationship
-				   relationshipWithPropertyList: attrPList
-				   owner: self];
+                  relationship=[attrPList isKindOfClass: [EORelationship class]]
+			       ? attrPList 
+			       : [EORelationship
+				     relationshipWithPropertyList: attrPList
+				     owner: self];
 
                   relationshipName = [relationship name];
 
@@ -1288,9 +1290,12 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                   {
                     for (i = 0; i < count; i++)
                       {
-                        NSString *relName = [relNames objectAtIndex: i];
                         NSDictionary *relPList = [relationshipPLists
 						   objectAtIndex: i];
+			if ([relPList isKindOfClass: [EORelationship class]])
+			  continue;
+			{
+                        NSString *relName = [relNames objectAtIndex: i];
                         EORelationship *relationship = [self relationshipNamed:
 							       relName];
 
@@ -1307,6 +1312,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
                             [relationship awakeWithPropertyList: relPList];
                           }
+			}
                       }
                   }
               }
@@ -1961,7 +1967,7 @@ createInstanceWithEditingContext:globalID:zone:
   
   [self willChange]; 
   if ([self createsMutableObjects])
-    [(GCMutableArray *)_attributes addObject: attribute];
+    [_attributes addObject: attribute];
   else
     _attributes 
       = RETAIN([AUTORELEASE(_attributes) arrayByAddingObject: attribute]);
@@ -1976,6 +1982,13 @@ createInstanceWithEditingContext:globalID:zone:
   [attribute setParent: self];
 }
 
+/**
+ * Removes the attribute from the -attributes array, and the
+ * -classProperties, and -primaryKeyAttributes arrays if they contain it.
+ * does not remove any references to the attribute from other properties.
+ * the caller should insure that no such references exist by calling
+ * -referencesProperty: or [EOModel -referencesToProperty:].
+ */
 - (void) removeAttribute: (EOAttribute *)attribute
 {
   if (attribute)
@@ -1986,18 +1999,47 @@ createInstanceWithEditingContext:globalID:zone:
 
       //TODO
       if ([self createsMutableObjects])
-	[(GCMutableArray *)_attributes removeObject: attribute];
+        {
+	  [_attributes removeObject: attribute];
+
+	  [_classProperties removeObject:attribute]; 
+	  [_primaryKeyAttributes removeObject:attribute];
+	}
       else
         {
           _attributes
 	    = [[GCMutableArray alloc] initWithArray:AUTORELEASE(_attributes)
 				      copyItems:NO];
-	  [(GCMutableArray *)_attributes removeObject: attribute];
+	  [_attributes removeObject: attribute];
 	  _attributes 
 	    = [[GCArray alloc] initWithArray:AUTORELEASE(_attributes)
 			       copyItems:NO];
+	  if ([_classProperties containsObject:attribute])
+	    {
+	      _classProperties = [[GCMutableArray alloc]
+				    initWithArray:AUTORELEASE(_classProperties)
+					copyItems:NO];
+	      [_classProperties removeObject: attribute];
+	      _classProperties = [[GCArray alloc]
+		  		    initWithArray:AUTORELEASE(_classProperties)
+					copyItems:NO];
+	    }
+	  if ([_primaryKeyAttributes containsObject:attribute])
+	    {
+              _primaryKeyAttributes = [[GCMutableArray alloc]
+                               initWithArray:AUTORELEASE(_primaryKeyAttributes)
+                                   copyItems:NO];
+              [_primaryKeyAttributes removeObject: attribute];
+              _primaryKeyAttributes = [[GCArray alloc]
+                               initWithArray:AUTORELEASE(_primaryKeyAttributes)
+                                   copyItems:NO]; 
+	    }
+
         }
+      // in _setIsEdited _attributesByName isn't cleared do it here??
       [_attributesByName removeObjectForKey: [attribute name]];
+      // _classProperty*Names is cleared
+      // _primaryKeyAttributeNames is cleared
       [self _setIsEdited];//To clean caches
     }
 }
@@ -2024,7 +2066,7 @@ createInstanceWithEditingContext:globalID:zone:
 
   [self willChange];
   if ([self createsMutableObjects])
-    [(GCMutableArray *)_relationships addObject: relationship];
+    [_relationships addObject: relationship];
   else
     _relationships = RETAIN([AUTORELEASE(_relationships)
 					arrayByAddingObject: relationship]);
@@ -2039,6 +2081,13 @@ createInstanceWithEditingContext:globalID:zone:
   [self _setIsEdited];//To clean caches
 }
 
+/** 
+ * Removes the relationship from the -relationships array and
+ * the -classProperties array if it contains the relationship.
+ * The caller should insure that no references to the
+ * relationship exist by calling -referencesProperty: or
+ * [EOModel -referencesToProperty].
+ */
 - (void)removeRelationship: (EORelationship *)relationship
 {
   NSEmitTODO();  //TODO
@@ -2052,16 +2101,26 @@ createInstanceWithEditingContext:globalID:zone:
       if(_relationshipsByName != nil)
 	[_relationshipsByName removeObjectForKey:[relationship name]];
       if ([self createsMutableObjects])
-	[(GCMutableArray *)_relationships removeObject: relationship];
+	{
+	  [_relationships removeObject: relationship];
+	  [_classProperties removeObject: relationship];
+	}
       else
         {
           _relationships
 	    = [[GCMutableArray alloc] initWithArray:AUTORELEASE(_relationships)
 				      copyItems:NO];
-	  [(GCMutableArray *)_relationships removeObject: relationship];
+	  [_relationships removeObject: relationship];
 	  _relationships
 	    = [[GCArray alloc] initWithArray:AUTORELEASE(_relationships)
 			       copyItems:NO];
+	  _classProperties = [[GCMutableArray alloc]
+		  		initWithArray:AUTORELEASE(_classProperties)
+				    copyItems:NO];
+	  [_classProperties removeObject: relationship];
+	  _classProperties = [[GCArray alloc]
+		  		initWithArray:AUTORELEASE(_classProperties)
+		  		    copyItems:NO];
         }
       [self _setIsEdited];//To clean caches
     }
@@ -2202,7 +2261,9 @@ createInstanceWithEditingContext:globalID:zone:
   const char *p, *s = [name cString];
   int exc = 0;
   NSArray *storedProcedures;
-
+  
+  if ([_name isEqual:name]) return nil;
+  
   if (!name || ![name length]) exc++;
   if (!exc)
     {
@@ -2842,6 +2903,12 @@ createInstanceWithEditingContext:globalID:zone:
 			_instanceDictionaryInitializer,
 			(_instanceDictionaryInitializer ? "Not NIL" : "NIL"));
   AUTORELEASE_SETNIL(_instanceDictionaryInitializer);
+
+  EOFLOGObjectLevelArgs(@"EOEntity",@"_relationshipsByName: %p %s",
+                        _relationshipsByName,
+                        (_relationshipsByName ? "Not NIL" : "NIL"));
+  AUTORELEASE_SETNIL(_relationshipsByName);
+  _flags.relationshipsIsLazy = YES;
 
   //TODO call _flushCache on each attr
   NSAssert4(!_attributesToFetch

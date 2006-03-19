@@ -203,7 +203,12 @@ RCS_ID("$Id$")
 
 - (EOEditingContext *)editingContext
 {
-  return [_masterObject editingContext];
+  /*
+   * 4.5 documented as _masterObject or nil 
+   * in 5.x this is documented as returning the master data source or nil
+   * seems to be a documentation error in 4.5
+   */
+  return [_masterDataSource editingContext];
 }
 
 - (NSArray *)fetchObjects

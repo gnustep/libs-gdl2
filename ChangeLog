@@ -1,3 +1,26 @@
+2006-03-19  Matt Rice  <ratmice@yahoo.com>
+
+	* EOControl/EODetailDataSource.m (-editingContext): Return the master
+	data sources editing context.
+	* EOControl/EOGlobalID.m (-description): Correct conversion
+	specification.
+	* EOAccess/EOModel.m (-referencesToProperty:): Implement.
+	* EOAccess/EORelationship.m (-referencesProperty:): Fix bug in or when 
+	sending messages to nil.
+	(-validateName:): Return nil if the name is the properties current name.
+	* EOAccess/EOModel.m (-validateName:): Ditto.
+	* EOAccess/EOEntity.m (-validateName:): Ditto.
+	(-relationships): Handle partially converted relationships array.
+	(-addAttribute:): Remove unnecessary cast.
+	(-addRelationship:): Ditto.
+	(-removeAttribute): Remove property from the class properties and
+	primary key attributes arrays.
+	(-removeRelationship:): Remove property from the class properties
+	array. 
+	(-_setIsEdited:): Rebuild _relationshipsByName.
+	* EOAdaptors/Postgres95/Postgres95SQLExpression.m: Fix warning.
+	* EOAdaptors/Postgres95/Postgres95Values.m: Remove c99 usage.
+	
 2005-12-18  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/Postgres95/LoginPanel/postgreslogo.tif: New file.

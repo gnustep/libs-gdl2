@@ -240,7 +240,7 @@ static unsigned short sequence = (unsigned short)-1;
 	}
     }
   dst[j] = 0;
-  return [NSString stringWithFormat: @"<%@ %s>",
+  return [NSString stringWithFormat: @"<%s %s>",
 		   GSClassNameFromObject(self), dst];
 }
 
