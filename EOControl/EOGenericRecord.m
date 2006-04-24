@@ -284,7 +284,7 @@ static const char _c_id[2] = { _C_ID, 0 };
     }
   else
     {
-      value = GSObjCGetValue(self, aKey, sel, type, size, offset);
+      value = GSObjCGetVal(self, [aKey UTF8String], sel, type, size, offset);
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value %p (class=%@)",
 			    value, [value class]);
     }
@@ -315,7 +315,7 @@ static const char _c_id[2] = { _C_ID, 0 };
         EOMKKD_removeObjectForKeyWithImpPtr(dictionary,NULL,aKey);
     }
   else
-    GSObjCSetValue(self, aKey, anObject, sel, type, size, offset);
+    GSObjCSetVal(self, [aKey UTF8String], anObject, sel, type, size, offset);
 
   EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
 }

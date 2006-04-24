@@ -179,7 +179,7 @@ initialize(void)
 	    }
 	}
     }
-  GSObjCSetValue(self, aKey, anObject, sel, type, size, off);
+  GSObjCSetVal(self, [aKey UTF8String], anObject, sel, type, size, off);
 }
 
 

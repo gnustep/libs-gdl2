@@ -1,3 +1,14 @@
+2006-04-24  David Ayers  <d.ayers@inode.at>
+
+	* EOControl/EOGenericRecord.m
+	([_getValueForKey:selector:type:size:offset:]): Replace deprecated use
+	of GSObjCGetValue with GSObjCGetVal.
+	([_setValueForKey:selector:type:size:offset:]): Replace deprecated use
+	of GSObjCSetValue with GSObjCSetVal.
+	* EOControl/EOKeyValueCoding.m
+	([NSObject takeValue:forKey:]):  Replace deprecated use	of
+	GSObjCSetValue with GSObjCSetVal.
+
 2006-03-19  Matt Rice  <ratmice@yahoo.com>
 
 	* EOControl/EODetailDataSource.m (-editingContext): Return the master
