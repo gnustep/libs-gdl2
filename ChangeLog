@@ -9,6 +9,11 @@
 	([NSObject takeValue:forKey:]):  Replace deprecated use	of
 	GSObjCSetValue with GSObjCSetVal.
 
+	[Report #16429]
+	* EOAdaptors/Postgres95/Postgres95Private.m
+	(PSQLA_postgresCalendarFormat): Change format from to include
+	milliseconds suggested by: Sergey Golovin, svgol at mail dot ru.
+
 2006-03-19  Matt Rice  <ratmice@yahoo.com>
 
 	* EOControl/EODetailDataSource.m (-editingContext): Return the master

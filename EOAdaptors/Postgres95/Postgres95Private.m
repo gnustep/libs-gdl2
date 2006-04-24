@@ -71,7 +71,7 @@ NSNumber *PSQLA_NSNumberBool_No=nil;
 
 EONull   *PSQLA_EONull=nil;
 NSArray  *PSQLA_NSArray=nil;
-NSString *PSQLA_postgresCalendarFormat=@"%Y-%m-%d %H:%M:%S%z";
+NSString *PSQLA_postgresCalendarFormat=@"%Y-%m-%d %H:%M:%S.%F %z";
 
 // ==== Init Method ====
 void
