@@ -25,10 +25,14 @@
   </license>
 **/
 
+#include "EOModeler/EODefines.h"
+#include "EOModeler/EOModelerDocument.h"
+#include "EOModeler/EOModelerEditor.h"
+#include "EOModeler/EOModelerApp.h"
+
 #include <AppKit/NSMenuItem.h>
 #include <AppKit/NSOpenPanel.h>
-#include <Foundation/NSUndoManager.h>
-#include <Foundation/NSNotification.h>
+
 #include <EOInterface/EODisplayGroup.h>
 
 #include <EOAccess/EOAdaptor.h>
@@ -41,13 +45,18 @@
 #include <EOControl/EOEditingContext.h>
 
 #include <Foundation/NSAttributedString.h>
-#include <Foundation/NSRunLoop.h>
+#include <Foundation/NSCharacterSet.h>
 #include <Foundation/NSException.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSUndoManager.h>
+#include <Foundation/NSUserDefaults.h>
+#include <Foundation/NSValue.h>
 
-#include "EOModeler/EODefines.h"
-#include "EOModeler/EOModelerDocument.h"
-#include "EOModeler/EOModelerEditor.h"
-#include "EOModeler/EOModelerApp.h"
+@interface ConsistencyResults : NSObject 
++ (id) sharedConsistencyPanel;
+- (int) showConsistencyCheckResults:(id)sender cancelButton:(BOOL)useCancel
+showOnSuccess:(BOOL)flag;
+@end
 
 static Class      _defaultEditorClass;
 static EOModelerEditor *_currentEditorForDocument;
@@ -76,13 +85,6 @@ NSString *EOMCheckConsistencyForModelNotification =
 	@"EOMCheckConsistencyForModelNotification";
 NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 
-/* private methods for the consistency checker implemented in DBModeler */
-@interface NSObject (DBModelerPrivate)
-- (void) showConsistencyCheckResults:(id)sender
-cancelButton:(BOOL)foo
-showOnSuccess:(BOOL)bar;
-@end
-
 @interface EOModelerApp (PrivateStuff)
 - (void) _setActiveDocument:(EOModelerDocument *)newDocument;
 @end
@@ -94,7 +96,7 @@ showOnSuccess:(BOOL)bar;
 - (id) firstSelectionOfClass:(Class)aClass
 {
   unsigned i, c;
-  id obj;
+  id obj = nil;
   for (i = 0, c = [self count]; i < c; i++)
     {
       obj = [self objectAtIndex:i];
@@ -137,8 +139,11 @@ showOnSuccess:(BOOL)bar;
   if ([[menuItem title] isEqualToString:@"Add attribute"])
     return ([selection firstSelectionOfClass:[EOEntity class]] != nil);
   else if ([[menuItem title] isEqualToString:@"Add relationship"])
-    return ([selection firstSelectionOfClass:[EOAttribute class]] != nil);
-  
+    return ([selection firstSelectionOfClass:[EOEntity class]] != nil);
+  else if ([[menuItem title] isEqual:@"delete"])
+    return ([[selection lastObject] count]) ? YES : NO;
+    // see -delete:
+    //return ([[selection lastObject] count] || [selection count] > 2) ? YES : NO;
   return YES;
 }
 
@@ -194,7 +199,27 @@ showOnSuccess:(BOOL)bar;
 
 - (BOOL) prepareToSave
 {
-  return NO; /* FIXME */ 
+  if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DisableConsistencyCheckOnSave"] == NO)
+    {
+      NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+
+      [center postNotificationName:EOMCheckConsistencyBeginNotification
+                        object:self];
+      [center postNotificationName:EOMCheckConsistencyForModelNotification
+  	                object:self
+		      userInfo:[NSDictionary dictionaryWithObject:[self model]
+		                          forKey:EOMConsistencyModelObjectKey]];
+      [center postNotificationName:EOMCheckConsistencyEndNotification
+		        object:self];
+
+      if ([[NSClassFromString(@"ConsistencyResults") sharedConsistencyPanel]
+		      showConsistencyCheckResults:self
+                                     cancelButton:YES
+                                    showOnSuccess:NO] == NSRunAbortedResponse)
+	return NO;
+    }
+
+  return YES;
 }
 
 - (NSString *)documentPath
@@ -269,9 +294,10 @@ showOnSuccess:(BOOL)bar;
 
 - (void)addEntity:(id)sender
 {
-  EOAttribute *attrb;
-  int entityCount = [[_model entities] count];
+  unsigned entityNumber;
   EOEntity *newEntity = [[EOEntity alloc] init];
+  NSArray *entities = [_model entities];
+  unsigned i,c;
   
   if (![_editors containsObject:[EOMApp currentEditor]])
     {
@@ -281,25 +307,51 @@ showOnSuccess:(BOOL)bar;
       return; 
     }
   
-  
-  [newEntity setName: entityCount
-	  	      ? [NSString stringWithFormat: @"Entity%i",entityCount + 1]
+  c = [entities count];
+  entityNumber = c;
+
+  /* look for the largest NNNN in entity named "EntityNNNN" 
+   * or the total number of entities in this model whichever is greater.
+   */
+  for (i = 0; i < c; i++)
+     {
+       NSString *name = [[entities objectAtIndex:i] name];
+
+       if ([name hasPrefix:@"Entity"])
+	 {
+	   NSRange range;
+	   unsigned tmp;
+	   
+	   name = [name substringFromIndex:6];
+           range = [name rangeOfCharacterFromSet:[[NSCharacterSet decimalDigitCharacterSet] invertedSet]];
+	   if (!(range.location == NSNotFound) && !(range.length == 0))
+	     continue;
+	   range = [name rangeOfCharacterFromSet:[NSCharacterSet decimalDigitCharacterSet]];
+	   if (!(range.location == NSNotFound) && !(range.length == 0))
+	     {
+		tmp = [name intValue];
+		entityNumber = (entityNumber < ++tmp) ? tmp : entityNumber;
+	     }
+	 }
+     }
+   
+  [newEntity setName: entityNumber
+	  	      ? [NSString stringWithFormat: @"Entity%i",entityNumber]
 		      : @"Entity"];
   [newEntity setClassName:@"EOGenericRecord"];
-  attrb = [EOAttribute new];
-  [attrb setName:@"Attribute"];
-  [newEntity addAttribute:attrb];
   [_editingContext insertObject:newEntity];
   [_model addEntity:AUTORELEASE(newEntity)];
-  [(EOModelerCompoundEditor *)[EOMApp currentEditor] viewSelectedObject];
+  [(EOModelerCompoundEditor *)[EOMApp currentEditor] setSelectionWithinViewedObject:[NSArray arrayWithObject:newEntity]];
 }
 
 - (void)addAttribute:(id)sender
 {
   EOAttribute *attrb;
   EOModelerEditor *currEd = [EOMApp currentEditor];
-  int attributeCount;
+  unsigned int attributeNumber;
   EOEntity *entityObject;
+  NSArray *attributes;
+  int i,c;
 
   /* the currentEditor must be in this document */
   if (![_editors containsObject:currEd])
@@ -311,15 +363,49 @@ showOnSuccess:(BOOL)bar;
     }
  
   entityObject = [[currEd selectionPath] firstSelectionOfClass:[EOEntity class]];
-  attributeCount = [[entityObject attributes] count];
-   
+
+  attributes = [entityObject attributes];
+  c = [attributes count];
+  attributeNumber = c;
+  
+  /* look for the largest NNNN in attribute named "AttributeNNNN" 
+   * or the total number of attributes in this entity whichever is greater.
+   */
+  for (i = 0; i < c; i++)
+     {
+       NSString *name = [[attributes objectAtIndex:i] name];
+
+       if ([name hasPrefix:@"Attribute"])
+         {
+           NSRange range;
+           unsigned tmp;
+
+           name = [name substringFromIndex:9];
+           range = [name rangeOfCharacterFromSet:[[NSCharacterSet decimalDigitCharacterSet] invertedSet]];
+           if (!(range.location == NSNotFound) && !(range.length == 0))
+             continue;
+           range = [name rangeOfCharacterFromSet:[NSCharacterSet decimalDigitCharacterSet]];
+           if (!(range.location == NSNotFound) && !(range.length == 0))
+             {
+                tmp = [name intValue];
+                attributeNumber = (attributeNumber < ++tmp) ? tmp : attributeNumber;
+             }
+         }
+     }
+
   attrb = [[EOAttribute alloc] init];   
-  [attrb setName: attributeCount ? [NSString stringWithFormat: @"Attribute%i", attributeCount + 1] : @"Attribute"];
+  [attrb setName: attributeNumber
+	  	  ? [NSString stringWithFormat: @"Attribute%i",
+	  					attributeNumber]
+		  : @"Attribute"]; 
   [entityObject addAttribute:attrb];
   [_editingContext insertObject:attrb];
-  //[[(EOModelerCompoundEditor *)[EOMApp currentEditor] activeEditor] setSelectionWithinViewedObject:[NSArray arrayWithObject: entityObject]];
-  [[NSRunLoop currentRunLoop] runUntilDate: [NSDate dateWithTimeIntervalSinceNow:0.001]];
-  [(EOModelerCompoundEditor *)[EOMApp currentEditor] viewSelectedObject];
+  
+  if ([[[EOMApp currentEditor] selectionWithinViewedObject] count]
+      && [[[[EOMApp currentEditor] selectionWithinViewedObject] objectAtIndex:0] isKindOfClass:[EOEntity class]])
+    [(EOModelerCompoundEditor *)[EOMApp currentEditor] viewSelectedObject];
+  
+  [(EOModelerCompoundEditor *)[EOMApp currentEditor] setSelectionWithinViewedObject:[NSArray arrayWithObject:attrb]];
 }
 
 - (void)addRelationship:(id)sender
@@ -327,7 +413,8 @@ showOnSuccess:(BOOL)bar;
   EORelationship *newRel;
   EOEntity *srcEntity;
   EOModelerEditor *currentEditor = [EOMApp currentEditor];
-  int count;
+  NSArray *relationships;
+  int relationshipNum, i, c;
 
   if (![_editors containsObject:currentEditor])
     {
@@ -339,35 +426,123 @@ showOnSuccess:(BOOL)bar;
   
   srcEntity = [[currentEditor selectionPath]
 	  		firstSelectionOfClass:[EOEntity class]];
-  count = [[srcEntity relationships] count];
+  relationships = [srcEntity relationships];
+  c = [relationships count];
+  relationshipNum = c;
+
+  /* look for the largest NNNN in relationships named "RelationshipNNNN" 
+   * or the total number of relationships in this attribute whichever is greater
+   */
+  for (i = 0; i < c; i++)
+     {
+       NSString *name = [[relationships objectAtIndex:i] name];
+
+       if ([name hasPrefix:@"Relationship"])
+         {
+           NSRange range;
+           unsigned tmp;
+
+           name = [name substringFromIndex:12];
+           range = [name rangeOfCharacterFromSet:[[NSCharacterSet decimalDigitCharacterSet] invertedSet]];
+           if (!(range.location == NSNotFound) && !(range.length == 0))
+             continue;
+           range = [name rangeOfCharacterFromSet:[NSCharacterSet decimalDigitCharacterSet]];
+           if (!(range.location == NSNotFound) && !(range.length == 0))
+             {
+                tmp = [name intValue];
+                relationshipNum = (relationshipNum < ++tmp) ? tmp : relationshipNum;
+             }
+         }
+     }
+
   newRel = [[EORelationship alloc] init];  
-  [newRel setName: count
-	  	   ? [NSString stringWithFormat:@"Relationship%i", count + 1]
+  [newRel setName: relationshipNum
+	  	   ? [NSString stringWithFormat:@"Relationship%i", relationshipNum]
 		   : @"Relationship"];
   [srcEntity addRelationship:newRel];
   [_editingContext insertObject:newRel];
-  [(EOModelerCompoundEditor *)[EOMApp currentEditor] viewSelectedObject];
+  
+  if ([[[EOMApp currentEditor] selectionWithinViewedObject] count]
+      && [[[[EOMApp currentEditor] selectionWithinViewedObject] objectAtIndex:0] isKindOfClass:[EOEntity class]])
+    [(EOModelerCompoundEditor *)[EOMApp currentEditor] viewSelectedObject];
+  [(EOModelerCompoundEditor *)[EOMApp currentEditor] setSelectionWithinViewedObject:[NSArray arrayWithObject:newRel]];
 }
+
 - (void)delete:(id)sender
 {
   NSArray *objects = [[EOMApp currentEditor] selectionWithinViewedObject];
-  unsigned i,c;
+  unsigned i,c = [objects count];
 
-  for (i = 0, c = [objects count]; i < c; i++)
+  if (c == 0)
     {
-      id object = [objects objectAtIndex:i];
+      /*
+       * if there is no selection delete the viewed object.
+       */
+      /*
+         this is commented out (until we have undo working?) to prevent
+         accidental deletion of entities
+	 see also -validateMenuItem:
+      id object;
+      
+      objects = [NSMutableArray arrayWithArray:[[EOMApp currentEditor] viewedObjectPath]];
+      object = [objects lastObject];
+
       if ([object isKindOfClass:[EOAttribute class]])
-	{
-	  [[object entity] removeAttribute:object];
-	}
+        {
+          [[object entity] removeAttribute:object];
+        }
       else if ([object isKindOfClass:[EOEntity class]])
-	{
-	  [[object model] removeEntity:object];
-	}
+        {
+          [[object model] removeEntity:object];
+        }
       else if ([object isKindOfClass:[EORelationship class]])
-	{
-	  [[object entity] removeRelationship: object];
-	}
+        {
+          [[object entity] removeRelationship: object];
+        }
+      [(NSMutableArray *)objects removeObjectAtIndex:[objects count] - 1];
+      [[EOMApp currentEditor] setViewedObjectPath: objects];
+      */
+    }
+  else 
+    {
+      for (i = 0, c = [objects count]; i < c; i++)
+        {
+          id object = [objects objectAtIndex:i];
+	  
+          if ([object isKindOfClass:[EOAttribute class]])
+ 	    {
+	      NSArray *refs;
+	      
+	      refs = [[[object entity] model] referencesToProperty:object];
+	      if (![refs count])
+		[[object entity] removeAttribute:object];
+	      else
+		{
+	          NSMutableString *str;
+		  unsigned i,c;
+		  str = [NSMutableString stringWithFormat:@"attribute is referenced by properties\n"];
+		  for (i = 0, c = [refs count]; i < c; i++)
+		    {
+		      id prop = [refs objectAtIndex:i];
+		      NSString *tmp;
+		      tmp=[NSString stringWithFormat:@"%@ in %@\n",[prop name],
+			  			[[prop entity] name]];
+		      [str appendString:tmp];
+		    }
+		  
+		  NSRunAlertPanel(@"unable to remove attribute", str, @"ok", nil, nil);
+		}
+  	    }
+          else if ([object isKindOfClass:[EOEntity class]])
+ 	    {
+	      [[object model] removeEntity:object];
+ 	    }
+          else if ([object isKindOfClass:[EORelationship class]])
+	    {
+	      [[object entity] removeRelationship: object];
+ 	    }
+        }
+      [[EOMApp currentEditor] setSelectionWithinViewedObject:[NSArray array]];
     }
 }
 - (void)addFetchSpecification:(id)sender
@@ -399,19 +574,33 @@ showOnSuccess:(BOOL)bar;
 - (void)save:(id)sender
 {
   NSString *path;
+
+  
   path = [_model path];
+  
   if (!path)
-    [self saveAs:self];
+    {
+      [self saveAs:self];
+    }
   else
-    [self saveToPath:path];
+    {
+      if ([self prepareToSave] == NO)
+        return;
+      [self saveToPath:path];
+    }
 }
 
 - (void)saveAs:(id)sender
 {
   NSString *path; 
-  id savePanel = [NSSavePanel savePanel];
-  int result = [savePanel runModal];
+  id savePanel;
+  int result;
+  
+  if ([self prepareToSave] == NO)
+    return;
 
+  savePanel = [NSSavePanel savePanel];
+  result = [savePanel runModal];
   if (result == NSOKButton)
     {
       path = [savePanel filename];
@@ -479,12 +668,10 @@ showOnSuccess:(BOOL)bar;
   [EOMApp removeDocument:self];  
 }
 
-static id consistencyChecker;
 - (void) checkConsistency:(id)sender
 {
   NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
   
-  consistencyChecker = [sender representedObject];
   [center postNotificationName:EOMCheckConsistencyBeginNotification
 	  	object:self];
   [center postNotificationName:EOMCheckConsistencyForModelNotification
@@ -494,20 +681,22 @@ static id consistencyChecker;
   [center postNotificationName:EOMCheckConsistencyEndNotification
 	  	object:self];
 
-  [consistencyChecker showConsistencyCheckResults:self 
-	  			cancelButton:NO
+  [[NSClassFromString(@"ConsistencyResults") sharedConsistencyPanel]
+	   	  showConsistencyCheckResults:self 
+	  			 cancelButton:NO
 				showOnSuccess:YES];
-  consistencyChecker = nil;  
 }
 
 - (void) appendConsistencyCheckErrorText:(NSAttributedString *)errorText
 {
-  [consistencyChecker appendConsistencyCheckErrorText:errorText];
+  [[NSClassFromString(@"ConsistencyResults") sharedConsistencyPanel]
+	  appendConsistencyCheckErrorText:errorText];
 }
 
 - (void) appendConsistencyCheckSuccessText:(NSAttributedString *)successText
 {
-  [consistencyChecker appendConsistencyCheckSuccessText:successText];
+  [[NSClassFromString(@"ConsistencyResults") sharedConsistencyPanel]
+	  appendConsistencyCheckSuccessText:successText];
 }
 
 @end

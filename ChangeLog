@@ -30,6 +30,28 @@
 	Implement.
 	(subjectChanged): Reimplement.
 	(tableViewSelectionDidChange:): Ditto.
+
+	* EOModeler/EOMInspector.h
+	* EOModeler/EOMInspector.m: Cleanups.
+	(selectedObjects): Reimplement.
+	(selectedObject): Return last viewed path if no selection was made.
+	* EOModeler/EOModelerDocument.m: Reimplement.
+	* EOModeler/EOMInspectorController.m (init): Ditto.
+	(-_selectionChanged:): Ditto.
+	(-_selectInspector:): Implement and renamed from selectInspector:.
+	* EOModeler/EOModelerEditor.h
+	* EOModeler/EOModelerEditor.m: Add documentation.
+	(-initWithDocument:): Initialize instance variable.
+	(-debugSelectionPath): Implement.
+	(-[EOModelerCompoundEditor initWithDocument:]): Remove
+	initializtation.
+	(-[EOModelerCompoundEditor selectionDidChange]): Implement.
+	(-[EOModelerCompoundEditor setSelectionPath:]): Call
+	selectionDidChange instead of sending notifcation directly.
+	(-[EOModelerCompoundEditor viewSelectedObject]): Implement.
+	(-[EOModelerEmbedibleEditor dealloc]): Implement.
+	(-[EOModelerEmbedibleEditor initWithParentEditor:]): Observe
+	EOMSelectionChangedNotification.
 	
 2006-05-09  Matt Rice  <ratmice@yahoo.com>
             David Ayers  <ayers@fsfe.org>

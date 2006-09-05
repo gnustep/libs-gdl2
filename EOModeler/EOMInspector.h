@@ -48,6 +48,11 @@
 - (void) prepareForDisplay;
 - (void) refresh;
 - (id) selectedObject;
+
+- (NSString *)displayName;
+- (float) displayOrder;
+- (NSImage *)image;
+- (NSImage *)hilightedImage;
 @end
 
 #endif // __EOMInspector_H__

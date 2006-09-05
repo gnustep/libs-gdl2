@@ -151,7 +151,6 @@ static NSMapTable *_inspectorsByClass;
 
 - (void) load
 {
-  NSLog(@"loading inspector %@",NSStringFromClass([self class]));
   if (![NSBundle loadNibNamed:NSStringFromClass([self class])
 	    owner: self])
       NSLog(@"failed to load: %@.gorm", NSStringFromClass([self class]));
@@ -189,7 +188,11 @@ static NSMapTable *_inspectorsByClass;
 
 - (NSArray *) selectedObjects
 {
-  return [[EOMApp currentEditor] selectionWithinViewedObject]; 
+  NSArray *sel = [[EOMApp currentEditor] selectionWithinViewedObject];
+  if (![sel count])
+    sel = [NSArray arrayWithObject: 
+	    	[[[EOMApp currentEditor] viewedObjectPath] lastObject]];
+  return sel;
 }
 
 - (id) selectedObject
@@ -198,8 +201,8 @@ static NSMapTable *_inspectorsByClass;
   
   if ([selection count])
     return [selection objectAtIndex:0];
-  
-  return nil;
+  else
+    return [[[EOMApp currentEditor] viewedObjectPath] lastObject]; 
 }
 
 - (BOOL) isAdvanced

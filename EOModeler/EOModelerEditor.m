@@ -25,17 +25,20 @@
   </license>
 **/
 
-#include <Foundation/NSArray.h>
-#include <Foundation/NSObject.h>
 
 #include "EOModeler/EOModelerEditor.h"
 #include "EOModeler/EOModelerDocument.h"
 #include "EOModeler/EOModelerApp.h"
 
-#include <Foundation/NSNotification.h>
-#include <Foundation/NSException.h>
+#include <EOControl/EOObserver.h>
 
 #include <AppKit/NSView.h>
+
+#include <Foundation/NSArray.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSObject.h>
+#include <Foundation/NSRunLoop.h>
 
 @implementation EOModelerEditor
 - (void) dealloc
@@ -48,6 +51,7 @@
   if ((self = [super init]))
     {
       _document = document;
+      _selectionWithinViewedObject = [NSArray new];
     }
   return self;
 }
@@ -57,46 +61,75 @@
   return _document; 
 }
 
+/** Subclassses should implement, by default throws an exception */
 - (void)setSelectionPath:(NSArray *)newSelection
 {
   [self subclassResponsibility: _cmd];
 }
 
+/** Subclassses should implement, by default throws an exception */
 - (NSArray *)selectionPath
 {
   [self subclassResponsibility: _cmd];
   return nil;
 }
 
+/** Subclassses should implement, by default throws an exception */
 - (void)activate
 {
   [self subclassResponsibility: _cmd];
 }
 
+/** Subclassses should implement, by default throws an exception */
 - (NSArray *)selectionWithinViewedObject
 {
+  [self subclassResponsibility: _cmd];
   return [NSArray array];
 }
 
+/** Subclassses should implement, by default throws an exception */
 - (void)setSelectionWithinViewedObject:(NSArray *)newSelection
 {
   [self subclassResponsibility: _cmd];
 }
 
+/** Subclassses should implement, by default throws an exception */
 - (void)setViewedObjectPath:(NSArray *)newPath
 {
   [self subclassResponsibility: _cmd];
 }
 
+/** Subclassses should implement, by default throws an exception */
 - (NSArray *)viewedObjectPath
 {
   [self subclassResponsibility: _cmd];
   return nil;
 }
 
+- (void) debugSelectionPath
+{
+  int i,j;
+  NSArray *_selectionPath = [self selectionPath];
+  for (i = 0; i < [_selectionPath count]; i++)
+    {
+      id obj = [_selectionPath objectAtIndex:i];
+
+      if (![obj isKindOfClass:[NSArray class]])
+      NSLog(@"%i %@(%@)", i, [obj class], [obj name]);
+      else
+    	{
+	  for (j = 0; j < [obj count]; j++)
+	     {
+		id obj2 = [obj objectAtIndex:j];
+		NSLog(@"* %i %@(%@)", j, [obj2 class], [obj2 name]);
+	     }
+	}
+    }
+  printf("\n\n");
+}
 @end
 
-@implementation EOModelerCompoundEditor
+@implementation EOModelerCompoundEditor 
 - (void) dealloc
 {
   RELEASE(_editors);
@@ -110,8 +143,14 @@
   _editors = [[NSMutableArray alloc] init];
   _activeEditor = nil;
   _viewedObjectPath = [[NSArray alloc] initWithObjects:[doc model], nil];
-  _selectionWithinViewedObject = [NSArray new];
   return self;
+}
+
+- (void) selectionDidChange
+{
+  [[NSNotificationCenter defaultCenter]
+	 postNotificationName:EOMSelectionChangedNotification
+                       object:_document];
 }
 
 - (EOModelerEmbedibleEditor *)activeEditor
@@ -186,15 +225,15 @@
 }
 
 
-/* setting the selection */
-
+/** <p>Compound editors subclass this to send an EOMSelectionChangeNotification and manage
+    the selection arrays.</p> */
 - (void)setSelectionPath:(NSArray *)newSelection
 {
   unsigned int indexOfLast = [newSelection indexOfObject:[newSelection lastObject]];
   NSRange allButLastElement;
-/*  int i,j;
+/* 
+  int i,j;
 
-  
   printf("%@\n",NSStringFromSelector(_cmd));  
   for (i = 0; i < [newSelection count]; i++)
     {
@@ -210,13 +249,13 @@
         printf("%@\n", [[newSelection objectAtIndex:i] class]);
       
     }
-*/     
+ */
+
   if (indexOfLast != NSNotFound || indexOfLast != 1)
     {
-      
       allButLastElement.location = 0;
       allButLastElement.length = indexOfLast;
-       
+      
       ASSIGN(_viewedObjectPath, [newSelection subarrayWithRange:allButLastElement]);
       ASSIGN(_selectionWithinViewedObject, [newSelection lastObject]);
     }
@@ -226,14 +265,15 @@
       ASSIGN(_viewedObjectPath, [NSArray array]);
       ASSIGN(_selectionWithinViewedObject, [NSArray array]); 
     }
-  
-  [[NSNotificationCenter defaultCenter] postNotificationName:EOMSelectionChangedNotification
-	  				object:nil];
+
+  [self selectionDidChange];
 }
 
+/** <p>Compound editors subclass this to send an EOMSelectionChangeNotification and manage
+    the selection arrays.</p> */
 - (void) setSelectionWithinViewedObject:(NSArray *) newSelection
 {
- /*
+/* 
   int i,j;
   printf("%@\n",NSStringFromSelector(_cmd));  
   for (i = 0; i < [newSelection count]; i++)
@@ -248,16 +288,19 @@
 	}
       else 
         printf("%@\n", [[newSelection objectAtIndex:i] class]);
-    } */
+    } 
+ */ 
   ASSIGN(_selectionWithinViewedObject, newSelection);
-  [[NSNotificationCenter defaultCenter] postNotificationName:EOMSelectionChangedNotification
-	  				object:nil];
+  [self selectionDidChange];
 }
 
+/** <p>Compound editors subclass this to send an EOMSelectionChangeNotification and manage
+    the selection arrays.</p> */
 - (void) setViewedObjectPath:(NSArray *)newPath
 {
-  /*
-   int i,j;
+ /* 
+  int i,j;
+
   printf("%@\n",NSStringFromSelector(_cmd));  
   for (i = 0; i < [newPath count]; i++)
     {
@@ -272,10 +315,9 @@
       else 
         printf("%@\n", [[newPath objectAtIndex:i] class]);
     }
-  */
+ */ 
   ASSIGN(_viewedObjectPath, newPath);
-  [[NSNotificationCenter defaultCenter] postNotificationName:EOMSelectionChangedNotification
-	  				object:nil];
+  [self selectionDidChange];
 }
 
 - (void)setStoredProceduresSelected:(BOOL)selected
@@ -296,15 +338,14 @@
 
 - (void)viewSelectedObject
 {
-/*
   if (![_selectionWithinViewedObject count])
     return;
+
   {
     id object = [_selectionWithinViewedObject objectAtIndex:0];
     [self setSelectionPath: [[_viewedObjectPath arrayByAddingObject: object]
 	    				arrayByAddingObject:[NSArray array]]];
   }
-*/
 }
 
 - (void) activate
@@ -315,12 +356,20 @@
 @end
 
 @implementation EOModelerEmbedibleEditor 
-
+- (void) dealloc
+{
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 - (EOModelerEmbedibleEditor *) initWithParentEditor:(EOModelerCompoundEditor *)parentEditor
 {
   if ((self = [super initWithDocument: [parentEditor document]]))
   {
     _parentEditor = parentEditor;
+    [[NSNotificationCenter defaultCenter]
+	    addObserver:self
+	    selector:@selector(selectionDidChange:)
+	    name:EOMSelectionChangedNotification
+	    object:[self document]];
   }
   return self;
 }
@@ -366,33 +415,49 @@
   [self subclassResponsibility: _cmd];
 }
 
-/* getting the selection */
+/** Returns the selection path from the parent editor */
 - (NSArray *)selectionPath
 {
   return [[self parentEditor] selectionPath]; 
 }
 
+/** Returns the viewed object path from the parent editor */
 - (NSArray *) viewedObjectPath
 {
   return [[self parentEditor] viewedObjectPath];
 }
+
+/** Returns the selection within the viewed object from the parent editor */
 - (NSArray *)selectionWithinViewedObject
 {
   return [[self parentEditor] selectionWithinViewedObject];
 }
 
-
-/* setting the selection */
-
+/** Forwarded to the parent editor.
+  * This method is not called by the parent editor.
+  * to update the selection when its changed in the parent editor,
+  * register for EOMSelectionDidChangeNotification.
+  */
 - (void)setSelectionPath:(NSArray *)newSelection
 {
   [[self parentEditor] setSelectionPath: newSelection];
 }
+
+/** Forwarded to the parent editor.
+  * This method is not called by the parent editor.
+  * to update the selection when its changed in the parent editor,
+  * register for EOMSelectionDidChangeNotification.
+  */
 - (void) setSelectionWithinViewedObject:(NSArray *) newSelection
 {
   [[self parentEditor] setSelectionWithinViewedObject: newSelection];
 }
 
+/** Forwarded to the parent editor.
+  * This method is not called by the parent editor.
+  * to update the selection when its changed in the parent editor,
+  * register for EOMSelectionDidChangeNotification.
+  */
 - (void) setViewedObjectPath:(NSArray *)newPath
 {
   [[self parentEditor] setViewedObjectPath: newPath];

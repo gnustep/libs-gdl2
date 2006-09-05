@@ -32,7 +32,7 @@
 @class EOModelerEmbedibleEditor;
 @class NSView;
 @class NSMutableArray;
-
+@class NSNotification;
 @interface EOModelerEditor : NSObject
 {
   EOModelerDocument *_document;
@@ -71,6 +71,8 @@
 - (NSView *)mainView;
 - (BOOL) canSupportCurrentSelection;
 - (NSArray *)friendEditorClasses;
+- (EOModelerCompoundEditor *) parentEditor;
+- (void) selectionDidChange:(NSNotification *)notif;
 @end
 
 #endif // __EOModelerEditor_H__

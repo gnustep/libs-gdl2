@@ -30,10 +30,11 @@
 #include <EOModeler/EOMInspectorController.h>
 #include <EOModeler/EOModelerEditor.h>
 
-#include <AppKit/NSWindow.h>
-#include <AppKit/NSScrollView.h>
 #include <AppKit/NSBox.h>
 #include <AppKit/NSButtonCell.h>
+#include <AppKit/NSMatrix.h>
+#include <AppKit/NSScrollView.h>
+#include <AppKit/NSPanel.h>
 
 #include <Foundation/NSNotification.h>
 #include <Foundation/NSException.h>
@@ -41,28 +42,55 @@
 
 static EOMInspectorController *_sharedInspectorController;
 
-static NSBox *_placeHolderView;
+static NSMatrix *_iconBar;
+
 @interface EOMInspectorController(Private)
 - (void) _selectionChanged:(NSNotification *)notif;
 @end
+
 @implementation EOMInspectorController
 
 - (id) init
 {
+  NSButtonCell *iconCell;
+  NSSize scrollSize;
+
   if (_sharedInspectorController)
     [[NSException exceptionWithName: NSInternalInconsistencyException
 	    reason: @"EOMInspectorController is a singleton"
 	    userInfo:nil] raise];
   self = [super init];
-  window = [[NSWindow alloc] initWithContentRect:NSMakeRect(220, 536, 272, 388)
+  scrollSize = [NSScrollView frameSizeForContentSize:NSMakeSize(256, 64)
+	  			hasHorizontalScroller:YES
+				hasVerticalScroller:NO
+				borderType:NSNoBorder];
+  window = [[NSPanel alloc] initWithContentRect:NSMakeRect(220, 536, 272, 388+scrollSize.height)
 			     styleMask:NSTitledWindowMask | NSClosableWindowMask
 			     backing:NSBackingStoreBuffered
 			     defer:YES];
   [window setReleasedWhenClosed:NO];
-  scrollView = [[NSScrollView alloc] initWithFrame: NSMakeRect(0, 0, 250, 68)];
-  _placeHolderView = [[NSBox alloc] initWithFrame:NSMakeRect(0,68,250,333)];
-
-  [_placeHolderView setBorderType:NSNoBorder];
+  
+  scrollView = [[NSScrollView alloc] initWithFrame: NSMakeRect(0, 388, 272, scrollSize.height)];
+  scrollSize = [NSScrollView contentSizeForFrameSize:NSMakeSize(256,64)
+	  			hasHorizontalScroller:YES
+				hasVerticalScroller:NO
+				borderType:NSNoBorder];
+  
+  [scrollView setHasHorizontalScroller:YES];
+  [scrollView setHasVerticalScroller:NO];
+  _iconBar = [[NSMatrix alloc] initWithFrame:NSMakeRect(0, 0, 272, scrollSize.height)];
+  [_iconBar setAutosizesCells:NO];
+  [_iconBar setCellSize:NSMakeSize(64,64)];
+  [_iconBar setTarget:self];
+  [_iconBar setAction:@selector(_selectInspector:)];
+  iconCell = [[NSButtonCell alloc] initTextCell:@""];
+  [iconCell setButtonType:NSMomentaryPushInButton]; 
+  [iconCell setImagePosition:NSImageOnly];
+  [_iconBar setPrototype:iconCell];
+  [scrollView setDocumentView: _iconBar];
+  
+  [[window contentView] addSubview: scrollView];
+  
   _sharedInspectorController = self;
   
   [[NSNotificationCenter defaultCenter]
@@ -71,7 +99,6 @@ static NSBox *_placeHolderView;
      name:EOMSelectionChangedNotification
      object:nil];
     
-  [[window contentView] addSubview: scrollView];
   return self;
 }
 
@@ -96,24 +123,56 @@ static NSBox *_placeHolderView;
 
 - (void) _selectionChanged:(NSNotification *)notif
 {
-  /* load the highest ordered inspector for the new selection
-   * if the current inspector can support the object, select it instead. */
-  NSArray *selection = [[EOMApp currentEditor] selectionWithinViewedObject];
+  NSArray *swvop = [[EOMApp currentEditor] selectionWithinViewedObject];
   id inspector;
+  
 
-  if ([selection count])
+  if ([swvop count])
     {
-      NSArray *inspectors =  [EOMInspector allInspectorsThatCanInspectObject: [selection objectAtIndex:0]];
+      /* inspectors is ordered in the lowest -displayOrder first. */
+      id selection = [swvop objectAtIndex:0];
+      NSArray *inspectors;
+      int i, c;
 
-      if ([inspectors count])
+      inspectors = [EOMInspector allInspectorsThatCanInspectObject: selection];
+      c = [inspectors count];
+      [_iconBar renewRows:1 columns:c];
+      [_iconBar setNeedsDisplay:YES];
+
+      if (c)
 	{
-          inspector = [inspectors objectAtIndex:0];
-	  [inspector prepareForDisplay];
-	  if ([lastInspector view])
-	    [[window contentView] removeSubview:[lastInspector view]];
+	  for (i = 0; i < c; i++)
+	    {
+	      NSCell *aCell = [_iconBar cellAtRow:0 column:i];
+	      inspector = [inspectors objectAtIndex:i];
+	      
+	      [aCell setImage:[inspector image]];
+	      [aCell setRepresentedObject:inspector];
+	    }
+	  
+	  [_iconBar setNeedsDisplay:YES];
+          
+	  /* if the current inspector can support the object,
+	     select it instead.  Otherwise select the first inspector.
+	   */
+	  if ([inspectors containsObject:lastInspector])
+	    {
+	      inspector = lastInspector;
+	      [inspector prepareForDisplay];
+	    }
+	  else
+	    {
+              inspector = [inspectors objectAtIndex:0];
+	      [inspector prepareForDisplay];
+	  
+	      if ([lastInspector view] && lastInspector != inspector)
+	        [[window contentView] removeSubview:[lastInspector view]];
 
-	  if ([inspector view])
-	    [[window contentView] addSubview:[inspector view]];
+	      if ([inspector view] && lastInspector != inspector)
+	        [[window contentView] addSubview:[inspector view]];
+
+	      [window setTitle:[inspector displayName]];
+	    }
 	  
 	  [[inspector view] setNeedsDisplay:YES];
 	  [inspector refresh];
@@ -132,9 +191,22 @@ static NSBox *_placeHolderView;
     }
 }
 
-- (void) selectInspector:(id)sender
+- (void) _selectInspector:(id)sender
 {
+  EOMInspector *inspector = [[sender selectedCell] representedObject];
+
+  [inspector prepareForDisplay];
   
+  if ([lastInspector view] && lastInspector != inspector)
+    [[window contentView] removeSubview:[lastInspector view]];
+
+  if ([inspector view] && lastInspector != inspector)
+    [[window contentView] addSubview:[inspector view]];
+	  
+  [[inspector view] setNeedsDisplay:YES];
+  [inspector refresh];
+    
+  lastInspector = inspector;
 }
 
 @end
