@@ -5,12 +5,12 @@
 
 - (NSArray *) arrayWithObjectsRespondingYesToSelector:(SEL)selector;
 {
-  int i,c;
+  int i,c = [self count];
   BOOL (*sel_imp)(id, SEL, ...);
-  NSMutableArray *arr = [[NSMutableArray alloc] init];
+  NSMutableArray *arr = [NSMutableArray arrayWithCapacity: c];
   BOOL flag;
   
-  for (i = 0, c = [self count]; i < c; i++)
+  for (i = 0; i < c; i++)
     {
       id obj = [self objectAtIndex:i];
 
@@ -29,14 +29,14 @@
 }
 
 - (NSArray *) arrayWithObjectsRespondingYesToSelector:(SEL)selector
-withObject:(id)argument;
+					   withObject:(id)argument;
 {
-  int i,c;
+  int i,c = [self count];
   BOOL (*sel_imp)(id, SEL, ...);
-  NSMutableArray *arr = [[NSMutableArray alloc] init];
+  NSMutableArray *arr = [NSMutableArray arrayWithCapacity: c];
   BOOL flag;
   
-  for (i = 0, c = [self count]; i < c; i++)
+  for (i = 0; i < c; i++)
     {
       id obj = [self objectAtIndex:i];
 
@@ -60,7 +60,6 @@ withObject:(id)argument;
 - (BOOL) isKindOfClasses:(NSArray *)classes
 {
   int i,c;
-  BOOL flag;
 
   for (i = 0, c = [classes count]; i < c; i++)
     {

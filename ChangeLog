@@ -100,6 +100,31 @@
 	* DBModeler/Resources/Locking_On.tiff: Ditto.
 	* DBModeler/Resources/Key_On.tiff: Ditto.
 	* DBModeler/GNUmakefile: Add new files.
+
+	* GDL2Palette/KeyWrapper.h: New file.
+	* GDL2Palette/KeyWrapper.m: Ditto.
+	* GDL2Palette/ConnectionInspector.h
+	* GDL2Palette/ConnectionInspector.m (init): Initialize _values.
+	(-awakeFromNib): Update handling of horizontal scroller.
+	(-_associationClassesUsableWithObject:): Implement.
+	(-setObject:): Fix assignment issues.
+	(-_keysFromClassDescription:): Implement.
+	(-_keysFromArray:): Ditto.
+	(-updateValues): Reimplement.
+	(-_oaBrowserAction:): Ditto.
+	(-browser:numberOfRowsInColumn:): Refine implementation.
+	(-browser:willDisplayCell:atRow:column:): Reimplement.
+	(-ok:): Update associations in active document.
+	* GDL2Palette/ResourceManager.m (defaultEditingContext): Try to find
+	defaultEditingContext in document objects.
+	(addResourcesFromPasteboard:): Reimplement.
+	* GDL2Palette/Foundation+Categories.m:
+	(arrayWithObjectsRespondingYesToSelector:): Fix leak.
+	(arrayWithObjectsRespondingYesToSelector:withObject:): Ditto.
+	* GDL2Palette/GNUmakefile: Use PALETTE_LIBS instead of
+	ADDITIONAL_LDFLAGS to link libraries.  Add new files.
+	* GDL2Palette/GDL2Palette.tiff: New file.
+	* GDL2Palette/GDL2ConnectionInspector.gorm: New files.
 	
 2006-05-09  Matt Rice  <ratmice@yahoo.com>
             David Ayers  <ayers@fsfe.org>

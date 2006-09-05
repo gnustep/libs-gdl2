@@ -1,6 +1,7 @@
 #include <InterfaceBuilder/IBInspector.h>
 @class NSBrowser;
 @class NSPopUpButton;
+@class EOAssociation;
 
 @interface GDL2ConnectionInspector : IBInspector
 {
@@ -10,11 +11,12 @@
 
   NSArray *_keys;
   NSArray *_signatures;
-  NSArray *_values;
+  NSMutableArray *_values;
   NSMutableArray *_connectors;
   
   NSNibConnector *_currentConnector;
-
+  
+  EOAssociation *_association;
 }
 
 - (void) updateKeys;

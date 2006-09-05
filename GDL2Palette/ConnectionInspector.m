@@ -3,6 +3,9 @@
 
 #include <EOAccess/EODatabaseDataSource.h>
 
+#include <EOControl/EODetailDataSource.h>
+#include <EOControl/EOClassDescription.h>
+
 #include <AppKit/NSBrowser.h>
 #include <AppKit/NSButton.h>
 #include <AppKit/NSNibLoading.h>
@@ -15,16 +18,24 @@
 #include <EOModeler/EOModelExtensions.h>
 
 #include <Foundation/NSArray.h>
-
+#include <Foundation/NSNull.h>
+#include <Foundation/NSObject.h>
+#include <Foundation/NSCharacterSet.h>
 #include <GormCore/GormClassManager.h>
 #include <GormCore/GormDocument.h>
 
 #include <InterfaceBuilder/IBApplicationAdditions.h>
+
+#include "KeyWrapper.h"
+
+@interface GDL2ConnectionInspector (Private)
+- (NSArray *) _associationClassesUsableWithObject:(id)anObject;
+@end
+
 /* TODO get notifications for IB{Will,Did}RemoveConnectorNotification
  * and remove the object from the _objectToAssociation map table if
  * there are no more connectors for it */
 static NSMapTable *_objectToAssociation;
-
 @interface NSApplication(missingStuff)
 - (GormClassManager *)classManager;
 @end
@@ -33,8 +44,8 @@ static NSMapTable *_objectToAssociation;
 + (void) initialize
 {
   _objectToAssociation = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks,
-		  				    NSObjectMapValueCallBacks,
-		  	   			    0, [self zone]); 
+	 					  NSObjectMapValueCallBacks,
+		  	   			  0, [self zone]); 
 }
 
 - (NSButton *)okButton
@@ -45,7 +56,7 @@ static NSMapTable *_objectToAssociation;
 - (id) init
 {
   self = [super init];
-
+  _values = [[NSMutableArray alloc] init];
   [NSBundle loadNibNamed:@"GDL2ConnectionInspector" owner:self];
   return self;
 }
@@ -54,21 +65,53 @@ static NSMapTable *_objectToAssociation;
 {
   [oaBrowser setMaxVisibleColumns:2];
   [oaBrowser setAllowsMultipleSelection:NO];
-  [oaBrowser setHasHorizontalScroller:NO];
   [oaBrowser setTitled:NO];
+  [oaBrowser setPathSeparator:@"."];
 
   [connectionsBrowser setTitled:NO];
   [connectionsBrowser setHasHorizontalScroller:NO];
   [connectionsBrowser setMaxVisibleColumns:1];
   [connectionsBrowser setAllowsMultipleSelection:NO];
+  /* doubt if this is neccessary but why not */
+  [connectionsBrowser setPathSeparator:@"."];
   
   [popUp removeAllItems];
+}
 
+/* for populating the associations pop-up */
+- (NSArray *) _associationClassesUsableWithObject:(id)anObject
+{
+  NSMutableArray *usable;
+  NSMutableSet *superseded;
+  NSArray *allSuperseded;
+  int i,c; 
+  
+  usable = [[NSMutableArray alloc] init];
+  superseded = [[NSMutableSet alloc] init];
+  [usable addObjectsFromArray:[EOAssociation
+	  	associationClassesForObject:anObject]];
+  /* get all supserseded associations */
+  for (i = 0, c = [usable count]; i < c; i++)
+    {
+      id assocClass = [usable objectAtIndex:i];
+      [superseded addObjectsFromArray:
+	      	[assocClass associationClassesSuperseded]];
+    }
+  /* remove all superseded (even superseded associations superseded ones) */ 
+  allSuperseded = [superseded allObjects];
+  for (i = 0, c = [allSuperseded count]; i < c; i++)
+    {
+      id assocClass = [allSuperseded objectAtIndex:i];
+      [usable removeObject:assocClass];
+    }
+  RELEASE(superseded);
+
+  return AUTORELEASE(usable);
 }
 
 - (void) setObject:(id)anObject
 {
-  NSArray *foo;
+  id associationClasses;
   int i,c; 
    
   [super setObject:anObject];
@@ -86,20 +129,18 @@ static NSMapTable *_objectToAssociation;
 					      [EOAspectConnector class],
 					      nil]]];
 
-  DESTROY(_values);
+  [_values removeAllObjects];
   [self updateKeys];  
   [popUp removeAllItems];
   [popUp addItemWithTitle:@"Outlets"];
-  
-  foo = RETAIN([EOAssociation associationClassesForObject:anObject]);
-  for (i = 0, c = [foo count]; i < c; i++)
+  associationClasses = [self _associationClassesUsableWithObject:anObject];
+  for (i = 0, c = [associationClasses count]; i < c; i++)
     {
-      Class assocSubclass = [foo objectAtIndex:i];
+      Class assocSubclass = [associationClasses objectAtIndex:i];
       NSString *title = [assocSubclass displayName];
       [popUp addItemWithTitle:title];
       [[popUp itemWithTitle:title] setRepresentedObject:assocSubclass];
     }
-  RELEASE(foo);
   [connectionsBrowser reloadColumn:0];
   [oaBrowser loadColumnZero];
   [self updateButtons];
@@ -122,6 +163,7 @@ static NSMapTable *_objectToAssociation;
   /* outlets.. */
   if (repObj == nil)
     {
+      /* gorm specific... but couldn't find a public standard api replacement */
       _keys = RETAIN([[NSApp classManager] allOutletsForObject:object]);
       _signatures = nil;
     }
@@ -132,39 +174,67 @@ static NSMapTable *_objectToAssociation;
     }
 }
 
+- (NSArray *)_keysFromClassDescription:(EOClassDescription *)classDesc
+{
+  NSMutableArray *ret = [[NSMutableArray alloc] init];
+  unsigned i, c, j;
+  
+  for (i = 0; i < 3; i++)
+    {
+      int type;
+      NSArray *tmp;
+
+      switch(i)
+        {
+	  case 0:
+	    tmp  = [classDesc attributeKeys];
+            type = AttributeType;
+  	  break;
+	  case 1:
+            type = ToManyRelationshipType;
+            tmp = [classDesc toManyRelationshipKeys];
+	  break;
+	  case 2:
+            type = ToOneRelationshipType;
+            tmp = [classDesc toOneRelationshipKeys];
+	  break;
+        }
+      
+      for (j = 0, c = [tmp count]; j < c; j++)
+        {
+          id obj = [tmp objectAtIndex:j];
+          id key = [KeyWrapper wrapperWithKey:obj type:type];
+	  [ret addObject:key];
+        }
+    }
+  return AUTORELEASE(ret);
+}
+
+/* for normal outlets/actions */
+- (NSArray *) _keysFromArray:(NSArray *)arr
+{
+  NSMutableArray *ret = [[NSMutableArray alloc] init];
+  int i, c;
+  for (i = 0, c = [arr count]; i < c; i++)
+     [ret addObject:[KeyWrapper wrapperWithKey:[arr objectAtIndex:i]
+	     				  type:OtherType]];	 
+  return AUTORELEASE(ret);
+}
+	
 - (void) updateValues
 {
-  id dest = [NSApp connectDestination];
-  int selection = [oaBrowser selectedRowInColumn:0];
-  NSString *sig = [_signatures objectAtIndex:selection];
-  NSMutableArray *objs = [NSMutableArray new];
-  EOEntity *ent = nil;
+  EODisplayGroup *dest = (EODisplayGroup *)[NSApp connectDestination];
+  EODataSource *ds = [dest dataSource];
   
-  sig = [sig uppercaseString];
+  [_values removeAllObjects];  
   if ([dest isKindOfClass:[EODisplayGroup class]])
-    ent = [(EODatabaseDataSource *)[(EODisplayGroup *)dest dataSource] entity];
-  if ([sig length] && ent)
     {
-      int i,c;
-      for (i = 0, c = [sig length]; i < c; i++)
-         {
-           switch ([sig characterAtIndex:i])
-             {
-               case 'A':
-                 [objs addObjectsFromArray: [ent classAttributes]];
-                 break;
-               case '1':
-                 [objs addObjectsFromArray: [ent classToOneRelationships]];
-                 break;
-               case 'M':
-		 [objs addObjectsFromArray: [ent classToManyRelationships]];
-                 break;
-             }
-         }
-     }
-  RELEASE(_values);
-  _values = objs;
-             
+      if ([ds isKindOfClass:[EODataSource class]])
+        {
+	  id cd = [ds classDescriptionForObjects];
+	  [_values addObjectsFromArray:[self _keysFromClassDescription:cd]];
+        }
+    }
 }
 
 - (void) _selectAction:(NSString*)label
@@ -179,14 +249,13 @@ static NSMapTable *_objectToAssociation;
   unsigned i,c;
   NSNibConnector *conn;
 
-  switch ([sender selectedColumn])
+  if ([sender selectedColumn] == 0)
     {
-      case 0:
-	{
 	  id dest;
-	  
+	  /* not an association */	  
 	  if ([[popUp selectedItem] representedObject]  == nil)
 	    {
+	      /* browsing actions */
 	      if ([[[sender selectedCell] stringValue] isEqual:@"target"])
 	        {
 		  NSArray *controlConnectors;
@@ -197,31 +266,41 @@ static NSMapTable *_objectToAssociation;
 	 	 	   : nil;
 	          dest = c ? [conn destination]
 			   : [NSApp connectDestination];
-	          RELEASE(_values);
-	          _values = RETAIN([[NSApp classManager] allActionsForObject: dest]);
+		  
+		  [_values removeAllObjects];
+		  
+	          /* gorm specific...
+		   * but couldn't find a public standard api replacement
+		   * for allActionsForObject
+		   */
+	          [_values addObjectsFromArray:[self _keysFromArray:[[NSApp classManager]
+			  			   allActionsForObject: dest]]];
 	          if ([_values count] > 0)
 	            {
 	              conn = [NSNibControlConnector new];
 		      [conn setSource: object];
 		      [conn setDestination: [NSApp connectDestination]];
-		      [conn setLabel: [_values objectAtIndex:0]];
+		      [conn setLabel: [[_values objectAtIndex:0] key]];
 		      AUTORELEASE(conn);
 		    }
 	          if (_currentConnector != conn)
 		    ASSIGN(_currentConnector, conn);
 	          [self _selectAction: [conn label]];
 	        }
-	      else
+	      else /* browsing outlets */
 	        {
 	          BOOL found = NO;
 	          NSString *title = [[sender selectedCell] stringValue];
-		  NSArray *outletConnectors;
+		  NSArray *oConns;
 		  
-		  outletConnectors = [_connectors arrayWithObjectsRespondingYesToSelector:@selector(isKindOfClass:)
+		  oConns = [_connectors
+				arrayWithObjectsRespondingYesToSelector:
+						       @selector(isKindOfClass:)
 			  	withObject:[NSNibOutletConnector class]];
-		  for (i = 0, c = [outletConnectors count]; i < c; i++)
+		  
+		  for (i = 0, c = [oConns count]; i < c; i++)
 		    {
-		      conn = [outletConnectors objectAtIndex:i];
+		      conn = [oConns objectAtIndex:i];
 		      if ([conn label] == nil || [[conn label] isEqual:title])
 		        {
 		          found = YES;
@@ -247,21 +326,24 @@ static NSMapTable *_objectToAssociation;
 	      [self updateValues];
 	      [oaBrowser reloadColumn:1];
 	    }
-	}
-	break;
-      case 1:
+	  [okButton setEnabled:YES];
+    }
+  else
+    {
       if ([[popUp selectedItem] representedObject]  == nil)
  	{
 	  BOOL found = NO;
 	  NSString *title = [[sender selectedCell] stringValue];
-	  NSArray *controlConnectors;
+	  NSArray *cConns;
 
-	  controlConnectors = [_connectors arrayWithObjectsRespondingYesToSelector:@selector(isKindOfClass:)
+	  cConns = [_connectors 
+		  	arrayWithObjectsRespondingYesToSelector:
+						@selector(isKindOfClass:)
 			  	withObject:[NSNibControlConnector class]];
 	   
-	  for (i = 0, c = [controlConnectors count]; i < c; i++)
+	  for (i = 0, c = [cConns count]; i < c; i++)
 	    {
-	      NSNibConnector *con = [controlConnectors objectAtIndex:i];
+	      NSNibConnector *con = [cConns objectAtIndex:i];
 	      NSString *action = [con label];
 	      if ([action isEqual:title])
 		{
@@ -285,10 +367,19 @@ static NSMapTable *_objectToAssociation;
 	{
 	  BOOL found = NO;
 	  NSString *aspectName = [[sender selectedCellInColumn:0] stringValue];
-	  NSString *key = [[sender selectedCell] stringValue];
-	  NSString *label = [NSString stringWithFormat:@"%@ - %@", aspectName, key];
+	  NSString *key;
+	  NSCharacterSet *dotCharSet;
+	  NSString *prefix = [NSString stringWithFormat:@"%@.", aspectName];
+	  NSString *label;
 	  NSArray *aspectConnectors;
-
+	  
+	  /* turn ".aspectName.foo.bar.baz." into "foo.bar.baz" */
+	  dotCharSet = [NSCharacterSet characterSetWithCharactersInString:@"."];
+	  key = [[[sender path] stringByTrimmingCharactersInSet:dotCharSet]
+		   stringByDeletingPrefix:prefix];
+	  /* "aspectName - foo.bar.baz" */
+	  label = [NSString stringWithFormat:@"%@ - %@", aspectName, key];
+	
 	  aspectConnectors = [_connectors arrayWithObjectsRespondingYesToSelector:@selector(isKindOfClass:)
 			  	withObject:[EOAspectConnector class]];
 	  for (i = 0, c = [aspectConnectors count]; i < c; i++)
@@ -301,33 +392,75 @@ static NSMapTable *_objectToAssociation;
 		   break;
 		 }
 	     }
+
 	  if (!found)
 	    {
-	      EOAssociation *assoc;
-
-	      assoc = NSMapGet(_objectToAssociation, object);
-	      
-	      if (!assoc)
+	      ASSIGN(_association,NSMapGet(_objectToAssociation, object));
+	      if (!_association)
 	        {
   		  Class assocClass = [[popUp selectedItem] representedObject];
-		  assoc = [[assocClass alloc] initWithObject:object];
-		  NSMapInsert(_objectToAssociation, object, assoc);
+		  _association = [[assocClass alloc] initWithObject:object];
+	          /* this shouldn't happen until ok:. */
 		}
 	      
-	      [assoc bindAspect:aspectName
+	      [_association bindAspect:aspectName
 		   displayGroup:[NSApp connectDestination]
 		   	    key:key];
 
 	      RELEASE(_currentConnector);
 	      _currentConnector = [[EOAspectConnector alloc] 
-		      			initWithAssociation:assoc
+		      			initWithAssociation:_association
 						 aspectName:aspectName];
 	      [_currentConnector setSource:object];
 	      [_currentConnector setDestination: [NSApp connectDestination]];
 	      [_currentConnector setLabel:label];
 	    }
+	  /* fixme {'s and identation */
+	    {
+              int i;
+              NSArray *vals = _values;
+              EODisplayGroup *dest;
+              EODataSource *ds;
+              EOClassDescription *classDesc;
+              id val;
+              KeyType type;
+              int wantsTypes = 0;
+	      int column = [oaBrowser selectedColumn];
+	      int row = [oaBrowser selectedRowInColumn:column];
+	      int zeroRow = [oaBrowser selectedRowInColumn:0];
+              NSString *sig = [[_signatures objectAtIndex:zeroRow]
+                                                  uppercaseString];
+              dest = (EODisplayGroup *)[NSApp connectDestination];
+              ds = [dest dataSource];
+              classDesc = [ds classDescriptionForObjects];
+
+
+              for (i = 1; i < column; i++)
+                {
+                  int aRow = [sender selectedRowInColumn:i];
+                  val = [vals objectAtIndex:aRow];
+
+                  if ([val keyType] != AttributeType)
+                    {
+                      classDesc =
+                      [classDesc classDescriptionForDestinationKey:[val key]];
+                      vals = [self _keysFromClassDescription:classDesc];
+                    }
+                }
+                val = [vals objectAtIndex:row];
+                type = [val keyType];
+                for (i = 0; i < [sig length]; i++)
+                  {
+                    switch ([sig characterAtIndex:i])
+                      {
+                        case 'A': wantsTypes |= AttributeType; break;
+                        case '1': wantsTypes |= ToOneRelationshipType; break;
+                        case 'M': wantsTypes |= ToManyRelationshipType; break;
+                      }
+                  }
+		[okButton setEnabled:(wantsTypes & type)];
+	    }
 	}
-	break;
     }
   [self updateButtons];
 }
@@ -336,14 +469,14 @@ static NSMapTable *_objectToAssociation;
 {
   NSString *path;
   NSString *name = [[(id <IB>)NSApp activeDocument] nameForObject:[_currentConnector destination]];
-  path = [@"/" stringByAppendingString:[_currentConnector label]];
+  path = [@"." stringByAppendingString:[_currentConnector label]];
   path = [path stringByAppendingFormat:@" (%@)", name];
   [connectionsBrowser setPath:path];
 }
 
 - (void) updateButtons
 {
-  
+  /* FIXME enable/disable okButton based off signature */ 
   if (!_currentConnector)
     {
       [okButton setState: NSOffState];
@@ -351,7 +484,9 @@ static NSMapTable *_objectToAssociation;
   else
     {
       id src, dest;
+      /* FIXME i wonder why this is not [self object]; */
       id firstResponder = [(GormDocument *)[(id<IB>)NSApp activeDocument] firstResponder];
+      
       src = [_currentConnector source];
       dest = [_currentConnector destination];
       if (src && src != firstResponder
@@ -375,7 +510,6 @@ static NSMapTable *_objectToAssociation;
   int i,c;
   NSNibConnector *con;
   NSString *title = [[sender selectedCell] stringValue];
-  BOOL found;
 
   for (i = 0, c = [_connectors count]; i < c; i++)
     {
@@ -394,8 +528,6 @@ static NSMapTable *_objectToAssociation;
 	  name = [label stringByAppendingFormat: @" (%@)", name];
 	  if ([title isEqual:name])
 	    {
-	      NSString *path;
-	      
 	      ASSIGN(_currentConnector, con);
 	      [self selectedConnector];
               break;
@@ -409,10 +541,10 @@ static NSMapTable *_objectToAssociation;
 {
   NSString *path; 
 
-  path = [@"/" stringByAppendingString:[_currentConnector label]];
+  path = [@"." stringByAppendingString:[_currentConnector label]];
   if ([_currentConnector isKindOfClass: [NSNibControlConnector class]])
     {
-      path = [@"/target" stringByAppendingString:path];
+      path = [@".target" stringByAppendingString:path];
     }
   [oaBrowser setPath:path];
   [NSApp displayConnectionBetween:object and:[_currentConnector destination]];
@@ -423,13 +555,14 @@ numberOfRowsInColumn:(int)column
 {
   id repObj = [[popUp selectedItem] representedObject];
   if (browser == oaBrowser)
-    switch(column)
-      {
-        case 0:
-	  return [_keys count];
-          break;
-        case 1:
-	  if (repObj == nil)
+    {
+      if (column == 0)
+	{
+          return [_keys count];
+	}
+      else
+	{
+          if (repObj == nil)
 	    {
               if ([[[browser selectedCellInColumn:0] stringValue] isEqual:@"target"])
 	        {
@@ -437,30 +570,49 @@ numberOfRowsInColumn:(int)column
 	        }
 	      else return 0;
 	    }
-	  else
+          else
   	    {
-	      return [_values count];
+	      int i;
+	      NSArray *vals = _values;
+  	      EODisplayGroup *dest;
+	      EODataSource *ds;
+	      EOClassDescription *classDesc;
+	      
+	      dest = (EODisplayGroup *)[NSApp connectDestination];
+	      ds = [dest dataSource];
+	      classDesc = [ds classDescriptionForObjects];
+	      
+	      for (i = 1; i < column; i++)
+	        {
+		  int row = [browser selectedRowInColumn:i];
+		  id val = [vals objectAtIndex:row];
+		  
+		  if ([val keyType] != AttributeType)
+		    {
+		      classDesc =
+		      [classDesc classDescriptionForDestinationKey: [val key]];
+		      vals = [self _keysFromClassDescription:classDesc];
+		    }
+	        }
+	      return [vals count];
 	    }
-	  break;
-        default:
-	  [[NSException exceptionWithName:NSInternalInconsistencyException
-		  		reason:@"uhhhhh should be column 0 or 1...."
-				userInfo: nil] raise];
-  	  return 0;
-	  break;
-      }
+        }
+    }
   else if (browser == connectionsBrowser)
-    return [_connectors count];
+    {
+      return [_connectors count];
+    }
+  return 0;
 }
 
 - (void) browser:(NSBrowser *)sender
 willDisplayCell:(id)cell atRow:(int)row column:(int)column
 {
   id repObj = [[popUp selectedItem] representedObject];
+  // FIXME -objectKeysTaken
   if (sender == oaBrowser)
-    switch (column)
+    if (column == 0)
       {
-        case 0:
 	  if (repObj == nil)
 	    {
 	      NSString *name;
@@ -474,28 +626,71 @@ willDisplayCell:(id)cell atRow:(int)row column:(int)column
 	      [cell setStringValue: [_keys objectAtIndex:row]];
 	      [cell setLeaf:[[_signatures objectAtIndex:row]  length] == 0];
 	    }
-	  break;
-	case 1:
+      }
+    else
+      {
 	  if (repObj == nil)
 	    {
               if ([[[sender selectedCellInColumn:0] stringValue] isEqual:@"target"])
 	        {
+		  id val = [[_values objectAtIndex:row] key];
 		  [cell setLeaf:YES];
-		  [cell setStringValue: [_values objectAtIndex:row]];
-		  [cell setEnabled:YES];
+		  [cell setStringValue: val];
+		  [cell setEnabled:YES]; 
 	        }
 	    }
 	  else
-	    {
-		[cell setLeaf:YES]; // TODO relationships should be NO...
-	        [cell setStringValue: [(EOAttribute *)[_values objectAtIndex:row] name]];
-		[cell setEnabled:YES];
-	    }
-	  break;
+            {
+              int i;
+              NSArray *vals = _values;
+              EODisplayGroup *dest;
+              EODataSource *ds;
+              EOClassDescription *classDesc;
+	      id val;
+	      KeyType type;
+	      int wantsTypes = 0;
+	      int zeroRow = [oaBrowser selectedRowInColumn:0];
+	      NSString *sig = [[_signatures objectAtIndex:zeroRow]
+		      					uppercaseString];
+              
+	      dest = (EODisplayGroup *)[NSApp connectDestination];
+              ds = [dest dataSource];
+              classDesc = [ds classDescriptionForObjects];
+	      
+
+              for (i = 1; i < column; i++)
+                {
+                  int aRow = [sender selectedRowInColumn:i];
+                  val = [vals objectAtIndex:aRow];
+		  type = [val keyType];
+
+                  if (type != AttributeType || type != OtherType)
+                    {
+                      classDesc =
+                      [classDesc classDescriptionForDestinationKey:[val key]];
+		      vals = [self _keysFromClassDescription:classDesc];
+                    }
+                }
+		val = [vals objectAtIndex:row];
+		type = [val keyType];
+		for (i = 0; i < [sig length]; i++)
+		  {
+		    switch ([sig characterAtIndex:i]) 
+		      {
+			case 'A': wantsTypes |= AttributeType; break; 
+			case '1': wantsTypes |= ToOneRelationshipType; break;
+			case 'M': wantsTypes |= ToManyRelationshipType; break;
+		      }
+		  }
+		[cell setLeaf: (type == AttributeType)];
+		// TODO relationships should be NO...
+	        [cell setStringValue: [val key]];
+		[cell setEnabled:(wantsTypes & type)
+				 || (wantsTypes & AttributeType)];
+            }
       }
   else if (sender == connectionsBrowser)
     {
-      int i, c;
       NSNibConnector *conn;
       NSString *name, *dest, *label;
       
@@ -509,7 +704,6 @@ willDisplayCell:(id)cell atRow:(int)row column:(int)column
       [cell setEnabled:YES];
       [cell setLeaf:YES];
     }
-
 }
 
 - (void) ok:(id)sender
@@ -524,16 +718,11 @@ willDisplayCell:(id)cell atRow:(int)row column:(int)column
   else if ([_connectors containsObject:_currentConnector] == YES)
     {
       [[(id<IB>)NSApp activeDocument] removeConnector: _currentConnector];
-//      [_currentConnector setDestination:nil];
-//      [_currentConnector setLabel:nil];
       [_connectors removeObject:_currentConnector];
       [connectionsBrowser loadColumnZero];
     }
   else
     {
-      NSString *path;
-      id dest;
-     
       if ([_currentConnector isKindOfClass:[NSNibControlConnector class]])
         {
 	  int i, c;
@@ -557,6 +746,9 @@ willDisplayCell:(id)cell atRow:(int)row column:(int)column
      else if ([_currentConnector isKindOfClass:[EOAspectConnector class]])
        {
 	 [_connectors addObject:_currentConnector];
+	 NSMapInsert(_objectToAssociation, object, _association);
+     	 [[(id<IB>)NSApp activeDocument]
+	  		attachObject:_association toParent:object];
        }
      
      [self _selectAction:[_currentConnector label]];
