@@ -214,7 +214,6 @@ static NSMapTable *_objectToAssociations;
     {
       NSMapEnumerator displayGroupEnum;
       EODisplayGroup *displayGroup;
-      Class EOObserverCenterClass = [EOObserverCenter class];
       void *unusedKey;
       GDL2NonRetainingMutableArray *associations;
 
@@ -223,7 +222,7 @@ static NSMapTable *_objectToAssociations;
 				     &unusedKey, (void*)&displayGroup))
 	{
 	  [displayGroup retain];
-	  [EOObserverCenterClass addObserver: self forObject: displayGroup];
+	  [EOObserverCenter addObserver:self forObject:displayGroup];
 	}
       NSEndMapTableEnumeration (&displayGroupEnum);
       
@@ -284,7 +283,7 @@ static NSMapTable *_objectToAssociations;
 	 displayGroup: (EODisplayGroup *)displayGroup
 		  key: (NSString *)key
 {
-  return NO;
+  return YES;
 }
 
 - (id)object

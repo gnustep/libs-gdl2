@@ -103,7 +103,7 @@
 - (void)establishConnection
 {
   EODisplayGroup *dg;
-  
+
   [super establishConnection];
   dg = [self displayGroupForAspect:@"value"];
 

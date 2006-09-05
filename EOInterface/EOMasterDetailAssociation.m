@@ -104,15 +104,11 @@
       id selectedObject = [[self displayGroupForAspect:@"parent"]
 	      				selectedObject];
       id key = [self displayGroupKeyForAspect:@"parent"];
-      if (selectedObject)
-	{
-          [[_object dataSource]
+      [[_object dataSource]
 	    qualifyWithRelationshipKey:key
 		    	      ofObject:selectedObject];
-	  
-	  if ([_object fetch])
-	    [_object redisplay];
-	}
+      if ([_object fetch])
+	[_object redisplay];
     }
 }
 

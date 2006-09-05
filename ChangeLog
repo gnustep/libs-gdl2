@@ -1,6 +1,45 @@
-2006-31-08  Matt Rice  <ratmice@yahoo.com>
-            David Ayers  <d.ayers@inode.at>
+2006-05-09  Matt Rice  <ratmice@yahoo.com>
 
+	* EOInterface/EOAssociation.m (-establishConnection):  Simplify to
+	allow posing.
+	(-canBindAspect:displayGroup:key:): Return YES by default.
+	* EOInterface/EOTextAssociation.m: Minor formatting issue.  Include
+	privat header:
+	(-subjectChanged): Set empty string when nil/null value is set.
+	* EODisplayGroup.m (-initWithCoder:): Fetch when auto fetch is enabled.
+	(-setObjectArray:): Select new selected objects.
+	(-redisplay): Don't call notifyObserversObjectWillChange: explicitly.
+	(-setSelectionIndexes:): Implement displayGroup:didChangeSelection:
+	handling.
+	(-selectObjectsIdenticalTo:): Reimplement.
+	(-selectObjectsIdenticalTo:selectFirstOnNoMatch:): Ditto.
+	(-deleteSelection): Ditto.
+	(-insertObject:atIndex:): Fix redisplay timing with respect to
+	delegate.
+	(-deleteObjectAtIndex:): Implement.
+	(-association:failedToValidateValue:forKey:object:errorDescription:)
+	Ditto.
+	(-editorHasChangesForEditingContext:): Ditto.
+	(-editingContextWillSaveChanges:): Ditto.
+	(-setValue:forObjectAtIndex:key:): Validate index range.
+	(-objectsChangedInEditingContext:): Add workaround until issues
+	can be investigated.
+	* EOInterface/EOMasterDetailAssociation.m (subjectChanged): Qualify
+	datasource's relationship independent of selected object.
+	* EOInterface/EOTableViewAssociation.m (associationClassesSuperseded):
+	Implement.
+	(subjectChanged): Reimplement.
+	(tableViewSelectionDidChange:): Ditto.
+	
+2006-05-09  Matt Rice  <ratmice@yahoo.com>
+            David Ayers  <ayers@fsfe.org>
+
+	* configure.ac (gorm-palette): Add configure option to exclude
+	building of palette until auto detection works reliably.
+	* config.make.in: New file.
+	* configure: Regenerate.
+	* GNUmakefile: Include new file.
+	* Makefile.postamble: Remove generated config.make on distclean.
 	
 2006-04-24  David Ayers  <d.ayers@inode.at>
 

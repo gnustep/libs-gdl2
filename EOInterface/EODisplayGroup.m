@@ -73,6 +73,10 @@ RCS_ID("$Id$")
      @selector(displayGroup:didInsertObject:)
 #define DG_DID_CHANGE_SELECTION \
      @selector(displayGroupDidChangeSelection:)
+#define DG_DID_DELETE_OBJECT \
+     @selector(displayGroup:didDeleteObject:)
+#define DG_SHOULD_DELETE_OBJECT \
+     @selector(displayGroup:shouldDeleteObject:)
 
 /* undocumented notification */
 NSString *EODisplayGroupWillFetchNotification = @"EODisplayGroupWillFetch";
@@ -269,6 +273,10 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
   _flags.selectsFirstObjectAfterFetch = tmpI; 
   [decoder decodeValueOfObjCType: @encode(int) at: &tmpI];
   _flags.autoFetch = tmpI;
+  if (_flags.autoFetch)
+    {
+      [self fetch];
+    }
   return self;
 }
 
@@ -506,7 +514,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 	  NSArray *objects;
 
 	  center = [NSNotificationCenter defaultCenter];
-	  [center  postNotificationName: EODisplayGroupWillFetchNotification
+	  [center postNotificationName: EODisplayGroupWillFetchNotification
 		   object: self];
 	  
 	  if ([_dataSource respondsToSelector:
@@ -517,7 +525,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 	  objects = [_dataSource fetchObjects];
 	  [self setObjectArray: objects];
-
+	  
 	  if (_delegate
 	      && [_delegate respondsToSelector: DG_DID_FETCH_OBJECTS])
 	    {
@@ -539,21 +547,19 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 - (void)setObjectArray: (NSArray *)objects
 {
-  NSArray *oldSelection = [self selectedObjects];
-  BOOL selectFirstOnNoMatch = [self selectsFirstObjectAfterFetch];
-
   if (objects == nil)
     {
       objects = emptyArray;
     }
-
+  
   ASSIGN(_allObjects,
 	 AUTORELEASE([objects mutableCopyWithZone: [self zone]]));
 
   [self updateDisplayedObjects];
 
-  [self selectObjectsIdenticalTo: oldSelection
-	selectFirstOnNoMatch: selectFirstOnNoMatch];
+  [self selectObjectsIdenticalTo:[self selectedObjects] 
+	   selectFirstOnNoMatch:_flags.selectsFirstObjectAfterFetch];
+ 
 
   [self redisplay];
 }
@@ -567,7 +573,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 {
   /* TODO: Check this again! */
   _flags.didChangeContents = YES;
-  [EOObserverCenter notifyObserversObjectWillChange: nil];
+//  [EOObserverCenter notifyObserversObjectWillChange: nil];
   [self willChange];
 }
 
@@ -579,9 +585,8 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
   if (_delegate 
       && [_delegate respondsToSelector: DG_DISPLAY_ARRAY_FOR_OBJECTS])
     {
-      displayedObjects 
-	= [_delegate displayGroup: self
-		     displayArrayForObjects: (id)displayedObjects];
+      displayedObjects = [_delegate displayGroup: self
+		     	    displayArrayForObjects: (id)displayedObjects];
     }
   
   NS_DURING
@@ -615,6 +620,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 - (BOOL)setSelectionIndexes: (NSArray *)selection
 {
+
   if ([self endEditing] && selection)
     {
       if (_delegate
@@ -632,6 +638,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 	  NSMutableArray *newObjects;
 	  id object;
 	  unsigned c, i, count, index;
+	  
 	  count = [_displayedObjects count];
 	  c = [selection count];
 	  newObjects = (id)[NSMutableArray arrayWithCapacity: c];
@@ -640,24 +647,32 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 	    {
 	      number = [selection objectAtIndex: i];
 	      index = [number unsignedIntValue];
-	      object = index < count 
-		? [_displayedObjects objectAtIndex: index] : nil;
+	      object = (index < count)
+		       ? [_displayedObjects objectAtIndex: index]
+		       : nil;
 	      if (object != nil)
 		{
 		  [newObjects addObject: object];
 		}
 	    }
-	  ASSIGNCOPY(_selectedObjects, newObjects);
-	  newSelection =
-	    [_displayedObjects indexesForObjectsIdenticalTo: _selectedObjects];
-	  /* don't release emptyArray */
-	  (_selection == emptyArray) ? _selection = RETAIN(newSelection) : ASSIGN(_selection, newSelection);
-	  _flags.didChangeSelection = YES;
-	  if ([_delegate respondsToSelector: DG_DID_CHANGE_SELECTION])
+	  
+	  if ([_selectedObjects isEqual:newObjects] == NO
+	      || [_selection isEqual:selection] == NO)
 	    {
-	      [_delegate displayGroupDidChangeSelection:self];
+	      ASSIGNCOPY(_selectedObjects, newObjects);
+	      newSelection = [_displayedObjects
+	 	     	        indexesForObjectsIdenticalTo: _selectedObjects];
+	      /* don't release emptyArray */
+	      (_selection == emptyArray) ? _selection = RETAIN(newSelection)
+		  		         : ASSIGN(_selection, newSelection);
+	      _flags.didChangeSelection = YES;
+	      if ([_delegate respondsToSelector: DG_DID_CHANGE_SELECTION])
+	        {
+	          [_delegate displayGroupDidChangeSelection:self];
+	        }
+	      
+	      [self willChange];
 	    }
-	  [self willChange];
 	  return YES;
 	}
     }
@@ -681,35 +696,35 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 - (BOOL)selectObjectsIdenticalTo: (NSArray *)selection
 {
   NSArray *indices;
-  if (selection && [selection count])
-    {
-      indices = [_displayedObjects indexesForObjectsIdenticalTo: selection];
-      if (indices && ![indices count])
-        {
-	  indices = nil;
-	}
-    }
-  else
-    {
-      indices = selection;
-    }
+  indices = [_displayedObjects indexesForObjectsIdenticalTo: selection];
+  if ([selection count] && ![indices count]) return NO;
   return [self setSelectionIndexes: indices];
 }
 
 - (BOOL)selectObjectsIdenticalTo: (NSArray *)selection 
 	    selectFirstOnNoMatch: (BOOL)flag
 {
-  BOOL selectflag = [self selectObjectsIdenticalTo: selection];
+  BOOL selected = [self selectObjectsIdenticalTo: selection];
 
-  if (selectflag && flag
-      && [_selection count] == 0
-      && [_displayedObjects count] != 0)
+  if (!selected)
     {
-      id object = [_displayedObjects objectAtIndex: 0];
-      selectflag = [self selectObject: object];
+      unsigned c = [_displayedObjects count];
+      if (flag && c != 0)
+        {
+	  id object = [_displayedObjects objectAtIndex: 0];
+          selected = [self selectObject: object];
+	}
+      else if (c)
+        {
+	  [self setSelectionIndexes:_selection]; 
+	}
+      else
+	{
+	  [self clearSelection];
+	}
     }
-
-  return selectflag;
+  
+  return selected;
 }
 
 - (BOOL)selectNext
@@ -730,6 +745,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 {
   return AUTORELEASE([_selectedObjects copy]);
 }
+
 - (void)setSelectedObjects: (NSArray *)objects
 {
   ASSIGN (_selectedObjects, 
@@ -836,7 +852,6 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 	     strange. OTOH _allObjects should probably be viewed as set.  */
 	  [_allObjects insertObject: object atIndex: index];
 	  [_displayedObjects insertObject: object atIndex: index];
-	  [self redisplay];
 	  
 	  if (_delegate
 	      && [_delegate respondsToSelector: DG_DID_INSERT_OBJECT])
@@ -844,7 +859,8 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 	      [_delegate displayGroup: self didInsertObject: object];
 	    }
 
-	  [self selectObjectsIdenticalTo: [NSArray arrayWithObject: object]];
+	  [self selectObject: object];
+	  [self redisplay];
 	}
     }
 }
@@ -860,19 +876,52 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 - (BOOL)deleteObjectAtIndex: (unsigned)index
 {
+  id object = [_displayedObjects objectAtIndex:index];
+  if (!_delegate
+      || ([_delegate respondsToSelector:DG_SHOULD_DELETE_OBJECT]
+      	  && [_delegate displayGroup:self shouldDeleteObject:object]))
+    {
+      NS_DURING
+	[_dataSource deleteObject:object];	      
+        if ([_delegate respondsToSelector:DG_DID_DELETE_OBJECT])
+	  {
+	    [_delegate displayGroup:self didDeleteObject:object];
+	  }
+	[_displayedObjects removeObjectAtIndex:index];
+	[_allObjects removeObject:object];
+	return YES;
+      NS_HANDLER
+        return NO;
+      NS_ENDHANDLER
+    }
+	    
   return NO;
 }
 - (BOOL)deleteSelection
 {
-  if ([self endEditing])
+  BOOL flag = YES;
+  NSArray *sel = [self selectionIndexes];
+  int c = [sel count];
+
+  if (c == 0)
     {
-      NSArray *selections = [self selectedObjects];
-      int c = [selections count];
-      int i;
-      for (i = 0; i < c; i++)
-         [[self dataSource] deleteObject: [selections objectAtIndex:i]];
+      return YES;
     }
-  return NO;
+
+  if ((flag = [self endEditing]))
+    {
+      int i;
+
+      [self redisplay];
+      for (i = 0; i < c && flag; i++)
+        {
+	  unsigned int index = [[sel objectAtIndex:i] unsignedIntValue];
+	  id selection = [self selectedObjects];
+	  flag = [self deleteObjectAtIndex:index];
+	  [self selectObjectsIdenticalTo:selection selectFirstOnNoMatch:NO];
+	}
+    }
+  return flag;
 }
 
 - (NSArray *)localKeys
@@ -1018,24 +1067,23 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
     return NO;
   NS_ENDHANDLER
 
-  if ([self validatesChangesImmediately])
-    exception = [object validateValue: &value forKey: key];
-  
-  if (exception == nil && [_delegate respondsToSelector:didSetValue])
+  exception = [object validateValue: &value forKey: key];
+
+  if (exception && _flags.validateImmediately)
+    {
+      [self _presentAlertWithTitle:@"Validation error"
+	      		   message:[exception reason]];
+      return NO;
+    }
+  else if ([_delegate respondsToSelector:didSetValue])
     {
       [_delegate displayGroup: self 
 		  didSetValue: value
 		    forObject: object
 			  key: key];
-      return YES;
     }
     
-  if (exception)
-    {
-      /* -userInfo likely contains useful information... */
-      NSLog(@"Exception in %@ name:%@ reason:%@ userInfo:%@", NSStringFromSelector(_cmd), [exception name], [exception reason], [exception userInfo]); 
-    }
-  return (exception == nil);
+  return YES;
 }
 
 - (BOOL)setSelectedObjectValue: (id)value forKey: (NSString *)key
@@ -1046,9 +1094,11 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 - (BOOL)setValue: (id)value forObjectAtIndex: (unsigned)index 
 	     key: (NSString *)key
 {
-  return [self setValue: value 
+  if ([_displayedObjects count] > index)
+    return [self setValue: value 
   	      forObject: [_displayedObjects objectAtIndex: index]
 	            key: key];
+  return NO;
 }
 
 - (BOOL)enabledToSetSelectedObjectValueForKey:(NSString *)key
@@ -1062,8 +1112,10 @@ failedToValidateValue: (NSString *)value
 	     object: (id)object
    errorDescription: (NSString *)description
 {
+  [self _presentAlertWithTitle:@"Validation error" message:description];
   return NO;
 }
+
 - (void)associationDidBeginEditing: (EOAssociation *)association
 {
   ASSIGN(_editingAssociation,association);
@@ -1077,13 +1129,16 @@ failedToValidateValue: (NSString *)value
 @end
 
 @implementation EODisplayGroup (EOEditors)
+/* FIXME GDL2 currently never calls this.. */
 - (BOOL)editorHasChangesForEditingContext: (EOEditingContext *)editingContext
 {
-  return NO;
+  /* check */
+  [self endEditing];
+  return _flags.didChangeContents;
 }
 - (void)editingContextWillSaveChanges: (EOEditingContext *)editingContext
 {
-
+  [self endEditing];
 }
 @end
 
@@ -1109,11 +1164,27 @@ failedToValidateValue: (NSString *)value
 - (void)objectsInvalidatedInEditingContext: (NSNotification *)notif
 {
 }
+
 - (void)objectsChangedInEditingContext: (NSNotification *)notif
 {
+/*
+  // hmmm this doesn't work because of relationships.... (WHY?)
+  NSDictionary *userInfo = [notif userInfo];
+  NSArray *upd = [userInfo objectForKey:EOUpdatedKey];
+  NSArray *ins = [userInfo objectForKey:EOInsertedKey];
+  NSArray *del = [userInfo objectForKey:EODeletedKey];
+  _flags.didChangeContents = [_allObjects firstObjectCommonWithArray:upd]
+	  		     || [_allObjects firstObjectCommonWithArray:ins]
+  			     || [_allObjects firstObjectCommonWithArray:del];
+*/
+  /* FIXME this doesn't seem correct.
+   * display groups/data sources can share editing contexts.
+   * which will lead to spurious updates 
+   */ 
   _flags.didChangeContents = YES;
   [self willChange];
 }
+
 @end
 
 @implementation EODisplayGroup (GDL2Private)

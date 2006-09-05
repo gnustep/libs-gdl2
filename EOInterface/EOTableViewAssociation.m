@@ -40,8 +40,8 @@
 
 #include "EOColumnAssociation.h"
 #include "EODisplayGroup.h"
-
 @implementation EOTableViewAssociation
+
 static NSMapTable *tvAssociationMap; 
 + (NSArray *)aspects
 {
@@ -80,9 +80,27 @@ static NSMapTable *tvAssociationMap;
     }
   return _keys;
 }
+
 + (BOOL)isUsableWithObject: (id)object
 {
   return [object isKindOfClass: [NSTableView class]];
+}
+
+@class EOControlAssociation;
+@class EOPickTextAssociation;
+@class EOActionAssociation;
+@class EOActionInsertionAssociation; 
++ (NSArray *) associationClassesSuperseded
+{
+  static NSArray *_superseded;
+
+  if (!_superseded)
+    _superseded = [[NSArray arrayWithObjects:[EOControlAssociation class],
+					[EOPickTextAssociation class],
+					[EOActionAssociation class],
+					[EOActionInsertionAssociation class],
+					nil] retain];
+  return _superseded;
 }
 
 + (NSString *)primaryAspect
@@ -118,22 +136,51 @@ static NSMapTable *tvAssociationMap;
      is not yet inserted */
   if ([dg contentsChanged])
     [[self object] reloadData];
-  
+
+
   if ([dg selectionChanged])
     {
-      NSArray *selectionIndexes = RETAIN([dg selectionIndexes]);
-      unsigned int i, count;
-      count = [selectionIndexes count];
-      for (i = 0; i < count; i++)                                                         
+      if (!_extras)
         {
-	  int rowIndex = [[selectionIndexes objectAtIndex:i] intValue];
-	  [[self object] selectRow: rowIndex
-	      byExtendingSelection: (i != 0)]; /* don't extend the first selection */
-	  [[self object] scrollRowToVisible:rowIndex];
-	}
-      RELEASE(selectionIndexes);
+          NSArray *selectionIndexes = RETAIN([dg selectionIndexes]);
+          unsigned int i, count;
+          count = [selectionIndexes count];
+          if (count)
+    	    {
+              for (i = 0; i < count; i++)
+                {
+	          int rowIndex = [[selectionIndexes objectAtIndex:i] intValue];
+		  
+		  /* don't extend the first selection */
+  [EOObserverCenter suppressObserverNotification];
+	          [[self object] selectRow: rowIndex
+		      byExtendingSelection: (i != 0)];
+		  
+	          [[self object] scrollRowToVisible:rowIndex];
+  [EOObserverCenter enableObserverNotification];
+	        }
+	    }
+          else
+            {
+	      /* hmm not sure what to do about it if it doesn't allow empty
+	       * selection.  In that case NSTableView no-ops and the dg
+	       * will think nothing is selected table view will leave
+	       * whatever index was selected still selected.
+	       */
+	      if ([[self object] allowsEmptySelection])
+		{
+  [EOObserverCenter suppressObserverNotification];
+	        [[self object] deselectAll:self];
+  [EOObserverCenter enableObserverNotification];
+		}
+	      else
+		NSLog(@"attempting to clear selection when table view won't allow empty selection");
+		
+            }
+          RELEASE(selectionIndexes);
+        }
+      _extras = 0;
     }
-  
 }
 
 + (void)bindToTableView: (NSTableView *)tableView
@@ -252,18 +299,21 @@ shouldEditTableColumn: (NSTableColumn *)tableColumn
 
 - (void)tableViewSelectionDidChange: (NSNotification *)notification
 {
-  EODisplayGroup *dg = [self displayGroupForAspect:@"source"];
-  NSMutableArray *selectionIndices = [[NSMutableArray alloc] init];
-  NSTableView *tv = [notification object];
-  NSEnumerator *selectionEnum = [tv selectedRowEnumerator];
-  id index;
-  
-  while ((index = [selectionEnum nextObject]))
+  _extras = 1;
     {
-      [selectionIndices addObject:index];
-    }
+      EODisplayGroup *dg = [self displayGroupForAspect:@"source"];
+      NSMutableArray *selectionIndices = [[NSMutableArray alloc] init];
+      NSTableView *tv = [notification object];
+      NSEnumerator *selectionEnum = [tv selectedRowEnumerator];
+      id index;
+      
+      while ((index = [selectionEnum nextObject]))
+        {
+	  [selectionIndices addObject:index];
+	}
  
-  [dg setSelectionIndexes: AUTORELEASE(selectionIndices)];
+      [dg setSelectionIndexes: AUTORELEASE(selectionIndices)];
+    }
 }
 
 - (BOOL)control: (NSControl *)control

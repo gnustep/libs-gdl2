@@ -38,7 +38,7 @@
 #include "EODisplayGroup.h"
 #include "EOTextAssociation.h"
 #include "SubclassFlags.h"
-
+#include "../EOControl/EOPrivate.h"
 @implementation EOTextAssociation
 
 + (NSArray *)aspects
@@ -58,8 +58,7 @@
   static NSArray *_signatures = nil;
   if (_signatures == nil)
     {
-      NSArray *arr = [NSArray arrayWithObjects:
-                                @"A", @"A", @"A", nil];
+      NSArray *arr = [NSArray arrayWithObjects:@"A", @"A", @"A", nil];
       arr = [[super aspectSignatures] arrayByAddingObjectsFromArray: arr];
       _signatures = RETAIN(arr);
     }
@@ -99,15 +98,15 @@
       if (subclassFlags & ValueAspectMask)
 	{
 	  id value = [self valueForAspect:@"value"];
-	  if ([value isKindOfClass: [NSString class]])
+	  if ([value isKindOfClass:[NSString class]])
 	    {
 	      [_object setString:value];
 	    }
-	  else if ([value isKindOfClass: [NSData class]])
+	  else if ([value isKindOfClass:[NSData class]])
 	    {
 	      int oldLength = [[_object string] length];
 	      [_object replaceCharactersInRange:NSMakeRange(0,oldLength)
-					withRTF: value];
+					withRTF:value];
 	    }
 	}
     }
@@ -139,13 +138,19 @@
 	  int oldLength = [[_object string] length];
 	  [_object replaceCharactersInRange:NSMakeRange(0,oldLength)
 	  		withRTF: value];
+	  
 	}
+      else if (_isNilOrEONull(value))
+        {
+	  [_object setString:@""];
+        }
     }
   if (subclassFlags & EditableAspectMask)
     {
       [_object setEditable: [[self valueForAspect:@"editable"] boolValue]];
     }
 }
+
 - (BOOL)endEditing
 {
   BOOL flag = NO;
@@ -162,10 +167,10 @@
         {
 	  value = [[_object string] copy];
 	}
-      flag = [self setValue: value forAspect:@"value"];
+      flag = [self setValue:value forAspect:@"value"];
       if (flag)
         {
-	  [[self displayGroupForAspect:@"value"] associationDidEndEditing: self];       }
+	  [[self displayGroupForAspect:@"value"] associationDidEndEditing:self];       }
     }
   /* dunno if this is neccesary */
   if (flag && (subclassFlags & EditableAspectMask))
@@ -175,7 +180,7 @@
   return flag;
 }
 
-- (BOOL)control: (NSControl *)control isValidObject: (id)object
+- (BOOL)control:(NSControl *)control isValidObject:(id)object
 {
   /* FIXME */
   NSLog(@"FIXME %@",NSStringFromSelector(_cmd));
