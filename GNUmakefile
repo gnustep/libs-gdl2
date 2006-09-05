@@ -36,6 +36,8 @@ ifeq ($(GUI_MAKE_LOADED),yes)
 SUBPROJECTS += EOInterface EOModeler DBModeler
 endif
 
+include config.make
+
 DOCUMENT_NAME = GDL2
 
 GDL2_AGSDOC_FILES = GDL2.gsdoc

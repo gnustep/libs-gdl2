@@ -308,7 +308,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PG_CONFIG CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP POSTGRES_DATABASE POSTGRES_INCLUDES POSTGRES_LIB_DIRS POSTGRES_LIBS EOADAPTORS VERSION MAJOR_VERSION MINOR_VERSION SUBMINOR_VERSION GCC_VERSION LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS PG_CONFIG CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP EGREP POSTGRES_DATABASE POSTGRES_INCLUDES POSTGRES_LIB_DIRS POSTGRES_LIBS EOADAPTORS SUBPROJECTS VERSION MAJOR_VERSION MINOR_VERSION SUBMINOR_VERSION GCC_VERSION LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -835,6 +835,11 @@ fi
 if test -n "$ac_init_help"; then
 
   cat <<\_ACEOF
+
+Optional Features:
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --disable-gorm-palette to disable building gorm palette
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -3193,6 +3198,21 @@ fi
 
 
 
+# FIXME: Once we have a generic reliable way to test-link GNUstep projects
+#        this should be replaced with that technique.
+# Check whether --enable-gorm-palette or --disable-gorm-palette was given.
+if test "${enable_gorm_palette+set}" = set; then
+  enableval="$enable_gorm_palette"
+
+else
+  enable_gorm_palette=yes
+fi;
+SUBPROJECTS=""
+if test "$enable_gorm_palette" = "yes"; then
+  SUBPROJECTS="$SUBPROJECTS GDL2Palette"
+fi
+
+
 #--------------------------------------------------------------------
 # Record the version
 #--------------------------------------------------------------------
@@ -3212,7 +3232,7 @@ echo "${ECHO_T}$VERSION" >&6
 #--------------------------------------------------------------------
 # Write the Makefiles
 #--------------------------------------------------------------------
-                                        ac_config_files="$ac_config_files gdl2.make EOAdaptors/GNUmakefile EOAdaptors/Postgres95/GNUmakefile EOAdaptors/Postgres95/config.mak"
+                                                  ac_config_files="$ac_config_files gdl2.make config.make EOAdaptors/GNUmakefile EOAdaptors/Postgres95/GNUmakefile EOAdaptors/Postgres95/config.mak"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3739,6 +3759,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "gdl2.make" ) CONFIG_FILES="$CONFIG_FILES gdl2.make" ;;
+  "config.make" ) CONFIG_FILES="$CONFIG_FILES config.make" ;;
   "EOAdaptors/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES EOAdaptors/GNUmakefile" ;;
   "EOAdaptors/Postgres95/GNUmakefile" ) CONFIG_FILES="$CONFIG_FILES EOAdaptors/Postgres95/GNUmakefile" ;;
   "EOAdaptors/Postgres95/config.mak" ) CONFIG_FILES="$CONFIG_FILES EOAdaptors/Postgres95/config.mak" ;;
@@ -3842,6 +3863,7 @@ s,@POSTGRES_INCLUDES@,$POSTGRES_INCLUDES,;t t
 s,@POSTGRES_LIB_DIRS@,$POSTGRES_LIB_DIRS,;t t
 s,@POSTGRES_LIBS@,$POSTGRES_LIBS,;t t
 s,@EOADAPTORS@,$EOADAPTORS,;t t
+s,@SUBPROJECTS@,$SUBPROJECTS,;t t
 s,@VERSION@,$VERSION,;t t
 s,@MAJOR_VERSION@,$MAJOR_VERSION,;t t
 s,@MINOR_VERSION@,$MINOR_VERSION,;t t

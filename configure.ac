@@ -51,6 +51,17 @@ fi
 
 AC_SUBST(EOADAPTORS)
 
+# FIXME: Once we have a generic reliable way to test-link GNUstep projects
+#        this should be replaced with that technique.
+AC_ARG_ENABLE(gorm-palette,
+	[  --disable-gorm-palette to disable building gorm palette], ,
+	enable_gorm_palette=yes)
+SUBPROJECTS=""
+if test "$enable_gorm_palette" = "yes"; then
+  SUBPROJECTS="$SUBPROJECTS GDL2Palette"
+fi
+AC_SUBST(SUBPROJECTS)
+
 #--------------------------------------------------------------------
 # Record the version
 #--------------------------------------------------------------------
@@ -68,5 +79,5 @@ AC_SUBST(GCC_VERSION)
 #--------------------------------------------------------------------
 # Write the Makefiles
 #--------------------------------------------------------------------
-AC_CONFIG_FILES([gdl2.make EOAdaptors/GNUmakefile EOAdaptors/Postgres95/GNUmakefile EOAdaptors/Postgres95/config.mak])
+AC_CONFIG_FILES([gdl2.make config.make EOAdaptors/GNUmakefile EOAdaptors/Postgres95/GNUmakefile EOAdaptors/Postgres95/config.mak])
 AC_OUTPUT
