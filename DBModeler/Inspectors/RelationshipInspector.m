@@ -11,11 +11,18 @@
 #include <Foundation/NSArray.h>
 
 @implementation RelationshipInspector
+
+- (NSString *) displayName
+{
+  return @"Relationship inspector";
+}
+
 - (EOEntity *)selectedEntity
 {
   int row = [destEntity_tableView selectedRow];
+  NSArray *entities = [[[EOMApp activeDocument] model] entities];
   
-  if (row == -1)
+  if (row == -1 || row == NSNotFound || row > [entities count])
     return nil;
   
   return [[[[EOMApp activeDocument] model] entities] objectAtIndex:row];
@@ -24,8 +31,9 @@
 - (EOAttribute *)selectedDestinationAttribute
 {
   int row = [destAttrib_tableView selectedRow];
-
-  if (row == -1)
+  NSArray *attribs = [[self selectedEntity] attributes];
+  
+  if (row == -1 || row == NSNotFound || row > [attribs count])
     return nil;
   
   return [[[self selectedEntity] attributes]
@@ -35,11 +43,12 @@
 - (EOAttribute *)selectedSourceAttribute
 {
   int row = [srcAttrib_tableView selectedRow];
-
-  if (row == -1)
+  NSArray *attribs = [[[self selectedObject] entity] attributes];
+  
+  if (row == -1 || row == NSNotFound || row > [attribs count])
     return nil;
-
-  return [[[[self selectedObject] entity] attributes] objectAtIndex:[srcAttrib_tableView selectedRow]];
+  
+  return [attribs objectAtIndex:[srcAttrib_tableView selectedRow]];
 }
 
 - (int) indexOfSourceAttribute:(EOAttribute *)srcAttrib
@@ -120,8 +129,9 @@
 
 - (EOJoin *) selectedJoin
 {
-  return [self joinWithSource:[self selectedSourceAttribute]
-	  	  destination:[self selectedDestinationAttribute]];
+  EOJoin *join = [self joinWithSource:[self selectedSourceAttribute]
+	  	  	  destination:[self selectedDestinationAttribute]];
+  return join;
 }
 
 - (void) awakeFromNib
@@ -143,6 +153,7 @@
 
 - (void) updateConnectButton
 {
+  [connect_button setEnabled:([self selectedDestinationAttribute] != nil)];
   [connect_button setState: ([self selectedJoin] != nil) ? NSOnState : NSOffState];
 }
 
@@ -152,12 +163,13 @@
   EOEntity *destEntity;
   EOAttribute *srcAttrib, *destAttrib;
   NSArray *joins;
-  unsigned int row;
+  unsigned int row = 0;
   [name_textField setStringValue:[(EORelationship *)[self selectedObject] name]];
   
-  /* it is important that the destEntity has a selected row before the destAttrib tableview
-   * reloads data */
+  [srcAttrib_tableView reloadData];
+  [destAttrib_tableView reloadData];
   [destEntity_tableView reloadData];
+  
   destEntity = [[self selectedObject] destinationEntity];
   if (destEntity)
     {
@@ -167,7 +179,7 @@
     }
   else if ([destEntity_tableView numberOfRows])
     row = 0;
-
+  
   [destEntity_tableView selectRow:row byExtendingSelection:NO];
   
   joins = [[self selectedObject] joins];
@@ -178,14 +190,23 @@
       srcAttrib = [join sourceAttribute];
       destAttrib = [join destinationAttribute];
       row = [self indexOfSourceAttribute:srcAttrib];
-      [srcAttrib_tableView selectRow:row byExtendingSelection:NO];
+      if (row != NSNotFound)
+        [srcAttrib_tableView selectRow:row byExtendingSelection:NO];
       row = [self indexOfDestinationAttribute:srcAttrib];
-      [destAttrib_tableView selectRow:row byExtendingSelection:NO];
+      if (row != NSNotFound)
+        [destAttrib_tableView selectRow:row byExtendingSelection:NO];
     }
   else
     {
-      [srcAttrib_tableView selectRow:0 byExtendingSelection:NO];
-      [destAttrib_tableView selectRow:0 byExtendingSelection:NO];
+      if ([self numberOfRowsInTableView:srcAttrib_tableView])
+        {
+	  [srcAttrib_tableView selectRow:0 byExtendingSelection:NO];
+	}
+
+      if ([self numberOfRowsInTableView:destAttrib_tableView])
+        {
+	  [destAttrib_tableView selectRow:0 byExtendingSelection:NO];
+	}
     }
 
   [self updateConnectButton]; 
@@ -198,7 +219,9 @@
 {
   EOModel *activeModel = [[EOMApp activeDocument] model];
   if (tv == destEntity_tableView)
-    return [[activeModel entities] count];
+    {
+      return [[activeModel entities] count];
+    }
   else if (tv == srcAttrib_tableView)
     return [[(EOEntity *)[[self selectedObject] entity] attributes] count];
   else if (tv == destAttrib_tableView)
@@ -253,7 +276,6 @@ row:(int)rowIndex
       if (row != NSNotFound)
         [srcAttrib_tableView selectRow:row byExtendingSelection:NO];
       
-      [self updateConnectButton];
     }
   else if (tv == srcAttrib_tableView)
     {
@@ -262,9 +284,9 @@ row:(int)rowIndex
       
       if (row != NSNotFound)
         [destAttrib_tableView selectRow:row byExtendingSelection:NO];
-      
-      [self updateConnectButton];
     }
+
+  [self updateConnectButton];
 }
 
 - (BOOL) tableView:(NSTableView *)tv shouldSelectRow:(int)rowIndex

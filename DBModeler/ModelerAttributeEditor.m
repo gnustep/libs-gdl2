@@ -23,7 +23,6 @@
     </license>
 **/
 
-
 #include "DefaultColumnProvider.h"
 #include "ModelerAttributeEditor.h"
 #include "ModelerEntityEditor.h"
@@ -45,8 +44,7 @@
 #include <EOInterface/EODisplayGroup.h>
 
 #include <Foundation/NSRunLoop.h>
-
-
+  
 @interface NSArray (EOMAdditions)
 - (id) firstSelectionOfClass:(Class) aClass;
 @end
@@ -60,12 +58,16 @@
   NSMenuItem *mi = [[NSMenuItem alloc] initWithTitle:@"+" action:(SEL)nil keyEquivalent:@""];
 
   self = [super initWithParentEditor:parentEditor];
+  
   [DefaultColumnProvider class]; 
   _mainView = [[NSSplitView alloc] initWithFrame:NSMakeRect(0,0,100,100)];
   /* setup the attributes table view */
   scrollView = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,100,100)];
   _attributes_tableView = [[NSTableView alloc] initWithFrame:NSMakeRect(0,0,100,100)];
-  [_attributes_tableView setAutoresizesAllColumnsToFit:YES];
+  [_attributes_tableView setAutoresizesAllColumnsToFit:NO];
+  [_attributes_tableView setAllowsMultipleSelection:YES];
+  [_attributes_tableView setAllowsEmptySelection:YES];
+
   [scrollView setBorderType: NSBezelBorder];
   [scrollView setHasHorizontalScroller:YES];
   [scrollView setHasVerticalScroller:YES];
@@ -79,7 +81,8 @@
   [[cornerView cell] setArrowPosition:NSPopUpNoArrow];
   [cornerView setTitle:@"+"];
   [cornerView setPreferredEdge:NSMinYEdge];
-  
+  [cornerView setBezelStyle:NSShadowlessSquareBezelStyle];
+
   [[cornerView cell] setUsesItemFromMenu:NO];
   [[cornerView cell] setShowsFirstResponder:NO];
   [[cornerView cell] setMenuItem:mi];
@@ -95,6 +98,7 @@
   [_attributes_dg setDataSource:wds1];
   RELEASE(wds1);
   [_attributes_dg setFetchesOnLoad:YES];
+  [_attributes_dg setSelectsFirstObjectAfterFetch:NO];
   [_attributes_dg setDelegate:self];
 
   [self setupCornerView:cornerView
@@ -110,7 +114,9 @@
   [scrollView setHasHorizontalScroller:YES];
   [scrollView setHasVerticalScroller:YES];
   _relationships_tableView = [[NSTableView alloc] initWithFrame:NSMakeRect(0,0,100,100)];
-  [_relationships_tableView setAutoresizesAllColumnsToFit:YES];
+  [_relationships_tableView setAutoresizesAllColumnsToFit:NO];
+  [_relationships_tableView setAllowsMultipleSelection:YES];
+  [_relationships_tableView setAllowsEmptySelection:YES];
   [scrollView setDocumentView:_relationships_tableView];
   RELEASE(_relationships_tableView);
   [_mainView addSubview:scrollView];
@@ -121,6 +127,7 @@
   [cornerView setPreferredEdge:NSMinYEdge];
   [[cornerView cell] setArrowPosition:NSPopUpNoArrow];
   [cornerView setTitle:@"+"];
+  [cornerView setBezelStyle:NSShadowlessSquareBezelStyle];
   [[cornerView cell] setUsesItemFromMenu:NO];
   [[cornerView cell] setShowsFirstResponder:NO];
   [[cornerView cell] setMenuItem:mi];
@@ -135,6 +142,7 @@
   [_relationships_dg setDataSource:wds2];
   RELEASE(wds2);
   [_relationships_dg setFetchesOnLoad:YES];
+  [_relationships_dg setSelectsFirstObjectAfterFetch:NO];
   [_relationships_dg setDelegate:self];
   
   [self setupCornerView:cornerView
@@ -144,7 +152,7 @@
 
   [self addDefaultTableColumnsForTableView:_relationships_tableView 
 	  		displayGroup:_relationships_dg];
-
+  
   return self;
 }
 
@@ -178,19 +186,39 @@
   return flag;
 }
 
+- (void) needToFetch:(id)arg
+{
+  [_attributes_dg fetch];
+  [_relationships_dg fetch];
+}
 
 - (void) activate
 {
-  if (_entityToObserve)
-    [EOObserverCenter removeObserver:self forObject:_entityToObserve];
- 
-  _entityToObserve = [[self selectionPath] firstSelectionOfClass:[EOEntity class]];
-  [EOObserverCenter addObserver:self forObject:_entityToObserve];
+  NSArray *selPath = [self selectionPath];  
+  NSArray *selWithin = [self selectionWithinViewedObject];
+  id newEntityToObserve = [selPath firstSelectionOfClass:[EOEntity class]];
+  if (_entityToObserve != newEntityToObserve)
+    {
+      if (_entityToObserve)
+        [EOObserverCenter removeObserver:self forObject:_entityToObserve];
+
+      _entityToObserve = newEntityToObserve;
+      [EOObserverCenter addObserver:self forObject:_entityToObserve];
+      [(KVDataSource *)[_attributes_dg dataSource] setDataObject: _entityToObserve];
+      [(KVDataSource *)[_relationships_dg dataSource] setDataObject: _entityToObserve];
+    }
   
-  [(KVDataSource *)[_attributes_dg dataSource] setDataObject: _entityToObserve];
-  [(KVDataSource *)[_relationships_dg dataSource] setDataObject: _entityToObserve];
-  [_attributes_dg fetch];
-  [_relationships_dg fetch];
+  [self needToFetch:self];
+  
+  if (![[_attributes_dg selectedObjects] isEqual:selWithin]
+      && ![_attributes_dg selectObjectsIdenticalTo:selWithin
+	  			selectFirstOnNoMatch:NO])
+    [_attributes_dg clearSelection];
+  
+  if (![[_relationships_dg selectedObjects] isEqual:selWithin]
+      && ![_relationships_dg selectObjectsIdenticalTo:selWithin
+  				selectFirstOnNoMatch:NO])
+    [_relationships_dg clearSelection];
 }
 
 - (NSArray *) friendEditorClasses
@@ -200,17 +228,12 @@
 
 - (void) objectWillChange:(id)sender
 {
-  [[NSRunLoop currentRunLoop] performSelector:@selector(needToFetch:) 
-	  			       target:self
-				     argument:nil
-				        order:999
-				        modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
-}
-
-- (void) needToFetch:(id)arg
-{
-  [_attributes_dg fetch];
-  [_relationships_dg fetch];
+  [[NSRunLoop currentRunLoop]
+	  performSelector:@selector(needToFetch:) 
+	  	   target:self
+		 argument:nil
+		    order:999 /* this number is probably arbitrary */
+		    modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
 }
 
 - (NSArray *)defaultColumnNamesForClass:(Class)aClass
@@ -231,24 +254,13 @@
 
 - (void) displayGroupDidChangeSelection:(EODisplayGroup *)displayGroup
 {
+  NSArray *selObj = [displayGroup selectedObjects];
+  NSArray *selWithin = [self selectionWithinViewedObject];
 
-  NSArray *currentSelection = [_parentEditor selectionWithinViewedObject];
-  id theSelection;
-  int c = [currentSelection count];
-
-  if (!c) 
-    return;
-  else 
-    theSelection = [currentSelection objectAtIndex:0];
-  
-  if ([theSelection isKindOfClass:[EOEntity class]])
-    {
-      NSArray *vop; 
-      vop = [_parentEditor viewedObjectPath];
-      [self setViewedObjectPath: [vop arrayByAddingObject:theSelection]];
-    }
-
-  [self setSelectionWithinViewedObject: [displayGroup selectedObjects]];
+  if ([selObj count]
+      && (![selObj isEqual:selWithin])
+      && ![selWithin containsObject:_entityToObserve])
+    [self setSelectionWithinViewedObject: selObj];
 }
 
 @end

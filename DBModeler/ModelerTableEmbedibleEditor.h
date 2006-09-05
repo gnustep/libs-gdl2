@@ -33,7 +33,6 @@
  * mostly takes care of corner views right now..
  */
 @interface ModelerTableEmbedibleEditor : EOModelerEmbedibleEditor
-
 - (void) setupCornerView:(NSPopUpButton *)cornerView
 		tableView:(NSTableView *)tableView
 		displayGroup:(EODisplayGroup *)dg

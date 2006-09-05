@@ -33,18 +33,26 @@
 /* this is all stuff for key value coding.. */
 static inline NSNumber * isClassProperty(id self)
 {
-  return [NSNumber numberWithBool: [[[self entity] classProperties] containsObject:self]];
+  return [NSNumber numberWithBool:
+	  	[[[self entity] classProperties] containsObject:self]];
 }
 
 static inline void setIsClassProperty(id self, NSNumber *flag)
 {
   BOOL isProp = [flag boolValue];
-  NSArray *props = RETAIN([[self entity] classProperties]);
+  NSArray *props = [[self entity] classProperties];
 
   if (isProp)
     {
-      if (![props containsObject:self])
-        [[self entity] setClassProperties: [props arrayByAddingObject:self]];
+      if (!props)
+        {
+	  if (![[self entity] setClassProperties: [NSArray arrayWithObject:self]])
+	    NSLog(@"invalid class property");
+	}
+      else if (![props containsObject:self])
+        {
+	  [[self entity] setClassProperties: [props arrayByAddingObject:self]];
+	}
     }
   else
     {
@@ -55,25 +63,33 @@ static inline void setIsClassProperty(id self, NSNumber *flag)
 	  [[self entity] setClassProperties: newProps];
 	}
     }
-  RELEASE(props);
 }
 
 @implementation EOAttribute (ModelerAdditions)
 
 - (NSNumber *) isPrimaryKey
 {
-  return [NSNumber numberWithBool: [[[self entity] primaryKeyAttributes] containsObject:self]];
+  BOOL flag = [[[self entity] primaryKeyAttributes] containsObject:self];
+  return [NSNumber numberWithBool: flag];
 }
 
 - (void) setIsPrimaryKey:(NSNumber *)flag
 {
   BOOL isKey = [flag boolValue];
-  NSArray *pka = RETAIN([[self entity] primaryKeyAttributes]);
+  NSArray *pka = [[self entity] primaryKeyAttributes];
 
   if (isKey)
     {
-      if (![pka containsObject:self])
-        [[self entity] setPrimaryKeyAttributes: [pka arrayByAddingObject:self]];
+	if (!pka)
+	  {
+	    [[self entity]
+		setPrimaryKeyAttributes: [NSArray arrayWithObject:self]];
+	  }
+	else if (![pka containsObject:self])
+          {
+	    [[self entity]
+		setPrimaryKeyAttributes: [pka arrayByAddingObject:self]];
+	  }
     }
   else
     {
@@ -85,33 +101,63 @@ static inline void setIsClassProperty(id self, NSNumber *flag)
 	  
 	}
     }
-  RELEASE(pka);
 }
 
 - (NSNumber *) isClassProperty
 {
-  return isClassProperty(self);
+  id flag = isClassProperty(self);
+  
+  return flag;
 }
 
 - (void) setIsClassProperty:(NSNumber *)flag
 {
-  return setIsClassProperty(self, flag);
+  setIsClassProperty(self, flag);
 }
 
 - (NSNumber *) isUsedForLocking
 {
-  return [NSNumber numberWithBool:NO];
-  /* FIXME */
+  BOOL flag;
+  
+  flag = [[[self entity] attributesUsedForLocking] containsObject:self];
+  
+  return [NSNumber numberWithBool:flag];
 }
 
 - (void) setIsUsedForLocking:(NSNumber *)flag
 {
-  /* FIXME */
+  BOOL yn = [flag boolValue];
+  NSArray *la = RETAIN([[self entity] attributesUsedForLocking]);
+
+  if (yn)
+    {
+
+      if (la == nil)
+	{
+	  [[self entity]
+		setAttributesUsedForLocking:[NSArray arrayWithObject:self]];
+	}
+      else if (![la containsObject:self])
+        {
+	  [[self entity]
+		setAttributesUsedForLocking:[la arrayByAddingObject:self]];
+	}
+    }
+  else
+    {
+      if ([la containsObject:self])
+	{
+	   NSMutableArray *newLA = [NSMutableArray arrayWithArray:la];
+	   [newLA removeObject:self];
+	   [[self entity] setAttributesUsedForLocking:newLA];
+	}
+    }
 }
 
 - (NSNumber *)allowNull
 {
-  return [NSNumber numberWithBool:[self allowsNull]];
+  BOOL flag = [self allowsNull]; 
+  return [NSNumber numberWithBool:flag];
 }
 
 - (void) setAllowNull:(NSNumber *)flag
@@ -125,12 +171,13 @@ static inline void setIsClassProperty(id self, NSNumber *flag)
 @implementation EORelationship (ModelerAdditions)
 - (NSNumber *) isClassProperty
 {
-  return isClassProperty(self);
+  id flag = isClassProperty(self);
+  return flag;
 }
 
 - (void) setIsClassProperty:(NSNumber *)flag
 {
-  return setIsClassProperty(self, flag);
+  setIsClassProperty(self, flag);
 }
 
 @end

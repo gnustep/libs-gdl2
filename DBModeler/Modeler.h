@@ -33,7 +33,9 @@
 
   
 }
-
+/* runs the adaptor panel and the adaptors login panel, and sets the active
+ * documents connection dictionary. */
+- (void) setAdaptor:(id)sender;
 @end
 
 #endif // __Modeler_H_

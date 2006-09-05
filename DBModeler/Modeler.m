@@ -30,6 +30,7 @@
 #include "Modeler.h"
 #include "ModelerEntityEditor.h"
 #include "SQLGenerator.h"
+#include "Preferences.h"
 
 #include <EOModeler/EOModelerApp.h>
 #include <EOModeler/EOModelerEditor.h>
@@ -239,11 +240,40 @@
 {
   EOModel           *newModel = [[EOModel alloc] init];
   NSString		*modelName;
-  unsigned int nDocs;
+  NSArray *docs = [EOMApp documents];
+  unsigned docNumber, c, i;
 
-  nDocs = [[EOMApp documents] count];
-      
-  modelName=[NSString stringWithFormat:@"Model_%u",++nDocs];
+  docNumber = [[EOMApp documents] count];
+  
+  c = [docs count];
+  docNumber = c;
+
+  /* look for the largest NNNN in models named "Model_NNNN" 
+   * or the total number of models whichever is greater.
+   */
+  for (i = 0; i < c; i++)
+     {
+       NSString *name = [(EOModel*)[[docs objectAtIndex:i] model] name];
+
+       if ([name hasPrefix:@"Model_"])
+         { 
+           NSRange range;
+           unsigned tmp;
+  
+           name = [name substringFromIndex:6];
+           range = [name rangeOfCharacterFromSet:[[NSCharacterSet decimalDigitCharacterSet] invertedSet]];
+           if (!(range.location == NSNotFound) && !(range.length == 0))
+             continue;
+           range = [name rangeOfCharacterFromSet:[NSCharacterSet decimalDigitCharacterSet]];
+           if (!(range.location == NSNotFound) && !(range.length == 0))
+             {
+                tmp = [name intValue];
+                docNumber = (docNumber < ++tmp) ? tmp : docNumber;
+             }
+         }
+     }
+  
+  modelName = [NSString stringWithFormat:@"Model_%u",docNumber];
   [newModel setName:modelName];
   [self _newDocumentWithModel:newModel];
   RELEASE(newModel);
@@ -301,6 +331,10 @@
   
   adaptorName = [adaptorsPanel runAdaptorsPanel];
   RELEASE(adaptorsPanel);
+  
+  if (!adaptorName)
+    return;
+
   [[[EOMApp activeDocument] model] setAdaptorName: adaptorName]; 
   adaptor = [EOAdaptor adaptorWithName: adaptorName];
   [[[EOMApp activeDocument] model] setConnectionDictionary:[adaptor runLoginPanel]];
@@ -312,26 +346,37 @@
   [EOMInspectorController showInspector];
 }
 
-- (void) application:(NSApplication *)theApp openFile:(NSString *)filename
+- (BOOL) application:(NSApplication *)theApp openFile:(NSString *)filename
 {
   NSFileManager *fm = [NSFileManager defaultManager];
   NSString *pathExt = [[filename pathExtension] lowercaseString];
-  
-  if ([fm isReadableFileAtPath:filename] == YES
-      && ([pathExt isEqual:@"eomodeld"]
-          || [pathExt isEqual:@"eomodel"]))
+  BOOL flag;
+#if 0
+  NSLog(@"%@ %@ %i %i %i %i %i", NSStringFromSelector(_cmd), filename,
+	[fm isReadableFileAtPath:filename] == YES,
+	[pathExt isEqual:@"eomodel"],
+	[pathExt isEqual:@"eomodeld"],
+	[fm fileExistsAtPath:filename isDirectory:&flag],
+	flag);
+#endif
+  if (([fm isReadableFileAtPath:filename] == YES
+       && [pathExt isEqual:@"eomodel"])
+      || ([pathExt isEqual:@"eomodeld"]
+	  && [fm fileExistsAtPath:filename isDirectory:&flag] && flag))
     {
       EOModel *model;
 
       NS_DURING
 	model = [[EOModel alloc] initWithContentsOfFile:filename];
       NS_HANDLER
-	return;
+	return NO;
       NS_ENDHANDLER
 
       [self _newDocumentWithModel:model];
       RELEASE(model);
+      return YES;
     }
+  return NO;
 }
 
 - (void) open:(id)sender
@@ -371,6 +416,11 @@
 - (void) generateSQL:(id)sender
 {
   [[SQLGenerator sharedGenerator] openSQLGenerator:self];
+}
+
+- (void) openPrefs:(id)sender
+{
+  [[DBModelerPrefs sharedPreferences] showPreferences:self]; 
 }
 
 @end

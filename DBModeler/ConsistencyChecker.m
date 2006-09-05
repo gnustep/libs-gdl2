@@ -23,9 +23,8 @@
     </license>
 **/
 
-#include <Foundation/NSNotification.h>
-
 #include "ConsistencyChecker.h"
+#include "Preferences.h"
 
 #include <EOModeler/EOModelerApp.h>
 #include <EOModeler/EOModelerDocument.h>
@@ -35,6 +34,8 @@
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EORelationship.h>
+
+#include <Foundation/NSNotification.h>
 
 #define MY_PRETTY NSMutableAttributedString \
 	mutableAttributedStringWithBoldSubstitutionsWithFormat
@@ -366,6 +367,7 @@ static BOOL isInvalid(NSString *str)
   NSArray *arr;
   unsigned i, c, j, d;
   BOOL flag = YES;
+
   for (i = 0,c = [ents count]; i < c; i++)
     {
       EOEntity *entity = [ents objectAtIndex:i];
@@ -405,12 +407,28 @@ static BOOL isInvalid(NSString *str)
 {
   EOModel *model = [[notif userInfo] objectForKey:EOMConsistencyModelObjectKey];
   doc = [notif object];
-  /* TODO user defaults */
-  [self attributeDetailsCheckForModel:model];
-  [self primaryKeyCheckForModel:model];
-  [self externalNameCheckForModel:model];
-  [self relationshipCheckForModel:model];
-  [self inheritanceCheckForModel:model];
+
+  if ([[DBModelerPrefs sharedPreferences] attributeDetailsCheck])
+    [self attributeDetailsCheckForModel:model];
+  
+  if ([[DBModelerPrefs sharedPreferences] primaryKeyCheck])
+    [self primaryKeyCheckForModel:model];
+  
+  if ([[DBModelerPrefs sharedPreferences] externalNameCheck])
+    [self externalNameCheckForModel:model];
+  
+  if ([[DBModelerPrefs sharedPreferences] relationshipCheck])
+    [self relationshipCheckForModel:model];
+  
+  if ([[DBModelerPrefs sharedPreferences] inheritanceCheck])
+    [self inheritanceCheckForModel:model];
+  
+  if ([[DBModelerPrefs sharedPreferences] storedProcedureCheck])
+    [self storedProcedureCheckForModel:model]; 
+  
+  if ([[DBModelerPrefs sharedPreferences] entityStoredProcedureCheck])
+    [self entityStoredProcedureCheckForModel:model];
+
   doc = nil;
 }
 @end

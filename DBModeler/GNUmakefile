@@ -20,13 +20,19 @@ endif
 
 ADDITIONAL_NATIVE_LIBS += EOInterface gnustep-db2modeler
 
-$(APP_NAME)_RESOURCE_FILES =		\
-	Resources/Key_On.tiff		\
-	Resources/ClassProperty_On.tiff \
-	Resources/ModelDrag.tiff	\
-	Resources/SQLGenerator.gorm	\
-	Resources/Info-gnustep.plist    \
-	Resources/ConsistencyResults.gorm
+$(APP_NAME)_RESOURCE_FILES =			\
+	Resources/Key_On.tiff			\
+	Resources/ClassProperty_On.tiff 	\
+	Resources/ModelDrag.tiff		\
+	Resources/SQLGenerator.gorm		\
+	Resources/Info-gnustep.plist    	\
+	Resources/Key_Header.tiff		\
+	Resources/Locking_On.tiff		\
+	Resources/Locking_Header.tiff		\
+	Resources/ClassProperty_Header.tiff	\
+	Resources/Preferences.gorm		\
+	Resources/ConsistencyResults.gorm	\
+	Resources/DBModeler.tiff
 
 $(APP_NAME)_OBJC_FILES =		\
 	main.m				\
@@ -41,6 +47,7 @@ $(APP_NAME)_OBJC_FILES =		\
 	ModelerTableEmbedibleEditor.m	\
 	SQLGenerator.m			\
 	ConsistencyResults.m		\
+	Preferences.m			\
 	ConsistencyChecker.m
 
 include $(GNUSTEP_MAKEFILES)/application.make

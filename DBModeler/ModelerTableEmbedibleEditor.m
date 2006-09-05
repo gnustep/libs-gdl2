@@ -85,18 +85,18 @@
 
       provider = [EOMApp providerForName: columnName class:aClass]; 
       
-      /* THIS *MUST* be before initColumn:class:name:displayGroup:document calls */
+      /*
+       * THIS *MUST* be before initColumn:class:name:displayGroup:document calls       */
       [tv addTableColumn:tc];
       RELEASE(tc);
       
       [provider initColumn:tc class:aClass name:columnName
 	      displayGroup:dg document:[self document]]; 
-      
       item = (NSMenuItem *)[cv itemWithTitle:columnName];
       [item setRepresentedObject:tc];
       [item setState:NSOnState];
     }
-  [tv sizeToFit];
+  [tv tile];
 }
 
 - (void) addTableColumnForItem:(NSMenuItem <NSMenuItem>*)item
@@ -120,8 +120,8 @@
            name:columnName
    displayGroup:[[tv delegate] displayGroupForAspect:@"source"] // <-+-^
        document:[self document]];
-  
-  [tv sizeToFit];
+  [tc sizeToFit]; 
+  [tv tile];
 }
 	  
 - (void) removeTableColumnForItem:(NSMenuItem <NSMenuItem>*)item

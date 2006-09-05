@@ -102,7 +102,7 @@
 
       _topTable = [[NSTableView alloc] initWithFrame:NSMakeRect(0,0,10,10)];
       _bottomTable = [[NSTableView alloc] initWithFrame:NSMakeRect(0,0,10,10)];
-      [_topTable setAutoresizesAllColumnsToFit:YES];
+      [_topTable setAutoresizesAllColumnsToFit:NO];
       [scrollView setDocumentView:_topTable];
       RELEASE(_topTable);
       [_splitView addSubview:scrollView];
@@ -112,7 +112,7 @@
       [scrollView setHasHorizontalScroller:YES];
       [scrollView setHasVerticalScroller:YES];
       [scrollView setBorderType: NSBezelBorder];
-      [_bottomTable setAutoresizesAllColumnsToFit:YES];
+      [_bottomTable setAutoresizesAllColumnsToFit:NO];
       [scrollView setDocumentView:_bottomTable];
       RELEASE(_bottomTable);
       [_splitView addSubview:scrollView];
@@ -124,6 +124,8 @@
       cornerView = [[NSPopUpButton alloc] initWithFrame:[[_topTable cornerView] bounds] pullsDown:YES];
       [cornerView setPreferredEdge:NSMinYEdge];
       [cornerView setTitle:@"+"];
+      [cornerView setBezelStyle:NSShadowlessSquareBezelStyle];
+      [[cornerView cell] setBezelStyle:NSShadowlessSquareBezelStyle];
       [[cornerView cell] setArrowPosition:NSPopUpNoArrow];
       //[mi setImage:[NSImage imageNamed:@"plus"]];
      // [mi setOnStateImage:[NSImage imageNamed:@"plus"]];
@@ -153,7 +155,7 @@
       RELEASE(wds);
       [dg setFetchesOnLoad:YES];
       [dg setDelegate: self]; 
-  
+      
       [self setupCornerView:cornerView
 	  tableView:_topTable
 	  displayGroup:dg
@@ -183,6 +185,9 @@
 - (void) activate
 {
   [dg fetch];
+
+  [dg selectObjectsIdenticalTo:[self selectionWithinViewedObject]
+	  selectFirstOnNoMatch:NO];
 }
 
 - (NSView *)mainView
@@ -192,20 +197,25 @@
 
 - (void) objectWillChange:(id)anObject
 {
-  [[NSRunLoop currentRunLoop] performSelector:@selector(needToFetch:) target:self argument:nil order:999 modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
+  [[NSRunLoop currentRunLoop]
+	  performSelector:@selector(needToFetch:)
+	  	   target:self
+		 argument:nil
+		    order:999 /* this number is probably arbitrary */
+		    modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
 }
 
 - (void) needToFetch:(id)sth
 {
   [dg fetch];
-  [_topTable reloadData];
 }
+
 @end
 
 @implementation ModelerEntityEditor (DisplayGroupDelegate)
 - (void) displayGroupDidChangeSelection:(EODisplayGroup *)displayGroup
 {
-  [self setSelectionWithinViewedObject: [displayGroup selectedObjects]];
+  [[self parentEditor] setSelectionWithinViewedObject: [displayGroup selectedObjects]];
 }
 
 @end

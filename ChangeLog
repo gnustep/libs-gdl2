@@ -52,6 +52,54 @@
 	(-[EOModelerEmbedibleEditor dealloc]): Implement.
 	(-[EOModelerEmbedibleEditor initWithParentEditor:]): Observe
 	EOMSelectionChangedNotification.
+
+	DBModeler/ConsistencyChecker.m (+modelConsistencyCheck:): Honor
+	validation preferences.
+	DBModeler/Modeler.m (-new:): Reimplement.
+	(-setAdaptor:): Bail out it adaptor cannot be located.
+	(-application:openFile:): Fine tune path checking and correct return
+	values.
+	(-openPrefs:): Implement.
+	* DBModeler/Inspectors/RelationshipInspector.m
+	(-displayName): Implement.
+	(-selectedEntity): Validate selected row before commencing.
+	(-selectedDestinationAttribute): Reimplement.
+	(-updateConnectButton): Update enabled state of connect button.
+	(-refresh): Correct handling of src/destAttrib_tableView.
+	(-tableViewSelectionDidChange:): Allways call updateConnectButton.
+	* DBModeler/SQLGenerator.m (-openSQLGenerator:): Reimplement.
+	(-executeSQL:): Handle invalid adpator or connection information.
+	(-saveAs:): Handle abort correctly.
+	(-generate): Handle missing expression class.
+	* DBModeler/ModelerTableEmbedibleEditor.h
+	* DBModeler/ModelerEntityEditor.m (initWithParentEditor:): Correct
+	autoresize behavior.
+	(-activate): Update selection.
+	(-needToFetch:): Do not reloadData in _topTable.
+	(-displayGroupDidChangeSelection:): Update selection on parent.
+	* DBModeler/ModelerTableEmbedibleEditor.m
+	(-addDefaultTableColumnsForTableView:displayGroup:): Call tile instead
+	of sizeToFit.
+	* DBModeler/EOAdditions.m: Fix leaks.
+	(setIsClassProperty): Reimplement.
+	(-[setIsPrimaryKey:]): Ditto.
+	(-[setIsClassProperty:]): Correct call to function.
+	(-[isUsedForLocking]): Implement.
+	(-[setIsUsedForLocking:]): Ditto.
+	* DBModeler/MainModelEditor.h
+	* DBModeler/MainModelEditor.m: Update view handling.
+	* DBModeler/DefaultColumnProvider.m: Update handling of properties.
+	* DBModeler/ModelerAttributeEditor.m: Update general GUI interaction.
+	* DBModeler/Preferences.h: New file.
+	* DBModeler/Preferences.m: Ditto.
+	* DBModeler/Inspectors/RelationshipInspector.tiff: New file.
+	* DBModeler/Inspectors/GNUmakefile: Add new file.
+	* DBModeler/Resources/Preferences.gorm: New files.
+	* DBModeler/Resources/Key_Header.tiff: Ditto.
+	* DBModeler/Resources/ClassProperty_Header.tiff: Ditto.
+	* DBModeler/Resources/Locking_On.tiff: Ditto.
+	* DBModeler/Resources/Key_On.tiff: Ditto.
+	* DBModeler/GNUmakefile: Add new files.
 	
 2006-05-09  Matt Rice  <ratmice@yahoo.com>
             David Ayers  <ayers@fsfe.org>

@@ -47,6 +47,7 @@
 #include <AppKit/NSScrollView.h>
 #include <AppKit/NSSplitView.h>
 #include <AppKit/NSTableColumn.h>
+#include <AppKit/NSView.h>
 
 #include <Foundation/NSNotification.h>
 #define DEBUG_STUFF 0 
@@ -77,12 +78,11 @@
   if ((self = [super initWithDocument:document]))
     {
       NSTableColumn *_col;
-      NSSplitView *vSplit = [[NSSplitView alloc] initWithFrame:NSMakeRect(0,0,400,400)];
       NSScrollView *sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,100,400)];
-     // NSImageCell *_cell;
+      
+      _vSplit = [[NSSplitView alloc] initWithFrame:NSMakeRect(0,0,600,400)];
 
-      [vSplit setVertical:YES];
-
+      [_vSplit setVertical:YES];
 
       _iconPath = [[ModelerOutlineView alloc] initWithFrame:NSMakeRect(0,0,100,400)];
       [_iconPath setIndentationPerLevel:8.0];
@@ -90,15 +90,13 @@
       
       [_iconPath setDelegate:self];
       [_iconPath setDataSource:self];
-      //_cell = [[NSImageCell alloc] init];
       _col = [(NSTableColumn *)[NSTableColumn alloc] initWithIdentifier:@"name"];
       [_iconPath addTableColumn:_col];
       [_iconPath setOutlineTableColumn:AUTORELEASE(_col)];
-      //[[_iconPath tableColumnWithIdentifier:@"name"] setDataCell:_cell];
       [_iconPath setAutoresizesAllColumnsToFit:YES];
       [_iconPath sizeToFit];
       
-      _window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,400,400)
+      _window = [[NSWindow alloc] initWithContentRect:NSMakeRect(20,80,600,400)
       					styleMask: NSTitledWindowMask | NSMiniaturizableWindowMask | NSClosableWindowMask | NSResizableWindowMask
       					backing:NSBackingStoreBuffered
 					defer:YES];
@@ -110,24 +108,20 @@
       [_iconPath setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable];
       [sv setDocumentView:_iconPath];
       RELEASE(_iconPath);
-      [vSplit addSubview:sv];
+      [_vSplit addSubview:sv];
       RELEASE(sv);
       
+      _editorView = [[NSBox alloc] initWithFrame:NSMakeRect(0,0,500,400)];
       
-      _box = [[NSBox alloc] initWithFrame:NSMakeRect(0,0,300,400)];
-      [_box setTitle:@""];
-      [_box setBorderType:NSNoBorder];
-      [_box setAutoresizesSubviews:YES];
-      [_box setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-      [vSplit addSubview: _box];
-      RELEASE(_box); 
+      [_vSplit addSubview: _editorView];
+      RELEASE(_editorView); 
       
-      [vSplit setAutoresizesSubviews:YES];
-      [vSplit setAutoresizingMask: NSViewWidthSizable
+      [_vSplit setAutoresizesSubviews:YES];
+      [_vSplit setAutoresizingMask: NSViewWidthSizable
 	      			   | NSViewHeightSizable];
-      [vSplit adjustSubviews];
-      [[_window contentView] addSubview:vSplit];
-      RELEASE(vSplit);
+      [_vSplit adjustSubviews];
+      [[_window contentView] addSubview:_vSplit];
+      RELEASE(_vSplit);
       
       /* so addEntity: addAttribute: ... menu items work */
       [_window setDelegate: document];
@@ -140,12 +134,14 @@
     }
   return self;
 }
+
 - (void) dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver: self];
   RELEASE(_window);
   [super dealloc];
 }
+
 - (void) ecStuff:(NSNotification *)notif
 {
   if ([[notif object] isKindOfClass:[EOEditingContext class]])
@@ -172,10 +168,11 @@
     }
   [mainView setAutoresizesSubviews:YES];
   [mainView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-  [mainView setFrame: [_box frame]];
+  [mainView setFrame: [_editorView frame]];
   
-  [_box setContentView: mainView];
-  [_box setNeedsDisplay:YES];
+  [_vSplit replaceSubview:_editorView with:mainView];
+  _editorView = mainView;
+  [_editorView setNeedsDisplay:YES];
 }
 
 - (void)activateEditorWithClass:(Class)embedibleEditorClass
@@ -354,6 +351,7 @@
   EOModel *bar = [_document model];
   id item = nil;
   int selectedRow = [_iconPath selectedRow];
+  
   if (selectedRow == -1)
     return;
   while (bar != item)

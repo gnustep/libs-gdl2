@@ -33,6 +33,7 @@
 #include <EOAccess/EOEntity.h>
 
 #include <AppKit/NSTableColumn.h>
+#include <AppKit/NSTableHeaderCell.h>
 #include <AppKit/NSCell.h>
 #include <AppKit/NSTextFieldCell.h>
 #include <AppKit/NSButtonCell.h>
@@ -42,43 +43,49 @@
 #include <Foundation/NSDictionary.h>
 
 #define DICTSIZE(dict) (sizeof(dict) / sizeof(dict[0]))
-#define uhuh (id)1
+
 static DefaultColumnProvider *_sharedDefaultColumnProvider;
 static NSMutableDictionary *_aspectsAndKeys;
-
+/* todo make this a struct instead of an array */
 /*	object			key 			default */
-static id attribute_columns[][3] = {
-	{@"allowNull",		@"Allows null",		uhuh}, 
-	{@"isClassProperty",	@"Class property",	uhuh},
-	{@"columnName",		@"Column name",		uhuh},
-	{@"definition",		@"Definition",		nil},
-	{@"externalType",	@"External Type",	uhuh},
-	{@"isUsedForLocking",	@"Locking",		uhuh},
-	{@"name",		@"Name",		uhuh},
-	{@"precision",		@"Precision", 	 	nil},	
-	{@"isPrimaryKey",	@"Primary key",		uhuh},
-	{@"readFormat",		@"Read format", 	nil},
-	{@"scale",		@"Scale",		nil}, 
-	{@"valueClassName",	@"Value class name",	uhuh},
-	{@"valueType",		@"Value type",		nil},
-	{@"width",		@"Width",		uhuh}, 
-	{@"writeFormat",	@"Write format",	nil} 
+struct column_info {
+  NSString *key;
+  NSString *name;
+  BOOL isDefault;
+};
+
+static struct column_info attribute_columns[] = {
+	{@"allowNull",		@"Allows null",		YES}, 
+	{@"isClassProperty",	@"Class property",	YES},
+	{@"columnName",		@"Column name",		YES},
+	{@"definition",		@"Definition",		NO},
+	{@"externalType",	@"External Type",	YES},
+	{@"isUsedForLocking",	@"Locking",		YES},
+	{@"name",		@"Name",		YES},
+	{@"precision",		@"Precision", 	 	NO},	
+	{@"isPrimaryKey",	@"Primary key",		YES},
+	{@"readFormat",		@"Read format", 	NO},
+	{@"scale",		@"Scale",		NO}, 
+	{@"valueClassName",	@"Value class name",	YES},
+	{@"valueType",		@"Value type",		NO},
+	{@"width",		@"Width",		YES}, 
+	{@"writeFormat",	@"Write format",	NO} 
 };
   
-static id relationship_columns[][3]= {
-	{@"isClassProperty",		@"Class property",	uhuh},
-	{@"definition",			@"Definition",		nil}, 
-	{@"name",			@"Name",		uhuh},
-	{@"destinationEntity.name",	@"Destination Entity",  uhuh}	
+static struct column_info relationship_columns[]= {
+	{@"isClassProperty",		@"Class property",	YES},
+	{@"definition",			@"Definition",		NO}, 
+	{@"name",			@"Name",		YES},
+	{@"destinationEntity.name",	@"Destination Entity",  YES}	
 	
 };
 
-static id entity_columns[][3] = {
-	{@"name",		@"Name",		uhuh},
-	{@"className",		@"Class name",		uhuh},
-	{@"externalName",	@"External name",	uhuh},
-	{@"externalQuery",	@"External query",	nil},
-	{@"parentEntity.name",	@"Parent",		nil}
+static struct column_info entity_columns[] = {
+	{@"name",		@"Name",		YES},
+	{@"className",		@"Class name",		YES},
+	{@"externalName",	@"External name",	YES},
+	{@"externalQuery",	@"External query",	NO},
+	{@"parentEntity.name",	@"Parent",		NO}
 
 };
 
@@ -97,7 +104,7 @@ static id entity_columns[][3] = {
  }
  * or something not sure if id columns[][2] would work as a method so i'll use
  * a function.. it _should_ but iirc buggy somewhere (forwarding?) */
-void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableArray *defaultColumnsArray)
+void registerColumnsForClass(struct column_info columns[], int count, Class aClass,NSMutableArray *defaultColumnsArray)
 {
   id *objects;
   id *keys;
@@ -111,9 +118,9 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
 
   for (i = 0; i < count; i++)
      {
-       objects[i] = columns[i][0];
-       keys[i] = columns[i][1];
-       if (columns[i][2] == uhuh)
+       objects[i] = columns[i].key;
+       keys[i] = columns[i].name;
+       if (columns[i].isDefault == YES)
 	 {
 	   [defaultColumnsArray addObject:keys[i]]; 
 	 }
@@ -154,6 +161,31 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
 			  DefaultRelationshipColumns);
 }
 
+- (void) setupTitleForColumn:(NSTableColumn *)tc named:(NSString *)name
+{
+  NSTableHeaderCell *headerCell = [tc headerCell];
+  if ([name isEqual:@"Primary key"])
+    {
+      NSImage *img = [NSImage imageNamed:@"Key_Header"];
+      [headerCell setImage:img];
+    }
+  else if ([name isEqual:@"Class property"])
+    [headerCell setImage:[NSImage imageNamed:@"ClassProperty_Header"]];
+  else if ([name isEqual:@"Locking"])
+    [headerCell setImage:[NSImage imageNamed:@"Locking_Header"]];
+  else if ([name isEqual:@"Name"])
+    {
+      [tc setWidth:100.0];
+      [headerCell setStringValue:name];
+      return;
+    }
+  else
+    {
+      [headerCell setStringValue:name];
+    }
+  [tc sizeToFit];
+}
+
 - (NSCell *)cellForColumnNamed:(NSString *)name
 {
 
@@ -192,7 +224,7 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
       [cell setImagePosition:NSImageOnly];
       [cell setBordered:NO];
       [cell setBezeled:NO];
-      [cell setAlternateImage:[NSImage imageNamed:@"ClassProperty_On"]];
+      [cell setAlternateImage:[NSImage imageNamed:@"Locking_On"]];
       [cell setControlSize: NSSmallControlSize];
       [cell setEditable:YES];
       return AUTORELEASE(cell);
@@ -233,10 +265,10 @@ void registerColumnsForClass(id columns[][3], int count, Class aClass,NSMutableA
     aspectKey = [[_aspectsAndKeys objectForKey:class] objectForKey:columnName];
     aspect = @"value";
     association = [[EOColumnAssociation alloc] initWithObject:tc];
-    [[tc headerCell] setStringValue:columnName];
     cell = [self cellForColumnNamed:columnName];
     [tc setEditable:[cell isEditable]];
     [tc setDataCell:cell];
+    [self setupTitleForColumn:tc named:columnName];
     [association bindAspect:aspect displayGroup:displayGroup key:aspectKey];
     [association establishConnection];
     [association release];

@@ -24,6 +24,7 @@
 **/
 
 #include "SQLGenerator.h"
+#include "Modeler.h"
 
 #include <Foundation/NSException.h>
 #include <Foundation/NSDictionary.h>
@@ -101,11 +102,23 @@ static NSString *_otherScript;
 
 - (void) openSQLGenerator:(id)sender;
 {
+  EOAdaptor *adaptor;
+  
   while (loadedNib && !goodToGo)
     {
       /* wait.. */ 
     }
-  [_window makeKeyAndOrderFront:self];
+  
+  adaptor = [[EOMApp activeDocument] adaptor];
+  if (!adaptor)
+    {
+      [[EOMApp delegate] setAdaptor:self];
+    }
+  
+  adaptor = [[EOMApp activeDocument] adaptor];
+
+  if (adaptor)
+    [_window makeKeyAndOrderFront:self];
 }
 
 - (IBAction) executeSQL:(id)sender
@@ -119,6 +132,30 @@ static NSString *_otherScript;
   
   if ([[_sqlOutput string] length] == 0)
     return;
+  
+  if (!adaptor)
+    {
+      [[EOMApp delegate] setAdaptor:self];
+      adaptor = [[EOMApp activeDocument] adaptor];
+      connDict = [adaptor connectionDictionary];
+    }
+  else if ([[connDict allKeys] count] == 0)
+    {
+      connDict = [adaptor runLoginPanel];
+
+      if (connDict)
+	[adaptor setConnectionDictionary:connDict];
+    }
+ 
+  if (!adaptor || [[connDict allKeys] count] == 0)
+    {
+      NSRunAlertPanel(@"Error",
+		      @"SQL generator requires a valid adaptor and connection dictionary",
+		      @"Ok",
+		      nil,
+		      nil);
+      return;
+    }
   
   if ([adaptor hasOpenChannels])
     {
@@ -204,13 +241,13 @@ static NSString *_otherScript;
 - (IBAction) saveAs:(id)sender
 {
   id savePanel = [NSSavePanel savePanel];
-  NSString *path;
   int result = [savePanel runModal];
   if (result == NSOKButton)
     {
+      NSString *path;
       path = [savePanel filename];
+      [[_sqlOutput string] writeToFile:path atomically:YES];
     }
-  [[_sqlOutput string] writeToFile:path atomically:YES];
 }
 
 - (IBAction) switchChanged:(id)sender
@@ -227,6 +264,13 @@ static NSString *_otherScript;
   int i, c;
   NSButton *btn;
 
+  if (!expr)
+    {
+      [[EOMApp delegate] setAdaptor:self];
+      expr = [[[EOMApp activeDocument] adaptor] expressionClass];
+      if (!expr) return;
+    }
+  
   for (i = 0, c = [adminSwitchButtons count]; i < c; i++)
      {
        btn = [adminSwitchButtons objectAtIndex:i];

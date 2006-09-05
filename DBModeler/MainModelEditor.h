@@ -26,15 +26,16 @@
 
 #include <EOModeler/EOModelerEditor.h>
 
-#include <AppKit/NSBox.h>
 #include <AppKit/NSOutlineView.h>
 #include <AppKit/NSWindow.h>
+#include <AppKit/NSSplitView.h>
 
 @interface MainModelEditor : EOModelerCompoundEditor
 {
-  NSBox         *_box;
+  NSView	*_editorView;
   NSWindow      *_window;
   NSOutlineView *_iconPath;
+  NSSplitView   *_vSplit;
 }
 
 @end
