@@ -7,7 +7,7 @@
     Authors = (
         "Matt Rice <ratmice@yahoo.com>"
     );
-    Copyright = "Copyright \U00A9 2005 Free Software Foundation";
+    Copyright = "Copyright \U00A9 2005, 2006 Free Software Foundation";
     CopyrightDescription = "Released under the GNU GPL. See COPYING for details.";
     FullVersionID = 0.0.0;
     GSMainMarkupFile = "";

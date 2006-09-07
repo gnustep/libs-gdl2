@@ -79,7 +79,6 @@
 {
   [EOObserverCenter removeObserver:self forObject:[[self document] model]];
   RELEASE(_splitView);
-  [dg setDataSource:nil];
   RELEASE(dg);
   [super dealloc];
 }

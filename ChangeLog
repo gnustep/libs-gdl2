@@ -1,3 +1,12 @@
+2006-09-07  Matt Rice  <ratmice@yahoo.com>
+
+	* DBModeler/Resources/DBModeler.tiff: New file.
+	* DBModeler/Resources/Locking_Header.tiff: Ditto.
+	* DBModeler/Resources/Key_On.tiff: Add check box background.
+	* DBModeler/Resources/Info-GNUstep.plist: Update info panel copyright.
+	* DBModeler/ModelerEntityEditor.m (-dealloc): Don't set the datasource
+	to nil, its handled in EODisplayGroup -dealloc.
+
 2006-05-09  Matt Rice  <ratmice@yahoo.com>
 
 	* EOInterface/EOAssociation.m (-establishConnection):  Simplify to
