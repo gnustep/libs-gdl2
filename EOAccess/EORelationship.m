@@ -2168,9 +2168,9 @@ dst entity primaryKeyAttributeNames
 }
 
 /** Return dictionary of key/value for destination object of source row/object **/
-- (NSDictionary*) _foreignKeyForSourceRow: (NSDictionary*)row
+- (EOMutableKnownKeyDictionary *) _foreignKeyForSourceRow: (NSDictionary*)row
 {
-  NSDictionary *foreignKey = nil;
+  EOMutableKnownKeyDictionary *foreignKey = nil;
   EOMKKDSubsetMapping *sourceRowToForeignKeyMapping = nil;
 
   EOFLOGObjectFnStart();
@@ -2380,7 +2380,7 @@ dst entity primaryKeyAttributeNames
   return keyMap;
 }
 
-- (id) _leftSideKeyMap
+- (NSDictionary *) _leftSideKeyMap
 {
   NSDictionary *keyMap = nil;
 

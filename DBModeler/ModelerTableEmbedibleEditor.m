@@ -70,7 +70,7 @@
 }
 
 - (void) addDefaultTableColumnsForTableView:(NSTableView *)tv
-		displayGroup:(EODisplayGroup *)dg		
+			       displayGroup:(EODisplayGroup *)dg
 {
   Class aClass = [[(NSPopUpButton*)[tv cornerView] cell] representedObject];
   NSArray *columnNames = [self defaultColumnNamesForClass:aClass];
@@ -78,7 +78,7 @@
   for (i = 0, c = [columnNames count]; i < c; i++)
     {
       NSString *columnName = [columnNames objectAtIndex:i];
-      NSPopUpButton *cv = [tv cornerView];
+      NSPopUpButton *cv = (id)[tv cornerView];
       NSMenuItem <NSMenuItem>*item;
       id <EOMColumnProvider>provider;
       NSTableColumn *tc = [[NSTableColumn alloc] initWithIdentifier:nil];

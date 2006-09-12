@@ -75,8 +75,8 @@ GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 }
 
 /* Creating an EOAdaptor */
-+ (EOAdaptor *)adaptorWithModel: (EOModel *)model;
-+ (EOAdaptor *)adaptorWithName: (NSString *)name;
++ (id)adaptorWithModel: (EOModel *)model;
++ (id)adaptorWithName: (NSString *)name;
 
 + (void)setExpressionClassName: (NSString *)sqlExpressionClassName
               adaptorClassName: (NSString *)adaptorClassName;

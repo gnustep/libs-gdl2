@@ -35,7 +35,7 @@ typedef enum KeyType
 
 @interface KeyWrapper: NSObject
 {
-  id _key;
+  NSString *_key;
   KeyType _type;
 }
 + (id) wrapperWithKey:(NSString *)key type:(KeyType)type;

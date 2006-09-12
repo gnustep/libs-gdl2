@@ -557,8 +557,8 @@ NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
   return object;
 }
 
-- (id)rawRowsForEntityNamed: (NSString *)entityName
-	    qualifierFormat: (NSString *)format,...
+- (NSArray *)rawRowsForEntityNamed: (NSString *)entityName
+		   qualifierFormat: (NSString *)format,...
 {
   EOQualifier *qualifier;
   EOFetchSpecification *fetchSpec;
@@ -583,9 +583,9 @@ NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
   return results;
 }
 
-- (id)rawRowsMatchingValue: (id)value
-		    forKey: (NSString *)key
-	       entityNamed: (NSString *)entityName
+- (NSArray *)rawRowsMatchingValue: (id)value
+			   forKey: (NSString *)key
+		      entityNamed: (NSString *)entityName
 {
   NSDictionary *valueDict;
   NSArray *results;
@@ -603,8 +603,8 @@ NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
   return results;
 }
 
-- (id)rawRowsMatchingValues: (NSDictionary *)values
-		entityNamed: (NSString *)entityName
+- (NSArray *)rawRowsMatchingValues: (NSDictionary *)values
+		       entityNamed: (NSString *)entityName
 {
   EOQualifier *qualifier;
   EOFetchSpecification *fetchSpec;
@@ -624,8 +624,8 @@ NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
   return results;
 }
 
-- (id)rawRowsWithSQL: (NSString *)sqlString
-	  modelNamed: (NSString *)name
+- (NSArray *)rawRowsWithSQL: (NSString *)sqlString
+		 modelNamed: (NSString *)name
 {
   EODatabaseContext *databaseContext;
   EODatabaseChannel *databaseChannel;
@@ -666,8 +666,8 @@ NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
   return results;
 }
 
-- (id)rawRowsWithStoredProcedureNamed: (NSString *)name
-			    arguments: (NSDictionary *)args
+- (NSArray *)rawRowsWithStoredProcedureNamed: (NSString *)name
+				   arguments: (NSDictionary *)args
 {
   EODatabaseContext *databaseContext;
   EODatabaseChannel *databaseChannel;
@@ -710,8 +710,8 @@ NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
   return results;
 }
 
-- (id)executeStoredProcedureNamed: (NSString *)name
-			arguments: (NSDictionary *)args
+- (NSDictionary *)executeStoredProcedureNamed: (NSString *)name
+				    arguments: (NSDictionary *)args
 {
   EODatabaseContext *databaseContext;
   EODatabaseChannel *databaseChannel;
@@ -758,7 +758,7 @@ NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
                entityNamed: entityName];
 }
 
-- (id)databaseContextForModelNamed: (NSString*)name
+- (EODatabaseContext *)databaseContextForModelNamed: (NSString *)name;
 {
   EOModelGroup *modelGroup;
   EOModel *model;
@@ -816,7 +816,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   return object;
 }
 
-- (id)primaryKeyForObject: (id)object
+- (NSDictionary *)primaryKeyForObject: (id)object;
 {
   EOKeyGlobalID *gid;
   EOEntity *entity;
@@ -834,8 +834,8 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   return newDict;
 }
 
-- (id)destinationKeyForSourceObject: (id)object
-		  relationshipNamed: (NSString*)name
+- (NSDictionary *)destinationKeyForSourceObject: (id)object
+			      relationshipNamed: (NSString*)name
 {
   EODatabaseContext *databaseContext;
   EODatabase *database;

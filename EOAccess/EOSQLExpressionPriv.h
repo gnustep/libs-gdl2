@@ -37,13 +37,13 @@
 @interface EOSQLExpression (EOSQLExpressionPrivate)
 
 - (EOEntity *)_rootEntityForExpression;
-- (id)_aliasForRelationshipPath: (id)param0;
-- (id)_flattenRelPath: (id)param0
-	       entity: (id)param1;
+- (NSString*) _aliasForRelationshipPath:(NSString*)relationshipPath;
+- (NSString*) _flattenRelPath: (NSString*)relationshipPath
+                       entity: (EOEntity*)entity;
 - (NSString *)_sqlStringForJoinSemantic: (EOJoinSemantic)joinSemantic
 			  matchSemantic: (int)param1;
-- (id)_aliasForRelatedAttribute: (id)param0
-	       relationshipPath: (id)param1;
+- (NSString*) _aliasForRelatedAttribute: (EOAttribute*)attribute
+                       relationshipPath: (NSString*)relationshipPath;
 - (id)_entityForRelationshipPath: (id)param0
 			  origin: (id)param1;
 

@@ -235,7 +235,7 @@ RCS_ID("$Id$")
   return [dictionary objectForKey: key];
 }
 
-- (unsigned int) indexForKey: (NSString*)key
+- (unsigned int) indexForKey: (id)key
 {
   void *index = NSMapGet(_keyToIndex, (const void *)key);
 
@@ -835,7 +835,7 @@ RCS_ID("$Id$")
   return [_MKKDInitializer count];
 }
 
-- (id) objectForKey: (NSString*)key
+- (id) objectForKey: (id)key
 {
   id object = nil;
   unsigned int index;
@@ -866,7 +866,7 @@ RCS_ID("$Id$")
 }
 
 - (void) setObject: (id)object
-            forKey: (NSString*)key
+            forKey: (id)key
 {
   unsigned int index;
 
@@ -891,7 +891,7 @@ RCS_ID("$Id$")
     }
 }
 
-- (void) removeObjectForKey: (NSString*)key
+- (void) removeObjectForKey: (id)key
 {
   unsigned int index;
 

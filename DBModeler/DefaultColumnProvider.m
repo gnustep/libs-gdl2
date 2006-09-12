@@ -163,7 +163,7 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
 
 - (void) setupTitleForColumn:(NSTableColumn *)tc named:(NSString *)name
 {
-  NSTableHeaderCell *headerCell = [tc headerCell];
+  NSTableHeaderCell *headerCell = (id)[tc headerCell];
   if ([name isEqual:@"Primary key"])
     {
       NSImage *img = [NSImage imageNamed:@"Key_Header"];

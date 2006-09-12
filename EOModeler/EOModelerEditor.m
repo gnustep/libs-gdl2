@@ -46,7 +46,7 @@
   [super dealloc];
 }
 
-- (EOModelerEditor *)initWithDocument:(EOModelerDocument *)document
+- (id)initWithDocument:(EOModelerDocument *)document
 {
   if ((self = [super init]))
     {
@@ -359,8 +359,9 @@
 - (void) dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+  [super dealloc];
 }
-- (EOModelerEmbedibleEditor *) initWithParentEditor:(EOModelerCompoundEditor *)parentEditor
+- (id) initWithParentEditor:(EOModelerCompoundEditor *)parentEditor
 {
   if ((self = [super initWithDocument: [parentEditor document]]))
   {

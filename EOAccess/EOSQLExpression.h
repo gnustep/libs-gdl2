@@ -94,7 +94,7 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 /* The endity parameter is typed to 'id' for signature compatibility
    with EOF.  Note that only EOEntity * objects should be passed.  */
 + (EOSQLExpression *)deleteStatementWithQualifier: (EOQualifier *)qualifier
-					   entity: (id)entity;
+					   entity: (EOEntity *)entity;
 
 + (EOSQLExpression *)selectStatementForAttributes: (NSArray *)attributes
 					     lock: (BOOL)yn

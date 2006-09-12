@@ -162,8 +162,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   return exp;
 }
 
-+ insertStatementForRow: (NSDictionary *)row
-                 entity: (EOEntity *)entity
++ (EOSQLExpression *)insertStatementForRow: (NSDictionary *)row
+				    entity: (EOEntity *)entity
 {
   EOSQLExpression *sqlExpression;
 
@@ -182,9 +182,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   return sqlExpression;
 }
 
-+ updateStatementForRow: (NSDictionary *)row
-              qualifier: (EOQualifier *)qualifier
-                 entity: (EOEntity *)entity
++ (EOSQLExpression *)updateStatementForRow: (NSDictionary *)row
+				 qualifier: (EOQualifier *)qualifier
+				    entity: (EOEntity *)entity
 {
   EOSQLExpression *sqlExpression;
 
@@ -215,8 +215,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   return sqlExpression;
 }
 
-+ deleteStatementWithQualifier: (EOQualifier *)qualifier
-                        entity: (EOEntity *)entity
++ (EOSQLExpression *)deleteStatementWithQualifier: (EOQualifier *)qualifier
+					   entity: (EOEntity *)entity
 {
   EOSQLExpression *sqlExpression;
 
@@ -237,10 +237,10 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   return sqlExpression;
 }
 
-+ selectStatementForAttributes: (NSArray *)attributes
-                          lock: (BOOL)flag
-            fetchSpecification: (EOFetchSpecification *)fetchSpecification
-                        entity: (EOEntity *)entity
++ (EOSQLExpression *)selectStatementForAttributes: (NSArray *)attributes
+					     lock: (BOOL)flag
+			       fetchSpecification: (EOFetchSpecification *)fetchSpecification
+					   entity: (EOEntity *)entity
 {
   EOSQLExpression *sqlExpression;
 
@@ -2288,7 +2288,7 @@ else if([anAttribute isDerived] == YES)
 This add a new alias if there not already one
 This also add alias for all relationships used by relationshipPath (so joinExpression can build join expressions for really all used relationships)
 All relationshipPaths in _aliasesByRelationshipPath are direct paths **/
-- (NSString*) _aliasForRelationshipPath:(NSString*)relationshipPath//toLanguage
+- (NSString*) _aliasForRelationshipPath:(NSString*)relationshipPath
 {
   //OK ?
   NSString *flattenRelPath;

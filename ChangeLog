@@ -2,6 +2,70 @@
 
 	* Version: Update to 0.10.0
 	* GNUmakefile: Set package name for release targets.
+
+	* EOAccess/EOSQLExpression.h (deleteStatementWithQualifier:entity:)
+	* EOAccess/EOSQLExpressionPriv.h (_aliasForRelationshipPath:)
+	(_flattenRelPath:entity:, _aliasForRelatedAttribute:relationshipPath:)
+	* EOAccess/EOSQLExpression.m (insertStatementForRow:entity:)
+	(updateStatementForRow:qualifier:entity:)
+	(deleteStatementWithQualifier:entity:)
+	(selectStatementForAttributes:lock:fetchSpecification:entity:)
+	(_aliasForRelationshipPath:)
+	* EOAccess/EORelationship.h (intermediateEntity)
+	(_foreignKeyForSourceRow:)
+	* EOAccess/EORelationship.m (_foreignKeyForSourceRow:, _leftSideKeyMap)
+	* EOAccess/EODatabaseContext.h (databaseOperationForObject:)
+	(databaseOperationForGlobalID:, recordDatabaseOperation:)
+	(_openChannelWithLoginPanel:)
+	* EOAccess/EODatabaseContextPriv.h (primaryKeyForObject:)
+	(_currentCommittedSnapshotForObject:)
+	* EOAccess/EOEntityPriv.h (_keyMapForRelationshipPath:)
+	(_keyMapForIdenticalKeyRelationshipPath:, _mapAttribute:)
+	(_relationshipPathIsToMany: valueForSQLExpression:)
+	(_parsePropertyName:, classPropertyAttributeNames)
+	(classPropertyToManyRelationshipNames)
+	(classPropertyToOneRelationshipNames, dbSnapshotKeys)
+	* EOAccess/EOUtilities.m (rawRowsForEntityNamed:qualifierFormat:)
+	(rawRowsMatchingValue:forKey:entityNamed:)
+	(rawRowsMatchingValues:entityNamed:, rawRowsWithSQL:modelNamed:)
+	(rawRowsWithStoredProcedureNamed:arguments:)
+	(executeStoredProcedureNamed:arguments:, databaseContextForModelNamed:)
+	(primaryKeyForObject:)
+	(destinationKeyForSourceObject:relationshipNamed:)
+	* EOAccess/EOEntity.m
+	(_mapAttribute:toDestinationAttributeInLastComponentOfRelationshipPath:)
+	* EOAccess/EOAdaptor.h (adaptorWithModel:,adaptorWithName:)
+	* EOAccess/EOModel.h (_classDescriptionNeeded:,_entityForClass:)
+	(_addEntityWithPropertyList:)
+	* EOAdaptors/Postgres95/Postgres95Channel.h
+	(_evaluateExpression:withAttributes:)
+	* EOControl/EOMutableKnownKeyDictionary.h/m (arrayMappingForKeys:)
+	(subsetMappingForSourceDictionaryInitializer:sourceKeys:destinationKeys:)
+	(subsetMappingForSourceDictionaryInitializer:)
+	(setObject:forKey:, removeObjectForKey:, indexForKey:, objectForKey:)
+	* EOControl/EOEditingContext.m (handleErrors:,setSharedEditingContext:)
+	(faultForRawRow:entityNamed:)
+	* GDL2Palette/KeyWrapper.h (setKey:, _key):
+	* EOModeler/EOModelerEditor.h (selectionWithinViewedObject)
+	* EOModeler/EOModelerEditor.m (initWithDocument:)
+	(initWithParentEditor:)
+	Correct method signatures.  Add necessary forward @class declations.
+
+	* EOInterface/EOMasterDetailAssociation.m (establishConnection):
+	* DBModeler/ModelerTableEmbedibleEditor.m
+	(addDefaultTableColumnsForTableView:displayGroup:)
+	* DBModeler/DefaultColumnProvider.m (setupTitleForColumn:named:)
+	Cast types to avoid compiler warnings.
+
+	* EOControl/EOCheapArray.m (dealloc): Supress compiler warning.
+	* EOAdaptors/Postgres95/LoginPanel/Postgres95LoginPanel.m (dealloc)
+	* EOModeler/EOModelerEditor.m (dealloc):
+	* DBModeler/ModelerAttributeEditor.m (dealloc): Add missing call
+	to super.
+	* DBModeler/Preferences.m (sharedPreferences): Fix implementation for
+	new compiler semantics.
+	* EOControl/EOMultiReaderLock.m (init): Correct NSConditionLock
+	initialization.
 	
 2006-09-07  Matt Rice  <ratmice@yahoo.com>
 

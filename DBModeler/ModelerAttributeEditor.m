@@ -165,6 +165,7 @@
   RELEASE(_mainView);
   RELEASE(_relationships_dg);
   RELEASE(_attributes_dg);
+  [super dealloc];
 }
 
 - (NSView *)mainView

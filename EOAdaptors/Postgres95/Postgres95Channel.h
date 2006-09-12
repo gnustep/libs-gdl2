@@ -1,4 +1,4 @@
-/* 
+/* -*-objc-*-
    Postgres95Channel.h
 
    Copyright (C) 2000,2002,2003,2004,2005 Free Software Foundation, Inc.
@@ -80,8 +80,7 @@
 - (void)_describeDatabaseTypes;
 
 - (BOOL)_evaluateExpression: (EOSQLExpression *)expression
-	     withAttributes: attrs;
-
+	     withAttributes: (NSArray*)attributes;
 @end
 
 @interface NSObject (Postgres95ChannelDelegate)

@@ -3765,8 +3765,8 @@ returns nil if there's no key in the instanceDictionaryInitializer
   return keyMap;
 }
 
-- (EOAttribute*) _mapAttribute: (EOAttribute*)attribute
-toDestinationAttributeInLastComponentOfRelationshipPath: (NSString*)path
+- (EOAttribute *)_mapAttribute: (EOAttribute *)attribute
+toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 {
   NSArray *components = nil;
   EORelationship *rel = nil;

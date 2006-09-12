@@ -60,10 +60,10 @@
 
 - (void)_verifyNoChangesToReadonlyEntity: (EODatabaseOperation *)dbOpe;
 - (EOGlobalID *)_globalIDForObject: (id)object;
-- (id)_primaryKeyForObject: (id)object;
+- (NSDictionary *)_primaryKeyForObject: (id)object;
 - (NSDictionary *)_primaryKeyForObject: (id)object
 			raiseException: (BOOL)raiseException;
-- (id)_currentCommittedSnapshotForObject: (id)object;
+- (NSDictionary *)_currentCommittedSnapshotForObject: (id)object;
 - (id)_addDatabaseContextStateToException: (id)param0;
 - (id)_databaseContextState;
 - (void)_cleanUpAfterSave;

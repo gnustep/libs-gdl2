@@ -68,7 +68,11 @@ static NSString *_switches[][2] =
 @implementation DBModelerPrefs : NSObject
 + (DBModelerPrefs *) sharedPreferences
 {
-  return _sharedPrefs ? _sharedPrefs : _sharedPrefs = [self new];
+  if (_sharedPrefs == nil)
+    {
+      _sharedPrefs = [self new];
+    }
+  return _sharedPrefs;
 }
 
 - (id) init

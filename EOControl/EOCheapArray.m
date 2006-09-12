@@ -138,6 +138,8 @@ RCS_ID("$Id$")
     }
 
   NSDeallocateObject(self);
+  /* Suppress compiler warning.  */
+  if (0) [super dealloc];
 
 #ifdef DEBUG
   NSDebugFLog(@"Stop Dealloc EOCheapCopyArray %p. %@",
@@ -273,6 +275,8 @@ RCS_ID("$Id$")
 
   DESTROY(_immutableCopy);
   NSDeallocateObject(self);
+  /* Suppress compiler warning.  */
+  if (0) [super dealloc];
 
 #ifdef DEBUG
   NSDebugFLog(@"Stop Dealloc EOCheapCopyMutableArray %p. %@",

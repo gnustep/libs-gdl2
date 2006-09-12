@@ -87,6 +87,7 @@ vfmaxf (int n, float aFloat, ...)
 {
   DESTROY(_databases);
   DESTROY(_win);
+  [super dealloc];
 }
 
 - (NSString *) logoPath

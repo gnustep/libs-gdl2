@@ -45,6 +45,7 @@
 @class EOEntity;
 @class EOAttribute;
 @class EOExpressionArray;
+@class EOMutableKnownKeyDictionary;
 @class EOMKKDSubsetMapping;
 @class EOQualifier;
 
@@ -205,7 +206,7 @@ typedef enum {
 - (NSArray *)_intermediateAttributes;
 - (EORelationship *)lastRelationship;
 - (EORelationship *)firstRelationship;
-- (id)intermediateEntity;
+- (EOEntity*) intermediateEntity;
 - (BOOL)isMultiHop;
 - (void)_setSourceToDestinationKeyMap: (id)param0;
 - (id)qualifierForDBSnapshot: (id)param0;
@@ -221,7 +222,7 @@ typedef enum {
 - (id)qualifierOmittingAuxiliaryQualifierWithSourceRow: (id)param0;
 - (id)auxiliaryQualifier;
 - (void)setAuxiliaryQualifier: (id)param0;
-- (id)_foreignKeyForSourceRow: (NSDictionary *)row;
+- (EOMutableKnownKeyDictionary *)_foreignKeyForSourceRow: (NSDictionary *)row;
 - (EOMKKDSubsetMapping *)_sourceRowToForeignKeyMapping;
 - (NSArray *)_sourceAttributeNames;
 - (EOJoin *)joinForAttribute: (EOAttribute *)attribute;

@@ -43,7 +43,8 @@
 @class NSMutableDictionary;
 
 @class EOMutableKnownKeyDictionary;
-
+@class EOMKKDArrayMapping;
+@class EOMKKDSubsetMapping;
 
 @interface EOMKKDInitializer : GCObject
 {
@@ -66,11 +67,11 @@
 - (id)objectForIndex: (unsigned int)index
 	  dictionary: (NSDictionary *)dictionary;
 - (unsigned int)indexForKey: (id)key;
-- (id)arrayMappingForKeys: (id)keys;
-- (id)subsetMappingForSourceDictionaryInitializer: (EOMKKDInitializer *)init
-				       sourceKeys: (NSArray *)sourceKeys
-				  destinationKeys: (NSArray *)destinationKeys;
-- (id)subsetMappingForSourceDictionaryInitializer: (id)param0;
+- (EOMKKDArrayMapping *)arrayMappingForKeys: (NSArray *)keys;
+- (EOMKKDSubsetMapping *)subsetMappingForSourceDictionaryInitializer: (EOMKKDInitializer *)init
+							  sourceKeys: (NSArray *)sourceKeys
+						     destinationKeys: (NSArray *)destinationKeys;
+- (EOMKKDSubsetMapping *)subsetMappingForSourceDictionaryInitializer: (EOMKKDInitializer *)param0;
 - (id *)keys;
 - (BOOL)hasKey: (id)key;
 
@@ -159,8 +160,8 @@
 - (unsigned int)count;
 - (id)objectForKey: (id)key;
 - (void)setObject: (id)object
-	   forKey: (NSString *)key;
-- (void)removeObjectForKey: (NSString *)key;
+	   forKey: (id)key;
+- (void)removeObjectForKey: (id)key;
 - (BOOL)containsObjectsNotIdenticalTo: (id)object;
 - (void)addEntriesFromDictionary: (NSDictionary *)dictionary;
 - (NSEnumerator *)keyEnumerator;

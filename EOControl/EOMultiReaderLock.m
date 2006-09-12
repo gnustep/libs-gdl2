@@ -66,7 +66,7 @@
 {
   if ((self = [super init]))
     {
-      _mutex = [NSConditionLock initWithCondition: LCK_CND_UNLOCKD];
+      _mutex = [[NSConditionLock alloc] initWithCondition: LCK_CND_UNLOCKD];
       _readerThreads = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
 					NSIntMapValueCallBacks, 32);
     }

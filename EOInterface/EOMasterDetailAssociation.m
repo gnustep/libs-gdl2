@@ -83,7 +83,7 @@
   [super establishConnection];
   if (parent)
     {
-      EODetailDataSource *ds = [_object dataSource];
+      EODetailDataSource *ds = (id)[_object dataSource];
       subclassFlags |= ParentAspectMask;
       [ds setMasterClassDescription:[[parent dataSource]
 	      				classDescriptionForObjects]];

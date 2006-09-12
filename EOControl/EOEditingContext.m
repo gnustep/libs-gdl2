@@ -2084,7 +2084,7 @@ _mergeValueForKey(id obj, id value,
   return ok;
 }
 
-- (BOOL) handleErrors: (id)p
+- (BOOL) handleErrors: (NSArray *)p
 {
   NSEmitTODO();
   [self notImplemented: _cmd]; //TODO
@@ -3184,7 +3184,7 @@ _mergeValueForKey(id obj, id value,
 {
   return _sharedContext;
 }
-- (void)setSharedEditingContext:(EOEditingContext *)sharedEditingContext
+- (void)setSharedEditingContext:(EOSharedEditingContext *)sharedEditingContext
 {
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   NSArray *sharedGIDs;
@@ -3213,7 +3213,7 @@ _mergeValueForKey(id obj, id value,
       [NSException raise: NSInvalidArgumentException
 		   format: @"Attempt to set illegal object as EOSharedEditingContext"];
     }
-  sharedGIDs = NSAllMapTableKeys(sharedEditingContext->_globalIDsByObject);
+  sharedGIDs = NSAllMapTableKeys(((EOEditingContext *)sharedEditingContext)->_globalIDsByObject);
   localGIDs = NSAllMapTableKeys(_globalIDsByObject);
   if ([sharedGIDs count] && [localGIDs count])
     {
@@ -3391,7 +3391,6 @@ modified state of the object.**/
 
   classDesc = (id)[EOClassDescription classDescriptionForEntityName:
 					entityName];
-#warning (stephane@sente.ch) ERROR: trying to use EOEntity/EOEntityDescription
   globalID = [[classDesc entity] globalIDForRow: row];
   object = EOEditingContext_objectForGlobalIDWithImpPtr(self,NULL,globalID);
 
@@ -3422,7 +3421,7 @@ modified state of the object.**/
   return object;
 }
 
-- (id)faultForRawRow: (id)row entityNamed: (NSString *)entityName
+- (id)faultForRawRow: (NSDictionary *)row entityNamed: (NSString *)entityName
 {
   id object;
 
@@ -4050,6 +4049,7 @@ static BOOL usesContextRelativeEncoding = NO;
       NSHashRemove(assocDeallocHT,self);
     }
 
+  /* We cannot if (0) [super dealloc]; as NSObject does not have superclass. */
   NSDeallocateObject (self);
 }
 

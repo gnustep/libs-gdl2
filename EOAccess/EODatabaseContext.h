@@ -249,9 +249,9 @@ It's invoked after prepareForSaveWithCoordinator:editingContext: and before owns
 				  sourceObject: (id)sourceObject
 			     destinationObject: (id)destinationObject;
 
-- (id)databaseOperationForObject: (id)param0;
-- (id)databaseOperationForGlobalID: (id)param0;
-- (void)recordDatabaseOperation: (id)param0;
+- (EODatabaseOperation*)databaseOperationForObject: (id)object;
+- (EODatabaseOperation*)databaseOperationForGlobalID: (EOGlobalID *)gid;
+- (void)recordDatabaseOperation: (EODatabaseOperation*)databaseOpe;
 - (void)recordDeleteForObject: (id)param0;
 - (void)recordInsertForObject: (id)param0;
 
@@ -343,7 +343,7 @@ Only searches locally (in the transaction scope), not in the EODatabase. **/
 - (void)_commitTransaction;
 - (void)_beginTransaction;
 - (EODatabaseChannel *)_obtainOpenChannel;
-- (BOOL)_openChannelWithLoginPanel: (id)param0;
+- (BOOL)_openChannelWithLoginPanel: (EODatabaseChannel *)databaseChannel;
 - (void)_forceDisconnect;
 - (void)initializeObject: (id)object
                      row: (NSDictionary *)row

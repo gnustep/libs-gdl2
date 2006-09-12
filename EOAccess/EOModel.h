@@ -41,6 +41,7 @@
 
 @class NSArray;
 @class NSDictionary;
+@class NSNotification;
 
 @class EOEntity;
 @class EOAttribute;
@@ -137,16 +138,16 @@
 
 - (void)_resetPrototypeCache;
 - (BOOL)isPrototypesEntity: (id)param0;
-- (void)_classDescriptionNeeded: (id)param0;
+- (void)_classDescriptionNeeded: (NSNotification *)notification;
 - (id)_instantiatedEntities;
 - (void)_setPath: (NSString *)path;
-- (id)_entityForClass: (Class)param0;
+- (EOEntity *)_entityForClass: (Class)param0;
 - (id)_childrenForEntityNamed: (id)param0;
 - (void)_registerChild: (id)param0
              forParent: (id)param1;
 - (void)_setInheritanceLinks: (id)param0;
 - (void)_removeEntity: (id)param0;
-- (id)_addEntityWithPropertyList: (NSDictionary *)propertyList;
+- (EOEntity *)_addEntityWithPropertyList: (NSDictionary *)propertyList;
 - (void)_addFakeEntityWithPropertyList: (NSDictionary *)propertyList;
 - (id)_addEntity: (EOEntity *)entity;
 - (void)_setEntity: (id)entity

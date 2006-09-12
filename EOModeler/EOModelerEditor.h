@@ -45,7 +45,7 @@
 - (id) initWithDocument:(EOModelerDocument *)document;
 - (EOModelerDocument *)document;
 - (void) setSelectionWithinViewedObject:(NSArray *)selectionWithin;
-- (id) selectionWithinViewedObject; 
+- (NSArray *) selectionWithinViewedObject; 
 - (void) setSelectionPath:(NSArray *)selectionPath;
 - (NSArray *)selectionPath;
 - (void) setViewedObjectPath:(NSArray *)viewedObjectPath;

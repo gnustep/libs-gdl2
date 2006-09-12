@@ -63,7 +63,7 @@
   return [_key isEqual:[obj key]]; 
 }
 
-- (void) setKey:(id)key;
+- (void) setKey:(NSString *)key;
 {
   ASSIGN(_key, key);
 }
