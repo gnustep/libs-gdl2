@@ -1,3 +1,8 @@
+2006-09-12  David Ayers  <ayers@fsfe.org>
+
+	* Version: Update to 0.10.0
+	* GNUmakefile: Set package name for release targets.
+	
 2006-09-07  Matt Rice  <ratmice@yahoo.com>
 
 	* DBModeler/Resources/DBModeler.tiff: New file.

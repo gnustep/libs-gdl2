@@ -27,6 +27,12 @@ include $(GNUSTEP_MAKEFILES)/common.make
 
 include ./Version
 
+PACKAGE_NAME=gnustep-dl2
+PACKAGE_VERSION=${VERSION}
+
+SVN_MODULE_NAME=gdl2
+SVN_BASE_URL=http://svn.gna.org/svn/gnustep/libs
+
 #
 # The list of subproject directories
 #
