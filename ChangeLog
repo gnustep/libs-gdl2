@@ -73,6 +73,10 @@
 	* EOControl/EOControl.gsdoc: Ditto.
 	* GDL2.gsdoc: Use sections allowed by DTD.  Remove reference to
 	MulleEOInterface.
+
+	* README: Update dependencies.  Remove reference to external
+	EOInterface implementation.  Update comments about DBModeler.
+	* NEWS: Mention major features of current release.
 	
 2006-09-07  Matt Rice  <ratmice@yahoo.com>
 

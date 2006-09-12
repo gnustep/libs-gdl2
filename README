@@ -4,13 +4,12 @@ Readme
 The GNUstep Database Library 2 (GDL2) is a set of libraries to map
 Objective-C objects to rows of relational database management systems
 (RDBMS).  It aims to be compatible with Enterprise Objects Framework
-(EOF) as released with WebObjects 4.5 from Apple Inc.  It requires the
-GNUstep Make Package 1.9.1 and the Base Library 1.9.1.  Alternatively
-it is meant to work with other OpenStep-like implementations like
-Cocoa together with the GNUstep BaseAdditions Library 1.9.1.  For UI
-applications which may want to use adaptor specific login panels, you
-should also install the GNUstep GUI Library 0.9.2 and the GNUstep
-Backend Library 0.9.2.  These should also work with AppKit.
+(EOF) as released with WebObjects 4.5 from Apple Inc.  It requires 
+- the GNUstep Make Package 1.13.0
+- the Base Package 1.13.0
+- the GUI Package 1.11.0
+- the Back Package 1.11.0
+- the GORM Package 1.1.0
 
 GDL2 consists of the following components:
 
@@ -32,9 +31,6 @@ are subclassed to interface with concrete RDBMS implementations.
 This library implements classes used to synchronize UI components such
 as NSTextFields, NSButtons and NSTableViews with the state of objects
 which an EOEditingContext contains.
-*Note this library is still missing in GDL2.  Some people have tried
-to use http://www.mulle-kybernetik.com/software/MulleEOInterface/ with
-some success.
 
 - EOAdaptors
 
@@ -44,13 +40,10 @@ the PostgreSQL database.  Even though the Adaptor is still called
 Postgres95 we aim to support PostgreSQL 7.2 and higher API.  In fact
 the Adaptor may very soon be renamed to PostgreSQL.
 
-- EOModeler (???)
+- EOModeler
 
-GDL2 will offer a UI application to create and maintain .eomodel(d)
-files.  Currently it is not defined if this will be a EOModeler clone
-or different style of application.  Some people have started some
-preliminary work so ask on <discuss-gnustep@gnu.org> before starting
-on this.
+GDL2 will offers a UI application to create and maintain .eomodel(d)
+files.  This is the first release of a preliminary version.
 
 ======================
 *** Important Note ***

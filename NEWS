@@ -1,9 +1,26 @@
 News
 ****
 
-The currently released version of the library is `0.9.1'.
+The currently released version of the library is `0.10.0'.
 
-Initial 'alpha' release
+'alpha' release 1.10.0
+========================================
+   * This release includes many bug fixes and partial rewrites of
+     existing implementations and should be more robust that the
+     previous release.
+
+     This release includes new preliminary classes like
+     EOSharedEditingContext, EOEvent, EOEventCenter and EOMultiReaderLock
+     but these haven't seen much testing yet and are partially implemented.
+
+     This release includes an initial version of EOInterface, the library
+     or framework to connect GUI elements to GDL2 classes.
+
+     Matt Rice contributed an initial DBModeler application, an EOModler
+     framework implementation, a GDL2Palette for GROM and lots of time
+     debuging, testing and filling in missing implementations.
+
+Initial 'alpha' release 1.9.1
 ========================================
 
    * This is the first alpha release package of GDL2.  First and
