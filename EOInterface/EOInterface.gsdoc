@@ -2,20 +2,17 @@
 <!DOCTYPE gsdoc PUBLIC "-//GNUstep//DTD gsdoc 1.0.1//EN" "http://www.gnustep.org/gsdoc-1_0_1.dtd">
 <gsdoc base="index">
   <head>
-    <title>GDL2 - EOAccess</title>
-    <author name="Mirko Viviani">
-      <email address="mirko.viviani@rccr.cremona.it"/>
-        <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
-    <author name="Manuel Guesdon">
-      <email address="mguesdon@orange-concept.com"/>
+    <title>GDL2 - EOInterface</title>
+    <author name="Matt Rice">
+      <email address="ratmice@yahoo.com"/>
         <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
     <author name="David Ayers">
-      <email address="d.ayers@inode.at"/>
+      <email address="ayers@fsfe.org"/>
         <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
   </head>
   <body>
     <chapter>
-      <heading>GDL2 - EOAccess</heading>
+      <heading>GDL2 - EOInterface</heading>
       <p>...
       </p>
     </chapter>

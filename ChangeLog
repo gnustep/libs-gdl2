@@ -66,6 +66,13 @@
 	new compiler semantics.
 	* EOControl/EOMultiReaderLock.m (init): Correct NSConditionLock
 	initialization.
+
+	* EOInterface/EOInterface.gsdoc: New file.
+	* EOInterface/GNUmakefile: Update variables to build documentation.
+	* EOAccess/EOAccess.gsdoc: Specify title.
+	* EOControl/EOControl.gsdoc: Ditto.
+	* GDL2.gsdoc: Use sections allowed by DTD.  Remove reference to
+	MulleEOInterface.
 	
 2006-09-07  Matt Rice  <ratmice@yahoo.com>
 

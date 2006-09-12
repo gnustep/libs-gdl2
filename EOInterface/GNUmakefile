@@ -78,23 +78,23 @@ EORecursiveBrowserAssociation.h	\
 EOTextAssociation.h		\
 EOAspectConnector.h		
 
-gdl2_AUTOGSDOC_HEADERS = $(EOInterface_HEADER_FILES)
-gdl2_AUTOGSDOC_SOURCE = $(EOInterface_OBJC_FILES)
-DOCUMENT_NAME = gdl2
-gdl2_HEADER_FILES_DIR = $(HEADER_DIR)
-gdl2_AGSDOC_FILES = gdl2.gsdoc $(gdl2_AUTOGSDOC_HEADERS) 
-#$(gdl2_AUTOGSDOC_SOURCE)
-gdl2_AGSDOC_FLAGS = \
+EOInterface_AUTOGSDOC_HEADERS = $(EOInterface_HEADER_FILES)
+EOInterface_AUTOGSDOC_SOURCE = $(EOInterface_OBJC_FILES)
+DOCUMENT_NAME = EOInterface
+EOInterface_HEADER_FILES_DIR = $(HEADER_DIR)
+EOInterface_AGSDOC_FILES = EOInterface.gsdoc $(EOInterface_AUTOGSDOC_HEADERS) 
+#$(EOInterface_AUTOGSDOC_SOURCE)
+EOInterface_AGSDOC_FLAGS = \
 	-Declared EOInterface \
 	-Standards YES \
-	-Project gdl2 \
+	-Project EOInterface \
 	-WordMap '{\
 	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
 	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
 	GS_EXPORT=extern;GS_DECLARE="";\
 	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
-	}' -Up gdl2
+	}' -Up EOInterface
 
 
 -include Makefile.preamble
