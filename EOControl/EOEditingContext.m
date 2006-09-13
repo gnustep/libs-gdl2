@@ -4048,6 +4048,7 @@ static BOOL usesContextRelativeEncoding = NO;
       [EOAssociationClass objectDeallocated: self];
       NSHashRemove(assocDeallocHT,self);
     }
+  [EOObserverCenter _forgetObject:self];
 
   /* We cannot if (0) [super dealloc]; as NSObject does not have superclass. */
   NSDeallocateObject (self);

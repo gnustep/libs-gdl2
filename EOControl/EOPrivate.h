@@ -29,6 +29,7 @@
 
 #include <Foundation/NSArray.h>
 #include <Foundation/NSHashTable.h>
+#include <EOControl/EOObserver.h>
 #include "EODefines.h"
 
 @class NSNumber;
@@ -374,6 +375,10 @@ GDL2CONTROL_EXPORT void EOHashAddTable(NSHashTable *to, NSHashTable *from);
 
 @interface NSObject (DeallocHack)
 - (void) registerAssociationForDeallocHack:(id)object;
+@end
+
+@interface EOObserverCenter(EOPrivate)
++ (void) _forgetObject:(id)object;
 @end
 
 @interface GDL2NonRetainingMutableArray : NSMutableArray

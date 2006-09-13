@@ -172,6 +172,11 @@ static id lastObject;
     }
 }
 
++ (void)_forgetObject:(id)object
+{
+  if (lastObject == object) lastObject = nil;  
+}
+
 /**
  * This method is invoked from [NSObject-willChange] to dispatch
  * [EOObserving-objectWillChange:] to all observers registered
@@ -191,16 +196,21 @@ static id lastObject;
 
   if (!notificationSuppressCount)
     {
+      SEL objectWillChangeSel = @selector(objectWillChange:);
       EOFLOGObjectLevelArgs(@"EOObserver", @"object=%p lastObject=%p",
 			    object, lastObject);
 
       if (object == nil)
-	lastObject = nil;
+	{
+	  lastObject = nil;
+          [omniscientObservers makeObjectsPerform:objectWillChangeSel
+                                       withObject:nil];
+
+	}
       else if (lastObject != object)
 	{
 	  GDL2NonRetainingMutableArray *observersArray;
 	  int c;
-	  SEL objectWillChangeSel = @selector(objectWillChange:);
 
 	  lastObject = object;
 
@@ -215,7 +225,7 @@ static id lastObject;
           EOFLOGObjectLevelArgs(@"EOObserver", @"omniscientObservers count=%d",
 				c);
 	  [omniscientObservers makeObjectsPerform:objectWillChangeSel
-		  		       withObject:nil];
+		  		       withObject:object];
 	}
     }
 

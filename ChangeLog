@@ -1,3 +1,14 @@
+2006-09-13  Matt Rice  <ratmice@yahoo.com>
+
+	* EOControl/EOObserver.m (EOObserverCenter +_forgetObject:): New
+	private method.
+	(+notifyObserversObjectWillChange:): Change omniscient observer
+	arguments.
+	* EOControl/EOEditingContext.m (NSObject -dealloc): Call
+	_forgetObject:.
+	* EOControl/EOPrivate.h: Add category for EOObserverCenter private
+	methods.
+  		
 2006-09-12  David Ayers  <ayers@fsfe.org>
 
 	* Version: Update to 0.10.0
