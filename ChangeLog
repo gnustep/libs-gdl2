@@ -1,5 +1,14 @@
 2006-09-14  David Ayers  <ayers@fsfe.org>
 
+	* EOInterface/GNUmakefile
+	* DBModeler/Inspectors/GNUmakefile
+	* DBModeler/GNUmakefile
+	* EOAdaptors/Postgres95/LoginPanel/GNUmakefile
+	* GDL2Palette/GNUmakefile: Add missing copyright notices.
+	Install into GNUSTEP_SYSTEM_ROOT by default.
+	
+2006-09-14  David Ayers  <ayers@fsfe.org>
+
 	* Version 0.10.0
 	* ANNOUNCE: New file.
 	
