@@ -40,7 +40,7 @@ the PostgreSQL database.  Even though the Adaptor is still called
 Postgres95 we aim to support PostgreSQL 7.2 and higher API.  In fact
 the Adaptor may very soon be renamed to PostgreSQL.
 
-- EOModeler
+- DBModeler
 
 GDL2 will offers a UI application to create and maintain .eomodel(d)
 files.  This is the first release of a preliminary version.
