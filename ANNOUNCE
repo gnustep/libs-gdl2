@@ -1,0 +1,51 @@
+
+The GNUstep Database Library 2 Package, version 0.10.0 is now available.
+
+What is the GNUstep Database Library 2 Package?
+====================================
+
+The GNUstep Database Library 2 (GDL2) is a set of libraries to map
+Objective-C objects to rows of relational database management systems
+(RDBMS).  It aims to be compatible with Enterprise Objects Framework
+(EOF) as released with WebObjects 4.5 from Apple Inc.  It requires 
+- the GNUstep Make Package
+- the Base Package
+- the GUI Package
+- the Back Package
+- the GORM Package
+
+
+The package has been tested on:
+
+Debian Sarge/x86
+Debian Etch/x86
+Debian Sid/x86 (Sept 2006)
+
+Changes in version 0.10.0
+=========================
+
+This release includes many bug fixes and partial rewrites of
+existing implementations and should be more robust that the
+previous release.
+
+This release includes new preliminary classes like
+EOSharedEditingContext, EOEvent, EOEventCenter and EOMultiReaderLock
+but these haven't seen much testing yet and are partially implemented.
+
+This release includes an initial version of EOInterface, the library
+or framework to connect GUI elements to GDL2 classes.
+
+Matt Rice contributed an initial DBModeler application, an EOModler
+framework implementation, a GDL2Palette for GROM and lots of time
+debuging, testing and filling in missing implementations.
+
+Where can you get it?  How can you compile it?
+==============================================
+
+The gnustep-dl2-0.10.0.tar.gz distribution file has been placed at
+<http://ftp.gnustep.org/pub/gnustep/core>
+
+Please log bug reports on the GNUstep project page
+<http://savannah.gnu.org/bugs/?group=gnustep> or send bug reports to
+<bug-gnustep@gnu.org>.
+
