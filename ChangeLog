@@ -1,4 +1,8 @@
 2006-09-14  Matt Rice  <ratmice@yahoo.com>
+	
+	* GNUmakefile.in: Remove reference to config.make
+
+2006-09-14  Matt Rice  <ratmice@yahoo.com>
 
 	* configure: Regenerate.	
 	* common.make: New file.
