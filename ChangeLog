@@ -1,5 +1,10 @@
 2006-09-14  David Ayers  <ayers@fsfe.org>
 
+	* EOAdaptors/Postgres95/GNUmakefile.in:
+	Install into GNUSTEP_SYSTEM_ROOT by default.
+	
+2006-09-14  David Ayers  <ayers@fsfe.org>
+
 	* Version 0.10.1
 	* README: Correct modeler application name.
 	* ANNOUNCE: Update to followup release.

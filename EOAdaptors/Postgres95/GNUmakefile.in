@@ -23,6 +23,9 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
+# Install into the System root by default
+GNUSTEP_INSTALLATION_DIR = $(GNUSTEP_SYSTEM_ROOT)
+
 include $(GNUSTEP_MAKEFILES)/common.make
 
 include ../../Version
@@ -32,9 +35,6 @@ POSTGRES95_DATABASE=@POSTGRES_DATABASE@
 # The framework to be compiled
 FRAMEWORK_NAME=Postgres95EOAdaptor
 SUBPROJECTS = LoginPanel
-
-# Install into the local root by default
-Postgres95EOAdaptor_INSTALLATION_DIR = $(GNUSTEP_LOCAL_ROOT)
 
 # The framework principal class
 Postgres95EOAdaptor_PRINCIPAL_CLASS = Postgres95Adaptor
