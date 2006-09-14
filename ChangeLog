@@ -1,3 +1,29 @@
+2006-09-14  Matt Rice  <ratmice@yahoo.com>
+
+	* configure: Regenerate.	
+	* common.make: New file.
+	* config.make.in: Remove.
+	* GNUmakefile: Ditto.
+	* GNUmakefile.in: New file, merges config.make.in and GNUmakefile.
+	* configure.ac: Remove config.make.in, add GNUmakefile.in.
+	* EOInterface/Makefile.preamble 
+	* EOInterface/GNUmakefile
+	* EOAccess/Makefile.preamble
+	* EOAccess/GNUmakefile
+	* EOControl/GNUmakefile
+	* EOControl/Makefile.preamble
+	* DBModeler/GNUmakefile
+	* Tools/Makefile.preamble
+	* EOAdaptors/Postgres95/Makefile.preamble
+	* GDL2Palette/GNUmakefile 
+	* gdl2.make.in
+	* EOModeler/GNUmakefile
+	* EOModeler/Makefile.preamble: Change to compile as native libraries.
+	* DBModeler/Inspectors/AttributeInspector.gorm/data.info:
+	* DBModeler/Inspectors/AttributeInspector.gorm/data.classes:
+	* DBModeler/Inspectors/AttributeInspector.gorm/objects.gorm: Implement
+	interface.
+
 2006-09-14  David Ayers  <ayers@fsfe.org>
 
 	* EOAdaptors/Postgres95/GNUmakefile.in:

@@ -41,6 +41,6 @@ GDL2_SUBMINOR_VERSION = @SUBMINOR_VERSION@
 AUXILIARY_CPPFLAGS += -DGDL2=1
 
 # Additional libraries for the linker
-AUXILIARY_TOOL_LIBS += -lgnustep-db2 -lgnustep-db2control
+ADDITIONAL_NATIVE_LIBS+=EOControl EOAccess
 
 endif

@@ -32,11 +32,10 @@ ADDITIONAL_INCLUDE_DIRS+=-I../../
 
 Inspectors_HAS_RESOURCE_BUNDLE=yes
 
-Inspectors_RESOURCE_FILES=	\
+Inspectors_RESOURCE_FILES+=	\
 RelationshipInspector.gorm	\
 RelationshipInspector.tiff
-
-Inspectors_OBJC_FILES=RelationshipInspector.m
+Inspectors_OBJC_FILES+=RelationshipInspector.m
 
 Inspectors_RESOURCE_FILES+=AttributeInspector.gorm
 Inspectors_OBJC_FILES+=AttributeInspector.m

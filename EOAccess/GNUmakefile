@@ -31,13 +31,12 @@ include $(GNUSTEP_MAKEFILES)/common.make
 include ../Version
 
 # The library to be compiled
-LIBRARY_NAME=libgnustep-db2
-
+NATIVE_LIBRARY_NAME=EOAccess
 # The C source files to be compiled
-libgnustep-db2_C_FILES = 
+EOAccess_C_FILES = 
 
 # The Objective-C source files to be compiled
-libgnustep-db2_OBJC_FILES = \
+EOAccess_OBJC_FILES = \
 EOModelGroup.m \
 EOModel.m \
 EOEntity.m \
@@ -61,10 +60,9 @@ EODatabaseDataSource.m \
 EOUtilities.m \
 EOPrivate.m
 
-libgnustep-db2_HEADER_FILES_DIR = .
-libgnustep-db2_HEADER_FILES_INSTALL_DIR = /EOAccess
+EOAccess_HEADER_FILES_DIR = .
 
-libgnustep-db2_HEADER_FILES = \
+EOAccess_HEADER_FILES = \
 EOModelGroup.h \
 EOModel.h \
 EOEntity.h \
@@ -92,8 +90,8 @@ EOAccess.h \
 
 
 DOCUMENT_NAME = EOAccess
-EOAccess_AUTOGSDOC_HEADERS = $(libgnustep-db2_HEADER_FILES)
-EOAccess_AUTOGSDOC_SOURCE = $(libgnustep-db2_OBJC_FILES)
+EOAccess_AUTOGSDOC_HEADERS = $(EOAccess_HEADER_FILES)
+EOAccess_AUTOGSDOC_SOURCE = $(EOAccess_OBJC_FILES)
 EOAccess_HEADER_FILES_DIR = $(HEADER_DIR)
 EOAccess_AGSDOC_FILES = EOAccess.gsdoc $(EOAccess_AUTOGSDOC_HEADERS) 
 #$(EOAccess_AUTOGSDOC_SOURCE)
@@ -111,10 +109,11 @@ EOAccess_AGSDOC_FLAGS = \
 
 
 -include Makefile.preamble
+include ../common.make
 
 -include GNUmakefile.local
 
-include $(GNUSTEP_MAKEFILES)/library.make
+include $(GNUSTEP_MAKEFILES)/native-library.make
 # Only build the doc if doc=yes was passed on the command line
 ifeq ($(doc),yes)
 include $(GNUSTEP_MAKEFILES)/documentation.make

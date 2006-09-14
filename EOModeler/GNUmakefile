@@ -31,13 +31,13 @@ include $(GNUSTEP_MAKEFILES)/common.make
 include ../Version
 
 # The library to be compiled
-NATIVE_LIBRARY_NAME=gnustep-db2modeler
+NATIVE_LIBRARY_NAME=EOModeler
 
 # The C source files to be compiled
-gnustep-db2modeler_C_FILES = 
+EOModeler_C_FILES = 
 
 # The Objective-C source files to be compiled
-gnustep-db2modeler_OBJC_FILES =		\
+EOModeler_OBJC_FILES =		\
 EOModelExtensions.m		   	\
 EOMInspector.m				\
 EOModelExtensions.m			\
@@ -47,10 +47,10 @@ EOModelerApp.m				\
 EOModelerEditor.m			
 
 
-gnustep-db2modeler_HEADER_FILES_DIR = .
-gnustep-db2modeler_HEADER_FILES_INSTALL_DIR = /EOModeler
+EOModeler_HEADER_FILES_DIR = .
+EOModeler_HEADER_FILES_INSTALL_DIR = /EOModeler
 
-gnustep-db2modeler_HEADER_FILES =	\
+EOModeler_HEADER_FILES =	\
 EOModelExtensions.h			\
 EOMInspector.h				\
 EOModelExtensions.h			\
@@ -61,6 +61,7 @@ EOModelerEditor.h			\
 EODefines.h
 
 -include Makefile.preamble
+include ../common.make
 
 -include GNUmakefile.local
 

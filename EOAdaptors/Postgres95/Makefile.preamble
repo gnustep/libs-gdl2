@@ -56,7 +56,8 @@ ADDITIONAL_LIB_DIRS += \
 	-L../../EOAccess/$(GNUSTEP_OBJ_DIR)
 
 # Libraries linked to the framework
-LIBRARIES_DEPEND_UPON += -lgnustep-db2control -lgnustep-db2
+ADDITIONAL_NATIVE_LIBS+=EOAccess EOControl
+ADDITIONAL_NATIVE_LIB_DIRS+=../EOControl ../EOAccess
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
 endif

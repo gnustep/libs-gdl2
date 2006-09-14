@@ -51,7 +51,7 @@ ADDITIONAL_INCLUDE_DIRS = -I../EOControl/$(GNUSTEP_TARGET_DIR) -I..
 ADDITIONAL_LDFLAGS = 
 
 # Additional library directories the linker should search
-ADDITIONAL_LIB_DIRS = -L../EOControl/$(GNUSTEP_OBJ_DIR) -L../EOAccess/$(GNUSTEP_OBJ_DIR)
+ADDITIONAL_LIB_DIRS=
 
 #
 # Flags dealing with installing and uninstalling
@@ -71,4 +71,7 @@ endif
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
 endif
-LIBRARIES_DEPEND_UPON += -lgnustep-db2control -lgnustep-db2
+
+ADDITIONAL_NATIVE_LIB_DIRS += ../EOAccess ../EOControl
+
+ADDITIONAL_NATIVE_LIBS += EOControl EOAccess

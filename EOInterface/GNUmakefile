@@ -101,7 +101,7 @@ EOInterface_AGSDOC_FLAGS = \
 
 
 -include Makefile.preamble
-
+include ../common.make
 -include GNUmakefile.local
 
 include $(GNUSTEP_MAKEFILES)/native-library.make

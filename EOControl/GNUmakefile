@@ -31,13 +31,13 @@ include $(GNUSTEP_MAKEFILES)/common.make
 include ../Version
 
 # The library to be compiled
-LIBRARY_NAME=libgnustep-db2control
+NATIVE_LIBRARY_NAME=EOControl
 
 # The C source files to be compiled
-libgnustep-db2control_C_FILES = 
+EOControl_C_FILES = 
 
 # The Objective-C source files to be compiled
-libgnustep-db2control_OBJC_FILES = \
+EOControl_OBJC_FILES = \
 EOSortOrdering.m \
 EOFetchSpecification.m \
 EOGenericRecord.m \
@@ -73,10 +73,10 @@ EOEventCenter.m \
 EODebug.m \
 EOPrivate.m
 
-libgnustep-db2control_HEADER_FILES_DIR = .
-libgnustep-db2control_HEADER_FILES_INSTALL_DIR = /EOControl
+EOControl_HEADER_FILES_DIR = .
+EOControl_HEADER_FILES_INSTALL_DIR = /EOControl
 
-libgnustep-db2control_HEADER_FILES = \
+EOControl_HEADER_FILES = \
 EOSortOrdering.h \
 EOFetchSpecification.h \
 EOGenericRecord.h \
@@ -106,8 +106,8 @@ EODeprecated.h \
 EOControl.h
 
 DOCUMENT_NAME = EOControl
-EOControl_AUTOGSDOC_HEADERS = $(libgnustep-db2control_HEADER_FILES)
-EOControl_AUTOGSDOC_SOURCE = $(libgnustep-db2control_OBJC_FILES)
+EOControl_AUTOGSDOC_HEADERS = $(EOControl_HEADER_FILES)
+EOControl_AUTOGSDOC_SOURCE = $(EOControl_OBJC_FILES)
 EOControl_HEADER_FILES_DIR = $(HEADER_DIR)
 EOControl_AGSDOC_FILES = EOControl.gsdoc $(EOControl_AUTOGSDOC_HEADERS) 
 #$(EOControl_AUTOGSDOC_SOURCE)
@@ -125,10 +125,10 @@ EOControl_AGSDOC_FLAGS = \
 	}' -Up EOControl
 
 -include Makefile.preamble
-
+include ../common.make
 -include GNUmakefile.local
 
-include $(GNUSTEP_MAKEFILES)/library.make
+include $(GNUSTEP_MAKEFILES)/native-library.make
 # Only build the doc if doc=yes was passed on the command line
 ifeq ($(doc),yes)
 include $(GNUSTEP_MAKEFILES)/documentation.make

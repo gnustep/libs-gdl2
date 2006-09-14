@@ -84,6 +84,7 @@ eoutil_HEADER_FILES =
 
 
 -include Makefile.preamble
+include ../common.make
 
 -include GNUmakefile.local
 

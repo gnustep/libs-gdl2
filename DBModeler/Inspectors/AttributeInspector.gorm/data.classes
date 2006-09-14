@@ -1,11 +1,44 @@
 {
     "## Comment" = "Do NOT change this file, Gorm maintains it";
+    AttributeInspector = {
+	Actions = (
+	    "setValueClassNameAndType:",
+	    "setExternalName:",
+	    "setExternalType:",
+	    "setName:"
+	);
+	Outlets = (
+	    _extNameField,
+	    _extTypeField,
+	    _flipView,
+	    _nameField,
+	    _flipSelect,
+	    _customFlip,
+	    _dataFlip,
+	    _dateFlip,
+	    _decimalFlip,
+	    _doubleFlip,
+	    _integerFlip,
+	    _stringFlip,
+	    _internalData
+	);
+	Super = EOMInspector;
+    };
     EOMInspector = {
 	Actions = (
 	);
 	Outlets = (
 	    view,
 	    window
+	);
+	Super = NSObject;
+    };
+    FirstResponder = {
+	Actions = (
+	    "setValueClassNameAndType:",
+	    "setExternalName:",
+	    "setExternalType:",
+	    "setName:"
 	);
 	Super = NSObject;
     };

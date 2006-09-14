@@ -53,8 +53,8 @@ ifneq ($(FOUNDATION_LIB),gnu)
 ADDITIONAL_TOOL_LIBS += -lgnustep-baseadd
 endif
 
-ADDITIONAL_TOOL_LIBS += -lgnustep-db2 -lgnustep-db2control
-
+ADDITIONAL_NATIVE_LIBS+=EOControl EOAccess
+ADDITIONAL_NATIVE_LIB_DIRS+=EOControl EOAccess
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS += -L../EOAccess/$(GNUSTEP_OBJ_DIR) -L../EOControl/$(GNUSTEP_OBJ_DIR)
 

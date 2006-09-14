@@ -1,3 +1,0 @@
-ifeq ($(GUI_MAKE_LOADED),yes)
-  SUBPROJECTS += @SUBPROJECTS@
-endif
