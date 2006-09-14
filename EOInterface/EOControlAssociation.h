@@ -3,7 +3,7 @@
 
    Copyright (C) 2004,2005 Free Software Foundation, Inc.
 
-   Author: David Ayers <d.ayers@inode.at>
+   Author: David Ayers <ayers@fsfe.org>
 
    This file is part of the GNUstep Database Library
 

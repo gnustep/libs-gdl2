@@ -6,7 +6,7 @@
    Author: Ovidiu Predescu <ovidiu@bx.logicnet.ro>
    Date: September 1996
 
-   Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+   Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
    $Revision$

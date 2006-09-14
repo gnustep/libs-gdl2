@@ -3,10 +3,10 @@
 
    Copyright (C) 2000,2002,2003,2004,2005 Free Software Foundation, Inc.
 
-   Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+   Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
-   Modified: David Ayers <d.ayers@inode.at>
+   Modified: David Ayers <ayers@fsfe.org>
    Date: February 2003
 
    This file is part of the GNUstep Database Library.

@@ -34,7 +34,7 @@ Initial 'alpha' release 1.9.1
 
 This is the first alpha release package of GDL2.  First and
 foremost this is the result of a tremendous effort of 
-Mirko Viviani <mirko.viviani@e-cremona.it> to create a database
+Mirko Viviani <mirko.viviani@gmail.com> to create a database
 library aiming a compatibility with Enterprise Objects Frameworks
 from Apple Inc.  It is still missing major components and many of
 the existing classes are not fully implemented.  Yet the package

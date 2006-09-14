@@ -3,8 +3,8 @@
 
    Copyright (C) 2000,2002,2003,2004,2005 Free Software Foundation, Inc.
 
-   Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
-   Author: David Ayers <d.ayers@inode.at>
+   Author: Mirko Viviani <mirko.viviani@gmail.com>
+   Author: David Ayers <ayers@fsfe.org>
    Date: June 2000
 
    $Revision$

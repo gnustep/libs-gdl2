@@ -6,7 +6,7 @@
    Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
    Date: November 1996
 
-   Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+   Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
    $Revision$

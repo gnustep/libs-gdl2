@@ -6,13 +6,13 @@
    Author: Mircea Oancea <mircea@jupiter.elcom.pub.ro>
    Date: November 1996
 
-   Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+   Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
    Author: Manuel Guesdon <mguesdon@oxymium.net>
    Date: January 2002
 
-   Author: David Ayers <d.ayers@inode.at>
+   Author: David Ayers <ayers@fsfe.org>
    Date: February 2003
 
 

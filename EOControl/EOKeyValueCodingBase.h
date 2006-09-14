@@ -3,7 +3,7 @@
 
    Copyright (C) 2000 Free Software Foundation, Inc.
 
-   Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+   Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
    This file is part of the GNUstep Database Library.

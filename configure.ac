@@ -3,7 +3,7 @@
 #
 #   Copyright (C) 2002,2004,2005 Free Software Foundation, Inc.
 #
-#   Written by: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+#   Written by: Mirko Viviani <mirko.viviani@gmail.com>
 #
 #   This file is part of the GDL2 library.
 #

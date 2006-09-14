@@ -4,7 +4,7 @@
    Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 
    Free Software Foundation, Inc.
 
-   Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+   Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
    Author: Manuel Guesdon <mguesdon@orange-concept.com>
@@ -76,7 +76,7 @@ RCS_ID("$Id$")
 // NOTE: (stephane@sente.ch) Should we subclass NSClassDescription?
 
 /*
-   d.ayers@inode.at:  Yes, once we wish to support code written for
+   ayers@fsfe.org:  Yes, once we wish to support code written for
    for EOF > WO4.5. No, for now because we don't have direct access
    to the NSMapTable of base/Foundation so we would loose efficiency
    and gain no real benefit.
