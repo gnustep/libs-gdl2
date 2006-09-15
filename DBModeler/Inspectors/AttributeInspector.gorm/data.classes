@@ -5,7 +5,14 @@
 	    "setValueClassNameAndType:",
 	    "setExternalName:",
 	    "setExternalType:",
-	    "setName:"
+	    "setName:",
+	    "setConversionMethod:",
+	    "setClassName:",
+	    "setFactoryMethod:",
+	    "setInitArgument:",
+	    "setPrecision:",
+	    "setWidth:",
+	    "setTimeZone:"
 	);
 	Outlets = (
 	    _extNameField,
@@ -20,7 +27,17 @@
 	    _doubleFlip,
 	    _integerFlip,
 	    _stringFlip,
-	    _internalData
+	    _internalData,
+	    _custom_arg,
+	    _custom_class,
+	    _custom_conversion,
+	    _custom_factory,
+	    _custom_width,
+	    _string_width,
+	    _data_width,
+	    _decimal_precision,
+	    _decimal_width,
+	    _date_tz
 	);
 	Super = EOMInspector;
     };
@@ -35,10 +52,17 @@
     };
     FirstResponder = {
 	Actions = (
-	    "setValueClassNameAndType:",
+	    "setTimeZone:",
+	    "setClassName:",
+	    "setConversionMethod:",
 	    "setExternalName:",
 	    "setExternalType:",
-	    "setName:"
+	    "setFactoryMethod:",
+	    "setInitArgument:",
+	    "setName:",
+	    "setPrecision:",
+	    "setValueClassNameAndType:",
+	    "setWidth:"
 	);
 	Super = NSObject;
     };

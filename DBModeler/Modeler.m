@@ -42,11 +42,23 @@
 #include <EOAccess/EOAdaptorContext.h>
 #include <EOAccess/EOAdaptor.h>
 
+#include <EOControl/EOObserver.h>
+
 #include <AppKit/NSOpenPanel.h>
 
 #include <Foundation/NSObject.h>
 #include <Foundation/NSFileManager.h>
+@interface DebugObserver : NSObject <EOObserving> 
+{
 
+}
+@end
+@implementation DebugObserver
+- (void) objectWillChange:(id)subj
+{
+  NSLog(@"%@ %@ %@", NSStringFromSelector(_cmd), [subj class], subj);
+}
+@end
 @interface NSMenu (im_lazy)
 -(id <NSMenuItem>) addItemWithTitle: (NSString *)s;
 -(id <NSMenuItem>) addItemWithTitle: (NSString *)s  action: (SEL)sel;
@@ -83,7 +95,8 @@
   NSArray *bundlesToLoad = RETAIN([defaults arrayForKey: @"BundlesToLoad"]);
   NSMenu *mainMenu,*subMenu;
   NSFileManager *fm = [NSFileManager defaultManager];
-  
+ 
+//  [EOObserverCenter addOmniscientObserver:[DebugObserver new]];
   [[NSNotificationCenter defaultCenter] addObserver:self
   	selector:@selector(bundleDidLoad:)
 	name:NSBundleDidLoadNotification

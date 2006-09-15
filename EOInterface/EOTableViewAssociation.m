@@ -152,12 +152,10 @@ static NSMapTable *tvAssociationMap;
 	          int rowIndex = [[selectionIndexes objectAtIndex:i] intValue];
 		  
 		  /* don't extend the first selection */
-  [EOObserverCenter suppressObserverNotification];
 	          [[self object] selectRow: rowIndex
 		      byExtendingSelection: (i != 0)];
 		  
 	          [[self object] scrollRowToVisible:rowIndex];
-  [EOObserverCenter enableObserverNotification];
 	        }
 	    }
           else
@@ -169,9 +167,7 @@ static NSMapTable *tvAssociationMap;
 	       */
 	      if ([[self object] allowsEmptySelection])
 		{
-  [EOObserverCenter suppressObserverNotification];
-	        [[self object] deselectAll:self];
-  [EOObserverCenter enableObserverNotification];
+	          [[self object] deselectAll:self];
 		}
 	      else
 		NSLog(@"attempting to clear selection when table view won't allow empty selection");

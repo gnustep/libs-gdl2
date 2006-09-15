@@ -1054,7 +1054,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 - (BOOL)setValue: (id)value forObject: (id)object key: (NSString *)key
 {
-  SEL didSetValue = @selector(displayGroup:didSetValue:forKey:);
+  SEL didSetValue = @selector(displayGroup:didSetValue:forObject:key:);
   NSException *exception = nil;
       
   NS_DURING

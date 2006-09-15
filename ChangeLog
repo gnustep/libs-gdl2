@@ -1,4 +1,15 @@
 2006-09-15  Matt Rice  <ratmice@yahoo.com>
+
+	* EOInterface/EODisplayGroup.m: Correct selector name.
+	* EOInterface/EOTableViewAssociation.m: Remove observer notification
+	suppression.
+	* DBModeler/Modeler.m: Add some debug code.
+	* DBModeler/Inspectors/AttributeInspector.h/m: Implement.
+	* DBModeler/Inspectors/AttributeInspector.gorm: Update interface.
+	* DBModeler/ModelerTableEmbedibleEditor.m: Send notification on
+	displayGroup:didSetValue:forObject:key.
+
+2006-09-15  Matt Rice  <ratmice@yahoo.com>
 2006-09-15  David Ayers  <ayers@fsfe.org>
 	
 	* EOAdaptors/Postgres95/{*,*/*}: Rename from Postgres95 to PostgreSQL.

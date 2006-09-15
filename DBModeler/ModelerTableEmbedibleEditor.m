@@ -146,5 +146,13 @@
     }
 }
 
+- (void) displayGroup:(EODisplayGroup *)dg didSetValue:(id)value
+	    forObject:(id)obj key:(NSString *)key
+{
+  [[NSNotificationCenter defaultCenter]
+	  postNotificationName:EOMSelectionChangedNotification
+	  object:nil];
+}
+
 @end
 
