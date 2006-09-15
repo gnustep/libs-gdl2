@@ -8,6 +8,9 @@
 	* EOAdaptors/Postgres95/*.h/m: Rename files from Postgres95 to
 	PostgreSQL.
 
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/Makefile.postamble: Remove
+	symlink creation/removal.
+
 2006-09-14  Matt Rice  <ratmice@yahoo.com>
 	
 	* GNUmakefile.in: Remove reference to config.make
