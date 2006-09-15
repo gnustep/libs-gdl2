@@ -31,8 +31,6 @@
 #define __PostgreSQLContext_h__
 
 #include <EOAccess/EOAdaptorContext.h>
-#include <PostgreSQLEOAdaptor/PostgreSQLAdaptor.h>
-
 
 @interface PostgreSQLContext : EOAdaptorContext
 {
@@ -45,7 +43,7 @@
   } _flags;
 }
 
-- initWithAdaptor: (EOAdaptor *)adaptor;
+- (id)initWithAdaptor: (EOAdaptor *)adaptor;
 
 - (void)beginTransaction;
 - (void)commitTransaction;

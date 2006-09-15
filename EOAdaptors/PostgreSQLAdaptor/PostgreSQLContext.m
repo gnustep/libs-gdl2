@@ -58,10 +58,10 @@ RCS_ID("$Id$")
 
 #include <EOControl/EODebug.h>
 
-#include <PostgreSQLEOAdaptor/PostgreSQLAdaptor.h>
-#include <PostgreSQLEOAdaptor/PostgreSQLContext.h>
-#include <PostgreSQLEOAdaptor/PostgreSQLChannel.h>
-#include <PostgreSQLEOAdaptor/PostgreSQLExpression.h>
+#include "PostgreSQLAdaptor.h"
+#include "PostgreSQLContext.h"
+#include "PostgreSQLChannel.h"
+#include "PostgreSQLExpression.h"
 
 
 @implementation PostgreSQLContext

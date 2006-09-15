@@ -31,13 +31,22 @@
 #define __PostgreSQLChannel_h__
 
 #include <EOAccess/EOAdaptorChannel.h>
-#include <PostgreSQLEOAdaptor/PostgreSQLContext.h>
 
+/* Include PostgreSQL Headers */
+
+#undef Assert
+#include <stdio.h>
+#include <libpq-fe.h>
+#include <libpq/libpq-fs.h>
+#include <pg_config.h>
+#undef Assert
 
 @class NSString;
 @class NSMutableDictionary;
 @class NSMutableArray;
 @class EOAttribute;
+
+@class PostgreSQLContext;
 
 @interface PostgreSQLChannel : EOAdaptorChannel
 {

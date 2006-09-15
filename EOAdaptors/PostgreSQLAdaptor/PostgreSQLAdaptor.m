@@ -70,11 +70,11 @@ RCS_ID("$Id$")
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOModel.h>
 
-#include <PostgreSQLEOAdaptor/PostgreSQLAdaptor.h>
-#include <PostgreSQLEOAdaptor/PostgreSQLContext.h>
-#include <PostgreSQLEOAdaptor/PostgreSQLChannel.h>
-#include <PostgreSQLEOAdaptor/PostgreSQLExpression.h>
-#include <PostgreSQLEOAdaptor/PostgreSQLValues.h>
+#include "PostgreSQLAdaptor.h"
+#include "PostgreSQLContext.h"
+#include "PostgreSQLChannel.h"
+#include "PostgreSQLExpression.h"
+#include "PostgreSQLValues.h"
 
 #include "PostgreSQLPrivate.h"
 

@@ -1,5 +1,5 @@
 /** -*-ObjC-*-
-   PostgresLoginPanel.m
+   PostgreSQLLoginPanel.m
 
    Copyright (C) 2004,2005 Free Software Foundation, Inc.
 
@@ -33,11 +33,11 @@
 #include <GNUstepBase/GSCategories.h>
 #endif
 
-#include "PostgresLoginPanel.h"
+#include "PostgreSQLLoginPanel.h"
 
 static BOOL insideModalLoop;
 
-static NSString *windowTitle = @"Postgresql login";
+static NSString *windowTitle = @"PostgreSQLql login";
 static NSString *newDatabaseTitle = @"New";
 static NSString *userNameTitle = @"Username: ";
 static NSString *passwordTitle = @"Password: ";
@@ -81,7 +81,7 @@ vfmaxf (int n, float aFloat, ...)
 
 
 
-@implementation PostgresLoginPanel : EOLoginPanel
+@implementation PostgreSQLLoginPanel : EOLoginPanel
 
 - (void) dealloc
 {
@@ -407,7 +407,7 @@ vfmaxf (int n, float aFloat, ...)
 
   aMod = [EOModel new];
   [aMod   setName: @"AvailableDatabases"];
-  [aMod   setAdaptorName: @"Postgres"];
+  [aMod   setAdaptorName: @"PostgreSQL"];
   /* 
      we need a connection to a known database template1 should exist 
   */
@@ -441,7 +441,7 @@ vfmaxf (int n, float aFloat, ...)
   if (!exceptionOccured)
     {
       [channel openChannel];
-      databaseNames = [(PostgresChannel*)channel describeDatabaseNames];
+      databaseNames = [(PostgreSQLChannel*)channel describeDatabaseNames];
       [channel closeChannel];
       RELEASE(aMod); 
     } 
@@ -489,7 +489,7 @@ vfmaxf (int n, float aFloat, ...)
         {
           if (adminFlag)
             {
-              BOOL isAdmin = [(PostgresChannel*)adaptorChannel 
+              BOOL isAdmin = [(PostgreSQLChannel*)adaptorChannel 
                  userNameIsAdministrative: [userNameField stringValue]];
               if (!isAdmin)
                 {
@@ -602,7 +602,7 @@ vfmaxf (int n, float aFloat, ...)
 		                      [userNameField stringValue],@"userName",
 				      [passwdField stringValue], @"password",
 		                      nil];
-  adaptor = [EOAdaptor adaptorWithName:@"Postgres"]; 
+  adaptor = [EOAdaptor adaptorWithName:@"PostgreSQL"]; 
   [adaptor setConnectionDictionary:connDict]; 
  
   // hmm if the user isn't an admin the error is kinda ugly.. 

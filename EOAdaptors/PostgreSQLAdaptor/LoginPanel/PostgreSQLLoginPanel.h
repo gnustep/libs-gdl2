@@ -1,5 +1,5 @@
 /** -*-ObjC-*-
-   PostgresLoginPanel.h
+   PostgreSQLLoginPanel.h
 
    Copyright (C) 2004,2005 Free Software Foundation, Inc.
 
@@ -25,10 +25,10 @@
 */
 
 #include <EOAccess/EOAccess.h>
-#include "PostgresChannel.h"
-#include "PostgresSQLExpression.h"
+#include "PostgreSQLChannel.h"
+#include "PostgreSQLExpression.h"
 
-@interface PostgresLoginPanel : EOLoginPanel
+@interface PostgreSQLLoginPanel : EOLoginPanel
 {
   /* gui stuff */ 
   NSWindow *_win;
