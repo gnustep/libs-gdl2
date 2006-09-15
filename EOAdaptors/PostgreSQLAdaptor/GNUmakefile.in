@@ -33,46 +33,46 @@ include ../../Version
 POSTGRES_DATABASE=@POSTGRES_DATABASE@
 
 # The framework to be compiled
-FRAMEWORK_NAME=PostgresEOAdaptor
+FRAMEWORK_NAME=PostgreSQLEOAdaptor
 SUBPROJECTS = LoginPanel
 
 # The framework principal class
-PostgresEOAdaptor_PRINCIPAL_CLASS = PostgresAdaptor
+PostgreSQLEOAdaptor_PRINCIPAL_CLASS = PostgreSQLAdaptor
 
 # The framework Objective-C source files to be compiled
-PostgresEOAdaptor_OBJC_FILES = \
-PostgresAdaptor.m \
-PostgresContext.m \
-PostgresChannel.m \
-PostgresSQLExpression.m \
-PostgresValues.m \
-PostgresPrivate.m
+PostgreSQLEOAdaptor_OBJC_FILES = \
+PostgreSQLAdaptor.m \
+PostgreSQLContext.m \
+PostgreSQLChannel.m \
+PostgreSQLExpression.m \
+PostgreSQLValues.m \
+PostgreSQLPrivate.m
 
-PostgresEOAdaptor_HEADER_FILES = \
-PostgresAdaptor.h \
-PostgresContext.h \
-PostgresChannel.h \
-PostgresSQLExpression.h \
-PostgresValues.h
+PostgreSQLEOAdaptor_HEADER_FILES = \
+PostgreSQLAdaptor.h \
+PostgreSQLContext.h \
+PostgreSQLChannel.h \
+PostgreSQLExpression.h \
+PostgreSQLValues.h
 
 
-PostgresEOAdaptor_AUTOGSDOC_HEADERS = $(PostgresEOAdaptor_HEADER_FILES)
-PostgresEOAdaptor_AUTOGSDOC_SOURCE = $(PostgresEOAdaptor_OBJC_FILES)
-DOCUMENT_NAME = PostgresEOAdaptor
-PostgresEOAdaptor_AGSDOC_FILES = PostgresEOAdaptor.gsdoc $(PostgresEOAdaptor_AUTOGSDOC_HEADERS) 
-#$(PostgresEOAdaptor_AUTOGSDOC_SOURCE)
-PostgresEOAdaptor_AGSDOC_FLAGS = \
+PostgreSQLEOAdaptor_AUTOGSDOC_HEADERS = $(PostgreSQLEOAdaptor_HEADER_FILES)
+PostgreSQLEOAdaptor_AUTOGSDOC_SOURCE = $(PostgreSQLEOAdaptor_OBJC_FILES)
+DOCUMENT_NAME = PostgreSQLEOAdaptor
+PostgreSQLEOAdaptor_AGSDOC_FILES = PostgreSQLEOAdaptor.gsdoc $(PostgreSQLEOAdaptor_AUTOGSDOC_HEADERS) 
+#$(PostgreSQLEOAdaptor_AUTOGSDOC_SOURCE)
+PostgreSQLEOAdaptor_AGSDOC_FLAGS = \
 	-Declared Foundation \
 	-Standards YES \
 	-SystemProjects System \
-	-Project PostgresEOAdaptor \
+	-Project PostgreSQLEOAdaptor \
 	-WordMap '{\
 	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
 	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
 	GS_EXPORT=extern;GS_DECLARE="";\
 	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
-	}' -Up PostgresEOAdaptor
+	}' -Up PostgreSQLEOAdaptor
 
 
 -include Makefile.preamble

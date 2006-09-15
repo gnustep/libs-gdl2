@@ -39,7 +39,7 @@ AC_CONFIG_HEADER(config.h)
 
 AM_PATH_PGSQL(enable_pgsql=yes, enable_pgsql=no)
 if test $enable_pgsql = yes; then
-  EOADAPTORS="$EOADAPTORS Postgres95"
+  EOADAPTORS="$EOADAPTORS PostgreSQL"
 
   HAVE_PGSQL=1
 #  AC_DEFINE(HAVE_LIBXML,1,
@@ -79,5 +79,5 @@ AC_SUBST(GCC_VERSION)
 #--------------------------------------------------------------------
 # Write the Makefiles
 #--------------------------------------------------------------------
-AC_CONFIG_FILES([gdl2.make GNUmakefile EOAdaptors/GNUmakefile EOAdaptors/Postgres95/GNUmakefile EOAdaptors/Postgres95/config.mak])
+AC_CONFIG_FILES([gdl2.make GNUmakefile EOAdaptors/GNUmakefile EOAdaptors/PostgreSQL/GNUmakefile EOAdaptors/PostgreSQL/config.mak])
 AC_OUTPUT

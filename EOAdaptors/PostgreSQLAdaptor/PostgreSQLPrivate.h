@@ -1,5 +1,5 @@
 /* -*-objc-*-
-   PostgresPrivate.h
+   PostgreSQLPrivate.h
 
    Copyright (C) 2005 Free Software Foundation, Inc.
 
@@ -24,8 +24,8 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef __PostgresPrivate_h__
-#define __PostgresPrivate_h__
+#ifndef __PostgreSQLPrivate_h__
+#define __PostgreSQLPrivate_h__
 
 @class NSNumber;
 @class EONull;
@@ -38,7 +38,7 @@ extern Class PSQLA_NSCalendarDateClass;
 extern Class PSQLA_NSDateClass;
 extern Class PSQLA_NSMutableArrayClass;
 extern Class PSQLA_EOAttributeClass;
-extern Class PSQLA_PostgresValuesClass;
+extern Class PSQLA_PostgreSQLValuesClass;
 
 // ==== IMPs ====
 extern IMP PSQLA_NSNumber_allocWithZoneIMP;
@@ -47,7 +47,7 @@ extern IMP PSQLA_NSString_allocWithZoneIMP;
 extern IMP PSQLA_NSCalendarDate_allocWithZoneIMP;
 extern IMP PSQLA_NSMutableArray_allocWithZoneIMP;
 extern IMP PSQLA_EOAttribute_allocWithZoneIMP;
-extern IMP PSQLA_PostgresValues_newValueForBytesLengthAttributeIMP;
+extern IMP PSQLA_PostgreSQLValues_newValueForBytesLengthAttributeIMP;
 
 // ==== Constants ====
 extern NSNumber *PSQLA_NSNumberBool_Yes;
@@ -71,12 +71,12 @@ _isNilOrEONull(id obj)
   return (obj == nil || obj == PSQLA_EONull) ? YES : NO;
 }
 
-// ---- PostgresValues newValueForBytes:length:attribute ----
-#define PSQLA_PostgresValues_newValueForBytesLengthAttribute(bytes, \
+// ---- PostgreSQLValues newValueForBytes:length:attribute ----
+#define PSQLA_PostgreSQLValues_newValueForBytesLengthAttribute(bytes, \
 							       length, \
 							       attribute) \
-	(*PSQLA_PostgresValues_newValueForBytesLengthAttributeIMP) \
-	(PSQLA_PostgresValuesClass, \
+	(*PSQLA_PostgreSQLValues_newValueForBytesLengthAttributeIMP) \
+	(PSQLA_PostgreSQLValuesClass, \
 	 @selector(newValueForBytes:length:attribute:), \
 	 (bytes), (length), (attribute))
 
@@ -159,5 +159,5 @@ PSQLA_SetObjectForKeyWithImpPtr(id object,IMP* impPtr,id value, id key)
 	(PSQLA_##CLASS_NAME##Class,@selector(allocWithZone:),NULL) 
 
 
-#endif /* __PostgresPrivate_h__ */
+#endif /* __PostgreSQLPrivate_h__ */
 

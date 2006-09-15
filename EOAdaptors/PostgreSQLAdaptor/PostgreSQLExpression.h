@@ -1,5 +1,5 @@
 /* 
-   PostgresSQLExpression.h
+   PostgreSQLExpression.h
 
    Copyright (C) 2000,2002,2003,2004,2005 Free Software Foundation, Inc.
 
@@ -24,8 +24,8 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef __PostgresSQLExpression_h__
-#define __PostgresSQLExpression_h__
+#ifndef __PostgreSQLExpression_h__
+#define __PostgreSQLExpression_h__
 
 #include <EOAccess/EOSQLExpression.h>
 
@@ -33,7 +33,7 @@
 @class NSString;
 
 
-@interface PostgresSQLExpression : EOSQLExpression
+@interface PostgreSQLExpression : EOSQLExpression
 
 + (NSString *)formatValue: (id)value
              forAttribute: (EOAttribute *)attribute;
@@ -53,4 +53,4 @@
 @end
 
 
-#endif /* __PostgresSQLExpression_h__ */
+#endif /* __PostgreSQLExpression_h__ */

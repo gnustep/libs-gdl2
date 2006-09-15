@@ -1,12 +1,12 @@
 /* -*-objc-*-
-   PostgresChannel.h
+   PostgreSQLChannel.h
 
    Copyright (C) 2000,2002,2003,2004,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
-   based on the Postgres adaptor written by
+   based on the PostgreSQL adaptor written by
          Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
    This file is part of the GNUstep Database Library.
@@ -27,11 +27,11 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef __PostgresChannel_h__
-#define __PostgresChannel_h__
+#ifndef __PostgreSQLChannel_h__
+#define __PostgreSQLChannel_h__
 
 #include <EOAccess/EOAdaptorChannel.h>
-#include <PostgresEOAdaptor/PostgresContext.h>
+#include <PostgreSQLEOAdaptor/PostgreSQLContext.h>
 
 
 @class NSString;
@@ -39,9 +39,9 @@
 @class NSMutableArray;
 @class EOAttribute;
 
-@interface PostgresChannel : EOAdaptorChannel
+@interface PostgreSQLChannel : EOAdaptorChannel
 {
-  PostgresContext *_adaptorContext;
+  PostgreSQLContext *_adaptorContext;
   PGconn *_pgConn;
   PGresult *_pgResult;
   NSArray *_attributes;
@@ -83,13 +83,13 @@
 	     withAttributes: (NSArray*)attributes;
 @end
 
-@interface NSObject (PostgresChannelDelegate)
+@interface NSObject (PostgreSQLChannelDelegate)
 
-- (void)postgresChannel: (PostgresChannel*)channel
+- (void)postgresChannel: (PostgreSQLChannel*)channel
        insertedRowWithOid: (Oid)oid;
-- (void)postgresChannel: (PostgresChannel*)channel
+- (void)postgresChannel: (PostgreSQLChannel*)channel
      receivedNotification: (NSString*)notification;
 
 @end
 
-#endif /* __PostgresChannel_h__ */
+#endif /* __PostgreSQLChannel_h__ */

@@ -1,12 +1,12 @@
 /** 
-   PostgresChannel.m <title>PostgresChannel</title>
+   PostgreSQLChannel.m <title>PostgreSQLChannel</title>
 
    Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
-   based on the Postgres adaptor written by
+   based on the PostgreSQL adaptor written by
          Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
    Author: Manuel Guesdon <mguesdon@orange-concept.com>
@@ -73,11 +73,11 @@ RCS_ID("$Id$")
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOSQLExpression.h>
 
-#include <PostgresEOAdaptor/PostgresChannel.h>
-#include <PostgresEOAdaptor/PostgresContext.h>
-#include <PostgresEOAdaptor/PostgresValues.h>
+#include <PostgreSQLEOAdaptor/PostgreSQLChannel.h>
+#include <PostgreSQLEOAdaptor/PostgreSQLContext.h>
+#include <PostgreSQLEOAdaptor/PostgreSQLValues.h>
 
-#include "PostgresPrivate.h"
+#include "PostgreSQLPrivate.h"
 
 static void __dummy_function_used_for_linking(void)
 {
@@ -179,7 +179,7 @@ pgResultDictionary(PGresult *pgResult)
     nil];
 }
 
-@implementation PostgresChannel
+@implementation PostgreSQLChannel
 
 + (void) initialize
 {
@@ -189,7 +189,7 @@ pgResultDictionary(PGresult *pgResult)
       Class aClass=Nil;
       PSQLA_PrivInit();
 
-      aClass=[PostgresValues class]; // Force Initialize;      
+      aClass=[PostgreSQLValues class]; // Force Initialize;      
     };
 };
 
@@ -202,7 +202,7 @@ pgResultDictionary(PGresult *pgResult)
   if (_pgResult == NULL || PQresultStatus(_pgResult) != PGRES_COMMAND_OK)
     {
       _pgResult = NULL;
-      [NSException raise: PostgresException
+      [NSException raise: PostgreSQLException
 		   format: @"cannot set date style to ISO."];
     }
   
@@ -257,7 +257,7 @@ pgResultDictionary(PGresult *pgResult)
   //OK
   NSAssert(!_pgConn, @"Channel already opened");
 
-  _pgConn = [(PostgresAdaptor *)[[self adaptorContext] adaptor] newPGconn];
+  _pgConn = [(PostgreSQLAdaptor *)[[self adaptorContext] adaptor] newPGconn];
 
   if (_pgConn)
     {
@@ -272,7 +272,7 @@ pgResultDictionary(PGresult *pgResult)
   NSAssert(_pgConn, @"Channel not opened");
 
   [self _cancelResults];
-  [(PostgresAdaptor *)[[self adaptorContext] adaptor] releasePGconn: _pgConn
+  [(PostgreSQLAdaptor *)[[self adaptorContext] adaptor] releasePGconn: _pgConn
 			force: NO];
   _pgConn = NULL;
 }
@@ -434,7 +434,7 @@ zone:zone
               NSDebugMLog(@"_attributes=%@", _attributes);
               NSDebugMLog(@"result=%@", [self lowLevelResultFieldNames:
 						_pgResult]);
-              [NSException raise: PostgresException
+              [NSException raise: PostgreSQLException
                            format: @"attempt to read %d attributes "
                            @"when the result set has only %d columns",
                            count, PQnfields(_pgResult)];
@@ -472,7 +472,7 @@ zone:zone
                           string = [self _readBinaryDataRow: (Oid)atol(string)
                                          length:&length zone: zone];
                           //For efficiency reasons, the returned value is NOT autoreleased !
-                          values[i] = PSQLA_PostgresValues_newValueForBytesLengthAttribute(string,length,attr);
+                          values[i] = PSQLA_PostgreSQLValues_newValueForBytesLengthAttribute(string,length,attr);
                         }
                       else
                         {
@@ -490,7 +490,7 @@ zone:zone
                   else
                     {
                       //For efficiency reasons, the returned value is NOT autoreleased !
-                      values[i] = PSQLA_PostgresValues_newValueForBytesLengthAttribute(string,length,attr);
+                      values[i] = PSQLA_PostgreSQLValues_newValueForBytesLengthAttribute(string,length,attr);
                     }
                 }
 
@@ -575,7 +575,7 @@ zone:zone
                 [_sqlExpression statement], errorString);
         NSDebugMLLog(@"SQL expression '%@' caused %@",
                      [_sqlExpression statement], errorString);
-        [NSException raise: PostgresException
+        [NSException raise: PostgreSQLException
 		     format: @"unexpected result returned by PQresultStatus(): %@",errorString];
 
         EOFLOGObjectFnStop();
@@ -590,7 +590,7 @@ zone:zone
                 [_sqlExpression statement], status, errorString);
         NSDebugMLLog(@"SQL expression '%@' returned status %d: %@",
                      [_sqlExpression statement], status, errorString);
-        [NSException raise: PostgresException
+        [NSException raise: PostgreSQLException
 		     format: @"unexpected result returned by PQresultStatus(): status %d: %@",
                      status,errorString];
 
@@ -640,7 +640,7 @@ zone:zone
         message = [NSString stringWithFormat:
                               @"Command status %@. Returned %d rows with %d columns ",
                             message, PQntuples(_pgResult), PQnfields(_pgResult)];
-      NSLog (@"PostgresAdaptor: %@", message);
+      NSLog (@"PostgreSQLAdaptor: %@", message);
     }
   
   NSDebugMLLog(@"gsdb", @"ret=%s", (ret ? "YES" : "NO"));
@@ -665,11 +665,11 @@ zone:zone
 
 //  NSDebugMLLog(@"gsdb",@"EE _origAttributes=%@",_origAttributes);
 //  NSDebugMLLog(@"gsdb",@"EE _attributes=%@",_attributes);
-  NSDebugMLLog(@"gsdb", @"PostgresAdaptor: execute command:\n%@\n",
+  NSDebugMLLog(@"gsdb", @"PostgreSQLAdaptor: execute command:\n%@\n",
 	       [expression statement]);
 
   if ([self isDebugEnabled] == YES)
-    NSLog(@"PostgresAdaptor: execute command:\n%@\n",
+    NSLog(@"PostgreSQLAdaptor: execute command:\n%@\n",
 	  [expression statement]);
 //call PostgreSQLChannel numberOfAffectedRows
   /* Send the expression to the SQL server */
@@ -682,7 +682,7 @@ zone:zone
       if ([self isDebugEnabled])
         {
           adaptorContext = [self adaptorContext];
-          [(PostgresAdaptor *)[adaptorContext adaptor]
+          [(PostgreSQLAdaptor *)[adaptorContext adaptor]
                                 privateReportError: _pgConn];
         }
     }
@@ -704,12 +704,12 @@ zone:zone
 
 - (void)evaluateExpression: (EOSQLExpression *)expression // OK quasi
 {
-  PostgresContext *adaptorContext = nil;
+  PostgreSQLContext *adaptorContext = nil;
 
   EOFLOGObjectFnStart();
 
 //_evaluationIsDirectCalled=1
-  adaptorContext = (PostgresContext *)[self adaptorContext];
+  adaptorContext = (PostgreSQLContext *)[self adaptorContext];
 //call expression statement
 //call adaptorContext adaptor
 //call adaptor databaseEncoding
@@ -729,7 +729,7 @@ zone:zone
     }
 
   if ([self isOpen] == NO)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"cannot execute SQL expression. Channel is not opened."];
 
   [self _cancelResults];
@@ -764,7 +764,7 @@ zone:zone
   NSMutableDictionary *nrow = nil;
   NSEnumerator *enumerator = nil;
   NSString *attrName = nil;
-  PostgresContext *adaptorContext = nil;
+  PostgreSQLContext *adaptorContext = nil;
   IMP attrEnumNO=NULL; // nextObject
   IMP rowOFK=NULL; // objectForKey:
   IMP nrowSOFK=NULL; // setObject:forKey:
@@ -799,7 +799,7 @@ zone:zone
 
   nrow = AUTORELEASE([row mutableCopy]);
 
-  adaptorContext = (PostgresContext *)[self adaptorContext];
+  adaptorContext = (PostgreSQLContext *)[self adaptorContext];
 
   [self _cancelResults]; //No done by WO
 
@@ -877,7 +877,7 @@ each key
 {
   EOSQLExpression *sqlexpr = nil;
   unsigned long rows = 0;
-  PostgresContext *adaptorContext;
+  PostgreSQLContext *adaptorContext;
 
   EOFLOGObjectFnStart();
 
@@ -903,7 +903,7 @@ each key
                  NSStringFromClass([self class]),
                  self];
 
-  adaptorContext = (PostgresContext *)[self adaptorContext];
+  adaptorContext = (PostgreSQLContext *)[self adaptorContext];
 
   [self _cancelResults];
   [_adaptorContext autoBeginTransaction: NO];
@@ -1044,7 +1044,7 @@ each key
   NSString *attrName = nil;
   NSString *externalType = nil;
   EOAttribute *attr = nil;
-  PostgresContext *adaptorContext = nil;
+  PostgreSQLContext *adaptorContext = nil;
   unsigned long rows = 0;
   IMP valuesOFK=NULL; // objectForKey:
 
@@ -1098,7 +1098,7 @@ each key
         }
 
       [self _cancelResults]; //Not in WO
-      adaptorContext = (PostgresContext *)[self adaptorContext];
+      adaptorContext = (PostgreSQLContext *)[self adaptorContext];
       [adaptorContext autoBeginTransaction: YES];
 
       if ([invAttributes count])
@@ -1194,7 +1194,7 @@ each key
 
   fd = lo_open(_pgConn, oid, INV_READ|INV_WRITE);
   if (fd < 0)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"cannot open large object Oid = %ld", oid];
 
   lo_lseek(_pgConn, fd, 0, SEEK_END);
@@ -1202,7 +1202,7 @@ each key
   lo_lseek(_pgConn, fd, 0, SEEK_SET);
 
   if (len < 0)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"error while getting size of large object Oid = %ld", oid];
 
   bytes = NSZoneMalloc(zone, len);
@@ -1211,7 +1211,7 @@ each key
   if (len != wrt)
     {
       NSZoneFree(zone, bytes);
-      [NSException raise: PostgresException
+      [NSException raise: PostgreSQLException
 		   format: @"error while reading large object Oid = %ld", oid];
     }
   lo_close(_pgConn, fd);
@@ -1237,18 +1237,18 @@ each key
 
   oid = lo_creat(_pgConn, INV_READ|INV_WRITE);
   if (oid == 0)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"cannot create large object"];
 
   fd = lo_open(_pgConn, oid, INV_READ|INV_WRITE);
   if (fd < 0)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"cannot open large object Oid = %ld", oid];
 
   wrt = lo_write(_pgConn, fd, (char *)bytes, len);
 
   if (len != wrt)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"error while writing large object Oid = %ld", oid];
 
   lo_close(_pgConn, fd);
@@ -1274,18 +1274,18 @@ each key
 
   oid = lo_creat(_pgConn, INV_READ|INV_WRITE);
   if (oid == 0)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"cannot create large object"];
 
   fd = lo_open(_pgConn, oid, INV_READ|INV_WRITE);
   if (fd < 0)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"cannot open large object Oid = %ld", oid];
 
   wrt = lo_write(_pgConn, fd, (char*)bytes, len);
 
   if (len != wrt)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"error while writing large object Oid = %ld", oid];
 
   lo_close(_pgConn, fd);
@@ -1305,7 +1305,7 @@ each key
   if (_pgResult == NULL || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
     {
       _pgResult = NULL;
-      [NSException raise: PostgresException
+      [NSException raise: PostgreSQLException
 		   format: @"cannot read type name informations from database. "
 		   @"bad response from server"];
     }
@@ -1313,7 +1313,7 @@ each key
   if (PQnfields(_pgResult) != 2)
     {
       _pgResult = NULL;
-      [NSException raise: PostgresException
+      [NSException raise: PostgreSQLException
 		   format: @"cannot read type name informations from database. "
 		   @"results should have two columns"];
     }
@@ -1344,7 +1344,7 @@ each key
   if (_pgResult == NULL || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
     {
       _pgResult = NULL;
-      [NSException raise: PostgresException
+      [NSException raise: PostgreSQLException
 		   format: @"cannot read type name informations from database. "
 		   @"bad response from server"];
     }
@@ -1364,7 +1364,7 @@ each key
 - (void)setAttributesToFetch: (NSArray *)attributes
 {
   //call adaptorContext
-  NSDebugMLLog(@"gsdb", @"PostgresChannel: setAttributesToFetch %p:%@",
+  NSDebugMLLog(@"gsdb", @"PostgreSQLChannel: setAttributesToFetch %p:%@",
 	       attributes, attributes);
 
   ASSIGN(_attributes, attributes);
@@ -1440,7 +1440,7 @@ each key
                                                         &oidToTypeNameOFK,externalTypeNumber);
               
               if (!externalType)
-                [NSException raise: PostgresException
+                [NSException raise: PostgreSQLException
                              format: @"cannot find type for Oid = %d",
                              PQftype(_pgResult, i)];
 
@@ -1529,7 +1529,7 @@ each key
       || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
     {
       _pgResult = NULL;
-      [NSException raise: PostgresException
+      [NSException raise: PostgreSQLException
 		   format: @"cannot read list of tables from database. "
 		   @"bad response from server"];
     }
@@ -1579,13 +1579,13 @@ each key
   stmt = [NSS_SWF: @"SELECT oid FROM pg_class "
 		 @"WHERE relname = '%@' AND relkind = 'r'",tableName];
 
-  EOAdaptorDebugLog(@"PostgresAdaptor: execute command:\n%@", stmt);
+  EOAdaptorDebugLog(@"PostgreSQLAdaptor: execute command:\n%@", stmt);
   _pgResult = PQexec(_pgConn, [stmt cString]);
 
   if (_pgResult == NULL || PQresultStatus(_pgResult) != PGRES_TUPLES_OK)
     {
       _pgResult = NULL;
-      [NSException raise: PostgresException
+      [NSException raise: PostgreSQLException
 		   format: @"cannot read type name information from database."
 		   @"bad response from server"];
     }
@@ -1593,7 +1593,7 @@ each key
   if (PQntuples(_pgResult) != 1)
     {
       _pgResult = NULL;
-      [NSException raise: PostgresException
+      [NSException raise: PostgreSQLException
 		   format: @"Table %@ doesn't exist", tableName];
     }
 
@@ -1605,7 +1605,7 @@ each key
 		 @"WHERE attnum > 0 AND attrelid=%@"
 		 @"AND attisdropped IS FALSE", tableOid];
 
-  EOAdaptorDebugLog(@"PostgresAdaptor: execute command:\n%@", stmt);
+  EOAdaptorDebugLog(@"PostgreSQLAdaptor: execute command:\n%@", stmt);
   PQclear(_pgResult);
 
   _pgResult = PQexec(_pgConn, [stmt cString]);
@@ -1682,7 +1682,7 @@ each key
 		 @"WHERE indrelid='%@' AND indisprimary = 't'",
 		 tableOid];
 
-  EOAdaptorDebugLog(@"PostgresAdaptor: execute command:\n%@", stmt);
+  EOAdaptorDebugLog(@"PostgreSQLAdaptor: execute command:\n%@", stmt);
   _pgResult = PQexec(_pgConn,[stmt cString]);
   if (PQntuples(_pgResult))
     {
@@ -1696,7 +1696,7 @@ each key
 		     tableOid, pkAttNum];
       PQclear(_pgResult);
 
-      EOAdaptorDebugLog(@"PostgresAdaptor: execute command:\n%@", stmt);
+      EOAdaptorDebugLog(@"PostgreSQLAdaptor: execute command:\n%@", stmt);
       _pgResult = PQexec(_pgConn,[stmt cString]);
  
       if (PQntuples(_pgResult))
@@ -1747,7 +1747,7 @@ each key
 
   PQclear(_pgResult);
 
-  EOAdaptorDebugLog(@"PostgresAdaptor: execute command:\n%@", stmt);
+  EOAdaptorDebugLog(@"PostgreSQLAdaptor: execute command:\n%@", stmt);
   _pgResult = PQexec(_pgConn, [stmt cString]);
 
   for (i = 0, n = PQntuples(_pgResult); i < n; i++)
@@ -1982,7 +1982,7 @@ each key
   EOFLOGObjectFnStart();
 
   primaryKeySequenceNameFormat 
-    = [(PostgresContext*)[self adaptorContext] primaryKeySequenceNameFormat];
+    = [(PostgreSQLContext*)[self adaptorContext] primaryKeySequenceNameFormat];
   NSAssert(primaryKeySequenceNameFormat, @"No primary sequence name format");
 
   expr = AUTORELEASE([[[_adaptorContext adaptor] expressionClass] new]);
@@ -2012,7 +2012,7 @@ each key
       length = PQgetlength(_pgResult, _currentResultRow, 0);
       
       attr = [_pkAttributeArray objectAtIndex: 0];
-      pkValue = AUTORELEASE(PSQLA_PostgresValues_newValueForBytesLengthAttribute(string,length,attr));
+      pkValue = AUTORELEASE(PSQLA_PostgreSQLValues_newValueForBytesLengthAttribute(string,length,attr));
 
       NSAssert(pkValue, @"no pk value");
       key = [[entity primaryKeyAttributeNames] objectAtIndex: 0];
@@ -2032,11 +2032,11 @@ each key
 
 - (void)cleanupFetch
 {
-  PostgresContext *adaptorContext;
+  PostgreSQLContext *adaptorContext;
 
   EOFLOGObjectFnStart();
 
-  adaptorContext = (PostgresContext *)[self adaptorContext];
+  adaptorContext = (PostgreSQLContext *)[self adaptorContext];
 
   NSDebugMLog(@"[self isFetchInProgress]=%s",
               ([self isFetchInProgress] ? "YES" : "NO"));
@@ -2055,4 +2055,4 @@ each key
   EOFLOGObjectFnStop();
 }
 
-@end /* PostgresChannel */
+@end /* PostgreSQLChannel */

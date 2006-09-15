@@ -1,5 +1,5 @@
 /** 
-   PostgresValues.m
+   PostgreSQLValues.m
 
    Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
 
@@ -55,12 +55,12 @@ RCS_ID("$Id$")
 
 #include <EOAccess/EOAttribute.h>
 
-#include "PostgresEOAdaptor/PostgresAdaptor.h"
-#include "PostgresEOAdaptor/PostgresChannel.h"
-#include "PostgresEOAdaptor/PostgresValues.h"
+#include "PostgreSQLEOAdaptor/PostgreSQLAdaptor.h"
+#include "PostgreSQLEOAdaptor/PostgreSQLChannel.h"
+#include "PostgreSQLEOAdaptor/PostgreSQLValues.h"
 
-#include "PostgresCompatibility.h"
-#include "PostgresPrivate.h"
+#include "PostgreSQLCompatibility.h"
+#include "PostgreSQLPrivate.h"
 
 #include <stdlib.h>
 
@@ -77,7 +77,7 @@ static NSStringEncoding LPSQLA_StringDefaultCStringEncoding;
 - (char)_valueTypeChar;
 @end
 
-@implementation PostgresValues
+@implementation PostgreSQLValues
 
 + (void) initialize
 {
@@ -126,7 +126,7 @@ static NSStringEncoding LPSQLA_StringDefaultCStringEncoding;
 
 /**
 For efficiency reasons, the returned value is NOT autoreleased !
-bytes is null terminated (cf Postgresql doc) and length is equivalent 
+bytes is null terminated (cf PostgreSQLql doc) and length is equivalent 
 to strlen(bytes)
 **/
 + (id)newValueForNumberType: (const void *)bytes
@@ -290,18 +290,18 @@ For efficiency reasons, the returned value is NOT autoreleased !
 
 @end
 /*
-@implementation NSString (PostgresValueCreation)
+@implementation NSString (PostgreSQLValueCreation)
 
 
 For efficiency reasons, the returned value is NOT autoreleased !
 
-- stringValueForPostgresType:(NSString*)type
+- stringValueForPostgreSQLType:(NSString*)type
   attribute:(EOAttribute*)attribute
 {
 if ([type isEqual:@"bytea"])
     return [[NSData alloc]initWithBytes:[self cString]
       length:[self cStringLength]]
-      stringValueForPostgresType:type
+      stringValueForPostgreSQLType:type
                attribute:attribute];
     else
       return [[[[EOQuotedExpression alloc]
@@ -313,13 +313,13 @@ if ([type isEqual:@"bytea"])
     return nil;
 }
 
-@end // NSString (PostgresValueCreation)
+@end // NSString (PostgreSQLValueCreation)
 
 
 
-@implementation NSNumber (PostgresValueCreation)
+@implementation NSNumber (PostgreSQLValueCreation)
 
-- stringValueForPostgresType:(NSString*)type
+- stringValueForPostgreSQLType:(NSString*)type
   attribute:(EOAttribute*)attribute;
 {
     if ([[attribute externalType] isEqualToString:@"bool"])
@@ -328,13 +328,13 @@ if ([type isEqual:@"bytea"])
     return [self description];
 }
 
-@end // NSNumber (PostgresValueCreation)
+@end // NSNumber (PostgreSQLValueCreation)
 
 
-@implementation NSData (PostgresValueCreation)
+@implementation NSData (PostgreSQLValueCreation)
 
 
-- stringValueForPostgresType:(NSString*)type
+- stringValueForPostgreSQLType:(NSString*)type
   attribute:(EOAttribute*)attribute
 {
     if ([[attribute externalType] isEqualToString:@"bytea"]) {
@@ -366,14 +366,14 @@ if ([type isEqual:@"bytea"])
     }
     
     return [[NSString stringWithCString:[self bytes] length:[self length]]
-	    stringValueForPostgresType:type attribute:attribute];
+	    stringValueForPostgreSQLType:type attribute:attribute];
 }
 
-@end // NSData (PostgresValueCreation)
+@end // NSData (PostgreSQLValueCreation)
 
 */
 
-@implementation NSCalendarDate (PostgresValueCreation)
+@implementation NSCalendarDate (PostgreSQLValueCreation)
 
 + (NSString*)postgresFormat
 {
@@ -382,13 +382,13 @@ if ([type isEqual:@"bytea"])
   return PSQLA_postgresCalendarFormat;
 }
 
-@end // NSCalendarDate (PostgresValueCreation)
+@end // NSCalendarDate (PostgreSQLValueCreation)
 
 
 /*
-@implementation EONull (PostgresValueCreation)
+@implementation EONull (PostgreSQLValueCreation)
 
-- stringValueForPostgresType:(NSString*)type
+- stringValueForPostgreSQLType:(NSString*)type
   attribute:(EOAttribute*)attribute
 {
     return @"NULL";
@@ -397,25 +397,25 @@ if ([type isEqual:@"bytea"])
 @end
 
 
-@implementation NSObject (PostgresValueCreation)
+@implementation NSObject (PostgreSQLValueCreation)
 
-- stringValueForPostgresType:(NSString*)type
+- stringValueForPostgreSQLType:(NSString*)type
   attribute:(EOAttribute*)attribute
 {
     if ([self respondsToSelector:@selector(stringForType:)])
 	return [[self stringForType:[attribute valueType]]
-		    stringValueForPostgresType:type attribute:attribute];
+		    stringValueForPostgreSQLType:type attribute:attribute];
     else if ([self respondsToSelector:@selector(dataForType:)])
 	return [[self dataForType:[attribute valueType]]
-		    stringValueForPostgresType:type attribute:attribute];
+		    stringValueForPostgreSQLType:type attribute:attribute];
     else
 	THROW([[DataTypeMappingNotSupportedException alloc]
-		initWithFormat:@"Postgres cannot map value class %@ "
+		initWithFormat:@"PostgreSQL cannot map value class %@ "
 		@"because its instances does not responds to either "
 		@" `stringForType:' or `dataForType:'. ",
 		NSStringFromClass([self class])]);
     return nil;
 }
 
-@end // NSObject (PostgresValueCreation)
+@end // NSObject (PostgreSQLValueCreation)
 */

@@ -1,12 +1,12 @@
 /** 
-   PostgresContext.m <title>PostgresContext</title>
+   PostgreSQLContext.m <title>PostgreSQLContext</title>
 
    Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
-   based on the Postgres adaptor written by
+   based on the PostgreSQL adaptor written by
          Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
    Author: Manuel Guesdon <mguesdon@orange-concept.com>
@@ -58,13 +58,13 @@ RCS_ID("$Id$")
 
 #include <EOControl/EODebug.h>
 
-#include <PostgresEOAdaptor/PostgresAdaptor.h>
-#include <PostgresEOAdaptor/PostgresContext.h>
-#include <PostgresEOAdaptor/PostgresChannel.h>
-#include <PostgresEOAdaptor/PostgresSQLExpression.h>
+#include <PostgreSQLEOAdaptor/PostgreSQLAdaptor.h>
+#include <PostgreSQLEOAdaptor/PostgreSQLContext.h>
+#include <PostgreSQLEOAdaptor/PostgreSQLChannel.h>
+#include <PostgreSQLEOAdaptor/PostgreSQLExpression.h>
 
 
-@implementation PostgresContext
+@implementation PostgreSQLContext
 
 - (id)initWithAdaptor: (EOAdaptor *)adaptor
 {
@@ -72,7 +72,7 @@ RCS_ID("$Id$")
     {
       if (adaptor)
         [self setPrimaryKeySequenceNameFormat:
-		[(PostgresAdaptor*)adaptor primaryKeySequenceNameFormat]];
+		[(PostgreSQLAdaptor*)adaptor primaryKeySequenceNameFormat]];
     }
 
   return self;
@@ -80,7 +80,7 @@ RCS_ID("$Id$")
 
 - (void)beginTransaction
 {
-  PostgresChannel *channel = nil;
+  PostgreSQLChannel *channel = nil;
 
   EOFLOGObjectFnStart();
 
@@ -94,7 +94,7 @@ RCS_ID("$Id$")
   if (_delegateRespondsTo.shouldBegin)
     {
       if (![_delegate adaptorContextShouldBegin: self])
-	[NSException raise: PostgresException
+	[NSException raise: PostgreSQLException
                      format: @"%@ -- %@ 0x%x: delegate refuses",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
@@ -104,7 +104,7 @@ RCS_ID("$Id$")
   channel = [[_channels objectAtIndex: 0] nonretainedObjectValue];
 
   if ([channel isOpen] == NO)
-    [NSException raise: PostgresException
+    [NSException raise: PostgreSQLException
 		 format: @"cannot execute SQL expression. Channel is not opened."];
 
   _flags.didBegin = YES;
@@ -148,7 +148,7 @@ RCS_ID("$Id$")
   if (_delegateRespondsTo.shouldCommit)
     {
       if (![_delegate adaptorContextShouldCommit: self])
-	[NSException raise: PostgresException
+	[NSException raise: PostgreSQLException
                      format: @"%@ -- %@ 0x%x: delegate refuses",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
@@ -196,7 +196,7 @@ RCS_ID("$Id$")
   if (_delegateRespondsTo.shouldRollback)
     {
       if (![_delegate adaptorContextShouldRollback: self])
-	[NSException raise: PostgresException
+	[NSException raise: PostgreSQLException
                      format: @"%@ -- %@ 0x%x: delegate refuses",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
@@ -233,7 +233,7 @@ RCS_ID("$Id$")
   //OK
   EOAdaptorChannel *adaptorChannel;
 
-  adaptorChannel = [PostgresChannel adaptorChannelWithAdaptorContext: self];
+  adaptorChannel = [PostgreSQLChannel adaptorChannelWithAdaptorContext: self];
 
   return adaptorChannel;
 }
@@ -320,7 +320,7 @@ RCS_ID("$Id$")
   return _primaryKeySequenceNameFormat;
 }
 
-@end /* PostgresContext */
+@end /* PostgreSQLContext */
 /*
 //TODO
 autoCommitTransaction

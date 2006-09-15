@@ -1,12 +1,12 @@
 /* 
-   PostgresAdaptor.h
+   PostgreSQLAdaptor.h
 
    Copyright (C) 2000,2002,2003,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@gmail.com
    Date: February 2000
 
-   based on the Postgres adaptor written by
+   based on the PostgreSQL adaptor written by
          Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
    This file is part of the GNUstep Database Library.
@@ -27,13 +27,13 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef __PostgresAdaptor_h__
-#define __PostgresAdaptor_h__
+#ifndef __PostgreSQLAdaptor_h__
+#define __PostgreSQLAdaptor_h__
 
 #include <EOAccess/EOAdaptor.h>
 
 
-/* Include Postgres Headers */
+/* Include PostgreSQL Headers */
 
 #undef Assert
 #include <stdio.h>
@@ -70,7 +70,7 @@
 extern int
 postgresClientVersion();
 
-@interface PostgresAdaptor : EOAdaptor
+@interface PostgreSQLAdaptor : EOAdaptor
 {
   NSMutableArray *_pgConnPool;
   int _pgConnPoolLimit;
@@ -103,8 +103,8 @@ postgresClientVersion();
 - (void)setPrimaryKeySequenceNameFormat: (NSString*)format;
 - (NSString*)primaryKeySequenceNameFormat;
 
-extern NSString *PostgresException;
+extern NSString *PostgreSQLException;
 
 @end
 
-#endif /* __PostgresAdaptor_h__ */
+#endif /* __PostgreSQLAdaptor_h__ */

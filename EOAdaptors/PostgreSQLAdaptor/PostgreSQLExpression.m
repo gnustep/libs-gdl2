@@ -1,5 +1,5 @@
 /** 
-   PostgresSQLExpression.m <title>PostgresSQLExpression</title>
+   PostgreSQLExpression.m <title>PostgreSQLExpression</title>
 
    Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
 
@@ -61,12 +61,12 @@ RCS_ID("$Id$")
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOSchemaGeneration.h>
 
-#include "PostgresSQLExpression.h"
-#include "PostgresAdaptor.h"
-#include "PostgresValues.h"
+#include "PostgreSQLExpression.h"
+#include "PostgreSQLAdaptor.h"
+#include "PostgreSQLValues.h"
 
-#include "PostgresCompatibility.h"
-#include "PostgresPrivate.h"
+#include "PostgreSQLCompatibility.h"
+#include "PostgreSQLPrivate.h"
 
 /* These methods are undocumented but exist in GDL2 and WO4.5. 
    Ayers: Review (Don't rely on them) */
@@ -80,7 +80,7 @@ RCS_ID("$Id$")
 @end
 
 
-@implementation PostgresSQLExpression
+@implementation PostgreSQLExpression
 
 + (void) initialize
 {
@@ -776,7 +776,7 @@ RCS_ID("$Id$")
   return finalEntitiesString;
 }
 
-// Postgres like seems buggy:
+// PostgreSQL like seems buggy:
 // see http://www.postgresql.org/docs/7.4/interactive/functions-matching.html
 // for exemple "ab" doesn't match [_]b
 
@@ -839,7 +839,7 @@ RCS_ID("$Id$")
                   p = s+1;
                 }
               break;
-/*Postgresql doesn't want [_] but want _
+/*PostgreSQLql doesn't want [_] but want _
             case '_':
               if (s != p)
                 (*appendStringIMP)(str,@selector(appendString:),
@@ -927,7 +927,7 @@ RCS_ID("$Id$")
 	      p = s+1;
 	    }
 	  break;
-/*Postgresql doesn't want [_] but want _
+/*PostgreSQLql doesn't want [_] but want _
 	case '_':
 	  if (s != p)
 	    PSQLA_AppendStringWithImp(str,appendStringIMP,
