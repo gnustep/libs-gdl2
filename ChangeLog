@@ -11,6 +11,9 @@
 	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/Makefile.postamble: Remove
 	symlink creation/removal.
 
+	* DBModeler/Resources/ModelDrag.tiff: Update Image.
+	* DBModeler/Resources/DBModeler.tiff: Correct image format.
+
 2006-09-14  Matt Rice  <ratmice@yahoo.com>
 	
 	* GNUmakefile.in: Remove reference to config.make
