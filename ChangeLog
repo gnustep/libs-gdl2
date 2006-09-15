@@ -1,11 +1,12 @@
 2006-09-15  Matt Rice  <ratmice@yahoo.com>
+2006-09-15  David Ayers  <ayers@fsfe.org>
 	
-	* EOAdaptors/Postgres95/{*,*/*}: Rename from Postgres95 to Postgres.
+	* EOAdaptors/Postgres95/{*,*/*}: Rename from Postgres95 to PostgreSQL.
 	* Tools/eoutil.m: Ditto.
 	* DBModeler/SQLGenerator.m: Ditto.
 
 	* EOAdaptors/Postgres95/*.h/m: Rename files from Postgres95 to
-	Postgres.
+	PostgreSQL.
 
 2006-09-14  Matt Rice  <ratmice@yahoo.com>
 	
