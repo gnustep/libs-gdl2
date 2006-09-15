@@ -1,12 +1,12 @@
 /* 
-   Postgres95Context.h
+   PostgresContext.h
 
    Copyright (C) 2000,2002,2003,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
-   based on the Postgres95 adaptor written by
+   based on the Postgres adaptor written by
          Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
    This file is part of the GNUstep Database Library.
@@ -27,14 +27,14 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef __Postgres95Context_h__
-#define __Postgres95Context_h__
+#ifndef __PostgresContext_h__
+#define __PostgresContext_h__
 
 #include <EOAccess/EOAdaptorContext.h>
-#include <Postgres95EOAdaptor/Postgres95Adaptor.h>
+#include <PostgresEOAdaptor/PostgresAdaptor.h>
 
 
-@interface Postgres95Context : EOAdaptorContext
+@interface PostgresContext : EOAdaptorContext
 {
   NSString* _primaryKeySequenceNameFormat;
   struct
@@ -68,4 +68,4 @@
 @end
 
 
-#endif /* __Postgres95Context_h__ */
+#endif /* __PostgresContext_h__ */

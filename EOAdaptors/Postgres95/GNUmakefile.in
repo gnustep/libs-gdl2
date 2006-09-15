@@ -30,56 +30,56 @@ include $(GNUSTEP_MAKEFILES)/common.make
 
 include ../../Version
 
-POSTGRES95_DATABASE=@POSTGRES_DATABASE@
+POSTGRES_DATABASE=@POSTGRES_DATABASE@
 
 # The framework to be compiled
-FRAMEWORK_NAME=Postgres95EOAdaptor
+FRAMEWORK_NAME=PostgresEOAdaptor
 SUBPROJECTS = LoginPanel
 
 # The framework principal class
-Postgres95EOAdaptor_PRINCIPAL_CLASS = Postgres95Adaptor
+PostgresEOAdaptor_PRINCIPAL_CLASS = PostgresAdaptor
 
 # The framework Objective-C source files to be compiled
-Postgres95EOAdaptor_OBJC_FILES = \
-Postgres95Adaptor.m \
-Postgres95Context.m \
-Postgres95Channel.m \
-Postgres95SQLExpression.m \
-Postgres95Values.m \
-Postgres95Private.m
+PostgresEOAdaptor_OBJC_FILES = \
+PostgresAdaptor.m \
+PostgresContext.m \
+PostgresChannel.m \
+PostgresSQLExpression.m \
+PostgresValues.m \
+PostgresPrivate.m
 
-Postgres95EOAdaptor_HEADER_FILES = \
-Postgres95Adaptor.h \
-Postgres95Context.h \
-Postgres95Channel.h \
-Postgres95SQLExpression.h \
-Postgres95Values.h
+PostgresEOAdaptor_HEADER_FILES = \
+PostgresAdaptor.h \
+PostgresContext.h \
+PostgresChannel.h \
+PostgresSQLExpression.h \
+PostgresValues.h
 
 
-Postgres95EOAdaptor_AUTOGSDOC_HEADERS = $(Postgres95EOAdaptor_HEADER_FILES)
-Postgres95EOAdaptor_AUTOGSDOC_SOURCE = $(Postgres95EOAdaptor_OBJC_FILES)
-DOCUMENT_NAME = Postgres95EOAdaptor
-Postgres95EOAdaptor_AGSDOC_FILES = Postgres95EOAdaptor.gsdoc $(Postgres95EOAdaptor_AUTOGSDOC_HEADERS) 
-#$(Postgres95EOAdaptor_AUTOGSDOC_SOURCE)
-Postgres95EOAdaptor_AGSDOC_FLAGS = \
+PostgresEOAdaptor_AUTOGSDOC_HEADERS = $(PostgresEOAdaptor_HEADER_FILES)
+PostgresEOAdaptor_AUTOGSDOC_SOURCE = $(PostgresEOAdaptor_OBJC_FILES)
+DOCUMENT_NAME = PostgresEOAdaptor
+PostgresEOAdaptor_AGSDOC_FILES = PostgresEOAdaptor.gsdoc $(PostgresEOAdaptor_AUTOGSDOC_HEADERS) 
+#$(PostgresEOAdaptor_AUTOGSDOC_SOURCE)
+PostgresEOAdaptor_AGSDOC_FLAGS = \
 	-Declared Foundation \
 	-Standards YES \
 	-SystemProjects System \
-	-Project Postgres95EOAdaptor \
+	-Project PostgresEOAdaptor \
 	-WordMap '{\
 	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
 	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
 	GS_EXPORT=extern;GS_DECLARE="";\
 	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
-	}' -Up Postgres95EOAdaptor
+	}' -Up PostgresEOAdaptor
 
 
 -include Makefile.preamble
 
 -include GNUmakefile.local
 
-ifeq ($(POSTGRES95_DATABASE),yes)
+ifeq ($(POSTGRES_DATABASE),yes)
 include $(GNUSTEP_MAKEFILES)/framework.make
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 else

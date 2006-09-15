@@ -1,5 +1,5 @@
 /** 
-   Postgres95Values.m
+   PostgresValues.m
 
    Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
 
@@ -55,16 +55,16 @@ RCS_ID("$Id$")
 
 #include <EOAccess/EOAttribute.h>
 
-#include "Postgres95EOAdaptor/Postgres95Adaptor.h"
-#include "Postgres95EOAdaptor/Postgres95Channel.h"
-#include "Postgres95EOAdaptor/Postgres95Values.h"
+#include "PostgresEOAdaptor/PostgresAdaptor.h"
+#include "PostgresEOAdaptor/PostgresChannel.h"
+#include "PostgresEOAdaptor/PostgresValues.h"
 
-#include "Postgres95Compatibility.h"
-#include "Postgres95Private.h"
+#include "PostgresCompatibility.h"
+#include "PostgresPrivate.h"
 
 #include <stdlib.h>
 
-void __postgres95_values_linking_function (void)
+void __postgres_values_linking_function (void)
 {
 }
 
@@ -77,7 +77,7 @@ static NSStringEncoding LPSQLA_StringDefaultCStringEncoding;
 - (char)_valueTypeChar;
 @end
 
-@implementation Postgres95Values
+@implementation PostgresValues
 
 + (void) initialize
 {
@@ -290,18 +290,18 @@ For efficiency reasons, the returned value is NOT autoreleased !
 
 @end
 /*
-@implementation NSString (Postgres95ValueCreation)
+@implementation NSString (PostgresValueCreation)
 
 
 For efficiency reasons, the returned value is NOT autoreleased !
 
-- stringValueForPostgres95Type:(NSString*)type
+- stringValueForPostgresType:(NSString*)type
   attribute:(EOAttribute*)attribute
 {
 if ([type isEqual:@"bytea"])
     return [[NSData alloc]initWithBytes:[self cString]
       length:[self cStringLength]]
-      stringValueForPostgres95Type:type
+      stringValueForPostgresType:type
                attribute:attribute];
     else
       return [[[[EOQuotedExpression alloc]
@@ -313,13 +313,13 @@ if ([type isEqual:@"bytea"])
     return nil;
 }
 
-@end // NSString (Postgres95ValueCreation)
+@end // NSString (PostgresValueCreation)
 
 
 
-@implementation NSNumber (Postgres95ValueCreation)
+@implementation NSNumber (PostgresValueCreation)
 
-- stringValueForPostgres95Type:(NSString*)type
+- stringValueForPostgresType:(NSString*)type
   attribute:(EOAttribute*)attribute;
 {
     if ([[attribute externalType] isEqualToString:@"bool"])
@@ -328,13 +328,13 @@ if ([type isEqual:@"bytea"])
     return [self description];
 }
 
-@end // NSNumber (Postgres95ValueCreation)
+@end // NSNumber (PostgresValueCreation)
 
 
-@implementation NSData (Postgres95ValueCreation)
+@implementation NSData (PostgresValueCreation)
 
 
-- stringValueForPostgres95Type:(NSString*)type
+- stringValueForPostgresType:(NSString*)type
   attribute:(EOAttribute*)attribute
 {
     if ([[attribute externalType] isEqualToString:@"bytea"]) {
@@ -366,29 +366,29 @@ if ([type isEqual:@"bytea"])
     }
     
     return [[NSString stringWithCString:[self bytes] length:[self length]]
-	    stringValueForPostgres95Type:type attribute:attribute];
+	    stringValueForPostgresType:type attribute:attribute];
 }
 
-@end // NSData (Postgres95ValueCreation)
+@end // NSData (PostgresValueCreation)
 
 */
 
-@implementation NSCalendarDate (Postgres95ValueCreation)
+@implementation NSCalendarDate (PostgresValueCreation)
 
-+ (NSString*)postgres95Format
++ (NSString*)postgresFormat
 {
   NSLog(@"%@ - is deprecated.  The adaptor always uses ISO format.",
         NSStringFromSelector(_cmd));
   return PSQLA_postgresCalendarFormat;
 }
 
-@end // NSCalendarDate (Postgres95ValueCreation)
+@end // NSCalendarDate (PostgresValueCreation)
 
 
 /*
-@implementation EONull (Postgres95ValueCreation)
+@implementation EONull (PostgresValueCreation)
 
-- stringValueForPostgres95Type:(NSString*)type
+- stringValueForPostgresType:(NSString*)type
   attribute:(EOAttribute*)attribute
 {
     return @"NULL";
@@ -397,25 +397,25 @@ if ([type isEqual:@"bytea"])
 @end
 
 
-@implementation NSObject (Postgres95ValueCreation)
+@implementation NSObject (PostgresValueCreation)
 
-- stringValueForPostgres95Type:(NSString*)type
+- stringValueForPostgresType:(NSString*)type
   attribute:(EOAttribute*)attribute
 {
     if ([self respondsToSelector:@selector(stringForType:)])
 	return [[self stringForType:[attribute valueType]]
-		    stringValueForPostgres95Type:type attribute:attribute];
+		    stringValueForPostgresType:type attribute:attribute];
     else if ([self respondsToSelector:@selector(dataForType:)])
 	return [[self dataForType:[attribute valueType]]
-		    stringValueForPostgres95Type:type attribute:attribute];
+		    stringValueForPostgresType:type attribute:attribute];
     else
 	THROW([[DataTypeMappingNotSupportedException alloc]
-		initWithFormat:@"Postgres95 cannot map value class %@ "
+		initWithFormat:@"Postgres cannot map value class %@ "
 		@"because its instances does not responds to either "
 		@" `stringForType:' or `dataForType:'. ",
 		NSStringFromClass([self class])]);
     return nil;
 }
 
-@end // NSObject (Postgres95ValueCreation)
+@end // NSObject (PostgresValueCreation)
 */

@@ -1,5 +1,5 @@
 /** 
-   Postgres95Compatibility.h
+   PostgresCompatibility.h
 
    Copyright (C) 2004,2005 Free Software Foundation, Inc.
 

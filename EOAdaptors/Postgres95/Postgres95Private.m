@@ -1,5 +1,5 @@
 /** 
-   Postgres95Private.m <title>Postgres95Private: various definitions</title>
+   PostgresPrivate.m <title>PostgresPrivate: various definitions</title>
 
    Copyright (C) 2005 Free Software Foundation, Inc.
 
@@ -44,7 +44,7 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOAccess/EOAttribute.h>
 
-#include "Postgres95Values.h"
+#include "PostgresValues.h"
 
 // ==== Classes ====
 Class PSQLA_NSStringClass=Nil;
@@ -54,7 +54,7 @@ Class PSQLA_NSCalendarDateClass=Nil;
 Class PSQLA_NSDateClass=Nil;
 Class PSQLA_NSMutableArrayClass;
 Class PSQLA_EOAttributeClass=Nil;
-Class PSQLA_Postgres95ValuesClass=Nil;
+Class PSQLA_PostgresValuesClass=Nil;
 
 // ==== IMPs ====
 IMP PSQLA_NSNumber_allocWithZoneIMP=NULL;
@@ -63,7 +63,7 @@ IMP PSQLA_NSString_allocWithZoneIMP=NULL;
 IMP PSQLA_NSCalendarDate_allocWithZoneIMP=NULL;
 IMP PSQLA_NSMutableArray_allocWithZoneIMP=NULL;
 IMP PSQLA_EOAttribute_allocWithZoneIMP=NULL;
-IMP PSQLA_Postgres95Values_newValueForBytesLengthAttributeIMP=NULL;
+IMP PSQLA_PostgresValues_newValueForBytesLengthAttributeIMP=NULL;
 
 // ==== Constants ====
 NSNumber *PSQLA_NSNumberBool_Yes=nil;
@@ -90,7 +90,7 @@ PSQLA_PrivInit(void)
       PSQLA_NSCalendarDateClass=[NSCalendarDate class];
       PSQLA_NSDateClass=[NSDate class];
       PSQLA_EOAttributeClass = [EOAttribute class];
-      PSQLA_Postgres95ValuesClass = [Postgres95Values class];
+      PSQLA_PostgresValuesClass = [PostgresValues class];
 
       // ==== IMPs ====
       PSQLA_NSNumber_allocWithZoneIMP=
@@ -111,8 +111,8 @@ PSQLA_PrivInit(void)
       PSQLA_EOAttribute_allocWithZoneIMP=
         [PSQLA_EOAttributeClass methodForSelector:@selector(allocWithZone:)];
 
-      PSQLA_Postgres95Values_newValueForBytesLengthAttributeIMP=
-        [PSQLA_Postgres95ValuesClass methodForSelector:@selector(newValueForBytes:length:attribute:)];
+      PSQLA_PostgresValues_newValueForBytesLengthAttributeIMP=
+        [PSQLA_PostgresValuesClass methodForSelector:@selector(newValueForBytes:length:attribute:)];
 
       // ==== Constants ====
       ASSIGN(PSQLA_NSNumberBool_Yes,[PSQLA_NSNumberClass numberWithBool:YES]);

@@ -1,5 +1,5 @@
 /* 
-   Postgres95Values.h
+   PostgresValues.h
 
    Copyright (C) 2000,2002,2003,2004,2005 Free Software Foundation, Inc.
 
@@ -24,8 +24,8 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef __Postgres95Values_h__
-#define __Postgres95Values_h__
+#ifndef __PostgresValues_h__
+#define __PostgresValues_h__
 
 #ifdef GNUSTEP
 #include <Foundation/NSString.h>
@@ -38,10 +38,10 @@
 #endif
 
 @class EOAttribute;
-@class Postgres95Channel;
+@class PostgresChannel;
 
 
-@interface Postgres95Values:NSObject
+@interface PostgresValues:NSObject
 {
 }
 
@@ -68,4 +68,4 @@
 
 @end
 
-#endif /* __Postgres95Values_h__ */
+#endif /* __PostgresValues_h__ */

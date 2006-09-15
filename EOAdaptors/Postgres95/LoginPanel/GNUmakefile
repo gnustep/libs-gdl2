@@ -36,8 +36,8 @@ endif
 endif
 
 LoginPanel_RESOURCE_FILES = postgreslogo.tif
-LoginPanel_OBJC_FILES = Postgres95LoginPanel.m
-LoginPanel_PRINCIPAL_CLASS = Postgres95LoginPanel
+LoginPanel_OBJC_FILES = PostgresLoginPanel.m
+LoginPanel_PRINCIPAL_CLASS = PostgresLoginPanel
 
 LoginPanel_INCLUDE_DIRS = -I.. -I../../..
 LoginPanel_LIB_DIRS = \
@@ -49,7 +49,7 @@ ifneq ($(FOUNDATION_LIB),gnu)
 LoginPanel_OBJC_LIBS += -lgnustep-baseadd
 endif
 
-LoginPanel_COPY_INTO_DIR = ../Postgres95EOAdaptor.framework/Resources
+LoginPanel_COPY_INTO_DIR = ../PostgresEOAdaptor.framework/Resources
 
 include ../config.mak
 

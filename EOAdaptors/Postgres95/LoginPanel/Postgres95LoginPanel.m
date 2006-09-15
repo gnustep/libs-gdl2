@@ -1,5 +1,5 @@
 /** -*-ObjC-*-
-   Postgres95LoginPanel.m
+   PostgresLoginPanel.m
 
    Copyright (C) 2004,2005 Free Software Foundation, Inc.
 
@@ -33,7 +33,7 @@
 #include <GNUstepBase/GSCategories.h>
 #endif
 
-#include "Postgres95LoginPanel.h"
+#include "PostgresLoginPanel.h"
 
 static BOOL insideModalLoop;
 
@@ -81,7 +81,7 @@ vfmaxf (int n, float aFloat, ...)
 
 
 
-@implementation Postgres95LoginPanel : EOLoginPanel
+@implementation PostgresLoginPanel : EOLoginPanel
 
 - (void) dealloc
 {
@@ -407,7 +407,7 @@ vfmaxf (int n, float aFloat, ...)
 
   aMod = [EOModel new];
   [aMod   setName: @"AvailableDatabases"];
-  [aMod   setAdaptorName: @"Postgres95"];
+  [aMod   setAdaptorName: @"Postgres"];
   /* 
      we need a connection to a known database template1 should exist 
   */
@@ -441,7 +441,7 @@ vfmaxf (int n, float aFloat, ...)
   if (!exceptionOccured)
     {
       [channel openChannel];
-      databaseNames = [(Postgres95Channel*)channel describeDatabaseNames];
+      databaseNames = [(PostgresChannel*)channel describeDatabaseNames];
       [channel closeChannel];
       RELEASE(aMod); 
     } 
@@ -489,7 +489,7 @@ vfmaxf (int n, float aFloat, ...)
         {
           if (adminFlag)
             {
-              BOOL isAdmin = [(Postgres95Channel*)adaptorChannel 
+              BOOL isAdmin = [(PostgresChannel*)adaptorChannel 
                  userNameIsAdministrative: [userNameField stringValue]];
               if (!isAdmin)
                 {
@@ -602,7 +602,7 @@ vfmaxf (int n, float aFloat, ...)
 		                      [userNameField stringValue],@"userName",
 				      [passwdField stringValue], @"password",
 		                      nil];
-  adaptor = [EOAdaptor adaptorWithName:@"Postgres95"]; 
+  adaptor = [EOAdaptor adaptorWithName:@"Postgres"]; 
   [adaptor setConnectionDictionary:connDict]; 
  
   // hmm if the user isn't an admin the error is kinda ugly.. 

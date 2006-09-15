@@ -1,12 +1,12 @@
 /* 
-   Postgres95Adaptor.h
+   PostgresAdaptor.h
 
    Copyright (C) 2000,2002,2003,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@gmail.com
    Date: February 2000
 
-   based on the Postgres95 adaptor written by
+   based on the Postgres adaptor written by
          Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
    This file is part of the GNUstep Database Library.
@@ -27,13 +27,13 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef __Postgres95Adaptor_h__
-#define __Postgres95Adaptor_h__
+#ifndef __PostgresAdaptor_h__
+#define __PostgresAdaptor_h__
 
 #include <EOAccess/EOAdaptor.h>
 
 
-/* Include Postgres 95 Headers */
+/* Include Postgres Headers */
 
 #undef Assert
 #include <stdio.h>
@@ -53,9 +53,9 @@
 	(default getenv(PGDATABASE))
     databaseVersion - the Version of the database
 	(default parsed from #define PG_VERSION)
-    options - additional options sent to the POSTGRES95 backend
+    options - additional options sent to the POSTGRES backend
 	(default getenv(PGOPTIONS))
-    port - port to communicate with POSTGRES95 backend
+    port - port to communicate with POSTGRES backend
 	(default getenv(PGPORT))
     debugTTY - filename (file/device) used for debugging output
 	(default getenv(PGTTY))
@@ -70,7 +70,7 @@
 extern int
 postgresClientVersion();
 
-@interface Postgres95Adaptor : EOAdaptor
+@interface PostgresAdaptor : EOAdaptor
 {
   NSMutableArray *_pgConnPool;
   int _pgConnPoolLimit;
@@ -103,8 +103,8 @@ postgresClientVersion();
 - (void)setPrimaryKeySequenceNameFormat: (NSString*)format;
 - (NSString*)primaryKeySequenceNameFormat;
 
-extern NSString *Postgres95Exception;
+extern NSString *PostgresException;
 
 @end
 
-#endif /* __Postgres95Adaptor_h__ */
+#endif /* __PostgresAdaptor_h__ */

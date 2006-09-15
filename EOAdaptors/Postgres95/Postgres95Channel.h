@@ -1,12 +1,12 @@
 /* -*-objc-*-
-   Postgres95Channel.h
+   PostgresChannel.h
 
    Copyright (C) 2000,2002,2003,2004,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
-   based on the Postgres95 adaptor written by
+   based on the Postgres adaptor written by
          Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
    This file is part of the GNUstep Database Library.
@@ -27,11 +27,11 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
-#ifndef __Postgres95Channel_h__
-#define __Postgres95Channel_h__
+#ifndef __PostgresChannel_h__
+#define __PostgresChannel_h__
 
 #include <EOAccess/EOAdaptorChannel.h>
-#include <Postgres95EOAdaptor/Postgres95Context.h>
+#include <PostgresEOAdaptor/PostgresContext.h>
 
 
 @class NSString;
@@ -39,9 +39,9 @@
 @class NSMutableArray;
 @class EOAttribute;
 
-@interface Postgres95Channel : EOAdaptorChannel
+@interface PostgresChannel : EOAdaptorChannel
 {
-  Postgres95Context *_adaptorContext;
+  PostgresContext *_adaptorContext;
   PGconn *_pgConn;
   PGresult *_pgResult;
   NSArray *_attributes;
@@ -55,9 +55,9 @@
   int _pgVersion;
 
   struct {
-    unsigned int postgres95InsertedRowOid:1;
-    unsigned int postgres95Notification:1;
-  } _postgres95DelegateRespondsTo;
+    unsigned int postgresInsertedRowOid:1;
+    unsigned int postgresNotification:1;
+  } _postgresDelegateRespondsTo;
 }
 
 - (PGconn*)pgConn;
@@ -83,13 +83,13 @@
 	     withAttributes: (NSArray*)attributes;
 @end
 
-@interface NSObject (Postgres95ChannelDelegate)
+@interface NSObject (PostgresChannelDelegate)
 
-- (void)postgres95Channel: (Postgres95Channel*)channel
+- (void)postgresChannel: (PostgresChannel*)channel
        insertedRowWithOid: (Oid)oid;
-- (void)postgres95Channel: (Postgres95Channel*)channel
+- (void)postgresChannel: (PostgresChannel*)channel
      receivedNotification: (NSString*)notification;
 
 @end
 
-#endif /* __Postgres95Channel_h__ */
+#endif /* __PostgresChannel_h__ */

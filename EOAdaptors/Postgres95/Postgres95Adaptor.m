@@ -1,12 +1,12 @@
 /** 
-   Postgres95Adaptor.m <title>Postgres95Adaptor</title>
+   PostgresAdaptor.m <title>PostgresAdaptor</title>
 
    Copyright (C) 2000,2002,2003,2004,2005 Free Software Foundation, Inc.
 
    Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
-   based on the Postgres95 adaptor written by
+   based on the Postgres adaptor written by
          Mircea Oancea <mircea@jupiter.elcom.pub.ro>
 
    Author: Manuel Guesdon <mguesdon@orange-concept.com>
@@ -70,15 +70,15 @@ RCS_ID("$Id$")
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOModel.h>
 
-#include <Postgres95EOAdaptor/Postgres95Adaptor.h>
-#include <Postgres95EOAdaptor/Postgres95Context.h>
-#include <Postgres95EOAdaptor/Postgres95Channel.h>
-#include <Postgres95EOAdaptor/Postgres95SQLExpression.h>
-#include <Postgres95EOAdaptor/Postgres95Values.h>
+#include <PostgresEOAdaptor/PostgresAdaptor.h>
+#include <PostgresEOAdaptor/PostgresContext.h>
+#include <PostgresEOAdaptor/PostgresChannel.h>
+#include <PostgresEOAdaptor/PostgresSQLExpression.h>
+#include <PostgresEOAdaptor/PostgresValues.h>
 
-#include "Postgres95Private.h"
+#include "PostgresPrivate.h"
 
-NSString *Postgres95Exception = @"Postgres95Exception";
+NSString *PostgresException = @"PostgresException";
 static int pgConnTotalAllocated = 0;
 static int pgConnCurrentAllocated = 0;
 
@@ -95,11 +95,11 @@ postgresClientVersion()
 }
 
 
-@implementation Postgres95Adaptor
+@implementation PostgresAdaptor
 
 - init
 {
-  return [self initWithName: @"Postgres95"];
+  return [self initWithName: @"Postgres"];
 }
 
 - initWithName: (NSString *)name
@@ -288,7 +288,7 @@ static NSString *typeNames[][2] = {
 - (EOAdaptorContext *)createAdaptorContext
 {
   //OK
-  return [Postgres95Context adaptorContextWithAdaptor: self];
+  return [PostgresContext adaptorContextWithAdaptor: self];
 }
 
 - (Class)defaultExpressionClass
@@ -297,7 +297,7 @@ static NSString *typeNames[][2] = {
 
   EOFLOGObjectFnStart();
 
-  expressionClass = [Postgres95SQLExpression class];
+  expressionClass = [PostgresSQLExpression class];
 
   EOFLOGObjectFnStop();
 
@@ -353,7 +353,7 @@ static NSString *typeNames[][2] = {
 -(NSString *)formatValue:(id)value
             forAttribute:(EOAttribute*)attribute
 {
-    return [value stringValueForPostgres95Type:[attribute externalType] 
+    return [value stringValueForPostgresType:[attribute externalType] 
                   attribute:attribute];
 }
 */
@@ -425,7 +425,7 @@ static NSString *typeNames[][2] = {
 
   NSDebugMLog(@"%s %s %s %s %s", pg_host, pg_port, pg_database, pg_user, pg_pwd);
 
-  // Try to connect to the Postgres95 server
+  // Try to connect to the Postgres server
   if (pg_user)
     pgConn = PQsetdbLogin(pg_host, pg_port, pg_options, pg_tty, 
                           pg_database,pg_user,pg_pwd);
@@ -542,7 +542,7 @@ static NSString *typeNames[][2] = {
   return _primaryKeySequenceNameFormat;
 }
 
-@end /* Postgres95Adaptor */
+@end /* PostgresAdaptor */
 
 /*
 //TODO

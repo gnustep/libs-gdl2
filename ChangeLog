@@ -1,3 +1,9 @@
+2006-09-15  Matt Rice  <ratmice@yahoo.com>
+	
+	* EOAdaptors/Postgres95/{*,*/*}: Rename from Postgres95 to Postgres.
+	* Tools/eoutil.m: Ditto.
+	* DBModeler/SQLGenerator.m: Ditto.
+
 2006-09-14  Matt Rice  <ratmice@yahoo.com>
 	
 	* GNUmakefile.in: Remove reference to config.make

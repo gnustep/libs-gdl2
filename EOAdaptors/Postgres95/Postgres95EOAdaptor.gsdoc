@@ -2,7 +2,7 @@
 <!DOCTYPE gsdoc PUBLIC "-//GNUstep//DTD gsdoc 0.6.7//EN" "http://www.gnustep.org/gsdoc-0_6_7.xml">
 <gsdoc base="index">
   <head>
-    <title>GDL2 Postgres95 Adaptor</title>
+    <title>GDL2 Postgres Adaptor</title>
     <author name="Mirko Viviani">
       <email address="mirko.viviani@gmail.com"/>
         <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
@@ -12,7 +12,7 @@
   </head>
   <body>
     <chapter>
-      <heading>GDL2 Postgres95 Adaptor</heading>
+      <heading>GDL2 Postgres Adaptor</heading>
       <p>...
       </p>
     </chapter>

@@ -1,5 +1,5 @@
 /** 
-   Postgres95SQLExpression.m <title>Postgres95SQLExpression</title>
+   PostgresSQLExpression.m <title>PostgresSQLExpression</title>
 
    Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
 
@@ -61,12 +61,12 @@ RCS_ID("$Id$")
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOSchemaGeneration.h>
 
-#include "Postgres95SQLExpression.h"
-#include "Postgres95Adaptor.h"
-#include "Postgres95Values.h"
+#include "PostgresSQLExpression.h"
+#include "PostgresAdaptor.h"
+#include "PostgresValues.h"
 
-#include "Postgres95Compatibility.h"
-#include "Postgres95Private.h"
+#include "PostgresCompatibility.h"
+#include "PostgresPrivate.h"
 
 /* These methods are undocumented but exist in GDL2 and WO4.5. 
    Ayers: Review (Don't rely on them) */
@@ -80,7 +80,7 @@ RCS_ID("$Id$")
 @end
 
 
-@implementation Postgres95SQLExpression
+@implementation PostgresSQLExpression
 
 + (void) initialize
 {
