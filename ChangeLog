@@ -4,6 +4,9 @@
 	* Tools/eoutil.m: Ditto.
 	* DBModeler/SQLGenerator.m: Ditto.
 
+	* EOAdaptors/Postgres95/*.h/m: Rename files from Postgres95 to
+	Postgres.
+
 2006-09-14  Matt Rice  <ratmice@yahoo.com>
 	
 	* GNUmakefile.in: Remove reference to config.make
