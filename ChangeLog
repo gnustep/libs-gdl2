@@ -1,3 +1,10 @@
+2006-09-16  Matt Rice  <ratmice@yahoo.com>
+	
+	* DBModeler/Resources/AllowsNull_On.tiff: New file.
+	* DBModeler/GNUmakefile: Add new file.
+	* DBModeler/DefaultColumnProvider.m: Reorder table columns.
+	Use new file, for allows null column.  Remove out of date comments.
+
 2006-09-16  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAttribute.[hm]: Add documentation.

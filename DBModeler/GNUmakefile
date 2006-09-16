@@ -50,7 +50,8 @@ $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/ClassProperty_Header.tiff	\
 	Resources/Preferences.gorm		\
 	Resources/ConsistencyResults.gorm	\
-	Resources/DBModeler.tiff
+	Resources/DBModeler.tiff		\
+	Resources/AllowsNull_On.tiff		
 
 $(APP_NAME)_OBJC_FILES =		\
 	main.m				\

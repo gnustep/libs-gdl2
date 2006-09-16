@@ -46,8 +46,7 @@
 
 static DefaultColumnProvider *_sharedDefaultColumnProvider;
 static NSMutableDictionary *_aspectsAndKeys;
-/* todo make this a struct instead of an array */
-/*	object			key 			default */
+
 struct column_info {
   NSString *key;
   NSString *name;
@@ -55,18 +54,18 @@ struct column_info {
 };
 
 static struct column_info attribute_columns[] = {
-	{@"allowNull",		@"Allows null",		YES}, 
+	{@"isPrimaryKey",	@"Primary key",		YES},
 	{@"isClassProperty",	@"Class property",	YES},
-	{@"columnName",		@"Column name",		YES},
-	{@"definition",		@"Definition",		NO},
-	{@"externalType",	@"External Type",	YES},
+	{@"allowNull",		@"Allows null",		YES}, 
 	{@"isUsedForLocking",	@"Locking",		YES},
 	{@"name",		@"Name",		YES},
+	{@"columnName",		@"Column name",		YES},
+	{@"valueClassName",	@"Value class name",	YES},
+	{@"externalType",	@"External Type",	YES},
+	{@"definition",		@"Definition",		NO},
 	{@"precision",		@"Precision", 	 	NO},	
-	{@"isPrimaryKey",	@"Primary key",		YES},
 	{@"readFormat",		@"Read format", 	NO},
 	{@"scale",		@"Scale",		NO}, 
-	{@"valueClassName",	@"Value class name",	YES},
 	{@"valueType",		@"Value type",		NO},
 	{@"width",		@"Width",		YES}, 
 	{@"writeFormat",	@"Write format",	NO} 
@@ -102,8 +101,7 @@ static struct column_info entity_columns[] = {
 	      otherColumnName = "otherAspectKey";
    	    };
  }
- * or something not sure if id columns[][2] would work as a method so i'll use
- * a function.. it _should_ but iirc buggy somewhere (forwarding?) */
+ */
 void registerColumnsForClass(struct column_info columns[], int count, Class aClass,NSMutableArray *defaultColumnsArray)
 {
   id *objects;
@@ -237,6 +235,7 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
       [cell setImagePosition:NSImageOnly];
       [cell setBordered:NO];
       [cell setBezeled:NO];
+      [cell setAlternateImage:[NSImage imageNamed:@"AllowsNull_On"]];
       [cell setControlSize: NSSmallControlSize];
       [cell setEditable:YES];
       return AUTORELEASE(cell);
