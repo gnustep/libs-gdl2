@@ -84,7 +84,7 @@ typedef enum {
   unsigned int _width;
   unsigned short _precision;
   short _scale;
-  char _valueTypeChar; /** First char of _valueType or \0 **/
+  unichar _valueTypeCharacter; /** First char of _valueType or \0 **/
   Class _valueClass;
   EOAdaptorValueType _adaptorValueType;
   EOFactoryMethodArgumentType _argumentType;

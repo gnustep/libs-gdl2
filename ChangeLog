@@ -1,3 +1,10 @@
+2006-09-16  David Ayers  <ayers@fsfe.org>
+
+	* EOAccess/EOAttribute.[hm]: Add documentation.
+	(_valueTypeChar): Replace char type with ...
+	(_valueTypeCharacter): ... unichar type.
+	([_valueTypeCharacter): Add comment about caching issue.
+	
 2006-09-15  Matt Rice  <ratmice@yahoo.com>
 
 	* EOInterface/EODisplayGroup.m: Correct selector name.

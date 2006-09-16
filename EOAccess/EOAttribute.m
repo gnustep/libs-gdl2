@@ -646,6 +646,23 @@ RCS_ID("$Id$")
   return isFlattened;
 }
 
+/**
+ * <p>Returns the name of the class values of this attribute
+ * are represented by.  The standard classes are NSNumber,
+ * NSString, NSData and NSDate for the corresponding
+ * [adaptorValueType].  A model can define more specific
+ * classes like NSDecimalNumber, NSCalendarDate and NSImage
+ * or custom classes which implement a factory method
+ * specified by [valueFactoryMethodName] to create instances
+ * with the data supplied by the data source.</p>
+ * <p>If the valueClassName has not been set explicitly and the 
+ * reciever [isFlattened], the valueClassName of the flattened
+ * attribute is returned.</p>
+ * <p>Otherwise, if the reciever has a prototype then the
+ * valueClassName of the prototype is returned.</p>
+ * <p>If all that fails, this method returns nil.</p>
+ * <p>See also:[setValueClassName:]</p>
+ */
 - (NSString *)valueClassName
 {
   if (_valueClassName)
@@ -657,6 +674,16 @@ RCS_ID("$Id$")
   return [_prototype valueClassName];
 }
 
+/**
+ * <p>Returns the adaptor specific name of externalType.  This is
+ * the name use during SQL generation.</p>
+ * <p>If the externalType has not been set explicitly and the 
+ * reciever [isFlattened], the valueClassName of the flattened
+ * attribute is returned.</p>
+ * <p>Otherwise, if the reciever has a prototype then the
+ * externalType of the prototype is returned.</p>
+ * <p>If all that fails, this method returns nil.</p>
+ */
 - (NSString *)externalType
 {
   if (_externalType)
@@ -668,6 +695,30 @@ RCS_ID("$Id$")
   return [_prototype externalType];
 }
 
+/**
+ * <p>Returns a one character string identifiying the underlying
+ * C type of an NSNumber [valueTypeName].  The legal values in GDL2 are:</p>
+ * <ul>
+ * <li>@"c": char</li>
+ * <li>@"C": unsigned char</li>
+ * <li>@"s": short</li>
+ * <li>@"S": unsigned short</li>
+ * <li>@"i": int</li>
+ * <li>@"I": unsigned int</li>
+ * <li>@"l": long</li>
+ * <li>@"L": unsigned long</li>
+ * <li>@"u": long long</li>
+ * <li>@"U": unsigned long long</li>
+ * <li>@"f": float</li>
+ * <li>@"d": double</li>
+ * </ul>
+ * <p>If the valueType has not been set explicitly and the 
+ * reciever [isFlattened], the valueClassName of the flattened
+ * attribute is returned.</p>
+ * <p>Otherwise, if the reciever has a prototype then the
+ * valueType of the prototype is returned.</p>
+ * <p>If all that fails, this method returns nil.</p>
+ */
 - (NSString *)valueType
 {
   if (_valueType)
@@ -906,9 +957,9 @@ return nexexp
   ASSIGN(_valueType, type);
 
   if ([_valueType length]==1)
-    _valueTypeChar=(char)[_valueType characterAtIndex:0];
+    _valueTypeCharacter = [_valueType characterAtIndex:0];
   else
-    _valueTypeChar='\0';
+    _valueTypeCharacter = '\0';
 
   [self _setOverrideForKeyEnum: 4];//TODO
 }
@@ -1659,8 +1710,8 @@ More details:
                     {
                       if (valueClass == GDL2_NSNumberClass)
                         {
-                          char valueTypeChar=[self _valueTypeChar];
-                          switch(valueTypeChar)
+                          unichar valueTypeCharacter = [self _valueTypeCharacter];
+                          switch(valueTypeCharacter)
                             {
                             case 'i':
                               *valueP = [GDL2_alloc(NSNumber) 
@@ -1854,17 +1905,26 @@ More details:
     return [_prototype _valueClass];
 }
 
-- (char)_valueTypeChar
+/*
+ * This method returns the valueType as a unichar character.
+ * The value of the instance variable get set implicitly
+ * if the valueType is set explicitly with a legal value.
+ * Otherwise the effective valueType of reciever is used.
+ * TODO: Once this has been set later implicit changes to the
+ * valueType via flattend attrubutes or prototypes will not
+ * be honored.  Value validation can be a hot spot so this method
+ * (or rather it's only use in validateValue:) should remain efficient.
+ */
+- (unichar)_valueTypeCharacter
 {
-  char valueTypeChar=_valueTypeChar;
-  if (valueTypeChar=='\0')
+  unichar valueTypeCharacter = _valueTypeCharacter;
+  if (valueTypeCharacter == '\0')
     {
-      // Compute it
-      NSString* valueType=[self valueType];
-      if ([valueType length]==1)
-        valueTypeChar=(char)[valueType characterAtIndex:0];
+      NSString* valueType = [self valueType];
+      if ([valueType length] == 1)
+        valueTypeCharacter = [valueType characterAtIndex:0];
     }
-  return valueTypeChar;
+  return valueTypeCharacter;
 };
 
 @end
