@@ -171,6 +171,8 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
     [headerCell setImage:[NSImage imageNamed:@"ClassProperty_Header"]];
   else if ([name isEqual:@"Locking"])
     [headerCell setImage:[NSImage imageNamed:@"Locking_Header"]];
+  else if ([name isEqual:@"Allows null"])
+    [headerCell setImage:[NSImage imageNamed:@"AllowsNull_Header"]];
   else if ([name isEqual:@"Name"])
     {
       [tc setWidth:100.0];

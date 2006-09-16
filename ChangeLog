@@ -5,6 +5,10 @@
 	* DBModeler/DefaultColumnProvider.m: Reorder table columns.
 	Use new file, for allows null column.  Remove out of date comments.
 
+	* DBModeler/Resources/AllowsNull_Header.tiff: New file.
+	* DBModeler/GNUmakefile: Add new file.
+	* DBModeler/DefaultColumnProvider.m: Set column header image.
+
 2006-09-16  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAttribute.[hm]: Add documentation.
