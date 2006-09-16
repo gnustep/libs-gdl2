@@ -12,6 +12,7 @@
 {
   IBOutlet NSTextField		*_extNameField;
   IBOutlet NSTextField		*_extTypeField;
+  IBOutlet NSPopUpButton	*_valueTypeSelect;
   IBOutlet NSPopUpButton	*_flipSelect;// select which valueClassName/flip
   IBOutlet NSBox		*_flipView; // gets replaced with a *Flip...
   IBOutlet NSBox		*_internalData;
@@ -21,7 +22,9 @@
   NSDictionary			*_classTitleDict;
   NSDictionary			*_titleClassDict;
   NSDictionary			*_valueTypeTitleDict;
-
+  NSDictionary			*_valueTypeDict;
+  NSDictionary			*_typeValueDict;
+  
   IBOutlet NSBox		*_customFlip; // default
   IBOutlet NSBox		*_dataFlip;
   IBOutlet NSBox		*_dateFlip;

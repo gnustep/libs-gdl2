@@ -9,6 +9,10 @@
 	* DBModeler/GNUmakefile: Add new file.
 	* DBModeler/DefaultColumnProvider.m: Set column header image.
 
+	* DBModeler/Inspectors/AttributeInspector.h/m: implement valueType
+	pop-up button, and add macro to clean up some code.
+	* DBModeler/Inspectors/AttributeInspector.gorm: Ditto.
+
 2006-09-16  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAttribute.[hm]: Add documentation.

@@ -12,7 +12,8 @@
 	    "setInitArgument:",
 	    "setPrecision:",
 	    "setWidth:",
-	    "setTimeZone:"
+	    "setTimeZone:",
+	    "setValueType:"
 	);
 	Outlets = (
 	    _extNameField,
@@ -37,7 +38,8 @@
 	    _data_width,
 	    _decimal_precision,
 	    _decimal_width,
-	    _date_tz
+	    _date_tz,
+	    _valueTypeSelect
 	);
 	Super = EOMInspector;
     };
@@ -52,7 +54,7 @@
     };
     FirstResponder = {
 	Actions = (
-	    "setTimeZone:",
+	    "setValueType:",
 	    "setClassName:",
 	    "setConversionMethod:",
 	    "setExternalName:",
@@ -61,6 +63,7 @@
 	    "setInitArgument:",
 	    "setName:",
 	    "setPrecision:",
+	    "setTimeZone:",
 	    "setValueClassNameAndType:",
 	    "setWidth:"
 	);

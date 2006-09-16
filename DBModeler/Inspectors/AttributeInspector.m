@@ -1,6 +1,8 @@
 #include "AttributeInspector.h"
 #include <Foundation/NSObjCRuntime.h>
 
+#define NO_ZEROS(x, i) i ? [x setIntValue:i] : [x setStringValue:@""];
+
 @implementation AttributeInspector
 - (void) awakeFromNib
 {
@@ -15,7 +17,40 @@
       _doubleFlip,	@"Double",
       _integerFlip,	@"Integer",
       nil];
-    
+
+  _valueTypeDict = 
+     [[NSDictionary alloc] initWithObjectsAndKeys:
+        @"",	@"",
+     	@"c",	@"char",
+	@"C",	@"unsigned char",
+	@"s",	@"short",
+	@"S",	@"unsigned short",
+	@"i",	@"int",
+	@"I",	@"unsigned int",
+	@"l",	@"long",
+	@"L",	@"unsigned long",
+	@"u",	@"long long",
+	@"U",	@"unsigned long long",
+	@"f",	@"float",
+	@"d",	@"double",
+	nil];
+   _typeValueDict = 
+     [[NSDictionary alloc] initWithObjectsAndKeys:
+        @"",			@"",
+     	@"char",		@"c",	
+	@"unsigned char",	@"C",	
+	@"short",		@"s",	
+	@"unsigned short",	@"S",	
+	@"int", 		@"i",	
+	@"unsigned int", 	@"I",	
+	@"long", 		@"l",	
+	@"unsigned long", 	@"L",	
+	@"long long", 		@"u",	
+	@"unsigned long long", 	@"U",	
+	@"float", 		@"f",	
+	@"double", 		@"d",	
+	nil];
+
   /*
    * class name = key, pop-up item = value,
    * "Custom" is not found,
@@ -129,10 +164,14 @@
   EOAttribute *obj = [self selectedObject];
   NSString *title = [self _titleForPopUp];
   NSBox *flipTo = [self _viewForTitle:title];
-
+  NSString *valType = [obj valueType];
+  NSString *valueTypeName = 
+	  [_typeValueDict objectForKey: valType ? valType : @""];
+  
   [_nameField setStringValue:[obj name]];
   [_extNameField setStringValue:[obj columnName]];
   [_extTypeField setStringValue:[obj externalType]];
+  [_valueTypeSelect selectItemWithTitle:valueTypeName];
   [_flipSelect selectItemWithTitle:title];
   [flipTo setFrame: [_flipView frame]];
   [_internalData replaceSubview:_flipView with:flipTo];
@@ -145,8 +184,7 @@
 {
   int tmp;
   tmp = [[self selectedObject] width];
-  tmp ? [_string_width setIntValue:tmp]
-      : [_string_width setStringValue:@""];
+  NO_ZEROS(_string_width,tmp);
 }
 
 - (void) updateCustom
@@ -154,8 +192,7 @@
   EOAttribute *obj = [self selectedObject];
   int tmp;
   tmp = [obj width];
-  tmp ? [_custom_width setIntValue:tmp]
-      : [_custom_width setStringValue:@""];
+  NO_ZEROS(_custom_width, tmp);
   [_custom_class setStringValue:[obj valueClassName]];
   [_custom_factory setStringValue:[obj valueFactoryMethodName]];
   [_custom_conversion setStringValue:[obj adaptorValueConversionMethodName]];
@@ -169,11 +206,9 @@
   int tmp;
 
   tmp = [obj width];
-  tmp ? [_decimal_width setIntValue:tmp]
-      : [_decimal_width setStringValue:@""];
+  NO_ZEROS(_decimal_width, tmp);
   tmp = [obj precision];
-  tmp ? [_decimal_precision setIntValue:[obj width]]
-      : [_decimal_precision setStringValue:@""];
+  NO_ZEROS(_decimal_precision, tmp);
 
 }
 
@@ -191,8 +226,7 @@
   int tmp;
 
   tmp = [[self selectedObject] width];
-  tmp ? [_data_width setIntValue:tmp]
-      : [_data_width setStringValue:@""];
+  NO_ZEROS(_data_width, tmp);
 }
 
 - (void) updateDouble;
@@ -203,6 +237,12 @@
 - (BOOL) canInspectObject:(id)obj
 {
   return [obj isKindOfClass:[EOAttribute class]];
+}
+
+- (IBAction) setValueType:(id)sender
+{
+  id valueType = [_valueTypeDict objectForKey:[sender titleOfSelectedItem]];
+  [(EOAttribute *)[self selectedObject] setValueType:valueType];
 }
 
 - (IBAction) setTimeZone:(id)sender;
