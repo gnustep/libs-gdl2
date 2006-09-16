@@ -20,17 +20,13 @@
 
   NSDictionary			*_flipDict;
   NSDictionary			*_classTitleDict;
-  NSDictionary			*_titleClassDict;
-  NSDictionary			*_valueTypeTitleDict;
   NSDictionary			*_valueTypeDict;
-  NSDictionary			*_typeValueDict;
   
   IBOutlet NSBox		*_customFlip; // default
   IBOutlet NSBox		*_dataFlip;
   IBOutlet NSBox		*_dateFlip;
   IBOutlet NSBox		*_decimalFlip;
-  IBOutlet NSBox		*_doubleFlip;
-  IBOutlet NSBox		*_integerFlip;
+  IBOutlet NSBox		*_numberFlip;
   IBOutlet NSBox		*_stringFlip;
 
   NSTextField 			*_custom_width;
@@ -49,10 +45,10 @@
   NSButton			*_date_tz;
 }
 /* generic */
+- (IBAction) selectInternalDataType:(id)sender;
 - (IBAction) setName:(id)sender;
 - (IBAction) setExternalName:(id)sender;
 - (IBAction) setExternalType:(id)sender;
-- (IBAction) setValueClassNameAndType:(id)sender;
 
 /* dependent on value class name */
 - (IBAction) setWidth:(id)sender;
@@ -61,7 +57,7 @@
 - (IBAction) setFactoryMethod:(id)sender;
 - (IBAction) setConversionMethod:(id)sender;
 - (IBAction) setInitArgument:(id)sender;
-
+- (IBAction) setValueType:(id)sender;
 - (IBAction) setTimeZone:(id)sender;
 @end
 

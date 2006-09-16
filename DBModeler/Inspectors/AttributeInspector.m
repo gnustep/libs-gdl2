@@ -14,29 +14,23 @@
       _dataFlip,	@"Data",
       _dateFlip,	@"Date",
       _decimalFlip,	@"Decimal Number",
-      _doubleFlip,	@"Double",
-      _integerFlip,	@"Integer",
+      _numberFlip,	@"Number",
       nil];
 
   _valueTypeDict = 
      [[NSDictionary alloc] initWithObjectsAndKeys:
-        @"",	@"",
-     	@"c",	@"char",
-	@"C",	@"unsigned char",
-	@"s",	@"short",
-	@"S",	@"unsigned short",
 	@"i",	@"int",
+	@"d",	@"double",
+	@"f",	@"float",
+     	@"c",	@"char",
+	@"s",	@"short",
 	@"I",	@"unsigned int",
+	@"C",	@"unsigned char",
+	@"S",	@"unsigned short",
 	@"l",	@"long",
 	@"L",	@"unsigned long",
 	@"u",	@"long long",
 	@"U",	@"unsigned long long",
-	@"f",	@"float",
-	@"d",	@"double",
-	nil];
-   _typeValueDict = 
-     [[NSDictionary alloc] initWithObjectsAndKeys:
-        @"",			@"",
      	@"char",		@"c",	
 	@"unsigned char",	@"C",	
 	@"short",		@"s",	
@@ -51,35 +45,18 @@
 	@"double", 		@"d",	
 	nil];
 
-  /*
-   * class name = key, pop-up item = value,
-   * "Custom" is not found,
-   * double and integer are both NSNumbers, but handled specially,
-   * double is the default if a value type is not specified.
-   */
   _classTitleDict = 
     [[NSDictionary alloc] initWithObjectsAndKeys:
       @"String",	@"NSString",
       @"Data",		@"NSData",
-      @"Double",	@"NSNumber", // Integer and Double, Double is default.
+      @"Number",	@"NSNumber", 
       @"Date",		@"NSCalendarDate",
       @"Decimal Number",	@"NSDecimalNumber",
-      nil];
-  
-  _titleClassDict = 
-    [[NSDictionary alloc] initWithObjectsAndKeys:
       @"NSString",		@"String",
       @"NSData",		@"Data",
-      @"NSNumber",		@"Double",
-      @"NSNumber",		@"Integer",
+      @"NSNumber",		@"Number",
       @"NSDecimalNumber",	@"Decimal Number",
       @"NSCalendarDate",	@"Date",
-      nil];
-  
-   _valueTypeTitleDict =
-    [[NSDictionary alloc] initWithObjectsAndKeys:
-      @"d",	@"Double",
-      @"i",	@"Integer",
       nil];
 }
 
@@ -89,31 +66,16 @@
   NSString *valueType = [(EOAttribute *)[self selectedObject] valueType];
   NSString *ret;
 
-  if (valueType)
-    {
-      if ([vcn isEqual: @"NSNumber"])
-        {
-	  if ([valueType isEqual:@"d"])
-            return @"Double";
-	  else if ([valueType isEqual:@"i"])
-	    return @"Integer";
-        }
-    }
-   ret = [_classTitleDict objectForKey:vcn];
-   if (!ret) 
-     return @"Custom";
+  ret = [_classTitleDict objectForKey:vcn];
+  if (!ret) 
+    return @"Custom";
 
-   return ret;
-}
-
-- (NSString *)_valueTypeForTitle:(NSString *)title
-{
-  return [_valueTypeTitleDict objectForKey:title];
+  return ret;
 }
 
 - (NSString *)_classNameForTitle:(NSString *)title
 {
-  return [_titleClassDict objectForKey:title];
+  return [_classTitleDict objectForKey:title];
 }
 
 - (NSBox *) _viewForTitle:(NSString *)title
@@ -141,21 +103,29 @@
   [(EOAttribute *)[self selectedObject] setExternalType:[sender stringValue]];
 }
 
-- (IBAction) setValueClassNameAndType:(id)sender;
+- (IBAction) selectInternalDataType:(id)sender;
 {
   EOAttribute *obj = [self selectedObject];
   NSString *title = [_flipSelect titleOfSelectedItem]; 
   NSString *className = [self _classNameForTitle:title];
-  NSString *valueType = [self _valueTypeForTitle:title];
   
   if (![[obj valueClassName] isEqual:className])
     {
       [obj setValueClassName:className];
     }
-  if (![[obj valueType] isEqual:valueType]) 
+  
+  if ([className isEqual:@"NSNumber"])
     {
-      [obj setValueType:valueType];
+      if (![obj valueType])
+        {
+	  [obj setValueType:@"d"];
+        }
     }
+  else
+    {
+      [obj setValueType:@""];
+    }
+  
   [self refresh];
 }
 
@@ -164,14 +134,10 @@
   EOAttribute *obj = [self selectedObject];
   NSString *title = [self _titleForPopUp];
   NSBox *flipTo = [self _viewForTitle:title];
-  NSString *valType = [obj valueType];
-  NSString *valueTypeName = 
-	  [_typeValueDict objectForKey: valType ? valType : @""];
   
   [_nameField setStringValue:[obj name]];
   [_extNameField setStringValue:[obj columnName]];
   [_extTypeField setStringValue:[obj externalType]];
-  [_valueTypeSelect selectItemWithTitle:valueTypeName];
   [_flipSelect selectItemWithTitle:title];
   [flipTo setFrame: [_flipView frame]];
   [_internalData replaceSubview:_flipView with:flipTo];
@@ -212,13 +178,19 @@
 
 }
 
-- (void) updateInteger
+- (void) updateNumber
 {
+  EOAttribute *obj = [self selectedObject];
+  NSString *valType = [obj valueType];
+  NSString *valueTypeName;
+  
+  valueTypeName = [_valueTypeDict objectForKey: valType];
+  [_valueTypeSelect selectItemWithTitle:valueTypeName];
 }
 
 - (void) updateDate
 {
-  // fixme
+
 }
 
 - (void) updateData
@@ -229,11 +201,6 @@
   NO_ZEROS(_data_width, tmp);
 }
 
-- (void) updateDouble;
-{
-
-}
-
 - (BOOL) canInspectObject:(id)obj
 {
   return [obj isKindOfClass:[EOAttribute class]];
@@ -241,8 +208,19 @@
 
 - (IBAction) setValueType:(id)sender
 {
-  id valueType = [_valueTypeDict objectForKey:[sender titleOfSelectedItem]];
-  [(EOAttribute *)[self selectedObject] setValueType:valueType];
+  EOAttribute *obj = [self selectedObject];
+  NSString *valueType;
+  
+  if (sender == _valueTypeSelect)
+    {
+      valueType = [_valueTypeDict objectForKey:[sender titleOfSelectedItem]];
+    }
+  else if (sender == self)
+    {
+      valueType = @"";
+    }
+  
+  [obj setValueType:valueType];
 }
 
 - (IBAction) setTimeZone:(id)sender;
@@ -262,7 +240,7 @@
 
 - (IBAction) setClassName:(id)sender;
 {
-  [[self selectedObject] setValueClassName:[sender stringValue]];
+  [(EOAttribute *)[self selectedObject] setValueClassName:[sender stringValue]];
 }
 
 - (IBAction) setFactoryMethod:(id)sender;

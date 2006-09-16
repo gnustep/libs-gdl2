@@ -9,9 +9,15 @@
 	* DBModeler/GNUmakefile: Add new file.
 	* DBModeler/DefaultColumnProvider.m: Set column header image.
 
-	* DBModeler/Inspectors/AttributeInspector.h/m: implement valueType
+	* DBModeler/Inspectors/AttributeInspector.[hm]: Implement valueType
 	pop-up button, and add macro to clean up some code.
 	* DBModeler/Inspectors/AttributeInspector.gorm: Ditto.
+
+	* DBModeler/Inspectors/AttributeInspector.[hm]: Merge private
+	dictionarys without conflicting keys.  Replace Integer/Double
+	types with a generic Number type.
+	* DBModeler/Inspectors/AttributeInspector.gorm: Update interface
+	for 'Number'.
 
 2006-09-16  David Ayers  <ayers@fsfe.org>
 

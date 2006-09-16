@@ -2,7 +2,7 @@
     "## Comment" = "Do NOT change this file, Gorm maintains it";
     AttributeInspector = {
 	Actions = (
-	    "setValueClassNameAndType:",
+	    "selectInternalDataType:",
 	    "setExternalName:",
 	    "setExternalType:",
 	    "setName:",
@@ -25,8 +25,7 @@
 	    _dataFlip,
 	    _dateFlip,
 	    _decimalFlip,
-	    _doubleFlip,
-	    _integerFlip,
+	    _numberFlip,
 	    _stringFlip,
 	    _internalData,
 	    _custom_arg,
@@ -64,7 +63,7 @@
 	    "setName:",
 	    "setPrecision:",
 	    "setTimeZone:",
-	    "setValueClassNameAndType:",
+	    "selectInternalDataType:",
 	    "setWidth:"
 	);
 	Super = NSObject;
