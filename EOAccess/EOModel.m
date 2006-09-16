@@ -604,7 +604,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 {
   NSFileManager		*mgr = [NSFileManager defaultManager];
   NSMutableDictionary	*pList;
-  NSDictionary		*attributes;
   NSDictionary		*entityPList;
   NSDictionary		*stProcPList;
   NSEnumerator		*entityEnum;
@@ -660,12 +659,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
   [self encodeIntoPropertyList: pList];
 
-  attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-    [NSNumber numberWithUnsignedLong: 0777], NSFilePosixPermissions,
-    nil];
-
   if (writeSingleFile == NO
-      && [mgr createDirectoryAtPath: path attributes: attributes] == NO)
+      && [mgr createDirectoryAtPath: path attributes: nil] == NO)
     {
       NSString *fmt;
       fmt = [NSString stringWithFormat: @"Could not create directory: %@",

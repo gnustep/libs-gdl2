@@ -1,4 +1,9 @@
 2006-09-16  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/EOModel.m (writeToFile:): Use the default permissions
+	on .eomodeld files.
+
+2006-09-16  Matt Rice  <ratmice@yahoo.com>
 	
 	* DBModeler/Resources/AllowsNull_On.tiff: New file.
 	* DBModeler/GNUmakefile: Add new file.
