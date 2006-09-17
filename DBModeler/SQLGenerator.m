@@ -182,7 +182,7 @@ static NSString *_otherScript;
   channel = [context createAdaptorChannel];
   
   if (_adminScript && [_adminScript length] 
-      && [[connDict objectForKey:@"adaptorName"] isEqual:@"PostgresEOAdaptor"])
+      && [[connDict objectForKey:@"adaptorName"] isEqual:@"PostgreSQLEOAdaptor"])
     {
       NSMutableDictionary *tmp = RETAIN([NSMutableDictionary dictionaryWithDictionary:connDict]);
       [tmp setObject:@"template1" forKey:@"databaseName"];
