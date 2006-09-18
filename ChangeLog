@@ -1,3 +1,13 @@
+2006-09-18  Matt Rice  <ratmice@yahoo.com>
+	
+	* DBModeler/SQLGenerator.m (-executeSQL:): Fix memory leak,
+	Remove a hack, add a FIXME.
+	* EOInterface/EODisplayGroup.m (-initWithCoder:): Move fetching on
+	load to -awakeFromNib
+	* GDL2Palette/DisplayGroupInspector.[hm] 
+	* GDL2Palette/GDL2DisplayGroupInspector.gorm: New files.
+	* GDL2Palette/IB+Categories.m: Add display group Inspector.
+
 2006-09-17  Matt Rice  <ratmice@yahoo.com>
 
 	* DBModeler/SQLGenerator.m

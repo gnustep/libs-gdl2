@@ -39,7 +39,12 @@ ADDITIONAL_INCLUDE_DIRS+=-I../
 ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess/ ../EOControl/ ../EOInterface ../EOModeler
 ADDITIONAL_NATIVE_LIBS+=EOAccess EOControl EOInterface EOModeler 
 
-GDL2_RESOURCE_FILES=GDL2Palette.tiff GDL2ConnectionInspector.gorm palette.table
+GDL2_RESOURCE_FILES=		\
+GDL2Palette.tiff		\
+GDL2ConnectionInspector.gorm	\
+GDL2DisplayGroupInspector.gorm	\
+palette.table 
+
 
 GDL2_OBJC_FILES=		\
 	Palette.m		\
@@ -47,7 +52,8 @@ GDL2_OBJC_FILES=		\
 	ConnectionInspector.m	\
 	IB+Categories.m		\
 	Foundation+Categories.m \
-	KeyWrapper.m
+	KeyWrapper.m		\
+	DisplayGroupInspector.m
 
 include ../common.make
 PALETTE_LIBS=$(ADDITIONAL_OBJC_LIBS)

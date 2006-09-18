@@ -10,6 +10,11 @@
 {
   return @"GDL2ConnectionInspector";
 }
+
+- (NSString *)inspectorClassName;
+{
+  return @"GDL2DisplayGroupInspector";
+}
 @end
 
 #include <AppKit/NSView.h>

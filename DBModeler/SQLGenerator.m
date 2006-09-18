@@ -128,7 +128,7 @@ static NSString *_otherScript;
   EOAdaptorChannel *channel;
   Class exprClass = [[[EOMApp activeDocument] adaptor] expressionClass];
   EOSQLExpression *expr;
-  NSDictionary *connDict = RETAIN([adaptor connectionDictionary]);
+  NSDictionary *connDict = [adaptor connectionDictionary];
   
   if ([[_sqlOutput string] length] == 0)
     return;
@@ -156,31 +156,16 @@ static NSString *_otherScript;
 		      nil);
       return;
     }
-  
-  if ([adaptor hasOpenChannels])
-    {
-      NSArray *contexts = [adaptor contexts];
-      int i,c;
-      for (i = 0, c = [contexts count]; i < c; i++)
-	{
-          EOAdaptorContext *ctxt = [contexts objectAtIndex:i];
-	  if ([ctxt hasOpenChannels])
-	    {
-	      int j, d;
-	      NSArray *channels = [ctxt channels];
-	      for (j = 0, d = [channels count]; j < d; j++)
-	        { 
-		  EOAdaptorChannel *channel = [channels objectAtIndex:j];
-		  if ([channel isOpen])
-		    [channel closeChannel];
-		}
-	    }
-	}
-    }
 
+  RETAIN(connDict); 
   context = [adaptor createAdaptorContext];
   channel = [context createAdaptorChannel];
-  
+ 
+  /* FIXME 
+   * this is a hack for PostgreSQL because it requires you to connect to an
+   * existing database to run 'CREATE DATABASE' statements, it should probably
+   * not be in DBModeler.
+   */
   if (_adminScript && [_adminScript length] 
       && [[connDict objectForKey:@"adaptorName"] isEqual:@"PostgreSQLEOAdaptor"])
     {

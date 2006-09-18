@@ -273,11 +273,15 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
   _flags.selectsFirstObjectAfterFetch = tmpI; 
   [decoder decodeValueOfObjCType: @encode(int) at: &tmpI];
   _flags.autoFetch = tmpI;
+  return self;
+}
+
+- (void) awakeFromNib
+{
   if (_flags.autoFetch)
     {
       [self fetch];
     }
-  return self;
 }
 
 - (void)encodeWithCoder: (NSCoder *)encoder
