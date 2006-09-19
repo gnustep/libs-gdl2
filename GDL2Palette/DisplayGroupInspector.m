@@ -45,6 +45,9 @@
   [_fetchesOnLoad setIntValue:[object fetchesOnLoad]];
   [_validate setIntValue:[object validatesChangesImmediately]];
   [_refresh setIntValue:[object usesOptimisticRefresh] ? NO : YES];
+  [_localKeys removeAllObjects];
+  [_localKeys addObjectsFromArray:[object localKeys]];
+  [_localKeysTable reloadData];
 }
 
 - (void) addKey:(id)sender

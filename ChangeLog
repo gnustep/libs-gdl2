@@ -11,6 +11,8 @@
 	* GDL2Palette/DisplayGroupInspector.[hm]: Add editor for local keys.
 	* GDL2Palette/GDL2DisplayGroupInspector.gorm: Ditto.
 
+	* GDL2Palette/DisplayGroupInspector.m: -revert: update local keys.
+
 2006-09-18  Matt Rice  <ratmice@yahoo.com>
 	
 	* DBModeler/SQLGenerator.m (-executeSQL:): Fix memory leak,
