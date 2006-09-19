@@ -1,3 +1,16 @@
+2006-09-19  Matt Rice  <ratmice@yahoo.com>
+	
+	* GDL2Palette/KeyWrapper.h: Add LocalType.
+	* GDL2Palette/ConnectInspector.m (_localKeysFromDisplayGroup): New
+	method.
+	(updateValues:): Add local keys.
+	(_oaBrowserAction:): Enable ok button for LocalType.
+	Handle relationships explicitly
+	(browser:willDisplayCell:atRow:column:): Enable and set leaf for
+	LocalType keys.
+	* GDL2Palette/DisplayGroupInspector.[hm]: Add editor for local keys.
+	* GDL2Palette/GDL2DisplayGroupInspector.gorm: Ditto.
+
 2006-09-18  Matt Rice  <ratmice@yahoo.com>
 	
 	* DBModeler/SQLGenerator.m (-executeSQL:): Fix memory leak,

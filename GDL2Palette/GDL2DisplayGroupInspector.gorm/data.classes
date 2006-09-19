@@ -2,6 +2,8 @@
     "## Comment" = "Do NOT change this file, Gorm maintains it";
     FirstResponder = {
 	Actions = (
+	    "addKey:",
+	    "removeKey:",
 	    "setFetchesOnLoad:",
 	    "setRefreshesAll:",
 	    "setValidatesImmediately:"
@@ -12,12 +14,17 @@
 	Actions = (
 	    "setValidatesImmediately:",
 	    "setRefreshesAll:",
-	    "setFetchesOnLoad:"
+	    "setFetchesOnLoad:",
+	    "addKey:",
+	    "removeKey:"
 	);
 	Outlets = (
 	    _fetchesOnLoad,
 	    _refresh,
-	    _validate
+	    _validate,
+	    _addKey,
+	    _localKeysTable,
+	    _removeKey
 	);
 	Super = IBInspector;
     };

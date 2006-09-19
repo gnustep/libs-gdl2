@@ -210,6 +210,23 @@ static NSMapTable *_objectToAssociation;
   return AUTORELEASE(ret);
 }
 
+- (NSArray *) _localKeysFromDisplayGroup:(EODisplayGroup *)dg
+{
+  NSMutableArray *ret = [[NSMutableArray alloc] init];
+  NSArray *local = [dg localKeys];
+  int i,c;
+  
+  for (i = 0, c = [local count]; i < c; i++)
+    {
+      id obj = [local objectAtIndex:i];
+      id key = [KeyWrapper wrapperWithKey:obj type:LocalType];
+
+      [ret addObject:key];
+    }
+
+  return AUTORELEASE(ret);
+}
+
 /* for normal outlets/actions */
 - (NSArray *) _keysFromArray:(NSArray *)arr
 {
@@ -234,6 +251,7 @@ static NSMapTable *_objectToAssociation;
 	  id cd = [ds classDescriptionForObjects];
 	  [_values addObjectsFromArray:[self _keysFromClassDescription:cd]];
         }
+      [_values addObjectsFromArray:[self _localKeysFromDisplayGroup:dest]];
     }
 }
 
@@ -438,9 +456,12 @@ static NSMapTable *_objectToAssociation;
               for (i = 1; i < column; i++)
                 {
                   int aRow = [sender selectedRowInColumn:i];
-                  val = [vals objectAtIndex:aRow];
 
-                  if ([val keyType] != AttributeType)
+                  val = [vals objectAtIndex:aRow];
+		  type = [val keyType]; 
+		  
+                  if (type == ToManyRelationshipType
+		      || type == ToOneRelationshipType)
                     {
                       classDesc =
                       [classDesc classDescriptionForDestinationKey:[val key]];
@@ -458,7 +479,8 @@ static NSMapTable *_objectToAssociation;
                         case 'M': wantsTypes |= ToManyRelationshipType; break;
                       }
                   }
-		[okButton setEnabled:(wantsTypes & type)];
+		[okButton setEnabled:(wantsTypes & type)
+				     || (type == LocalType)];
 	    }
 	}
     }
@@ -682,11 +704,13 @@ willDisplayCell:(id)cell atRow:(int)row column:(int)column
 			case 'M': wantsTypes |= ToManyRelationshipType; break;
 		      }
 		  }
-		[cell setLeaf: (type == AttributeType)];
+		[cell setLeaf: (type == AttributeType
+			        || type == LocalType)];
 		// TODO relationships should be NO...
 	        [cell setStringValue: [val key]];
 		[cell setEnabled:(wantsTypes & type)
-				 || (wantsTypes & AttributeType)];
+				 || (wantsTypes & AttributeType)
+				 || (type == LocalType)];
             }
       }
   else if (sender == connectionsBrowser)
