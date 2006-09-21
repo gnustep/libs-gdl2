@@ -189,7 +189,7 @@ textShouldBeginEditing: (NSText *)fieldEditor
       EODisplayGroup *dg2 = [self displayGroupForAspect:@"enabled"];
       if (dg2 != dg || flag == NO)
         {
-	  flag = [dg endEditing];
+	  flag = [dg2 endEditing];
 	  if (flag == YES)
 	    {
 	      [dg2 associationDidBeginEditing:self];

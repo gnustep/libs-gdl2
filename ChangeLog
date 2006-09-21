@@ -1,3 +1,11 @@
+2006-09-20  Matt Rice  <ratmice@yahoo.com>
+
+	* EOInterface/EOGenericControlAssociation.m (-endEditing):
+	Fix copy/paste error.
+	* GDL2Palette/Palette.[hm]: Load bundles from GDL2PaletteBundles key.
+	* GDL2Palette/ConnectInspector.m: Replace static map table with
+	walking the list of connectors.
+
 2006-09-19  Matt Rice  <ratmice@yahoo.com>
 	
 	* GDL2Palette/KeyWrapper.h: Add LocalType.

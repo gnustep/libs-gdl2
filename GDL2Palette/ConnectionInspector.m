@@ -35,18 +35,12 @@
 /* TODO get notifications for IB{Will,Did}RemoveConnectorNotification
  * and remove the object from the _objectToAssociation map table if
  * there are no more connectors for it */
-static NSMapTable *_objectToAssociation;
+
 @interface NSApplication(missingStuff)
 - (GormClassManager *)classManager;
 @end
 
 @implementation GDL2ConnectionInspector
-+ (void) initialize
-{
-  _objectToAssociation = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks,
-	 					  NSObjectMapValueCallBacks,
-		  	   			  0, [self zone]); 
-}
 
 - (NSButton *)okButton
 {
@@ -413,10 +407,23 @@ static NSMapTable *_objectToAssociation;
 
 	  if (!found)
 	    {
-	      ASSIGN(_association,NSMapGet(_objectToAssociation, object));
+	      NSArray *aConns = [[(id<IB>)NSApp activeDocument] connectorsForSource:object ofClass:[EOAspectConnector class]];
+	      Class assocClass = [[popUp selectedItem] representedObject];
+	      
+	      _association = nil;
+
+	      for (i = 0; i < c; i++)
+	        {
+		  EOAspectConnector *aConn = [aConns objectAtIndex:i];
+		  EOAssociation *assoc = [aConn association];
+		  if ([[assoc class] isEqual: assocClass])
+		    {
+		      ASSIGN(_association, assoc);
+		    }
+	        }
+
 	      if (!_association)
 	        {
-  		  Class assocClass = [[popUp selectedItem] representedObject];
 		  _association = [[assocClass alloc] initWithObject:object];
 	          /* this shouldn't happen until ok:. */
 		}
@@ -770,7 +777,6 @@ willDisplayCell:(id)cell atRow:(int)row column:(int)column
      else if ([_currentConnector isKindOfClass:[EOAspectConnector class]])
        {
 	 [_connectors addObject:_currentConnector];
-	 NSMapInsert(_objectToAssociation, object, _association);
      	 [[(id<IB>)NSApp activeDocument]
 	  		attachObject:_association toParent:object];
        }
