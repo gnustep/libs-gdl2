@@ -2,7 +2,7 @@
     DefaultColumnProvider.m
  
     Author: Matt Rice <ratmice@yahoo.com>
-    Date: Apr 2005
+    Date: Apr 2005, 2006
 
     This file is part of DBModeler.
     

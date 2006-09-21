@@ -2,7 +2,7 @@
     ConsistencyChecker.m
  
     Author: Matt Rice <ratmice@yahoo.com>
-    Date: Jul 2005
+    Date: 2005, 2006
 
     This file is part of DBModeler.
     

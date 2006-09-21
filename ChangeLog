@@ -1,3 +1,4 @@
+
 2006-09-20  Matt Rice  <ratmice@yahoo.com>
 
 	* EOInterface/EOGenericControlAssociation.m (-endEditing):
@@ -5,6 +6,10 @@
 	* GDL2Palette/Palette.[hm]: Load bundles from GDL2PaletteBundles key.
 	* GDL2Palette/ConnectInspector.m: Replace static map table with
 	walking the list of connectors.
+
+	* EOInterface/EODeprecated.h: Fix typo.
+	* DBModeler/*.[hm]
+	* GDL2Palette/*.[hm]: Update copyright.
 
 2006-09-19  Matt Rice  <ratmice@yahoo.com>
 	
