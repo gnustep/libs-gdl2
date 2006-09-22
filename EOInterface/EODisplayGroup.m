@@ -1107,7 +1107,9 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 - (BOOL)enabledToSetSelectedObjectValueForKey:(NSString *)key
 {
-  return NO;
+  return [self selectedObject]
+	 ? YES
+	 : [key hasPrefix: @"@query"];
 }
 
 - (BOOL)association: (EOAssociation *)association 
