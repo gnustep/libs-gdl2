@@ -36,6 +36,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSSet.h>
 #include <Foundation/NSString.h>
 #include <Foundation/NSValue.h>
+#include <Foundation/NSScanner.h>
 
 #include <AppKit/NSPanel.h>
 #else
@@ -43,9 +44,11 @@ RCS_ID("$Id$")
 #include <AppKit/AppKit.h>
 #endif
 
+#include <EOAccess/EODatabaseDataSource.h>
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EODataSource.h>
 #include <EOControl/EOEditingContext.h>
+#include <EOControl/EOFetchSpecification.h>
 #include <EOControl/EOKeyValueCoding.h>
 #include <EOControl/EOObserver.h>
 #include <EOControl/EOQualifier.h>
@@ -453,40 +456,125 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
   ASSIGNCOPY(_sortOrdering, orderings);
 }
 
+- (EOQualifier *) _qualifierForKey:(NSString *)key
+		 value:(id)val
+		 defaultOperator:(char)defaultOp
+{
+  NSString *op;
+  SEL selector;
+  NSString *fmt = nil;
+  
+  EOClassDescription *classDesc = [_dataSource classDescriptionForObjects];
+   
+  [[classDesc validateValue:&val forKey:key] raise]; 
+  op = [_queryOperator objectForKey:key];
+  if (op == nil)
+    {
+      switch (defaultOp)
+	{
+	  case '=':
+	    if ([val isKindOfClass:[NSString class]])
+	      {
+	        op = _defaultStringMatchOperator; 
+		fmt = _defaultStringMatchFormat;
+	      }
+            else
+	      {
+	        selector = EOQualifierOperatorEqual;
+	      }
+	    break;
+	  case '>':
+	    selector = EOQualifierOperatorGreaterThanOrEqualTo;
+	   break;
+	  case '<':
+	    selector = EOQualifierOperatorLessThanOrEqualTo;
+	   break;
+
+	}
+    }
+  if (op) 
+    selector = [EOKeyValueQualifier operatorSelectorForString:op];
+
+  if (fmt)
+    val = [NSString stringWithFormat:fmt, val];
+  
+  return [EOKeyValueQualifier
+             	qualifierWithKey:key
+                   operatorSelector:selector
+                   value: val];
+}
+
 - (EOQualifier *)qualifierFromQueryValues
 {
-  return nil;
+  NSMutableArray *quals = [NSMutableArray array];
+  int i, c, j;
+  id dicts[3];
+  char ops[3] = { '=', '<', '>' };
+  dicts[0] = _queryMatch;
+  dicts[1] = _queryMax;
+  dicts[2] = _queryMin;
+  for (j = 0; j < 3; j++)
+    {   
+      NSArray *keys = [dicts[j] allKeys];
+
+      for (i = 0, c = [keys count]; i < c; i++)
+        { 
+	  NSString *key = [keys objectAtIndex:i];
+	  id val = [dicts[j] objectForKey:key];
+          
+	  [quals addObject:[self _qualifierForKey:key
+		  			value:val
+					defaultOperator:ops[j]]];
+        }
+    }
+  return [EOAndQualifier qualifierWithQualifierArray:quals];
 }
 
 - (NSDictionary *)equalToQueryValues
 {
-  return nil;
+  return AUTORELEASE([_queryMatch copy]);
 }
+
 - (void)setEqualToQueryValues: (NSDictionary *)values
 {
+  ASSIGN(_queryMatch,
+         AUTORELEASE([values mutableCopyWithZone: [self zone]]));
 }
 
 - (NSDictionary *)greaterThanQueryValues
 {
-  return nil;
+  return AUTORELEASE([_queryMin copy]);
 }
 - (void)setGreaterThanQueryValues: (NSDictionary *)values
 {
+  ASSIGN(_queryMin,
+         AUTORELEASE([values mutableCopyWithZone: [self zone]]));
 }
 
 - (NSDictionary *)lessThanQueryValues
 {
-  return nil;
+  return AUTORELEASE([_queryMax copy]);
 }
 - (void)setLessThanQueryValues: (NSDictionary *)values
 {
+  ASSIGN(_queryMax,
+         AUTORELEASE([values mutableCopyWithZone: [self zone]]));
 }
 
 - (void)qualifyDisplayGroup
 {
+  [self setQualifier:[self qualifierFromQueryValues]];
+  [self updateDisplayedObjects];
+  _flags.queryMode = NO;
 }
+
 - (void)qualifyDataSource
 {
+  /* only works with EODatabaseDataSource ?? */
+  [[(EODatabaseDataSource *)_dataSource fetchSpecification]
+	  			setQualifier:[self qualifierFromQueryValues]];
+  _flags.queryMode = NO;
+  [self fetch];
 }
 
 - (BOOL)inQueryMode
@@ -1056,37 +1144,79 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
   			  key: key];
 }
 
+- (NSMutableDictionary *)_queryDictForOperator:(NSString *)op
+{
+  if ([op isEqual:@"<"])
+    return _queryMax;
+  
+  if ([op isEqual:@">"])
+    return _queryMin; 
+  
+  if ([op isEqual:@"="])
+    return _queryMatch;
+
+  if ([op isEqual:@"Op"])
+    return _queryOperator;
+  
+  return nil;
+}
+
 - (BOOL)setValue: (id)value forObject: (id)object key: (NSString *)key
 {
   SEL didSetValue = @selector(displayGroup:didSetValue:forObject:key:);
   NSException *exception = nil;
+  
+  if ([key hasPrefix:@"@query"])
+    {
+      NSString *oper = [NSString string];
+      NSScanner *scn = [NSScanner scannerWithString:key];
+      NSMutableDictionary *_queryDict = nil;
       
-  NS_DURING
-    {
-      [object takeValue:value forKeyPath:key];
+      [scn setScanLocation:6];
+      
+      if ([scn scanUpToString:@"." intoString:&oper]
+          && [scn scanString:@"." intoString:NULL]
+          && [scn scanLocation] != [key length])
+        {
+          NSString *realKey = [key substringFromIndex:[scn scanLocation]];
+	  _queryDict = [self _queryDictForOperator:oper];
+	  [_queryDict setObject:value forKey:realKey];
+        }
+        if (!_queryDict)
+          [[NSException exceptionWithName:NSInvalidArgumentException
+			reason:@"Invalid query operator, expected '<', '>', '=',or 'Op'"
+			 userInfo:nil] raise];
+	return _queryDict != nil;
     }
-  NS_HANDLER
-     /* -userInfo likely contains useful information... */
-     NSLog(@"Exception in %@ name:%@ reason:%@ userInfo:%@", NSStringFromSelector(_cmd), [localException name], [localException reason], [localException userInfo]); 
-    return NO;
-  NS_ENDHANDLER
+  else
+    { 
+  
+      NS_DURING
+        {
+          [object takeValue:value forKeyPath:key];
+        } 
+      NS_HANDLER
+         /* -userInfo likely contains useful information... */
+          NSLog(@"Exception in %@ name:%@ reason:%@ userInfo:%@", NSStringFromSelector(_cmd), [localException name], [localException reason], [localException userInfo]); 
+          return NO;
+      NS_ENDHANDLER
 
-  exception = [object validateValue: &value forKey: key];
+      exception = [object validateValue: &value forKey: key];
 
-  if (exception && _flags.validateImmediately)
-    {
-      [self _presentAlertWithTitle:@"Validation error"
+      if (exception && _flags.validateImmediately)
+        {
+          [self _presentAlertWithTitle:@"Validation error"
 	      		   message:[exception reason]];
-      return NO;
-    }
-  else if ([_delegate respondsToSelector:didSetValue])
-    {
-      [_delegate displayGroup: self 
+          return NO;
+        }
+      else if ([_delegate respondsToSelector:didSetValue])
+        {
+          [_delegate displayGroup: self 
 		  didSetValue: value
 		    forObject: object
 			  key: key];
-    }
-    
+        }
+    }    
   return YES;
 }
 

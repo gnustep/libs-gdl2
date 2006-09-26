@@ -1,7 +1,16 @@
 2006-09-22  Matt Rice  <ratmice@yahoo.com>
 
 	* EOInterface/EODisplayGroup.m
-	(-enabledToSetSelectedObjectValueForKey:): Implement.
+	(-enabledToSetSelectedObjectValueForKey:) 
+	(-qualifierFromQueryValues:)
+	(-equalToQueryValues:),(-setEqualToQueryValues:)
+	(-greaterThanQueryValues:),(-setGreaterThanQueryValues:)
+	(-lessThanQueryValues:),(-setLessThanQueryValues:)
+	(-qualifyDisplayGroup),
+	(-qualifyDataSource): Implement.
+	(-_queryDictForOperator:): New private method.
+	(-_qualifierForKey:value:defaultOperator:): Ditto.
+	(-setValue:forObject:key:): Handle @query keys.
 
 2006-09-20  Matt Rice  <ratmice@yahoo.com>
 
