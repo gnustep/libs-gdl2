@@ -821,11 +821,31 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 - (BOOL)selectNext
 {
-  return NO;
+  id selObj = [self selectedObject];
+  unsigned idx;
+  
+  if (selObj == nil) return NO;
+
+  idx = [[self displayedObjects]
+	  	indexOfObjectIdenticalTo:[self selectedObject]];
+  
+  if (idx == UINT_MAX) return NO;
+
+  return [self setSelectionIndexes:[NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:++idx]]];
 }
 - (BOOL)selectPrevious
 {
-  return NO;
+  id selObj = [self selectedObject];
+  unsigned idx;
+  
+  if (selObj == nil) return NO;
+
+  idx = [[self displayedObjects]
+	  	indexOfObjectIdenticalTo:[self selectedObject]];
+  
+  if (idx == 0) return NO;
+
+  return [self setSelectionIndexes:[NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:--idx]]];
 }
 
 - (BOOL)clearSelection
@@ -1237,9 +1257,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 - (BOOL)enabledToSetSelectedObjectValueForKey:(NSString *)key
 {
-  return [self selectedObject]
-	 ? YES
-	 : [key hasPrefix: @"@query"];
+  return [self selectedObject] || [key hasPrefix: @"@query"] || _flags.queryMode;
 }
 
 - (BOOL)association: (EOAssociation *)association 
