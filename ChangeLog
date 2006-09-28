@@ -9,6 +9,8 @@
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLExpression.m
 	(+dropTableStatementsForEntityGroup:): Ditto.
 
+	* EOAccess/EODatabase.m (-snapshots): Return an autoreleased copy. 
+
 2006-09-27  Matt Rice  <ratmice@yahoo.com>
 
 	(-selectNext): Implement.

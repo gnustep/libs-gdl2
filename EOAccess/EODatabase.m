@@ -643,7 +643,7 @@ static NSMutableArray *databaseInstances;
 
 - (NSDictionary *)snapshots
 {
-  return _snapshots;
+  return AUTORELEASE([_snapshots copy]);
 }
 
 @end /* EODatabase (EOUniquing) */
