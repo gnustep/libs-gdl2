@@ -2788,6 +2788,9 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
+  if ([[entityGroup objectAtIndex:0] isAbstractEntity])
+    return [NSArray array];
+
   sqlExp = [self sqlExpressionWithEntity:[entityGroup objectAtIndex: 0]];
 
   entityEnum = [entityGroup objectEnumerator];
@@ -2824,6 +2827,10 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
   entity = [entityGroup objectAtIndex: 0];
+
+  if ([entity isAbstractEntity])
+    return [NSArray array];
+  
   sqlExp = [self sqlExpressionWithEntity: entity];
   tableName = [entity externalName];
   tableName = [sqlExp sqlStringForSchemaObjectName: tableName];
@@ -2900,6 +2907,10 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
   entity = [entityGroup objectAtIndex: 0];
+  
+  if ([entity isAbstractEntity])
+    return [NSArray array];
+  
   pkRootName = [entity primaryKeyRootName];
   seqName = [NSString stringWithFormat: @"%@_SEQ", pkRootName];
 
@@ -2927,6 +2938,10 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   EOFLOGClassFnStartOrCond(@"EOSQLExpression");
 
   entity = [entityGroup objectAtIndex: 0];
+
+  if ([entity isAbstractEntity])
+    return [NSArray array];
+  
   pkRootName = [entity primaryKeyRootName];
   seqName = [NSString stringWithFormat: @"%@_SEQ", pkRootName];
 

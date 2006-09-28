@@ -493,6 +493,11 @@ RCS_ID("$Id$")
       EOSQLExpression *sqlExp;
       NSString *tableName;
       NSString *stmt;
+      
+      if ([entity isAbstractEntity])
+        {
+  	  return [NSArray array];
+        }
 
       sqlExp = [self expressionForString: nil];
       tableName = [entity externalName];
