@@ -175,7 +175,7 @@
       [[(id<IB>)NSApp activeDocument] addConnector: dsConn];
       ds = [ds dataSourceQualifiedByKey:relName];
       [detailDG setDataSource:ds];
-/*     
+      
       assoc = [[EOMasterDetailAssociation alloc] initWithObject:detailDG];
       [assoc bindAspect:@"parent"
 	    displayGroup:masterDG
@@ -183,10 +183,9 @@
       conn = [[EOAspectConnector alloc] initWithAssociation:assoc
 	    				aspectName:@"parent"];
 
-     [conn setSource:masterDG];
-     [conn setDestination:detailDG];
-     [conn setLabel:[NSString stringWithFormat:@"parent - %@",[pList objectAtIndex:2]]];
-*/
+      [conn setSource:masterDG];
+      [conn setDestination:detailDG];
+      [conn setLabel:[NSString stringWithFormat:@"parent - %@",[pList objectAtIndex:2]]];
       
       dsConn = [[NSNibOutletConnector alloc] init];
       [dsConn setSource:ds];

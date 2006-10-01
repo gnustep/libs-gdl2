@@ -86,7 +86,6 @@
 - (NSString *) _titleForPopUp
 {
   NSString *vcn = [(EOAttribute *)[self selectedObject] valueClassName];
-  NSString *valueType = [(EOAttribute *)[self selectedObject] valueType];
   NSString *ret;
 
   ret = [_classTitleDict objectForKey:vcn];

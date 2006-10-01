@@ -149,6 +149,12 @@ static NSString *escapeString(NSString *value)
   return [NSArray array];
 }
 
++ (NSArray *)createDatabaseStatementsForConnectionDictionary: (NSDictionary *)connDict
+                          administrativeConnectionDictionary: (NSDictionary *)admConnDict
+{
+  return [NSArray array];
+}
+			  
 // TODO find a better way to do this?
 + (NSArray *)primaryKeyConstraintStatementsForEntityGroup:(NSArray *)entityGroup
 {

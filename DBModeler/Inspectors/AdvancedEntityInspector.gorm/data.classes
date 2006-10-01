@@ -1,0 +1,33 @@
+{
+    "## Comment" = "Do NOT change this file, Gorm maintains it";
+    AdvancedEntityInspector = {
+	Actions = (
+	    "setAbstractAction:",
+	    "setReadOnlyAction:",
+	    "setCachesObjectsAction:"
+	);
+	Outlets = (
+	    abstract,
+	    readOnly,
+	    cachesObjects
+	);
+	Super = EOMInspector;
+    };
+    EOMInspector = {
+	Actions = (
+	);
+	Outlets = (
+	    window,
+	    view
+	);
+	Super = NSObject;
+    };
+    FirstResponder = {
+	Actions = (
+	    "setCachesObjectsAction:",
+	    "setAbstractAction:",
+	    "setReadOnlyAction:"
+	);
+	Super = NSObject;
+    };
+}

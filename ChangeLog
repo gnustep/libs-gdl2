@@ -5,6 +5,21 @@
 	* config/sqlite3.m4: New file.
 	* configure.ac: Add detection for sqlite3.
 
+	* EOAdaptors/SQLiteAdaptor/SQLite3SQLExpression.m: Override
+	createDatabase method.
+	* configure: Regenerate.
+ 	* configure.ac: Change SUBPROJECTS to GUI_SUBPROJECTS to reflect what
+	its for.
+	* GNUmakefile.in: Ditto, and move so its compiled after EOInterface
+	* EOModeler/EOMInspector.h: Add IBOutlets.
+	* DBModeler/Inspectors/AttributeInspector.m: Remove unused ivar.
+	* DBModeler/Inspectors/GNUmakefile: Add AdvancedEntityInspector.
+	* DBModeler/Inspectors/AdvancedEntityInspector.[h,m,gorm]: New files.
+	* DBModeler/GNUmakefile: Remove subprojects hack.
+	* GDL2Palette/GNUmakefile: Ditto.
+	* GDL2Palette/ResourceManager.m: enable the creation of parent
+	assocation when creating a EOMasterDetailDisplayGroup.
+
 2006-09-28  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOSQLExpression.m

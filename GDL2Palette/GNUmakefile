@@ -32,9 +32,6 @@ include ../gdl2.make
 PALETTE_NAME=GDL2
 GDL2_PRINCIPAL_CLASS = GDL2Palette
 
-SUBPROJECTS+=../EOModeler ../EOInterface
-include $(GNUSTEP_MAKEFILES)/aggregate.make
-
 ADDITIONAL_INCLUDE_DIRS+=-I../
 ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess/ ../EOControl/ ../EOInterface ../EOModeler
 ADDITIONAL_NATIVE_LIBS+=EOAccess EOControl EOInterface EOModeler 

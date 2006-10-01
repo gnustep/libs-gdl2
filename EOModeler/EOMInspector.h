@@ -26,6 +26,7 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <AppKit/NSNibDeclarations.h>
 #include <Foundation/NSObject.h>
 
 @class NSArray;
@@ -35,9 +36,9 @@
 
 @interface EOMInspector : NSObject
 {
-  NSImage	*image;
-  NSView	*view;
-  NSWindow	*window;
+  IBOutlet NSImage	*image;
+  IBOutlet NSView	*view;
+  IBOutlet NSWindow	*window;
 }
 + (NSArray *)allRegisteredInspectors;
 + (NSArray *)allInspectorsThatCanInspectObject:(id)anObject; 

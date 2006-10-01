@@ -40,4 +40,7 @@ Inspectors_OBJC_FILES+=RelationshipInspector.m
 Inspectors_RESOURCE_FILES+=AttributeInspector.gorm
 Inspectors_OBJC_FILES+=AttributeInspector.m
 
+Inspectors_RESOURCE_FILES+=AdvancedEntityInspector.gorm
+Inspectors_OBJC_FILES+=AdvancedEntityInspector.m
+
 include $(GNUSTEP_MAKEFILES)/subproject.make

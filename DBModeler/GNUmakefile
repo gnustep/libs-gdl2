@@ -28,9 +28,6 @@ GNUSTEP_INSTALLATION_DIR = $(GNUSTEP_SYSTEM_ROOT)
 
 include $(GNUSTEP_MAKEFILES)/common.make
 
-SUBPROJECTS=../EOInterface ../EOModeler
-include $(GNUSTEP_MAKEFILES)/aggregate.make
-
 APP_NAME = DBModeler
 DBModeler_SUBPROJECTS=Inspectors
 

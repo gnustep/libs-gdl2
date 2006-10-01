@@ -69,11 +69,11 @@ AC_SUBST(EOADAPTORS)
 AC_ARG_ENABLE(gorm-palette,
 	[  --disable-gorm-palette to disable building gorm palette], ,
 	enable_gorm_palette=yes)
-SUBPROJECTS=""
+GUI_SUBPROJECTS=""
 if test "$enable_gorm_palette" = "yes"; then
-  SUBPROJECTS="$SUBPROJECTS GDL2Palette"
+  GUI_SUBPROJECTS="$GUI_SUBPROJECTS GDL2Palette"
 fi
-AC_SUBST(SUBPROJECTS)
+AC_SUBST(GUI_SUBPROJECTS)
 
 #--------------------------------------------------------------------
 # Record the version
