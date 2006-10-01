@@ -1,0 +1,49 @@
+# SQLite3 Adaptor makefile for GNUstep Database Library.
+#
+#  Copyright (C) 2006 Free Software Foundation, Inc.
+#
+#  Author: Matt Rice <ratmice@yahoo.com>
+#
+#  This file is part of the GNUstep Database Library.
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Library General Public
+#  License as published by the Free Software Foundation; either
+#  version 2 of the License, or (at your option) any later version.
+#  
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Library General Public License for more details.
+#
+#  You should have received a copy of the GNU Library General Public
+#  License along with this library; see the file COPYING.LIB.
+#  If not, write to the Free Software Foundation, Inc.,
+#  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+include $(GNUSTEP_MAKEFILES)/common.make
+
+# Install into the System root by default
+GNUSTEP_INSTALLATION_DIR = $(GNUSTEP_SYSTEM_ROOT)
+
+ADDITIONAL_INCLUDE_DIRS+=@SQLITE3_INCLUDES@
+ADDITIONAL_LIB_DIRS+=@SQLITE3_LIB_DIRS@
+LIBRARIES_DEPEND_UPON+=@SQLITE3_LIBS@
+FRAMEWORK_NAME=SQLite3EOAdaptor
+
+ADDITIONAL_NATIVE_LIB_DIRS+=../EOControl ../EOAccess
+ADDITIONAL_NATIVE_LIBS+=EOControl EOAccess
+ADDITIONAL_INCLUDE_DIRS+=-I../../
+
+SQLite3EOAdaptor_PRINCIPAL_CLASS=SQLite3Adaptor
+SQLite3EOAdaptor_OBJC_FILES=SQLite3Adaptor.m \
+SQLite3Context.m SQLite3Expression.m \
+SQLite3Channel.m
+
+
+include ../../common.make
+include $(GNUSTEP_MAKEFILES)/framework.make
+-include Makefile.postamble
+
+after-distclean::
+	rm -rf GNUmakefile
