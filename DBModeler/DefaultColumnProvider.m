@@ -47,6 +47,10 @@
 static DefaultColumnProvider *_sharedDefaultColumnProvider;
 static NSMutableDictionary *_aspectsAndKeys;
 
+NSMutableArray *DefaultEntityColumns;
+NSMutableArray *DefaultAttributeColumns;
+NSMutableArray *DefaultRelationshipColumns;
+
 struct column_info {
   NSString *key;
   NSString *name;

@@ -26,9 +26,9 @@
 
 #include <EOModeler/EOModelerApp.h>
 
-NSMutableArray *DefaultAttributeColumns;
-NSMutableArray *DefaultEntityColumns;
-NSMutableArray *DefaultRelationshipColumns;
+extern NSMutableArray *DefaultAttributeColumns;
+extern NSMutableArray *DefaultEntityColumns;
+extern NSMutableArray *DefaultRelationshipColumns;
 
 @interface DefaultColumnProvider : NSObject <EOMColumnProvider>
 {

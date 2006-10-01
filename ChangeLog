@@ -20,6 +20,9 @@
 	* GDL2Palette/ResourceManager.m: enable the creation of parent
 	assocation when creating a EOMasterDetailDisplayGroup.
 
+	* DBModeler/DefaultColumnProvider.h/m: declare default columns as
+	extern.
+
 2006-09-28  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOSQLExpression.m
