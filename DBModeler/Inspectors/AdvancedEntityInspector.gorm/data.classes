@@ -4,12 +4,16 @@
 	Actions = (
 	    "setAbstractAction:",
 	    "setReadOnlyAction:",
-	    "setCachesObjectsAction:"
+	    "setCachesObjectsAction:",
+	    "entityAction:",
+	    "parentAction:"
 	);
 	Outlets = (
 	    abstract,
 	    readOnly,
-	    cachesObjects
+	    cachesObjects,
+	    entities,
+	    parent
 	);
 	Super = EOMInspector;
     };
@@ -24,8 +28,10 @@
     };
     FirstResponder = {
 	Actions = (
-	    "setCachesObjectsAction:",
+	    "entityAction:",
+	    "parentAction:",
 	    "setAbstractAction:",
+	    "setCachesObjectsAction:",
 	    "setReadOnlyAction:"
 	);
 	Super = NSObject;

@@ -56,10 +56,6 @@
 - (NSArray *) _associationClassesUsableWithObject:(id)anObject;
 @end
 
-/* TODO get notifications for IB{Will,Did}RemoveConnectorNotification
- * and remove the object from the _objectToAssociation map table if
- * there are no more connectors for it */
-
 @interface NSApplication(missingStuff)
 - (GormClassManager *)classManager;
 @end
@@ -182,6 +178,7 @@
   if (repObj == nil)
     {
       /* gorm specific... but couldn't find a public standard api replacement */
+      /* see bug #17822 */
       _keys = RETAIN([[NSApp classManager] allOutletsForObject:object]);
       _signatures = nil;
     }

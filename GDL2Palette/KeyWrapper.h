@@ -31,7 +31,8 @@ typedef enum KeyType
   ToOneRelationshipType		= 2,
   ToManyRelationshipType 	= 4,
   OtherType			= 8,
-  LocalType			= 16 
+  LocalType			= 16,
+  QueryType			= 32
 }KeyType;
 
 @interface KeyWrapper: NSObject

@@ -23,6 +23,13 @@
 	* DBModeler/DefaultColumnProvider.h/m: declare default columns as
 	extern.
 
+	* EOAccess/EOEntity.m (-addSubEntity:): Remove the child as a
+	sub-entity of its previous parent.
+	* DBModeler/Inspectors/AdvancedEntityInspector.[h,m,gorm]:
+	add ability to set parent entity.
+	* GDL2Palette/KeyWrapper.h: Add QueryType.
+	* GDL2Palette/ConnectionInspector.m: add/remove comments.
+
 2006-09-28  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOSQLExpression.m

@@ -2336,6 +2336,7 @@ createInstanceWithEditingContext:globalID:zone:
 {
   [self willChange];
   [_subEntities addObject: child];
+  [[child parentEntity] removeSubEntity:self];
   [child setParentEntity: self];
 }
 

@@ -22,17 +22,23 @@
 */
 #include <AppKit/NSNibDeclarations.h>
 #include <EOModeler/EOMInspector.h>
+
 @class NSButton;
+@class NSTableView;
 
 @interface AdvancedEntityInspector : EOMInspector
 {
   IBOutlet NSButton *abstract;
   IBOutlet NSButton *readOnly;
   IBOutlet NSButton *cachesObjects;
+  IBOutlet NSButton *parent;
+  IBOutlet NSTableView *entities;
 }
 
 - (IBAction) setAbstractAction:(id)sender;
 - (IBAction) setReadOnlyAction:(id)sender;
 - (IBAction) setCachesObjectsAction:(id)sender;
+- (IBAction) parentAction:(id)sender;
+- (IBAction) entityAction:(id)sender;
 @end
 
