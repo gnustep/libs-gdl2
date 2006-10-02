@@ -1,3 +1,11 @@
+2006-10-02  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/EOEntityPriv.h: Rename setParentEntity: to
+	_setParentEntity:.
+	* EOAccess/EOEntity.m (-addSubEntity:): Ditto.
+	(-removeSubEntity:): Ditto, and check that self is the parent before
+	setting to nil.
+
 2006-10-01  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAdaptors/SQLiteAdaptor/: Initial import of SQLite3 adaptor.

@@ -43,7 +43,7 @@
 - (BOOL)createsMutableObjects;
 
 - (void)_setModel: (EOModel *)model;
-- (void)setParentEntity: (EOEntity *)parent;
+- (void)_setParentEntity: (EOEntity *)parent;
 
 -(Class)_classForInstances;
 - (void)_setInternalInfo: (NSDictionary *)dictionary;

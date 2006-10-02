@@ -2337,13 +2337,14 @@ createInstanceWithEditingContext:globalID:zone:
   [self willChange];
   [_subEntities addObject: child];
   [[child parentEntity] removeSubEntity:self];
-  [child setParentEntity: self];
+  [child _setParentEntity: self];
 }
 
 - (void)removeSubEntity: (EOEntity *)child
 {
   [self willChange];
-  [child setParentEntity: nil];
+  if ([child parentEntity] == self)
+    [child _setParentEntity: nil];
   [_subEntities removeObject: child];
 }
 
@@ -2697,10 +2698,8 @@ createInstanceWithEditingContext:globalID:zone:
   _model = model;
 }
 
-/* TODO this method should probably be private.
-   it doesn't tell the parent we are a subEntity and since
-   -addSubEntity: calls it doing so would cause a recursive loop */
-- (void)setParentEntity: (EOEntity *)parent
+/* only for private usage of -addSubEntity: and -removeSubEntity: */
+- (void)_setParentEntity: (EOEntity *)parent
 {
   [self willChange]; // TODO: verify
   ASSIGN(_parent, parent);
