@@ -76,6 +76,7 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOModel.h>
+#include <EOAccess/EOModelGroup.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EORelationship.h>
@@ -356,7 +357,16 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 - (void)awakeWithPropertyList: (NSDictionary *)propertyList
 {
-  //do nothing?
+  NSString *tmp;
+  
+  if ((tmp = [propertyList objectForKey:@"parent"]))
+    {
+      EOEntity *parent = [_model entityNamed:tmp];
+      /* TODO tests for parents spanning models. */
+      if (!parent)
+        parent = [[_model modelGroup] entityNamed:tmp];
+      [parent addSubEntity:self];	
+    }
 }
 
 - (void)encodeIntoPropertyList: (NSMutableDictionary *)propertyList
@@ -388,6 +398,9 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   if (_flags.cachesObjects)
     [propertyList setObject: [NSNumber numberWithBool: _flags.cachesObjects]
                   forKey: @"cachesObjects"];
+  if (_parent)
+    [propertyList setObject: [_parent name]
+	    	  forKey: @"parent"];
 
   if ((count = [_attributes count]))
     {
@@ -499,6 +512,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   if ((self = [super init]))
     {
       _attributes = [GCMutableArray new];
+      _subEntities = [GCMutableArray new];
       [self setCreateMutableObjects: YES];
     }
 
@@ -2336,7 +2350,7 @@ createInstanceWithEditingContext:globalID:zone:
 {
   [self willChange];
   [_subEntities addObject: child];
-  [[child parentEntity] removeSubEntity:self];
+  [[child parentEntity] removeSubEntity:child];
   [child _setParentEntity: self];
 }
 

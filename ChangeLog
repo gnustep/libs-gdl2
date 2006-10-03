@@ -1,3 +1,14 @@
+2006-10-03  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/EOEntity.m (-awakeWithPropertyList:): Setup the connection
+	to the parent entity.
+	(-encodeIntoPropertyList:): Encode the parent entity name.
+	(-init): Initialize the _subEntities ivar.
+	(-addSubEntity:): Pass correct argument.
+	* EOAccess/EOModel.m (-encodeTableOfContentsIntoPropertyList:):
+	encode the parent entity name.
+	(-_addEntityWithPropertyList): Call -awakeWithPropertyList:
+
 2006-10-02  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOEntityPriv.h: Rename setParentEntity: to

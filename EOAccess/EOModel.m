@@ -885,12 +885,17 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     {
       NSMutableDictionary *entityPList;
       EOEntity *entity;
+      EOEntity *parent;
 
       entity = [_entities objectAtIndex: i];
       entityPList = [NSMutableDictionary dictionaryWithCapacity: 2];
 
       [entityPList setObject: [entity className] forKey: @"className"];
       [entityPList setObject: [entity name] forKey: @"name"];
+
+      parent = [entity parentEntity];
+      if (parent)
+        [entityPList setObject: [parent name] forKey: @"parent"];
 
       [entitiesArray addObject: entityPList];
     }
@@ -1336,6 +1341,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       //may be: self  _registerChild:(id)param0
       //             forParent:entity...
     }
+  [entity awakeWithPropertyList:propertyList];
 
   [[NSNotificationCenter defaultCenter]
     postNotificationName: @"EOEntityLoadedNotification"
