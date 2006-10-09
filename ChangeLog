@@ -1,3 +1,17 @@
+2006-10-09  Nicola Pero  <nicola.pero@meta-innovation.com>
+
+	* EOInterface/GNUmakefile: Do not set GNUSTEP_INSTALLATION_DIR.
+	* EOAccess/GNUmakefile: Same change.
+	* DBModeler/Inspectors/GNUmakefile: Same change.
+	* DBModeler/GNUmakefile: Same change.
+	* Tools/GNUmakefile: Same change.
+	* EOAdaptors/PostgreSQLAdaptor/GNUmakefile.in: Same change.
+	* EOAdaptors/SQLiteAdaptor/GNUmakefile.in: Same change.
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/GNUmakefile: Same change.
+	* EOControl/GNUmakefile: Same change.
+	* GDL2Palette/GNUmakefile: Same change.
+	* EOModeler/GNUmakefile: Same change.
+
 2006-10-09  Matt Rice  <ratmice@yahoo.com>
 
 	* DBModeler/Modeler.m: Add ability to change the editor.
@@ -14,7 +28,6 @@
 	* DBModeler/EntityView.{h,m}
 	* DBModeler/NSView+Additions.{h,m}: New files, initial implementation
 	of diagram editor.
-
 
 2006-10-03  Matt Rice  <ratmice@yahoo.com>
 
