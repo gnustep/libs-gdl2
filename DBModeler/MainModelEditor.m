@@ -153,26 +153,11 @@
 - (void)activateEmbeddedEditor:(EOModelerEmbedibleEditor *)editor
 {
   NSView *mainView = [editor mainView];
-  int i, count;
-  NSArray *subviews;
-   
-  subviews = [mainView subviews];
-  count = [subviews count];
-  [super activateEmbeddedEditor:editor];
-  for (i = 0; i < count; i++)
-    {
-      NSView *aView = [subviews objectAtIndex:i];
-      
-      [aView setAutoresizesSubviews:YES];
-      [aView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-    }
-  [mainView setAutoresizesSubviews:YES];
-  [mainView setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
   [mainView setFrame: [_editorView frame]];
-  
   [_vSplit replaceSubview:_editorView with:mainView];
   _editorView = mainView;
   [_editorView setNeedsDisplay:YES];
+  [super activateEmbeddedEditor:editor];
 }
 
 - (void)activateEditorWithClass:(Class)embedibleEditorClass

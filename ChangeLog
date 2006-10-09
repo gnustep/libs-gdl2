@@ -1,3 +1,21 @@
+2006-10-09  Matt Rice  <ratmice@yahoo.com>
+
+	* DBModeler/Modeler.m: Add ability to change the editor.
+	* DBModeler/MainModelerEditor.m (-activateEmbeddedEditor:): Don't
+	modify editors view subview resizing behaviour.
+	Dont call supers implementation until we have resized the subview.
+	* DBModeler/GNUmakefile: Add new files.
+	* DBModeler/Resources/Key_Diagram.tiff
+	* DBModeler/Resources/Locking_Diagram.tiff
+	* DBModeler/Resources/ClassProperty_Diagram.tiff
+	* DBModeler/AttributesCell.{h,m}
+	* DBModeler/DiagramView.{h,m} 
+	* DBModeler/DiagramEditor.{h,m}
+	* DBModeler/EntityView.{h,m}
+	* DBModeler/NSView+Additions.{h,m}: New files, initial implementation
+	of diagram editor.
+
+
 2006-10-03  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOEntity.m (-awakeWithPropertyList:): Setup the connection

@@ -201,6 +201,13 @@
                      action: @selector(generateSQL:)
               keyEquivalent: @""]; 
 
+  [subMenu addItemWithTitle: _(@"Table Editor")
+	  	     action: @selector(showEditor:)
+		     keyEquivalent:@""];
+
+  [subMenu addItemWithTitle: _(@"Diagram Editor")
+	  	     action: @selector(showEditor:)
+		     keyEquivalent:@""];
   [mainMenu setSubmenu:subMenu forItem:[mainMenu addItemWithTitle:_(@"Tools")]];
   [subMenu release];
 
@@ -235,6 +242,19 @@
   [NSApp setMainMenu: mainMenu];
   /* make this a default? */
   [EOModelerDocument setDefaultEditorClass: NSClassFromString(@"MainModelEditor")];
+}
+- (void) showEditor:(id)sender
+{
+  EOModelerCompoundEditor *ed = [EOMApp currentEditor];
+  
+  if ([[sender title] isEqual:_(@"Diagram Editor")])
+    {
+      [ed activateEmbeddedEditor: [ed embedibleEditorOfClass:NSClassFromString(@"DiagramEditor")]];
+    }
+  else if ([[sender title] isEqual:_(@"Table Editor")])
+    {
+      [ed activateEmbeddedEditor: [ed embedibleEditorOfClass:NSClassFromString(@"ModelerEntityEditor")]];
+    }
 }
 
 - (void) _newDocumentWithModel:(EOModel *)newModel

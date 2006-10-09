@@ -36,15 +36,18 @@ ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess ../EOControl ../EOInterface ../EOModeler
 ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOInterface EOModeler
 
 $(APP_NAME)_RESOURCE_FILES =			\
-	Resources/Key_On.tiff			\
-	Resources/ClassProperty_On.tiff 	\
 	Resources/ModelDrag.tiff		\
 	Resources/SQLGenerator.gorm		\
 	Resources/Info-gnustep.plist    	\
+	Resources/Key_Diagram.tiff		\
 	Resources/Key_Header.tiff		\
-	Resources/Locking_On.tiff		\
+	Resources/Key_On.tiff			\
+	Resources/Locking_Diagram.tiff		\
 	Resources/Locking_Header.tiff		\
+	Resources/Locking_On.tiff		\
+	Resources/ClassProperty_Diagram.tiff	\
 	Resources/ClassProperty_Header.tiff	\
+	Resources/ClassProperty_On.tiff 	\
 	Resources/Preferences.gorm		\
 	Resources/ConsistencyResults.gorm	\
 	Resources/DBModeler.tiff		\
@@ -65,7 +68,12 @@ $(APP_NAME)_OBJC_FILES =		\
 	SQLGenerator.m			\
 	ConsistencyResults.m		\
 	Preferences.m			\
-	ConsistencyChecker.m
+	ConsistencyChecker.m		\
+	DiagramView.m			\
+	AttributeCell.m			\
+	NSView+Additions.m		\
+	EntityView.m			\
+	DiagramEditor.m
 
 include ../common.make
 include $(GNUSTEP_MAKEFILES)/application.make
