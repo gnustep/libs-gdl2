@@ -582,41 +582,75 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
 - (NSStringEncoding)databaseEncoding
 {
-  NSString	   *encodingString=nil;
-  NSDictionary	   *encodingsDict = [self connectionDictionary];
-  const NSStringEncoding *availableEncodingsArray;
-  unsigned	    count = 0;
-  NSStringEncoding  availableEncodingValue;
-  NSString	   *availableEncodingString;
+  static NSDictionary *encodingDictionary = nil;
+  NSDictionary *connectionDictionary;
+  NSString *encodingName;
+  NSString *encodingValue;
+  NSStringEncoding stringEncoding;
   
   EOFLOGObjectFnStartOrCond2(@"AdaptorLevel",@"EOAdaptor");
-  
-  if (encodingsDict
-      && (encodingString = [encodingsDict objectForKey: @"databaseEncoding"]))
+
+  if (encodingDictionary == nil)
     {
-      availableEncodingsArray = [NSString availableStringEncodings];
-    
-      while (availableEncodingsArray[count] != 0)
-	{
-	  availableEncodingValue = availableEncodingsArray[count++];
+      /* This dictionary should be kept in sync with NSStringEncoding
+	 in NSString.h.  */
+      encodingDictionary = RETAIN([@"{"
+				    @"NSASCIIStringEncoding = 1;"
+				    @"NSNEXTSTEPStringEncoding = 2;"
+				    @"NSJapaneseEUCStringEncoding = 3;"
+				    @"NSUTF8StringEncoding = 4;"
+				    @"NSISOLatin1StringEncoding = 5;"
+				    @"NSSymbolStringEncoding = 6;"
+				    @"NSNonLossyASCIIStringEncoding = 7;"
+				    @"NSShiftJISStringEncoding = 8;"
+				    @"NSISOLatin2StringEncoding = 9;"
+				    @"NSUnicodeStringEncoding = 10;"
+				    @"NSWindowsCP1251StringEncoding = 11;"
+				    @"NSWindowsCP1252StringEncoding = 12;"
+				    @"NSWindowsCP1253StringEncoding = 13;"
+				    @"NSWindowsCP1254StringEncoding = 14;"
+				    @"NSWindowsCP1250StringEncoding = 15;"
+				    @"NSISO2022JPStringEncoding = 21;"
+				    @"NSMacOSRomanStringEncoding = 30;"
+				    @"NSProprietaryStringEncoding = 31;"
+				    @"NSKOI8RStringEncoding = 50;"
+				    @"NSISOLatin3StringEncoding = 51;"
+				    @"NSISOLatin4StringEncoding = 52;"
+				    @"NSISOCyrillicStringEncoding = 22;"
+				    @"NSISOArabicStringEncoding = 53;"
+				    @"NSISOGreekStringEncoding = 54;"
+				    @"NSISOHebrewStringEncoding = 55;"
+				    @"NSISOLatin5StringEncoding = 57;"
+				    @"NSISOLatin6StringEncoding = 58;"
+				    @"NSISOThaiStringEncoding = 59;"
+				    @"NSISOLatin7StringEncoding = 61;"
+				    @"NSISOLatin8StringEncoding = 62;"
+				    @"NSISOLatin9StringEncoding = 63;"
+				    @"NSGB2312StringEncoding = 56;"
+				    @"NSUTF7StringEncoding = 64;"
+				    @"NSGSM0338StringEncoding = 65;"
+				    @"NSBIG5StringEncoding = 66;"
+				    @"NSKoreanEUCStringEncoding = 67;"
+				    @"}" propertyList]);
+      
+    }
+  
+  connectionDictionary = [self connectionDictionary];
+  encodingName = [connectionDictionary objectForKey: @"databaseEncoding"];
+  encodingValue = [encodingDictionary objectForKey: @"encodingName"];
 
-	  availableEncodingString = GSEncodingName(availableEncodingValue);
-
-	  if (availableEncodingString)
-	    {
-	      if ([availableEncodingString isEqual: encodingString])
-		{
-		  EOFLOGObjectFnStopOrCond2(@"AdaptorLevel", @"EOAdaptor");
-
-		  return availableEncodingValue;
-		}
-	    }
-	}
+  if (encodingName == nil)
+    {
+      stringEncoding = [NSString defaultCStringEncoding];
+    }
+  else
+    {
+      stringEncoding = [encodingValue intValue];
     }
 
   EOFLOGObjectFnStopOrCond2(@"AdaptorLevel", @"EOAdaptor");
 
-  return [NSString defaultCStringEncoding];
+  return stringEncoding;
 }
 
 - (id)fetchedValueForValue: (id)value

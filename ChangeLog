@@ -1,3 +1,8 @@
+2006-10-13  David Ayers  <ayers@fsfe.org>
+
+	* EOAccess/EOAdaptor.m (databaseEncoding): Reimplement to not
+	rely on GSEncodingName.
+
 2006-10-09  Nicola Pero  <nicola.pero@meta-innovation.com>
 
 	* EOInterface/GNUmakefile: Do not set GNUSTEP_INSTALLATION_DIR.
