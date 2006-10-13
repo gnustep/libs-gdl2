@@ -637,7 +637,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   
   connectionDictionary = [self connectionDictionary];
   encodingName = [connectionDictionary objectForKey: @"databaseEncoding"];
-  encodingValue = [encodingDictionary objectForKey: @"encodingName"];
+  encodingValue = [encodingDictionary objectForKey: encodingName];
 
   if (encodingValue == nil)
     {
