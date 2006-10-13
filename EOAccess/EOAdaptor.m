@@ -639,7 +639,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   encodingName = [connectionDictionary objectForKey: @"databaseEncoding"];
   encodingValue = [encodingDictionary objectForKey: @"encodingName"];
 
-  if (encodingName == nil)
+  if (encodingValue == nil)
     {
       stringEncoding = [NSString defaultCStringEncoding];
     }
