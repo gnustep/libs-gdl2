@@ -250,20 +250,19 @@
       
     }
  */
-
-  if (indexOfLast != NSNotFound || indexOfLast != 1)
+  
+  if (indexOfLast == NSNotFound)
+    {
+      ASSIGN(_viewedObjectPath, [NSArray array]);
+      ASSIGN(_selectionWithinViewedObject, [NSArray array]); 
+    }
+  else 
     {
       allButLastElement.location = 0;
       allButLastElement.length = indexOfLast;
       
       ASSIGN(_viewedObjectPath, [newSelection subarrayWithRange:allButLastElement]);
       ASSIGN(_selectionWithinViewedObject, [newSelection lastObject]);
-    }
-  else
-    {
-      [[NSException exceptionWithName:@"foo" reason:@"bar" userInfo:nil] raise];
-      ASSIGN(_viewedObjectPath, [NSArray array]);
-      ASSIGN(_selectionWithinViewedObject, [NSArray array]); 
     }
 
   [self selectionDidChange];

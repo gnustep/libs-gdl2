@@ -31,16 +31,13 @@
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOModelGroup.h>
+#include <Foundation/NSArray.h>
 
 EOModelerApp *EOMApp;
 NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
 NSString *EOMPropertyPboardType = @"EOModelProperty";
 
 static EOModelerDocument *_activeDocument;
-
-@interface EOModel (Private)
-- (void) setCreateMutableObjects:(BOOL)flag;
-@end
 
 @implementation EOModelerApp : NSApplication
 
@@ -97,7 +94,6 @@ static EOModelerDocument *_activeDocument;
 - (EOModelerDocument *)loadDocumentAtPath:(NSString *)path
 {
   EOModel *loadedModel = [[EOModel alloc] initWithContentsOfFile:path];
-  [loadedModel setCreateMutableObjects:YES];
   [[EOModelGroup defaultGroup] addModel:loadedModel];
   EOModelerDocument *loadedDocument = [[EOModelerDocument alloc] initWithModel: loadedModel];
   [self addDocument: loadedDocument];
@@ -163,7 +159,6 @@ static EOModelerDocument *_activeDocument;
 + (EOModel *)modelWithPath:(NSString *)path
 {
   id _eom = [[EOModel alloc] initWithContentsOfFile:path];
-  [_eom setCreateMutableObjects:YES];
   [[EOModelGroup defaultGroup] addModel: _eom];
   return _eom;
 }

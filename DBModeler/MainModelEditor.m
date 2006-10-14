@@ -123,13 +123,15 @@
       [[_window contentView] addSubview:_vSplit];
       RELEASE(_vSplit);
       
-      /* so addEntity: addAttribute: ... menu items work */
+      /* so addEntity: addAttribute: ... menu items work, 
+       * and it gets close notifications */
       [_window setDelegate: document];
+
       [[NSNotificationCenter defaultCenter] addObserver: self
 	      	selector:@selector(ecStuff:)
 		name: EOObjectsChangedInEditingContextNotification
 		object: [[self document] editingContext]];
-	      
+      
       [self setViewedObjectPath:[NSArray arrayWithObject:[document model]]]; 
     }
   return self;

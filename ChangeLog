@@ -1,3 +1,18 @@
+2006-10-13  Matt Rice  <ratmice@yahoo.com>
+
+	* EOModeler/EOModelerDocument.m (-windowWillClose:): If document
+	owns the current editor, reset the seletion path, and unset the
+	current editor.
+	* EOModeler/EOModelerInspectorController.m (-selectionChanged:):
+	handle an empty selection path.
+	* EOModeler/EOModelerApp.m: Remove usage of 
+	EOModel -setCreatesMutableObjects:.
+	* EOModeler/EOModelerEditor.m
+	(EOModelerCompoundEditor -setSelectionPath:): Fix if statement which
+	always returned yes.
+	* DBModeler/MainModelEditor.m: Add more information to comment.
+	* EOModeler/EOModelerApp.h: Whitespace changes. 
+
 2006-10-13  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAdaptor.m (databaseEncoding): Reimplement to not

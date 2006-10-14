@@ -665,6 +665,14 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 
 - (void) windowWillClose:(NSNotification *)notif
 {
+  if ([_editors containsObject:[EOMApp currentEditor]])
+    {
+      // Clear inspected object.
+      [[EOMApp currentEditor] setSelectionPath:[NSArray array]];
+      // No longer current editor
+      [EOMApp setCurrentEditor:nil];
+    }
+  
   [EOMApp removeDocument:self];  
 }
 

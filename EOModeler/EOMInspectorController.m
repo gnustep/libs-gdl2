@@ -187,6 +187,8 @@ static NSMatrix *_iconBar;
     }
   else
     {
+      [[lastInspector view] removeFromSuperview];
+      lastInspector = nil;
       NSLog(@"no selection");
     }
 }

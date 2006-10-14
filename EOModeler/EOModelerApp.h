@@ -36,9 +36,11 @@
 @class NSMutableDictionary;
 @class EODisplayGroup;
 @class NSTableColumn;
+
 GDL2MODELER_EXPORT NSString *EOMSelectionChangedNotification;
 GDL2MODELER_EXPORT EOModelerApp *EOMApp;
 GDL2MODELER_EXPORT NSString *EOMPropertyPboardType;
+
 @protocol EOMColumnProvider
 - (void) initColumn:(NSTableColumn *)tableColumn
   class:(Class)objectClass
