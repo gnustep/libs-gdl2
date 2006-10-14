@@ -1,3 +1,8 @@
+2006-10-14  David Ayers  <ayers@fsfe.org>
+
+	* EOAccess/EOAdaptor.m (databaseEncoding): Use NSStringEncoding
+	enum symbols instead of literal values.
+	
 2006-10-13  Matt Rice  <ratmice@yahoo.com>
 
 	* EOModeler/EOModelerDocument.m (-windowWillClose:): If document
@@ -16,7 +21,7 @@
 2006-10-13  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAdaptor.m (databaseEncoding): Reimplement to not
-	rely on GSEncodingName.
+	rely in GSEncodingName.
 
 2006-10-09  Nicola Pero  <nicola.pero@meta-innovation.com>
 

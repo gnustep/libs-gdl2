@@ -96,6 +96,47 @@ NSString *EOConnectionDictionaryKey = @"EOConnectionDictionaryKey";
 NSString *EOAdministrativeConnectionDictionaryKey 
   = @"EOAdministrativeConnectionDictionaryKey";
 
+/* This mapping should be kept in sync with NSStringEncoding in NSString.h.  */
+static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
+  { @"NSASCIIStringEncoding",         NSASCIIStringEncoding },
+  { @"NSNEXTSTEPStringEncoding",      NSNEXTSTEPStringEncoding },
+  { @"NSJapaneseEUCStringEncoding",   NSJapaneseEUCStringEncoding },
+  { @"NSUTF8StringEncoding",          NSUTF8StringEncoding },
+  { @"NSISOLatin1StringEncoding",     NSISOLatin1StringEncoding },
+  { @"NSSymbolStringEncoding",        NSSymbolStringEncoding },
+  { @"NSNonLossyASCIIStringEncoding", NSNonLossyASCIIStringEncoding },
+  { @"NSShiftJISStringEncoding",      NSShiftJISStringEncoding },
+  { @"NSISOLatin2StringEncoding",     NSISOLatin2StringEncoding },
+  { @"NSUnicodeStringEncoding",       NSUnicodeStringEncoding },
+  { @"NSWindowsCP1251StringEncoding", NSWindowsCP1251StringEncoding },
+  { @"NSWindowsCP1252StringEncoding", NSWindowsCP1252StringEncoding },
+  { @"NSWindowsCP1253StringEncoding", NSWindowsCP1253StringEncoding },
+  { @"NSWindowsCP1254StringEncoding", NSWindowsCP1254StringEncoding },
+  { @"NSWindowsCP1250StringEncoding", NSWindowsCP1250StringEncoding },
+  { @"NSISO2022JPStringEncoding",     NSISO2022JPStringEncoding },
+  { @"NSMacOSRomanStringEncoding",    NSMacOSRomanStringEncoding },
+  { @"NSProprietaryStringEncoding",   NSProprietaryStringEncoding },
+  { @"NSKOI8RStringEncoding",         NSKOI8RStringEncoding }, 
+  { @"NSISOLatin3StringEncoding",     NSISOLatin3StringEncoding },
+  { @"NSISOLatin4StringEncoding",     NSISOLatin4StringEncoding },
+  { @"NSISOCyrillicStringEncoding",   NSISOCyrillicStringEncoding },
+  { @"NSISOArabicStringEncoding",     NSISOArabicStringEncoding },
+  { @"NSISOGreekStringEncoding",      NSISOGreekStringEncoding },
+  { @"NSISOHebrewStringEncoding",     NSISOHebrewStringEncoding },
+  { @"NSISOLatin5StringEncoding",     NSISOLatin5StringEncoding },
+  { @"NSISOLatin6StringEncoding",     NSISOLatin6StringEncoding },
+  { @"NSISOThaiStringEncoding",       NSISOThaiStringEncoding },
+  { @"NSISOLatin7StringEncoding",     NSISOLatin7StringEncoding },
+  { @"NSISOLatin8StringEncoding",     NSISOLatin8StringEncoding },
+  { @"NSISOLatin9StringEncoding",     NSISOLatin9StringEncoding },
+  { @"NSGB2312StringEncoding",        NSGB2312StringEncoding },
+  { @"NSUTF7StringEncoding",          NSUTF7StringEncoding },
+  { @"NSGSM0338StringEncoding",       NSGSM0338StringEncoding },
+  { @"NSBIG5StringEncoding",          NSBIG5StringEncoding },
+  { @"NSKoreanEUCStringEncoding",     NSKoreanEUCStringEncoding },
+  { nil, 0 }
+};
+
 @implementation EOAdaptor
 
 + (id)adaptorWithModel: (EOModel *)model
@@ -582,7 +623,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
 - (NSStringEncoding)databaseEncoding
 {
-  static NSDictionary *encodingDictionary = nil;
+  static NSMutableDictionary *encodingDictionary = nil;
   NSDictionary *connectionDictionary;
   NSString *encodingName;
   NSString *encodingValue;
@@ -592,47 +633,13 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
   if (encodingDictionary == nil)
     {
-      /* This dictionary should be kept in sync with NSStringEncoding
-	 in NSString.h.  */
-      encodingDictionary = RETAIN([@"{"
-				    @"NSASCIIStringEncoding = 1;"
-				    @"NSNEXTSTEPStringEncoding = 2;"
-				    @"NSJapaneseEUCStringEncoding = 3;"
-				    @"NSUTF8StringEncoding = 4;"
-				    @"NSISOLatin1StringEncoding = 5;"
-				    @"NSSymbolStringEncoding = 6;"
-				    @"NSNonLossyASCIIStringEncoding = 7;"
-				    @"NSShiftJISStringEncoding = 8;"
-				    @"NSISOLatin2StringEncoding = 9;"
-				    @"NSUnicodeStringEncoding = 10;"
-				    @"NSWindowsCP1251StringEncoding = 11;"
-				    @"NSWindowsCP1252StringEncoding = 12;"
-				    @"NSWindowsCP1253StringEncoding = 13;"
-				    @"NSWindowsCP1254StringEncoding = 14;"
-				    @"NSWindowsCP1250StringEncoding = 15;"
-				    @"NSISO2022JPStringEncoding = 21;"
-				    @"NSMacOSRomanStringEncoding = 30;"
-				    @"NSProprietaryStringEncoding = 31;"
-				    @"NSKOI8RStringEncoding = 50;"
-				    @"NSISOLatin3StringEncoding = 51;"
-				    @"NSISOLatin4StringEncoding = 52;"
-				    @"NSISOCyrillicStringEncoding = 22;"
-				    @"NSISOArabicStringEncoding = 53;"
-				    @"NSISOGreekStringEncoding = 54;"
-				    @"NSISOHebrewStringEncoding = 55;"
-				    @"NSISOLatin5StringEncoding = 57;"
-				    @"NSISOLatin6StringEncoding = 58;"
-				    @"NSISOThaiStringEncoding = 59;"
-				    @"NSISOLatin7StringEncoding = 61;"
-				    @"NSISOLatin8StringEncoding = 62;"
-				    @"NSISOLatin9StringEncoding = 63;"
-				    @"NSGB2312StringEncoding = 56;"
-				    @"NSUTF7StringEncoding = 64;"
-				    @"NSGSM0338StringEncoding = 65;"
-				    @"NSBIG5StringEncoding = 66;"
-				    @"NSKoreanEUCStringEncoding = 67;"
-				    @"}" propertyList]);
-      
+      unsigned int i;
+      encodingDictionary = [[NSMutableDictionary alloc] initWithCapacity: 64];
+      for (i = 0; encodingMap[i].name != nil; i++)
+	{
+	  NSNumber *val = [NSNumber numberWithInt: encodingMap[i].encoding];
+	  [encodingDictionary setObject: val forKey: encodingMap[i].name];
+	}      
     }
   
   connectionDictionary = [self connectionDictionary];
