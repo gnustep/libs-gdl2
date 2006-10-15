@@ -39,6 +39,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSException.h>
 #include <Foundation/NSEnumerator.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSArray.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -46,8 +47,6 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #endif
-
-#include <GNUstepBase/GCObject.h>
 
 #include <EOControl/EODebug.h>
 #include <EOControl/EOObserver.h>
@@ -70,32 +69,6 @@ RCS_ID("$Id$")
   return self;
 }
 
-- (void)gcDecrementRefCountOfContainedObjects
-{
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevel(@"gsdb", @"model gcDecrementRefCount");
-
-  [(id)_model gcDecrementRefCount];
-  [(id)_arguments gcDecrementRefCount];
-
-  EOFLOGObjectFnStop();
-}
-
-- (BOOL)gcIncrementRefCountOfContainedObjects
-{
-  if (![super gcIncrementRefCountOfContainedObjects])
-    return NO;
-
-  [(id)_model gcIncrementRefCount];
-  [(id)_arguments gcIncrementRefCount];
-
-  [(id)_model gcIncrementRefCountOfContainedObjects];
-  [(id)_arguments gcIncrementRefCountOfContainedObjects];
-
-  return YES;
-}
-
 + (EOStoredProcedure *)storedProcedureWithPropertyList: (NSDictionary *)propertyList 
                                                  owner: (id)owner
 {
@@ -109,7 +82,7 @@ RCS_ID("$Id$")
   NSEnumerator *enumerator;
   id attributePList;
 
-  _model = RETAIN(owner);
+  _model = owner;
 
   [self setName: [propertyList objectForKey: @"name"]];
   [self setExternalName: [propertyList objectForKey: @"externalName"]];
@@ -121,7 +94,7 @@ RCS_ID("$Id$")
   array = [propertyList objectForKey:@"attributes"];
   if ([array count])
     {
-      _arguments = [[GCMutableArray alloc] initWithCapacity: [array count]];
+      _arguments = [[NSMutableArray alloc] initWithCapacity: [array count]];
 
       enumerator = [array objectEnumerator];
       while ((attributePList = [enumerator nextObject]))
@@ -130,7 +103,7 @@ RCS_ID("$Id$")
 	    = [EOAttribute attributeWithPropertyList: attributePList
 			   owner: self];
 	  [attribute awakeWithPropertyList: attributePList];
-	  [(GCMutableArray *)_arguments addObject: attribute];
+	  [(NSMutableArray *)_arguments addObject: attribute];
         }
     }
 
@@ -236,11 +209,7 @@ RCS_ID("$Id$")
 - (void)setArguments: (NSArray *)arguments
 {
   [self willChange];
-  if ([arguments isKindOfClass: [GCArray class]]
-      || [arguments isKindOfClass: [GCMutableArray class]])
-    ASSIGN(_arguments, arguments);
-  else
-    _arguments = [[GCArray alloc] initWithArray: arguments];
+  ASSIGNCOPY(_arguments, arguments);
 }
 
 - (void)setUserInfo: (NSDictionary *)dictionary

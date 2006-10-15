@@ -34,8 +34,6 @@
 #include <Foundation/Foundation.h>
 #endif
 
-#include <GNUstepBase/GCObject.h>
-
 #include <EOControl/EOClassDescription.h>
 
 #include <EOAccess/EODefines.h>
@@ -59,7 +57,7 @@
 @class EOMKKDSubsetMapping;
 
 
-@interface EOEntity : GCObject <EOPropertyListEncoding>
+@interface EOEntity : NSObject <EOPropertyListEncoding>
 {
   NSString *_name;
   NSString *_className;
@@ -92,19 +90,19 @@
 
   /* Garbage collectable objects */
   EOModel *_model;
-  GCMutableArray *_attributes;
-  GCMutableDictionary *_attributesByName;
-  GCMutableArray *_relationships;
-  GCMutableDictionary *_relationshipsByName;	  // name/EORelationship
-  GCMutableArray *_primaryKeyAttributes;
-  GCMutableArray *_classProperties; 	  // EOAttribute/EORelationship
-  GCMutableArray *_attributesUsedForLocking;
-  GCMutableArray *_attributesToFetch;
-  GCMutableArray *_attributesToSave;
-  GCMutableArray *_propertiesToFault;
-  GCArray* _dbSnapshotKeys;
+  NSMutableArray *_attributes;
+  NSMutableDictionary *_attributesByName;
+  NSMutableArray *_relationships;
+  NSMutableDictionary *_relationshipsByName;	  // name/EORelationship
+  NSMutableArray *_primaryKeyAttributes;
+  NSMutableArray *_classProperties; 	  // EOAttribute/EORelationship
+  NSMutableArray *_attributesUsedForLocking;
+  NSMutableArray *_attributesToFetch;
+  NSMutableArray *_attributesToSave;
+  NSMutableArray *_propertiesToFault;
+  NSArray* _dbSnapshotKeys;
 
-  GCMutableArray *_subEntities;
+  NSMutableArray *_subEntities;
   EOEntity *_parent;
 
   struct {

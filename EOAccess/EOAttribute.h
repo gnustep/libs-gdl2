@@ -34,8 +34,6 @@
 #include <Foundation/Foundation.h>
 #endif
 
-#include <GNUstepBase/GCObject.h>
-
 #include <EOAccess/EOPropertyListEncoding.h>
 
 
@@ -71,7 +69,7 @@ typedef enum {
 } EOParameterDirection;
 
 
-@interface EOAttribute : GCObject <EOPropertyListEncoding>
+@interface EOAttribute : NSObject <EOPropertyListEncoding>
 {
   NSString *_name;
   NSString *_columnName;

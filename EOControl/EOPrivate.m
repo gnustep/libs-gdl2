@@ -588,8 +588,8 @@ static SEL eqSel;
   return GSIArrayItemAtIndex(_contents, 0).obj;
 }
 
-/* not only make it faster but work around buggy implementations in gnustep
- * with an extra release */
+/* not only make it faster but work around for old buggy implementations of
+ * NSArray in gnustep with an extra release */
 - (void) removeObject:(id)anObject
 {
   int index = GSIArrayCount(_contents);

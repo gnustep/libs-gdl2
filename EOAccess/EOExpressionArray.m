@@ -57,6 +57,9 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSObjCRuntime.h>
 #endif
 
+#define GSI_ARRAY_TYPES GSUNION_OBJ
+#include <GNUstepBase/GSIArray.h>
+
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOEntity.h>
@@ -64,17 +67,18 @@ RCS_ID("$Id$")
 #include <EOAccess/EORelationship.h>
 
 
+static SEL eqSel;
+
+@interface EOExpressionArray (PrivateExceptions)
+- (void) _raiseRangeExceptionWithIndex:(unsigned) index from:(SEL)selector;
+@end
+
+
 @implementation EOExpressionArray
 
 + (void) initialize
 {
-  static BOOL initialized = NO;
-
-  if (!initialized)
-    {
-      initialized = YES;
-      GSObjCAddClassBehavior(self, [GCArray class]);
-    }
+ eqSel = NSSelectorFromString(@"isEqual:"); 
 }
 
 + (EOExpressionArray*)expressionArray
@@ -82,16 +86,47 @@ RCS_ID("$Id$")
   return [[self new] autorelease];
 }
 
+- (void)dealloc
+{
+  DESTROY(_realAttribute); //TODO mettere nei metodi GC
+//  DESTROY(_definition);
+  DESTROY(_prefix);
+  DESTROY(_infix);
+  DESTROY(_suffix);
+  GSIArrayEmpty(_contents);
+  NSZoneFree([self zone], _contents);
+  [super dealloc];
+}
+
 - (id) init
 {
   EOFLOGObjectFnStart();
 
-  self = [super init];
+  self = [self initWithCapacity:0];
 
   EOFLOGObjectFnStop();
 
   return self;
 }
+
+/* designated initializer */
+- (id) initWithCapacity:(unsigned)capacity
+{
+  self = [super init];
+  _contents = NSZoneMalloc([self zone], sizeof(GSIArray_t));
+  _contents = GSIArrayInitWithZoneAndCapacity(_contents, [self zone], capacity);
+  return self;
+}
+
+- (id) initWithObjects:(id *)objects count:(unsigned)count
+{
+  int i;
+  self = [self initWithCapacity:count];
+  for (i = 0; i < count; i++)
+    GSIArrayAddItem(_contents, (GSIArrayItem)objects[i]);
+  return self;
+}
+
 
 + (EOExpressionArray*)expressionArrayWithPrefix: (NSString *)prefix
 					  infix: (NSString *)infix
@@ -118,17 +153,6 @@ RCS_ID("$Id$")
   EOFLOGObjectFnStop();
 
   return self;
-}
-
-- (void)dealloc
-{
-  DESTROY(_realAttribute); //TODO mettere nei metodi GC
-//  DESTROY(_definition);
-  DESTROY(_prefix);
-  DESTROY(_infix);
-  DESTROY(_suffix);
-
-  [super dealloc];
 }
 
 - (BOOL)referencesObject: (id)anObject
@@ -358,6 +382,133 @@ if it's a string return NO
 
   return value;
 }
+
+/* These are *this* subclasses responsibility */
+- (unsigned) count
+{
+  return GSIArrayCount(_contents);
+}
+
+- (id) objectAtIndex:(unsigned) index
+{
+  if (index >= GSIArrayCount(_contents))
+    [self _raiseRangeExceptionWithIndex:index from:_cmd];
+
+  return GSIArrayItemAtIndex(_contents, index).obj;
+}
+
+- (void) addObject:(id)object
+{
+  if (object == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+                  format: @"Attempt to add nil to an array"];
+      return;
+    }
+
+  GSIArrayAddItem(_contents, (GSIArrayItem)object);
+}
+
+- (void) replaceObjectAtIndex:(unsigned)index withObject:(id)object
+{
+  if (object == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+                  format: @"Attempt to add nil to an array"];
+      return;
+    }
+  else if (index >= GSIArrayCount(_contents))
+    {
+      [self _raiseRangeExceptionWithIndex:index from:_cmd];
+      return;
+    }
+   
+  GSIArraySetItemAtIndex(_contents, (GSIArrayItem)object, index);
+}
+
+- (void) insertObject:(id)object atIndex:(unsigned)index
+{
+  if (object == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+  		  format: @"Attempt to add nil to an array"];
+      return;
+    }
+  else if (index >= GSIArrayCount(_contents))
+    {
+      [self _raiseRangeExceptionWithIndex:index from:_cmd];
+    }
+  
+  GSIArrayInsertItem(_contents, (GSIArrayItem)object, index);
+}
+
+- (void) removeObjectAtIndex:(unsigned)index
+{
+  if (index >= GSIArrayCount(_contents))
+    {
+      [self _raiseRangeExceptionWithIndex:index from:_cmd];
+    }
+  GSIArrayRemoveItemAtIndex(_contents, index);
+}
+
+- (void) removeAllObjects
+{
+  GSIArrayRemoveAllItems(_contents);
+}
+
+/* might as well also implement because we can do it faster */
+- (id) lastObject
+{
+  return GSIArrayLastItem(_contents).obj;
+}
+
+- (id) firstObject
+{
+  if (GSIArrayCount(_contents) == 0)
+    return nil;
+  return GSIArrayItemAtIndex(_contents, 0).obj;
+}
+
+/* not only make it faster but work around for old buggy implementations of
+ * NSArray in gnustep with an extra release */
+- (void) removeObject:(id)anObject
+{
+  int index = GSIArrayCount(_contents);
+  BOOL (*eq)(id,SEL,id) 
+    = (BOOL (*)(id, SEL, id))[anObject methodForSelector:eqSel];
+  
+  /* iterate backwards, so that all objects equal to 'anObject'
+   * can safely be removed from the array while iterating. */
+  while (index-- > 0)
+    {
+      if ((*eq)(anObject, eqSel, GSIArrayItemAtIndex(_contents, index).obj))
+        {
+	  GSIArrayRemoveItemAtIndex(_contents, index);
+	}
+    }
+}
+
+/* private methods. */
+- (void) _raiseRangeExceptionWithIndex: (unsigned)index from: (SEL)sel
+{
+  NSDictionary *info;
+  NSException  *exception;
+  NSString     *reason;
+  unsigned     count = GSIArrayCount(_contents);
+
+  info = [NSDictionary dictionaryWithObjectsAndKeys:
+    [NSNumber numberWithUnsignedInt: index], @"Index",
+    [NSNumber numberWithUnsignedInt: count], @"Count",
+    self, @"Array", nil, nil];
+
+  reason = [NSString stringWithFormat: @"Index %d is out of range %d (in '%@')",    index, count, NSStringFromSelector(sel)];
+
+  exception = [NSException exceptionWithName: NSRangeException
+                                      reason: reason
+                                    userInfo: info];
+  [exception raise];
+}
+
 @end /* EOExpressionArray */
 
 

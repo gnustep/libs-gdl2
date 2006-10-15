@@ -1,3 +1,28 @@
+2006-10-14  Matt Rice  <ratmice@yahoo.com>
+
+        * EOAccess/EOAttribute.m: Remove usage of GCObject, and its subclasses.
+        * EOAccess/EOModelGroup.h: Ditto.
+        * EOAccess/EOStoredProcedure.m: Ditto.
+        * EOAccess/EOModelGroup.m: Ditto.
+        * EOAccess/EOExpressionArray.h: Ditto.
+        * EOAccess/EORelationship.h: Ditto.
+        * EOAccess/EOExpressionArray.m: Ditto.
+        * EOAccess/EOEntity.h: Ditto.
+        * EOAccess/EOEntity.m: Ditto.
+        * EOAccess/EOJoin.h: Ditto.
+        * EOAccess/EOModel.h: Ditto.
+        * EOAccess/EOAttribute.h: Ditto.
+        * EOAccess/EOAttributePriv.h: Ditto.
+        * EOAccess/EOJoin.m: Ditto.
+        * EOAccess/EORelationship.m: Ditto, and don't retain source and
+        * EOAccess/EOStoredProcedure.h: Ditto, and don't retain model.
+        * EOAccess/EOModel.m: Ditto.
+	(-addStoredProcedure:): Fix error when using non-mutable objects.
+        (-dealloc): Add missing ivars.
+	destination entities.
+	* EOAccess/GNUmakefile: Remove slash on last header file. 
+        * EOControl/EOPrivate.m: Update comment.
+
 2006-10-14  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAdaptor.m (databaseEncoding): Use NSStringEncoding

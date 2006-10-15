@@ -27,16 +27,13 @@
 #ifndef __EOJoin_h__
 #define __EOJoin_h__
 
-#include <GNUstepBase/GCObject.h>
-
-
 @class NSString;
 
 @class EOEntity;
 @class EOAttribute;
 
 
-@interface EOJoin : GCObject
+@interface EOJoin : NSObject
 {
   /* Garbage collectable objects */
   EOAttribute *_sourceAttribute;

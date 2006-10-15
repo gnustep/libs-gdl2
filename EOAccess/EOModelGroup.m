@@ -202,20 +202,6 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
   [super dealloc];
 }
 
-- (void)gcDecrementRefCountOfContainedObjects
-{
-  EOFLOGObjectFnStart();
-  EOFLOGObjectFnStop();
-}
-
-- (BOOL)gcIncrementRefCountOfContainedObjects
-{
-  if (![super gcIncrementRefCountOfContainedObjects])
-    return NO;
-
-  return YES;
-}
-
 - (NSArray *)models
 {
   return [_modelsByName allValues];

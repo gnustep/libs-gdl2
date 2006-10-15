@@ -34,9 +34,6 @@
 #include <Foundation/Foundation.h>
 #endif
 
-#include <GNUstepBase/GCObject.h>
-
-
 @class NSArray;
 
 @class EOAttribute;
@@ -52,13 +49,14 @@
 @end
 
 
-@interface EOExpressionArray : GCMutableArray
+@interface EOExpressionArray : NSMutableArray
 {
   NSString *_prefix;
   NSString *_infix;
   NSString *_suffix;
 //    NSString *_definition; it's rebuilt
   EOAttribute *_realAttribute;
+  void *_contents;
 
   struct
   {

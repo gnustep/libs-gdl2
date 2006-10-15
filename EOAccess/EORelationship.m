@@ -122,82 +122,6 @@ RCS_ID("$Id$")
   [super dealloc];
 }
 
-- (void)gcDecrementRefCountOfContainedObjects
-{
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@", self);
-
-  EOFLOGObjectLevel(@"EORelationship",
-		    @"definitionArray gcDecrementRefCount");
-  [(id)_definitionArray gcDecrementRefCount];
-
-  EOFLOGObjectLevel(@"EORelationship",
-		    @"_inverseRelationship gcDecrementRefCount");
-  [_inverseRelationship gcDecrementRefCount];
-
-  EOFLOGObjectLevel(@"EORelationship",
-		    @"_hiddenInverseRelationship gcDecrementRefCount");
-  [_hiddenInverseRelationship gcDecrementRefCount];
-
-  EOFLOGObjectLevel(@"EORelationship", @"_entity gcDecrementRefCount");
-  [_entity gcDecrementRefCount];
-
-  EOFLOGObjectLevel(@"EORelationship",
-		    @"_destination gcDecrementRefCount");
-  [_destination gcDecrementRefCount];
-
-  EOFLOGObjectLevelArgs(@"EORelationship",
-			@"_joins %p gcDecrementRefCount (class=%@)",
-			_joins, [_joins class]);
-  [(id)_joins gcDecrementRefCount];
-
-  EOFLOGObjectLevelArgs(@"EORelationship",
-			@"_sourceAttributes gcDecrementRefCount (class=%@)",
-			[_sourceAttributes class]);
-  [(id)_sourceAttributes gcDecrementRefCount];
-
-  EOFLOGObjectLevelArgs(@"EORelationship",
-			@"_destinationAttributes gcDecrementRefCount (class=%@)",
-			[_destinationAttributes class]);
-  [(id)_destinationAttributes gcDecrementRefCount];
-
-  EOFLOGObjectLevelArgs(@"EORelationship",
-			@"_componentRelationships gcDecrementRefCount (class=%@)",
-			[_componentRelationships class]);
-  [(id)_componentRelationships gcDecrementRefCount];
-
-  EOFLOGObjectFnStop();
-}
-
-- (BOOL)gcIncrementRefCountOfContainedObjects
-{
-  if (![super gcIncrementRefCountOfContainedObjects])
-    return NO;
-
-  [(id)_definitionArray gcIncrementRefCount];
-  [_inverseRelationship gcIncrementRefCount];
-  [_hiddenInverseRelationship gcIncrementRefCount];
-  [_entity gcIncrementRefCount];
-  [_destination gcIncrementRefCount];
-  [(id)_joins gcIncrementRefCount];
-  [(id)_sourceAttributes gcIncrementRefCount];
-  [(id)_destinationAttributes gcIncrementRefCount];
-  [(id)_componentRelationships gcIncrementRefCount];
-
-  [(id)_definitionArray gcIncrementRefCountOfContainedObjects];
-  [_inverseRelationship gcIncrementRefCountOfContainedObjects];
-  [_hiddenInverseRelationship gcIncrementRefCountOfContainedObjects];
-  [_entity gcIncrementRefCountOfContainedObjects];
-  [_destination gcIncrementRefCountOfContainedObjects];
-  [(id)_joins gcIncrementRefCountOfContainedObjects];
-  [(id)_sourceAttributes gcIncrementRefCountOfContainedObjects];
-  [(id)_destinationAttributes gcIncrementRefCountOfContainedObjects];
-  [(id)_componentRelationships gcIncrementRefCountOfContainedObjects];
-
-  return YES;
-}
-
 - (unsigned)hash
 {
   return [_name hash];
@@ -230,7 +154,7 @@ RCS_ID("$Id$")
       if (destinationEntityName) //If not, this is because it's a definition
         {
           destinationEntity = [model entityNamed: destinationEntityName];
-          ASSIGN(_destination, destinationEntity);
+          _destination = destinationEntity;
         }
 
       [self setToMany: [[propertyList objectForKey: @"isToMany"]
@@ -683,12 +607,12 @@ to know what to-many mean :-)  **/
     {
       int i, count = [_joins count];
 
-      _sourceAttributes = [GCMutableArray new];
+      _sourceAttributes = [NSMutableArray new];
 
       for (i = 0; i < count; i++)
         {
           EOJoin *join = [_joins objectAtIndex: i];
-          [(GCMutableArray*)_sourceAttributes addObject:
+          [(NSMutableArray*)_sourceAttributes addObject:
 			      [join sourceAttribute]];
         }
     }
@@ -703,13 +627,13 @@ to know what to-many mean :-)  **/
     {
       int i, count = [_joins count];
 
-      _destinationAttributes = [GCMutableArray new];
+      _destinationAttributes = [NSMutableArray new];
 
       for (i = 0; i < count; i++)
         {
           EOJoin *join = [_joins objectAtIndex: i];
 
-          [(GCMutableArray*)_destinationAttributes addObject:
+          [(NSMutableArray *)_destinationAttributes addObject:
 			      [join destinationAttribute]];
         }
     }
@@ -1340,7 +1264,7 @@ relationships. Nil if none" **/
       EOFLOGObjectLevelArgs(@"EORelationship", @"_definitionArray=%@", _definitionArray);
       EOFLOGObjectLevelArgs(@"EORelationship", @"[self definition]=%@", [self definition]);
 
-      DESTROY(_destination); //No ? Assign destination ?
+      _destination = nil;
 
       {        
         //TODO VERIFY
@@ -1382,9 +1306,12 @@ relationships. Nil if none" **/
     {
       [self _flushCache];
       [self willChange];
+      /* FIXME docs say we should... but currently -removeRelationship 
+       * calls us, so it would cause an infinite loop */
+      // [_entity removeRelationship:self];
       [_entity _setIsEdited];
       [entity _setIsEdited];
-      ASSIGN(_entity, entity);
+      _entity = entity;
     }
 }
 
@@ -1559,15 +1486,13 @@ relationships. Nil if none" **/
                 if ([self createsMutableObjects])
                   {
                     if (!_joins)
-                      _joins = [GCMutableArray new];
+                      _joins = [NSMutableArray new];
 
-                    [(GCMutableArray *)_joins addObject: join];      
+                    [(NSMutableArray *)_joins addObject: join];      
 
                     EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 					  _joins, [_joins class]);
 
-                    //NO: will be recomputed      [(GCMutableArray *)_sourceAttributes addObject:[join sourceAttribute]];
-                    //NO: will be recomputed      [(GCMutableArray *)_destinationAttributes addObject:[join destinationAttribute]];
                   }
                 else
                   {
@@ -1575,7 +1500,7 @@ relationships. Nil if none" **/
                       _joins = RETAIN([[_joins autorelease]
 				  arrayByAddingObject: join]);
                     else
-                      _joins = RETAIN([GCArray arrayWithObject: join]);
+                      _joins = RETAIN([NSArray arrayWithObject: join]);
 
                     EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 					  _joins, [_joins class]);
@@ -1619,7 +1544,7 @@ relationships. Nil if none" **/
       [self willChange];
       if ([self createsMutableObjects])
         {
-          [(GCMutableArray *)_joins removeObject: join];
+          [(NSMutableArray *)_joins removeObject: join];
 
           /*NO: will be recomputed      [(GCMutableArray *)_sourceAttributes
             removeObject:[join sourceAttribute]];
@@ -1632,9 +1557,9 @@ relationships. Nil if none" **/
         }
       else
         {
-	  GCMutableArray	*ma = [_joins mutableCopy];
-	  GCArray		*a = (GCArray *)_joins;
-
+	  NSMutableArray	*ma = [_joins mutableCopy];
+	  NSArray		*a = _joins;
+	  
 	  [ma removeObject: join];
 	  _joins = ma;
           [a release];
@@ -1810,7 +1735,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
         }
       else
         {
-          _joins = [[GCArray alloc] initWithArray:[_joins autorelease] copyItems:NO];
+          _joins = [[NSArray alloc] initWithArray:[_joins autorelease] copyItems:NO];
 
           EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 		       _joins, [_joins class]);
@@ -2445,12 +2370,12 @@ dst entity primaryKeyAttributeNames
           EOAttribute *destinationAttribute = [join destinationAttribute];
           EOEntity *destinationEntity = [destinationAttribute entity];
 
-          ASSIGN(_destination, destinationEntity);
+          _destination = destinationEntity;
         }
     }
   else
     {
-      DESTROY(_destination);
+      _destination = nil;
     }
 //_joins count
   //[self notImplemented:_cmd]; // TODO-NOW

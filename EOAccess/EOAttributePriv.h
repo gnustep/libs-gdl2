@@ -28,7 +28,7 @@
 #define __EOAttributePriv_h__
 
 @interface EOAttribute (EOAttributePrivate)
-- (GCMutableArray *)_definitionArray;
+- (NSMutableArray *)_definitionArray;
 
 - (void)setParent: (id)parent;
 - (EOAttribute *)realAttribute;

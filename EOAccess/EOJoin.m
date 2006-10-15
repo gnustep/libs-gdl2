@@ -72,46 +72,13 @@ RCS_ID("$Id$")
 {
   if ((self = [super init]))
     {
-      if (!source || !destination)
-        [NSException raise: NSInvalidArgumentException
-		     format: @"%@ -- %@ 0x%x: source and destination attributes can't be nil", 
-                     NSStringFromSelector(_cmd), 
-                     NSStringFromClass([self class]), 
-                     self];
-
+      NSAssert((source && destination), 
+	       @"Source and destination attributes cannot be nil");
       ASSIGN(_sourceAttribute, source);
       ASSIGN(_destinationAttribute, destination);
     }
 
   return self;
-}
-
-- (void)gcDecrementRefCountOfContainedObjects
-{
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevel(@"gsdb", @"sourceAttribute gcDecrementRefCount");
-
-  [_sourceAttribute gcDecrementRefCount];
-  EOFLOGObjectLevel(@"gsdb", @"destinationAttribute gcDecrementRefCount");
-
-  [_destinationAttribute gcDecrementRefCount];
-
-  EOFLOGObjectFnStop();
-}
-
-- (BOOL)gcIncrementRefCountOfContainedObjects
-{
-  if (![super gcIncrementRefCountOfContainedObjects])
-    return NO;
-
-  [_sourceAttribute gcIncrementRefCount];
-  [_destinationAttribute gcIncrementRefCount];
-  
-  [_sourceAttribute gcIncrementRefCountOfContainedObjects];
-  [_destinationAttribute gcIncrementRefCountOfContainedObjects];
-  
-  return YES;
 }
 
 - (unsigned)hash

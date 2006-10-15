@@ -511,8 +511,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   //OK
   if ((self = [super init]))
     {
-      _attributes = [GCMutableArray new];
-      _subEntities = [GCMutableArray new];
+      _attributes = [NSMutableArray new];
+      _subEntities = [NSMutableArray new];
       [self setCreateMutableObjects: YES];
     }
 
@@ -521,6 +521,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 - (void) dealloc
 {
+  DESTROY(_attributes);
   DESTROY(_name);
   DESTROY(_className);
   DESTROY(_externalName);
@@ -540,304 +541,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   DESTROY(_classForInstances);
 
   [super dealloc];
-}
-
-- (void) gcDecrementRefCountOfContainedObjects
-{
-  int where = 0;
-  NSProcessInfo *_processInfo = [NSProcessInfo processInfo];
-  NSMutableSet *_debugSet = [_processInfo debugSet];
-
-  [_debugSet addObject: @"gsdb"];
-
-  EOFLOGObjectFnStart();
-  EOFLOGObjectFnStart();
-
-  NS_DURING
-    {
-      where = 1;
-      EOFLOGObjectLevel(@"EOEntity", @"attributes gcDecrementRefCount");
-      if (!_flags.attributesIsLazy)
-        [(id)_attributes gcDecrementRefCount];
-
-      where = 2;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"propertiesToFault gcDecrementRefCount");
-      [(id)_attributesByName gcDecrementRefCount];
-
-      where = 3;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"attributesToFetch gcDecrementRefCount class=%@",
-			    [_attributesToFetch class]);
-      NSAssert3(!_attributesToFetch
-		|| [_attributesToFetch isKindOfClass: [NSArray class]],
-                @"entity %@ attributesToFetch is not an NSArray but a %@\n%@",
-                [self name],
-                [_attributesToFetch class],
-                _attributesToFetch);
-
-      [(id)_attributesToFetch gcDecrementRefCount];
-
-      NSAssert3(!_attributesToFetch
-		|| [_attributesToFetch isKindOfClass: [NSArray class]],
-                @"entity %@ attributesToFetch is not an NSArray but a %@\n%@",
-                [self name],
-                [_attributesToFetch class],
-                _attributesToFetch);
-
-      where = 4;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"attributesToSave gcDecrementRefCount (class=%@)",
-			    [_attributesToSave class]);
-      [(id)_attributesToSave gcDecrementRefCount];
-
-      where = 5;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"propertiesToFault gcDecrementRefCount");
-      [(id)_propertiesToFault gcDecrementRefCount];
-
-      where = 6;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"rrelationships gcDecrementRefCount");
-      if (!_flags.relationshipsIsLazy)
-        [(id)_relationships gcDecrementRefCount];
-
-      where = 7;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"relationshipsByName gcDecrementRefCount");
-      [(id)_relationshipsByName gcDecrementRefCount];
-
-      where = 8;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"primaryKeyAttributes gcDecrementRefCount");
-      if (!_flags.primaryKeyAttributesIsLazy)
-        [(id)_primaryKeyAttributes gcDecrementRefCount];
-
-      where = 9;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"classProperties gcDecrementRefCount");
-      if (!_flags.classPropertiesIsLazy)
-        [(id)_classProperties gcDecrementRefCount];
-
-      where = 10;
-      EOFLOGObjectLevelArgs(@"EOEntity",
-			    @"attributesUsedForLocking (%@) gcDecrementRefCount",
-			    [_attributesUsedForLocking class]);
-      if (!_flags.attributesUsedForLockingIsLazy)
-        [(id)_attributesUsedForLocking gcDecrementRefCount];
-
-      where = 11;
-      EOFLOGObjectLevel(@"EOEntity", @"subEntities gcDecrementRefCount");
-      [(id)_subEntities gcDecrementRefCount];
-
-      where = 12;
-      EOFLOGObjectLevel(@"EOEntity", @"dbSnapshotKeys gcDecrementRefCount");
-      [(id)_dbSnapshotKeys gcDecrementRefCount];
-
-      where = 13;
-      EOFLOGObjectLevel(@"EOEntity", @"_parent gcDecrementRefCount");
-      [_parent gcDecrementRefCount];
-    }
-  NS_HANDLER
-    {
-      NSLog(@"====>WHERE=%d %@ (%@)", where, localException,
-	    [localException reason]);
-      NSDebugMLog(@"attributesToFetch gcDecrementRefCount class=%@",
-		  [_attributesToFetch class]);
-
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-
-  EOFLOGObjectFnStop();
-
-  [_debugSet removeObject: @"gsdb"];
-}
-
-- (BOOL) gcIncrementRefCountOfContainedObjects
-{
-  int where = 0;
-  NSProcessInfo *_processInfo = [NSProcessInfo processInfo];
-  NSMutableSet *_debugSet = [_processInfo debugSet];
-
-  [_debugSet addObject: @"gsdb"];
-
-  EOFLOGObjectFnStart();
-  
-  if (![super gcIncrementRefCountOfContainedObjects])
-    {
-      EOFLOGObjectFnStop();
-      [_debugSet removeObject: @"gsdb"];
-
-      return NO;
-    }
-  NS_DURING
-    {
-      where = 1;
-      EOFLOGObjectLevel(@"EOEntity", @"model gcIncrementRefCount");
-      [_model gcIncrementRefCount];
-
-      where = 2;
-      EOFLOGObjectLevel(@"EOEntity", @"attributes gcIncrementRefCount");
-      if (!_flags.attributesIsLazy)
-        [(id)_attributes gcIncrementRefCount];
-
-      where = 3;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"attributesByName gcIncrementRefCount");
-      [(id)_attributesByName gcIncrementRefCount];
-
-      where = 4;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"attributesToFetch gcIncrementRefCount");
-      NSAssert3(!_attributesToFetch
-		|| [_attributesToFetch isKindOfClass: [NSArray class]],
-                @"entity %@ attributesToFetch is not an NSArray but a %@\n%@",
-                [self name],
-                [_attributesToFetch class],
-                _attributesToFetch);
-
-      [(id)_attributesToFetch gcIncrementRefCount];
-
-      NSAssert3(!_attributesToFetch
-		|| [_attributesToFetch isKindOfClass: [NSArray class]],
-                @"entity %@ attributesToFetch is not an NSArray but a %@\n%@",
-                [self name],
-                [_attributesToFetch class],
-                _attributesToFetch);
-
-      where = 5;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"attributesToSave gcIncrementRefCount");
-      [(id)_attributesToSave gcIncrementRefCount];
-
-      where = 6;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"propertiesToFault gcIncrementRefCount");
-      [(id)_propertiesToFault gcIncrementRefCount];
-
-      where = 7;
-      EOFLOGObjectLevel(@"EOEntity", @"relationships gcIncrementRefCount");
-      if (!_flags.relationshipsIsLazy)
-        [(id)_relationships gcIncrementRefCount];
-
-      where = 8;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"relationshipsByName gcIncrementRefCount");
-      [(id)_relationshipsByName gcIncrementRefCount];
-
-      where = 9;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"primaryKeyAttributes gcIncrementRefCount");
-      if (!_flags.primaryKeyAttributesIsLazy)
-        [(id)_primaryKeyAttributes gcIncrementRefCount];
-
-      where = 10;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"classProperties gcIncrementRefCount");
-      if (!_flags.classPropertiesIsLazy)
-        [(id)_classProperties gcIncrementRefCount];
-
-      where = 11;
-      EOFLOGObjectLevel(@"EOEntity",
-			@"attributesUsedForLocking gcIncrementRefCount");
-      if (!_flags.attributesUsedForLockingIsLazy)
-        [(id)_attributesUsedForLocking gcIncrementRefCount];
-
-      where = 12;
-      EOFLOGObjectLevel(@"EOEntity", @"subEntities gcIncrementRefCount");
-      [(id)_subEntities gcIncrementRefCount];
-
-      where = 13;
-      EOFLOGObjectLevel(@"EOEntity", @"dbSnapshotKeys gcIncrementRefCount");
-      [(id)_dbSnapshotKeys gcIncrementRefCount];
-
-      where = 14;
-      EOFLOGObjectLevel(@"EOEntity", @"parent gcIncrementRefCount");
-      [_parent gcIncrementRefCount];
-
-      where = 15;
-      [_model gcIncrementRefCountOfContainedObjects];
-
-      where = 16;
-      EOFLOGObjectLevel(@"EOEntity", @"attributes gcIncrementRefCountOfContainedObjects");
-      if (!_flags.attributesIsLazy)
-        [(id)_attributes gcIncrementRefCountOfContainedObjects];
-
-      where = 17;
-      EOFLOGObjectLevel(@"EOEntity", @"attributesByName gcIncrementRefCountOfContainedObjects");
-      [(id)_attributesByName gcIncrementRefCountOfContainedObjects];
-
-      where = 18;
-      EOFLOGObjectLevel(@"EOEntity", @"attributesToFetch gcIncrementRefCountOfContainedObjects");
-      [(id)_attributesToFetch gcIncrementRefCountOfContainedObjects];
-
-      where = 19;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"attributesToSave gcIncrementRefCountOfContainedObjects (class=%@)",
-			    [_attributesToSave class]);
-      [(id)_attributesToSave gcIncrementRefCountOfContainedObjects];
-
-      where = 20;
-      EOFLOGObjectLevel(@"EOEntity", @"propertiesToFault gcIncrementRefCountOfContainedObjects");
-      [(id)_propertiesToFault gcIncrementRefCountOfContainedObjects];
-
-      where = 21;
-      EOFLOGObjectLevel(@"EOEntity", @"rrelationships gcIncrementRefCountOfContainedObjects");
-      if (!_flags.relationshipsIsLazy)
-        [(id)_relationships gcIncrementRefCountOfContainedObjects];
-
-      where = 22;
-      EOFLOGObjectLevel(@"EOEntity", @"relationshipsByName gcIncrementRefCountOfContainedObjects");
-      [(id)_relationshipsByName gcIncrementRefCountOfContainedObjects];
-
-      where = 23;
-      EOFLOGObjectLevel(@"EOEntity", @"primaryKeyAttributes gcIncrementRefCountOfContainedObjects");
-      if (!_flags.primaryKeyAttributesIsLazy)
-        [(id)_primaryKeyAttributes gcIncrementRefCountOfContainedObjects];
-
-      where = 24;
-      EOFLOGObjectLevel(@"EOEntity", @"classProperties gcIncrementRefCountOfContainedObjects");
-      if (!_flags.classPropertiesIsLazy)
-        [(id)_classProperties gcIncrementRefCountOfContainedObjects];
-
-      where = 25;
-      EOFLOGObjectLevelArgs(@"EOEntity", @"attributesUsedForLocking (%@) gcIncrementRefCountOfContainedObjects",
-			    [_attributesUsedForLocking class]);
-      if (!_flags.attributesUsedForLockingIsLazy)
-        [(id)_attributesUsedForLocking gcIncrementRefCountOfContainedObjects];
-
-      where = 26;
-      EOFLOGObjectLevel(@"EOEntity", @"subEntities gcIncrementRefCountOfContainedObjects");
-      [(id)_subEntities gcIncrementRefCountOfContainedObjects];
-
-      where = 27;
-      EOFLOGObjectLevel(@"EOEntity", @"dbSnapshotKeys gcIncrementRefCountOfContainedObjects");
-      [(id)_dbSnapshotKeys gcIncrementRefCountOfContainedObjects];
-
-      where = 28;
-      EOFLOGObjectLevel(@"EOEntity", @"_parent gcIncrementRefCountOfContainedObjects");
-      [_parent gcIncrementRefCountOfContainedObjects];
-
-      where = 29;
-    }
-  NS_HANDLER
-    {
-      NSLog(@"====>WHERE=%d %@ (%@)", where, localException,
-	    [localException reason]);
-      NSDebugMLog(@"attributes gcIncrementRefCountOfContainedObjects=%@",
-		  [_attributes class]);
-      NSDebugMLog(@"_attributes classes %@",
-		  [_attributes resultsOfPerformingSelector: @selector(class)]);
-
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-
-  EOFLOGObjectFnStop();
-
-  [_debugSet removeObject: @"gsdb"];
-
-  return YES;
 }
 
 - (NSString *)description
@@ -952,8 +655,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           DESTROY(_attributes);
           DESTROY(_attributesByName);
 
-          _attributes = [GCMutableArray new];
-          _attributesByName = [GCMutableDictionary new];
+          _attributes = [NSMutableArray new];
+          _attributesByName = [NSMutableDictionary new];
 
           NSAssert2((!_attributesByName
 		     || [_attributesByName isKindOfClass: GDL2_NSDictionaryClass]),
@@ -1209,8 +912,8 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           DESTROY(_relationshipsByName);
 
-          _relationships = [GCMutableArray new];
-          _relationshipsByName = [GCMutableDictionary new];
+          _relationships = [NSMutableArray new];
+          _relationshipsByName = [NSMutableDictionary new];
 
           if (!_flags.attributesIsLazy)
             {
@@ -1409,7 +1112,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           NSArray *classPropertiesList = _classProperties;
           int i;
 
-          _classProperties = [GCMutableArray new];
+          _classProperties = [NSMutableArray new];
           _flags.classPropertiesIsLazy = NO;
 
           for (i = 0; i < count; i++)
@@ -1523,7 +1226,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           int i = 0;
           NSArray *primaryKeyAttributes = _primaryKeyAttributes;
 
-          _primaryKeyAttributes = [GCMutableArray new];
+          _primaryKeyAttributes = [NSMutableArray new];
           _flags.primaryKeyAttributesIsLazy = NO;
 
           for (i = 0; i < count; i++)
@@ -1589,7 +1292,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           int i = 0;
           NSArray *attributesUsedForLocking = _attributesUsedForLocking;
 
-          _attributesUsedForLocking = [GCMutableArray new];
+          _attributesUsedForLocking = [NSMutableArray new];
           _flags.attributesUsedForLockingIsLazy = NO;
 
           for (i = 0; i < count; i++)
@@ -1990,7 +1693,7 @@ createInstanceWithEditingContext:globalID:zone:
 
   if (_attributesByName == nil)
     {
-      _attributesByName = [GCMutableDictionary new];
+      _attributesByName = [NSMutableDictionary new];
     }
   [_attributesByName setObject: attribute forKey: attributeName];
 
@@ -2024,29 +1727,29 @@ createInstanceWithEditingContext:globalID:zone:
       else
         {
           _attributes
-	    = [[GCMutableArray alloc] initWithArray:AUTORELEASE(_attributes)
+	    = [[NSMutableArray alloc] initWithArray:AUTORELEASE(_attributes)
 				      copyItems:NO];
 	  [_attributes removeObject: attribute];
 	  _attributes 
-	    = [[GCArray alloc] initWithArray:AUTORELEASE(_attributes)
+	    = [[NSArray alloc] initWithArray:AUTORELEASE(_attributes)
 			       copyItems:NO];
 	  if ([_classProperties containsObject:attribute])
 	    {
-	      _classProperties = [[GCMutableArray alloc]
+	      _classProperties = [[NSMutableArray alloc]
 				    initWithArray:AUTORELEASE(_classProperties)
 					copyItems:NO];
 	      [_classProperties removeObject: attribute];
-	      _classProperties = [[GCArray alloc]
+	      _classProperties = [[NSArray alloc]
 		  		    initWithArray:AUTORELEASE(_classProperties)
 					copyItems:NO];
 	    }
 	  if ([_primaryKeyAttributes containsObject:attribute])
 	    {
-              _primaryKeyAttributes = [[GCMutableArray alloc]
+              _primaryKeyAttributes = [[NSMutableArray alloc]
                                initWithArray:AUTORELEASE(_primaryKeyAttributes)
                                    copyItems:NO];
               [_primaryKeyAttributes removeObject: attribute];
-              _primaryKeyAttributes = [[GCArray alloc]
+              _primaryKeyAttributes = [[NSArray alloc]
                                initWithArray:AUTORELEASE(_primaryKeyAttributes)
                                    copyItems:NO]; 
 	    }
@@ -2089,7 +1792,7 @@ createInstanceWithEditingContext:globalID:zone:
     
   if (_relationshipsByName == nil)
     {
-      _relationshipsByName = [GCMutableDictionary new];
+      _relationshipsByName = [NSMutableDictionary new];
     }
   [_relationshipsByName setObject: relationship forKey: relationshipName];
   
@@ -2124,17 +1827,17 @@ createInstanceWithEditingContext:globalID:zone:
       else
         {
           _relationships
-	    = [[GCMutableArray alloc] initWithArray:AUTORELEASE(_relationships)
+	    = [[NSMutableArray alloc] initWithArray:AUTORELEASE(_relationships)
 				      copyItems:NO];
 	  [_relationships removeObject: relationship];
 	  _relationships
-	    = [[GCArray alloc] initWithArray:AUTORELEASE(_relationships)
+	    = [[NSArray alloc] initWithArray:AUTORELEASE(_relationships)
 			       copyItems:NO];
-	  _classProperties = [[GCMutableArray alloc]
+	  _classProperties = [[NSMutableArray alloc]
 		  		initWithArray:AUTORELEASE(_classProperties)
 				    copyItems:NO];
 	  [_classProperties removeObject: relationship];
-	  _classProperties = [[GCArray alloc]
+	  _classProperties = [[NSArray alloc]
 		  		initWithArray:AUTORELEASE(_classProperties)
 		  		    copyItems:NO];
         }
@@ -2215,11 +1918,8 @@ createInstanceWithEditingContext:globalID:zone:
 
   [self willChange];
   DESTROY(_classProperties);
-  if ([properties isKindOfClass:[GCArray class]]
-      || [properties isKindOfClass: [GCMutableArray class]])
-    _classProperties = [[GCMutableArray alloc] initWithArray: properties];
-  else
-    _classProperties = [[GCMutableArray alloc] initWithArray: properties]; //TODO
+    
+  _classProperties = [[NSMutableArray alloc] initWithArray: properties]; //TODO
 
   [self _setIsEdited]; //To clean cache
 
@@ -2236,12 +1936,7 @@ createInstanceWithEditingContext:globalID:zone:
 
   [self willChange];
   DESTROY(_primaryKeyAttributes);
-
-  if ([keys isKindOfClass:[GCArray class]]
-      || [keys isKindOfClass: [GCMutableArray class]])
-    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys];
-  else
-    _primaryKeyAttributes = [[GCMutableArray alloc] initWithArray: keys]; // TODO
+  _primaryKeyAttributes = [[NSMutableArray alloc] initWithArray: keys]; // TODO
   
   [self _setIsEdited];//To clean cache
 
@@ -2259,12 +1954,7 @@ createInstanceWithEditingContext:globalID:zone:
   [self willChange];
   DESTROY(_attributesUsedForLocking);
   
-  if ([attributes isKindOfClass: [GCArray class]]   // TODO
-      || [attributes isKindOfClass: [GCMutableArray class]])
-    _attributesUsedForLocking = [[GCMutableArray alloc]
-				  initWithArray: attributes];
-  else
-    _attributesUsedForLocking = [[GCMutableArray alloc]
+  _attributesUsedForLocking = [[NSMutableArray alloc]
 				  initWithArray: attributes];
   
   [self _setIsEdited]; //To clean cache
@@ -2656,19 +2346,19 @@ createInstanceWithEditingContext:globalID:zone:
   if (_flags.createsMutableObjects)
     {
       _attributes
-	= [[GCMutableArray alloc] initWithArray:AUTORELEASE(_attributes)
+	= [[NSMutableArray alloc] initWithArray:AUTORELEASE(_attributes)
 				  copyItems:NO];
       _relationships
-	= [[GCMutableArray alloc] initWithArray:AUTORELEASE(_relationships)
+	= [[NSMutableArray alloc] initWithArray:AUTORELEASE(_relationships)
 				  copyItems:NO];
     }
   else
     {
       _attributes
-	= [[GCArray alloc] initWithArray:AUTORELEASE(_attributes)
+	= [[NSArray alloc] initWithArray:AUTORELEASE(_attributes)
 			   copyItems:NO];
       _relationships
-	= [[GCArray alloc] initWithArray:AUTORELEASE(_relationships)
+	= [[NSArray alloc] initWithArray:AUTORELEASE(_relationships)
 			   copyItems:NO];
     }
 
@@ -3403,7 +3093,7 @@ returns nil if there's no key in the instanceDictionaryInitializer
     {
       NSArray *attributesToFetch = [self _attributesToFetch];
       int i, count = [attributesToFetch count];
-      NSMutableArray *attributesToSave = [GCMutableArray arrayWithCapacity:count];
+      NSMutableArray *attributesToSave = [NSMutableArray arrayWithCapacity:count];
 
       NSAssert3(!attributesToFetch
 		|| [attributesToFetch isKindOfClass: [NSArray class]],
@@ -3458,7 +3148,7 @@ returns nil if there's no key in the instanceDictionaryInitializer
                                 [self classProperties],
                                 [self relationships] };
 
-          _attributesToFetch = RETAIN([GCMutableArray array]);
+          _attributesToFetch = RETAIN([NSMutableArray array]);
           
           EOFLOGObjectLevelArgs(@"EOEntity", @"Entity %@ - _attributesToFetch %p [RC=%d]:%@",
                                 [self name],
@@ -3937,7 +3627,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
       NSArray *classProperties = [self classProperties];
       int count = [classProperties count];
 
-      _classPropertyAttributeNames = [NSMutableArray new]; //or GC ?
+      _classPropertyAttributeNames = [NSMutableArray new]; 
       
       for (i = 0; i < count; i++)
         {
@@ -3964,7 +3654,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
       int i, count = [classProperties count];
       Class relClass = [EORelationship class];
 
-      _classPropertyToManyRelationshipNames = [NSMutableArray new]; //or GC ?
+      _classPropertyToManyRelationshipNames = [NSMutableArray new];
 
       for (i = 0; i < count; i++)
         {
@@ -4069,7 +3759,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
                 attributesToFetch);
 
       ASSIGN(_dbSnapshotKeys,
-             [GCArray arrayWithArray: [attributesToFetch
+             [NSArray arrayWithArray: [attributesToFetch
 					resultsOfPerformingSelector:
 					  @selector(name)]]);
     }

@@ -390,42 +390,6 @@ RCS_ID("$Id$")
   [super dealloc];
 }
 
-- (void)gcDecrementRefCountOfContainedObjects
-{
-  EOFLOGObjectFnStart();
-
-  [_parent gcDecrementRefCount];
-  EOFLOGObjectLevel(@"gsdb", @"prototype gcDecrementRefCount");
-
-  [_prototype gcDecrementRefCount];
-  EOFLOGObjectLevel(@"gsdb", @"definitionArray gcDecrementRefCount");
-
-  [(id)_definitionArray gcDecrementRefCount];
-  EOFLOGObjectLevel(@"gsdb", @"realAttribute gcDecrementRefCount");
-
-  [_realAttribute gcDecrementRefCount];
-
-  EOFLOGObjectFnStop();
-}
-
-- (BOOL)gcIncrementRefCountOfContainedObjects
-{
-  if (![super gcIncrementRefCountOfContainedObjects])
-    return NO;
-
-  [_parent gcIncrementRefCount];
-  [_prototype gcIncrementRefCount];
-  [(id)_definitionArray gcIncrementRefCount];
-  [_realAttribute gcIncrementRefCount];
-
-  [_parent gcIncrementRefCountOfContainedObjects];
-  [_prototype gcIncrementRefCountOfContainedObjects];
-  [(id)_definitionArray gcIncrementRefCountOfContainedObjects];
-  [_realAttribute gcIncrementRefCountOfContainedObjects];
-  
-  return YES;
-}
-
 - (unsigned)hash
 {
   return [_name hash];
@@ -453,7 +417,7 @@ RCS_ID("$Id$")
   return dscr;
 }
 
-/* We override GCObjects default implementation
+/* We override NSObjects default implementation
    as attributes cannot be copied */
 - (id)copyWithZone:(NSZone *)zone
 {
@@ -1890,7 +1854,7 @@ More details:
   return _realAttribute;
 }
 
-- (GCMutableArray *)_definitionArray
+- (NSMutableArray *)_definitionArray
 {
   return _definitionArray;
 }

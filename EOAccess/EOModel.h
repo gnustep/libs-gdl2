@@ -33,7 +33,6 @@
 #else
 #include <Foundation/Foundation.h>
 #endif
-#include <GNUstepBase/GCObject.h>
 
 #include <EOAccess/EODefines.h>
 #include <EOAccess/EOPropertyListEncoding.h>
@@ -49,7 +48,7 @@
 @class EOStoredProcedure;
 
 
-@interface EOModel : GCObject
+@interface EOModel : NSObject
 {
   NSString *_name;
   NSString *_path;
@@ -65,11 +64,11 @@
   /* Garbage collectable objects */
   EOModelGroup *_group;
 
-  GCArray *_entities;
-  GCMutableDictionary *_entitiesByName;
-  GCMutableArray *_storedProcedures;
-  GCMutableDictionary *_subEntitiesCache;
-  //GCMutableDictionary *_prototypesByName;
+  NSArray *_entities;
+  NSMutableDictionary *_entitiesByName;
+  NSMutableArray *_storedProcedures;
+  NSMutableDictionary *_subEntitiesCache;
+  //NSMutableDictionary *_prototypesByName;
   struct
   {
     BOOL createsMutableObjects:1;

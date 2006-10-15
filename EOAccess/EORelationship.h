@@ -27,8 +27,6 @@
 #ifndef __EORelationship_h__
 #define __EORelationship_h__
 
-#include <GNUstepBase/GCObject.h>
-
 #include <EOControl/EOClassDescription.h>
 
 #include <EOAccess/EOJoin.h>
@@ -58,7 +56,7 @@ typedef enum {
 } EOJoinSemantic;
 
 
-@interface EORelationship : GCObject <EOPropertyListEncoding>
+@interface EORelationship : NSObject <EOPropertyListEncoding>
 {
   NSString *_name;
   EOQualifier *_qualifier;
@@ -90,14 +88,14 @@ typedef enum {
   EORelationship *_inverseRelationship;
   EORelationship *_hiddenInverseRelationship;
 
-  EOEntity *_entity;
-  EOEntity *_destination;
-  GCMutableArray *_joins;
+  EOEntity *_entity; // unretained
+  EOEntity *_destination; // unretained
+  NSMutableArray *_joins;
 
   /* Computed values */
-  GCArray *_sourceAttributes;
-  GCArray *_destinationAttributes;
-  GCMutableArray *_componentRelationships;//Used ????
+  NSArray *_sourceAttributes;
+  NSArray *_destinationAttributes;
+  NSMutableArray *_componentRelationships;//Used ????
 }
 
 + (id)relationshipWithPropertyList: (NSDictionary *)propertyList

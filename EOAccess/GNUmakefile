@@ -84,7 +84,7 @@ EOSchemaGeneration.h \
 EOUtilities.h \
 EODefines.h \
 EODeprecated.h \
-EOAccess.h \
+EOAccess.h
 
 
 DOCUMENT_NAME = EOAccess

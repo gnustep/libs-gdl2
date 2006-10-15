@@ -27,8 +27,6 @@
 #ifndef __EOModelGroup_h__
 #define __EOModelGroup_h__
 
-#include <GNUstepBase/GCObject.h>
-
 #include <EOControl/EOObjectStoreCoordinator.h>
 
 #include <EOAccess/EODefines.h>
@@ -48,7 +46,7 @@
 @class EOFetchSpecification;
 
 
-@interface EOModelGroup : GCObject
+@interface EOModelGroup : NSObject
 {
   NSMutableDictionary *_modelsByName;
   id _delegate;

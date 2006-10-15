@@ -211,12 +211,12 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       _version = DEFAULT_MODEL_VERSION;
       _flags.createsMutableObjects = YES;
       
-      _entitiesByName = [GCMutableDictionary new];
+      _entitiesByName = [NSMutableDictionary new];
       _entitiesByClass = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, 
 						  NSObjectMapValueCallBacks,
 						  8,
 						  [self zone]);
-      _storedProcedures = [GCMutableArray new];
+      _storedProcedures = [NSMutableArray new];
   
       [[NSNotificationCenter defaultCenter]
         addObserver: self
@@ -254,7 +254,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       NSFreeMapTable(_entitiesByClass);
       _entitiesByClass = NULL;
     }
-
+  DESTROY(_storedProcedures);
+  DESTROY(_entitiesByName);
+  DESTROY(_entities);
   DESTROY(_name);
   DESTROY(_path);
   DESTROY(_adaptorName);
@@ -264,47 +266,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   DESTROY(_docComment);
 
   [super dealloc];
-}
-
-- (void) gcDecrementRefCountOfContainedObjects
-{
-  EOFLOGObjectFnStart();
-
-  [(id)_group gcDecrementRefCount];
-  EOFLOGObjectLevel(@"gsdb", @"entities gcDecrementRefCount");
-
-  [(id)_entities gcDecrementRefCount];
-  EOFLOGObjectLevel(@"gsdb", @"entitiesByName gcDecrementRefCount");
-
-  [(id)_entitiesByName gcDecrementRefCount];
-  EOFLOGObjectLevel(@"gsdb", @"storedProcedures gcDecrementRefCount");
-
-  [(id)_storedProcedures gcDecrementRefCount];
-  EOFLOGObjectLevel(@"gsdb", @"subEntitiesCache gcDecrementRefCount");
-
-  [(id)_subEntitiesCache gcDecrementRefCount];
-
-  EOFLOGObjectFnStop();
-}
-
-- (BOOL) gcIncrementRefCountOfContainedObjects
-{
-  if (![super gcIncrementRefCountOfContainedObjects])
-    return NO;
-
-  [(id)_group gcIncrementRefCount];
-  [(id)_entities gcIncrementRefCount];
-  [(id)_entitiesByName gcIncrementRefCount];
-  [(id)_storedProcedures gcIncrementRefCount];
-  [(id)_subEntitiesCache gcIncrementRefCount];
-
-  [(id)_group gcIncrementRefCountOfContainedObjects];
-  [(id)_entities gcIncrementRefCountOfContainedObjects];
-  [(id)_entitiesByName gcIncrementRefCountOfContainedObjects];
-  [(id)_storedProcedures gcIncrementRefCountOfContainedObjects];
-  [(id)_subEntitiesCache gcIncrementRefCountOfContainedObjects];
-
-  return YES;
 }
 
 - (NSString*) path
@@ -1482,10 +1443,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   [self willChange];
   /* Do not access _entities until cache is triggered */
   if ([self createsMutableObjects])
-    [(GCMutableArray *)[self entities] addObject: entity];
+    [(NSMutableArray *)[self entities] addObject: entity];
   else
     {
-      id e = [GCMutableArray arrayWithArray: [self entities]];
+      id e = [NSMutableArray arrayWithArray: [self entities]];
 
       [e addObject: entity];
       ASSIGNCOPY(_entities, e);
@@ -1523,10 +1484,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
   /* Do not access _entities until cache is triggered */
   if ([self createsMutableObjects])
-    [(GCMutableArray *)[self entities] removeObject: entity];
+    [(NSMutableArray *)[self entities] removeObject: entity];
   else
     {
-      id e = [GCMutableArray arrayWithArray: [self entities]];
+      id e = [NSMutableArray arrayWithArray: [self entities]];
 
       [e removeObject: entity];
       ASSIGNCOPY(_entities, e);
@@ -1551,14 +1512,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSAssert(_storedProcedures, @"Uninitialised _storedProcedures!");
   [self willChange];
   if ([self createsMutableObjects])
-    [(GCMutableArray *)_storedProcedures addObject: storedProcedure];
+    [(NSMutableArray *)_storedProcedures addObject: storedProcedure];
   else
     {
-      NSMutableArray *mCopy = AUTORELEASE([_storedProcedures mutableCopy]);
-      [mCopy removeObject: storedProcedure];
-      mCopy = AUTORELEASE([[GCArray alloc] initWithArray: mCopy
-					   copyItems: NO]);
-      ASSIGN(_storedProcedures, mCopy);
+      _storedProcedures = RETAIN([AUTORELEASE(_storedProcedures) arrayByAddingObject:storedProcedure]);
     }
 }
 
@@ -1568,12 +1525,12 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
   [self willChange];
   if ([self createsMutableObjects])
-    [(GCMutableArray *)_storedProcedures removeObject: storedProcedure];
+    [(NSMutableArray *)_storedProcedures removeObject: storedProcedure];
   else
     {
       NSMutableArray *mCopy = AUTORELEASE([_storedProcedures mutableCopy]);
       [mCopy removeObject: storedProcedure];
-      mCopy = AUTORELEASE([[GCArray alloc] initWithArray: mCopy
+      mCopy = AUTORELEASE([[NSArray alloc] initWithArray: mCopy
 					   copyItems: NO]);
       ASSIGN(_storedProcedures, mCopy);
     }
@@ -1792,12 +1749,12 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       /* Do not access _entities until cache is triggered */
       if (_flags.createsMutableObjects)
 	{
-	  entityArray = [[GCMutableArray alloc] initWithArray: entityArray
+	  entityArray = [[NSMutableArray alloc] initWithArray: entityArray
 						copyItems:NO];
 	}
       else
 	{
-	  entityArray = [[GCArray alloc] initWithArray: entityArray
+	  entityArray = [[NSArray alloc] initWithArray: entityArray
 					 copyItems:NO];
 	}
       ASSIGN(_entities, entityArray);
@@ -1901,12 +1858,12 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSString *className;
   unsigned int i,c;
 
-  DESTROY(_entitiesByName);
   DESTROY(_subEntitiesCache);
   NSResetMapTable(_entitiesByClass);
 
   names = [_entities valueForKey: @"name"];
-  _entitiesByName = [[GCMutableDictionary alloc] initWithObjects: _entities
+  DESTROY(_entitiesByName);
+  _entitiesByName = [[NSMutableDictionary alloc] initWithObjects: _entities
 						 forKeys: names];
   for (i = 0, c = [_entities count]; i < c; i++)
     {
@@ -1916,3 +1873,4 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
 }
 @end /* EOModel (EOModelPrivate) */
+
