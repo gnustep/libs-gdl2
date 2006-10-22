@@ -31,6 +31,8 @@
 #include "../EOControl/EOPrivate.h"
 
 @class EODatabaseContext;
+GDL2ACCESS_EXPORT NSString *GDL2EntityWillDeallocateNotification;
+GDL2ACCESS_EXPORT NSString  *GDL2ModelWillDeallocateNotification;
 
 // ==== Classes ====
 GDL2ACCESS_EXPORT Class GDL2_EODatabaseContextClass;

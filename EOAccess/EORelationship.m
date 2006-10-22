@@ -43,6 +43,8 @@ RCS_ID("$Id$")
 #include <Foundation/NSUtilities.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSValue.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -102,6 +104,11 @@ RCS_ID("$Id$")
       _sourceToDestinationKeyMap = [NSDictionary new];
       _joins = [GCMutableArray new];
 */
+      [[NSNotificationCenter defaultCenter]
+	      addObserver:self
+	      selector:@selector(_entityWillDeallocate:)
+	      name:GDL2EntityWillDeallocateNotification
+	      object:nil];
     }
 
   return self;
@@ -109,6 +116,7 @@ RCS_ID("$Id$")
 
 - (void)dealloc
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
   DESTROY(_name);
   DESTROY(_qualifier);
   DESTROY(_sourceNames);
@@ -2385,6 +2393,20 @@ attr entity
 */
 
   EOFLOGObjectFnStop();
+}
+
+- (void) _entityWillDeallocate:(NSNotification *)notif
+{
+  id entity = [[notif object] pointerValue];
+  
+  if (entity == _entity)
+    {
+      _entity = nil;
+    }
+  if (entity == _destination)
+    {
+      _destination = nil;
+    }
 }
 
 @end

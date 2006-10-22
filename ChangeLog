@@ -1,3 +1,12 @@
+2006-10-22  Matt Rice  <ratmice@yahoo.com>
+
+	* EOAccess/EOPrivate.h: Add notification constants. 
+	* EOAccess/EOAttribute.m: Observe EOEntity's notification.
+	* EOAccess/EORelationship.m: Observe EOEntity's notification.
+	* EOAccess/EOModel.m: Post notification when deallocating.
+	* EOAccess/EOEntity.m: Post notification when deallocating, and
+	observe EOModels notification.
+
 2006-10-14  Matt Rice  <ratmice@yahoo.com>
 
         * EOAccess/EOAttribute.m: Remove usage of GCObject, and its subclasses.

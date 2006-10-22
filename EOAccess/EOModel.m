@@ -83,6 +83,7 @@ RCS_ID("$Id$")
 #define DEFAULT_MODEL_VERSION 2
 
 NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
+NSString *GDL2ModelWillDeallocateNotification = @"GDL2ModelWillDeallocateNotification";
 
 @interface EOModel (EOModelPrivate)
 
@@ -248,6 +249,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 - (void) dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver: self];
+  [[NSNotificationCenter defaultCenter] 
+	  postNotificationName:GDL2ModelWillDeallocateNotification
+	  object:[NSValue valueWithPointer:self]];
 
   if (_entitiesByClass)
     {
