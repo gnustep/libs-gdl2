@@ -574,6 +574,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
 - (void) dealloc
 {
+  [_subEntities makeObjectsPerform:@selector(_setParentEntity:) withObject:nil];
   [_attributes makeObjectsPerform:@selector(setParent:) withObject:nil];
   [_relationships makeObjectsPerform:@selector(setEntity:) withObject:nil];
   // this must come after _attributes is cleared.
@@ -607,7 +608,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   DESTROY(_hiddenRelationships);
   DESTROY(_internalInfo);
   DESTROY(_name);
-  DESTROY(_parent);
   DESTROY(_primaryKeyAttributes);
   DESTROY(_primaryKeyAttributeNames);
   DESTROY(_propertiesToFault); // never initialized?
@@ -2485,7 +2485,7 @@ createInstanceWithEditingContext:globalID:zone:
 - (void)_setParentEntity: (EOEntity *)parent
 {
   [self willChange]; // TODO: verify
-  ASSIGN(_parent, parent);
+  _parent = parent;
 }
 
 - (NSDictionary *)snapshotForRow: (NSDictionary *)aRow
