@@ -53,7 +53,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSValue.h>
 #include <Foundation/NSCalendarDate.h>
 #include <Foundation/NSDebug.h>
-#include <Foundation/NSNotification.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -100,24 +99,6 @@ RCS_ID("$Id$")
 {
   return [[[self alloc] initWithPropertyList: propertyList
 			owner: owner] autorelease];
-}
-- (id) init
-{
-  if ((self = [super init]))
-    {
-      [[NSNotificationCenter defaultCenter]
-	  addObserver:self
-	  selector:@selector(_entityWillDeallocate:)
-	  name:GDL2EntityWillDeallocateNotification
-	  object:nil];
-    }
-  return self;
-}
-
-- (void) _entityWillDeallocate:(NSNotification *)notif
-{
-   if (_parent == [[notif object] pointerValue])
-    _parent = nil; 
 }
 
 - (id) initWithPropertyList: (NSDictionary *)propertyList
@@ -390,7 +371,6 @@ RCS_ID("$Id$")
 
 - (void)dealloc
 {
-  [[NSNotificationCenter defaultCenter] removeObserver:self];
   DESTROY(_name);
   DESTROY(_prototype);
   DESTROY(_columnName);

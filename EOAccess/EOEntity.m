@@ -53,7 +53,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSAutoreleasePool.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
-#include <Foundation/NSNotification.h>
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSZone.h>
 #else
@@ -87,9 +86,6 @@ RCS_ID("$Id$")
 #include "EOPrivate.h"
 #include "EOEntityPriv.h"
 #include "EOAttributePriv.h"
-
-NSString *GDL2EntityWillDeallocateNotification =
-		@"GDL2EntityWillDeallocateNotification";
 
 @interface EOModel (Privat)
 - (void)_updateCache;
@@ -518,27 +514,13 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       _attributes = [NSMutableArray new];
       _subEntities = [NSMutableArray new];
       [self setCreateMutableObjects: YES];
-      [[NSNotificationCenter defaultCenter]
-	      addObserver:self
-	      selector:@selector(_modelWillDeallocate:)
-	      name:GDL2ModelWillDeallocateNotification
-	      object:nil];
     }
 
   return self;
 }
 
-- (void) _modelWillDeallocate:(NSNotification *)notif
-{
-  if (_model == [[notif object] pointerValue])
-    _model = nil;
-}
-
 - (void) dealloc
 {
-  [[NSNotificationCenter defaultCenter]
-	  	postNotificationName:GDL2EntityWillDeallocateNotification
-			object:[NSValue valueWithPointer:self]];
   DESTROY(_attributes);
   DESTROY(_name);
   DESTROY(_className);
