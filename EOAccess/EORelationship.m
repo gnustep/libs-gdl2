@@ -154,6 +154,9 @@ RCS_ID("$Id$")
       if (destinationEntityName) //If not, this is because it's a definition
         {
           destinationEntity = [model entityNamed: destinationEntityName];
+
+	  GDL2DestinationEntitiesRemoveRelationship(_destination, self);
+	  GDL2DestinationEntitiesAddRelationship(destinationEntity, self);
           _destination = destinationEntity;
         }
 
@@ -1264,6 +1267,7 @@ relationships. Nil if none" **/
       EOFLOGObjectLevelArgs(@"EORelationship", @"_definitionArray=%@", _definitionArray);
       EOFLOGObjectLevelArgs(@"EORelationship", @"[self definition]=%@", [self definition]);
 
+      GDL2DestinationEntitiesRemoveRelationship(_destination, self);
       _destination = nil;
 
       {        
@@ -2370,6 +2374,8 @@ dst entity primaryKeyAttributeNames
           EOAttribute *destinationAttribute = [join destinationAttribute];
           EOEntity *destinationEntity = [destinationAttribute entity];
 
+	  GDL2DestinationEntitiesRemoveRelationship(_destination, self);
+	  GDL2DestinationEntitiesAddRelationship(destinationEntity, self);
           _destination = destinationEntity;
         }
     }

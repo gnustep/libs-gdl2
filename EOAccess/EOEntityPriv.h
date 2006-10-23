@@ -34,6 +34,8 @@
 @class EOExpressionArray;
 @class EOSQLExpression;
 
+GDL2ACCESS_EXPORT void GDL2DestinationEntitiesAddRelationship(EOEntity *entity, EORelationship *relationship);
+GDL2ACCESS_EXPORT void GDL2DestinationEntitiesRemoveRelationship(EOEntity *entity, EORelationship *relationship);
 
 @interface EOEntity (EOEntityPrivate)
 

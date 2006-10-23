@@ -248,7 +248,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 - (void) dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver: self];
-
+  [[self entities] makeObjectsPerformSelector:@selector(_setModel:)
+	  			withObject:nil];
   if (_entitiesByClass)
     {
       NSFreeMapTable(_entitiesByClass);

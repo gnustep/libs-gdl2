@@ -1,6 +1,16 @@
 2006-10-23  Matt Rice  <ratmice@yahoo.com>
 	
 	* EOAccess: Revert previous changes.
+	
+	* EOAccess/EOModel.m (-dealloc): Set entities model to nil.
+	* EOAccess/EOEntityPriv.h: Add functions for maintining list of 
+	relationships and their destination entities.
+	* EOAccess/EOEntity.m: Implement new functions.
+	(-dealloc:): Set attributes entities, and relationships source and
+	destinations entities to nil.
+	(+initialize:): Initialize static map table.
+	* EOAccess/EORelationship.m: Call functions to maintain destination
+	entities.
 
 2006-10-22  Matt Rice  <ratmice@yahoo.com>
 
