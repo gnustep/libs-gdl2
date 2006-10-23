@@ -12,6 +12,9 @@
 	* EOAccess/EORelationship.m: Call functions to maintain destination
 	entities.
 
+	* EOAccess/EOEntity.m (-dealloc): Add missing calls to release,
+	reorganize.
+
 2006-10-22  Matt Rice  <ratmice@yahoo.com>
 
 	* EOAccess/EOPrivate.h: Add notification constants. 

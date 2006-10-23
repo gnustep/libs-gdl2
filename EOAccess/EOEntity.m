@@ -579,26 +579,45 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   // this must come after _attributes is cleared.
   GDL2DestinationEntitiesRemoveEntity(self);
 
-  DESTROY(_relationshipsByName);
-  DESTROY(_relationships);
-  DESTROY(_attributes);
-  DESTROY(_name);
-  DESTROY(_className);
-  DESTROY(_externalName);
-  DESTROY(_externalQuery);
-  DESTROY(_userInfo);
-  DESTROY(_docComment);
-  DESTROY(_fetchSpecificationDictionary);
-  DESTROY(_primaryKeyAttributeNames);
-  DESTROY(_classPropertyNames);
-  DESTROY(_classDescription);
   DESTROY(_adaptorDictionaryInitializer);
-  DESTROY(_snapshotDictionaryInitializer);
+  DESTROY(_instanceDictionaryInitializer);
   DESTROY(_primaryKeyDictionaryInitializer);
   DESTROY(_propertyDictionaryInitializer);
-  DESTROY(_instanceDictionaryInitializer);
-  DESTROY(_snapshotToAdaptorRowSubsetMapping);
+  DESTROY(_snapshotDictionaryInitializer);
+  
+  DESTROY(_attributes);
+  DESTROY(_attributesByName);
+  DESTROY(_attributesToFetch);
+  DESTROY(_attributesToSave);
+  DESTROY(_attributesUsedForLocking);
+  DESTROY(_classDescription);
   DESTROY(_classForInstances);
+  DESTROY(_className);
+  DESTROY(_classProperties);
+  DESTROY(_classPropertyAttributeNames);
+  DESTROY(_classPropertyNames);
+  DESTROY(_classPropertyToManyRelationshipNames);
+  DESTROY(_classPropertyToOneRelationshipNames);
+  DESTROY(_dbSnapshotKeys);
+  DESTROY(_docComment);
+  DESTROY(_externalName);
+  DESTROY(_externalQuery);
+  DESTROY(_fetchSpecificationDictionary);
+  DESTROY(_fetchSpecificationNames);
+  DESTROY(_hiddenRelationships);
+  DESTROY(_internalInfo);
+  DESTROY(_name);
+  DESTROY(_parent);
+  DESTROY(_primaryKeyAttributes);
+  DESTROY(_primaryKeyAttributeNames);
+  DESTROY(_propertiesToFault); // never initialized?
+  DESTROY(_restrictingQualifier);
+  DESTROY(_relationships);
+  DESTROY(_relationshipsByName);
+  DESTROY(_storedProcedures); // never initialized?
+  DESTROY(_snapshotToAdaptorRowSubsetMapping);
+  DESTROY(_subEntities);
+  DESTROY(_userInfo);
 
   [super dealloc];
 }
