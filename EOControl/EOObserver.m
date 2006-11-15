@@ -105,7 +105,7 @@ static id lastObject;
 + (void)initialize
 {
   observersMap = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
-				  NSNonOwnedPointerMapValueCallBacks,
+				  NSObjectMapValueCallBacks,
 				  32);
   omniscientObservers = [[GDL2NonRetainingMutableArray alloc] initWithCapacity:32];
   lastObject = nil;
@@ -137,6 +137,7 @@ static id lastObject;
 	 of the observer to remove the object before it ceases
 	 to exist.  */ 
       NSMapInsert(observersMap, object, observersArray);
+      RELEASE(observersArray);
     }
   else
     {
