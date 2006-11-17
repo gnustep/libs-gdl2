@@ -97,7 +97,7 @@ RCS_ID("$Id$")
 @implementation EOObserverCenter
 
 static NSMapTable *observersMap = NULL;
-static GDL2NonRetainingMutableArray *omniscientObservers = NULL;
+static NSHashTable *omniscientHash = NULL;
 static unsigned int notificationSuppressCount=0;
 static id lastObject;
 
@@ -105,47 +105,52 @@ static id lastObject;
 + (void)initialize
 {
   observersMap = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
-				  NSObjectMapValueCallBacks,
+				  NSNonOwnedPointerMapValueCallBacks,
 				  32);
-  omniscientObservers = [[GDL2NonRetainingMutableArray alloc] initWithCapacity:32];
+  omniscientHash = NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 0);
   lastObject = nil;
 
   notificationSuppressCount = 0;
 }
 
 /**
+ * <p>
  * Adds the observer to be notified with a [EOObserving-objectWillChange:] 
  * on the first of consecutive [NSObject-willChange] methods invoked on
- * the object.  This does not retain the object.  It is the observers
+ * the object.
+ * <p>
+ * This does not retain the object.  It is the observers
  * responsibility to unregister the object with [-removeObserver:forObject:]
  * before the object ceases to exist.
  * The observer is also not retained.  It is the observers responsibility
  * to unregister before it ceases to exist.
+ * </p>
+ * <p>
+ * Both observer and object equality are considered equal through pointer
+ * equality, so an observer observing multiple objects considered -isEqual:
+ * will recieve multiple observer notifications,<br>
+ * objects considered -isEqual may contain different sets of observers,
+ * and an object can have multiple observers considered -isEqual:.
+ * </p>
  */
 + (void)addObserver: (id <EOObserving>)observer forObject: (id)object
 {
-  GDL2NonRetainingMutableArray *observersArray;
+  NSHashTable *observersHash;
 
-  observersArray = NSMapGet(observersMap, object);
+  if (observer == nil || object == nil)
+    return;
+  
+  observersHash = NSMapGet(observersMap, object);
 
-  if (observersArray == nil)
+  if (observersHash == NULL)
     {
-      observersArray = [[GDL2NonRetainingMutableArray alloc] initWithCapacity:16];
-      [observersArray addObject: observer];
-
-      /* The object is not retained.  It is the responsibility
-	 of the observer to remove the object before it ceases
-	 to exist.  */ 
-      NSMapInsert(observersMap, object, observersArray);
-      RELEASE(observersArray);
+      observersHash = NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 0);
+      NSMapInsert(observersMap, object, observersHash);
+      NSHashInsert(observersHash, observer);
     }
   else
     {
-      if (![observersArray containsObject:observer])
-	[observersArray addObject:observer];
-      else
-	NSDebugMLog(@"Observer: %@ for object: %@(%p) added multiple times.",
-		    observer, NSStringFromClass(GSObjCClass(object)), object);
+      NSHashInsertIfAbsent(observersHash, observer);
     }
 }
 
@@ -155,20 +160,21 @@ static id lastObject;
  */
 + (void)removeObserver: (id <EOObserving>)observer forObject: (id)object
 {
-  GDL2NonRetainingMutableArray *observersArray;
+  NSHashTable *observersHash;
 
-  observersArray = NSMapGet(observersMap, object);
+  if (observer == nil || object == nil)
+    return;
 
-  if (observersArray)
+  observersHash = NSMapGet(observersMap, object);
+
+  if (observersHash)
     {
-      [observersArray removeObject: observer];
-      
-      if (![observersArray count])
+      NSHashRemove(observersHash, observer);
+
+      if (NSCountHashTable(observersHash) == 0)
         {
+	  NSFreeHashTable(observersHash);
           NSMapRemove(observersMap, object);
-	  /* The object is not released.  It is the responsibility
-	     of the observer to remove the object before it ceases 
-	     to exist.  */ 
         }
     }
 }
@@ -203,30 +209,45 @@ static id lastObject;
 
       if (object == nil)
 	{
-	  lastObject = nil;
-          [omniscientObservers makeObjectsPerform:objectWillChangeSel
-                                       withObject:nil];
+	  NSHashEnumerator omniscEnum = NSEnumerateHashTable(omniscientHash);
+	  id obj;
 
+	  lastObject = nil;
+	  while ((obj = (id)NSNextHashEnumeratorItem(&omniscEnum)))
+	    {
+	      [obj performSelector:objectWillChangeSel withObject:object];
+	    }
 	}
       else if (lastObject != object)
 	{
-	  GDL2NonRetainingMutableArray *observersArray;
-	  int c;
+	  NSHashTable *observersHash;
+	  NSHashEnumerator observersEnum;
+	  id obj;
 
 	  lastObject = object;
 
-	  observersArray = NSMapGet(observersMap, object);
-	  c = [observersArray count];
-          EOFLOGObjectLevelArgs(@"EOObserver", @"observersArray count=%d",
-			      	c);
-	      
-	  [observersArray makeObjectsPerform:objectWillChangeSel
-		  		  withObject:object];
-	  c = [omniscientObservers count];
+	  observersHash = NSMapGet(observersMap, object);
+
+	  if (observersHash)
+	    {
+	      observersEnum = NSEnumerateHashTable(observersHash);
+              EOFLOGObjectLevelArgs(@"EOObserver", @"observersArray count=%d",
+			      	NSCountHashTable(observersHash));
+	     
+	      while ((obj = (id)NSNextHashEnumeratorItem(&observersEnum)))
+	        {
+	          [obj performSelector:objectWillChangeSel withObject:object];
+	        }
+	    }
+	  
           EOFLOGObjectLevelArgs(@"EOObserver", @"omniscientObservers count=%d",
-				c);
-	  [omniscientObservers makeObjectsPerform:objectWillChangeSel
-		  		       withObject:object];
+				NSCountHashTable(omniscientHash));
+
+	  observersEnum = NSEnumerateHashTable(omniscientHash);
+	  while ((obj = (id)NSNextHashEnumeratorItem(&observersEnum)))
+	    {
+	      [obj performSelector:objectWillChangeSel withObject:object];
+	    }
 	}
     }
 
@@ -244,9 +265,17 @@ static id lastObject;
  */
 + (NSArray *)observersForObject: (id)object
 {
-  GDL2NonRetainingMutableArray *observersArray;
-  observersArray = NSMapGet(observersMap, object);
-  return [NSArray arrayWithArray:observersArray];
+  if (object)
+    {
+      NSHashTable *observersHash = NSMapGet(observersMap, object);
+
+      if (observersHash)
+        {
+          return NSAllHashTableObjects(observersHash);
+	}
+    }
+  
+  return nil;
 }
 
 /**
@@ -255,18 +284,23 @@ static id lastObject;
  */
 + (id)observerForObject: (id)object ofClass: (Class)targetClass
 {
-  GDL2NonRetainingMutableArray *observersArray;
-  unsigned i, count;
+  NSHashTable *observersHash;
 
-  observersArray = NSMapGet(observersMap, object);
-
-  count = [observersArray count];
-  for (i = 0; i < count; i++)
+  if (object == nil)
+    return nil;
+    
+  observersHash = NSMapGet(observersMap, object);
+  if (observersHash)
     {
-      id observer = [observersArray objectAtIndex:i];
-
-      if ([observer isKindOfClass: targetClass])
-        return observer;
+      NSHashEnumerator observersEnum;
+      observersEnum = NSEnumerateHashTable(observersHash);
+      id observer;
+      
+      while ((observer = (id)NSNextHashEnumeratorItem(&observersEnum)))
+        {
+          if ([observer isKindOfClass: targetClass])
+            return observer;
+        }
     }
 
   return nil;
@@ -318,8 +352,8 @@ static id lastObject;
  */
 + (void)addOmniscientObserver: (id <EOObserving>)observer
 {
-  if (![omniscientObservers containsObject:observer])
-    [omniscientObservers addObject: observer];
+  if (observer)
+    NSHashInsertIfAbsent(omniscientHash, observer);
 }
 
 /**
@@ -327,7 +361,8 @@ static id lastObject;
  */
 + (void)removeOmniscientObserver: (id <EOObserving>)observer
 {
-  [omniscientObservers removeObject: observer];
+  if (observer)
+    NSHashRemove(omniscientHash, observer);
 }
 
 @end
