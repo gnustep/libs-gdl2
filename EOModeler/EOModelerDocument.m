@@ -229,7 +229,9 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 
 - (BOOL)saveToPath:(NSString *)path
 {
-  if (![[path pathExtension] isEqual:@"eomodeld"])
+  NSString *ext = [path pathExtension];
+
+  if (!([ext isEqual:@"eomodeld"] || [ext isEqual:@"eomodel"]))
     path = [path stringByAppendingPathExtension:@"eomodeld"];
   NS_DURING
     [_model writeToFile: path];
@@ -336,7 +338,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
      }
    
   [newEntity setName: entityNumber
-	  	      ? [NSString stringWithFormat: @"Entity%i",entityNumber]
+	  	      ? [NSString stringWithFormat: @"Entity%i", entityNumber]
 		      : @"Entity"];
   [newEntity setClassName:@"EOGenericRecord"];
   [_editingContext insertObject:newEntity];
