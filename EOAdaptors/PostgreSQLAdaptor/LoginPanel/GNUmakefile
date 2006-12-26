@@ -38,10 +38,9 @@ LoginPanel_OBJC_FILES = PostgreSQLLoginPanel.m
 LoginPanel_PRINCIPAL_CLASS = PostgreSQLLoginPanel
 
 LoginPanel_INCLUDE_DIRS = -I.. -I../../..
-LoginPanel_LIB_DIRS = \
-	-L../../../EOControl/$(GNUSTEP_OBJ_DIR) \
-	-L../../../EOAccess/$(GNUSTEP_OBJ_DIR)
-LoginPanel_OBJC_LIBS = -lgnustep-db2control -lgnustep-db2
+
+ADDITIONAL_NATIVE_LIBS+=EOAccess EOControl
+ADDITIONAL_NATIVE_LIB_DIRS+=../EOControl ../EOAccess
 
 ifneq ($(FOUNDATION_LIB),gnu)
 LoginPanel_OBJC_LIBS += -lgnustep-baseadd
@@ -52,6 +51,8 @@ LoginPanel_COPY_INTO_DIR = ../PostgreSQLEOAdaptor.framework/Resources
 include ../config.mak
 
 -include Makefile.preamble
+
+include ../../../common.make
 
 -include GNUmakefile.local
 

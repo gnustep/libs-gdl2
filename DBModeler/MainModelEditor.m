@@ -100,6 +100,7 @@
       					styleMask: NSTitledWindowMask | NSMiniaturizableWindowMask | NSClosableWindowMask | NSResizableWindowMask
       					backing:NSBackingStoreBuffered
 					defer:YES];
+      [_window setTitle:[[document model] name]];
       [_window setReleasedWhenClosed:NO];
       
       [sv setHasHorizontalScroller:YES];

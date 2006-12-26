@@ -572,11 +572,31 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   return self;
 }
 
+static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL selector, id arg, Class class)
+{
+  int i, c;
+  
+  for (i = 0, c = [arr count]; i < c; i++)
+    {
+      id obj = [arr objectAtIndex:i];
+
+      if ([obj isKindOfClass:class])
+        {
+	  [obj performSelector:selector withObject:arg];
+        }
+    }
+}
+
 - (void) dealloc
 {
-  [_subEntities makeObjectsPerform:@selector(_setParentEntity:) withObject:nil];
-  [_attributes makeObjectsPerform:@selector(setParent:) withObject:nil];
-  [_relationships makeObjectsPerform:@selector(setEntity:) withObject:nil];
+  /* these classes may contain NSDictionaries as well as entities, attributes and relationships 
+     in the case of delayed instantiation */
+  performSelectorOnArrayWithEachObjectOfClass(_subEntities, @selector(_setParentEntity:),
+  					      nil, [EOEntity class]);
+  performSelectorOnArrayWithEachObjectOfClass(_attributes, @selector(setParent:),
+  					      nil, [EOAttribute class]);
+  performSelectorOnArrayWithEachObjectOfClass(_relationships, @selector(setEntity:),
+  					      nil, [EORelationship class]);
   // this must come after _attributes is cleared.
   GDL2DestinationEntitiesRemoveEntity(self);
 
