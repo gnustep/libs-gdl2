@@ -40,7 +40,7 @@ LoginPanel_PRINCIPAL_CLASS = PostgreSQLLoginPanel
 LoginPanel_INCLUDE_DIRS = -I.. -I../../..
 
 ADDITIONAL_NATIVE_LIBS+=EOAccess EOControl
-ADDITIONAL_NATIVE_LIB_DIRS+=../EOControl ../EOAccess
+ADDITIONAL_NATIVE_LIB_DIRS+=../../../EOControl ../../../EOAccess
 
 ifneq ($(FOUNDATION_LIB),gnu)
 LoginPanel_OBJC_LIBS += -lgnustep-baseadd

@@ -57,6 +57,7 @@
 
 - (void) didOpenDocument:(NSNotification *)notif
 {
+  /* this should probably use a different model group for each gorm document */
   NSArray  *tmp;
   NSMutableArray *modelPaths = [NSMutableArray new];
   NSString *docPath;

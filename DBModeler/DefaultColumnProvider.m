@@ -204,7 +204,7 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
       [cell setBezeled:NO];
       [cell setAlternateImage:[NSImage imageNamed:@"Key_On"]];
       [cell setControlSize: NSSmallControlSize];
-      [cell setEditable:YES];
+      [cell setEditable:NO];
       return AUTORELEASE(cell);
     }
   else if ([name isEqual:@"Class property"])
@@ -217,7 +217,7 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
       [cell setBezeled:NO];
       [cell setAlternateImage:[NSImage imageNamed:@"ClassProperty_On"]];
       [cell setControlSize: NSSmallControlSize];
-      [cell setEditable:YES];
+      [cell setEditable:NO];
       return AUTORELEASE(cell);
     }
   else if ([name isEqual:@"Locking"])
@@ -230,7 +230,7 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
       [cell setBezeled:NO];
       [cell setAlternateImage:[NSImage imageNamed:@"Locking_On"]];
       [cell setControlSize: NSSmallControlSize];
-      [cell setEditable:YES];
+      [cell setEditable:NO];
       return AUTORELEASE(cell);
     }
   else if ([name isEqual:@"Allows null"])
@@ -243,15 +243,13 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
       [cell setBezeled:NO];
       [cell setAlternateImage:[NSImage imageNamed:@"AllowsNull_On"]];
       [cell setControlSize: NSSmallControlSize];
-      [cell setEditable:YES];
+      [cell setEditable:NO];
       return AUTORELEASE(cell);
     }
   else
     {
-      NSTextFieldCell *cell = [[NSTextFieldCell alloc] initTextCell:@""];
-      [cell setEnabled:YES];
+      NSTextFieldCell *cell = [[NSTextFieldCell alloc] init];
       [cell setEditable:YES];
-      [cell setScrollable: YES];
       return AUTORELEASE(cell);
     }
 }
@@ -271,7 +269,7 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
     aspect = @"value";
     association = [[EOColumnAssociation alloc] initWithObject:tc];
     cell = [self cellForColumnNamed:columnName];
-    [tc setEditable:[cell isEditable]];
+    [tc setEditable: [cell isEditable]];
     [tc setDataCell:cell];
     [self setupTitleForColumn:tc named:columnName];
     [association bindAspect:aspect displayGroup:displayGroup key:aspectKey];

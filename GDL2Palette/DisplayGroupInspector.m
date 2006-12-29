@@ -41,6 +41,7 @@
 - (void) dealloc
 {
   RELEASE(_localKeys);
+  [super dealloc];
 }
 
 -(IBAction) setValidatesImmediately:(id)sender;

@@ -1,3 +1,22 @@
+2006-12-28  Matt Rice  <ratmice@gmail.com>
+
+	* EOAdaptors/PostgreSQL/LoginPanel/GNUmakefile: Fix path to
+	NATIVE_LIB_DIRS.
+	* GDL2Palette/DisplayGroupInspector.m: Call super dealloc.
+	* GDL2Palette/ResourceManager.m: Add comment.
+	* DBModeler/DefaultColumnProvider: Set switch buttons to ineditable.
+	* ChangeLog: Add missing entries...
+
+2006-12-26  Matt Rice  <ratmice@gmail.com>
+
+	* EOModeler/EOModelerDocument.m (-saveToPath:): Handle saving with a
+	.eomodel extension.
+	* EOAccess/EOEntity.m (-dealloc): Only set parents to nil
+	properties which have been fully loaded.
+	* EOAdaptors/PostgreSQL/LoginPanel/GNUmakefile: Remove references to
+	libgnustep-db2control/access
+	* DBModeler/MainModelEditor.m: Set the windows title.
+
 2006-11-16  Matt Rice  <ratmice@gmail.com>
 
 	* EOControl/EOObserver.m: Use an NSHashTable to store observers.
