@@ -160,7 +160,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 
 - (id) initWithEditingContext: (EOEditingContext *)context
              classDescription: (EOClassDescription *)classDesc
-                     globalID: (EOGlobalID *)globalID;
+                     globalID: (EOGlobalID *)globalID
 {
   if ((self = [self init]))
     {

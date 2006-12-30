@@ -127,7 +127,7 @@ enum
 - (void)enqueueObserver: (EODelayedObserver *)observer;
 - (void)dequeueObserver: (EODelayedObserver *)observer;
 
-- (void)notifyObserversUpToPriority: (EOObserverPriority)lastPriority;
+- (void)notifyObserversUpToPriority: (EOObserverPriority)priority;
 
 - (void)setRunLoopModes: (NSArray *)modes;
 - (NSArray *)runLoopModes;

@@ -24,6 +24,7 @@
 #
 
 include $(GNUSTEP_MAKEFILES)/common.make
+include ../common.make
 
 APP_NAME = DBModeler
 DBModeler_SUBPROJECTS=Inspectors
@@ -72,5 +73,5 @@ $(APP_NAME)_OBJC_FILES =		\
 	EntityView.m			\
 	DiagramEditor.m
 
-include ../common.make
+include ../variable-processing.make
 include $(GNUSTEP_MAKEFILES)/application.make

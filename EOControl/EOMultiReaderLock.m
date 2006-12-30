@@ -225,6 +225,7 @@
  */
 - (void)lockForWriting
 {
+  return;
 }
 
 /**
@@ -235,6 +236,7 @@
  */
 - (void)unlockForWriting
 {
+  return;
 }
 
 /**
@@ -244,6 +246,7 @@
  */
 - (void)suspendReaderLocks
 {
+  return;
 }
 
 /**
@@ -253,6 +256,7 @@
  */
 - (void)retrieveReaderLocks
 {
+  return;
 }
 
 @end

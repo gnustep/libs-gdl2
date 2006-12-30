@@ -71,8 +71,8 @@
 + (unsigned)retainCount;
 
 + (BOOL)isKindOfClass: (Class)aClass;
-+ (void)doesNotRecognizeSelector: (SEL)sel;
-+ (BOOL)respondsToSelector: (SEL)sel;
++ (void)doesNotRecognizeSelector: (SEL)selector;
++ (BOOL)respondsToSelector: (SEL)selector;
 
 
 + (void)makeObjectIntoFault: (id)object withHandler: (EOFaultHandler *)handler;
@@ -92,7 +92,7 @@
 - (BOOL)isKindOfClass: (Class)aClass;
 - (BOOL)isMemberOfClass: (Class)aClass;
 - (BOOL)conformsToProtocol: (Protocol *)protocol;
-- (BOOL)respondsToSelector: (SEL)sel;
+- (BOOL)respondsToSelector: (SEL)selector;
 - (NSMethodSignature *)methodSignatureForSelector: (SEL)selector;
 
 - (id)retain;
@@ -116,7 +116,7 @@
 - (id)self;
 
 
-- (void)doesNotRecognizeSelector: (SEL)sel;
+- (void)doesNotRecognizeSelector: (SEL)selector;
 - (void)forwardInvocation: (NSInvocation *)invocation;
 
 - (id)gcSetNextObject: (id)object;

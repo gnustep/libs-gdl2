@@ -621,7 +621,7 @@ NO if no object is found **/
 
 /** Returns unarchived object for the reference archived as 'key'. 
 The receiver gets the object for reference by calling 
-its delegate method -archiver:objectForReference: **/
+its delegate method -unarchiver:objectForReference: **/
 - (id) decodeObjectReferenceForKey: (NSString*)key
 {
   id objectReference = nil;
@@ -838,11 +838,12 @@ class instances should implements -initWithKeyValueUnarchiver: **/
 
 @implementation NSObject (EOKeyValueUnarchiverDelegation)
 
-/** Returns an object for archived 'reference'.
-Should be overriden by EOKeyValueUnarchiver's delegates 
-**/
+/** 
+ * Returns an object for archived 'reference'.
+ * Implemented by EOKeyValueUnarchiver's delegate.
+ */
 - (id)unarchiver: (EOKeyValueUnarchiver*)archiver 
-objectForReference: (id)reference
+objectForReference: (id)keyPath
 {
   [self subclassResponsibility:_cmd];
   return nil;
@@ -856,11 +857,13 @@ objectForReference: (id)reference
 - (void)finishInitializationWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver
 {
   //Does nothing ?
+  return;
 }
 
-- (void)awakeFromKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver;
+- (void)awakeFromKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver
 {
   //Does nothing ?
+  return;
 }
 
 @end 

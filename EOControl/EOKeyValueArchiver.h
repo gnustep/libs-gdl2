@@ -109,7 +109,7 @@ referenceToEncodeForObject: (id)object;
 - (void)setDelegate: (id)delegate;
 - (id)delegate;
 
-- (id)_findTypeForPropertyListDecoding: (id)param0;
+- (id)_findTypeForPropertyListDecoding: (id)obj;
 - (id)_dictionaryForPropertyList: (NSDictionary *)propList;
 - (id)_objectsForPropertyList: (NSArray *)propList;
 - (id)_objectForPropertyList: (NSDictionary *)propList;

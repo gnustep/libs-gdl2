@@ -27,21 +27,7 @@
 #ifndef __EOUndoManager_h__
 #define __EOUndoManager_h__
 
-#ifdef GNUSTEP
-#include <Foundation/NSUndoManager.h>
-#else
-#include <Foundation/Foundation.h>
-#endif
-
-@interface EOUndoManager : NSUndoManager
-
-- (void)forgetAllWithTarget: (id)param0;
-- (void)forgetAll;
-- (void)registerUndoWithTarget: (id)param0
-		      selector: (SEL)param1
-			   arg: (id)param2;
-- (void)reenableUndoRegistration;
-
-@end
+#warning This file is deprecated. Use NSUndoManager.
+#include <EOControl/EODeprecated.h>
 
 #endif // __EOUndoManager_h__

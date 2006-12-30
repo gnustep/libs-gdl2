@@ -27,6 +27,7 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 include ../Version
+include ../common.make
 
 # The library to be compiled
 TOOL_NAME=gdlgsdoc eoutil
@@ -65,15 +66,9 @@ gdl2gsdoc_AGSDOC_FILES = gdl2gsdoc.gsdoc $(gdl2gsdoc_AUTOGSDOC_HEADERS)
 #$(gdl2gsdoc_AUTOGSDOC_SOURCE)
 gdl2gsdoc_AGSDOC_FLAGS = \
 	-Declared gdlgsdoc \
-	-Standards YES \
 	-Project gdl2gsdoc \
-	-WordMap '{\
-	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
-	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
-	GS_EXPORT=extern;GS_DECLARE="";\
-	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
-	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
-	}' -Up gdl2gsdoc
+	-Up gdl2gsdoc \
+	$(GDL2_AGSDOC_FLAGS)
 
 
 eoutil_OBJC_FILES = eoutil.m
@@ -82,7 +77,7 @@ eoutil_HEADER_FILES =
 
 
 -include Makefile.preamble
-include ../common.make
+include ../variable-processing.make
 
 -include GNUmakefile.local
 

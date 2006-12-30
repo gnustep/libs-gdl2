@@ -25,7 +25,7 @@
 
 
 include $(GNUSTEP_MAKEFILES)/common.make
-include ../gdl2.make
+include ../common.make
 
 PALETTE_NAME=GDL2
 GDL2_PRINCIPAL_CLASS = GDL2Palette
@@ -50,7 +50,7 @@ GDL2_OBJC_FILES=		\
 	KeyWrapper.m		\
 	DisplayGroupInspector.m
 
-include ../common.make
+include ../variable-processing.make
 PALETTE_LIBS=$(ADDITIONAL_OBJC_LIBS)
 
 include $(GNUSTEP_MAKEFILES)/palette.make

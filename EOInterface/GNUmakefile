@@ -27,6 +27,7 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 include ../Version
+include ../common.make
 
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOInterface
@@ -87,19 +88,13 @@ EOInterface_AGSDOC_FILES = EOInterface.gsdoc $(EOInterface_AUTOGSDOC_HEADERS)
 #$(EOInterface_AUTOGSDOC_SOURCE)
 EOInterface_AGSDOC_FLAGS = \
 	-Declared EOInterface \
-	-Standards YES \
 	-Project EOInterface \
-	-WordMap '{\
-	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
-	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
-	GS_EXPORT=extern;GS_DECLARE="";\
-	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
-	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
-	}' -Up EOInterface
+	-Up EOInterface \
+	$(GDL2_AGSDOC_FLAGS)
 
 
 -include Makefile.preamble
-include ../common.make
+include ../variable-processing.make
 -include GNUmakefile.local
 
 include $(GNUSTEP_MAKEFILES)/native-library.make

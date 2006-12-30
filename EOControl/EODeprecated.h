@@ -43,27 +43,27 @@
 @end
 
 @interface EOClassDescription (EODeprecated)
-/** Deprecated. Use +setClassDelegate. */
+/** Deprecated. Use [+setClassDelegate:]. */
 + (void)setDelegate: (id)delegate;
-/** Deprecated. Use +classDelegate. */
+/** Deprecated. Use [+classDelegate]. */
 + (id)delegate;
 @end
 
 /** Deprecated. Use NSUndoManager. */
 @interface EOUndoManager : NSUndoManager
 
-/** Deprecated. Use -removeAllActionsWithTarget:. */
-- (void)forgetAllWithTarget: (id)param0;
+/** Deprecated. Use <code>removeAllActionsWithTarget:</code>. */
+- (void)forgetAllWithTarget: (id)target;
 
-/** Deprecated. Use -removeAllActionsWithTarget:. */
+/** Deprecated. Use <code>removeAllActionsWithTarget:</code>. */
 - (void)forgetAll;
 
-/** Deprecated. Use -registerUndoWithTarget:selector:object:. */
-- (void)registerUndoWithTarget: (id)param0
-		      selector: (SEL)param1
-			   arg: (id)param2;
+/** Deprecated. Use <code>registerUndoWithTarget:selector:object:</code>. */
+- (void)registerUndoWithTarget: (id)target
+		      selector: (SEL)selector
+			   arg: (id)argument;
 
-/** Deprecated. Use -enableUndoRegistration. */
+/** Deprecated. Use <code>enableUndoRegistration</code>. */
 - (void)reenableUndoRegistration; 
 
 @end

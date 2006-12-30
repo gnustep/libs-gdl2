@@ -27,6 +27,7 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 include ../Version
+include ../common.make
 
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOAccess
@@ -88,26 +89,21 @@ EOAccess.h
 
 
 DOCUMENT_NAME = EOAccess
-EOAccess_AUTOGSDOC_HEADERS = $(EOAccess_HEADER_FILES)
-EOAccess_AUTOGSDOC_SOURCE = $(EOAccess_OBJC_FILES)
-EOAccess_HEADER_FILES_DIR = $(HEADER_DIR)
-EOAccess_AGSDOC_FILES = EOAccess.gsdoc $(EOAccess_AUTOGSDOC_HEADERS) 
-#$(EOAccess_AUTOGSDOC_SOURCE)
+
+# autogsdoc scan the source files corresponding to the headers
+EOAccess_AGSDOC_FILES = EOAccess.gsdoc \
+	$(EOAccess_HEADER_FILES) \
+	$(EOAccess_OBJC_FILES)
+
 EOAccess_AGSDOC_FLAGS = \
 	-Declared EOAccess \
-	-Standards YES \
 	-Project EOAccess \
-	-WordMap '{\
-	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
-	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
-	GS_EXPORT=extern;GS_DECLARE="";\
-	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
-	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
-	}' -Up EOAccess
+	-Up EOAccess \
+	$(GDL2_AGSDOC_FLAGS)
 
 
 -include Makefile.preamble
-include ../common.make
+include ../variable-processing.make
 
 -include GNUmakefile.local
 

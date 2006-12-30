@@ -3,20 +3,30 @@
 <gsdoc base="index">
   <head>
     <title>GDL2 - EOControl</title>
+    <author name="David Ayers">
+      <email address="ayers@fsfe.org"/>
+        <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
     <author name="Mirko Viviani">
       <email address="mirko.viviani@gmail.com"/>
         <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
     <author name="Manuel Guesdon">
       <email address="mguesdon@orange-concept.com"/>
         <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
-    <author name="David Ayers">
-      <email address="ayers@fsfe.org"/>
-        <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
+    <version>$Revision$</version>
+    <date>$Date$</date>
+    <copy>2006 Free Software Foundation, Inc.</copy>
   </head>
   <body>
     <chapter>
       <heading>GDL2 - EOControl</heading>
-      <p>...
+      <p>
+	EOControl is the fundemantal framework of GDL2 which implements the
+	the abstraction of a database from the view of an object oriented
+	application.  To be useful it generally requires support from a
+	suppurting framework like EOAccess which implements the components
+	needed for SQL based RDBMS implementations.  In theory EOControl could
+	be used together with supporting Libraries with other storage models
+	but these are hardely used in practice.
       </p>
     </chapter>
     <back>

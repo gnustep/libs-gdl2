@@ -130,38 +130,38 @@ static Class EOFaultClass = NULL;
   return NO;
 }
 
-+ (void)doesNotRecognizeSelector: (SEL)sel
++ (void)doesNotRecognizeSelector: (SEL)selector
 {
   [NSException raise: NSInvalidArgumentException
 	       format: @"%@ -- %@ 0x%x: selector \"%@\" not recognized",
 	       NSStringFromSelector(_cmd),
 	       NSStringFromClass([self class]),
 	       self,
-	       NSStringFromSelector(sel)];
+	       NSStringFromSelector(selector)];
 }
 
-+ (BOOL)respondsToSelector: (SEL)sel
++ (BOOL)respondsToSelector: (SEL)selector
 {
-  return (GSGetMethod(self, sel, NO, YES) != (GSMethod)0);
+  return (GSGetMethod(self, selector, NO, YES) != (GSMethod)0);
 }
 
 /**
  * Returns a pointer to the C function implementing the method used
- * to respond to messages with aSelector by instances of the receiving
+ * to respond to messages with selector by instances of the receiving
  * class.
  * <br />Raises NSInvalidArgumentException if given a null selector.
  *
  * It's a temporary fix to support NSAutoreleasePool optimization
  */
-+ (IMP) instanceMethodForSelector: (SEL)aSelector
++ (IMP) instanceMethodForSelector: (SEL)selector
 {
-  if (aSelector == 0)
+  if (selector == 0)
     [NSException raise: NSInvalidArgumentException
 		format: @"%@ null selector given", NSStringFromSelector(_cmd)];
   /*
    *	Since 'self' is an class, get_imp() will get the instance method.
    */
-  return get_imp((Class)self, aSelector);
+  return get_imp((Class)self, selector);
 }
 
 // Fault class methods
@@ -294,7 +294,7 @@ static Class EOFaultClass = NULL;
   return [_handler targetClass];
 }
 
-- (BOOL)isKindOfClass: (Class)aclass;
+- (BOOL)isKindOfClass: (Class)aClass
 {
   Class class;
   BOOL koc=NO;
@@ -302,15 +302,15 @@ static Class EOFaultClass = NULL;
   class = [_handler targetClass];
 
   for (; !koc && class != Nil; class = GSObjCSuper(class))
-    if (class == aclass)
+    if (class == aClass)
       koc = YES;
 
   return koc;
 }
 
-- (BOOL)isMemberOfClass: (Class)aclass
+- (BOOL)isMemberOfClass: (Class)aClass
 {
-  return [_handler targetClass] == aclass;
+  return [_handler targetClass] == aClass;
 }
 
 - (BOOL)conformsToProtocol: (Protocol *)protocol
@@ -336,7 +336,7 @@ static Class EOFaultClass = NULL;
     return NO;
 }
 
-- (BOOL)respondsToSelector: (SEL)aSelector
+- (BOOL)respondsToSelector: (SEL)selector
 {
   Class class;
   BOOL respondsToSelector;
@@ -344,24 +344,24 @@ static Class EOFaultClass = NULL;
   NSDebugFLLog(@"gsdb", @"START self=%p", self);
 
   class = [_handler targetClass];
-  NSDebugFLLog(@"gsdb", @"class=%@ aSelector=%@", class,
-	       NSStringFromSelector(aSelector));
+  NSDebugFLLog(@"gsdb", @"class=%@ selector=%@", class,
+	       NSStringFromSelector(selector));
 
   respondsToSelector 
-    = (GSGetMethod(class, aSelector, YES, YES) != (GSMethod)0);
+    = (GSGetMethod(class, selector, YES, YES) != (GSMethod)0);
   NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
 
   return respondsToSelector;
 }
 
-- (NSMethodSignature *)methodSignatureForSelector: (SEL)aSelector
+- (NSMethodSignature *)methodSignatureForSelector: (SEL)selector
 {
   NSMethodSignature *sig;
 
   NSDebugFLLog(@"gsdb", @"START self=%p", self);
   NSDebugFLLog(@"gsdb", @"_handler=%p", _handler);
 
-  sig = [_handler methodSignatureForSelector: aSelector
+  sig = [_handler methodSignatureForSelector: selector
 		  forFault: self];
 
   NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
@@ -482,24 +482,24 @@ static Class EOFaultClass = NULL;
   return self;
 }
 
-- (void)doesNotRecognizeSelector: (SEL)sel
+- (void)doesNotRecognizeSelector: (SEL)selector
 {
   [NSException raise: NSInvalidArgumentException
                format: @"%@ -- %@ 0x%x: selector \"%@\" not recognized",
                NSStringFromSelector(_cmd),
                NSStringFromClass([self class]),
                self,
-               NSStringFromSelector(sel)];
+               NSStringFromSelector(selector)];
 }
 
-- (retval_t)forward: (SEL)sel 
+- (retval_t)forward: (SEL)selector 
                    : (arglist_t)args
 {
   retval_t ret;
   NSInvocation *inv;
 
   inv = [[[NSInvocation alloc] initWithArgframe: args
-			       selector: sel]
+			       selector: selector]
 	  autorelease];
   [self forwardInvocation: inv];
 
@@ -542,14 +542,14 @@ static Class EOFaultClass = NULL;
 
 // GC
 
-- gcSetNextObject: (id)anObject
+- gcSetNextObject: (id)object
 {
-  return [_handler gcSetNextObject: anObject];
+  return [_handler gcSetNextObject: object];
 }
 
-- gcSetPreviousObject: (id)anObject
+- gcSetPreviousObject: (id)object
 {
-  return [_handler gcSetPreviousObject: anObject];
+  return [_handler gcSetPreviousObject: object];
 }
 
 - (id)gcNextObject

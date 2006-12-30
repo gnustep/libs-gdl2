@@ -39,6 +39,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSNotification.h>
 #include <Foundation/NSSet.h>
 #include <Foundation/NSString.h>
+#include <Foundation/NSUndoManager.h>
 #endif
 
 #include <GNUstepBase/GSLock.h>
@@ -48,7 +49,6 @@ RCS_ID("$Id$")
 #include "EOFetchSpecification.h"
 #include "EOGlobalID.h"
 #include "EOObjectStoreCoordinator.h"
-#include "EOUndoManager.h"
 
 
 NSString *EODefaultSharedEditingContextWasInitializedNotification
@@ -420,6 +420,7 @@ static EOSharedEditingContext *dfltSharedEditingContext = nil;
  */
 - (void)reset
 {
+  return;
 }
 
 /**
@@ -551,6 +552,7 @@ static EOSharedEditingContext *dfltSharedEditingContext = nil;
  */
 - (void)validateChangesForSave
 {
+  return;
 }
 
 /**
@@ -580,7 +582,7 @@ static EOSharedEditingContext *dfltSharedEditingContext = nil;
  * Raises an NSInternalInconsistencyException
  * since objects in a shared editing context may not be modified.
  */
-- (void)objectWillChange: (id)object;
+- (void)objectWillChange: (id)object
 {
   [NSException raise: NSInternalInconsistencyException
 	       format: @"+[%@ deleteObject:] attempted to delete object in shared editing context", [self class]];

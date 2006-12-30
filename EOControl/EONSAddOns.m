@@ -426,13 +426,13 @@ GDL2_ActivateAllGDL2Categories(void)
   return result;
 }
 
-- (NSArray *)arrayExcludingObject: (id)anObject
+- (NSArray *)arrayExcludingObject: (id)object
 {
   //Verify: mutable/non mutable,..
   NSArray *result = nil;
   unsigned int selfCount = [self count];
 
-  if (selfCount > 0 && anObject) //else return nil
+  if (selfCount > 0 && object) //else return nil
     {
       int i;
 
@@ -440,7 +440,7 @@ GDL2_ActivateAllGDL2Categories(void)
         {
           id object = [self objectAtIndex: i];
 
-          if (object != anObject)
+          if (object != object)
             {
               if (result)
                 [(NSMutableArray *)result addObject: object];
@@ -617,7 +617,7 @@ GDL2_ActivateAllGDL2Categories(void)
     };
   return (short)v;
 };
--(unsigned short)unsignedShortValue;
+-(unsigned short)unsignedShortValue
 {
   int v=atoi([self lossyCString]);
   if (v<0 || v>USHRT_MAX)
@@ -633,7 +633,7 @@ GDL2_ActivateAllGDL2Categories(void)
   return atol([self lossyCString]);
 };
 
--(unsigned long)unsignedLongValue;
+-(unsigned long)unsignedLongValue
 {
   long long v=atoll([self lossyCString]);
   if (v<0 || v>ULONG_MAX)
@@ -665,18 +665,18 @@ GDL2_ActivateAllGDL2Categories(void)
  * The method must be one which takes three arguments and returns an object.
  * <br />Raises NSInvalidArgumentException if given a null selector.
  */
-- (id) performSelector: (SEL)aSelector
+- (id) performSelector: (SEL)selector
             withObject: (id) object1
             withObject: (id) object2
             withObject: (id) object3
 {
   IMP msg;
 
-  if (aSelector == 0)
+  if (selector == 0)
     [NSException raise: NSInvalidArgumentException
                 format: @"%@ null selector given", NSStringFromSelector(_cmd)];
   
-  msg = get_imp(GSObjCClass(self), aSelector);
+  msg = get_imp(GSObjCClass(self), selector);
   if (!msg)
     {
       [NSException raise: NSGenericException
@@ -684,7 +684,7 @@ GDL2_ActivateAllGDL2Categories(void)
       return nil;
     }
 
-  return (*msg)(self, aSelector, object1, object2, object3);
+  return (*msg)(self, selector, object1, object2, object3);
 }
 
 @end

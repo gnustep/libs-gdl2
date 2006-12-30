@@ -63,7 +63,7 @@
 + (EOQualifier *)qualifierToMatchAllValues: (NSDictionary *)values;
 + (EOQualifier *)qualifierToMatchAnyValue: (NSDictionary *)values;
 
-- (NSException *)validateKeysWithRootClassDescription: (EOClassDescription *)classDesc;
+- (NSException *)validateKeysWithRootClassDescription: (EOClassDescription *)classDescription;
 
 + (NSArray *)allQualifierOperators;
 
@@ -83,7 +83,7 @@
 - (NSString *)keyPathForBindingKey: (NSString *)key;
 
 - (NSSet *)allQualifierKeys;
-- (void)addQualifierKeysToSet: (NSMutableSet *)qualKeys;
+- (void)addQualifierKeysToSet: (NSMutableSet *)keys;
 
 - (BOOL)evaluateWithObject: (id)object;
 

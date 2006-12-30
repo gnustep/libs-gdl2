@@ -58,15 +58,19 @@ NSString *EOEventGroupName = @"EOEventGroupName";
 
 - (void)markStartWithInfo: (id)info
 {
+  return;
 }
 - (void)markAtomicWithInfo: (id)info
 {
+  return;
 }
 - (void)markEnd
 {
+  return;
 }
 - (void)setInfo: (id)info
 {
+  return;
 }
 - (id)info
 {
@@ -74,6 +78,7 @@ NSString *EOEventGroupName = @"EOEventGroupName";
 }
 - (void)setType: (NSString *)type
 {
+  return;
 }
 - (NSString *)type
 {

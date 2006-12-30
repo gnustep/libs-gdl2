@@ -163,7 +163,7 @@
 - (void)validateDeletesUsingTable: (NSHashTable *)deleteTable;
 - (BOOL)validateTable: (NSHashTable *)table
 	 withSelector: (SEL)sel
-       exceptionArray: (NSMutableArray**)exceptionArray
+       exceptionArray: (NSMutableArray**)exceptionArrayPtr
  continueAfterFailure: (BOOL)continueAfterFailure;
 
 
@@ -173,10 +173,10 @@
 - (void)setPropagatesDeletesAtEndOfEvent: (BOOL)propagatesDeletesAtEndOfEvent;
 
 - (BOOL)stopsValidationAfterFirstError;
-- (void)setStopsValidationAfterFirstError: (BOOL)yn;
+- (void)setStopsValidationAfterFirstError: (BOOL)flag;
 
 - (BOOL)locksObjectsBeforeFirstModification;
-- (void)setLocksObjectsBeforeFirstModification: (BOOL)yn;
+- (void)setLocksObjectsBeforeFirstModification: (BOOL)flag;
 
 - (EOSharedEditingContext *)sharedEditingContext;
 - (void)setSharedEditingContext:(EOSharedEditingContext *)sharedEditingContext;
@@ -201,7 +201,7 @@ modified state of the object.**/
 
 - (void)refaultObjects;
 
-- (void)setInvalidatesObjectsWhenFreed: (BOOL)yn;
+- (void)setInvalidatesObjectsWhenFreed: (BOOL)flag;
 - (BOOL)invalidatesObjectsWhenFreed;
     
 - (void)addEditor: (id)editor;
@@ -334,7 +334,7 @@ shouldContinueFetchingWithCurrentObjectCount: (unsigned)count
 
 @interface EOEditingContext (EOStateArchiving)
 
-+ (void)setUsesContextRelativeEncoding: (BOOL)yn;
++ (void)setUsesContextRelativeEncoding: (BOOL)flag;
 + (BOOL)usesContextRelativeEncoding;
 + (void)encodeObject: (id)object withCoder: (NSCoder *)coder;
 + (id)initObject: (id)object withCoder: (NSCoder *)coder;

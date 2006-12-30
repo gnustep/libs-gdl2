@@ -1293,13 +1293,13 @@ _mergeValueForKey(id obj, id value,
   EOFLOGObjectFnStop();
 }
 
-- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetch
+- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
 {
   NSArray *objects;
 
   EOFLOGObjectFnStart();
 
-  objects = [self objectsWithFetchSpecification: fetch
+  objects = [self objectsWithFetchSpecification: fetchSpecification
 		  editingContext: self];
 
   EOFLOGObjectFnStop();
@@ -2354,6 +2354,7 @@ _mergeValueForKey(id obj, id value,
 -(void)setLevelsOfUndo:(int)levels
 {
   //TODO
+  return;
 };
 
 - (void) _registerClearStateWithUndoManager
@@ -3654,7 +3655,7 @@ modified state of the object.**/
     }
 }
 
-- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetch
+- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
 			    editingContext: (EOEditingContext *)context
 {
   //OK
@@ -3663,14 +3664,14 @@ modified state of the object.**/
   EOFLOGObjectFnStart();
 
   EOFLOGObjectLevelArgs(@"EOEditingContext",
-			@"_objectStore=%@ fetch=%@ context=%@",
-			_objectStore, fetch, context);
+			@"_objectStore=%@ fetchSpecification=%@ context=%@",
+			_objectStore, fetchSpecification, context);
 
   [self lock]; //TODOLOCK
 
   NS_DURING
     {
-      objects = [_objectStore objectsWithFetchSpecification: fetch
+      objects = [_objectStore objectsWithFetchSpecification: fetchSpecification
 			      editingContext: context];
     }
   NS_HANDLER

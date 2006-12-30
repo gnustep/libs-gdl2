@@ -115,7 +115,7 @@
 - (void)setIsDeep: (BOOL)isDeep;
 - (BOOL)isDeep;
 
-- (void)setLocksObjects: (BOOL)setLocksObjects;
+- (void)setLocksObjects: (BOOL)locksObjects;
 - (BOOL)locksObjects;
 
 - (void)setRefreshesRefetchedObjects: (BOOL)refreshesRefetchedObjects;
@@ -147,11 +147,6 @@
 - (void)setRawRowKeyPaths: (NSArray *)rawRowKeyPaths;
 
 @end
-
-GDL2CONTROL_EXPORT NSString *EOPrefetchingRelationshipHintKey;
-GDL2CONTROL_EXPORT NSString *EOFetchLimitHintKey;
-GDL2CONTROL_EXPORT NSString *EOPromptsAfterFetchLimitHintKey;
-
 
 #endif
 

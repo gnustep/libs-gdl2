@@ -254,7 +254,7 @@ initialize(void)
  * returned by invoking [NSObject-valueForKey:]
  * for each item in the receiver, substituting EONull for nil.
  * Keys formated like "@function.someKey" are resolved by invoking
- * [NSArray-computeFuncionWithKey:] "someKey" on the receiver.
+ * <code>NSArray compute<em>Function</em>WithKey:</code> "someKey" on the receiver.
  * If the key is omitted, the function will be called with nil.
  * The following functions are supported by default:
  * <list>
@@ -431,7 +431,7 @@ initialize(void)
  * Iterates over the objects of the receiver send each object valueForKey:
  * with the parameter.  The decimalValue of the returned object is accumalted
  * and then divided by number of objects contained by the receiver as returned
- * by [NSArray-coung].  An empty array returns NSDecimalNumber 0.
+ * by <code>NSArray count</code>.  An empty array returns NSDecimalNumber 0.
  */
 - (id)computeAvgForKey: (NSString *)key
 {

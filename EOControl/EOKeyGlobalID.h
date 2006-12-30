@@ -52,9 +52,6 @@
 - (BOOL)isEqual: (id)other;
 - (unsigned)hash;
 
-- (void)encodeWithCoder: (NSCoder *)coder;
-- (id)initWithCoder: (NSCoder *)decoder;
-
 - (BOOL)isFinal;
 - (NSString *)description;
 - (BOOL)areKeysAllNulls;

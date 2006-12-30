@@ -109,7 +109,7 @@
  * Contrary to the TOC of the documentation, this method is called
  * unableToSetNilForKey: and not unableToSetNullForKey:<br/>
  * This implementation raises an NSInvalidArgument exception. <br/>
- * The NSKeyValueCoding -setNilValueForKey: is overriden to invoke this
+ * The NSKeyValueCoding setNilValueForKey: is overriden to invoke this
  * method instead.  We manipulate the runtime to insure that our implementation
  * of unableToSetNilForKey: is used in favor of the one in gnustep-base or
  * Foundation.

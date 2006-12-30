@@ -27,6 +27,7 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 include ../Version
+include ../common.make
 
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOModeler
@@ -59,7 +60,7 @@ EOModelerEditor.h			\
 EODefines.h
 
 -include Makefile.preamble
-include ../common.make
+include ../variable-processing.make
 
 -include GNUmakefile.local
 

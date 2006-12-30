@@ -614,13 +614,13 @@ RCS_ID("$Id$")
  * <p>Returns the name of the class values of this attribute
  * are represented by.  The standard classes are NSNumber,
  * NSString, NSData and NSDate for the corresponding
- * [adaptorValueType].  A model can define more specific
+ * [-adaptorValueType].  A model can define more specific
  * classes like NSDecimalNumber, NSCalendarDate and NSImage
  * or custom classes which implement a factory method
- * specified by [valueFactoryMethodName] to create instances
+ * specified by [-valueFactoryMethodName] to create instances
  * with the data supplied by the data source.</p>
  * <p>If the valueClassName has not been set explicitly and the 
- * reciever [isFlattened], the valueClassName of the flattened
+ * reciever [-isFlattened], the valueClassName of the flattened
  * attribute is returned.</p>
  * <p>Otherwise, if the reciever has a prototype then the
  * valueClassName of the prototype is returned.</p>
@@ -642,7 +642,7 @@ RCS_ID("$Id$")
  * <p>Returns the adaptor specific name of externalType.  This is
  * the name use during SQL generation.</p>
  * <p>If the externalType has not been set explicitly and the 
- * reciever [isFlattened], the valueClassName of the flattened
+ * reciever [-isFlattened], the valueClassName of the flattened
  * attribute is returned.</p>
  * <p>Otherwise, if the reciever has a prototype then the
  * externalType of the prototype is returned.</p>
@@ -661,23 +661,23 @@ RCS_ID("$Id$")
 
 /**
  * <p>Returns a one character string identifiying the underlying
- * C type of an NSNumber [valueTypeName].  The legal values in GDL2 are:</p>
- * <ul>
- * <li>@"c": char</li>
- * <li>@"C": unsigned char</li>
- * <li>@"s": short</li>
- * <li>@"S": unsigned short</li>
- * <li>@"i": int</li>
- * <li>@"I": unsigned int</li>
- * <li>@"l": long</li>
- * <li>@"L": unsigned long</li>
- * <li>@"u": long long</li>
- * <li>@"U": unsigned long long</li>
- * <li>@"f": float</li>
- * <li>@"d": double</li>
- * </ul>
+ * C type of an NSNumber [-valueType].  The legal values in GDL2 are:</p>
+ * <list>
+ * <item>@"c": char</item>
+ * <item>@"C": unsigned char</item>
+ * <item>@"s": short</item>
+ * <item>@"S": unsigned short</item>
+ * <item>@"i": int</item>
+ * <item>@"I": unsigned int</item>
+ * <item>@"l": long</item>
+ * <item>@"L": unsigned long</item>
+ * <item>@"u": long long</item>
+ * <item>@"U": unsigned long long</item>
+ * <item>@"f": float</item>
+ * <item>@"d": double</item>
+ * </list>
  * <p>If the valueType has not been set explicitly and the 
- * reciever [isFlattened], the valueClassName of the flattened
+ * reciever [-isFlattened], the valueClassName of the flattened
  * attribute is returned.</p>
  * <p>Otherwise, if the reciever has a prototype then the
  * valueType of the prototype is returned.</p>
@@ -1212,13 +1212,10 @@ return nexexp
         {
 	case EOFactoryMethodArgumentIsNSString:
 	  {
-	    NSData *data = nil;
             NSString *string = nil;
 
-	    data = AUTORELEASE([(GDL2_alloc(NSData)) initWithBytes: bytes
-						     length: length]);
-
-            string = [(GDL2_alloc(NSString)) initWithData: data
+            string = [(GDL2_alloc(NSString)) initWithBytes: bytes
+					     length: length
                                              encoding: encoding];
 
             // If we have a value factiry method, call it to get the final value
@@ -1291,12 +1288,9 @@ return nexexp
     
   if(!value)
     {
-      NSData *data;
-      data = AUTORELEASE([(GDL2_alloc(NSData)) initWithBytes: bytes
-					       length: length]);
-
       //For efficiency reasons, the returned value is NOT autoreleased !
-      value = [(GDL2_alloc(NSString)) initWithData: data
+      value = [(GDL2_alloc(NSString)) initWithBytes: bytes
+				      length: length
 				      encoding: encoding];
     }
   
@@ -1339,30 +1333,31 @@ return nexexp
   return date;
 }
 
-/** Returns the name of the method to use for creating a custom class 
-value for this attribute.
-
-See Also: - valueFactoryMethod, -newValueForBytes:length:
-**/
+/**
+ * <p>Returns the name of the method to use for creating a custom class 
+ * value for this attribute.</p>
+ * See Also: [-valueFactoryMethod], [-newValueForBytes:length:]
+ */
 - (NSString *)valueFactoryMethodName
 {
   return _valueFactoryMethodName;
 }
 
-/** Returns the selector of the method to use for creating a custom class 
-value for this attribute.
-Default implementation returns selector for name returned by 
--valueFactoryMethodName or NULL if no selector is found.
-
-See Also: - valueFactoryMethodName, -newValueForBytes:length:
-**/
+/**
+ * <p>Returns the selector of the method to use for creating a custom class 
+ * value for this attribute.</p>
+ * <p>Default implementation returns selector for name returned by 
+ * [-valueFactoryMethodName] or NULL if no selector is found.</p>
+ *
+ * See Also: [-valueFactoryMethodName], [-newValueForBytes:length:]
+ */
 - (SEL)valueFactoryMethod
 {
   return _valueFactoryMethod;
 }
 
 /**
- * Depending on -adaptorValueType this method checks whether the value
+ * Depending on [-adaptorValueType] this method checks whether the value
  * is a NSNumber, NSString, NSData or NSDate instance respectively.
  * If not, it attempts to retrieve the -adaptorValueConversionMethod
  * which should be used to convert the value accordingly.  If none
@@ -1419,7 +1414,8 @@ See Also: - valueFactoryMethodName, -newValueForBytes:length:
                 }
               else
                 {
-                  /* This exception might not be conformant, but seems helpful.  */
+                  /* This exception might not be conformant, 
+		     but seems helpful.  */
                   [NSException raise: NSInvalidArgumentException
                                format: @"Value of class: %@ needs conversion "
                                @"yet no conversion method specified. "
@@ -1437,38 +1433,49 @@ See Also: - valueFactoryMethodName, -newValueForBytes:length:
   return value;
 }
 
-/** Returns method name to use to convert value of a class 
-different than attribute adaptor value type. 
-
-See also: -adaptorValueByConvertingAttributeValue, -adaptorValueConversionMethod
-**/
+/**
+ * <p>Returns method name to use to convert value of a class 
+ * different than attribute adaptor value type.</p>
+ * 
+ * See also: [-adaptorValueByConvertingAttributeValue:], 
+ * [-adaptorValueConversionMethod]
+ */
 - (NSString *)adaptorValueConversionMethodName
 {
   return _adaptorValueConversionMethodName;
 }
 
-/** Returns selector of the method to use to convert value of a class 
-different than attribute adaptor value type. 
-Default implementation returns selector of method returned by 
-adaptorValueConversionMethodName or NULL if there's not selector for the method
-
-See also: -adaptorValueByConvertingAttributeValue, -adaptorValueConversionMethodName
-**/
+/** 
+ * <p>Returns selector of the method to use to convert value of a class 
+ * different than attribute adaptor value type.</p>
+ * <p>The default implementation returns the selector corresponding to 
+ * [-adaptorValueConversionMethodName] or NULL if there's not selector
+ * for the method.</p>
+ *
+ * See also: [-adaptorValueByConvertingAttributeValue:],
+ * [-adaptorValueConversionMethodName]
+ */
 - (SEL)adaptorValueConversionMethod
 {
   return _adaptorValueConversionMethod;
 }
 
-/** Returns an EOAdaptorValueType describing the adaptor 
-(i.e. database) type of data for this attribute.
-
-Returned value can be:
-EOAdaptorBytesType 	Raw bytes (default type)
-EOAdaptorNumberType 	Number value (attribute valueClass is kind of NSNumber)
-EOAdaptorCharactersType String value (attribute valueClass is kind of NSString)
-EOAdaptorDateType 	Date value (attribute valueClass is kind of NSDate)
-
-**/
+/**
+ * <p>Returns an EOAdaptorValueType describing the adaptor 
+ * (i.e. database) type of data for this attribute.</p>
+ *
+ * <p>Returned value can be:</p>
+ * <list>
+ * <item>EOAdaptorBytesType
+ * 	Raw bytes (default type)</item>
+ * <item>EOAdaptorNumberType 
+ *	Number value (attribute valueClass is kind of NSNumber) </item>
+ * <item>EOAdaptorCharactersType
+ *	String value (attribute valueClass is kind of NSString)</item>
+ * <item>EOAdaptorDateType
+ * 	Date value (attribute valueClass is kind of NSDate)</item>
+ * </list>
+ */
 - (EOAdaptorValueType)adaptorValueType
 {
   if (!_flags.isAttributeValueInitialized)
@@ -1543,19 +1550,20 @@ See also: -setFactoryMethodArgumentType:
   _valueFactoryMethod = NSSelectorFromString(_valueFactoryMethodName);
 }
 
-/** Set method name to use to convert value of a class 
-different than attribute adaptor value type. 
-
-See also: -adaptorValueByConvertingAttributeValue, -adaptorValueConversionMethod, 
-	-adaptorValueConversionMethodName
-**/
-
+/** 
+ * <p>Set method name to use to convert value of a class 
+ * different than attribute adaptor value type.</p>
+ *
+ * See also: [-adaptorValueByConvertingAttributeValue:], 
+ * [-adaptorValueConversionMethod], [-adaptorValueConversionMethodName]
+ */
 - (void)setAdaptorValueConversionMethodName: (NSString *)conversionMethodName
 {
   [self willChange];
   ASSIGN(_adaptorValueConversionMethodName, conversionMethodName);
 
-  _adaptorValueConversionMethod = NSSelectorFromString(_adaptorValueConversionMethodName);
+  _adaptorValueConversionMethod 
+    = NSSelectorFromString(_adaptorValueConversionMethodName);
 }
 
 /** Set the type of argument needed by the factoryMethod.

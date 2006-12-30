@@ -58,7 +58,7 @@
 
 - (NSDictionary *)valuesForKeys: (NSArray *)keys object: (id)object;
 
-- (EOCooperatingObjectStore *)objectStoreForGlobalID: (EOGlobalID *)gloablID;
+- (EOCooperatingObjectStore *)objectStoreForGlobalID: (EOGlobalID *)globalID;
 
 - (EOCooperatingObjectStore *)objectStoreForObject: (id)object;
 

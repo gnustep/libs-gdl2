@@ -392,10 +392,10 @@ setRequiresAllQualifierBindingVariables:requiresAllQualifierBindingVariables
   return _qualifier;
 }
 
-- (void)setUsesDistinct: (BOOL)flag
+- (void)setUsesDistinct: (BOOL)usesDistinct
 {
   [self willChange];
-  _flags.usesDistinct = flag ? YES : NO;
+  _flags.usesDistinct = usesDistinct ? YES : NO;
 }
 
 - (BOOL)usesDistinct

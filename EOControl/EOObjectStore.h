@@ -71,7 +71,7 @@
 
 - (void)saveChangesInEditingContext: (EOEditingContext *)context;
 
-- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpec
+- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
 			    editingContext: (EOEditingContext *)context;
 
 - (BOOL)isObjectLockedWithGlobalID: (EOGlobalID *)gid

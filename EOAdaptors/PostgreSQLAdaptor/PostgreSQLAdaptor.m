@@ -259,7 +259,7 @@ static NSString *typeNames[][2] = {
   return [[self externalToInternalTypeMap] allKeys];
 }
 
-+ (void)assignExternalInfoForAttribute: (EOAttribute *)attribute
++ (void)assignExternalTypeForAttribute: (EOAttribute *)attribute
 {
   // TODO
   EOAdaptorValueType value = [attribute adaptorValueType];
@@ -326,12 +326,13 @@ static NSString *typeNames[][2] = {
 
 - (void)assertConnectionDictionaryIsValid
 {
-  NSException *exception = nil;
-  EOAdaptorContext *adaptorContext;
-  EOAdaptorChannel *adaptorChannel;
 
   if (![self hasOpenChannels])
     {
+      EOAdaptorContext *adaptorContext;
+      EOAdaptorChannel *adaptorChannel;
+      volatile NSException *exception = nil;
+
       adaptorContext = [self createAdaptorContext];
       adaptorChannel = [adaptorContext createAdaptorChannel];
 

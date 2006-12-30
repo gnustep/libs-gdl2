@@ -120,6 +120,7 @@ RCS_ID("$Id$")
 
 - (void)setQualifierBindings: (NSDictionary *)bindings
 {
+  return;
 }
 
 - (NSDictionary *)qualifierBindings

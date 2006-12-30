@@ -27,6 +27,7 @@
 include $(GNUSTEP_MAKEFILES)/common.make
 
 include ../Version
+include ../common.make
 
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOControl
@@ -104,26 +105,19 @@ EODeprecated.h \
 EOControl.h
 
 DOCUMENT_NAME = EOControl
-EOControl_AUTOGSDOC_HEADERS = $(EOControl_HEADER_FILES)
-EOControl_AUTOGSDOC_SOURCE = $(EOControl_OBJC_FILES)
-EOControl_HEADER_FILES_DIR = $(HEADER_DIR)
-EOControl_AGSDOC_FILES = EOControl.gsdoc $(EOControl_AUTOGSDOC_HEADERS) 
-#$(EOControl_AUTOGSDOC_SOURCE)
+
+EOControl_AGSDOC_FILES = EOControl.gsdoc \
+	$(EOControl_HEADER_FILES) \
+	$(EOControl_OBJC_FILES)
+
 EOControl_AGSDOC_FLAGS = \
 	-Declared EOControl \
-	-Standards YES \
-	-SystemProjects System \
 	-Project EOControl \
-	-WordMap '{\
-	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
-	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
-	GS_EXPORT=extern;GS_DECLARE="";\
-	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
-	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
-	}' -Up EOControl
+	-Up EOControl \
+	$(GDL2_AGSDOC_FLAGS)
 
 -include Makefile.preamble
-include ../common.make
+include ../variable-processing.make
 -include GNUmakefile.local
 
 include $(GNUSTEP_MAKEFILES)/native-library.make

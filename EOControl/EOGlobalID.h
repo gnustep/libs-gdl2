@@ -73,9 +73,6 @@ enum {
 
 - (BOOL)isTemporary;
 
-- (void)encodeWithCoder: (NSCoder *)coder;
-- (id)initWithCoder: (NSCoder *)decoder;
-
 @end
 
 #endif

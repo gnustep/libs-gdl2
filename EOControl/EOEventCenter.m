@@ -73,23 +73,29 @@ NSString *EOEventLoggingLimit = @"EOEventLoggingLimit";
 }
 + (void)suspendLogging
 {
+  return;
 }
 + (void)resumeLogging
 {
+  return;
 }
 + (void)resetLogging
 {
+  return;
 }
 - (void)resetLogging
 {
+  return;
 }
 + (void)registerEventClass: (Class)eventClass
 	      classPointer: (Class *)classPtr
 {
+  return;
 }
 + (void)registerEventClass: (Class)eventClass
 		   handler: (id <EOEventRecordingHandler>)handler
 {
+  return;
 }
 + (NSArray *)registeredEventClasses
 {
@@ -102,6 +108,7 @@ NSString *EOEventLoggingLimit = @"EOEventLoggingLimit";
 + (void)setRecordsEvents: (BOOL)flag
 		forClass: (Class)eventClass
 {
+  return;
 }
 + (id)newEventOfClass: (Class)eventClass
 		 type: (NSString *)type
@@ -111,16 +118,20 @@ NSString *EOEventLoggingLimit = @"EOEventLoggingLimit";
 + (void)markStartOfEvent: (EOEvent *)event
 		    info: (id)info
 {
+  return;
 }
 + (void)markAtomicEvent: (EOEvent *)event
 		   info: (id)info
 {
+  return;
 }
 + (void)markEndOfEvent:(EOEvent *)event
 {
+  return;
 }
 + (void)cancelEvent:(EOEvent *)event
 {
+  return;
 }
 - (NSArray *)eventsOfClass: (Class)eventClass
 		      type: (NSString *)type

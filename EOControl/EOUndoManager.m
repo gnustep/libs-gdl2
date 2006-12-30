@@ -46,7 +46,7 @@ RCS_ID("$Id$")
 
 @implementation EOUndoManager
 
-- (void) forgetAllWithTarget: (id)param0
+- (void) forgetAllWithTarget: (id)target
 {
   EOFLOGObjectFnStart();
 
@@ -65,8 +65,8 @@ RCS_ID("$Id$")
 }
 
 - (void) registerUndoWithTarget: (id)target
-                       selector: (SEL)sel
-                            arg: (id)arg
+                       selector: (SEL)selector
+                            arg: (id)argument
 {
   EOFLOGObjectFnStart();
 

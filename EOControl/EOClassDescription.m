@@ -86,8 +86,6 @@ RCS_ID("$Id$")
 +(id)defaultGroup;
 @end
 
-@implementation EOClassDescription
-
 NSString *EOClassDescriptionNeededNotification 
       = @"EOClassDescriptionNeededNotification";
 
@@ -110,6 +108,8 @@ static NSMapTable *classDescriptionForEntity = NULL;
 static NSMapTable *classDescriptionForClass = NULL;
 static id classDelegate = nil;
 static NSRecursiveLock *local_lock = nil;
+
+@implementation EOClassDescription
 
 + (void) initialize
 {
@@ -303,17 +303,18 @@ static NSRecursiveLock *local_lock = nil;
   EOFLOGObjectFnStop();
 
   return dictionary;
-};
-
-- (void)awakeObject: (id)object
-fromFetchInEditingContext: (EOEditingContext *)anEditingContext
-{
-  //OK
-  //nothing to do
 }
 
 - (void)awakeObject: (id)object
-fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
+fromFetchInEditingContext: (EOEditingContext *)editingContext
+{
+  //OK
+  //nothing to do
+  return;
+}
+
+- (void)awakeObject: (id)object
+fromInsertionInEditingContext: (EOEditingContext *)editingContext
 {
   //Near OK
   NSArray *toManyRelationshipKeys = nil;
@@ -357,7 +358,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   return nil;
 }
 
-- (id)createInstanceWithEditingContext: (EOEditingContext *)anEditingContext
+- (id)createInstanceWithEditingContext: (EOEditingContext *)editingContext
                               globalID: (EOGlobalID *)globalID
                                   zone: (NSZone *)zone
 {
@@ -440,7 +441,7 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 }
 
 - (void)propagateDeleteForObject: (id)object
-                  editingContext: (EOEditingContext *)context
+                  editingContext: (EOEditingContext *)editingContext
 {
   NSArray *toRelArray;
   NSEnumerator *toRelEnum;
@@ -478,9 +479,12 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
           NSDebugMLLog(@"gsdb", @"ToOne key=%@", key);
           
           if (classDelegate)
-            shouldPropagate = [classDelegate shouldPropagateDeleteForObject: object
-                                             inEditingContext: context
-                                             forRelationshipKey: key];
+	    {
+	      shouldPropagate 
+		= [classDelegate shouldPropagateDeleteForObject: object
+				 inEditingContext: editingContext
+				 forRelationshipKey: key];
+	    }
           
           NSDebugMLLog(@"gsdb", @"ToOne key=%@ shouldPropagate=%s", key,
                        (shouldPropagate ? "YES" : "NO"));
@@ -523,8 +527,8 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
                       EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleCascade");
                       [object removeObject: destination
                               fromBothSidesOfRelationshipWithKey: key];
-                      [context deleteObject: destination];
-                      [destination propagateDeleteWithEditingContext: context];
+                      [editingContext deleteObject: destination];
+                      [destination propagateDeleteWithEditingContext: editingContext];
                       break;
                       
                     case EODeleteRuleDeny:
@@ -554,9 +558,12 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
           NSDebugMLLog(@"gsdb", @"ToMany key=%@", key);
 
           if (classDelegate)
-            shouldPropagate = [classDelegate shouldPropagateDeleteForObject: object
-                                             inEditingContext: context
-                                             forRelationshipKey: key];
+	    {
+	      shouldPropagate 
+		= [classDelegate shouldPropagateDeleteForObject: object
+				 inEditingContext: editingContext
+				 forRelationshipKey: key];
+	    }
           NSDebugMLLog(@"gsdb", @"ToMany key=%@ shouldPropagate=%s", key,
                        (shouldPropagate ? "YES" : "NO"));
 
@@ -612,8 +619,8 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
                       [object removeObject: destination
                               fromBothSidesOfRelationshipWithKey: key];
-                      [context deleteObject: destination];
-                      [destination propagateDeleteWithEditingContext: context];
+                      [editingContext deleteObject: destination];
+                      [destination propagateDeleteWithEditingContext: editingContext];
                     }
                   NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
                                toManyArray, toManyArray);
@@ -661,17 +668,17 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
   return nil;
 }
 
-- (EORelationship *)anyRelationshipNamed:(NSString *)relationshipNamed
+- (EORelationship *)anyRelationshipNamed:(NSString *)relationshipName
 {
   return nil;
 }
 
-- (NSString *)userPresentableDescriptionForObject:(id)anObject
+- (NSString *)userPresentableDescriptionForObject:(id)object
 {
   NSArray *attrArray = [self attributeKeys];
   NSEnumerator *attrEnum = [attrArray objectEnumerator];
-  NSMutableString *values = [NSMutableString stringWithCapacity:
-					       4 * [attrArray count]];
+  NSMutableString *values 
+    = [NSMutableString stringWithCapacity: 4 * [attrArray count]];
   NSString *key;
   BOOL init = YES;
 
@@ -729,9 +736,9 @@ fromInsertionInEditingContext: (EOEditingContext *)anEditingContext
 
 @implementation NSObject (EOInitialization)
 
-- (id)initWithEditingContext: (EOEditingContext *)ec
-	    classDescription: (EOClassDescription *)classDesc
-		    globalID: (EOGlobalID *)globalID;
+- (id)initWithEditingContext: (EOEditingContext *)editingContext
+	    classDescription: (EOClassDescription *)classDescription
+		    globalID: (EOGlobalID *)globalID
 {
   return [self init];
 }
@@ -1870,7 +1877,7 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 @implementation NSObject (EOClassDescriptionClassDelegate)
 
 - (BOOL)shouldPropagateDeleteForObject: (id)object
-                      inEditingContext: (EOEditingContext *)ec
+                      inEditingContext: (EOEditingContext *)editingContext
                     forRelationshipKey: (NSString *)key
 {
   return YES;
@@ -2003,16 +2010,6 @@ fromBothSidesOfRelationshipWithKey: (NSString *)key
 - (void)reapplyChangesFromSnapshot: (NSDictionary *)changes
 {
   [self notImplemented: _cmd];
-}
-
-@end
-
-@implementation NSObject (_EOEditingContext)
-
-- (EOEditingContext*)editingContext
-{
-  return [EOObserverCenter observerForObject: self
-                           ofClass: [EOEditingContext class]];
 }
 
 @end

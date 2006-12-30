@@ -233,8 +233,4 @@ GDL2CONTROL_EXPORT NSString *EOValidatedPropertyUserInfoKey;
 
 @end
 
-@interface NSObject (_EOEditingContext)
-- (EOEditingContext *)editingContext;
-@end
-
 #endif
