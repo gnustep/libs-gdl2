@@ -38,7 +38,6 @@ extern Class PSQLA_NSCalendarDateClass;
 extern Class PSQLA_NSDateClass;
 extern Class PSQLA_NSMutableArrayClass;
 extern Class PSQLA_EOAttributeClass;
-extern Class PSQLA_PostgreSQLValuesClass;
 
 // ==== IMPs ====
 extern IMP PSQLA_NSNumber_allocWithZoneIMP;
@@ -47,7 +46,6 @@ extern IMP PSQLA_NSString_allocWithZoneIMP;
 extern IMP PSQLA_NSCalendarDate_allocWithZoneIMP;
 extern IMP PSQLA_NSMutableArray_allocWithZoneIMP;
 extern IMP PSQLA_EOAttribute_allocWithZoneIMP;
-extern IMP PSQLA_PostgreSQLValues_newValueForBytesLengthAttributeIMP;
 
 // ==== Constants ====
 extern NSNumber *PSQLA_NSNumberBool_Yes;
@@ -71,16 +69,6 @@ _isNilOrEONull(id obj)
   return (obj == nil || obj == PSQLA_EONull) ? YES : NO;
 }
 
-// ---- PostgreSQLValues newValueForBytes:length:attribute ----
-#define PSQLA_PostgreSQLValues_newValueForBytesLengthAttribute(bytes, \
-							       length, \
-							       attribute) \
-	(*PSQLA_PostgreSQLValues_newValueForBytesLengthAttributeIMP) \
-	(PSQLA_PostgreSQLValuesClass, \
-	 @selector(newValueForBytes:length:attribute:), \
-	 (bytes), (length), (attribute))
-
-	
 
 // ---- NSEnumerator nextObject ----
 static inline id

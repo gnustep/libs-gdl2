@@ -62,6 +62,7 @@
   BOOL _fetchBlobsOid;
   NSArray *_pkAttributeArray;
   int _pgVersion;
+  NSStringEncoding encoding;
 
   struct {
     unsigned int postgresInsertedRowOid:1;

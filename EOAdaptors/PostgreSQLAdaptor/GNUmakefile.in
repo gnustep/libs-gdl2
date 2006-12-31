@@ -42,15 +42,13 @@ PostgreSQLAdaptor.m \
 PostgreSQLContext.m \
 PostgreSQLChannel.m \
 PostgreSQLExpression.m \
-PostgreSQLValues.m \
 PostgreSQLPrivate.m
 
 PostgreSQLEOAdaptor_HEADER_FILES = \
 PostgreSQLAdaptor.h \
 PostgreSQLContext.h \
 PostgreSQLChannel.h \
-PostgreSQLExpression.h \
-PostgreSQLValues.h
+PostgreSQLExpression.h
 
 
 PostgreSQLEOAdaptor_AUTOGSDOC_HEADERS = $(PostgreSQLEOAdaptor_HEADER_FILES)

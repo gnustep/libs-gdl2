@@ -44,8 +44,6 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOAccess/EOAttribute.h>
 
-#include "PostgreSQLValues.h"
-
 // ==== Classes ====
 Class PSQLA_NSStringClass=Nil;
 Class PSQLA_NSNumberClass=Nil;
@@ -54,7 +52,6 @@ Class PSQLA_NSCalendarDateClass=Nil;
 Class PSQLA_NSDateClass=Nil;
 Class PSQLA_NSMutableArrayClass;
 Class PSQLA_EOAttributeClass=Nil;
-Class PSQLA_PostgreSQLValuesClass=Nil;
 
 // ==== IMPs ====
 IMP PSQLA_NSNumber_allocWithZoneIMP=NULL;
@@ -63,7 +60,6 @@ IMP PSQLA_NSString_allocWithZoneIMP=NULL;
 IMP PSQLA_NSCalendarDate_allocWithZoneIMP=NULL;
 IMP PSQLA_NSMutableArray_allocWithZoneIMP=NULL;
 IMP PSQLA_EOAttribute_allocWithZoneIMP=NULL;
-IMP PSQLA_PostgreSQLValues_newValueForBytesLengthAttributeIMP=NULL;
 
 // ==== Constants ====
 NSNumber *PSQLA_NSNumberBool_Yes=nil;
@@ -90,7 +86,6 @@ PSQLA_PrivInit(void)
       PSQLA_NSCalendarDateClass=[NSCalendarDate class];
       PSQLA_NSDateClass=[NSDate class];
       PSQLA_EOAttributeClass = [EOAttribute class];
-      PSQLA_PostgreSQLValuesClass = [PostgreSQLValues class];
 
       // ==== IMPs ====
       PSQLA_NSNumber_allocWithZoneIMP=
@@ -111,8 +106,6 @@ PSQLA_PrivInit(void)
       PSQLA_EOAttribute_allocWithZoneIMP=
         [PSQLA_EOAttributeClass methodForSelector:@selector(allocWithZone:)];
 
-      PSQLA_PostgreSQLValues_newValueForBytesLengthAttributeIMP=
-        [PSQLA_PostgreSQLValuesClass methodForSelector:@selector(newValueForBytes:length:attribute:)];
 
       // ==== Constants ====
       ASSIGN(PSQLA_NSNumberBool_Yes,[PSQLA_NSNumberClass numberWithBool:YES]);

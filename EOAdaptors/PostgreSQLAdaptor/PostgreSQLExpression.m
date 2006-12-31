@@ -63,7 +63,6 @@ RCS_ID("$Id$")
 
 #include "PostgreSQLExpression.h"
 #include "PostgreSQLAdaptor.h"
-#include "PostgreSQLValues.h"
 
 #include "PostgreSQLCompatibility.h"
 #include "PostgreSQLPrivate.h"

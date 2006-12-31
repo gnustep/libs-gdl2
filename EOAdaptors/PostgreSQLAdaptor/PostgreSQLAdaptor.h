@@ -70,6 +70,8 @@
 extern int
 postgresClientVersion();
 
+extern NSString *PostgreSQLException;
+
 @interface PostgreSQLAdaptor : EOAdaptor
 {
   NSMutableArray *_pgConnPool;
@@ -102,8 +104,6 @@ postgresClientVersion();
 // format is something like @"%@_SEQ" or @"EOSEQ_%@", "%@" is replaced by external table name
 - (void)setPrimaryKeySequenceNameFormat: (NSString*)format;
 - (NSString*)primaryKeySequenceNameFormat;
-
-extern NSString *PostgreSQLException;
 
 @end
 

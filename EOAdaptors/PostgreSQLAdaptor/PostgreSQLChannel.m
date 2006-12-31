@@ -44,14 +44,17 @@ RCS_ID("$Id$")
 
 #ifdef GNUSTEP
 #include <Foundation/NSArray.h>
+#include <Foundation/NSAutoreleasePool.h>
+#include <Foundation/NSCalendarDate.h>
+#include <Foundation/NSData.h>
+#include <Foundation/NSDebug.h>
 #include <Foundation/NSDictionary.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSString.h>
 #include <Foundation/NSSet.h>
-#include <Foundation/NSObjCRuntime.h>
+#include <Foundation/NSTimeZone.h>
 #include <Foundation/NSUtilities.h>
-#include <Foundation/NSException.h>
-#include <Foundation/NSAutoreleasePool.h>
-#include <Foundation/NSDebug.h>
 #else
 #include <Foundation/Foundation.h>
 #include <GNUstepBase/GSCategories.h>
@@ -76,21 +79,19 @@ RCS_ID("$Id$")
 #include "PostgreSQLAdaptor.h"
 #include "PostgreSQLChannel.h"
 #include "PostgreSQLContext.h"
-#include "PostgreSQLValues.h"
 
 #include "PostgreSQLPrivate.h"
 
-static void __dummy_function_used_for_linking(void)
-{
-  extern void __postgres_values_linking_function(void);
+@interface EOAttribute (private)
+- (Class)_valueClass;
+- (char)_valueTypeChar;
+@end
 
-  __postgres_values_linking_function();
-  __dummy_function_used_for_linking();
-}
+static BOOL attrRespondsToValueClass = NO;
+static BOOL attrRespondsToValueTypeChar = NO;
 
 #define EOAdaptorDebugLog(format, args...) \
   do { if ([self isDebugEnabled]) { NSLog(format , ## args); } } while (0)
-#define NSS_SWF NSString stringWithFormat
 
 static NSDictionary *
 pgResultDictionary(PGresult *pgResult)
@@ -154,8 +155,8 @@ pgResultDictionary(PGresult *pgResult)
 	  else
 	    {
 	      NSString *fmt;
-	      fmt = [NSS_SWF: @"%%%ds", PQgetlength(pgResult, i, j)];
-	      tupleInfo = [NSS_SWF: fmt, PQgetvalue(pgResult, i, j)];
+	      fmt = [NSString stringWithFormat: @"%%%ds", PQgetlength(pgResult, i, j)];
+	      tupleInfo = [NSString stringWithFormat: fmt, PQgetvalue(pgResult, i, j)];
 	    }
 	  [tuple setObject: tupleInfo forKey: tupleKey];
 	}
@@ -165,19 +166,313 @@ pgResultDictionary(PGresult *pgResult)
   statusType = PQresultStatus(pgResult);
 
   return [NSDictionary dictionaryWithObjectsAndKeys:
-    [NSS_SWF:@"%d",  statusType], @"PQresultStatus",
-    [NSS_SWF:@"%s",  PQresStatus(statusType)], @"PQresStatus",
-    [NSS_SWF:@"%s",  PQresultErrorMessage(pgResult)], @"PQresultErrorMessage",
-    [NSS_SWF:@"%d",  ntuples], @"PQntuples",
-    [NSS_SWF:@"%d",  nfields], @"PQnfields",
-    [NSS_SWF:@"%d",  PQbinaryTuples(pgResult)], @"PQbinaryTuples",
-    [NSS_SWF:@"%s",  PQcmdStatus(pgResult)], @"PQcmdStatus",
-    [NSS_SWF:@"%s",  PQoidStatus(pgResult)], @"PQoidStatus",
-    [NSS_SWF:@"%d",  PQoidValue(pgResult)], @"PQoidValue",
-    [NSS_SWF:@"%s",  PQcmdTuples(pgResult)], @"PQcmdTuples",
+    [NSString stringWithFormat:@"%d",  statusType], @"PQresultStatus",
+    [NSString stringWithFormat:@"%s",  PQresStatus(statusType)], @"PQresStatus",
+    [NSString stringWithFormat:@"%s",  PQresultErrorMessage(pgResult)], @"PQresultErrorMessage",
+    [NSString stringWithFormat:@"%d",  ntuples], @"PQntuples",
+    [NSString stringWithFormat:@"%d",  nfields], @"PQnfields",
+    [NSString stringWithFormat:@"%d",  PQbinaryTuples(pgResult)], @"PQbinaryTuples",
+    [NSString stringWithFormat:@"%s",  PQcmdStatus(pgResult)], @"PQcmdStatus",
+    [NSString stringWithFormat:@"%s",  PQoidStatus(pgResult)], @"PQoidStatus",
+    [NSString stringWithFormat:@"%d",  PQoidValue(pgResult)], @"PQoidValue",
+    [NSString stringWithFormat:@"%s",  PQcmdTuples(pgResult)], @"PQcmdTuples",
     tuples, @"tuples",
     fields, @"fields",
     nil];
+}
+
+/*
+ * read up to the specified number of characters, terminating at a non-digit
+ * except for leading whitespace characters.
+ */
+static inline int getDigits(const char *from, char *to, int limit, BOOL *error)
+{
+  int	i = 0;
+  int	j = 0;
+
+  BOOL	foundDigit = NO;
+
+  while (i < limit)
+    {
+      if (isdigit(from[i]))
+	{
+	  to[j++] = from[i];
+	  foundDigit = YES;
+	}
+      else if (isspace(from[i]))
+	{
+	  if (foundDigit == YES)
+	    {
+	      break;
+	    }
+	}
+      else
+	{
+	  break;
+	}
+      i++;
+    }
+  to[j] = '\0';
+  if (j == 0)
+    {
+      *error = YES;	// No digits read
+    }
+  return i;
+}
+
+static id
+newValueForNumberTypeLengthAttribute(const void *bytes,
+				     int length,
+				     EOAttribute *attribute,
+				     NSStringEncoding encoding)
+{  
+  id value = nil;
+  NSString* externalType=nil;
+  
+  externalType=[attribute externalType];
+
+  if (length==1 // avoid -isEqualToString if we can :-)
+      && [externalType isEqualToString: @"bool"])
+    {
+      if (((char *)bytes)[0] == 't' && ((char *)bytes)[1] == 0)
+	value=RETAIN(PSQLA_NSNumberBool_Yes);
+      else if (((char *)bytes)[0] == 'f' && ((char *)bytes)[1] == 0)
+	value=RETAIN(PSQLA_NSNumberBool_No);
+      else
+        NSCAssert1(NO, @"Bad boolean: %@",
+		   AUTORELEASE([[NSString alloc] initWithBytes: bytes
+						 length: length
+						 encoding: encoding]));
+    }
+  else
+    {
+      Class valueClass = attrRespondsToValueClass 
+	? [attribute _valueClass] 
+	: NSClassFromString ([attribute valueClassName]);
+
+      if (valueClass==PSQLA_NSDecimalNumberClass)
+        {
+	  //TODO: Optimize without creating NSString instance
+          NSString* str = [PSQLA_alloc(NSString) initWithCString:bytes
+				                 length:length];
+          
+          value = [PSQLA_alloc(NSDecimalNumber) initWithString: str];
+
+          RELEASE(str);
+        }
+      else
+        {
+          char valueTypeChar = attrRespondsToValueTypeChar
+	    ? [attribute _valueTypeChar]
+	    : [[attribute valueType] cString][0];
+          switch(valueTypeChar)
+            {
+            case 'i':
+              value = [PSQLA_alloc(NSNumber) initWithInt: atoi(bytes)];
+              break;
+            case 'I':
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedInt:(unsigned int)atol(bytes)];
+              break;
+            case 'c':
+              value = [PSQLA_alloc(NSNumber) initWithChar: atoi(bytes)];
+              break;
+            case 'C':
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedChar: (unsigned char)atoi(bytes)];
+              break;
+            case 's':
+              value = [PSQLA_alloc(NSNumber) initWithShort: (short)atoi(bytes)];
+              break;
+            case 'S':
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedShort: (unsigned short)atoi(bytes)];
+              break;
+            case 'l':
+              value = [PSQLA_alloc(NSNumber) initWithLong: atol(bytes)];
+              break;
+            case 'L':
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedLong:strtoul(bytes,NULL,10)];
+              break;
+            case 'u':
+              value = [PSQLA_alloc(NSNumber) initWithLongLong:atoll(bytes)];
+              break;
+            case 'U':
+              value = [PSQLA_alloc(NSNumber) initWithUnsignedLongLong:strtoull(bytes,NULL,10)];
+              break;
+            case 'f':
+              value = [PSQLA_alloc(NSNumber) initWithFloat: (float)strtod(bytes,NULL)];
+              break;
+            case 'd':
+            case '\0':
+              value = [PSQLA_alloc(NSNumber) initWithDouble: strtod(bytes,NULL)];
+              break;
+            default:
+              NSCAssert2(NO,@"Unknown attribute valueTypeChar: %c for attribute: %@",
+			 valueTypeChar,attribute);
+            };
+        };
+    };
+
+  return value;
+}
+
+static id
+newValueForCharactersTypeLengthAttribute (const void *bytes,
+					  int length,
+					  EOAttribute *attribute,
+					  NSStringEncoding encoding)
+{
+  return [attribute newValueForBytes: bytes
+		    length: length
+		    encoding: encoding];
+}
+
+static id
+newValueForBytesTypeLengthAttribute (const void *bytes,
+				     int length,
+				     EOAttribute *attribute,
+				     NSStringEncoding encoding)
+{
+  size_t newLength = length;
+  unsigned char *decodedBytes = 0;
+  id data = nil;
+
+  if ([[attribute externalType] isEqualToString: @"bytea"])
+    {
+      decodedBytes = PQunescapeBytea((unsigned char *)bytes, &newLength);
+      bytes = decodedBytes;
+    }
+
+  data = [attribute newValueForBytes: bytes
+		    length: newLength];
+  if (decodedBytes)
+    {
+      PQfreemem (decodedBytes);
+    }
+  return data;
+}
+
+static id
+newValueForDateTypeLengthAttribute (const void *bytes,
+				    int length,
+				    EOAttribute *attribute,
+				    NSStringEncoding encoding)
+{
+  int year = 0;
+  unsigned month = 0;
+  unsigned day = 0;
+  unsigned hour = 0;
+  unsigned minute = 0;
+  unsigned second = 0;
+  unsigned millisecond = 0;
+  int tz = 0;
+  NSTimeZone *timezone = nil;
+  NSCalendarDate *date = nil;
+  const char *str = bytes;
+  BOOL error;
+
+  /* We assume ISO date format:
+     2006-12-31 00:45:21.2531419+01 
+     012345678911234567892123456789
+     where the milliseconds have variable length.  */
+  if (length > 3)
+    {
+      char tmpString[5];
+      getDigits(&str[0],tmpString,4,&error);
+      year = atoi(tmpString);
+    }
+
+  if (length > 6)
+    {
+      char tmpString[3];
+      getDigits(&str[5],tmpString,2,&error);
+      month = atoi(tmpString);
+    }
+
+  if (length > 9)
+    {
+      char tmpString[3];
+      getDigits(&str[8],tmpString,2,&error);
+      day = atoi(tmpString);
+    }
+
+  if (length > 12)
+    {
+      char tmpString[3];
+      getDigits(&str[11],tmpString,2,&error);
+      hour = atoi(tmpString);
+    }
+
+  if (length > 15)
+    {
+      char tmpString[3];
+      getDigits(&str[14],tmpString,2,&error);
+      minute = atoi(tmpString);
+    }
+
+  if (length > 18)
+    {
+      char tmpString[3];
+      getDigits(&str[17],tmpString,2,&error);
+      second = atoi(tmpString);
+    }
+
+  if (length > 18)
+    {
+      char tmpString[3];
+      getDigits(&str[17],tmpString,2,&error);
+      second = atoi(tmpString);
+    }
+  if (length > 19)
+    {
+      char tmpString[8];
+      tz = getDigits(&str[17],tmpString,7,&error);
+      second = atoi(tmpString);
+    }
+  if (tz)
+    {
+      char tmpString[3];
+      int sign = (str[tz]) == '-' ? -1 : 1;
+      getDigits(&str[tz+1],tmpString,2,&error);
+      tz = atoi(tmpString);
+      if (tz < 100) tz *= 100;
+      tz = sign * ((tz / 100) * 60 + (tz % 100)) * 60;
+      timezone = [NSTimeZone timeZoneForSecondsFromGMT: tz];
+    }
+
+  date = [attribute newDateForYear: year
+		    month: month
+		    day: day
+		    hour: hour
+		    minute: minute
+		    second: second
+		    millisecond: millisecond
+		    timezone: timezone
+		    zone: 0];
+
+  return date;
+}
+
+static id
+newValueForBytesLengthAttribute (const void *bytes, 
+				 int length, 
+				 EOAttribute *attribute,
+				 NSStringEncoding encoding)
+{
+  switch ([attribute adaptorValueType])
+    {
+    case EOAdaptorNumberType:
+      return newValueForNumberTypeLengthAttribute(bytes, length, attribute, encoding);
+    case EOAdaptorCharactersType:
+      return newValueForCharactersTypeLengthAttribute(bytes, length, attribute, encoding);
+    case EOAdaptorBytesType:
+      return newValueForBytesTypeLengthAttribute(bytes, length, attribute, encoding);
+    case EOAdaptorDateType:
+      return newValueForDateTypeLengthAttribute(bytes, length, attribute, encoding);
+    default:
+      NSCAssert2(NO,
+                @"Bad (%d) adaptor type for attribute : %@",
+                (int)[attribute adaptorValueType],attribute);
+      return nil;
+    }
 }
 
 @implementation PostgreSQLChannel
@@ -187,10 +482,14 @@ pgResultDictionary(PGresult *pgResult)
   static BOOL initialized=NO;
   if (!initialized)
     {
-      Class aClass=Nil;
       PSQLA_PrivInit();
 
-      aClass=[PostgreSQLValues class]; // Force Initialize;      
+      attrRespondsToValueClass
+	= [EOAttribute instancesRespondToSelector: @selector(_valueClass)];
+      attrRespondsToValueTypeChar
+	= [EOAttribute instancesRespondToSelector: @selector(_valueTypeChar)];
+
+      initialized = YES;
     };
 };
 
@@ -230,6 +529,8 @@ pgResultDictionary(PGresult *pgResult)
 
       ASSIGN(_pkAttributeArray, [NSArray arrayWithObject: attr]);
       RELEASE(attr);
+      //TODO: set encoding via connection dictionary and use throught adaptor.
+      encoding = [NSString defaultCStringEncoding];
     }
 
   return self;
@@ -366,8 +667,9 @@ pgResultDictionary(PGresult *pgResult)
     {
       char *szName = PQfname(res,i);
       unsigned length = szName ? strlen(szName) : 0;
-      NSString *name = [(PSQLA_alloc(NSString)) initWithCString: szName
-						length: length];
+      NSString *name = [(PSQLA_alloc(NSString)) initWithBytes: szName
+						length: length
+						encoding: encoding];
       PSQLA_AddObjectWithImpPtr(names,&namesAO,name);
       RELEASE(name);
     }
@@ -472,8 +774,8 @@ zone:zone
                         {
                           string = [self _readBinaryDataRow: (Oid)atol(string)
                                          length:&length zone: zone];
-                          //For efficiency reasons, the returned value is NOT autoreleased !
-                          values[i] = PSQLA_PostgreSQLValues_newValueForBytesLengthAttribute(string,length,attr);
+
+                          values[i] = newValueForBytesLengthAttribute(string,length,attr,encoding);
                         }
                       else
                         {
@@ -491,7 +793,7 @@ zone:zone
                   else
                     {
                       //For efficiency reasons, the returned value is NOT autoreleased !
-                      values[i] = PSQLA_PostgreSQLValues_newValueForBytesLengthAttribute(string,length,attr);
+                      values[i] = newValueForBytesLengthAttribute(string,length,attr,encoding);
                     }
                 }
 
@@ -509,11 +811,15 @@ zone:zone
                        forAttributes: _attributes
                        zone: zone];
 
-      /* NO:  For efficiency reasons, the returned value is NOT autoreleased !
-
+	  /* The caller of newValue methods/funnction is
+	     responsible for releasing the values.  An adaptor can
+	     optimize allocation by taking that into account yet
+	     the retain balance must be kept.  */
           for (i = 0; i < count; i++)
-            [values[i] release];
-      */
+	    {
+	      [values[i] release];
+	    }
+
           if (values != valueBuffer)
             NSZoneFree(zone, values);
 
@@ -1577,7 +1883,7 @@ each key
   [entity setClassName: @"EOGenericRecord"];
   [model addEntity: entity];
 
-  stmt = [NSS_SWF: @"SELECT oid FROM pg_class "
+  stmt = [NSString stringWithFormat: @"SELECT oid FROM pg_class "
 		 @"WHERE relname = '%@' AND relkind = 'r'",tableName];
 
   EOAdaptorDebugLog(@"PostgreSQLAdaptor: execute command:\n%@", stmt);
@@ -1601,7 +1907,7 @@ each key
   tableOid = [NSString stringWithCString: PQgetvalue(_pgResult,0,0)];
   [entity setUserInfo: [NSDictionary dictionaryWithObject:tableOid 
 				     forKey: @"tableOid"]];
-  stmt = [NSS_SWF: @"SELECT attname,typname,attnum "
+  stmt = [NSString stringWithFormat: @"SELECT attname,typname,attnum "
 		 @"FROM pg_attribute LEFT JOIN pg_type ON atttypid = oid "
 		 @"WHERE attnum > 0 AND attrelid=%@"
 		 @"AND attisdropped IS FALSE", tableOid];
@@ -1679,7 +1985,7 @@ each key
   PQclear(_pgResult);
 
   /* Determint primary key. */ 
-  stmt = [NSS_SWF: @"SELECT indkey FROM pg_index "
+  stmt = [NSString stringWithFormat: @"SELECT indkey FROM pg_index "
 		 @"WHERE indrelid='%@' AND indisprimary = 't'",
 		 tableOid];
 
@@ -1692,7 +1998,7 @@ each key
       pkAttNum = [pkAttNum stringByReplacingString:@" "
                            withString: @", "];
 
-      stmt = [NSS_SWF: @"SELECT attname FROM pg_attribute "
+      stmt = [NSString stringWithFormat: @"SELECT attname FROM pg_attribute "
 		     @"WHERE attrelid='%@' and attnum in (%@)",
 		     tableOid, pkAttNum];
       PQclear(_pgResult);
@@ -1742,7 +2048,7 @@ each key
   unsigned int i, j, n, m;
 
   tableOid = [[entity userInfo] objectForKey: @"tableOid"];
-  stmt = [NSS_SWF: @"SELECT tgargs FROM pg_trigger "
+  stmt = [NSString stringWithFormat: @"SELECT tgargs FROM pg_trigger "
 		 @"WHERE tgtype=21 AND tgisconstraint='t' AND tgrelid=%@",
 		 tableOid];
 
@@ -1786,14 +2092,14 @@ each key
       srcEntity = [model entityNamed: srcEntityName];
       dstEntity = [model entityNamed: dstEntityName];
 
-      relationshipName = [NSS_SWF:@"to%@", dstEntityName];
+      relationshipName = [NSString stringWithFormat:@"to%@", dstEntityName];
 
       for (j = 1; 
 	   ([srcEntity anyAttributeNamed: relationshipName] != nil || 
 	    [srcEntity anyRelationshipNamed: relationshipName] != nil);
 	   j++)
 	{
-	  relationshipName = [NSS_SWF:@"to%@_%d", dstEntityName, j];
+	  relationshipName = [NSString stringWithFormat:@"to%@_%d", dstEntityName, j];
 	}
 
       relationship = AUTORELEASE([EORelationship new]);
@@ -1917,7 +2223,7 @@ each key
 - (NSArray *)describeDatabaseNames
 {
   NSMutableArray *databaseNames = [NSMutableArray array]; 
-  NSString *stmt = [NSS_SWF:@"SELECT datname FROM pg_database LEFT JOIN pg_user "
+  NSString *stmt = [NSString stringWithFormat:@"SELECT datname FROM pg_database LEFT JOIN pg_user "
                             @"ON datdba = usesysid ORDER BY 1"];
   int i; 
   _pgResult = PQexec(_pgConn, [stmt cString]);
@@ -1930,7 +2236,7 @@ each key
 
 - (BOOL) userNameIsAdministrative:(NSString *)userName
 {
-  NSString *stmt = [NSS_SWF:@"SELECT usecreatedb FROM pg_user WHERE "
+  NSString *stmt = [NSString stringWithFormat:@"SELECT usecreatedb FROM pg_user WHERE "
                             @"usename = '%@'",userName]; 
   _pgResult = PQexec(_pgConn, [stmt cString]);
   if (_pgResult != NULL)
@@ -2013,7 +2319,7 @@ each key
       length = PQgetlength(_pgResult, _currentResultRow, 0);
       
       attr = [_pkAttributeArray objectAtIndex: 0];
-      pkValue = AUTORELEASE(PSQLA_PostgreSQLValues_newValueForBytesLengthAttribute(string,length,attr));
+      pkValue = AUTORELEASE(newValueForBytesLengthAttribute(string,length,attr,encoding));
 
       NSAssert(pkValue, @"no pk value");
       key = [[entity primaryKeyAttributeNames] objectAtIndex: 0];

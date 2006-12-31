@@ -74,7 +74,6 @@ RCS_ID("$Id$")
 #include "PostgreSQLContext.h"
 #include "PostgreSQLChannel.h"
 #include "PostgreSQLExpression.h"
-#include "PostgreSQLValues.h"
 
 #include "PostgreSQLPrivate.h"
 
