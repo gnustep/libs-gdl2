@@ -1323,7 +1323,7 @@ userInfo = {
   EOFLOGObjectFnStop();
 }
 
-- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetch
+- (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
 			    editingContext: (EOEditingContext *)context
 { // TODO
   EODatabaseChannel *channel = nil;
@@ -1346,12 +1346,12 @@ userInfo = {
 
   EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"EODatabaseContext", @"fetch=%@", fetch);
+  NSDebugMLLog(@"EODatabaseContext", @"fetchSpecification=%@", fetchSpecification);
 
   if (_delegateRespondsTo.shouldFetchObjects == YES)
     {
       array = (id)[_delegate databaseContext: self
-			     shouldFetchObjectsWithFetchSpecification: fetch
+			     shouldFetchObjectsWithFetchSpecification: fetchSpecification
 			     editingContext: context];
     }
 
@@ -1360,28 +1360,28 @@ userInfo = {
       IMP enumNO=NULL; // nextObject
       array = [NSMutableArray arrayWithCapacity: 8];
 
-      entityName = [fetch entityName];//OK
+      entityName = [fetchSpecification entityName];//OK
       entity = [_database entityNamed: entityName];//OK
       NSAssert1(entity,@"No entity named %@",
                 entityName);
 
-      /* moved in EODatabaseChannel _selectWithFetchSpecification:(EOFetchSpecification *)fetch
+      /* moved in EODatabaseChannel _selectWithFetchSpecification:(EOFetchSpecification *)fetchSpecification
          editingContext:(EOEditingContext *)context
 
-         limit        = [fetch fetchLimit];
-         usesDistinct = [fetch usesDistinct];
+         limit        = [fetchSpecification fetchLimit];
+         usesDistinct = [fetchSpecification usesDistinct];
 
 
          subEntities = [entity subEntities];
 
-         if ([subEntities count] && [fetch isDeep] == YES)
+         if ([subEntities count] && [fetchSpecification isDeep] == YES)
          {
          subEntitiesEnum = [subEntities objectEnumerator];
          while ((subEntity = [subEntitiesEnum nextObject]))
          {
          EOFetchSpecification *fetchSubEntity;
 
-         fetchSubEntity = AUTORELEASE([fetch copy]);
+         fetchSubEntity = AUTORELEASE([fetchSpecification copy]);
          [fetchSubEntity setEntityName:[entity name]];
 
          [array addObjectsFromArray:[context objectsWithFetchSpecification:
@@ -1389,7 +1389,7 @@ userInfo = {
          }
          }
       */
-      rawRowKeyPaths = [fetch rawRowKeyPaths];//OK
+      rawRowKeyPaths = [fetchSpecification rawRowKeyPaths];//OK
       if (rawRowKeyPaths)
 #if 0
         {
@@ -1437,15 +1437,15 @@ userInfo = {
 		NSAutoreleasePool *arp = nil;//To avoid too much memory use when fetching a lot of objects
 		int limit = 0;
 
-		[channel selectObjectsWithFetchSpecification: fetch
+		[channel selectObjectsWithFetchSpecification: fetchSpecification
 			 editingContext: context];//OK
 
 		NSDebugMLLog(@"EODatabaseContext",
 			     @"[channel isFetchInProgress]=%s",
 			     ([channel isFetchInProgress] ? "YES" : "NO"));
 
-		limit = [fetch fetchLimit];//OK
-		promptsAfterFetchLimit = [fetch promptsAfterFetchLimit];
+		limit = [fetchSpecification fetchLimit];//OK
+		promptsAfterFetchLimit = [fetchSpecification promptsAfterFetchLimit];
 
 		NSDebugMLLog(@"EODatabaseContext", @"Will Fetch");
 
@@ -1583,7 +1583,7 @@ userInfo = {
           EOGlobalID *gid;
           BOOL isFault;
 
-          qualifier = [fetch qualifier];
+          qualifier = [fetchSpecification qualifier];
 
           cache = (id)[_database resultCacheForEntityNamed: entityName];
           if (cache == nil)
@@ -1739,9 +1739,9 @@ userInfo = {
 
           NSDebugMLLog(@"EODatabaseContext", @"array before sort: %@", array);
 
-          if ([fetch sortOrderings])
+          if ([fetchSpecification sortOrderings])
             array = (id)[array sortedArrayUsingKeyOrderArray:
-				 [fetch	sortOrderings]];
+				 [fetchSpecification	sortOrderings]];
         }
       else
         {
@@ -1780,7 +1780,7 @@ userInfo = {
                   NSAutoreleasePool *arp = nil;//To avoid too much memory use when fetching a lot of objects
                   int limit = 0;
 
-                  [channel selectObjectsWithFetchSpecification: fetch
+                  [channel selectObjectsWithFetchSpecification: fetchSpecification
                            editingContext: context];//OK
 
                   NSDebugMLLog(@"EODatabaseContext",
@@ -1788,8 +1788,8 @@ userInfo = {
 			       ([channel isFetchInProgress] 
 				? "YES" : "NO"));
 
-                  limit = [fetch fetchLimit];//OK
-                  promptsAfterFetchLimit = [fetch promptsAfterFetchLimit];
+                  limit = [fetchSpecification fetchLimit];//OK
+                  promptsAfterFetchLimit = [fetchSpecification promptsAfterFetchLimit];
 
                   NSDebugMLLog(@"EODatabaseContext", @"Will Fetch");
 
@@ -1925,10 +1925,10 @@ userInfo = {
       NSDebugMLLog(@"EODatabaseContext",
 		   @"array before prefetchingRelationshipKeyPaths: %@", array);
 
-      if ([fetch prefetchingRelationshipKeyPaths]) //OK
+      if ([fetchSpecification prefetchingRelationshipKeyPaths]) //OK
         qualArray = [NSMutableArray arrayWithCapacity: 5];
 
-      relationshipKeyPathEnum = [[fetch prefetchingRelationshipKeyPaths]
+      relationshipKeyPathEnum = [[fetchSpecification prefetchingRelationshipKeyPaths]
                                   objectEnumerator];
       enumNO=NULL;
       while ((relationshipKeyPath = GDL2_NextObjectWithImpPtr(relationshipKeyPathEnum,&enumNO)))
@@ -1958,7 +1958,7 @@ userInfo = {
       if (_delegateRespondsTo.didFetchObjects == YES)
         [_delegate databaseContext: self
                    didFetchObjects: array
-                   fetchSpecification: fetch
+                   fetchSpecification: fetchSpecification
                    editingContext: context];
 
       NSDebugMLLog(@"EODatabaseContext",@"step 1 channel is busy=%d",

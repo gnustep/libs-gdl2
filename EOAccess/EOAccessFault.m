@@ -285,12 +285,12 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 @implementation EOAccessArrayFaultHandler
 
 + (EOAccessArrayFaultHandler *)accessArrayFaultHandlerWithSourceGlobalID: (EOKeyGlobalID *)sourceGID
-							relationshipName: (NSString *)aRelationshipName
+							relationshipName: (NSString *)relName
 							 databaseContext: (EODatabaseContext *)dbcontext
 							  editingContext: (EOEditingContext *)ec
 {
   return [[[self alloc] initWithSourceGlobalID: sourceGID
-			relationshipName: aRelationshipName
+			relationshipName: relName
 			databaseContext: dbcontext
 			editingContext: ec] autorelease];
 }
@@ -304,10 +304,10 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
   return self;
 }
 
-- initWithSourceGlobalID: (EOKeyGlobalID *)sourceGID
-	relationshipName: (NSString *)relName
-	 databaseContext: (EODatabaseContext *)dbcontext
-	  editingContext: (EOEditingContext *)ec
+- (id)initWithSourceGlobalID: (EOKeyGlobalID *)sourceGID
+	    relationshipName: (NSString *)relName
+	     databaseContext: (EODatabaseContext *)dbcontext
+	      editingContext: (EOEditingContext *)ec
 {
   if ((self = [self init]))
     {

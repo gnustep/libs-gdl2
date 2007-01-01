@@ -49,6 +49,7 @@ EOAdaptorContext.m \
 EOAdaptorChannel.m \
 EOAdaptorOperation.m \
 EODatabaseOperation.m \
+EOSchemaGeneration.m \
 EOSQLExpression.m \
 EOSQLQualifier.m \
 EODatabase.m \

@@ -97,7 +97,7 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 					   entity: (EOEntity *)entity;
 
 + (EOSQLExpression *)selectStatementForAttributes: (NSArray *)attributes
-					     lock: (BOOL)yn
+					     lock: (BOOL)flag
 			       fetchSpecification: (EOFetchSpecification *)fetchSpecification
 					   entity: (EOEntity *)entity;
 
@@ -128,7 +128,7 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 - (void)prepareDeleteExpressionForQualifier: (EOQualifier *)qualifier;
 
 - (void)prepareSelectExpressionWithAttributes: (NSArray *)attributes
-					 lock: (BOOL)yn
+					 lock: (BOOL)flag
 			   fetchSpecification: (EOFetchSpecification *)fetchSpecification;
 
 - (NSString *)assembleJoinClauseWithLeftName: (NSString *)leftName
@@ -192,7 +192,7 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 - (void)addOrderByAttributeOrdering: (EOSortOrdering *)sortOrdering;
 
 + (BOOL)useQuotedExternalNames;
-+ (void)setUseQuotedExternalNames: (BOOL)yn;
++ (void)setUseQuotedExternalNames: (BOOL)flag;
 - (NSString *)externalNameQuoteCharacter;
 
 - (void)setUseAliases: (BOOL)useAliases;
@@ -201,7 +201,7 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 - (NSString *)sqlStringForSchemaObjectName: (NSString *)name;
 - (NSString *)sqlStringForAttributeNamed: (NSString *)name;
 - (NSString *)sqlStringForSelector: (SEL)selector value: (id)value;
-- (NSString *)sqlStringForValue: (id)value attributeNamed: (NSString *)string;
+- (NSString *)sqlStringForValue: (id)value attributeNamed: (NSString *)attributeName;
 - (NSString *)sqlStringForAttribute: (EOAttribute *)attribute;
 - (NSString *)sqlStringForAttributePath: (NSArray *)path;
 
@@ -220,7 +220,7 @@ GDL2ACCESS_EXPORT NSString *EOBindVariableColumnKey;
 - (BOOL)mustUseBindVariableForAttribute: (EOAttribute *)att;
 
 + (BOOL)useBindVariables;
-+ (void)setUseBindVariables: (BOOL)yn;
++ (void)setUseBindVariables: (BOOL)flag;
 
 - (NSArray *)bindVariableDictionaries;
 - (void)addBindVariableDictionary: (NSMutableDictionary *)binding;

@@ -396,7 +396,7 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
   return newFetchSpecification;
 }
 
-- (EOStoredProcedure *)storedProcedureNamed: (NSString *)aName
+- (EOStoredProcedure *)storedProcedureNamed: (NSString *)name
 {
   EOStoredProcedure *newStoredProcedure = nil;
   NSEnumerator      *modelEnum;
@@ -407,7 +407,7 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
   modelEnum = [_modelsByName objectEnumerator];
   while ((model = [modelEnum nextObject])) 
     {
-      if ((newStoredProcedure = [model storedProcedureNamed: aName])) 
+      if ((newStoredProcedure = [model storedProcedureNamed: name])) 
         {
           EOFLOGObjectFnStopOrCond2(@"ModelingClasses", @"EOModelGroup");
 
@@ -421,3 +421,53 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
 }
 
 @end
+
+@implementation EOObjectStoreCoordinator (EOModelGroup)
+
+- (id)modelGroup
+{
+  //Seems OK
+  EOModelGroup *modelGroup;
+  NSDictionary *userInfo;
+
+  EOFLOGObjectFnStart();
+
+  userInfo = [self userInfo];
+  modelGroup = [userInfo objectForKey: @"EOModelGroup"];
+
+  if (!modelGroup)
+    {
+      modelGroup = [EOModelGroup defaultGroup];
+      [self setModelGroup: modelGroup];
+    }
+
+  EOFLOGObjectFnStop();
+
+  return modelGroup;
+}
+
+- (void)setModelGroup: (EOModelGroup *)modelGroup
+{
+  NSMutableDictionary *userInfo;
+
+  EOFLOGObjectFnStart();
+
+  userInfo = (NSMutableDictionary *)[self userInfo];
+
+  if (userInfo)
+    [userInfo setObject: modelGroup
+              forKey: @"EOModelGroup"];
+  else
+    {
+      userInfo = (id)[NSMutableDictionary dictionary];
+
+      [userInfo setObject: modelGroup
+                forKey: @"EOModelGroup"];
+      [self setUserInfo: userInfo];
+    }
+
+  EOFLOGObjectFnStop();
+}
+
+@end
+

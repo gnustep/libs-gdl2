@@ -184,7 +184,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
   return adaptor;
 }
 
-+ (id) adaptorWithName: (NSString *)adaptorName
++ (id) adaptorWithName: (NSString *)name
 {
   //OK
   NSBundle *bundle = [NSBundle mainBundle];
@@ -195,7 +195,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
   unsigned i, count;
 
   /* Check error */
-  if ([adaptorName length] == 0)
+  if ([name length] == 0)
     [NSException raise: NSInvalidArgumentException
 		 format: @"%@ -- %@ 0x%x: adaptor name can't be nil",
                  NSStringFromSelector(_cmd),
@@ -203,11 +203,11 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
                  self];
   
   // append EOAdaptor
-  if ([adaptorName hasSuffix: @"EOAdaptor"] == NO)
-    adaptorName = [adaptorName stringByAppendingString: @"EOAdaptor"];
+  if ([name hasSuffix: @"EOAdaptor"] == NO)
+    name = [name stringByAppendingString: @"EOAdaptor"];
 
   /* Look in application bundle */
-  adaptorBundlePath = [bundle pathForResource: adaptorName
+  adaptorBundlePath = [bundle pathForResource: name
                               ofType: @"framework"];
   // should be NSString *path=[NSBundle pathForLibraryResource:libraryResource  type:@"framework"  directory:@"Frameworks"]; ?
 
@@ -230,7 +230,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
       for(i = 0, count = [paths count]; i < count; i++)
         {
 	  bundle = [NSBundle bundleWithPath: [paths objectAtIndex: i]];
-	  adaptorBundlePath = [bundle pathForResource: adaptorName
+	  adaptorBundlePath = [bundle pathForResource: name
 				      ofType: @"framework"];
 	  
 	  if(adaptorBundlePath && [adaptorBundlePath length])
@@ -251,7 +251,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self,
-                 adaptorName];
+                 name];
   
   /* Get the adaptor bundle "infoDictionary", and pricipal class, ie. the
      adaptor class. Other info about the adaptor should be put in the
@@ -281,7 +281,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
 		   NSStringFromSelector(_cmd),
 		   NSStringFromClass([self class]),
 		   self,
-		   adaptorName];
+		   name];
     }
       
   if ([adaptorClass isSubclassOfClass: [self class]] == NO)
@@ -294,7 +294,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
 		   NSStringFromClass([adaptorClass class])];
     }
 
-  return AUTORELEASE([[adaptorClass alloc] initWithName: adaptorName]);
+  return AUTORELEASE([[adaptorClass alloc] initWithName: name]);
 }
 
 + (void)setExpressionClassName: (NSString *)sqlExpressionClassName

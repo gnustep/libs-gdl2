@@ -87,12 +87,12 @@
 }
 
 + (EOAccessArrayFaultHandler *)accessArrayFaultHandlerWithSourceGlobalID: (EOKeyGlobalID *)sourceGID
-							relationshipName: (NSString *)relationshipName
+							relationshipName: (NSString *)relName
 							 databaseContext: (EODatabaseContext *)dbcontext
 							  editingContext: (EOEditingContext *)ec;
 
 - (id)initWithSourceGlobalID: (EOKeyGlobalID *)sourceGID
-	    relationshipName: (NSString *)relationshipName
+	    relationshipName: (NSString *)relName
 	     databaseContext: (EODatabaseContext *)dbcontext
 	      editingContext: (EOEditingContext *)ec;
 

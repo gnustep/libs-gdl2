@@ -140,12 +140,12 @@
 - (void)_classDescriptionNeeded: (NSNotification *)notification;
 - (id)_instantiatedEntities;
 - (void)_setPath: (NSString *)path;
-- (EOEntity *)_entityForClass: (Class)param0;
+- (EOEntity *)_entityForClass: (Class)aClass;
 - (id)_childrenForEntityNamed: (id)param0;
 - (void)_registerChild: (id)param0
              forParent: (id)param1;
 - (void)_setInheritanceLinks: (id)param0;
-- (void)_removeEntity: (id)param0;
+- (void)_removeEntity: (EOEntity *)entity;
 - (EOEntity *)_addEntityWithPropertyList: (NSDictionary *)propertyList;
 - (void)_addFakeEntityWithPropertyList: (NSDictionary *)propertyList;
 - (id)_addEntity: (EOEntity *)entity;
@@ -161,7 +161,7 @@
 - (void)setAdaptorName: (NSString *)adaptorName;
 
 - (void)setConnectionDictionary: (NSDictionary *)connectionDictionary;
-- (void)setUserInfo: (NSDictionary *)dictionary;
+- (void)setUserInfo: (NSDictionary *)userInfo;
 
 - (void)addEntity: (EOEntity *)entity;
 - (void)removeEntity: (EOEntity *)entity;

@@ -1,3 +1,31 @@
+2007-01-01  David Ayers  <ayers@fsfe.org>
+
+	* EOAccess/EOAccessFault.h/m: Minor cleanups for autogsdoc.
+	* EOAccess/EOAdaptor.m: Ditto.
+	* EOAccess/EOAdaptorChannel.h/m: Ditto.
+	* EOAccess/EOAdaptorContext.h: Ditto.
+	* EOAccess/EODatabase.h/m: Ditto.
+	* EOAccess/EODatabaseChannel.m: Ditto.
+	* EOAccess/EODatabaseContext.h/m: Ditto.
+	* EOAccess/EODatabaseDataSource.h: Ditto.
+	* EOAccess/EODatabaseOperation.h: Ditto.
+	* EOAccess/EOEntity.h/m: Ditto.
+	* EOAccess/EOModel.h/m: Ditto.
+	* EOAccess/EORelationship.h: Ditto.
+	* EOAccess/EOSchemaGeneration.h: Ditto.
+	* EOAccess/EOUtilities.h/m: Ditto.
+
+	* EOAccess/EOSQLExpression.h/m: Minor cleanups for autogsdoc.
+	(EOSchemaGeneration): Move implementation from here to ...
+	* EOAccess/EOSchemaGeneration.m: ... new file for autogsdoc.
+	* EOAccess/GNUmakefile: Add EOSchemaGeneration.m.
+
+	* EOAccess/EOUtilities.m (EOObjectStoreCoordinator EOModelGroup):
+	Move implementation from here to ...
+	* EOAccess/EOModelGroup.m: ... to here for autogsdoc.
+
+	* common.make: (GDL2_AGSDOC_FLAGS): Add extern declarations.
+	
 2006-12-31  David Ayers  <ayers@fsfe.org>
 
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLValues.h/m:

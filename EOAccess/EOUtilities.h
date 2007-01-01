@@ -49,41 +49,41 @@ GDL2ACCESS_EXPORT NSString *EOMoreThanOneException;
 
 @interface EOEditingContext (EOUtilities)
 
-- (NSArray *)objectsForEntityNamed: (NSString *)name;
+- (NSArray *)objectsForEntityNamed: (NSString *)entityName;
 - (NSArray *)objectsOfClass: (Class)classObject;
 - (NSArray *)objectsWithFetchSpecificationNamed: (NSString *)fetchSpecName
 				    entityNamed: (NSString *)entityName
 				       bindings: (NSDictionary *)bindings;
-- (NSArray *)objectsForEntityNamed: (NSString *)name
+- (NSArray *)objectsForEntityNamed: (NSString *)entityName
 		   qualifierFormat: (NSString *)format, ...;
 - (NSArray *)objectsMatchingValue: (id)value
 			   forKey: (NSString *)key
-		      entityNamed: (NSString *)name;
+		      entityNamed: (NSString *)entityName;
 - (NSArray *)objectsMatchingValues: (NSDictionary *)values
-		       entityNamed: (NSString *)name;
+		       entityNamed: (NSString *)entityName;
 
 - (id)objectWithFetchSpecificationNamed: (NSString *)fetchSpecName
 			    entityNamed: (NSString *)entityName
 			       bindings: (NSDictionary *)bindings;
-- (id)objectForEntityNamed: (NSString *)name
+- (id)objectForEntityNamed: (NSString *)entityName
 	   qualifierFormat: (NSString *)format, ...;
 - (id)objectMatchingValue: (id)value
 		   forKey: (NSString *)key
-	      entityNamed: (NSString *)name;
+	      entityNamed: (NSString *)entityName;
 - (id)objectMatchingValues: (NSDictionary *)values
-	       entityNamed: (NSString *)name;
+	       entityNamed: (NSString *)entityName;
 - (id)objectWithPrimaryKeyValue: (id)value
-		    entityNamed: (NSString *)name;
+		    entityNamed: (NSString *)entityName;
 - (id)objectWithPrimaryKey: (NSDictionary *)pkDict
-	       entityNamed: (NSString *)name;
+	       entityNamed: (NSString *)entityName;
 
-- (NSArray *)rawRowsForEntityNamed: (NSString *)name
+- (NSArray *)rawRowsForEntityNamed: (NSString *)entityName
 		   qualifierFormat: (NSString *)format, ...;
 - (NSArray *)rawRowsMatchingValue: (id)value
 			   forKey: (NSString *)key
-		      entityNamed: (NSString *)name;
+		      entityNamed: (NSString *)entityName;
 - (NSArray *)rawRowsMatchingValues: (NSDictionary *)values
-		       entityNamed: (NSString *)name;
+		       entityNamed: (NSString *)entityName;
 - (NSArray *)rawRowsWithSQL: (NSString *)sqlString
 		 modelNamed: (NSString *)name;
 - (NSArray *)rawRowsWithStoredProcedureNamed: (NSString *)name
@@ -91,7 +91,7 @@ GDL2ACCESS_EXPORT NSString *EOMoreThanOneException;
 - (NSDictionary *)executeStoredProcedureNamed: (NSString *)name
 				    arguments: (NSDictionary *)args;
 - (id)objectFromRawRow: (NSDictionary *)row
-	   entityNamed: (NSString *)name;
+	   entityNamed: (NSString *)entityName;
 
 - (EODatabaseContext *)databaseContextForModelNamed: (NSString *)name;
 - (void)connectWithModelNamed: (NSString *)name
@@ -107,9 +107,9 @@ connectionDictionaryOverrides: (NSDictionary *)overrides;
 - (NSArray *)localInstancesOfObjects: (NSArray *)objects;
 
 - (EOModelGroup *)modelGroup;
-- (EOEntity *)entityNamed: (NSString *)name;
+- (EOEntity *)entityNamed: (NSString *)entityName;
 - (EOEntity *)entityForClass: (Class)classObject;
-- (EOEntity *)entityForObject: (id)obj;
+- (EOEntity *)entityForObject: (id)object;
 
 @end
 
@@ -118,14 +118,6 @@ connectionDictionaryOverrides: (NSDictionary *)overrides;
 
 + (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
                                       entityNamed: (NSString *)entityName;
-
-@end
-
-
-@interface EOObjectStoreCoordinator (EOModelGroup)
-
-- (id)modelGroup;
-- (void)setModelGroup: (EOModelGroup *)modelGroup;
 
 @end
 

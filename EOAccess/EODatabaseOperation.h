@@ -164,7 +164,7 @@ The newRow dictionary is created when creating the database operation (in EOData
 - (EOEntity *)entity;
 
 - (EODatabaseOperator)databaseOperator;
-- (void)setDatabaseOperator: (EODatabaseOperator)dbOp;
+- (void)setDatabaseOperator: (EODatabaseOperator)dbOpe;
 
 - (NSDictionary *)rowDiffs;
 - (NSDictionary *)rowDiffsForAttributes: (NSArray *)attributes;

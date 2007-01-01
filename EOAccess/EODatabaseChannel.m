@@ -223,7 +223,7 @@ RCS_ID("$Id$")
   ASSIGN(_currentEditingContext, context);
 }
 
-- (void)selectObjectsWithFetchSpecification: (EOFetchSpecification *)fetch
+- (void)selectObjectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
 			     editingContext: (EOEditingContext *)context
 {
   //should be OK
@@ -235,7 +235,7 @@ RCS_ID("$Id$")
 
   EOFLOGObjectFnStart();
 
-  entityName = [fetch entityName];
+  entityName = [fetchSpecification entityName];
   database = [_databaseContext database];
 
   EOFLOGObjectLevelArgs(@"gsdb", @"database=%@", database);
@@ -244,7 +244,7 @@ RCS_ID("$Id$")
 
   EOFLOGObjectLevelArgs(@"gsdb", @"entity name=%@", [entity name]);
 
-  qualifier=[fetch qualifier];
+  qualifier=[fetchSpecification qualifier];
 
   EOFLOGObjectLevelArgs(@"gsdb", @"qualifier=%@", qualifier);
 
@@ -259,18 +259,18 @@ RCS_ID("$Id$")
     {
       EOFetchSpecification *newFetch = nil;
 
-      EOFLOGObjectLevelArgs(@"gsdb", @"fetch=%@", fetch);
+      EOFLOGObjectLevelArgs(@"gsdb", @"fetchSpecification=%@", fetchSpecification);
       //howto avoid copy of uncopiable qualifiers (i.e. those who contains uncopiable key or value)
 
-      EOFLOGObjectLevelArgs(@"gsdb", @"fetch=%@", fetch);
+      EOFLOGObjectLevelArgs(@"gsdb", @"fetchSpecification=%@", fetchSpecification);
 
-      newFetch = [[fetch copy] autorelease];
+      newFetch = [[fetchSpecification copy] autorelease];
       EOFLOGObjectLevelArgs(@"gsdb", @"newFetch=%@", newFetch);
 
       [newFetch setQualifier: schemaBasedQualifier];
       EOFLOGObjectLevelArgs(@"gsdb", @"newFetch=%@", newFetch);
 
-      fetch = newFetch;
+      fetchSpecification = newFetch;
     }
 
   EOFLOGObjectLevelArgs(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
@@ -279,7 +279,7 @@ RCS_ID("$Id$")
 	       self,
 	       ([self isFetchInProgress] ? "YES" : "NO"));
 
-  [self _selectWithFetchSpecification:fetch
+  [self _selectWithFetchSpecification:fetchSpecification
         editingContext:context];
 
   EOFLOGObjectFnStop();

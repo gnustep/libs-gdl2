@@ -67,12 +67,12 @@
 - (void)setFetchSpecification: (EOFetchSpecification *)fetchSpecification;
 - (EOFetchSpecification *)fetchSpecification;
 
-- (void)setAuxiliaryQualifier: (EOQualifier *)newQualifier;
+- (void)setAuxiliaryQualifier: (EOQualifier *)qualifier;
 - (EOQualifier *)auxiliaryQualifier;
 
 - (EOFetchSpecification *)fetchSpecificationForFetch;
 
-- (void)setFetchEnabled: (BOOL)yn;
+- (void)setFetchEnabled: (BOOL)flag;
 - (BOOL)isFetchEnabled;
 
 @end

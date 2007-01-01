@@ -157,7 +157,7 @@ struct _EOTransactionScope;
 
 - (id)faultForRawRow: (NSDictionary *)row
          entityNamed: (NSString *)entityName
-      editingContext: (EOEditingContext *)editingContext;
+      editingContext: (EOEditingContext *)context;
 
 - (id)entityForGlobalID: (EOGlobalID *)globalID;
 
@@ -165,7 +165,7 @@ struct _EOTransactionScope;
         editingContext: (EOEditingContext *)context;
 
 - (NSArray *)arrayFaultWithSourceGlobalID: (EOGlobalID *)globalID
-                         relationshipName: (NSString *)name
+                         relationshipName: (NSString *)relationshipName
                            editingContext: (EOEditingContext *)context;
 
 - (void)initializeObject: (id)object
@@ -192,7 +192,7 @@ struct _EOTransactionScope;
 - (BOOL)isObjectLockedWithGlobalID: (EOGlobalID *)gid
                     editingContext: (EOEditingContext *)context;
 
-- (void)lockObjectWithGlobalID: (EOGlobalID *)gid
+- (void)lockObjectWithGlobalID: (EOGlobalID *)globalID
                 editingContext: (EOEditingContext *)context;
 
 - (void)invalidateAllObjects;
@@ -252,8 +252,8 @@ It's invoked after prepareForSaveWithCoordinator:editingContext: and before owns
 - (EODatabaseOperation*)databaseOperationForObject: (id)object;
 - (EODatabaseOperation*)databaseOperationForGlobalID: (EOGlobalID *)gid;
 - (void)recordDatabaseOperation: (EODatabaseOperation*)databaseOpe;
-- (void)recordDeleteForObject: (id)param0;
-- (void)recordInsertForObject: (id)param0;
+- (void)recordDeleteForObject: (id)object;
+- (void)recordInsertForObject: (id)object;
 
 - (void)createAdaptorOperationsForDatabaseOperation: (EODatabaseOperation *)dbOpe
 					 attributes: (NSArray *)attributes;
@@ -266,7 +266,7 @@ It's invoked after prepareForSaveWithCoordinator:editingContext: and before owns
 - (BOOL)isValidQualifierTypeForAttribute: (EOAttribute *)attribute;
 - (id)lockingNonQualifiableAttributes: (NSArray *)attributes;
 - (NSArray *)lockingAttributesForAttributes: (NSArray *)attributes
-                                     entity: (EOEntity *)enity;
+                                     entity: (EOEntity *)entity;
 - (NSArray *)primaryKeyAttributesForAttributes: (NSArray *)attributes
                                         entity: (EOEntity *)entity;
 - (EOQualifier *)qualifierForLockingAttributes: (NSArray *)attributes

@@ -143,7 +143,7 @@
 /* Accessing attributes */
 - (NSArray *)attributes;
 - (EOAttribute *)attributeNamed: (NSString *)attributeName;
-- (EOAttribute *)anyAttributeNamed: (NSString *)relationshipName;
+- (EOAttribute *)anyAttributeNamed: (NSString *)attributeName;
 
 /* Accessing relationships */
 - (NSArray *)relationships;

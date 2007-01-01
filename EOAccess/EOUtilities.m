@@ -758,7 +758,7 @@ NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
                entityNamed: entityName];
 }
 
-- (EODatabaseContext *)databaseContextForModelNamed: (NSString *)name;
+- (EODatabaseContext *)databaseContextForModelNamed: (NSString *)name
 {
   EOModelGroup *modelGroup;
   EOModel *model;
@@ -816,7 +816,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   return object;
 }
 
-- (NSDictionary *)primaryKeyForObject: (id)object;
+- (NSDictionary *)primaryKeyForObject: (id)object
 {
   EOKeyGlobalID *gid;
   EOEntity *entity;
@@ -1090,56 +1090,6 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   EOFLOGObjectFnStopOrCond(@"EOFetchSpecification");
 
   return newEOFetchSpecification;
-}
-
-@end
-
-
-@implementation EOObjectStoreCoordinator (EOModelGroup)
-
-- (id)modelGroup
-{
-  //Seems OK
-  EOModelGroup *modelGroup;
-  NSDictionary *userInfo;
-
-  EOFLOGObjectFnStart();
-
-  userInfo = [self userInfo];
-  modelGroup = [userInfo objectForKey: @"EOModelGroup"];
-
-  if (!modelGroup)
-    {
-      modelGroup = [EOModelGroup defaultGroup];
-      [self setModelGroup: modelGroup];
-    }
-
-  EOFLOGObjectFnStop();
-
-  return modelGroup;
-}
-
-- (void)setModelGroup: (EOModelGroup *)modelGroup
-{
-  NSMutableDictionary *userInfo;
-
-  EOFLOGObjectFnStart();
-
-  userInfo = (NSMutableDictionary *)[self userInfo];
-
-  if (userInfo)
-    [userInfo setObject: modelGroup
-              forKey: @"EOModelGroup"];
-  else
-    {
-      userInfo = (id)[NSMutableDictionary dictionary];
-
-      [userInfo setObject: modelGroup
-                forKey: @"EOModelGroup"];
-      [self setUserInfo: userInfo];
-    }
-
-  EOFLOGObjectFnStop();
 }
 
 @end

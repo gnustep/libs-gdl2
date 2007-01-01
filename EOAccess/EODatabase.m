@@ -239,7 +239,7 @@ static NSMutableArray *databaseInstances;
   [_models removeObject: model];
 }
 
-- (BOOL)addModelIfCompatible: (EOModel *)model;
+- (BOOL)addModelIfCompatible: (EOModel *)model
 {
   BOOL modelOk = NO;
 
@@ -543,17 +543,17 @@ static NSMutableArray *databaseInstances;
   EOFLOGObjectFnStop();
 };
 
-- (void)forgetSnapshotsForGlobalIDs: (NSArray*)ids
+- (void)forgetSnapshotsForGlobalIDs: (NSArray*)gids
 {
   NSEnumerator *gidEnum = nil;
   id gid = nil;
 
   EOFLOGObjectFnStart();
 
-  NSAssert(ids, @"No Global IDs");
-  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"ids=%@", ids);
+  NSAssert(gids, @"No Global IDs");
+  EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gids=%@", gids);
 
-  gidEnum = [ids objectEnumerator];
+  gidEnum = [gids objectEnumerator];
 
   while ((gid = [gidEnum nextObject]))
     {
@@ -564,7 +564,7 @@ static NSMutableArray *databaseInstances;
   [[NSNotificationCenter defaultCenter]
     postNotificationName: EOObjectsChangedInStoreNotification
     object: self
-    userInfo: [NSDictionary dictionaryWithObject: ids
+    userInfo: [NSDictionary dictionaryWithObject: gids
 			    forKey: EOInvalidatedKey]];
 
   EOFLOGObjectFnStop();

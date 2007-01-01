@@ -118,13 +118,13 @@ NSString *EOAdaptorOptimisticLockingFailure = @"EOAdaptorOptimisticLockingFailur
   [self subclassResponsibility: _cmd];
 }
 
-- (void)updateValues: (NSDictionary *)row
+- (void)updateValues: (NSDictionary *)values
 inRowDescribedByQualifier: (EOQualifier *)qualifier
 	      entity: (EOEntity *)entity
 {
   int rows;
 
-  rows = [self updateValues: row
+  rows = [self updateValues: values
 	       inRowsDescribedByQualifier: qualifier
 	       entity: entity];
 

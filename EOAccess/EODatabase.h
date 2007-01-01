@@ -114,7 +114,7 @@ GDL2ACCESS_EXPORT NSTimeInterval EODistantPastTimeInterval;
 
 - (void)forgetSnapshotForGlobalID: (EOGlobalID *)gid;
 
-- (void)forgetSnapshotsForGlobalIDs: (NSArray *)array;
+- (void)forgetSnapshotsForGlobalIDs: (NSArray *)gids;
 
 - (void)forgetAllSnapshots;
 

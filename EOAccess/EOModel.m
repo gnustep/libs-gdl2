@@ -1011,6 +1011,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 - (void)awakeWithPropertyList: (NSDictionary *)propertyList
 {
+  return;
 }
 
 - (void)encodeIntoPropertyList: (NSMutableDictionary *)propertyList
@@ -1246,15 +1247,17 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
              forParent: (id)param1
 {
   // TODO [self notImplemented:_cmd];
+  return;
 }
 
 - (void) _setInheritanceLinks: (id)param0
 {
   // TODO
   [self notImplemented: _cmd];
+  return;
 }
 
-- (void) _removeEntity: (id)entity
+- (void) _removeEntity: (EOEntity *)entity
 {
   //should be ok
   NSString *entityName = nil;
@@ -1262,13 +1265,13 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
   if ([entity isKindOfClass: [EOEntity class]])
     {
-      entityName = [(EOEntity*)entity name];
+      entityName = [entity name];
       entityClassName = [entity className];
     }
   else
     {
-      entityName = [entity objectForKey: @"name"];
-      entityClassName = [entity  objectForKey: @"className"];
+      entityName = [(NSDictionary *)entity objectForKey: @"name"];
+      entityClassName = [(NSDictionary *)entity  objectForKey: @"className"];
     }
 
   [_entitiesByName removeObjectForKey: entityName];
@@ -1495,7 +1498,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
 }
 
-- (void) removeEntityAndReferences: (EOEntity *)entity;
+- (void) removeEntityAndReferences: (EOEntity *)entity
 {
   [self removeEntity: entity];
   // TODO;

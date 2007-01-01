@@ -117,10 +117,10 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 /* Fetching rows */
 - (void)selectAttributes: (NSArray *)attributes
       fetchSpecification: (EOFetchSpecification *)fetchSpecification
-		    lock: (BOOL)lockFlag
+		    lock: (BOOL)flag
 		  entity: (EOEntity *)entity;
 
-- (void)lockRowComparingAttributes: (NSArray *)atts
+- (void)lockRowComparingAttributes: (NSArray *)attrs
 			    entity: (EOEntity *)entity
 			 qualifier: (EOQualifier *)qualifier
 			  snapshot: (NSDictionary *)snapshot;
@@ -150,7 +150,7 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 - (void)addStoredProceduresNamed: (NSArray *)storedProcedureNames
 			 toModel: (EOModel *)model;
 
-- (void)setDebugEnabled: (BOOL)yn;
+- (void)setDebugEnabled: (BOOL)flag;
 - (BOOL)isDebugEnabled;
 
 - (id)delegate;

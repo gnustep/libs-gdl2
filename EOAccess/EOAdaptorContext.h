@@ -110,7 +110,7 @@ typedef enum {
 - (BOOL)canNestTransactions;			// override
 - (unsigned)transactionNestingLevel; 
 
-+ (void)setDebugEnabledDefault: (BOOL)yn;
++ (void)setDebugEnabledDefault: (BOOL)flag;
 + (BOOL)debugEnabledDefault;
 - (void)setDebugEnabled: (BOOL)debugEnabled;
 - (BOOL)isDebugEnabled;

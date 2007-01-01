@@ -160,10 +160,10 @@ typedef enum {
 - (void)setName: (NSString *)name;
 - (void)setDefinition: (NSString *)definition;
 - (void)setEntity: (EOEntity *)entity;
-- (void)setToMany: (BOOL)yn;
-- (void)setPropagatesPrimaryKey: (BOOL)yn;
-- (void)setIsBidirectional: (BOOL)yn;
-- (void)setOwnsDestination: (BOOL)yn;
+- (void)setToMany: (BOOL)flag;
+- (void)setPropagatesPrimaryKey: (BOOL)flag;
+- (void)setIsBidirectional: (BOOL)flag;
+- (void)setOwnsDestination: (BOOL)flag;
 - (void)addJoin: (EOJoin *)join;
 - (void)removeJoin: (EOJoin *)join;
 - (void)setJoinSemantic: (EOJoinSemantic)joinSemantic;

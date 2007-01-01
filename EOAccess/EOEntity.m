@@ -1169,12 +1169,12 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   return [[self relationshipsByName] objectForKey: relationshipName];
 }
 
-- (EORelationship *)anyRelationshipNamed: (NSString *)relationshipNamed
+- (EORelationship *)anyRelationshipNamed: (NSString *)relationshipName
 {
   EORelationship *rel;
   NSEnumerator *relEnum = nil;
 
-  rel = [self relationshipNamed: relationshipNamed];
+  rel = [self relationshipNamed: relationshipName];
 
   //VERIFY
   if (!rel)
@@ -1186,7 +1186,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 
       while (!rel && (tmpRel = GDL2_NextObjectWithImpPtr(relEnum,&enumNO)))
         {
-	  if ([[tmpRel name] isEqual: relationshipNamed])
+	  if ([[tmpRel name] isEqual: relationshipName])
 	    rel = tmpRel;
         }
     }
@@ -1535,25 +1535,25 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   return dict;
 }
 
-- (BOOL)isValidAttributeUsedForLocking: (EOAttribute *)anAttribute
+- (BOOL)isValidAttributeUsedForLocking: (EOAttribute *)attribute
 {
-  if (!([anAttribute isKindOfClass: GDL2_EOAttributeClass]
-	&& [[self attributesByName] objectForKey: [anAttribute name]]))
+  if (!([attribute isKindOfClass: GDL2_EOAttributeClass]
+	&& [[self attributesByName] objectForKey: [attribute name]]))
     return NO;
 
-  if ([anAttribute isDerived])
+  if ([attribute isDerived])
     return NO;
 
   return YES;
 }
 
-- (BOOL)isValidPrimaryKeyAttribute: (EOAttribute *)anAttribute
+- (BOOL)isValidPrimaryKeyAttribute: (EOAttribute *)attribute
 {
-  if (!([anAttribute isKindOfClass: GDL2_EOAttributeClass]
-	&& [[self attributesByName] objectForKey: [anAttribute name]]))
+  if (!([attribute isKindOfClass: GDL2_EOAttributeClass]
+	&& [[self attributesByName] objectForKey: [attribute name]]))
     return NO;
 
-  if ([anAttribute isDerived])
+  if ([attribute isDerived])
     return NO;
 
   return YES;
@@ -1592,15 +1592,15 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   return isValid;
 }
 
-- (BOOL)isValidClassProperty: (id)aProperty
+- (BOOL)isValidClassProperty: (id)property
 {
   id thePropertyName;
 
-  if (!([aProperty isKindOfClass: GDL2_EOAttributeClass]
-	|| [aProperty isKindOfClass: [EORelationship class]]))
+  if (!([property isKindOfClass: GDL2_EOAttributeClass]
+	|| [property isKindOfClass: [EORelationship class]]))
     return NO;
 
-  thePropertyName = [(EOAttribute *)aProperty name];
+  thePropertyName = [(EOAttribute *)property name];
 
   if ([[self attributesByName] objectForKey: thePropertyName]
       || [[self relationshipsByName] objectForKey: thePropertyName])
