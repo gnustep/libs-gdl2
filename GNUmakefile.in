@@ -51,6 +51,8 @@ include common.make
 
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 ifeq ($(doc),yes)
+SUBPROJECTS += Documentation
+
 include $(GNUSTEP_MAKEFILES)/documentation.make
 endif
 

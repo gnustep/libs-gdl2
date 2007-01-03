@@ -1,0 +1,563 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename GDL2Intro.info
+@settitle GNUstep Database Library Introduction 0.1
+@c %**end of header
+
+@copying
+@copyright{2006 Free Software Foundation}
+
+insert copying information here
+@end copying
+
+@titlepage
+@title GNUstep Database Library Introduction 
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+     
+@c Output the table of the contents at the beginning.
+@contents
+     
+@ifnottex
+@node Top
+@top GNUstep Database Library
+
+@insertcopying
+@end ifnottex
+
+@chapter Introduction
+This document is intended to get people started developing with GDL2.
+A knowledge of objective-c and relational database concepts is assumed.
+
+while not intended as a thorough reference or replacement for the API docs
+and surely omits details for the sake of simplicity it attempts to
+provide a starting point for people unfamiliar with GDL2 or EOF
+to get started developing their first application.
+
+@menu
+* Concepts:: Important concepts 
+* Classes:: A basic overview of important classes to know and understand.
+* Model creation:: Describes different ways to create model files. 
+* Project creation:: Creating a GDL2 project.
+* Database connection:: Connecting to a database through an adaptor.
+* Database creation:: Creating the database on the database server.
+* Index::            Complete index.
+@end menu
+
+
+@node Concepts
+@chapter Concepts 
+@menu
+* Key Value Coding:: Key Value Coding
+@end menu
+
+@node Key Value Coding, , ,Concepts
+@chapter Key Value Coding
+@cindex KVC, Key Value Coding
+Key Value Coding is a concept used widely throughout GDL2,
+it provides a mechanism by where you can access and modify an objects 
+set/accessor methods or even instance variables directly, through a named key.
+
+Additionally some classes may implement KVC in a way specific to the class.
+
+@section Setting values through KVC
+Setting values through key value coding will try to call a method
+'-setKeyName:' with the value as the parameter to -setKeyName:
+as a parameter failing that, if anObject had an instance variable
+with the same name as the key that would be modified directly.
+
+If anObject does not respond to `-setKeyName:` and there is no 
+instance variable with the same name as the key, an exception is thrown.
+
+For example,
+@example
+[anObject setValue:@"bar" forKey:@"foo"];
+@end example
+
+Will first try to call -setFoo: then attempt to set the instance variable
+named foo to @"bar".
+
+@section Accessing values through KVC
+
+Accessing values through Key Value Coding first attempts to 
+call the -keyName method on anObject if it responds.
+If the object does not respond then it will try to access an instance
+variable with the name of the key. 
+
+If there is no method or instance variable with the name of the key an
+exception will be thrown.
+
+For example,
+@example
+[anObject valueForKey:@"foo"];
+@end example
+
+Will first try to call -foo, then attempt to return instance variable named foo.
+
+@section Key Paths
+Key paths are a list of keys separated by a dot.
+
+The first key accesses the key on the target object through normal KVC,
+and each subsequent key is sent to the object returned through the previous
+key in the list.
+
+For example,
+@example
+[anObject valueForKey:@"foo.bar"];
+@end example
+
+Will be equivalent to
+@example
+[[anObject valueForKey:@"foo"] valueForKey:@"bar"];
+@end example
+
+@section Type promotion
+When a accessing a key, you may access keys for things such as standard c numerical
+types, and they will be automatically promoted to their object equivalent
+
+For example:
+@example
+[@"foo" valueForKey:@"length"];
+@end example
+Returns a NSNumber object containing '3'.
+
+
+@section Class specific implementation
+By implementing valueForKey: and setValueForKey: classes can implement
+functionality to contain keys in an instance variable such as a dictionary,
+but they can also implement something to work on a collection of objects.
+
+For instance NSArray implements KVC to forward key value coding to all objects
+in the array.
+
+Suppose we have an array contain a few string objects.
+("Example", "array", "containing", "strings")
+
+If we get the value for the key length, it will return an NSArray of NSNumbers
+(7, 5, 10, 7).
+
+
+@node Classes, 
+@chapter Classes
+
+@section Model classes
+The model related classes are important in that they define a databases
+structure.  Giving GDL2 a way to map a relational database into a set of 
+objects.
+
+@menu
+* EOModel class:: EOModel    
+* EOEntity class:: EOEntity
+* EOAttribute class:: EOAttribute
+* EORelationship class:: EORelationship
+* EOModelGroup class:: EOModelGroup
+@end menu
+
+@section Data oriented classes
+The data oriented classes relate to actual data manipulation and management.
+
+@menu
+* EOGenericRecord class:: EOGenericRecord
+* EODataSource class:: EODataSource
+* EOEditingContext class:: EOEditingContext
+@end menu 
+
+
+@section Database specific classes
+The database specific classes loadable through bundles provide a method
+for GDL2 to connect to and abstract implementation details between
+different database implementations.
+
+Currently adaptors for SQLite3 and PostgreSQL exist.
+@menu
+* EOAdaptor class:: EOAdaptor
+@end menu
+
+@node EOModel class, EOEntity class, , Classes
+@section EOModel class
+@cindex class, EOModel
+
+@subsection overview
+A model represents GDL2s interface to a database.  It contains
+information required to connect to the database along with entities
+and stored procedures.
+
+@noindent
+An EOModel Typically has:
+@enumerate
+@item
+A Name
+@item
+An adaptor name
+@item
+A connection dictionary
+@item
+An array of entities
+@end enumerate
+
+@node EOEntity class, EOAttribute class, EOModel class, Classes 
+@section EOEntity class
+@cindex class, EOEntity
+
+@subsection overview
+An entity contains information pertaining to a table in a database
+in the form of attributes and relationships.
+
+@noindent
+Additionally an entity contains:
+@enumerate
+@item
+An array of class properties
+@item
+An array of primary key attributes
+@item
+A class name
+@item
+An External name
+@end enumerate
+
+@subsection Class properties
+A class property of an entity can be either an attribute or a relationship.
+typically class properties are the set of attributes or relationships 
+which are user visible and need to be set or accessed by the user.
+Primary and Foreign keys attributes are usually derived from other
+attributes or generated automatically and so they are not typically
+class properties.
+
+A class property will be available through Key Value Coding for access
+and modification, in an instance of an Enterprise object.
+
+@subsection Class name
+an EOEntity's class name represents the name of the class which will be
+instantiated when creating an Enterprise Object such as EOGenericRecord
+or a custom object.
+
+@subsection Primary Key Attributes
+Primary key attributes specify which attributes uniquely identify a row
+in the table, they are typically generated automatically by GDL2.
+They correspond directly to the relational database concept.
+
+@subsection External name
+The external name represents the table name in the database server,
+and in any SQL the adaptor might generate.
+
+@node EOAttribute class, EORelationship class, EOEntity class, Classes 
+@section EOAttribute class
+@cindex class, EOAttribute
+
+@subsection overview
+An attribute typically maps a table column to an instance variable, 
+in which case the attribute is a class property.  Some attributes 
+represent foreign keys which are used to create realationships yet do 
+not correspond to a property in the enterprise object.  Other attributes 
+may represent primary keys which needn't be class property either.  In fact 
+some parts of framework work more smoothly if primary key attributes and 
+foreign key attributes are not class properties.
+
+@noindent
+Attributes typically contain:
+@enumerate
+@item
+A name
+@item
+A column name
+@item
+An adaptor value type
+@item
+An external type
+@item
+A value type
+@item
+A value class name
+@item
+A value factory method name
+@item
+a factory method argument type
+@end enumerate
+
+@noindent
+Some additional properties an attribute may have:
+@enumerate
+@item
+Read only
+@item
+Allows null
+@item
+Width
+@item
+Precision
+@item
+Scale
+@end enumerate
+
+@subsection Name
+The attributes name when the attribute is a class property is used
+as the key when doing key value coding on an enterprise object.
+
+It also uniquely identifies the attribute in its entity
+there many not be an attribute with the same name as another attribute or 
+relationship in an entity.
+
+@subsection Column name
+The adaptor uses the column name in generating SQL.
+
+@subsection Adaptor value type
+Indicates the type of the attribute as contained in the database
+
+@noindent
+Valid adaptor value types are:
+@enumerate
+@item
+EOAdaptorNumberType
+@item
+EOAdaptorCharactersType
+@item
+EOAdaptorBytesType
+@item
+EOAdaptorDateType
+@end enumerate
+
+Corresponding to numerical, string, raw data, and date value types.
+
+@subsection External type
+An external type is a string representing an adaptor specific database type
+different adaptors may use different names
+where the PostgreSQL adaptor might use 'char'.
+The SQLite3 Adaptor might use 'TEXT'
+
+it gives you full control on how the data is stored in the specific adaptor
+where the adaptor value type allows you to specify a few generic values. 
+
+@subsection Value type
+Value types are a string with a single character such as 'f' for floats
+'c' for chars a full list of the standard types is available in the 
+GDL2 API reference for EOAttributes -valueType method.
+
+The value type allows you to further refine the adaptor value type
+where EOAdaptorNumberType might represent a integer, float, or double type.
+
+@subsection Value class name
+The value class name specifies the class which will be present in an
+Enterprise Object containing the attribute.
+
+A property of this class will be instantiated when a field is retrieved from
+the database, similarly a instance of this will be converted into the
+external type when being sent to the datbase server.
+
+@subsection Value factory method name
+When the Value Class Name is a custom object for instance NSImage
+created from a blob of data. The value factory method name denotes
+the initializer for the class, used to create a new instance of the custom
+class.
+
+The value class name is an NSString representing a selector accepting a single
+argument suitable for passing to the NSSelectorFromString function.
+
+@subsection Value factory argument type
+This is the type of the argument sent to the value factory method name.
+
+@noindent
+Valid types are
+@enumerate
+@item
+EOFactoryMethodArgumentIsNSData
+@item
+EOFactoryMethodArgumentIsNSString
+@item
+EOFactoryMethodArgumentIsBytes
+@end enumerate
+
+
+
+@node EORelationship class, EOModelGroup class, EOAttribute class, Classes 
+@section EORelationship class
+@cindex class, EORelationship
+
+@subsection overview
+A relationship represents a connecton between entities and are described 
+with EOJoin's.  A join defines source and destination attributes --  The
+attributes of the joining entity which must match.
+
+A relationship may be of type to-one or to-many.  In a to-many the 
+destination will be an array of objects, and a to-one relationships 
+destination a single object.
+
+Typically a relationship is a class property.  Yet some relationships may 
+soley be used for flattening other relationships which are class properties, 
+yet need not be class properties themselves.
+
+@node EOModelGroup class, EOGenericRecord class, EORelationship class, Classes 
+@section EOModelGroup class
+@cindex class, EOModelGroup
+
+@subsection overview
+When models have relationships to other models, they ask their model group.
+
+There is a special model group - the default model group - which contains 
+all the models in the applications resources and the resources of any 
+frameworks the application uses.
+
+@node EOGenericRecord class, EODataSource class, EOModelGroup class, Classes
+@section EOGenericRecord class
+@cindex class, EOGenericRecord 
+
+@subsection overview
+EOGeneric record represents an actual row in a table being the default 
+enterprise object it contains no custom business logic and is accessible solely
+through key value coding.
+
+@node EODataSource class, EOEditingContext class, EOGenericRecord class, Classes 
+@section EODataSource class
+@cindex class, EODataSource
+
+@subsection overview
+A data source represents a collection of rows inside of a table 
+it can create rows, delete and provide access to the individual rows 
+represented as Enterprise objects.
+
+@node EOEditingContext class, EOAdaptor class, EODataSource class, Classes 
+@section EOEditingContext class
+@cindex class, EOEditingContext
+
+@subsection overview
+An editing context is responsible for managing changes to enterprise objects
+and provides the ability to save and undo those changes.
+
+@node EOAdaptor class, , EOEditingContext class, Classes 
+@section EOAdaptor class
+@cindex class, EOAdaptor
+
+@subsection overview
+An adaptor abstracts the difference between different database
+implementations.  It can connect to the database with the help of a
+connection dictionary and create and execute SQL statements.
+
+@node Model creation 
+@chapter Model Creation 
+@cindex model creation 
+Models can be created in 3 ways 
+
+@enumerate 
+@item
+Manual written with property lists.
+@item
+Hard coding the model in objective-c.
+@item
+Creation of plists with the DBModeler application.
+@end enumerate
+
+while DBModeler provides the easiest way, followed by manually writing the
+property lists, and hard coding the model is both tedious and complicated.
+
+@subsection Example model file
+Below is a example property list model created with DBModeler,
+it contains a Model for a library 2 entities, author and book
+
+author contains 2 attributes, authorID the primary key number, and name a string
+book contains 3 attributes, bookID the primary key number, authorID a
+foreign key number, and title a string.
+
+author and book each contain a relationship
+author a to-many relationship to each of the authors books,
+and book a to-one relationship to the books author 
+for the sake of demonstration i'm ignoring books with multiple authors.
+
+@verbatiminclude Examples/library.eomodel
+
+@subsection Creating with DBModeler
+To recreate the example model with DBModeler,
+
+select Document, New from the main menu then property Add entity twice.
+set the name and external names to 'authors' and 'books'
+
+select Document, Set Adaptor Info, and select SQLite.
+
+select the authors entity in the outline view, after expanding the model
+add an attribute to authors by selecting Property, Add attribute
+set the name and column name to 'authorID', 
+and select the switch button with a key icon, to set it as the primary key
+for the entity. Set the value class name to NSNumber and the external type to INTEGER
+
+Add another entity, set the name and column names to 'name'.  
+Select the switch button which looks like a jewel icon to set it as a Class Property. Set the Value Class Name to NSString and external type to TEXT.
+
+now do the same with books, 
+name them bookID, authorID, and title.
+make sure bookID is set as the primary key not authorID in the books entity.
+And that title is set as a class property.
+
+title is a NSString/TEXT, where authorID and bookID are NSNumber/INTEGER
+
+now add a relationship to authors
+name it toBooks, and Tools, inspector
+in the destination table, select To many, and books as the destination entity.
+
+select authorID as the source and destination attributes
+
+add a relationship to books, name it toAuthor.
+Select author as the destination entity, and authorID as the source
+and destination attributes.
+
+The select Document, Save, from the main menu.
+
+@node Project creation 
+@chapter Creating a project.
+
+@subsection Creating a makefile
+Creating a GNUmakefile for a GDL2 Project is done throught he well documented
+gnustep-make makefile system.
+
+they are standard GNUmakefiles but you'll need to include a special file -- gdl2.make after common.make
+
+E.g.
+@example
+include $(GNUSTEP_MAKEFILES)/common.make
+include $(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
+@end example
+
+@subsection Adding Resource Files
+Make sure you add your .eomodel or .eomodeld file to your projects resources
+
+@example
+TOOL_NAME=foo
+foo_RESOURCE_FILES=foo.eomodeld
+@end example
+
+@subsection A complete GNUmakefile 
+@example
+@verbatiminclude Examples/example.GNUmakefile
+@end example
+
+@node Database connection
+@chapter Database connection
+
+@example
+@verbatiminclude Examples/connection.m
+@end example
+
+
+
+@node Database creation
+@chapter Database creation
+Now that we have created a model file, we need to generate the SQL to create the database.
+
+@subsection Creating the database with DBModeler
+Select, Generate SQL from the Tools menu, then
+select the appropriate check boxes,
+
+Create databases, Create tables, foreign key constraints, primary key constraints, and primary key support.
+
+then either save the SQL to a file, or execute it, you may need to login to the database server, but the adaptor for the model should bring up a login panel.
+
+@subsection Creating the SQL through code
+
+
+
+@node Index
+@unnumbered Index
+     
+@printindex cp
+
+@bye

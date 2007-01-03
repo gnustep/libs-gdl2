@@ -1,0 +1,4 @@
+TOOL_NAME+=eoexample
+
+eoexample_OBJC_FILES=eoexample.m
+eoexample_RESOURCE_FILES=library.eomodel

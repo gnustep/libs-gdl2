@@ -1,0 +1,4 @@
+TOOL_NAME+=connection
+
+connection_OBJC_FILES=connection.m
+connection_RESOURCE_FILES=library.eomodel

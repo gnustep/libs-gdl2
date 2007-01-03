@@ -1,0 +1,91 @@
+{
+    EOModelVersion = 2;
+    adaptorName = SQLite3;
+    entities = (
+	{
+	    attributes = (
+		{
+		    columnName = authorID;
+		    externalType = integer;
+		    name = authorID;
+		    valueClassName = NSNumber;
+		},
+		{
+		    columnName = name;
+		    externalType = varchar;
+		    name = name;
+		    valueClassName = NSString;
+		}
+	    );
+	    className = EOGenericRecord;
+	    classProperties = (
+		name
+	    );
+	    externalName = authors;
+	    name = authors;
+	    primaryKeyAttributes = (
+		authorID
+	    );
+	    relationships = (
+		{
+		    destination = books;
+		    isToMany = Y;
+		    joinSemantic = EOInnerJoin;
+		    joins = (
+			{
+			    destinationAttribute = authorID;
+			    sourceAttribute = authorID;
+			}
+		    );
+		    name = toBooks;
+		}
+	    );
+	},
+	{
+	    attributes = (
+		{
+		    columnName = authorID;
+		    externalType = integer;
+		    name = authorID;
+		    valueClassName = NSNumber;
+		},
+		{
+		    columnName = bookID;
+		    externalType = integer;
+		    name = bookID;
+		    valueClassName = NSNumber;
+		},
+		{
+		    columnName = title;
+		    externalType = varchar;
+		    name = title;
+		    valueClassName = NSString;
+		}
+	    );
+	    className = EOGenericRecord;
+	    classProperties = (
+		title
+	    );
+	    externalName = books;
+	    name = books;
+	    primaryKeyAttributes = (
+		bookID
+	    );
+	    relationships = (
+		{
+		    destination = authors;
+		    isToMany = N;
+		    joinSemantic = EOInnerJoin;
+		    joins = (
+			{
+			    destinationAttribute = authorID;
+			    sourceAttribute = authorID;
+			}
+		    );
+		    name = toAuthor;
+		}
+	    );
+	}
+    );
+    name = library;
+}

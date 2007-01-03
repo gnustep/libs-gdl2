@@ -8,7 +8,20 @@
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.h: Ditto.
 	* variable-processing.make: Add comments.
 
-
+	* GNUmakefile.in: Add Documentation subproject.
+	* Documentation: New Directory.
+	* Documentation/GDL2Intro: Ditto.
+	* Documentation/GDL2Intro/Examples: Ditto.
+	* Documentation/GDL2Intro/GDL2Intro.texi: New file.
+	* Documentation/GDL2Intro/GNUmakefile: Ditto.
+	* Documentation/GDL2Intro/Examples/GNUmakefile: Ditto.
+	* Documentation/GDL2Intro/Examples/example.GNUmakefile: Ditto.
+	* Documentation/GDL2Intro/Examples/GNUMakefile.connection: Ditto.
+	* Documentation/GDL2Intro/Examples/GNUmakefile.eoexample: Ditto.
+	* Documentation/GDL2Intro/Examples/eoexample.m: Ditto
+	* Documentation/GDL2Intro/Examples/connection.m: Ditto.
+	* Documentation/GDL2Intro/Examples/library.eomodel: Ditto.
+	
 2007-01-01  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAccessFault.h/m: Minor cleanups for autogsdoc.
