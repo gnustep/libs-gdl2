@@ -23,6 +23,8 @@
 #
 include $(GNUSTEP_MAKEFILES)/common.make
 
+SUBPROJECTS=LoginPanel
+
 ADDITIONAL_INCLUDE_DIRS+=@SQLITE3_INCLUDES@
 ADDITIONAL_LIB_DIRS+=@SQLITE3_LIB_DIRS@
 LIBRARIES_DEPEND_UPON+=@SQLITE3_LIBS@
@@ -39,6 +41,8 @@ SQLite3Channel.m
 
 
 include ../../common.make
+
+include $(GNUSTEP_MAKEFILES)/aggregate.make
 include $(GNUSTEP_MAKEFILES)/framework.make
 -include Makefile.postamble
 

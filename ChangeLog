@@ -1,3 +1,14 @@
+2006-01-02  Matt Rice  <ratmice@gmail.com>
+
+	* EOAdaptors/SQLiteAdaptor/GNUmakefile.in: Add login panel.
+	* EOAdaptors/SQLiteAdaptor/LoginPanel: New directory.
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/GNUmakefile: New file.
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/Makefile.postamble: Ditto
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m: Ditto.
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.h: Ditto.
+	* variable-processing.make: Add comments.
+
+
 2007-01-01  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAccessFault.h/m: Minor cleanups for autogsdoc.
