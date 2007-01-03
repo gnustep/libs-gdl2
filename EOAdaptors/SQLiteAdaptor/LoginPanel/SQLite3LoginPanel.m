@@ -24,7 +24,6 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. 
 */
 
-
 #include "SQLite3LoginPanel.h"
 
 #import <AppKit/AppKit.h>
@@ -49,6 +48,7 @@ static BOOL insideModalLoop = YES;
     {
       NSRect fr1, fr2;
       float w;
+      /* TODO make the interface pretty */
       _win = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, 256, 128)
       		styleMask: NSTitledWindowMask
 		backing:NSBackingStoreBuffered
@@ -142,7 +142,6 @@ static BOOL insideModalLoop = YES;
         }
     }
   [_win orderOut:self];
-  NSLog(@"%@", connDict);
   return AUTORELEASE(connDict);
 }
 

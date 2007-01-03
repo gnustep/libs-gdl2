@@ -7,7 +7,17 @@
 @copying
 @copyright{2006 Free Software Foundation}
 
-insert copying information here
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that
+the entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions.
 @end copying
 
 @titlepage
@@ -23,7 +33,6 @@ insert copying information here
 @ifnottex
 @node Top
 @top GNUstep Database Library
-
 @insertcopying
 @end ifnottex
 
@@ -31,7 +40,7 @@ insert copying information here
 This document is intended to get people started developing with GDL2.
 A knowledge of objective-c and relational database concepts is assumed.
 
-while not intended as a thorough reference or replacement for the API docs
+While not intended as a thorough reference or a replacement for the API docs
 and surely omits details for the sake of simplicity it attempts to
 provide a starting point for people unfamiliar with GDL2 or EOF
 to get started developing their first application.
@@ -71,13 +80,15 @@ with the same name as the key that would be modified directly.
 If anObject does not respond to `-setKeyName:` and there is no 
 instance variable with the same name as the key, an exception is thrown.
 
-For example,
+
 @example
+@verbatim
 [anObject setValue:@"bar" forKey:@"foo"];
+@end verbatim
 @end example
 
 Will first try to call -setFoo: then attempt to set the instance variable
-named foo to @"bar".
+named "foo" to "bar".
 
 @section Accessing values through KVC
 
@@ -91,7 +102,9 @@ exception will be thrown.
 
 For example,
 @example
+@verbatim
 [anObject valueForKey:@"foo"];
+@end verbatim
 @end example
 
 Will first try to call -foo, then attempt to return instance variable named foo.
@@ -105,12 +118,16 @@ key in the list.
 
 For example,
 @example
+@verbatim
 [anObject valueForKey:@"foo.bar"];
+@end verbatim
 @end example
 
 Will be equivalent to
 @example
+@verbatim
 [[anObject valueForKey:@"foo"] valueForKey:@"bar"];
+@end verbatim
 @end example
 
 @section Type promotion
@@ -119,7 +136,9 @@ types, and they will be automatically promoted to their object equivalent
 
 For example:
 @example
+@verbatim
 [@"foo" valueForKey:@"length"];
+@end verbatim
 @end example
 Returns a NSNumber object containing '3'.
 
@@ -133,11 +152,14 @@ For instance NSArray implements KVC to forward key value coding to all objects
 in the array.
 
 Suppose we have an array contain a few string objects.
+@example
 ("Example", "array", "containing", "strings")
+@end example
 
 If we get the value for the key length, it will return an NSArray of NSNumbers
+@example 
 (7, 5, 10, 7).
-
+@end example
 
 @node Classes, 
 @chapter Classes
@@ -155,16 +177,6 @@ objects.
 * EOModelGroup class:: EOModelGroup
 @end menu
 
-@section Data oriented classes
-The data oriented classes relate to actual data manipulation and management.
-
-@menu
-* EOGenericRecord class:: EOGenericRecord
-* EODataSource class:: EODataSource
-* EOEditingContext class:: EOEditingContext
-@end menu 
-
-
 @section Database specific classes
 The database specific classes loadable through bundles provide a method
 for GDL2 to connect to and abstract implementation details between
@@ -173,7 +185,17 @@ different database implementations.
 Currently adaptors for SQLite3 and PostgreSQL exist.
 @menu
 * EOAdaptor class:: EOAdaptor
+* EOAdaptorChannel class:: EOAdaptorChannel
+* EOAdaptorContext class:: EOAdaptorContext
 @end menu
+
+@section Data oriented classes
+The data oriented classes relate to actual data manipulation and management.
+@menu
+* EOGenericRecord class:: EOGenericRecord
+* EODataSource class:: EODataSource
+* EOEditingContext class:: EOEditingContext
+@end menu 
 
 @node EOModel class, EOEntity class, , Classes
 @section EOModel class
@@ -388,7 +410,7 @@ Typically a relationship is a class property.  Yet some relationships may
 soley be used for flattening other relationships which are class properties, 
 yet need not be class properties themselves.
 
-@node EOModelGroup class, EOGenericRecord class, EORelationship class, Classes 
+@node EOModelGroup class, EOAdaptor class, EORelationship class, Classes 
 @section EOModelGroup class
 @cindex class, EOModelGroup
 
@@ -399,7 +421,117 @@ There is a special model group - the default model group - which contains
 all the models in the applications resources and the resources of any 
 frameworks the application uses.
 
-@node EOGenericRecord class, EODataSource class, EOModelGroup class, Classes
+@node EOAdaptor class, EOAdaptorContext class, EOModelGroup class, Classes 
+@section EOAdaptor class
+@cindex class, EOAdaptor
+
+@subsection overview
+An adaptor abstracts the difference between different database
+implementations.  It can connect to the database with the help of a
+connection dictionary and create and execute SQL statements.
+
+While an adaptor is made up of many different classes. The EOAdaptor class is sort of an entry point into the different available classes.
+
+And a typical use for the EOAdaptor class is creating an instance of a
+specific adaptor, either by name or through the adaptor name in a model.
+
+Typical methods for the EOAdaptor class are:
+@enumerate
+@item
+-createAdaptorContext
+@item
+-runLoginPanel
+@item
+-assertConnectionDictionaryIsValid
+@item
++adaptorWithModel:
+@end enumerate
+
+@node EOAdaptorContext class, EOAdaptorChannel class, EOAdaptor class, Classes
+An EOAdaptorContext can create an adaptor channel and will transparently handle
+transactions for the channel, It can begin, commit, roll back transactions.
+
+Additionaly you can enable debugging on the context and its channels.
+
+Typical methods for an EOAdaptorContext:
+@enumerate
+@item
+-createAdaptorChannel
+@item
+-setDebugEnabled:
+@end enumerate
+
+@node EOAdaptorChannel class, EODataSource class, EOAdaptorContext class, Classes
+
+An adaptor channel can open and close a connection to the adaptors database server. Along with fetch rows from the database and create, update, and delete rows in the database.
+
+It is the main communication channel for gdl2, in creating the connection to the database, and executing any SQL statements which have been prepared through
+EOSQLExpression.  Though it also has methods for building SQL expressions from entities, and possibly turning the results back into enterprise objects.
+
+Because EOAdaptorChannel can create most SQL statements for you,
+you'll rarely need to do that yourself, though it is available if needed.
+
+Typical methods for an EOAdaptorChannel:
+@enumerate
+@item
+-openChannel
+@item
+-closeChannel
+@item
+-isOpen
+@end enumerate
+
+
+@node EODataSource class, EOEditingContext class, EOAdaptorChannel class, Classes
+@section EODataSource class
+@cindex class, EODataSource
+
+@subsection overview
+EODataSource is an abstract base class, and implements no real functionality on its own,
+instead you'll access EODataSource subclass.
+
+A data source represents a collection of rows inside of a table. 
+It can create rows, delete and provide access to the individual rows 
+represented as Enterprise objects.
+
+@noindent
+Typical methods for an EODataSource subclass:
+@enumerate
+@item
+-fetchObjects
+@item
+-createObject:
+@item
+-deleteObject:
+@end enumerate 
+
+@node EOEditingContext class, EOGenericRecord class, EODataSource class, Classes
+@section EOEditingContext class
+@cindex class, EOEditingContext
+
+@subsection overview
+An editing context is responsible for managing changes to enterprise objects
+and provides the ability to save and undo those changes. Including inserts, updates, and deletes.
+
+Typical methods of the EOEditingContext class:
+@enumerate
+@item
+-saveChanges:
+@item
+-revert:
+@item
+-undo:
+@item
+-redo:
+@item
+-insertObject:
+@item
+-deleteObject:
+@end enumerate
+
+You may have noticed that there is no mention of a method for modifying an object through an EOEditingContext. As you will modify the objects directly, and EOEditingContext will merely take note of the changes, and save snapshots of the objects as they are being modified so you can undo those changes.
+
+@node EOGenericRecord class, , EOEditingContext class, Classes
 @section EOGenericRecord class
 @cindex class, EOGenericRecord 
 
@@ -408,31 +540,28 @@ EOGeneric record represents an actual row in a table being the default
 enterprise object it contains no custom business logic and is accessible solely
 through key value coding.
 
-@node EODataSource class, EOEditingContext class, EOGenericRecord class, Classes 
-@section EODataSource class
-@cindex class, EODataSource
+Where an entity represents the description of the table. It's columns and types.
+enterprise objects represent the data contained in the table.
 
-@subsection overview
-A data source represents a collection of rows inside of a table 
-it can create rows, delete and provide access to the individual rows 
-represented as Enterprise objects.
+EOGenericRecords are generally created with a reference to an entity.
+They export as keys the class properties of the entity, for access and modification.
 
-@node EOEditingContext class, EOAdaptor class, EODataSource class, Classes 
-@section EOEditingContext class
-@cindex class, EOEditingContext
 
-@subsection overview
-An editing context is responsible for managing changes to enterprise objects
-and provides the ability to save and undo those changes.
+If you have an EOGenericRecord from the 'authors' entity
+of our example model you could set the authors name as so.
 
-@node EOAdaptor class, , EOEditingContext class, Classes 
-@section EOAdaptor class
-@cindex class, EOAdaptor
+@example
+@verbatim
+[anAuthor takeValue:@"Anonymous" forKey:@"name"];
+@end verbatim
+@end example
 
-@subsection overview
-An adaptor abstracts the difference between different database
-implementations.  It can connect to the database with the help of a
-connection dictionary and create and execute SQL statements.
+And retrieve the author name with:
+@example
+@verbatim
+[anAuthor valueForKey:@"name"];
+@end verbatim
+@end example
 
 @node Model creation 
 @chapter Model Creation 
@@ -463,6 +592,8 @@ author and book each contain a relationship
 author a to-many relationship to each of the authors books,
 and book a to-one relationship to the books author 
 for the sake of demonstration i'm ignoring books with multiple authors.
+
+it also contains an adaptor name, and an adaptor specific connection dictionary.
 
 @verbatiminclude Examples/library.eomodel
 
@@ -536,8 +667,6 @@ foo_RESOURCE_FILES=foo.eomodeld
 @example
 @verbatiminclude Examples/connection.m
 @end example
-
-
 
 @node Database creation
 @chapter Database creation

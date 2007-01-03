@@ -1,6 +1,9 @@
 {
     EOModelVersion = 2;
     adaptorName = SQLite3;
+    connectionDictionary = {
+	databasePath = "/tmp/example.db";
+    };
     entities = (
 	{
 	    attributes = (

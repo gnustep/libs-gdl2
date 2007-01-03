@@ -1,3 +1,11 @@
+2006-01-03  Matt Rice  <ratmice@gmail.com>
+
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m: Remove
+	NSLog.
+	* Documentation/GDL2Intro/GDL2Intro.texi: Add more documentation.
+	* Documentation/GDL2Intro/library.eomodel: Add a connection
+	dictionary. 
+
 2006-01-02  Matt Rice  <ratmice@gmail.com>
 
 	* EOAdaptors/SQLiteAdaptor/GNUmakefile.in: Add login panel.
