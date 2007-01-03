@@ -172,21 +172,6 @@ RCS_ID("$Id$")
   //EOFLogC("GSWElementIDString end of dealloc");
 }
 
-- (void)gcDecrementRefCountOfContainedObjects
-{
-//    [X gcDecrementRefCount];
-}
-
-- (BOOL)gcIncrementRefCountOfContainedObjects
-{
-  if (![super gcIncrementRefCountOfContainedObjects])
-    return NO;
-  
-  //[XX gcIncrementRefCount];
-  //[XX gcIncrementRefCountOfContainedObjects];
-  return YES;
-}
-
 - (NSString*)description
 {
   NSString *dscr;

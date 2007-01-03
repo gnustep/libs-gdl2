@@ -54,8 +54,6 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #endif
 
-#include <GNUstepBase/GCObject.h>
-
 #include <EOControl/EOFault.h>
 #include <EOControl/EODebug.h>
 
@@ -64,34 +62,6 @@ RCS_ID("$Id$")
 #endif
 
 #include <objc/Protocol.h>
-
-
-BOOL __isGCEnabled(Class class_)
-{
-  Class gcObjectClass = [GCObject class];
-
-  if ([class_ instancesRespondToSelector: @selector(gcIncrementRefCount)])
-    return YES;
-  else
-    {
-      Class class;
-
-      for (class = class_; 
-	   class != Nil;
-	   class = class_get_super_class (class))
-	{
-	  if (class == gcObjectClass)
-	    return YES;
-	  else if ([class instancesRespondToSelector: @selector(gcIncrementRefCount)])
-	      return YES;
-	  else if ([class instancesRespondToSelector: @selector(gcNextObject)])
-	      return YES;
-	}
-    }
-
-  return NO;
-}
-
 
 @implementation EOFaultHandler
 
@@ -109,11 +79,6 @@ BOOL __isGCEnabled(Class class_)
 {
   _targetClass = target;
   _extraData = data;
-
-  gcEnabled = __isGCEnabled(_targetClass);
-
-  if (gcEnabled)
-    _extraRefCount++;
 }
 
 - (Class)targetClass
@@ -131,7 +96,7 @@ BOOL __isGCEnabled(Class class_)
   _extraRefCount++;
 }
 
-- (BOOL)decrementExtraRefCountWasZero
+- (BOOL)decrementExtraRefCountIsZero
 {
   if (!(--_extraRefCount))
     return YES;
@@ -245,150 +210,5 @@ BOOL __isGCEnabled(Class class_)
 {
   return;
 }
-
-// GC
-
-+ allocWithZone: (NSZone *)zone_
-{
-  id newObject = [super allocWithZone: zone_];
-
-  ((EOFaultHandler *)newObject)->gc.flags.refCount = 0;
-
-  return newObject;
-}
-
-/*
-- retain
-{
-  if (gcEnabled)
-	{
-	  gc.flags.refCount++;
-	  return self;
-	}
-  else
-	{
-	  return [super retain];
-	};
-}
-
-- (unsigned int)retainCount
-{
-  if (gcEnabled)
-	{
-	  return gc.flags.refCount;
-	}
-  else
-	{
-	  return [super retainCount];
-	};
-}
-*/
-- gcSetNextObject: (id)anObject
-{
-  if (gcEnabled)
-    gc.next = anObject;
-
-  return self;
-}
-
-- gcSetPreviousObject: (id)anObject
-{
-  if (gcEnabled)
-    gc.previous = anObject;
-
-  return self;
-}
-
-- (id)gcNextObject
-{
-  if (gcEnabled)
-    return gc.next;
-
-  return nil;
-}
-
-- (id)gcPreviousObject
-{
-  if (gcEnabled)
-    return gc.previous;
-
-  return nil;
-}
-
-- (BOOL)gcAlreadyVisited
-{
-  if (gcEnabled)
-    return gc.flags.visited;
-
-  return YES;
-}
-
-- (void)gcSetVisited: (BOOL)flag
-{
-  if (gcEnabled)
-    gc.flags.visited = flag;
-}
-
-- (void)gcDecrementRefCountOfContainedObjects
-{
-  EOFLOGObjectFnStart();
-
-  if (gcEnabled)
-    gcCountainedObjectRefCount--;
-
-  EOFLOGObjectFnStop();
-}
-
-- (BOOL)gcIncrementRefCountOfContainedObjects
-{
-  if (gcEnabled)
-    {
-      if (gc.flags.visited)
-	return NO;
-
-      gcCountainedObjectRefCount++;
-      gc.flags.visited = YES;
-
-      return YES;
-    }
-
-  return NO;
-}
-
-- (BOOL)isGarbageCollectable
-{
-  return gcEnabled;
-}
-
-- (void)gcIncrementRefCount
-{
-  if (gcEnabled);
-  //gc.flags.refCount++;
-  //    faultReferences++;
-}
-
-- (void)gcDecrementRefCount
-{
-  if(gcEnabled);
-  //gc.flags.refCount--;
-  //    faultReferences--;
-}
-
-/*
-- (BOOL)afterFault
-{
-  if (gcEnabled)
-    {
-      [fault gcIncrementRefCount];
-      fault->gc.next = gc.next;
-      fault->gc.previous = gc.previous;
-      while (gcCountainedObjectRefCount-- > 0)
-	{
-	  [fault gcIncrementRefCountOfContainedObjects];
-	}
-    };
-  return NO;
-}
-*/
 
 @end

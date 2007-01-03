@@ -37,9 +37,6 @@
 #include <Foundation/Foundation.h>
 #endif
 
-#include <GNUstepBase/GCObject.h>
-
-
 @class NSInvocation;
 @class NSMethodSignature;
 @class NSDictionary;
@@ -119,34 +116,17 @@
 - (void)doesNotRecognizeSelector: (SEL)selector;
 - (void)forwardInvocation: (NSInvocation *)invocation;
 
-- (id)gcSetNextObject: (id)object;
-- (id)gcSetPreviousObject: (id)object;
-- (id)gcNextObject;
-- (id)gcPreviousObject;
-- (BOOL)gcAlreadyVisited;
-- (void)gcSetVisited: (BOOL)flag;
-- (void)gcDecrementRefCountOfContainedObjects;
-- (BOOL)gcIncrementRefCountOfContainedObjects;
-- (BOOL)isGarbageCollectable;
-- (void)gcIncrementRefCount;
-- (void)gcDecrementRefCount;
-
 @end /* EOFault */
 
 
 @interface EOFaultHandler : NSObject
 {
-  gcInfo	gc;
 
   Class _targetClass; /* Cached class of original object.  */
   void *_extraData;   /* Cached memory contents of original object
 			 overwritten by fault handler reference.  */
 
   unsigned _extraRefCount;
-
-  BOOL gcEnabled;
-@public
-  int gcCountainedObjectRefCount;
 }
 
 - (void)setTargetClass: (Class)target extraData: (void *)data;
@@ -154,7 +134,7 @@
 - (void *)extraData;
 
 - (void)incrementExtraRefCount;
-- (BOOL)decrementExtraRefCountWasZero;
+- (BOOL)decrementExtraRefCountIsZero;
 - (unsigned)extraRefCount;
 
 - (NSString *)descriptionForObject: (id)object;
@@ -173,20 +153,6 @@
 - (BOOL)shouldPerformInvocation: (NSInvocation *)invocation;
 
 - (void)faultWillFire: (id)object;
-
-// Garbage Collector
-
-- (id)gcSetNextObject: (id)object;
-- (id)gcSetPreviousObject: (id)object;
-- (id)gcNextObject;
-- (id)gcPreviousObject;
-- (BOOL)gcAlreadyVisited;
-- (void)gcSetVisited: (BOOL)flag;
-- (void)gcDecrementRefCountOfContainedObjects;
-- (BOOL)gcIncrementRefCountOfContainedObjects;
-- (BOOL)isGarbageCollectable;
-- (void)gcIncrementRefCount;
-- (void)gcDecrementRefCount;
 
 @end
 

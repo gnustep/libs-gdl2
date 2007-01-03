@@ -21,7 +21,11 @@
 	* Documentation/GDL2Intro/Examples/eoexample.m: Ditto
 	* Documentation/GDL2Intro/Examples/connection.m: Ditto.
 	* Documentation/GDL2Intro/Examples/library.eomodel: Ditto.
-	
+
+	* EOControl/EOMutableKnownKeyDictionary.h/m: Remove usage of GCObject.
+	* EOControl/EOFault.h/m: Ditto.
+	* EOControl/EOFaultHandler.m: Ditto.
+
 2007-01-01  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAccessFault.h/m: Minor cleanups for autogsdoc.

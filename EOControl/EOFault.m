@@ -203,8 +203,6 @@ static Class EOFaultClass = NULL;
 {
   EOFaultHandler *handler;
   EOFault *aFault = (EOFault *)fault;
-  BOOL gcEnabled = NO;
-  unsigned gcCountainedObjectRefCount = 0;
   int refs = 0;
 
   NSDebugFLLog(@"gsdb", @"START fault=%p", fault);
@@ -229,8 +227,6 @@ static Class EOFaultClass = NULL;
       [handler faultWillFire: fault];
       
       refs = [handler extraRefCount];
-      gcEnabled = [handler isGarbageCollectable];
-      gcCountainedObjectRefCount = aFault->_handler->gcCountainedObjectRefCount;
 
       aFault->isa = [handler targetClass];
       aFault->_handler = [handler extraData];
@@ -245,16 +241,6 @@ static Class EOFaultClass = NULL;
       else
         while (refs++ < 0)
           [aFault release];
-
-      if(gcEnabled)
-        {
-          [aFault gcIncrementRefCount];
-          [aFault gcSetNextObject: [self gcNextObject]];
-          [aFault gcSetPreviousObject: [self gcPreviousObject]];
-          
-          while (gcCountainedObjectRefCount-- > 0)
-            [aFault gcIncrementRefCountOfContainedObjects];
-        }
     }
 
   NSDebugFLLog(@"gsdb", @"STOP fault=%p", fault);
@@ -381,7 +367,7 @@ static Class EOFaultClass = NULL;
   if ([_handler extraRefCount] <= 0)
     [self dealloc];
   else
-    [_handler decrementExtraRefCountWasZero];
+    [_handler decrementExtraRefCountIsZero];
 }
 
 - autorelease
@@ -538,69 +524,6 @@ static Class EOFaultClass = NULL;
   _handler = handler;
 
   return hash;
-}
-
-// GC
-
-- gcSetNextObject: (id)object
-{
-  return [_handler gcSetNextObject: object];
-}
-
-- gcSetPreviousObject: (id)object
-{
-  return [_handler gcSetPreviousObject: object];
-}
-
-- (id)gcNextObject
-{
-  return [_handler gcNextObject];
-}
-
-- (id)gcPreviousObject
-{
-  return [_handler gcPreviousObject];
-}
-
-- (BOOL)gcAlreadyVisited
-{
-  return [_handler gcAlreadyVisited];
-}
-
-- (void)gcSetVisited: (BOOL)flag
-{
-  [_handler gcSetVisited: flag];
-}
-
-- (void)gcDecrementRefCountOfContainedObjects
-{
-  [_handler gcDecrementRefCountOfContainedObjects];
-}
-
-- (BOOL)gcIncrementRefCountOfContainedObjects
-{
-  return [_handler gcIncrementRefCountOfContainedObjects];
-}
-
-- (BOOL)isGarbageCollectable
-{
-  return [_handler isGarbageCollectable];
-}
-
-- (void)gcIncrementRefCount
-{
-  [_handler gcIncrementRefCount];
-}
-
-- (void)gcDecrementRefCount
-{
-  EOFLOGObjectLevelArgs(@"gsdb", @"START self=%p", self);
-
-  EOFLOGObjectLevel(@"gsdb", @"handler gcDecrementRefCount");
-
-  [_handler gcDecrementRefCount];
-
-  EOFLOGObjectLevelArgs(@"gsdb", @"STOP self=%p", self);
 }
 
 @end

@@ -31,12 +31,10 @@
 #include <Foundation/NSObject.h>
 #include <Foundation/NSEnumerator.h>
 #include <Foundation/NSZone.h>
+#include <Foundation/NSMapTable.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
-
-#include <GNUstepBase/GCObject.h>
-
 
 @class NSArray;
 @class NSDictionary;
@@ -46,7 +44,7 @@
 @class EOMKKDArrayMapping;
 @class EOMKKDSubsetMapping;
 
-@interface EOMKKDInitializer : GCObject
+@interface EOMKKDInitializer : NSObject
 {
   unsigned int _count;
   NSMapTable *_keyToIndex; //key to index
