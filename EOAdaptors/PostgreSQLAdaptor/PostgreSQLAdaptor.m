@@ -266,22 +266,6 @@ static NSString *typeNames[][2] = {
   [attribute setExternalType: typeNames[value][0]];
 }
 
-+ (void)assignExternalInfoForEntity: (EOEntity *)entity
-{
-  NSArray *attributes = [entity attributes];
-  EOAttribute *attribute = nil;
-  IMP arrayOAI = NULL;
-  static SEL selfAEIFA_SEL = @selector(assignExternalInfoForAttribute:);
-  IMP selfAEIFA_IMP = [self methodForSelector: selfAEIFA_SEL];
-  unsigned i, c;
-
-  for (i=0, c=[attributes count]; i < c; i++)
-    {
-      attribute = PSQLA_ObjectAtIndexWithImpPtr(attributes, &arrayOAI, i);
-      selfAEIFA_IMP(self, selfAEIFA_SEL, attribute);
-    }
-}
-
 /* Inherited methods */
 
 - (EOAdaptorContext *)createAdaptorContext

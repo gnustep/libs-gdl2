@@ -1,3 +1,12 @@
+2007-01-04  David Ayers  <ayers@fsfe.org>
+
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLAdaptor.m
+	(assignExternalInfoForEntity:): Remove method replicated from
+	superclass.
+
+	* EOControl/EOKeyValueCoding.m (computeAvgForKey:): Return zero
+	for empty arrays.
+	
 2006-01-03  Matt Rice  <ratmice@gmail.com>
 
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m: Remove

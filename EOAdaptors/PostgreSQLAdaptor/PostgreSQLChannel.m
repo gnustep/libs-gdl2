@@ -185,7 +185,8 @@ pgResultDictionary(PGresult *pgResult)
  * read up to the specified number of characters, terminating at a non-digit
  * except for leading whitespace characters.
  */
-static inline int getDigits(const char *from, char *to, int limit, BOOL *error)
+static inline int
+getDigits(const char *from, char *to, int limit, BOOL *error)
 {
   int	i = 0;
   int	j = 0;

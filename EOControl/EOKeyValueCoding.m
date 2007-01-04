@@ -458,7 +458,11 @@ initialize(void)
           right = [[GDL2_ObjectAtIndexWithImp(self,oaiIMP,i) valueForKey: key] decimalValue];
           NSDecimalAdd(&result, &left, &right, mode);
         }
-    };
+    }
+  else
+    {
+      return [NSDecimalNumber zero];
+    }
 
   left  = result;
   NSDecimalFromComponents(&right, (unsigned long long) count, 0, NO);
