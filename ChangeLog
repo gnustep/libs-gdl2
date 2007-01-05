@@ -1,3 +1,11 @@
+2007-01-05  Matt Rice  <ratmice@gmail.com>
+
+	* Documentation/GDL2Intro/GDL2Intro.texi: Add more docs.
+	* Documentation/GDL2Intro/Examples/eoexample.m: Use an
+	EODatabaseDatasource. 
+	* Documentation/GDL2Intro/Examples/connection.m: Load the model file
+	manually if it cannot be found.
+
 2007-01-04  David Ayers  <ayers@fsfe.org>
 
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLAdaptor.m
@@ -7,7 +15,7 @@
 	* EOControl/EOKeyValueCoding.m (computeAvgForKey:): Return zero
 	for empty arrays.
 	
-2006-01-03  Matt Rice  <ratmice@gmail.com>
+2007-01-03  Matt Rice  <ratmice@gmail.com>
 
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m: Remove
 	NSLog.

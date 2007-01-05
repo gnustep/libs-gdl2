@@ -5,10 +5,22 @@
 int main()
 {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-  EOModel *model = [[EOModelGroup defaultGroup] modelNamed:@"library"];
-  EOAdaptor *adaptor = [EOAdaptor adaptorWithName:[model adaptorName]];
-  EOAdaptorContext *context = [adaptor createAdaptorContext];
-  EOAdaptorChannel *channel = [context createAdaptorChannel];
+  EOModelGroup *modelGroup = [EOModelGroup defaultGroup];
+  EOModel *model = [modelGroup modelNamed:@"library"];
+  EOAdaptor *adaptor;
+  EOAdaptorContext *context;
+  EOAdaptorChannel *channel;
+
+  /* Tools don't have resources so we have to add the model manually */ 
+  if (!model)
+    {
+      model = [[EOModel alloc] initWithContentsOfFile:@"./library.eomodel"];
+      [modelGroup addModel:model];
+    }
+ 
+  adaptor = [EOAdaptor adaptorWithName:[model adaptorName]];
+  context = [adaptor createAdaptorContext];
+  channel = [context createAdaptorChannel];
 
   [channel openChannel];
 

@@ -45,13 +45,17 @@ and surely omits details for the sake of simplicity it attempts to
 provide a starting point for people unfamiliar with GDL2 or EOF
 to get started developing their first application.
 
+If you are reading this document from the GDL2 Sources, most example sources 
+are provided in the Examples/ directory.
+
 @menu
 * Concepts:: Important concepts 
 * Classes:: A basic overview of important classes to know and understand.
 * Model creation:: Describes different ways to create model files. 
 * Project creation:: Creating a GDL2 project.
-* Database connection:: Connecting to a database through an adaptor.
 * Database creation:: Creating the database on the database server.
+* Database connection:: Connecting to a database through an adaptor.
+* Working with data:: Creating, Fetching, and updating data in the database. 
 * Index::            Complete index.
 @end menu
 
@@ -192,9 +196,9 @@ Currently adaptors for SQLite3 and PostgreSQL exist.
 @section Data oriented classes
 The data oriented classes relate to actual data manipulation and management.
 @menu
-* EOGenericRecord class:: EOGenericRecord
 * EODataSource class:: EODataSource
 * EOEditingContext class:: EOEditingContext
+* EOGenericRecord class:: EOGenericRecord
 @end menu 
 
 @node EOModel class, EOEntity class, , Classes
@@ -205,6 +209,15 @@ The data oriented classes relate to actual data manipulation and management.
 A model represents GDL2s interface to a database.  It contains
 information required to connect to the database along with entities
 and stored procedures.
+
+All the model classes can be written to and read from property list files
+in the form of .eomodel or .eomodeld files. While .eomodel files contain a 
+model and all its entities and objects in a single property list, .eomodeld files
+are a directory with each of the property lists in their own file.
+
+Typically you won't create an model through manual instantiation of the classes
+but store them in and read them from a property list. We have provided an
+example .eomodel file @xref{Example model file}.
 
 @noindent
 An EOModel Typically has:
@@ -419,7 +432,8 @@ When models have relationships to other models, they ask their model group.
 
 There is a special model group - the default model group - which contains 
 all the models in the applications resources and the resources of any 
-frameworks the application uses.
+frameworks the application uses.  If your model file is not available through
+application or framework resources you will need to add it to a model group.
 
 @node EOAdaptor class, EOAdaptorContext class, EOModelGroup class, Classes 
 @section EOAdaptor class
@@ -503,7 +517,55 @@ Typical methods for an EODataSource subclass:
 -createObject:
 @item
 -deleteObject:
+@item
+-insertObject:
+@item
+-dataSourceQualifiedByKey:
 @end enumerate 
+
+@subsection Fetch objects
+The -fetchObjects method will return an array of enterprise objects.
+Typically these will be retrieved directly from data in the database server.
+Then the caller will save the array for access or modification.
+
+@subsection Creating objects
+The -createObject: method will create a new enterprise object for insertion into the database.
+A subclass will generally insert this new object into an editing context.
+Though the caller is responsible for inserting the object into the data source with -insertObject:.
+
+@subsection Inserting objects
+The -insertObject: method will schedule the object for addition into the database server
+EditingContexts changes are saved to the database.
+
+@subsection Deleting objects
+The -deleteObject: method will schedule the object for removal from the database server
+when the EOEditingContexts changes are saved to the database.
+
+@subsection Qualified DataSources
+Subclasses may implement this method to return a detail data source.
+
+A detail data source is a datasource which is created from following a relationship 
+in an object of the receiever: the master object.
+
+in our example you might have a data source for the authors entity
+and qualify a detail data source, with the toBooks key. 
+
+@subsection EODatabaseDataSource class
+EODatabaseDataSource class is a subclass of EODataSource.
+
+To initialize an EODatabaseDataSource you'll give it a reference to an EOEditingContext
+and an entity name.
+
+EODatabaseDataSource initializers:
+@enumerate
+@item
+-initWithEditingContext:entityName:
+@item
+-initWithEditingContext:entityName:fetchSpecificationName:
+@end enumerate
+
+Once initialized, you can call the EODataSource methods on it, to
+create fetch insert, and delete objects from the datasource.
 
 @node EOEditingContext class, EOGenericRecord class, EODataSource class, Classes
 @section EOEditingContext class
@@ -546,9 +608,10 @@ enterprise objects represent the data contained in the table.
 EOGenericRecords are generally created with a reference to an entity.
 They export as keys the class properties of the entity, for access and modification.
 
-
 If you have an EOGenericRecord from the 'authors' entity
 of our example model you could set the authors name as so.
+
+@xref{Example model file}
 
 @example
 @verbatim
@@ -568,7 +631,7 @@ And retrieve the author name with:
 @cindex model creation 
 Models can be created in 3 ways 
 
-@enumerate 
+@enumerate
 @item
 Manual written with property lists.
 @item
@@ -580,6 +643,14 @@ Creation of plists with the DBModeler application.
 while DBModeler provides the easiest way, followed by manually writing the
 property lists, and hard coding the model is both tedious and complicated.
 
+@menu
+* Example model file:: An example property list for a .eomodel file.
+* Creating with DBModeler:: Instructions for recreating the property list with
+DBModeler
+@end menu
+
+
+@node Example model file, Creating with DBModeler, Model creation, Model creation  
 @subsection Example model file
 Below is a example property list model created with DBModeler,
 it contains a Model for a library 2 entities, author and book
@@ -597,13 +668,19 @@ it also contains an adaptor name, and an adaptor specific connection dictionary.
 
 @verbatiminclude Examples/library.eomodel
 
+@node Creating with DBModeler, , Example model file, Model creation 
 @subsection Creating with DBModeler
 To recreate the example model with DBModeler,
 
 select Document, New from the main menu then property Add entity twice.
 set the name and external names to 'authors' and 'books'
 
-select Document, Set Adaptor Info, and select SQLite.
+select Document, Set Adaptor Info, and select SQLite, and click Ok,
+this will bring up the SQLite login panel, where you need to provide it a path
+for where to create the model file. 
+
+Each Adaptor will have different requirements, so each login panel is quite
+different. Other adaptors may have a server address, username, and database names.
 
 select the authors entity in the outline view, after expanding the model
 add an attribute to authors by selecting Property, Add attribute
@@ -652,20 +729,13 @@ include $(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
 Make sure you add your .eomodel or .eomodeld file to your projects resources
 
 @example
-TOOL_NAME=foo
+APP_NAME=foo
 foo_RESOURCE_FILES=foo.eomodeld
 @end example
 
 @subsection A complete GNUmakefile 
 @example
 @verbatiminclude Examples/example.GNUmakefile
-@end example
-
-@node Database connection
-@chapter Database connection
-
-@example
-@verbatiminclude Examples/connection.m
 @end example
 
 @node Database creation
@@ -680,9 +750,24 @@ Create databases, Create tables, foreign key constraints, primary key constraint
 
 then either save the SQL to a file, or execute it, you may need to login to the database server, but the adaptor for the model should bring up a login panel.
 
-@subsection Creating the SQL through code
+@node Database connection
+@chapter Database connection
 
+An example which connects to and then disconnects from the database.
+provided you have already created the database in previous section
 
+@example
+@verbatiminclude Examples/connection.m
+@end example
+
+@node Working with data
+@chapter Working with data
+Here we have more complete example which writes a record to the database,
+then fetches the record and updates it and saves the data again.
+
+@example
+@verbatiminclude Examples/eoexample.m
+@end example
 
 @node Index
 @unnumbered Index
