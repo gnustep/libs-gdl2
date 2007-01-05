@@ -3,7 +3,7 @@
 
    Copyright (C) 2005 Free Software Foundation, Inc.
 
-   Author: Matt Rice <ratmice@yahoo.com>
+   Author: Matt Rice <ratmice@gmail.com>
    Date: Apr 2005
 
    This file is part of the GNUstep Database Library.

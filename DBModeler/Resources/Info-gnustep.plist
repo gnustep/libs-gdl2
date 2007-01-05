@@ -5,7 +5,7 @@
     ApplicationRelease = "0.0.0 (Alpha)";
     ApplicationURL = "http://mediawiki.gnustep.org/index.php/DBModeler";
     Authors = (
-        "Matt Rice <ratmice@yahoo.com>"
+        "Matt Rice <ratmice@gmail.com>"
     );
     Copyright = "Copyright \U00A9 2005, 2006 Free Software Foundation";
     CopyrightDescription = "Released under the GNU GPL. See COPYING for details.";

@@ -4,7 +4,7 @@
 
    Copyright (C) 2006 Free Software Foundation, Inc.
 
-   Author: Matt Rice <ratmice@yahoo.com>
+   Author: Matt Rice <ratmice@gmail.com>
    Date: 2006
 
    This file is part of the GNUstep Database Library.

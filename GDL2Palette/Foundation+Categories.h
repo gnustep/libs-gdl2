@@ -1,7 +1,7 @@
 /**
     Foundation+Categories.h 
 
-    Author: Matt Rice <ratmice@yahoo.com>
+    Author: Matt Rice <ratmice@gmail.com>
     Date: 2005
 
     This file is part of GDL2Palette.

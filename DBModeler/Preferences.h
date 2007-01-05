@@ -1,7 +1,7 @@
 /**
     Preferences.h 
 
-    Author: Matt Rice <ratmice@yahoo.com>
+    Author: Matt Rice <ratmice@gmail.com>
     Date: Mar 2006
 
     This file is part of DBModeler.

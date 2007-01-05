@@ -1,7 +1,7 @@
 /**
     Modeler.m
  
-    Author: Matt Rice <ratmice@yahoo.com>
+    Author: Matt Rice <ratmice@gmail.com>
     Date: Apr 2005
 
     This file is part of DBModeler.

@@ -2,7 +2,7 @@
 /*
     AttributesInspector.m
  
-    Author: Matt Rice <ratmice@yahoo.com>
+    Author: Matt Rice <ratmice@gmail.com>
     Date: 2005, 2006
 
     This file is part of DBModeler.

@@ -6,6 +6,8 @@
 	* Documentation/GDL2Intro/Examples/connection.m: Load the model file
 	manually if it cannot be found.
 
+	* Update Email address for Matt Rice.
+
 2007-01-04  David Ayers  <ayers@fsfe.org>
 
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLAdaptor.m
