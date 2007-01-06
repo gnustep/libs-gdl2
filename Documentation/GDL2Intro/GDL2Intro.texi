@@ -123,7 +123,7 @@ key in the list.
 For example,
 @example
 @verbatim
-[anObject valueForKey:@"foo.bar"];
+[anObject valueForKeyPath:@"foo.bar"];
 @end verbatim
 @end example
 
@@ -610,8 +610,7 @@ They export as keys the class properties of the entity, for access and modificat
 
 If you have an EOGenericRecord from the 'authors' entity
 of our example model you could set the authors name as so.
-
-@xref{Example model file}
+@xref{Example model file}.
 
 @example
 @verbatim
@@ -762,11 +761,22 @@ provided you have already created the database in previous section
 
 @node Working with data
 @chapter Working with data
+
+@section Adding some data.
 Here we have more complete example which writes a record to the database,
-then fetches the record and updates it and saves the data again.
+then fetches the record and updates it and saves the data again, then removes the record.
 
 @example
 @verbatiminclude Examples/eoexample.m
+@end example
+
+@section Working with relationships
+Heres another more complex example of working with data,
+we'll add an author, and some books, and then traverse the relationship in
+a couple of different ways.
+
+@example
+@verbatiminclude Examples/eoexample2.m
 @end example
 
 @node Index

@@ -212,6 +212,7 @@ static id newNumberValue(const unsigned char *data, EOAttribute *attrib)
   NSString *statement = [sqlExpr statement];
   int length = [statement length];
   const char *sql = [statement cString];
+  const char *pzTail = NULL;
 
   if ([_delegate respondsToSelector:@selector(adaptorChannel:shouldEvaluateExpression:)])
     if (![_delegate adaptorChannel:self shouldEvaluateExpression:sqlExpr])
@@ -226,31 +227,43 @@ static id newNumberValue(const unsigned char *data, EOAttribute *attrib)
       sqlite3_finalize(_currentStmt);
       _currentStmt = NULL;
     }
-  
-  _status = sqlite3_prepare(_sqlite3Conn, sql, length, &_currentStmt, NULL);
-  _isFetchInProgress = sqlite3_column_count(_currentStmt) != 0;
-  
-  if (_status != SQLITE_OK)
+ 
+  while (sql != NULL && (_isFetchInProgress == NO))
     {
-      _status = sqlite3_finalize(_currentStmt);
-      _currentStmt = NULL;
-      [self _raiseWith:statement];
-    }
-  else 
-    {
-      while ((_status = sqlite3_step(_currentStmt)) == SQLITE_BUSY)
-	{
-	  // FIXME sleep?
-        }
-    }
+      _status = sqlite3_prepare(_sqlite3Conn, sql, length, &_currentStmt, &pzTail);
+      if (_currentStmt == NULL)
+        {
+	  sql = NULL;
+	}
 
-  if (_status != SQLITE_ROW)
-    {
-      sqlite3_finalize(_currentStmt);
-      _currentStmt = NULL;
+      _isFetchInProgress = sqlite3_column_count(_currentStmt) != 0;
+  
+      if (_status != SQLITE_OK)
+        {
+          _status = sqlite3_finalize(_currentStmt);
+          _currentStmt = NULL;
+          [self _raiseWith:statement];
+        }
+      else 
+        {
+          while ((_status = sqlite3_step(_currentStmt)) == SQLITE_BUSY)
+	    {
+	      // FIXME sleep?
+            }
+        }
+  
+      if (_status != SQLITE_ROW)
+        {
+          sqlite3_finalize(_currentStmt);
+          _currentStmt = NULL;
       
-      if (_status == SQLITE_ERROR)
-        [self _raiseWith:statement]; 
+          if (_status == SQLITE_ERROR)
+            [self _raiseWith:statement]; 
+        }
+      
+      if (sql)
+        sql = pzTail;
+      pzTail = NULL;
     }
 }
 

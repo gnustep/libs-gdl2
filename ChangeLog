@@ -1,3 +1,15 @@
+2007-01-06  Matt Rice  <ratmice@gmail.com>
+
+	* EOAdaptors/SQLite3/SQLite3Channel.m (-evaluateExpression:):
+	Continue evaluating the expression until all statements are evaluated
+	or rows are returned.
+	* Documentation/GDL2Intro.texi: Add another section on relationships.
+	* Documentation/Examples/library.eomodel: Add relationships as class
+	properties.
+	* Documentation/Examples/GNUmakefile: Add GNUmakefile.eoexample2.
+	* Documentation/Examples/GNUmakefile.eoexample2: New file.
+	* Documentation/Examples/eoexample2.m: New example for relationships.
+
 2007-01-05  Matt Rice  <ratmice@gmail.com>
 
 	* Documentation/GDL2Intro/GDL2Intro.texi: Add more docs.

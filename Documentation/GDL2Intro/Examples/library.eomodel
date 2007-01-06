@@ -22,7 +22,8 @@
 	    );
 	    className = EOGenericRecord;
 	    classProperties = (
-		name
+		name,
+		toBooks
 	    );
 	    externalName = authors;
 	    name = authors;
@@ -67,7 +68,8 @@
 	    );
 	    className = EOGenericRecord;
 	    classProperties = (
-		title
+		title,
+		toAuthor
 	    );
 	    externalName = books;
 	    name = books;
