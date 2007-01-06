@@ -10,7 +10,13 @@
 	* Documentation/Examples/GNUmakefile.eoexample2: New file.
 	* Documentation/Examples/eoexample2.m: New example for relationships.
 
-2007-01-05  Matt Rice  <ratmice@gmail.com>
+	* EOAdaptors/SQLite3Expression.m: Implement
+	+dropDatabaseStatementsForConnectionDictionary:
+		    administrativeConnectionDictionary:
+	and +foreignKeyConstraintStatementsForRelationship: to return empty
+	arrays.
+
+007-01-05  Matt Rice  <ratmice@gmail.com>
 
 	* Documentation/GDL2Intro/GDL2Intro.texi: Add more docs.
 	* Documentation/GDL2Intro/Examples/eoexample.m: Use an

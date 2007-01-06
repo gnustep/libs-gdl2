@@ -154,6 +154,12 @@ static NSString *escapeString(NSString *value)
 {
   return [NSArray array];
 }
+
++ (NSArray *)dropDatabaseStatementsForConnectionDictionary: (NSDictionary *)connDict
+                          administrativeConnectionDictionary: (NSDictionary *)admConnDict
+{
+  return [NSArray array];
+}
 			  
 // TODO find a better way to do this?
 + (NSArray *)primaryKeyConstraintStatementsForEntityGroup:(NSArray *)entityGroup
@@ -171,6 +177,12 @@ static NSString *escapeString(NSString *value)
 + (NSArray *)dropPrimaryKeyConstraintStatementsForEntityGroup:(NSArray *)entityGroup
 {
   return [NSArray arrayWithObject:[self expressionForString:@"DROP TABLE 'SQLiteEOAdaptorKeySequences'"]];
+}
+
++ (NSArray *)foreignKeyConstraintStatementsForRelationship: (EORelationship *)relationship
+{
+  /* SQLite3 doesn't currently handle ADD CONSTRAINT from ALTER TABLE. */ 
+  return [NSArray array];
 }
 
 @end
