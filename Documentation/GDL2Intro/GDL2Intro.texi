@@ -56,6 +56,7 @@ are provided in the Examples/ directory.
 * Database creation:: Creating the database on the database server.
 * Database connection:: Connecting to a database through an adaptor.
 * Working with data:: Creating, Fetching, and updating data in the database. 
+* EOInterface:: Developing graphical applications with EOInterface.
 * Index::            Complete index.
 @end menu
 
@@ -778,6 +779,110 @@ a couple of different ways.
 @example
 @verbatiminclude Examples/eoexample2.m
 @end example
+
+@node EOInterface
+@chapter EOInterface
+@section Introduction
+With GDL2 and EOInterface you can develop graphical applications using the
+gnustep gui libraries. It provides the ability to create connections
+between records from the database, and graphical controls.
+
+Once a connection has been made between the graphical control and the record,
+EOInterface will update the record when the data changes in the control,
+and update the control when the data or the selection changes.
+EOInterface is composed of the EODisplayGroup class and EOAssociation
+subclasses. 
+
+EODisplayGroup contains the records and manages the selection,
+and notifies EOAssociations when the selection or selected record changes.
+
+EOAssociation subclasses, associate graphical controls to the display group
+displaying the data in the display group, and updating the display group when
+the control changes the data.  Multi-record associations such as table views can
+change the display groups selection.
+
+@section EODisplayGroup class
+EODisplayGroup has an EODataSource, and can fetch and create objects, manage the
+selection, filter the objects for display with qualifiers, and sort them with
+EOSortOrderings. 
+
+If you have loaded the GDL2Palette into Gorm you can create an EODisplayGroup
+by dragging an entity or a relationship from the outline view in DBModeler,
+to the document window in Gorm the display group will be associated with an
+EODataSource and will be encoded/decoded to and from the .gorm file. It will be a top level object, visible in the 'Objects' view of the gorm document.
+With the name of the entity or relationship dropped.
+
+You can create connections from controls directly to the display group,
+for example you could connect a button or menu item to EODisplayGroups
+-selectNext: action by: 
+Selecting the control and control-drag from the control to the display
+group. In the connect inspector, select -selectNext: and click 'connect'.
+
+Available actions for EODisplayGroup:
+@enumerate
+@item
+-fetch:
+@item
+-selectNext:
+@item
+-selectPrevious:
+@item
+-delete:
+@item
+-insert:
+@end enumerate
+
+Manual creation of a EODisplayGroup by initializing the display group and
+setting its dataSource:
+@example
+EODisplayGroup *dg;
+EODataSource *dataSource;
+
+dg = [[EODisplayGroup alloc] init];
+[dg setDataSource:dataSource];
+@end example
+
+@section EOAssociation class
+An EOAssociation is an abstract base class.
+Subclasses of EOAssociation can be created to connect properties of an object
+in an EODisplayGroup to graphical controls. EOControls contain aspects,
+objects, and keys, and display groups.
+
+Where the object is a graphical control, the key, being a key appropriate for 
+KVC on an enterprise object, and the aspect is a string describing the
+use for the key.  Each association has their own set of aspects and the aspects supported may vary between different association classes.
+
+Manual creation of an EOControlAssocation:
+@example
+@verbatim
+EOAssociation *association;
+EODisplayGroup *authorDG;
+NSTextField *nameField;
+
+association = [[EOControlAssociation alloc] initWithObject:nameField];
+[association bindAspect:@"value" displayGroup:authorDG key:@"name"];
+[association establishConnection];
+[association release];
+@end verbatim
+@end example
+
+A few things of note, You can bind multiple aspects to an association.
+When the connection is broken the association will be 
+released.  When 'nameField' is deallocated, the connection will automatically
+be broken.
+
+EOAssociations can be created transparently by Gorm with the GDL2Palette.
+To create an association with Gorm, Select a control and control-drag from a
+control to an EODisplayGroup.  
+
+In the connect inspector there is a pop up button which contains a list of the
+association classes which are usable with the control. Select an association
+class and the first column in the browser changes to a list of the aspects
+available.  Selecting an aspect in the browser and the second column in the
+browser will list the available class properties connectable to the aspect.
+
+Unfortunately while not all association classes and aspects are
+implemented.  They will unfortunately show up in the connect inspector.
 
 @node Index
 @unnumbered Index
