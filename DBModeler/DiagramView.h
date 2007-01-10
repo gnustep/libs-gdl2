@@ -42,7 +42,7 @@
 - (void) setModel:(EOModel *)model;
 - (void) showEntity:(NSString *)name;
 - (void) setupRelationships;
-- (void) orderViewFront:(id)sender;
+- (void) orderViewFront:(NSView *)view;
 @end
 
 #define __DIAGRAM_VIEW_H

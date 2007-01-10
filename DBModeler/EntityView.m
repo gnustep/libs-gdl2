@@ -109,7 +109,7 @@
 - (void) dealloc
 {
   RELEASE(_title); 
-  [super release];
+  [super dealloc];
 }
 
 - (id) initWithFrame:(NSRect)frameRect

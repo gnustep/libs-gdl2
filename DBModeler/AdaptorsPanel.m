@@ -46,6 +46,7 @@ static NSArray *_adaptorNames;
 {
   if ((self = [super init]))
     {
+      NSRect fr1, fr2;
       _adaptorNames = RETAIN([EOAdaptor availableAdaptorNames]);
       /* redo all these numbers so buttons and labels are on the right? */
       _window = [[NSWindow alloc]
@@ -54,6 +55,7 @@ static NSArray *_adaptorNames;
                             backing: NSBackingStoreBuffered
                               defer: YES];
       [_window setTitle: @"Select adaptor"];
+      [_window setReleasedWhenClosed:NO];
       
       brws_adaptors = [[NSBrowser alloc] initWithFrame: NSMakeRect(5,30,190,240)];
       [brws_adaptors setDelegate: self];
@@ -76,11 +78,43 @@ static NSArray *_adaptorNames;
       [[_window contentView] addSubview: brws_adaptors];
       [[_window contentView] addSubview: btn_ok];
       [[_window contentView] addSubview: btn_cancel];
+      
+      [_window setInitialFirstResponder:brws_adaptors];
+      [brws_adaptors setNextResponder:btn_ok];
+      [btn_ok setNextResponder:btn_cancel];
+// hmm.. this seems to cause an infinate loop in the responder chain somehow
+// when in the modal loop.
+//      [btn_cancel setNextResponder:brws_adaptors];
+      
+      [btn_ok setKeyEquivalent:@"\r"];
+      [btn_ok setImage:[NSImage imageNamed:@"common_ret"]];
+      [btn_ok setAlternateImage:[NSImage imageNamed:@"common_retH"]];
+      [btn_ok setImagePosition:NSImageRight];
+      [btn_ok sizeToFit];
+  
+      fr1 = [btn_ok frame];
+      fr2 = [btn_cancel frame];
+      
+      fr1.size.width = fr2.size.width = fr1.size.width > fr2.size.width
+      					? fr1.size.width
+					: fr2.size.width;
+      fr1.size.height = fr2.size.height = fr1.size.height > fr2.size.height
+      					? fr1.size.height
+					: fr2.size.height;
+      fr2.origin.x = NSMaxX(fr1) + 8;
+      
+      [btn_ok setFrame:fr1];
+      [btn_cancel setFrame:fr2];
+
+      fr2 = [brws_adaptors frame];
+      fr2.origin.y = NSMaxY(fr1) + 8;
+      [brws_adaptors setFrame:fr2];
     
       RELEASE(_label);
       RELEASE(brws_adaptors);
       RELEASE(btn_ok);
       RELEASE(btn_cancel);
+      
   }
   return self;
 }
@@ -92,12 +126,13 @@ static NSArray *_adaptorNames;
   if ([NSApp runModalForWindow:_window] == NSRunAbortedResponse)
     {
       selection = nil;
+      [_window orderOut:self];
     }
   else 
     {
       selection = [[brws_adaptors selectedCell] stringValue];
+      [_window orderOut:self];
     }
-  [_window orderOut:self];
   return selection;
 }
 

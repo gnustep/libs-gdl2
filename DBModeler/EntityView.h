@@ -49,7 +49,7 @@
 - (void) setTitle:(NSString *)name;
 - (AttributeCell *)cellAtRow:(int)row;
 - (NSRect) attributeRectAtRow:(int)row;
-- (void) orderViewFront:(id)sender;
+- (void) orderViewFront:(NSView *)view;
 @end
 
 #define _ENTITY_VIEW_H

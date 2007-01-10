@@ -226,7 +226,7 @@ vfmaxf (int n, float aFloat, ...)
       [okButton setAction:@selector(ok:)];
       [okButton setImagePosition:NSImageRight];
       [okButton setImage:[NSImage imageNamed:@"common_ret"]];
-      [okButton setAlternateImage:[NSImage imageNamed:@"common_rectH"]];
+      [okButton setAlternateImage:[NSImage imageNamed:@"common_retH"]];
       [okButton setKeyEquivalent:@"\r"];
       [okButton sizeToFit];
 

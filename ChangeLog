@@ -1,4 +1,19 @@
-2006-01-08  Matt Rice  <ratmice@gmail.com>
+2007-01-10  Matt Rice  <ratmice@gmail.com>
+	
+	* DBModeler/AdaptorsPanel.m: Add responder chain, key equivalents,
+	autosize controls, and don't release the window when closed.
+	* DBModeler/Resources/ConsistencyResults.gorm: Add responder chain.
+	* DBModeler/Resources/Preferences.gorm: Add responder chain.
+	* DBModeler/Resources/SQLGenerator.gorm: Add responder chain.
+	* DBModeler/Preferences.m (-switchButtonChanged:): Handle -1 as
+	no row selected.
+	* DBModeler/EntityView.m: Call supers dealloc not release.
+	* DBModeler/EntityView.h: Fix method declaration.
+	* DBModeler/DiagramView.h: Ditto.
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.m: Fix
+	typo.
+
+2007-01-08  Matt Rice  <ratmice@gmail.com>
 
 	* Documentation/GDL2Intro.texi: Add a chapter on EOInterface.
 

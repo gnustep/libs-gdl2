@@ -116,8 +116,11 @@ static NSString *_switches[][2] =
 
 - (void) switchButtonChanged:(id)sender
 {
-   [ud setBool:([[sender selectedCell] state] == NSOffState)
-	  forKey:_switches[[sender selectedRow]][0]];
+  int selRow;
+
+  if ((selRow = [sender selectedRow]) != -1)
+    [ud setBool:([[sender selectedCell] state] == NSOffState)
+         forKey:_switches[selRow][0]];
 }
 
 - (void) checkOnSaveChanged:(id)sender
