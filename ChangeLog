@@ -3,6 +3,9 @@
 	* GDL2Palette/README: New file.
 	* EOInterface/TODO: New file.
 	* GDL2Palette/ResourceManager.m: Uncomment some code.  
+	
+	* GDL2Palette/ResourceManager.m: Add .eomodel files in the document
+	path.
 
 2007-01-10  Matt Rice  <ratmice@gmail.com>
 	

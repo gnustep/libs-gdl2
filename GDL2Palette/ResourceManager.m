@@ -70,6 +70,7 @@
   tmp = [[NSBundle bundleWithPath: docPath] 
 	  	pathsForResourcesOfType:@"eomodel"
 			    inDirectory:nil];
+  [modelPaths addObjectsFromArray:tmp];
 
   for (i = 0, c = [modelPaths count]; i < c; i++)
     {
