@@ -1,0 +1,32 @@
+# Completed Associations:
+EOActionAssociation
+EOColumnAssociation
+EOMasterDetailAssociation
+EOMatrixAssociation
+EOPopUpAssociation
+EORadioMatixAssociation
+
+# Incomplete Associations:
+EOControlAssociation:
+	done:	value, enabled
+	needs:	URL
+EOGenericControlAssociation:
+	done:	value, enabled
+	needs:	URL
+EOTableViewAssociation:
+	done:	value, color, enabled, source
+	needs:	italic, bold
+EOTextAssociation:
+	done:	value, editable
+	needs:	URL
+
+# Unimplemented Associations: 
+EOActionCellAssociation
+EOActionInsertionAssociation
+EOComboBoxAssociation
+EODetailSelectionAssociation
+EOMasterCopyAssociation
+EOMasterPeerAssociation
+EOPickTextAssociation
+EORecursiveBrowserAssociation
+

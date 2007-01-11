@@ -194,7 +194,7 @@
       [dsConn setLabel: [NSString stringWithFormat:@"dataSource - %@", [ds class]]];
       [[self document] attachObject:detailDG toParent:nil];
       [[self document] setName:relName forObject:detailDG];
-//    [[(id<IB>)NSApp activeDocument] addConnector: conn];
+      [[(id<IB>)NSApp activeDocument] addConnector: conn];
       [[(id<IB>)NSApp activeDocument] addConnector: AUTORELEASE(dsConn)];
       RELEASE(masterDG);
       RELEASE(detailDG);

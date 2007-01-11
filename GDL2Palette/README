@@ -1,0 +1,7 @@
+The GDL2 Palette uses runtime introspection to know which Associations/Aspects
+are available.  EOInterface has skeleton classes (ready to be implemented)
+for all the associations, some of which are incomplete.  So not everything
+creatable with gorm will actually work.
+
+Please see the EOInterface TODO file for a list of implemented association
+classes and aspects.

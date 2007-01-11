@@ -1,3 +1,9 @@
+2007-01-11  Matt Rice  <ratmice@gmail.com>
+
+	* GDL2Palette/README: New file.
+	* EOInterface/TODO: New file.
+	* GDL2Palette/ResourceManager.m: Uncomment some code.  
+
 2007-01-10  Matt Rice  <ratmice@gmail.com>
 	
 	* DBModeler/AdaptorsPanel.m: Add responder chain, key equivalents,
@@ -62,7 +68,7 @@
 	* Documentation/GDL2Intro/library.eomodel: Add a connection
 	dictionary. 
 
-2006-01-02  Matt Rice  <ratmice@gmail.com>
+2007-01-02  Matt Rice  <ratmice@gmail.com>
 
 	* EOAdaptors/SQLiteAdaptor/GNUmakefile.in: Add login panel.
 	* EOAdaptors/SQLiteAdaptor/LoginPanel: New directory.
