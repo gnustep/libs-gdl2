@@ -37,7 +37,7 @@
 #include <EOAccess/EODefines.h>
 #include <EOAccess/EOPropertyListEncoding.h>
 
-
+@class NSMutableArray;
 @class NSArray;
 @class NSDictionary;
 @class NSNotification;

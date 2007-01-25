@@ -1,7 +1,16 @@
 The GDL2 Palette uses runtime introspection to know which Associations/Aspects
 are available.  EOInterface has skeleton classes (ready to be implemented)
-for all the associations, some of which are incomplete.  So not everything
-creatable with gorm will actually work.
+for all the associations, some of which are incomplete.  So not all
+associations creatable with gorm will actually work.
 
 Please see the EOInterface TODO file for a list of implemented association
 classes and aspects.
+
+Currently the palette looks for .eomodel or .eomodeld files, in the 
+same directory as the .gorm file.  Ideally it would get the list of models from
+a project management tool such as Project Manager or Project Center.
+Inability to locate a model file would manifest itself as a lack of keys
+to bind aspects to.
+
+This tool should also be able to notify Gorm when a model file is changed.
+Currently you must quit Gorm and reload the .gorm file when the model changes.

@@ -1,3 +1,9 @@
+2007-01-25  Matt Rice  <ratmice@gmail.com>
+	
+	* EOAccess/EOModel.h: Forward declare NSMutableArray class.
+	* GDL2Palette/README: Document some pitfalls due to lack
+	of project management app support.
+
 2007-01-11  Matt Rice  <ratmice@gmail.com>
 
 	* GDL2Palette/README: New file.
