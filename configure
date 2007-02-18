@@ -718,13 +718,13 @@ echo X"$0" |
   	  /^X\(\/\).*/{ s//\1/; q; }
   	  s/.*/./; q'`
   srcdir=$ac_confdir
-  if test ! -r "$srcdir/$ac_unique_file"; then
+  if test ! -r $srcdir/$ac_unique_file; then
     srcdir=..
   fi
 else
   ac_srcdir_defaulted=no
 fi
-if test ! -r "$srcdir/$ac_unique_file"; then
+if test ! -r $srcdir/$ac_unique_file; then
   if test "$ac_srcdir_defaulted" = yes; then
     { echo "$as_me: error: cannot find sources ($ac_unique_file) in $ac_confdir or .." >&2
    { (exit 1); exit 1; }; }
@@ -733,7 +733,7 @@ if test ! -r "$srcdir/$ac_unique_file"; then
    { (exit 1); exit 1; }; }
   fi
 fi
-(cd $srcdir && test -r "./$ac_unique_file") 2>/dev/null ||
+(cd $srcdir && test -r ./$ac_unique_file) 2>/dev/null ||
   { echo "$as_me: error: sources are in $srcdir, but \`cd $srcdir' does not work" >&2
    { (exit 1); exit 1; }; }
 srcdir=`echo "$srcdir" | sed 's%\([^\\/]\)[\\/]*$%\1%'`
@@ -1297,9 +1297,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-if test -z "$GNUSTEP_SYSTEM_ROOT"; then
-  { { echo "$as_me:$LINENO: error: You must run the GNUstep initialization script first!" >&5
-echo "$as_me: error: You must run the GNUstep initialization script first!" >&2;}
+if test -z "$GNUSTEP_MAKEFILES"; then
+  { { echo "$as_me:$LINENO: error: You must set GNUSTEP_MAKEFILES or run the GNUstep initialization script first!" >&5
+echo "$as_me: error: You must set GNUSTEP_MAKEFILES or run the GNUstep initialization script first!" >&2;}
    { (exit 1); exit 1; }; }
 fi
 

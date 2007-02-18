@@ -1,3 +1,9 @@
+2007-02-18   Nicola Pero <nicola.pero@meta-innovation.com>
+
+	* configure.ac: Check for GNUSTEP_MAKEFILES, not
+	GNUSTEP_SYSTEM_ROOT.
+	* configure: Regenerated.
+	
 2007-01-25  Matt Rice  <ratmice@gmail.com>
 	
 	* EOAccess/EOModel.h: Forward declare NSMutableArray class.
