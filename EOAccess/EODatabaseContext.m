@@ -2412,6 +2412,8 @@ forDatabaseOperation:(EODatabaseOperation *)op
 {
   IMP selfGIDFO=NULL; // _globalIDForObject:
   int which = 0;
+  int c=0;
+  int i=0;
   NSArray *objects[3] = {nil, nil, nil};
 
   EOFLOGObjectFnStart();
@@ -2424,6 +2426,18 @@ forDatabaseOperation:(EODatabaseOperation *)op
   // insertedObjects,
   // deletedObjects (because re-inserted object should be removed from deleteds)
   // updatedObjects (because inserted/deleted objects may cause some other objects to be updated).
+
+  NSMutableArray* recordToManySnapshot_dbOpes=[NSMutableArray array];
+  NSMutableArray* recordToManySnapshot_valuesGIDs=[NSMutableArray array];
+  NSMutableArray* recordToManySnapshot_relationshipNames=[NSMutableArray array];
+
+  NSMutableArray* nullifyAttributesInRelationship_relationships=[NSMutableArray array];
+  NSMutableArray* nullifyAttributesInRelationship_sourceObjects=[NSMutableArray array];
+  NSMutableArray* nullifyAttributesInRelationship_destinationObjects=[NSMutableArray array];
+
+  NSMutableArray* relayAttributesInRelationship_relationships=[NSMutableArray array];
+  NSMutableArray* relayAttributesInRelationship_sourceObjects=[NSMutableArray array];
+  NSMutableArray* relayAttributesInRelationship_destinationObjects=[NSMutableArray array];
 
   for (which = 0; which < 3; which++)
     {
@@ -2721,11 +2735,15 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                 {
                                   if (isToMany)
                                     {
+                                      NSDebugMLog(@"relationshipCommitedSnapshotValue=%@",relationshipCommitedSnapshotValue);
+                                      NSDebugMLog(@"relationshipSnapshotValue=%@",relationshipSnapshotValue);
                                       //relationshipSnapshotValue shallowCopy 
                                       // Old Values are removed values
                                       NSArray *oldValues = [relationshipCommitedSnapshotValue arrayExcludingObjectsInArray: relationshipSnapshotValue];
                                       // Old Values are newly added values
                                       NSArray *newValues = [relationshipSnapshotValue arrayExcludingObjectsInArray: relationshipCommitedSnapshotValue];
+                                      NSDebugMLog(@"oldValues=%@",oldValues);
+                                      NSDebugMLog(@"newValues=%@",newValues);
                                       
                                       int oldValuesCount=[oldValues count];
                                       int newValuesCount=[newValues count];
@@ -2743,16 +2761,17 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                                    @"newValues=%@",
                                                    newValues);
                                       
-                                      // Record new values snapshots
+                                      // Record ALL values snapshots
                                       if (newValuesCount > 0)
                                         {
-                                          int iValue;
+                                          int valuesCount = [relationshipSnapshotValue count];
+                                          int iValue = 0;
                                           NSMutableArray *valuesGIDs = [NSMutableArray array];
                                           IMP valuesGIDsAddObjectIMP=[valuesGIDs methodForSelector:@selector(addObject:)];
                                           IMP svObjectAtIndexIMP=[relationshipSnapshotValue methodForSelector: @selector(objectAtIndex:)];
                                           
                                           for (iValue = 0;
-                                               iValue < newValuesCount;
+                                               iValue < valuesCount;
                                                iValue++)
                                             {
                                               id aValue = GDL2_ObjectAtIndexWithImp(relationshipSnapshotValue,svObjectAtIndexIMP,iValue);
@@ -2767,8 +2786,14 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                               GDL2_AddObjectWithImp(valuesGIDs,valuesGIDsAddObjectIMP,aValueGID);
                                             }
                                           
-                                          [dbOpe recordToManySnapshot:valuesGIDs
-                                                 relationshipName: relationshipName];
+                                          NSDebugMLog(@"TEST20060216 relationshipName=%@ valuesGIDs=%@",relationshipName,valuesGIDs);
+                                          [recordToManySnapshot_dbOpes addObject:dbOpe];
+                                          [recordToManySnapshot_valuesGIDs addObject:valuesGIDs];
+                                          [recordToManySnapshot_relationshipNames addObject:relationshipName];
+                                          /*
+                                            [dbOpe recordToManySnapshot:valuesGIDs
+                                            relationshipName: relationshipName];
+                                          */
                                         }
                                       
                                       // Nullify removed object relation attributes
@@ -2784,11 +2809,15 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                           NSDebugMLLog(@"EODatabaseContext",
                                                        @"relationshipName=%@",
                                                        relationshipName);
-                                          
-                                          [self nullifyAttributesInRelationship:
-                                                  relationship
-                                                sourceObject: object
-                                                destinationObjects: oldValues];
+                                          [nullifyAttributesInRelationship_relationships addObject:relationship];
+                                          [nullifyAttributesInRelationship_sourceObjects addObject:object];
+                                          [nullifyAttributesInRelationship_destinationObjects addObject:oldValues];
+                                          /*                                
+                                                                            [self nullifyAttributesInRelationship:
+                                                                            relationship
+                                                                            sourceObject: object
+                                                                            destinationObjects: oldValues];
+                                          */
                                         }
                                       
                                       // Relay relationship attributes in new objects
@@ -2805,10 +2834,15 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                                        @"relationshipName=%@",
                                                        relationshipName);
                                           
-                                          [self relayAttributesInRelationship:
-                                                  relationship
-                                                sourceObject: object
-                                                destinationObjects: newValues];
+                                          [relayAttributesInRelationship_relationships addObject:relationship];
+                                          [relayAttributesInRelationship_sourceObjects addObject:object];
+                                          [relayAttributesInRelationship_destinationObjects addObject:newValues];
+                                          /*
+                                            [self relayAttributesInRelationship:
+                                            relationship
+                                            sourceObject: object
+                                            destinationObjects: newValues];
+                                          */
                                         }
                                     }
                                   else // To One
@@ -2832,12 +2866,17 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                                        relationshipCommitedSnapshotValue,
                                                        relationshipCommitedSnapshotValue,
                                                        [relationshipCommitedSnapshotValue class]);
-                                          
-                                          [self nullifyAttributesInRelationship:
-                                                  relationship
-                                                sourceObject: object
-                                                destinationObject:
-                                                  relationshipCommitedSnapshotValue];
+
+                                          [nullifyAttributesInRelationship_relationships addObject:relationship];
+                                          [nullifyAttributesInRelationship_sourceObjects addObject:object];
+                                          [nullifyAttributesInRelationship_destinationObjects addObject:[NSArray arrayWithObject:relationshipCommitedSnapshotValue]];
+                                          /*
+                                            [self nullifyAttributesInRelationship:
+                                            relationship
+                                            sourceObject: object
+                                            destinationObject:
+                                            relationshipCommitedSnapshotValue];
+                                          */
                                         }
                                       
                                       if (!_isNilOrEONull(relationshipSnapshotValue)) // a value was added
@@ -2859,11 +2898,15 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                                        relationshipSnapshotValue,
                                                        [relationshipSnapshotValue class]);
                                           
-                                          [self relayAttributesInRelationship:
-                                                  relationship
-                                                sourceObject: object
-                                                destinationObject:
-                                                  relationshipSnapshotValue];
+                                          [relayAttributesInRelationship_relationships addObject:relationship];
+                                          [relayAttributesInRelationship_sourceObjects addObject:object];
+                                          [relayAttributesInRelationship_destinationObjects addObject:[NSArray arrayWithObject:relationshipSnapshotValue]];
+                                          /*                                          [self relayAttributesInRelationship:
+                                                                                      relationship
+                                                                                      sourceObject: object
+                                                                                      destinationObject:
+                                                                                      relationshipSnapshotValue];
+                                          */
                                         }
                                     }
                                 }
@@ -2882,11 +2925,15 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                            @"relationshipName=%@",
                                            [relationship name]);
                               
-                              [self nullifyAttributesInRelationship: relationship
-                                    sourceObject: object /*CountryLabel*/ 
-                                    destinationObjects: nil];
+                              [nullifyAttributesInRelationship_relationships addObject:relationship];
+                              [nullifyAttributesInRelationship_sourceObjects addObject:object];
+                              [nullifyAttributesInRelationship_destinationObjects addObject:[NSArray array]];
+                              /*                              [self nullifyAttributesInRelationship: relationship
+                                                              sourceObject: object //CountryLabel
+                                                              destinationObjects: nil];
+                              */
                             }
-
+                          
 /*
 		  NSMutableDictionary *row;
 		  NSMutableArray *toManySnapshot, *newToManySnapshot;
@@ -3097,6 +3144,72 @@ forDatabaseOperation:(EODatabaseOperation *)op
       }
   }
 */
+  c=[recordToManySnapshot_dbOpes count];
+  if (c>0)
+    {
+      IMP dbOpes_oaiIMP=
+        [recordToManySnapshot_dbOpes methodForSelector: @selector(objectAtIndex:)];
+      IMP valuesGIDs_oaiIMP=
+        [recordToManySnapshot_valuesGIDs methodForSelector: @selector(objectAtIndex:)];
+      IMP relationshipNames_oaiIMP=
+        [recordToManySnapshot_relationshipNames methodForSelector: @selector(objectAtIndex:)];
+      for(i=0;i<c;i++)
+        {
+          [GDL2_ObjectAtIndexWithImp(recordToManySnapshot_dbOpes,
+                                     dbOpes_oaiIMP,i)
+                                    recordToManySnapshot:
+                                      GDL2_ObjectAtIndexWithImp(recordToManySnapshot_valuesGIDs,
+                                                                valuesGIDs_oaiIMP,i)
+                                    relationshipName:
+                                      GDL2_ObjectAtIndexWithImp(recordToManySnapshot_relationshipNames,
+                                                                relationshipNames_oaiIMP,i)];
+        };
+    };
+  c=[nullifyAttributesInRelationship_relationships count];
+  if (c>0)
+    {
+      IMP relationships_oaiIMP=
+        [nullifyAttributesInRelationship_relationships methodForSelector: @selector(objectAtIndex:)];
+      IMP sourceObjects_oaiIMP=
+        [nullifyAttributesInRelationship_sourceObjects methodForSelector: @selector(objectAtIndex:)];
+      IMP destinationObjects_oaiIMP=
+        [nullifyAttributesInRelationship_destinationObjects methodForSelector: @selector(objectAtIndex:)];
+      for(i=0;i<c;i++)
+        {
+          [self nullifyAttributesInRelationship:
+                  GDL2_ObjectAtIndexWithImp(nullifyAttributesInRelationship_relationships,
+                                            relationships_oaiIMP,i)
+                sourceObject:
+                  GDL2_ObjectAtIndexWithImp(nullifyAttributesInRelationship_sourceObjects,
+                                            sourceObjects_oaiIMP,i)
+                destinationObjects:
+                  GDL2_ObjectAtIndexWithImp(nullifyAttributesInRelationship_destinationObjects,
+                                            destinationObjects_oaiIMP,i)];
+        };
+    };
+
+  c=[relayAttributesInRelationship_relationships count];
+  if (c>0)
+    {
+      IMP relationships_oaiIMP=
+        [relayAttributesInRelationship_relationships methodForSelector: @selector(objectAtIndex:)];
+      IMP sourceObjects_oaiIMP=
+        [relayAttributesInRelationship_sourceObjects methodForSelector: @selector(objectAtIndex:)];
+      IMP destinationObjects_oaiIMP=
+        [relayAttributesInRelationship_destinationObjects methodForSelector: @selector(objectAtIndex:)];
+      for(i=0;i<c;i++)
+        {
+          [self relayAttributesInRelationship:
+                  GDL2_ObjectAtIndexWithImp(relayAttributesInRelationship_relationships,
+                                            relationships_oaiIMP,i)
+                sourceObject:
+                  GDL2_ObjectAtIndexWithImp(relayAttributesInRelationship_sourceObjects,
+                                            sourceObjects_oaiIMP,i)
+                destinationObjects:
+                  GDL2_ObjectAtIndexWithImp(relayAttributesInRelationship_destinationObjects,
+                                            destinationObjects_oaiIMP,i)];
+        };
+    };
 
   EOFLOGObjectFnStop();
 }
