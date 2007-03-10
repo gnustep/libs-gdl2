@@ -47,20 +47,20 @@
 # you install into a fake system tree, and the directory is not there.
 #
 
-$(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary:
+$(DESTDIR)$(GNUSTEP_MAKEFILES)/Auxiliary:
 	$(MKINSTALLDIRS) $@
 
 # Things to do after installing
-after-install::	$(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary
+after-install::	$(DESTDIR)$(GNUSTEP_MAKEFILES)/Auxiliary
 	$(INSTALL_DATA) gdl2.make \
-		$(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
+		$(DESTDIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
 
 # Things to do before uninstalling
 # before-uninstall::
 
 # Things to do after uninstalling
 after-uninstall::
-	rm -f $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
+	rm -f $(DESTDIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
 
 # Things to do before cleaning
 # before-clean::

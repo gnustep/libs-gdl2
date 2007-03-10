@@ -37,7 +37,7 @@
 ifneq ($(GUI_MAKE_LOADED),yes)
 ifneq ($(GUI_LIB),apple)
 before-all::
-        @echo Skipping login panel compilation. GNUstep gui not installed.
+	@echo Skipping login panel compilation. GNUstep gui not installed.
 endif
 endif
 #before-all::

@@ -982,7 +982,7 @@ zone:zone
 //call PostgreSQLChannel numberOfAffectedRows
   /* Send the expression to the SQL server */
 
-  _pgResult = PQexec(_pgConn, (char *)[[[expression statement] stringByAppendingString:@";"] cString]); // stephane@sente.ch: We need to add ; for INSERT, at least
+  _pgResult = PQexec(_pgConn, (char *)[[[expression statement] stringByAppendingString:@";"] cStringUsingEncoding: encoding]);
   NSDebugMLLog(@"gsdb", @"_pgResult=%p", (void*)_pgResult);
 
   if (_pgResult == NULL)
