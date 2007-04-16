@@ -369,6 +369,7 @@ newValueForDateTypeLengthAttribute (const void *bytes,
   NSCalendarDate *date = nil;
   const char *str = bytes;
   BOOL error;
+  char tmpString[8];
 
   /* We assume ISO date format:
      2006-12-31 00:45:21.2531419+01 
@@ -376,61 +377,47 @@ newValueForDateTypeLengthAttribute (const void *bytes,
      where the milliseconds have variable length.  */
   if (length > 3)
     {
-      char tmpString[5];
       getDigits(&str[0],tmpString,4,&error);
       year = atoi(tmpString);
-    }
 
   if (length > 6)
     {
-      char tmpString[3];
       getDigits(&str[5],tmpString,2,&error);
       month = atoi(tmpString);
-    }
 
   if (length > 9)
     {
-      char tmpString[3];
       getDigits(&str[8],tmpString,2,&error);
       day = atoi(tmpString);
-    }
 
   if (length > 12)
     {
-      char tmpString[3];
       getDigits(&str[11],tmpString,2,&error);
       hour = atoi(tmpString);
-    }
 
   if (length > 15)
     {
-      char tmpString[3];
       getDigits(&str[14],tmpString,2,&error);
       minute = atoi(tmpString);
-    }
 
   if (length > 18)
     {
-      char tmpString[3];
       getDigits(&str[17],tmpString,2,&error);
       second = atoi(tmpString);
-    }
 
-  if (length > 18)
-    {
-      char tmpString[3];
-      getDigits(&str[17],tmpString,2,&error);
-      second = atoi(tmpString);
-    }
   if (length > 19)
     {
-      char tmpString[8];
       tz = getDigits(&str[17],tmpString,7,&error);
-      second = atoi(tmpString);
+      millisecond = atoi(tmpString);
+    }
+    }
+    }
+    }
+    }
+    }
     }
   if (tz)
     {
-      char tmpString[3];
       int sign = (str[tz]) == '-' ? -1 : 1;
       getDigits(&str[tz+1],tmpString,2,&error);
       tz = atoi(tmpString);

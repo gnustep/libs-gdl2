@@ -1,3 +1,10 @@
+2007-04-16  David Ayers  <ayers@fsfe.org>
+
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m
+	(newValueForDateTypeLengthAttribute): Correct determination
+	of seconds and milliseconds.  Make optimization explicit.
+	[BUG:19503 reported by Manuel Guesdon].
+	
 2007-03-10  David Ayers  <ayers@fsfe.org>
 
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/Makefile.postamble:
