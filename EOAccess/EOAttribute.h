@@ -106,9 +106,6 @@ typedef enum {
   NSDictionary *_internalInfo;
   NSString *_docComment;
   
-    /* Garbage collectable objects */
-//    EOEntity *_entity;
-//    GCMutableArray *_definitionArray;	// These variables are meaningful only
   id _parent; /* unretained */
   EOAttribute *_prototype;
   EOExpressionArray *_definitionArray;

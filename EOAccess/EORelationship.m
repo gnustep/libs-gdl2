@@ -100,7 +100,7 @@ RCS_ID("$Id$")
       _destinationNames = [NSMutableDictionary new];
       _userInfo = [NSDictionary new];
       _sourceToDestinationKeyMap = [NSDictionary new];
-      _joins = [GCMutableArray new];
+      _joins = [NSMutableArray new];
 */
     }
 
@@ -1550,9 +1550,9 @@ relationships. Nil if none" **/
         {
           [(NSMutableArray *)_joins removeObject: join];
 
-          /*NO: will be recomputed      [(GCMutableArray *)_sourceAttributes
+          /*NO: will be recomputed      [(NSMutableArray *)_sourceAttributes
             removeObject:[join sourceAttribute]];
-            [(GCMutableArray *)_destinationAttributes
+            [(NSMutableArray *)_destinationAttributes
             removeObject:[join destinationAttribute]];
           */
 
@@ -1573,13 +1573,13 @@ relationships. Nil if none" **/
 
           /*NO: will be recomputed
             _sourceAttributes = [[_sourceAttributes autorelease] mutableCopy];
-            [(GCMutableArray *)_sourceAttributes
+            [(NSMutableArray *)_sourceAttributes
             removeObject:[join sourceAttribute]];
             _sourceAttributes = [[_sourceAttributes autorelease] copy];
       
             _destinationAttributes = [[_destinationAttributes autorelease]
             mutableCopy];
-            [(GCMutableArray *)_destinationAttributes
+            [(NSMutableArray *)_destinationAttributes
             removeObject:[join destinationAttribute]];
             _destinationAttributes = [[_destinationAttributes autorelease] copy];
           */

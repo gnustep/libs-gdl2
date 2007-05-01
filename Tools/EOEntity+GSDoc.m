@@ -57,9 +57,9 @@ RCS_ID("$Id$")
     NSString*		externalQuery;
     NSArray*		attributesNamesUsedForInsert;
     EOQualifier*	qualifier;
-    GCArray*		attributesUsedForInsert;  // cache from classProperties
-    GCArray*		attributesUsedForFetch;   // cache from classProperties
-    GCArray*		relationsUsedForFetch;    // cache from classProperties
+    NSArray*		attributesUsedForInsert;  // cache from classProperties
+    NSArray*		attributesUsedForFetch;   // cache from classProperties
+    NSArray*		relationsUsedForFetch;    // cache from classProperties
 */
 
 @implementation EOEntity (GSDoc)

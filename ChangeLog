@@ -1,3 +1,11 @@
+2007-05-01  David Ayers  <ayers@fsfe.org>
+
+	* EOAccess/EORelationship.m,
+	* EOAccess/EOAttribute.h,
+	* Tools/EOEntity+GSDoc.m,
+	* Tools/EOAttribute+GSDoc.m: Remove references to GC-classes
+	in comments.
+
 2007-04-16  David Ayers  <ayers@fsfe.org>
 
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m
@@ -465,6 +473,7 @@
 
 2006-09-27  Matt Rice  <ratmice@yahoo.com>
 
+	* EOInterface/EODisplayGroup.m
 	(-selectNext): Implement.
 	(-selectPrevious): Ditto.
 	(-enabledToSetSelectedObjectValueForKey:): Handle query mode.
@@ -620,7 +629,7 @@
 	* EOAdaptors/Postgres95/GNUmakefile.in:
 	Install into GNUSTEP_SYSTEM_ROOT by default.
 
-	* * Update email addresses for Mirko Viviani and David Ayers.
+	* Update email addresses for Mirko Viviani and David Ayers.
 	
 2006-09-14  David Ayers  <ayers@fsfe.org>
 

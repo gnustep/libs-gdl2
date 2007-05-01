@@ -60,7 +60,7 @@ RCS_ID("$Id$")
     NSString*	insertFormat;
     NSString*	selectFormat;
     NSString*	updateFormat;
-    GCMutableArray* definitionArray;	// These variables are meaningful only
+    NSMutableArray* definitionArray;	// These variables are meaningful only
     EOAttribute* realAttribute;		// if the attribute is flattened
 
 */
