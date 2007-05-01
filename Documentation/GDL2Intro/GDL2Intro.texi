@@ -31,7 +31,7 @@ into another language, under the above conditions for modified versions.
 @contents
      
 @ifnottex
-@node Top
+@node Top, Concepts, ,
 @top GNUstep Database Library
 @insertcopying
 @end ifnottex
@@ -57,11 +57,11 @@ are provided in the Examples/ directory.
 * Database connection:: Connecting to a database through an adaptor.
 * Working with data:: Creating, Fetching, and updating data in the database. 
 * EOInterface:: Developing graphical applications with EOInterface.
-* Index::            Complete index.
+* Index:: Complete index.
 @end menu
 
 
-@node Concepts
+@node Concepts, Classes, Top, Top
 @chapter Concepts 
 @menu
 * Key Value Coding:: Key Value Coding
@@ -166,7 +166,7 @@ If we get the value for the key length, it will return an NSArray of NSNumbers
 (7, 5, 10, 7).
 @end example
 
-@node Classes, 
+@node Classes, Model creation, Concepts, Top
 @chapter Classes
 
 @section Model classes
@@ -463,6 +463,7 @@ Typical methods for the EOAdaptor class are:
 @end enumerate
 
 @node EOAdaptorContext class, EOAdaptorChannel class, EOAdaptor class, Classes
+@section EOAdaptorContext class
 An EOAdaptorContext can create an adaptor channel and will transparently handle
 transactions for the channel, It can begin, commit, roll back transactions.
 
@@ -477,6 +478,7 @@ Typical methods for an EOAdaptorContext:
 @end enumerate
 
 @node EOAdaptorChannel class, EODataSource class, EOAdaptorContext class, Classes
+@section EOAdaptorChannel class
 
 An adaptor channel can open and close a connection to the adaptors database server. Along with fetch rows from the database and create, update, and delete rows in the database.
 
@@ -626,7 +628,7 @@ And retrieve the author name with:
 @end verbatim
 @end example
 
-@node Model creation 
+@node Model creation, Project creation, Classes, Top
 @chapter Model Creation 
 @cindex model creation 
 Models can be created in 3 ways 
@@ -710,7 +712,7 @@ and destination attributes.
 
 The select Document, Save, from the main menu.
 
-@node Project creation 
+@node Project creation, Database creation, Model creation, Top
 @chapter Creating a project.
 
 @subsection Creating a makefile
@@ -738,7 +740,7 @@ foo_RESOURCE_FILES=foo.eomodeld
 @verbatiminclude Examples/example.GNUmakefile
 @end example
 
-@node Database creation
+@node Database creation, Database connection, Project creation, Top
 @chapter Database creation
 Now that we have created a model file, we need to generate the SQL to create the database.
 
@@ -750,7 +752,7 @@ Create databases, Create tables, foreign key constraints, primary key constraint
 
 then either save the SQL to a file, or execute it, you may need to login to the database server, but the adaptor for the model should bring up a login panel.
 
-@node Database connection
+@node Database connection, Working with data, Database creation, Top
 @chapter Database connection
 
 An example which connects to and then disconnects from the database.
@@ -760,7 +762,7 @@ provided you have already created the database in previous section
 @verbatiminclude Examples/connection.m
 @end example
 
-@node Working with data
+@node Working with data, EOInterface, Database connection, Top
 @chapter Working with data
 
 @section Adding some data.
@@ -780,7 +782,7 @@ a couple of different ways.
 @verbatiminclude Examples/eoexample2.m
 @end example
 
-@node EOInterface
+@node EOInterface, Index, Working with data, Top
 @chapter EOInterface
 @section Introduction
 With GDL2 and EOInterface you can develop graphical applications using the
@@ -884,7 +886,7 @@ browser will list the available class properties connectable to the aspect.
 Unfortunately while not all association classes and aspects are
 implemented.  They will unfortunately show up in the connect inspector.
 
-@node Index
+@node Index, , EOInterface, Top
 @unnumbered Index
      
 @printindex cp

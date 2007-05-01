@@ -2,7 +2,8 @@
 #include <EOAccess/EOAccess.h>
 #include <EOControl/EOControl.h>
 
-int main()
+int
+main(int arcg, char *argv[], char **envp)
 {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   EOModelGroup *modelGroup = [EOModelGroup defaultGroup];
@@ -11,11 +12,13 @@ int main()
   EOAdaptorContext *context;
   EOAdaptorChannel *channel;
 
-  /* Tools don't have resources so we have to add the model manually */ 
+  /* Tools don't have resources so we have to add the model manually. */ 
   if (!model)
     {
-      model = [[EOModel alloc] initWithContentsOfFile:@"./library.eomodel"];
+      NSString *path = @"./library.eomodel";
+      model = [[EOModel alloc] initWithContentsOfFile: path];
       [modelGroup addModel:model];
+      [model release];
     }
  
   adaptor = [EOAdaptor adaptorWithName:[model adaptorName]];

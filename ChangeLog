@@ -1,5 +1,12 @@
 2007-05-01  David Ayers  <ayers@fsfe.org>
 
+	* Documentation/GDL2Intro/GDL2Intro.texi: Cleanup node
+	structure to avoid build failure during documentation build.
+	* Documentation/GDL2Intro/Examples/connection.m,
+	* Documentation/GDL2Intro/Examples/eoexample.m,
+	* Documentation/GDL2Intro/Examples/eoexample2.m: Minor
+	formatting tweaks for documentation build.
+	
 	* EOAccess/EORelationship.m,
 	* EOAccess/EOAttribute.h,
 	* Tools/EOEntity+GSDoc.m,

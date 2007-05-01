@@ -2,7 +2,8 @@
 #include <EOAccess/EOAccess.h>
 #include <EOControl/EOControl.h>
 
-int main()
+int
+main(int arcg, char *argv[], char **envp)
 {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   EOModelGroup *group = [EOModelGroup defaultGroup];
@@ -18,19 +19,22 @@ int main()
 
   model = [group modelNamed:@"library"];
   
-  /* Tools don't have resources so we have to add the model manually */ 
+  /* Tools do not have resources so we add the model manually.  */ 
   if (!model)
     {
-      model = [[EOModel alloc] initWithContentsOfFile:@"./library.eomodel"];
+      NSString *path = @"./library.eomodel";
+      model = [[EOModel alloc] initWithContentsOfFile: path];
       [group addModel:model];
+      [model release];
     }
 
   adaptor = [EOAdaptor adaptorWithModel:model];
   context = [adaptor createAdaptorContext];
   channel = [context createAdaptorChannel];
   ec = [[EOEditingContext alloc] init];
-  authorsDS = [[EODatabaseDataSource alloc] initWithEditingContext: ec
-						entityName:@"authors"];
+  authorsDS 
+    = [[EODatabaseDataSource alloc] initWithEditingContext: ec
+				    entityName:@"authors"];
 
   [channel openChannel];
 
@@ -52,7 +56,9 @@ int main()
   [ec saveChanges];
 
   /* log the to many relationship from author to books */
-  NSLog(@"%@ %@", [author valueForKey:@"name"], [author valueForKeyPath:@"toBooks.title"]);
+  NSLog(@"%@ %@", 
+	[author valueForKey:@"name"],
+	[author valueForKeyPath:@"toBooks.title"]);
   
   /* log the to one relationship from book to author */
   NSLog(@"%@", [book valueForKeyPath:@"toAuthor.name"]);
