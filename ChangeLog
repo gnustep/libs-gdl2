@@ -1,3 +1,9 @@
+2007-05-02  David Ayers  <ayers@fsfe.org>
+
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/GNUmakefile,
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/GNUmakefile:
+	Include variable-processing.make.
+	
 2007-05-01  David Ayers  <ayers@fsfe.org>
 
 	* Documentation/GDL2Intro/GDL2Intro.texi: Cleanup node

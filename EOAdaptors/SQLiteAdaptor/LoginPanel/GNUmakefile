@@ -46,6 +46,7 @@ endif
 LoginPanel_COPY_INTO_DIR=../SQLite3EOAdaptor.framework/Resources
 -include ../config.mak
 -include Makefile.preamable
+include ../../../variable-processing.make
 include ../../../common.make
 -include GNUmakefile.local
 include $(GNUSTEP_MAKEFILES)/bundle.make

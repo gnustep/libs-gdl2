@@ -51,7 +51,7 @@ LoginPanel_COPY_INTO_DIR = ../PostgreSQLEOAdaptor.framework/Resources
 include ../config.mak
 
 -include Makefile.preamble
-
+include ../../../variable-processing.make
 include ../../../common.make
 
 -include GNUmakefile.local
