@@ -1,3 +1,9 @@
+2007-05-05  Matt Rice  <ratmice@gmail.com>
+
+	* EOInterface/EODisplayGroup.m (-deleteObjectAtIndex:):
+	* EOModeler/EOModelerDocument.m (-adaptor, -saveToPath:):
+	Return with NS_VALUERETURN from within exception handling block.
+	
 2007-05-02  David Ayers  <ayers@fsfe.org>
 
 	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/GNUmakefile,

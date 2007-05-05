@@ -1001,7 +1001,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 	  }
 	[_displayedObjects removeObjectAtIndex:index];
 	[_allObjects removeObject:object];
-	return YES;
+	NS_VALUERETURN(YES, BOOL);
       NS_HANDLER
         return NO;
       NS_ENDHANDLER

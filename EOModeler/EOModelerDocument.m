@@ -176,7 +176,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 - (EOAdaptor *)adaptor
 {
   NS_DURING
-    return [EOAdaptor adaptorWithModel:_model];
+    NS_VALUERETURN([EOAdaptor adaptorWithModel:_model], EOAdaptor *);
   NS_HANDLER
     return nil;
   NS_ENDHANDLER
@@ -230,12 +230,11 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 - (BOOL)saveToPath:(NSString *)path
 {
   NSString *ext = [path pathExtension];
-
   if (!([ext isEqual:@"eomodeld"] || [ext isEqual:@"eomodel"]))
     path = [path stringByAppendingPathExtension:@"eomodeld"];
   NS_DURING
     [_model writeToFile: path];
-    return YES;
+    NS_VALUERETURN(YES, BOOL);
   NS_HANDLER
        NSRunAlertPanel(@"Error",
 		       @"Save failed: %@",
