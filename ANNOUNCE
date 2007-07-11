@@ -1,5 +1,5 @@
 
-The GNUstep Database Library 2 Package, version 0.10.1 is now available.
+The GNUstep Database Library 2 Package, version 0.11.0 is now available.
 
 What is the GNUstep Database Library 2 Package?
 ====================================
@@ -17,39 +17,33 @@ Objective-C objects to rows of relational database management systems
 
 The package has been tested on:
 
-Debian Sarge/x86
 Debian Etch/x86
-Debian Sid/x86 (Sept 2006)
 
-Changes in version 0.10.1
+Changes in version 0.11.0
 =========================
+This release contains the following changes:
+- Build as NATIVE_LIBRARY and renamed projects to
+  (lib)EOControl, (lib)EOAccess and (lib)EOInterface
+- Adaption to the gnustep-make 2.0 infrastructure
+- Addition of an SQLiteAdaptor.
+- Removed dependency on GC classes.
+- Started update of the Postgres95->PostgreSQL adaptor
+  (The goal is to migrate to the PostgreSQL 7/8 API and datatypes
+   but this is still WIP.)
+- Much improved DBModeler application including initial diagram support.
+- Much improved GDL2Palette support.
+- Improved EODisplayGroup implementation.
 
-This followup release only includes packaging issues.  Not all of the
-subprojects were installed into the correct GNUSTEP_INSTALLATION_DIR
-by default.
+- Bug fixes
+  - Correct propagation or relationship attributes.
+  - Correct determination of seconds and milliseconds in the
+    PostgreSQL adaptor
 
-Changes in version 0.10.0
-=========================
-
-This release includes many bug fixes and partial rewrites of
-existing implementations and should be more robust that the
-previous release.
-
-This release includes new preliminary classes like
-EOSharedEditingContext, EOEvent, EOEventCenter and EOMultiReaderLock
-but these haven't seen much testing yet and are partially implemented.
-
-This release includes an initial version of EOInterface, the library
-or framework to connect GUI elements to GDL2 classes.
-
-Matt Rice contributed an initial DBModeler application, an EOModler
-framework implementation, a GDL2Palette for GROM and lots of time
-debuging, testing and filling in missing implementations.
 
 Where can you get it?  How can you compile it?
 ==============================================
 
-The gnustep-dl2-0.10.1.tar.gz distribution file has been placed at
+The gnustep-dl2-0.11.0.tar.gz distribution file has been placed at
 <http://ftp.gnustep.org/pub/gnustep/libs>
 
 Please log bug reports on the GNUstep project page

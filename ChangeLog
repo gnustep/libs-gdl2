@@ -1,5 +1,14 @@
 2007-07-11  David Ayers  <ayers@fsfe.org>
 
+	* Version 0.11.0
+	* README: Update prerequisites and project names.
+	* TODO: Update.
+	* INSTALL: Remove reference to GNUSTEP_SYSTEM_ROOT.
+	* ANNOUNCE: Update for release.
+	* NEWS: Ditto.
+
+2007-07-11  David Ayers  <ayers@fsfe.org>
+
 	* EOControl/EOAggregateEvent.h/m: New files with stub
 	implementations.
 	* EOControl/GNUmakefile: Add EOAggregateEvent.h/m.

@@ -1,25 +1,10 @@
-EOControl:
-	Headers/Classes:
-		EOAggregateEvent
-		EOEvent
-		EOEventCenter
-		EOMultiReaderLock
-		EOSharedEditingContext
 EOAccess:
 	Headers/Categories:
 		EOGenericRecord (category)
 		EOSchemaSynchronization
 
-EOInterface: All
-
-EOModel creation Application.
-
 Documentation:
 	API Documentation
-	Note: Maybe we should document some useful undocumented/privat
-	      methods as "GDL2 extensions" yet refer to the fact that
-	      we merely declare them in the (not yet existing)
-	      "Additions" library.
 	Tutorials
 
 Examples:

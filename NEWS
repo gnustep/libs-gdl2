@@ -1,16 +1,38 @@
 News
 ****
 
-The currently released version of the library is `0.10.1'.
+The currently released version of the library is `0.11.0'.
 
-'alpha' release 1.10.1
+'alpha' release 0.11.0
+========================================
+
+This release contains the following changes:
+- Build as NATIVE_LIBRARY and renamed projects to
+  (lib)EOControl, (lib)EOAccess and (lib)EOInterface
+- Adaption to the gnustep-make 2.0 infrastructure
+- Addition of an SQLiteAdaptor.
+- Removed dependency on GC classes.
+- Started update of the Postgres95->PostgreSQL adaptor
+  (The goal is to migrate to the PostgreSQL 7/8 API and datatypes
+   but this is still WIP.)
+- Much improved DBModeler application including initial diagram support.
+- Much improved GDL2Palette support.
+- Improved EODisplayGroup implementation.
+
+- Bug fixes
+  - Correct propagation or relationship attributes.
+  - Correct determination of seconds and milliseconds in the
+    PostgreSQL adaptor
+
+
+'alpha' release 0.10.1
 ========================================
 
 This release only fixes packaging issues.  Some of the sub projects
 were not installed into the the correct GNUSTEP_INSTALLATION_DIR.
 
 
-'alpha' release 1.10.0
+'alpha' release 0.10.0
 ========================================
 
 This release includes many bug fixes and partial rewrites of
@@ -29,7 +51,7 @@ framework implementation, a GDL2Palette for GROM and lots of time
 debuging, testing and filling in missing implementations.
 
 
-Initial 'alpha' release 1.9.1
+Initial 'alpha' release 0.9.1
 ========================================
 
 This is the first alpha release package of GDL2.  First and

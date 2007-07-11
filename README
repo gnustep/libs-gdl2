@@ -4,23 +4,23 @@ Readme
 The GNUstep Database Library 2 (GDL2) is a set of libraries to map
 Objective-C objects to rows of relational database management systems
 (RDBMS).  It aims to be compatible with Enterprise Objects Framework
-(EOF) as released with WebObjects 4.5 from Apple Inc.  It requires 
-- the GNUstep Make Package 1.13.0
-- the Base Package 1.13.0
-- the GUI Package 1.11.0
-- the Back Package 1.11.0
-- the GORM Package 1.1.0
+(EOF) as released with WebObjects 4.5 from Apple Inc.  It has been tested
+against the following package versions:
+- the GNUstep Make Package 2.0.0
+- the Base Package 1.14.0
+- the GUI/Back Package 1.12.0
+- the GORM Package 1.2.0
 
 GDL2 consists of the following components:
 
-- EOControl (gnustep-db2control)
+- EOControl
 
 The fundamental abstraction library which includes many non RDBMS
 related extensions such as KeyValueCoding extensions and other
 categories.  Most importantly it contains the classes which handle the
 coordination of object graphs namely EOEditingContext.
 
-- EOAccess (gnustep-db2)
+- EOAccess
 
 This library implements the underlying mechanism to retrieve and store
 data in RDBMS.  It defines the abstract classes like EOAdaptor which
