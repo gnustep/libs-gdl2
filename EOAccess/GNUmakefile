@@ -50,6 +50,7 @@ EOAdaptorChannel.m \
 EOAdaptorOperation.m \
 EODatabaseOperation.m \
 EOSchemaGeneration.m \
+EOSchemaSynchronization.m \
 EOSQLExpression.m \
 EOSQLQualifier.m \
 EODatabase.m \
@@ -82,6 +83,7 @@ EODatabaseContext.h \
 EOAccessFault.h \
 EOPropertyListEncoding.h \
 EODatabaseDataSource.h \
+EOSchemaSynchronization.h \
 EOSchemaGeneration.h \
 EOUtilities.h \
 EODefines.h \

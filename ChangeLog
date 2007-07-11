@@ -4,6 +4,10 @@
 	implementations.
 	* EOControl/GNUmakefile: Add EOAggregateEvent.h/m.
 
+	* EOAccess/EOSchemaSynchronization.h/m: New files with stub
+	implementations.
+	* EOAccess/GNUmakefile: Add EOSchemaSynchronization.h/m.
+
 2007-05-05  Matt Rice  <ratmice@gmail.com>
 
 	* EOInterface/EODisplayGroup.m (-deleteObjectAtIndex:):
