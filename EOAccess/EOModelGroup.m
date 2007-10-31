@@ -424,7 +424,7 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
 
 @implementation EOObjectStoreCoordinator (EOModelGroup)
 
-- (id)modelGroup
+- (EOModelGroup *)modelGroup
 {
   //Seems OK
   EOModelGroup *modelGroup;

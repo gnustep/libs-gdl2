@@ -246,7 +246,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 	  if (size)
 	    *size = sizeof(id);
 	  if (offset)
-	    *offset = UINT_MAX; //Special Marker
+	    *offset = INT_MAX; //Special Marker
 
           ok = YES;
 
@@ -266,7 +266,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 	     selector: (SEL)sel
 		 type: (const char*)type
 		 size: (unsigned)size
-	       offset: (unsigned)offset
+	       offset: (int)offset
 {
   id value = nil;
 
@@ -275,7 +275,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 			@"Super InstanceVar named %@: sel=%@ type=%s size=%u offset=%u",
 			aKey,NSStringFromSelector(sel),type,size,offset);
 
-  if (offset == UINT_MAX)
+  if (offset == INT_MAX)
     {
       value = EOMKKD_objectForKeyWithImpPtr(dictionary,NULL,aKey);
 
@@ -300,14 +300,14 @@ static const char _c_id[2] = { _C_ID, 0 };
 	       selector: (SEL)sel
 		   type: (const char*)type
 		   size: (unsigned)size
-		 offset: (unsigned)offset
+		 offset: (int)offset
 {
   EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			@"Super InstanceVar named %@: offset=%u",
 			aKey, offset);
 
-  if (offset == UINT_MAX)
+  if (offset == INT_MAX)
     {
       if (anObject)
         EOMKKD_setObjectForKeyWithImpPtr(dictionary,NULL,anObject,aKey);
@@ -429,7 +429,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   SEL		sel = 0;
   const char	*type = NULL;
   unsigned	size = 0;
-  unsigned	off = 0;
+  int		off = 0;
   id value = nil;
   Class 	selfClass=[self class];
 
@@ -583,7 +583,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   SEL		sel = NULL;
   const char	*type = NULL;
   unsigned	size = 0;
-  unsigned	off = 0;
+  int		off = 0;
   Class 	selfClass=[self class];
 
   EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
@@ -767,7 +767,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   SEL		sel;
   const char	*type;
   unsigned	size;
-  unsigned	off=0;
+  int		off=0;
 
   EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"anObject=%@", anObject);
@@ -897,7 +897,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   SEL		sel = 0;
   const char	*type = NULL;
   unsigned	size;
-  unsigned	off = 0;
+  int		off = 0;
   id value = nil;
 
   EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");

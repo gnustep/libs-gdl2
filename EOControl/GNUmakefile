@@ -119,7 +119,6 @@ EOControl_AGSDOC_FLAGS = \
 	$(GDL2_AGSDOC_FLAGS)
 
 -include Makefile.preamble
-include ../variable-processing.make
 -include GNUmakefile.local
 
 include $(GNUSTEP_MAKEFILES)/native-library.make

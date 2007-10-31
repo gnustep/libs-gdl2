@@ -176,7 +176,7 @@ void GDL2_PrivateInit()
       GDL2_MKKD_indexForKeyIMP=(GDL2IMP_UINT)[GDL2_MKKDClass instanceMethodForSelector:@selector(indexForKey:)];
       GDL2_EOMKKDInitializer_indexForKeyIMP=(GDL2IMP_UINT)[GDL2_EOMKKDInitializerClass instanceMethodForSelector:@selector(indexForKey:)];
 
-      GDL2_EOEditingContext_recordObjectGlobalIDIMP==[GDL2_EOEditingContextClass instanceMethodForSelector:@selector(recordObject:globalID:)];
+      GDL2_EOEditingContext_recordObjectGlobalIDIMP=[GDL2_EOEditingContextClass instanceMethodForSelector:@selector(recordObject:globalID:)];
       GDL2_EOEditingContext_objectForGlobalIDIMP=[GDL2_EOEditingContextClass instanceMethodForSelector:@selector(objectForGlobalID:)];
       GDL2_EOEditingContext_globalIDForObjectIMP=[GDL2_EOEditingContextClass instanceMethodForSelector:@selector(globalIDForObject:)];
 

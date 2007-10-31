@@ -106,7 +106,6 @@ EOAccess_AGSDOC_FLAGS = \
 
 
 -include Makefile.preamble
-include ../variable-processing.make
 
 -include GNUmakefile.local
 

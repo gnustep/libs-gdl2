@@ -60,7 +60,6 @@ EOModelerEditor.h			\
 EODefines.h
 
 -include Makefile.preamble
-include ../variable-processing.make
 
 -include GNUmakefile.local
 

@@ -77,7 +77,6 @@ eoutil_HEADER_FILES =
 
 
 -include Makefile.preamble
-include ../variable-processing.make
 
 -include GNUmakefile.local
 

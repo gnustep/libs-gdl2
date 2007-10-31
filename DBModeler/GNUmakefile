@@ -73,5 +73,4 @@ $(APP_NAME)_OBJC_FILES =		\
 	EntityView.m			\
 	DiagramEditor.m
 
-include ../variable-processing.make
 include $(GNUSTEP_MAKEFILES)/application.make

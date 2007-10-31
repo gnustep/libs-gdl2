@@ -50,7 +50,6 @@ GDL2_OBJC_FILES=		\
 	KeyWrapper.m		\
 	DisplayGroupInspector.m
 
-include ../variable-processing.make
 PALETTE_LIBS=$(ADDITIONAL_OBJC_LIBS)
 
 include $(GNUSTEP_MAKEFILES)/palette.make

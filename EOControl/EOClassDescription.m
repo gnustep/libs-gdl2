@@ -962,7 +962,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
         {
 	  SEL validateSelector;
 	  unsigned length = [key length];
-	  unsigned char buf[length + 10];
+	  char buf[length + 10];
 
 	  strcpy(buf, "validate");
 	  [key getCString: &buf[8]];

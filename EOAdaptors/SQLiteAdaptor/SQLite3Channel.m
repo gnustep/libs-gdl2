@@ -1,4 +1,3 @@
-
 /* 
    SQLite3Channel.m
 
@@ -41,7 +40,7 @@
 
 @implementation SQLite3Channel
 
-static id newNumberValue(const unsigned char *data, EOAttribute *attrib)
+static id newNumberValue(const char *data, EOAttribute *attrib)
 {
   id ret = nil;
   char t = '\0';
@@ -319,8 +318,8 @@ static id newNumberValue(const unsigned char *data, EOAttribute *attrib)
 		{
 		  case EOAdaptorNumberType:
 			{
-			  const unsigned char *text;
-			  text = sqlite3_column_text(_currentStmt, i);
+			  const char *text;
+			  text = (const char*)sqlite3_column_text(_currentStmt, i);
 			  values[i] = newNumberValue(text, attr);
 			}
 			break;
@@ -337,8 +336,8 @@ static id newNumberValue(const unsigned char *data, EOAttribute *attrib)
 			break;
 		     case EOAdaptorDateType:
 			 {
-			   const unsigned char *text;
-			   text = sqlite3_column_text(_currentStmt, i);
+			   const char *text;
+			   text = (const char *)sqlite3_column_text(_currentStmt, i);
 			   if (text)
 			     {
 			       NSString *tmp = [[NSString alloc] initWithCString:text];

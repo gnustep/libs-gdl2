@@ -165,7 +165,7 @@
   // allow clicking on title to move it..
   if (NSMouseInRect(pt, NSMakeRect(0, 0, _frame.size.width, _titleRect.size.height), YES))
     {
-      DiagramView *dv = [self superview];      
+      NSView *dv = [self superview];      
       float in, up;
       pt = [dv convertPoint:pt fromView:self];
       up = pt.y - _frame.origin.y ;

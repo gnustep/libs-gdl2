@@ -1,4 +1,50 @@
-2005-08-17  David Ayers  <d.ayers@inode.at>
+2005-10-31  David Ayers  <ayers@fsfe.org>
+
+	* Makefile.postamble (after-distclean::): Remove generated
+	GNUmakefile.
+	* gdl2.make.in (ADDITIONAL_NATIVE_LIBS): Don't force
+	linking of any GDL2 libraries just to get the version.
+	[API Change].
+	* variable-processing.make: Remove file (functionality
+	is now supplied by -make).
+	
+	* EOInterface/GNUmakefile, EOAccess/EOModelGroup.m,
+	EOAccess/GNUmakefile, EOControl/GNUmakefile,
+	DBModeler/GNUmakefile, Tools/GNUmakefile,
+	GDL2Palette/GNUmakefile, EOModeler/GNUmakefile,
+	EOAdaptors/SQLiteAdaptor/LoginPanel/GNUmakefile,
+	EOAdaptors/PostgreSQLAdaptor/LoginPanel/GNUmakefile:
+	Remove reference to variable-processing.make.
+
+	* EOControl/EOGenericRecord.m
+	([-_infoForInstanceVariableNamed:stringName:retType:retSize:retOffset:]):
+	Use marker that matches underlying type signedness.
+	([-_getValueForKey:selector:type:size:offset:],
+	[-_setValueForKey:selector:type:size:offset:]):
+	Match 'offset' with underlying type signedness and update
+	marker.
+	([-storedValueForKey:],[-takeStoredValue:forKey:],
+	[-takeValue:forKey:]): Update signedness of offset to avoid
+	compiler warnings.
+	* EOControl/EOClassDescription.m
+	([NSObject-validateValue:forKey:]): Correct signedness of 'buf'.
+	* EOControl/EOPrivate.m (GDL2_PrivateInit): Fix assignemnt of
+	GDL2_EOEditingContext_recordObjectGlobalIDIMP.
+	
+	* EOAccess/EOModelGroup.m
+	([EOObjectStoreCoordinator-modelGroup]): Correct method
+	signature to avoid compiler warnings.
+
+	* DBModeler/EntityView.m ([-mouseDown:]): Match class
+	with return type of initializer method to avoid
+	compiler warnings and unnecessary cast.
+
+	* EOAdaptors/SQLiteAdaptor/SQLite3Channel.m (newNumberValue):
+	Change type of 'data' to match usage.
+	([-fetchRowWithZone:]): Cast return type of sqlite3_column_text
+	to match expected usage to avoid compiler warnings.
+
+2005-08-17  David Ayers  <ayers@fsfe.org>
 
 	* COPYING.LIB: Update to LGPL 3.
 	* DB2Modeler/COPYING:  Update to GPL 3.
