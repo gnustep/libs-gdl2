@@ -1,3 +1,13 @@
+2007-11-21  David Ayers  <ayers@fsfe.org>
+
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m:
+	([EOAttribute-_valueTypeCharacter]): Correct references from
+	_valueTypeChar.
+	([PostgreSQLChannel+initialize]): Ditto.
+	(newValueForNumberTypeLengthAttribute): Ditto.  Handle nil
+	return value of valueType.
+	Bug reported by: Eric Johns <ericjohns@verizon.net>.
+	
 2007-10-31  David Ayers  <ayers@fsfe.org>
 
 	* Makefile.postamble (after-distclean::): Remove generated

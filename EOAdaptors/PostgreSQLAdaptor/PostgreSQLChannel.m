@@ -84,7 +84,7 @@ RCS_ID("$Id$")
 
 @interface EOAttribute (private)
 - (Class)_valueClass;
-- (char)_valueTypeChar;
+- (char)_valueTypeCharacter;
 @end
 
 static BOOL attrRespondsToValueClass = NO;
@@ -263,9 +263,16 @@ newValueForNumberTypeLengthAttribute(const void *bytes,
         }
       else
         {
-          char valueTypeChar = attrRespondsToValueTypeChar
-	    ? [attribute _valueTypeChar]
-	    : [[attribute valueType] cString][0];
+          char valueTypeChar = '\0';
+	  if (attrRespondsToValueTypeChar)
+	    {
+	      valueTypeChar = [attribute _valueTypeCharacter];
+	    }
+	  else
+	    {
+	      NSString *vt = [attribute valueType];
+	      if (vt) valueTypeChar = [[attribute valueType] UTF8String][0];
+	    }
           switch(valueTypeChar)
             {
             case 'i':
@@ -475,7 +482,7 @@ newValueForBytesLengthAttribute (const void *bytes,
       attrRespondsToValueClass
 	= [EOAttribute instancesRespondToSelector: @selector(_valueClass)];
       attrRespondsToValueTypeChar
-	= [EOAttribute instancesRespondToSelector: @selector(_valueTypeChar)];
+	= [EOAttribute instancesRespondToSelector: @selector(_valueTypeCharacter)];
 
       initialized = YES;
     };
