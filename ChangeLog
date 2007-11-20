@@ -1,4 +1,4 @@
-2005-10-31  David Ayers  <ayers@fsfe.org>
+2007-10-31  David Ayers  <ayers@fsfe.org>
 
 	* Makefile.postamble (after-distclean::): Remove generated
 	GNUmakefile.
@@ -44,7 +44,7 @@
 	([-fetchRowWithZone:]): Cast return type of sqlite3_column_text
 	to match expected usage to avoid compiler warnings.
 
-2005-08-17  David Ayers  <ayers@fsfe.org>
+2007-08-17  David Ayers  <ayers@fsfe.org>
 
 	* COPYING.LIB: Update to LGPL 3.
 	* DB2Modeler/COPYING:  Update to GPL 3.
