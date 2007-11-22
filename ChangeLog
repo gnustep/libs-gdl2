@@ -1,5 +1,11 @@
 2007-11-21  David Ayers  <ayers@fsfe.org>
 
+	* EOAdaptors/PostgreSQLAdaptor/Makefile.preamble
+	(ADDITIONAL_NATIVE_LIB_DIRS): Correct include path.
+	(ADDITIONAL_LIB_DIRS): Remove redundant directives.
+	
+2007-11-21  David Ayers  <ayers@fsfe.org>
+
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m:
 	([EOAttribute-_valueTypeCharacter]): Correct references from
 	_valueTypeChar.

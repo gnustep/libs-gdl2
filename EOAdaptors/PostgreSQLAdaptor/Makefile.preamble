@@ -50,14 +50,9 @@ ADDITIONAL_INCLUDE_DIRS += \
 	-I../../EOControl/$(GNUSTEP_TARGET_DIR) \
 	-I../..
 
-# Additional library directories the linker should search
-ADDITIONAL_LIB_DIRS += \
-	-L../../EOControl/$(GNUSTEP_OBJ_DIR) \
-	-L../../EOAccess/$(GNUSTEP_OBJ_DIR)
-
 # Libraries linked to the framework
 ADDITIONAL_NATIVE_LIBS+=EOAccess EOControl
-ADDITIONAL_NATIVE_LIB_DIRS+=../EOControl ../EOAccess
+ADDITIONAL_NATIVE_LIB_DIRS+=../../EOControl ../../EOAccess
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
 endif
