@@ -712,6 +712,51 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
   return nil;
 }
 
+
+/**
+ * This method is called to validate and potentially coerce
+ * VALUE for the receivers key path.  This method also assigns
+ * the value if it is different from the current value.
+ * This method will raise an EOValidationException
+ * if validateValue:forKey: returns an exception.
+ * This method returns new value.
+ **/
+- (id)validateTakeValue:(id)value forKeyPath:(NSString *)path
+{
+  id val = value;
+  id obj = self;
+  NSString *lastKey = path;
+  NSException *e;
+
+  /* AYERS: This needs to be verified...
+     normally we would travers the key path so that each
+     object has a chance to override this method the
+     same way we allow this for take value for key.
+     But for now lets assume that we can take this shortcut.
+  */
+  NSRange	r = [path rangeOfString: @"."
+			  options: NSBackwardsSearch];
+  
+  if (r.length)
+    {
+      NSString	*keyPath = [aKey substringToIndex: r.location];
+      lastKey = [aKey substringFromIndex: NSMaxRange(r)];
+      obj = [self valueForKey: keyPath];
+    }
+  e = [obj validateValue:&val forKey:lastKey];
+
+  if (e)
+    {
+      [e raise];
+    }
+  else
+    {
+      [obj takeValue:val forKey: lastKey];
+    }
+  return val;
+}
+
+
 @end
 
 @implementation EOClassDescription (Deprecated)

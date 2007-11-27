@@ -1,3 +1,8 @@
+2007-11-27  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EOClassDescription.h/m
+	([NSObject-validateTakeValue:forKeyPath:]): Implement.
+	
 2007-11-21  David Ayers  <ayers@fsfe.org>
 
 	* EOAdaptors/PostgreSQLAdaptor/Makefile.preamble

@@ -1,3 +1,9 @@
+EOControl:
+	validateTakeValue:forKeyPath:
+		test whether the method propagates
+		thourgh key path
+		determine who calls this from within
+		GDL2
 EOAccess:
 	Headers/Categories:
 		EOGenericRecord (category)

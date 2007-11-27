@@ -141,6 +141,7 @@ fromFetchInEditingContext: (EOEditingContext *)editingContext;
 - (NSString *)userPresentableDescription;
 
 - (NSException *)validateValue: (id *)valueP forKey: (NSString *)key;
+- (id)validateTakeValue:(id)value forKeyPath:(NSString *)path;
 
 - (NSException *)validateForSave;
 
