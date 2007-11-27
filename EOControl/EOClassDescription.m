@@ -995,37 +995,34 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
  **/
 - (id)validateTakeValue:(id)value forKeyPath:(NSString *)path
 {
-  id val = value;
-  id obj = self;
-  NSString *lastKey = path;
-  NSException *e;
-
-  /* AYERS: This needs to be verified...
-     normally we would travers the key path so that each
-     object has a chance to override this method the
-     same way we allow this for take value for key.
-     But for now lets assume that we can take this shortcut.
-  */
-  NSRange	r = [path rangeOfString: @"."
-			  options: NSBackwardsSearch];
+  id nval = value;
+  id oval;
+  NSRange	r = [path rangeOfString: @"."];
   
-  if (r.length)
+  if (r.length == 0)
     {
-      NSString	*keyPath = [path substringToIndex: r.location];
-      lastKey = [path substringFromIndex: NSMaxRange(r)];
-      obj = [self valueForKey: keyPath];
-    }
-  e = [obj validateValue:&val forKey:lastKey];
+      NSException *e = [self validateValue:&nval forKey:path];
 
-  if (e)
-    {
-      [e raise];
+      if (e)
+	{
+	  [e raise];
+	}
+
+      oval = [self valueForKey:path];
+      if (nval != oval && 
+	  ((nval == nil || oval == nil) || [nval isEqual: oval] == NO))
+	{
+	  [self takeValue:nval forKey: path];
+	}
     }
   else
     {
-      [obj takeValue:val forKey: lastKey];
+      NSString	*key = [path substringToIndex: r.location];
+      NSString	*kpath = [path substringFromIndex: NSMaxRange(r)];
+
+      nval = [[self valueForKey: key] validateTakeValue: nval forKeyPath: kpath];
     }
-  return val;
+  return nval;
 }
 
 
