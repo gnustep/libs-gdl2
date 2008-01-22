@@ -31,6 +31,7 @@
 #include <Foundation/NSArray.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSZone.h>
+#include <Foundation/NSDictionary.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
