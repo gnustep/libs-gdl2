@@ -31,13 +31,17 @@
 #include <GNUstepBase/GSCategories.h>
 #endif
 
-#include <EOModeler/EOModelExtensions.h>
-#include <EOControl/EODebug.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSScanner.h>
+#include <Foundation/NSString.h>
+
 #include <AppKit/NSFont.h>
 #include <AppKit/NSAttributedString.h>
-#include <Foundation/NSDictionary.h>
-#include <Foundation/NSString.h>
-#include <Foundation/NSScanner.h>
+
+#include <EOControl/EODebug.h>
+
+#include "EOModeler/EOModelExtensions.h"
 
 @implementation EOEntity (EOModelExtensions)
 

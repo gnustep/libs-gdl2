@@ -29,10 +29,14 @@
 #include "SQLite3Context.h"
 #include "SQLite3Expression.h"
 
-#include <Foundation/NSException.h>
-#include <EOControl/EONull.h>
-#include <EOAccess/EOAttribute.h>
 #include <Foundation/NSDecimalNumber.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSException.h>
+
+#include <EOControl/EONull.h>
+
+#include <EOAccess/EOAttribute.h>
+
 @interface SQLite3Channel (Private)
 -(void) _raise;
 - (void) _raiseWith:(id)statement;
@@ -438,7 +442,7 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
       [ret setObject: pkVal
 	      forKey:keyName];
     }
-  return ret;
+  return AUTORELEASE([ret copy]);
 }
 
 - (unsigned int) updateValues:(NSDictionary *)values

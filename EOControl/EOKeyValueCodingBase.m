@@ -47,7 +47,6 @@ RCS_ID("$Id$")
 #import <Foundation/NSException.h>
 #import <Foundation/NSObjCRuntime.h>
 #import <Foundation/NSMapTable.h>
-#import <Foundation/NSUtilities.h>
 #import <Foundation/NSDecimalNumber.h>
 #import <Foundation/NSDebug.h>
 #import <Foundation/NSException.h>

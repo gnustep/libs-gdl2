@@ -26,6 +26,7 @@
 
    You should have received a copy of the GNU Library General Public
    License along with this library; see the file COPYING.LIB.
+
    If not, write to the Free Software Foundation,
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
    </license>
@@ -37,10 +38,11 @@ RCS_ID("$Id$")
 
 #ifdef GNUSTEP
 #include <Foundation/NSBundle.h>
-#include <Foundation/NSNotification.h>
-#include <Foundation/NSEnumerator.h>
-#include <Foundation/NSPathUtilities.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSPathUtilities.h>
 #else
 #include <Foundation/Foundation.h>
 #endif

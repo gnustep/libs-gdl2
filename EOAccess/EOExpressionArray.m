@@ -41,12 +41,13 @@ RCS_ID("$Id$")
 #include <ctype.h>
 
 #ifdef GNUSTEP
-#include <Foundation/NSString.h>
 #include <Foundation/NSAutoreleasePool.h>
-#include <Foundation/NSValue.h>
 #include <Foundation/NSDate.h>
-#include <Foundation/NSException.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSDictionary.h>
+#include <Foundation/NSException.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSValue.h>
 #else
 #include <Foundation/Foundation.h>
 #endif

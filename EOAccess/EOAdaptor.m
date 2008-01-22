@@ -52,7 +52,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSPathUtilities.h>
 #include <Foundation/NSBundle.h>
 #include <Foundation/NSObjCRuntime.h>
-#include <Foundation/NSUtilities.h>
 #include <Foundation/NSValue.h>
 #include <Foundation/NSProcessInfo.h>
 #include <Foundation/NSException.h>
@@ -75,13 +74,13 @@ RCS_ID("$Id$")
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 
-#include <EOAccess/EOAdaptor.h>
-#include <EOAccess/EOAdaptorContext.h>
-#include <EOAccess/EOAdaptorChannel.h>
-#include <EOAccess/EOAttribute.h>
-#include <EOAccess/EOEntity.h>
-#include <EOAccess/EOModel.h>
-#include <EOAccess/EOSQLExpression.h>
+#include "EOAccess/EOAdaptor.h"
+#include "EOAccess/EOAdaptorContext.h"
+#include "EOAccess/EOAdaptorChannel.h"
+#include "EOAccess/EOAttribute.h"
+#include "EOAccess/EOEntity.h"
+#include "EOAccess/EOModel.h"
+#include "EOAccess/EOSQLExpression.h"
 
 #include "EOAdaptorPriv.h"
 

@@ -245,7 +245,7 @@
 }
 - (void) showEditor:(id)sender
 {
-  EOModelerCompoundEditor *ed = [EOMApp currentEditor];
+  EOModelerCompoundEditor *ed = (id)[EOMApp currentEditor];
   
   if ([[sender title] isEqual:_(@"Diagram Editor")])
     {

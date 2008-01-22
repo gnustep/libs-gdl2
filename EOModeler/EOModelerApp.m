@@ -25,13 +25,15 @@
   </license>
 **/
 
-#include "EOModeler/EODefines.h"
-#include "EOModeler/EOModelerApp.h"
-#include "EOModeler/EOModelerDocument.h"
+#include <Foundation/NSArray.h>
+#include <Foundation/NSDictionary.h>
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOModelGroup.h>
-#include <Foundation/NSArray.h>
+
+#include "EOModeler/EODefines.h"
+#include "EOModeler/EOModelerApp.h"
+#include "EOModeler/EOModelerDocument.h"
 
 EOModelerApp *EOMApp;
 NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";

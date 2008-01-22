@@ -1,6 +1,46 @@
 2008-01-22  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOClassDescription.h: Avoid unnecessary include.
+
+	* EOControl/EOAndQualifier.m,
+	* EOControl/EOFault.m,
+	* EOControl/EOFaultHandler.m,
+	* EOControl/EOKeyComparisonQualifier.m,
+	* EOControl/EOKeyValueArchiver.m,
+	* EOControl/EOKeyValueCoding.m,
+	* EOControl/EOKeyValueCodingBase.m,
+	* EOControl/EOMutableKnownKeyDictionary.h,
+	* EOControl/EONotQualifier.m,
+	* EOControl/EOOrQualifier.m,
+	* EOControl/EOQualifier.m,
+	* EOAccess/EOAdaptor.m,
+	* EOAccess/EOAdaptorContext.m,
+	* EOAccess/EOAttribute.m,
+	* EOAccess/EODatabase.m,
+	* EOAccess/EODatabaseContext.m,
+	* EOAccess/EOExpressionArray.m,
+	* EOAccess/EOJoin.m,
+	* EOAccess/EOModel.m,
+	* EOAccess/EOModelGroup.m,
+	* EOAccess/EORelationship.m,
+	* EOAccess/EOSQLExpression.m,
+	* EOAccess/EOSQLQualifier.m,
+	* EOAccess/EOSchemaGeneration.m,
+	* EOAccess/EOStoredProcedure.m,
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLAdaptor.m,
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m,
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLExpression.m,
+	* EOAdaptors/SQLiteAdaptor/SQLite3Adaptor.m,
+	* EOAdaptors/SQLiteAdaptor/SQLite3Channel.m,
+	* EOInterface/EOTableViewAssociation.m,
+	* EOModeler/EOModelExtensions.m,
+	* EOModeler/EOModelerApp.m,
+	* DBModeler/ModelerAttributeEditor.m,
+	* DBModeler/ModelerEntityEditor.m: Remove references to NSUtilities.h.
+	Add includes for missing header references.
+
+	* DBModeler/Modeler.m (-[showEditor:]): Add cast to avoid compiler
+	warning.
 	
 2008-01-22  Peter Cooper  <comrade@obverse.com.au>
 

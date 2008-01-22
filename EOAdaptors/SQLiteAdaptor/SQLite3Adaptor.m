@@ -29,6 +29,8 @@
 #include "SQLite3Context.h"
 #include "SQLite3Expression.h"
 
+#include <Foundation/NSDictionary.h>
+
 NSString *SQLite3AdaptorExceptionName = @"SQLite3AdaptorException";
 
 @implementation SQLite3Adaptor : EOAdaptor

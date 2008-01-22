@@ -38,6 +38,8 @@
 
 #include <EOAccess/EOEntity.h>
 
+#include <EOControl/EOEditingContext.h>
+
 #include <EOModeler/EOModelerDocument.h>
 #include <EOModeler/EOModelerApp.h>
 

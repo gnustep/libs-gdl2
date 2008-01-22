@@ -38,8 +38,10 @@ RCS_ID("$Id: EOSchemaGeneration.m 23653 2006-09-28 15:25:30Z ratmice $")
 #include <string.h>
 
 #ifdef GNUSTEP
-#include <Foundation/NSString.h>
+#include <Foundation/NSEnumerator.h>
+#include <Foundation/NSDictionary.h>
 #include <Foundation/NSNotification.h>
+#include <Foundation/NSString.h>
 #else
 #include <Foundation/Foundation.h>
 #endif

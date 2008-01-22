@@ -54,7 +54,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSString.h>
 #include <Foundation/NSSet.h>
 #include <Foundation/NSTimeZone.h>
-#include <Foundation/NSUtilities.h>
 #else
 #include <Foundation/Foundation.h>
 #include <GNUstepBase/GSCategories.h>

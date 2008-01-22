@@ -25,6 +25,7 @@
 
 #ifdef GNUSTEP
 #include <Foundation/NSArray.h>
+#include <Foundation/NSEnumerator.h>
 #include <Foundation/NSMapTable.h>
 #include <Foundation/NSNotification.h>
 #include <Foundation/NSString.h>

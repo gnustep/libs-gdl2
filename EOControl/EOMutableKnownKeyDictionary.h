@@ -28,10 +28,10 @@
 #define	__EOMultipleKnownKeyDictionary_h__
 
 #ifdef GNUSTEP
-#include <Foundation/NSObject.h>
+#include <Foundation/NSDictionary.h>
 #include <Foundation/NSEnumerator.h>
-#include <Foundation/NSZone.h>
 #include <Foundation/NSMapTable.h>
+#include <Foundation/NSZone.h>
 #else
 #include <Foundation/Foundation.h>
 #endif

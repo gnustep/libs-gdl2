@@ -31,6 +31,7 @@
 
 #include <EOInterface/EODisplayGroup.h>
 #include <EOAccess/EOEntity.h>
+#include <EOControl/EOEditingContext.h>
 #include <EOControl/EOObserver.h>
 #include <EOModeler/EOModelerApp.h>
 #include <EOModeler/EOModelerDocument.h>
