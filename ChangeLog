@@ -1,10 +1,14 @@
+2008-01-22  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EOClassDescription.h: Avoid unnecessary include.
+	
 2008-01-22  Peter Cooper  <comrade@obverse.com.au>
 
 	* Tools/NSArray+GSDoc.m: Include NSString.h ...
 	* EOControl/EOClassDescription.h: Include NSDictionary.h to compile
 	with new versions of -base/Foundation.
 	
-2007-11-27  David Ayers  <ayers@fsfe.org>
+2007-11-27  David Ayers  
 
 	* EOControl/EOClassDescription.h/m
 	([NSObject-validateTakeValue:forKeyPath:]): Implement.

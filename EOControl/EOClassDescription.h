@@ -31,7 +31,6 @@
 #include <Foundation/NSArray.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSZone.h>
-#include <Foundation/NSDictionary.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -39,9 +38,10 @@
 #include <EOControl/EODefines.h>
 
 @class NSDictionary;
-@class NSFormatter;
 @class EOEditingContext;
+@class NSFormatter;
 @class EOGlobalID;
+@class NSMutableDictionary;
 @class EORelationship;
 
 typedef enum
