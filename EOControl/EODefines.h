@@ -27,14 +27,27 @@
 #ifndef __EOControl_EODefines_h__
 #define __EOControl_EODefines_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef GNUSTEP_WITH_DLL
 
 #if BUILD_libgnustep_db2control_DLL
+
+# if defined(__MINGW32__)
+  /* On Mingw, the compiler will export all symbols automatically, so
+   * __declspec(dllexport) is not needed.
+   */
+#  define GDL2CONTROL_EXPORT  extern
+#  define GDL2CONTROL_DECLARE
+# else
 #  define GDL2CONTROL_EXPORT  __declspec(dllexport)
-#  define GDL2CONTROL_DECLARE __declspec(dllexport) 
+#  define GDL2CONTROL_DECLARE __declspec(dllexport)
+# endif
 #else
 #  define GDL2CONTROL_EXPORT  extern __declspec(dllimport)
-#  define GDL2CONTROL_DECLARE __declspec(dllimport) 
+#  define GDL2CONTROL_DECLARE __declspec(dllimport)
 #endif
 
 #else /* GNUSTEP_WITH[OUT]_DLL */
@@ -44,6 +57,9 @@
 
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __EOControl_EODefines_h__ */
 

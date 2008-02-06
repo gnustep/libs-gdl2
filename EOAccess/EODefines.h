@@ -27,11 +27,24 @@
 #ifndef __EOAccess_EODefines_h__
 #define __EOAccess_EODefines_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef GNUSTEP_WITH_DLL
 
 #if BUILD_libgnustep_db2_DLL
+
+# if defined(__MINGW32__)
+  /* On Mingw, the compiler will export all symbols automatically, so
+   * __declspec(dllexport) is not needed.
+   */
+#  define GDL2ACCESS_EXPORT  extern
+#  define GDL2ACCESS_DECLARE
+# else
 #  define GDL2ACCESS_EXPORT  __declspec(dllexport)
 #  define GDL2ACCESS_DECLARE __declspec(dllexport)
+# endif
 #else
 #  define GDL2ACCESS_EXPORT  extern __declspec(dllimport)
 #  define GDL2ACCESS_DECLARE __declspec(dllimport)
@@ -42,6 +55,10 @@
 #  define GDL2ACCESS_EXPORT extern
 #  define GDL2ACCESS_DECLARE
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* __EOAccess_EODefines_h__ */

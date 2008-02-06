@@ -26,11 +26,24 @@
 #ifndef __EOModeler_EODefines_h__
 #define __EOModeler_EODefines_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef GNUSTEP_WITH_DLL
 
 #if BUILD_libEOModeler_DLL
+
+# if defined(__MINGW32__)
+  /* On Mingw, the compiler will export all symbols automatically, so
+   * __declspec(dllexport) is not needed.
+   */
+#  define GDL2MODELER_EXPORT extern
+#  define GDL2MODELER_DECLARE
+# else
 #  define GDL2MODELER_EXPORT  __declspec(dllexport)
 #  define GDL2MODELER_DECLARE __declspec(dllexport)
+# endif
 #else
 #  define GDL2MODELER_EXPORT  extern __declspec(dllimport)
 #  define GDL2MODELER_DECLARE __declspec(dllimport)
@@ -41,6 +54,10 @@
 #  define GDL2MODELER_EXPORT extern
 #  define GDL2MODELER_DECLARE
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* __EOMODELER_EODefines_h__ */

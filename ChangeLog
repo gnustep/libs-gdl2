@@ -1,3 +1,11 @@
+2008-02-06  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EODefines.h (GDL2CONTROL_EXPORT/DECLARE),
+	* EOAccess/EODefines.h (GDL2ACCESS_EXPORT/DECLARE),
+	* EOModeler/EODefines.h (GDL2MODELER_EXPORT/DECLARE): Synchronize
+	dllimport/export handling for MinGW with -base.
+	(Attempt to fix bug reported by Tim Kack)
+	
 2008-01-22  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOClassDescription.h: Avoid unnecessary include.
