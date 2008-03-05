@@ -36,11 +36,12 @@
 RCS_ID("$Id$")
 
 #ifdef GNUSTEP
-#include <Foundation/NSCoder.h>
-#include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>
-#include <Foundation/NSProcessInfo.h>
+#include <Foundation/NSCoder.h>
+#include <Foundation/NSData.h>
 #include <Foundation/NSHost.h>
+#include <Foundation/NSProcessInfo.h>
+#include <Foundation/NSString.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -95,7 +96,7 @@ NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 
 @implementation EOTemporaryGlobalID
 
-static unsigned short sequence = (unsigned short)-1;
+static unsigned short sequence = USHRT_MAX;
 
 + (EOTemporaryGlobalID *)temporaryGlobalID
 {
@@ -113,7 +114,7 @@ static unsigned short sequence = (unsigned short)-1;
 + (void)assignGloballyUniqueBytes: (unsigned char *)buffer
 {
   static int pid = 0;
-  static unsigned char ipComp[4];
+  static union { unsigned int i; unsigned char c[4]; } ipComp = { .i = 0 };
   unsigned char *bPtr;
   unsigned short seq;
   unsigned int i;
@@ -132,10 +133,26 @@ static unsigned short sequence = (unsigned short)-1;
       ipString = [[NSHost currentHost] address];
       ipComps = [ipString componentsSeparatedByString: @"."];
 
-      for (i=0;  i<4; i++)
-	{
-	  NSString *comp = [ipComps objectAtIndex: i];
-	  ipComp[i] = (unsigned char)[comp intValue];
+      if ([ipComps count] == 4)
+	{ /*IPv4*/
+	  for (i=0;  i<4; i++)
+	    {
+	      NSString *comp = [ipComps objectAtIndex: i];
+	      ipComp.c[i] = (unsigned char)[comp intValue];
+	    }
+	}
+      else
+	{ /*IPv6:
+	    This is not globaly unique since we do not utilize
+	    all available data, yet the same goes for RFC1918
+	    IPv4 addresses so this should suffice in practice. */
+	  /*According to C99 Annex J.1
+	    The value of a union member other than the last one stored into
+	    is unspecified behavior.  But -base uses this to produce hash
+	    values for NSNumber also and we are pretty much doing the same
+	    here. (also see time union).
+	   */
+	  ipComp.i = [ipString hash];
 	}
     }
 
@@ -158,14 +175,14 @@ static unsigned short sequence = (unsigned short)-1;
   buffer[6] = bPtr[2];
   buffer[7] = bPtr[3];
 
-  buffer[8]  = ipComp[0];
-  buffer[9]  = ipComp[1];
-  buffer[10] = ipComp[2];
-  buffer[11] = ipComp[3];
+  buffer[8]  = ipComp.c[0];
+  buffer[9]  = ipComp.c[1];
+  buffer[10] = ipComp.c[2];
+  buffer[11] = ipComp.c[3];
 
   if (sequence == 0)
     {
-      sequence = (unsigned short)-1;
+      sequence = USHRT_MAX;
     }
   
   EOFLOGObjectFnStop();
