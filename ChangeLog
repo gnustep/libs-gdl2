@@ -1,5 +1,10 @@
 2008-03-06  David Ayers  <ayers@fsfe.org>
 
+	* EOControl/EOFault.m ([-forward::]): Make dummy implementation.
+	([+initialize]): Adjust runtime to use NSObjects implementation
+	of -forward:: to invoke fowardInvocation.  Useful for OS X,
+	reported my Tim McIntosh.
+	
 	* EOAccess/EORelationship.m ([-setEntity:]): Modify remove
 	relatioship from previous entity and add recursion detection.
 	Add documention.

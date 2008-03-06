@@ -82,6 +82,15 @@ static Class EOFaultClass = NULL;
   // without asking if it responds to it !
   if (EOFaultClass == NULL)
     {
+      GSMethod nsfwd = GSGetMethod([NSObject class],
+				    @selector(forward::),
+				    YES,NO);
+      GSMethod eofwd = GSGetMethod(self,
+				    @selector(forward::),
+				    YES,NO);
+      eofwd->method_imp = nsfwd->method_imp;
+      GSFlushMethodCacheForClass(self);
+
       EOFaultClass = [EOFault class];
     }
 }
@@ -477,19 +486,14 @@ static Class EOFaultClass = NULL;
                NSStringFromSelector(selector)];
 }
 
-- (retval_t)forward: (SEL)selector 
+/**
+ * This method is replaced by the current implementation of NSObject.
+ */
+- (retval_t)forward: (SEL)selector
                    : (arglist_t)args
 {
-  retval_t ret;
-  NSInvocation *inv;
-
-  inv = [[[NSInvocation alloc] initWithArgframe: args
-			       selector: selector]
-	  autorelease];
-  [self forwardInvocation: inv];
-
-  ret = [inv returnFrame: args];
-
+  retval_t ret = 0;
+  NSAssert(NO,@"This should never be called (see +initialize).");
   return ret;
 }
 
