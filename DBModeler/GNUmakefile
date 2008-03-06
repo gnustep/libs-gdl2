@@ -27,6 +27,8 @@ include $(GNUSTEP_MAKEFILES)/common.make
 include ../common.make
 
 APP_NAME = DBModeler
+
+DBModeler_NEEDS_GUI = YES
 DBModeler_SUBPROJECTS=Inspectors
 
 ADDITIONAL_INCLUDE_DIRS+=-I../

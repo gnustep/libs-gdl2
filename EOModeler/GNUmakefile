@@ -32,6 +32,7 @@ include ../common.make
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOModeler
 
+EOModeler_NEEDS_GUI = YES
 # The C source files to be compiled
 EOModeler_C_FILES = 
 

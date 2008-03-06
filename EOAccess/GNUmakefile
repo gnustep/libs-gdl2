@@ -31,6 +31,9 @@ include ../common.make
 
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOAccess
+
+EOAccess_NEEDS_GUI = NO
+
 # The C source files to be compiled
 EOAccess_C_FILES = 
 

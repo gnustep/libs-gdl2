@@ -26,9 +26,11 @@
 
 include $(GNUSTEP_MAKEFILES)/common.make
 SUBPROJECT_NAME=Inspectors
+
 ADDITIONAL_INCLUDE_DIRS+=-I../../
 
-Inspectors_HAS_RESOURCE_BUNDLE=yes
+Inspectors_NEEDS_GUI=YES
+Inspectors_HAS_RESOURCE_BUNDLE=YES
 
 Inspectors_RESOURCE_FILES+=	\
 RelationshipInspector.gorm	\

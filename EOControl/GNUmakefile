@@ -32,6 +32,8 @@ include ../common.make
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOControl
 
+EOControl_NEEDS_GUI = NO
+
 # The C source files to be compiled
 EOControl_C_FILES = 
 
