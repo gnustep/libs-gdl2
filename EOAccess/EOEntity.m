@@ -387,7 +387,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 	      }
           }
 
-          [self setCreateMutableObjects: NO]; //?? TC say no, mirko yes
           _flags.updating = NO;
         }  
     }
@@ -566,7 +565,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
     {
       _attributes = [NSMutableArray new];
       _subEntities = [NSMutableArray new];
-      [self setCreateMutableObjects: YES];
+      _relationships = [NSMutableArray new];
     }
 
   return self;
@@ -1784,11 +1783,7 @@ createInstanceWithEditingContext:globalID:zone:
 	    [(EOEntity *)[attribute parent] name]);
   
   [self willChange]; 
-  if ([self createsMutableObjects])
-    [_attributes addObject: attribute];
-  else
-    _attributes 
-      = RETAIN([AUTORELEASE(_attributes) arrayByAddingObject: attribute]);
+  [_attributes addObject: attribute];
 
   if (_attributesByName == nil)
     {
@@ -1815,45 +1810,10 @@ createInstanceWithEditingContext:globalID:zone:
       [attribute setParent: nil];
       NSEmitTODO();  //TODO
 
-      //TODO
-      if ([self createsMutableObjects])
-        {
-	  [_attributes removeObject: attribute];
+      [_attributes removeObject: attribute];
+      [_classProperties removeObject:attribute]; 
+      [_primaryKeyAttributes removeObject:attribute];
 
-	  [_classProperties removeObject:attribute]; 
-	  [_primaryKeyAttributes removeObject:attribute];
-	}
-      else
-        {
-          _attributes
-	    = [[NSMutableArray alloc] initWithArray:AUTORELEASE(_attributes)
-				      copyItems:NO];
-	  [_attributes removeObject: attribute];
-	  _attributes 
-	    = [[NSArray alloc] initWithArray:AUTORELEASE(_attributes)
-			       copyItems:NO];
-	  if ([_classProperties containsObject:attribute])
-	    {
-	      _classProperties = [[NSMutableArray alloc]
-				    initWithArray:AUTORELEASE(_classProperties)
-					copyItems:NO];
-	      [_classProperties removeObject: attribute];
-	      _classProperties = [[NSArray alloc]
-		  		    initWithArray:AUTORELEASE(_classProperties)
-					copyItems:NO];
-	    }
-	  if ([_primaryKeyAttributes containsObject:attribute])
-	    {
-              _primaryKeyAttributes = [[NSMutableArray alloc]
-                               initWithArray:AUTORELEASE(_primaryKeyAttributes)
-                                   copyItems:NO];
-              [_primaryKeyAttributes removeObject: attribute];
-              _primaryKeyAttributes = [[NSArray alloc]
-                               initWithArray:AUTORELEASE(_primaryKeyAttributes)
-                                   copyItems:NO]; 
-	    }
-
-        }
       // in _setIsEdited _attributesByName isn't cleared do it here??
       [_attributesByName removeObjectForKey: [attribute name]];
       // _classProperty*Names is cleared
@@ -1883,11 +1843,7 @@ createInstanceWithEditingContext:globalID:zone:
                  relationshipName];
 
   [self willChange];
-  if ([self createsMutableObjects])
-    [_relationships addObject: relationship];
-  else
-    _relationships = RETAIN([AUTORELEASE(_relationships)
-					arrayByAddingObject: relationship]);
+  [_relationships addObject: relationship];
     
   if (_relationshipsByName == nil)
     {
@@ -1914,28 +1870,10 @@ createInstanceWithEditingContext:globalID:zone:
 
       if(_relationshipsByName != nil)
 	[_relationshipsByName removeObjectForKey:[relationship name]];
-      if ([self createsMutableObjects])
-	{
-	  [_relationships removeObject: relationship];
-	  [_classProperties removeObject: relationship];
-	}
-      else
-        {
-          _relationships
-	    = [[NSMutableArray alloc] initWithArray:AUTORELEASE(_relationships)
-				      copyItems:NO];
-	  [_relationships removeObject: relationship];
-	  _relationships
-	    = [[NSArray alloc] initWithArray:AUTORELEASE(_relationships)
-			       copyItems:NO];
-	  _classProperties = [[NSMutableArray alloc]
-		  		initWithArray:AUTORELEASE(_classProperties)
-				    copyItems:NO];
-	  [_classProperties removeObject: relationship];
-	  _classProperties = [[NSArray alloc]
-		  		initWithArray:AUTORELEASE(_classProperties)
-		  		    copyItems:NO];
-        }
+
+      [_relationships removeObject: relationship];
+      [_classProperties removeObject: relationship];
+
       /* We call this after adjusting the arrays so that setEntity: has
 	 the opportunity to check the relationships before calling
 	 removeRelationshipt which would lead to an infinite loop.  */
@@ -2430,49 +2368,6 @@ createInstanceWithEditingContext:globalID:zone:
 {
   [self notImplemented:_cmd];
   return NO; // TODO
-}
-
-- (void) setCreateMutableObjects: (BOOL)flag
-{
-  if (_flags.createsMutableObjects == flag)
-    {
-      return;
-    }
-  _flags.createsMutableObjects = flag;
-
-//TODO  NSEmitTODO();
-
-  if (_flags.createsMutableObjects)
-    {
-      _attributes
-	= [[NSMutableArray alloc] initWithArray:AUTORELEASE(_attributes)
-				  copyItems:NO];
-      _relationships
-	= [[NSMutableArray alloc] initWithArray:AUTORELEASE(_relationships)
-				  copyItems:NO];
-    }
-  else
-    {
-      _attributes
-	= [[NSArray alloc] initWithArray:AUTORELEASE(_attributes)
-			   copyItems:NO];
-      _relationships
-	= [[NSArray alloc] initWithArray:AUTORELEASE(_relationships)
-			   copyItems:NO];
-    }
-
-  NSAssert4(!_attributesToFetch
-	    || [_attributesToFetch isKindOfClass: [NSArray class]],
-            @"entity %@ attributesToFetch %p is not an NSArray but a %@\n%@",
-            [self name],
-            _attributesToFetch,
-            [_attributesToFetch class],
-            _attributesToFetch);
-}
-
-- (BOOL) createsMutableObjects
-{
-  return _flags.createsMutableObjects;
 }
 
 /* throws an exception if _model is not nil, and the model argument is not

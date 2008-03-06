@@ -64,10 +64,6 @@
 -(id <NSMenuItem>) addItemWithTitle: (NSString *)s  action: (SEL)sel;
 @end
 
-@interface EOModel (foo)
--(void)setCreatesMutableObjects:(BOOL)flag;
-@end
-
 @implementation NSMenu (im_lazy)
 -(id <NSMenuItem>) addItemWithTitle: (NSString *)s
 {

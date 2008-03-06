@@ -71,7 +71,7 @@
   //NSMutableDictionary *_prototypesByName;
   struct
   {
-    BOOL createsMutableObjects:1;
+    BOOL unused:1;
     BOOL errors:1;
   } _flags;
 }

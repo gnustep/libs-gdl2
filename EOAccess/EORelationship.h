@@ -76,7 +76,7 @@ typedef enum {
     unsigned int isMandatory:1;
     unsigned int ownsDestination:1;
     unsigned int propagatesPrimaryKey:1;
-    unsigned int createsMutableObjects:1;
+    unsigned int unused:1;
     unsigned int isBidirectional:1;
     unsigned int extraRefCount:23;
   } _flags;
@@ -194,8 +194,6 @@ typedef enum {
 
 - (id)propertyList;*/
 
-- (void)setCreateMutableObjects: (BOOL)flag;
-- (BOOL)createsMutableObjects;
 - (void)setInverseRelationship: (EORelationship *)relationship;
 @end /* EORelationship (EORelationshipPrivate) */
 

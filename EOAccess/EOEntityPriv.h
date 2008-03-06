@@ -41,9 +41,6 @@ GDL2ACCESS_EXPORT void GDL2DestinationEntitiesRemoveRelationship(EOEntity *entit
 
 - (BOOL)isPrototypeEntity;
 
-- (void)setCreateMutableObjects: (BOOL)flag;
-- (BOOL)createsMutableObjects;
-
 - (void)_setModel: (EOModel *)model;
 - (void)_setParentEntity: (EOEntity *)parent;
 

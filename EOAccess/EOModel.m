@@ -87,8 +87,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 + (NSString *) _formatModelPath: (NSString *)path checkFileSystem: (BOOL)chkFS;
 
-- (void) setCreateMutableObjects: (BOOL)flag;
-- (BOOL) createsMutableObjects;
 - (EOEntity *) _verifyBuiltEntityObject: (id)entity
                                   named: (NSString *)name;
 
@@ -208,7 +206,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     {
       // Turbocat
       _version = DEFAULT_MODEL_VERSION;
-      _flags.createsMutableObjects = YES;
       
       _entitiesByName = [NSMutableDictionary new];
       _entitiesByClass = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, 
@@ -908,7 +905,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
           propListSt = [propertyList objectForKey: @"storedProcedures"];
       
           _flags.errors = NO;
-          [self setCreateMutableObjects: YES];
       
           count = [propListEntities count];
           for (i = 0; i < count; i++)
@@ -993,8 +989,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
               while ((sp = [enumerator nextObject]))
                 [sp awakeWithPropertyList: [markSP objectForKey: [sp name]]];
             }
-  
-          [self setCreateMutableObjects: NO];
         }
     }
   NS_HANDLER
@@ -1444,16 +1438,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 	    [entity name], [[entity model] name]);
 
   [self willChange];
+  
   /* Do not access _entities until cache is triggered */
-  if ([self createsMutableObjects])
-    [(NSMutableArray *)[self entities] addObject: entity];
-  else
-    {
-      id e = [NSMutableArray arrayWithArray: [self entities]];
-
-      [e addObject: entity];
-      ASSIGNCOPY(_entities, e);
-    }
+  [(NSMutableArray *)[self entities] addObject: entity];
 
   NSAssert(_entitiesByClass, @"No _entitiesByClass");
 
@@ -1486,15 +1473,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSMapRemove(_entitiesByClass, className);
 
   /* Do not access _entities until cache is triggered */
-  if ([self createsMutableObjects])
-    [(NSMutableArray *)[self entities] removeObject: entity];
-  else
-    {
-      id e = [NSMutableArray arrayWithArray: [self entities]];
-
-      [e removeObject: entity];
-      ASSIGNCOPY(_entities, e);
-    }
+  [(NSMutableArray *)[self entities] removeObject: entity];
 }
 
 - (void) removeEntityAndReferences: (EOEntity *)entity
@@ -1514,12 +1493,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
                  [storedProcedure name]];
   NSAssert(_storedProcedures, @"Uninitialised _storedProcedures!");
   [self willChange];
-  if ([self createsMutableObjects])
-    [(NSMutableArray *)_storedProcedures addObject: storedProcedure];
-  else
-    {
-      _storedProcedures = RETAIN([AUTORELEASE(_storedProcedures) arrayByAddingObject:storedProcedure]);
-    }
+  [(NSMutableArray *)_storedProcedures addObject: storedProcedure];
 }
 
 - (void)removeStoredProcedure: (EOStoredProcedure *)storedProcedure
@@ -1527,16 +1501,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSAssert(_storedProcedures, @"Uninitialised _storedProcedures!");
 
   [self willChange];
-  if ([self createsMutableObjects])
-    [(NSMutableArray *)_storedProcedures removeObject: storedProcedure];
-  else
-    {
-      NSMutableArray *mCopy = AUTORELEASE([_storedProcedures mutableCopy]);
-      [mCopy removeObject: storedProcedure];
-      mCopy = AUTORELEASE([[NSArray alloc] initWithArray: mCopy
-					   copyItems: NO]);
-      ASSIGN(_storedProcedures, mCopy);
-    }
+  [(NSMutableArray *)_storedProcedures removeObject: storedProcedure];
 }
 
 - (void) setModelGroup: (EOModelGroup *)group
@@ -1740,33 +1705,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
 
   return returnPath;
-}
-
-- (void) setCreateMutableObjects: (BOOL)flag
-{
-  if (_flags.createsMutableObjects != flag)
-    {
-      NSArray *entityArray = [self entities];
-      _flags.createsMutableObjects = flag;
-      
-      /* Do not access _entities until cache is triggered */
-      if (_flags.createsMutableObjects)
-	{
-	  entityArray = [[NSMutableArray alloc] initWithArray: entityArray
-						copyItems:NO];
-	}
-      else
-	{
-	  entityArray = [[NSArray alloc] initWithArray: entityArray
-					 copyItems:NO];
-	}
-      ASSIGN(_entities, entityArray);
-    }
-}
-
-- (BOOL) createsMutableObjects
-{
-  return _flags.createsMutableObjects;
 }
 
 - (EOEntity *) _verifyBuiltEntityObject: (id)entity

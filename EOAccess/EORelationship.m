@@ -95,12 +95,14 @@ RCS_ID("$Id$")
 //OK
   if ((self = [super init]))
     {
-/*      _sourceNames = [NSMutableDictionary new];
+      /*
+      _sourceNames = [NSMutableDictionary new];
       _destinationNames = [NSMutableDictionary new];
       _userInfo = [NSDictionary new];
       _sourceToDestinationKeyMap = [NSDictionary new];
+      */
       _joins = [NSMutableArray new];
-*/
+
     }
 
   return self;
@@ -146,7 +148,6 @@ RCS_ID("$Id$")
 
       [self setName: relationshipName]; 
       [self setEntity: owner];
-      [self setCreateMutableObjects: YES];
 
       destinationEntityName = [propertyList objectForKey: @"destination"];
 
@@ -373,8 +374,6 @@ RCS_ID("$Id$")
       [self notImplemented:_cmd]; // TODO
     };
   */
-
-  [self setCreateMutableObjects: NO]; //?? tc say yes, mirko no
 
   EOFLOGObjectFnStop();
 }
@@ -1046,7 +1045,7 @@ relationships. Nil if none" **/
   EORelationship *inverseRelationship;
   NSString *name;
   NSArray *joins = nil;
-  int i, count;
+  unsigned int i, count;
 
   EOFLOGObjectFnStart();
 
@@ -1508,37 +1507,13 @@ relationships. Nil if none" **/
                 EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 				      _joins, [_joins class]);
 
-                if ([self createsMutableObjects])
-                  {
-                    if (!_joins)
-                      _joins = [NSMutableArray new];
+                if (!_joins)
+                  _joins = [NSMutableArray new];
 
-                    [(NSMutableArray *)_joins addObject: join];      
+                [(NSMutableArray *)_joins addObject: join];      
 
-                    EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
+                EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 					  _joins, [_joins class]);
-
-                  }
-                else
-                  {
-                    if (_joins)
-                      _joins = RETAIN([[_joins autorelease]
-				  arrayByAddingObject: join]);
-                    else
-                      _joins = RETAIN([NSArray arrayWithObject: join]);
-
-                    EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-					  _joins, [_joins class]);
-
-                    /*NO: will be recomputed      _sourceAttributes = [[[_sourceAttributes autorelease]
-                      arrayByAddingObject:[join sourceAttribute]]
-                      retain];
-                      _destinationAttributes = [[[_destinationAttributes autorelease]
-                      arrayByAddingObject:
-                      [join destinationAttribute]]
-                      retain];
-                    */
-                  }
 
                 EOFLOGObjectLevel(@"EORelationship", @"added");
 
@@ -1567,9 +1542,7 @@ relationships. Nil if none" **/
   else
     {
       [self willChange];
-      if ([self createsMutableObjects])
-        {
-          [(NSMutableArray *)_joins removeObject: join];
+      [(NSMutableArray *)_joins removeObject: join];
 
           /*NO: will be recomputed      [(NSMutableArray *)_sourceAttributes
             removeObject:[join sourceAttribute]];
@@ -1577,34 +1550,8 @@ relationships. Nil if none" **/
             removeObject:[join destinationAttribute]];
           */
 
-          EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
+      EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 		       _joins, [_joins class]);
-        }
-      else
-        {
-	  NSMutableArray	*ma = [_joins mutableCopy];
-	  NSArray		*a = _joins;
-	  
-	  [ma removeObject: join];
-	  _joins = ma;
-          [a release];
-
-          EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-				_joins, [_joins class]);
-
-          /*NO: will be recomputed
-            _sourceAttributes = [[_sourceAttributes autorelease] mutableCopy];
-            [(NSMutableArray *)_sourceAttributes
-            removeObject:[join sourceAttribute]];
-            _sourceAttributes = [[_sourceAttributes autorelease] copy];
-      
-            _destinationAttributes = [[_destinationAttributes autorelease]
-            mutableCopy];
-            [(NSMutableArray *)_destinationAttributes
-            removeObject:[join destinationAttribute]];
-            _destinationAttributes = [[_destinationAttributes autorelease] copy];
-          */
-        }
 
       [self _joinsChanged];
       /* Ayers: Not sure what justifies this. */
@@ -1737,48 +1684,6 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 @end
 
 @implementation EORelationship (EORelationshipPrivate)
-
-- (void)setCreateMutableObjects: (BOOL)flag
-{
-  if (_flags.createsMutableObjects != flag)
-    {
-      _flags.createsMutableObjects = flag;
-
-      if (_flags.createsMutableObjects)
-        {
-          _joins = [[_joins autorelease] mutableCopy];
-
-          EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-		       _joins, [_joins class]);
-
-          DESTROY(_sourceAttributes);
-          DESTROY(_destinationAttributes);
-          /*Will be recomputed later      _sourceAttributes = [[_sourceAttributes autorelease] mutableCopy];
-            _destinationAttributes = [[_destinationAttributes autorelease]
-            mutableCopy];
-          */
-        }
-      else
-        {
-          _joins = [[NSArray alloc] initWithArray:[_joins autorelease] copyItems:NO];
-
-          EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-		       _joins, [_joins class]);
-
-          DESTROY(_sourceAttributes);
-          DESTROY(_destinationAttributes);
-
-          /*Will be recomputed later      _sourceAttributes = [[_sourceAttributes autorelease] copy];
-            _destinationAttributes = [[_destinationAttributes autorelease] copy];
-          */
-        }
-    }
-}
-
-- (BOOL)createsMutableObjects
-{
-  return _flags.createsMutableObjects;
-}
 
 /* TODO this method should probably be private. */
 - (void)setInverseRelationship: (EORelationship*)relationship

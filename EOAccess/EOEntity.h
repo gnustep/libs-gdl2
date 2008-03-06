@@ -116,8 +116,7 @@
     unsigned int isAbstractEntity:1;
     unsigned int updating:1;
     unsigned int cachesObjects:1;
-
-    unsigned int createsMutableObjects:1;
+    unsigned int unused:1;
 
     unsigned int extraRefCount:22;
   } _flags;
