@@ -324,6 +324,8 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
 			{
 			  const char *text;
 			  text = (const char*)sqlite3_column_text(_currentStmt, i);
+			  if (text == NULL) text = "0";
+
 			  values[i] = newNumberValue(text, attr);
 			}
 			break;

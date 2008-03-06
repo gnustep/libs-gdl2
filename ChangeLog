@@ -7,6 +7,9 @@
 	* EOAccess/EORelationship.h/m: Remove setCreateMutableObjects: and
 	createsMutableObjects.
 
+	* EOAdaptors/SQLiteAdaptor/SQLiteChannel.m: Handle a null number
+	value as the string "0".
+
 2008-03-06  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOFault.m ([-forward::]): Make dummy implementation.
