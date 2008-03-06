@@ -1908,13 +1908,9 @@ createInstanceWithEditingContext:globalID:zone:
  */
 - (void)removeRelationship: (EORelationship *)relationship
 {
-  NSEmitTODO();  //TODO
-
-  //TODO
   if (relationship)
     {
       [self willChange]; 
-      [relationship setEntity:nil];
 
       if(_relationshipsByName != nil)
 	[_relationshipsByName removeObjectForKey:[relationship name]];
@@ -1940,6 +1936,10 @@ createInstanceWithEditingContext:globalID:zone:
 		  		initWithArray:AUTORELEASE(_classProperties)
 		  		    copyItems:NO];
         }
+      /* We call this after adjusting the arrays so that setEntity: has
+	 the opportunity to check the relationships before calling
+	 removeRelationshipt which would lead to an infinite loop.  */
+      [relationship setEntity:nil];
       [self _setIsEdited];//To clean caches
     }
 }

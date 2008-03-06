@@ -1302,6 +1302,15 @@ relationships. Nil if none" **/
   EOFLOGObjectFnStop();
 }
 
+/**
+ * <p>Sets the entity of the reciever.</p>
+ * <p>If the receiver already has an entity assigned to it the old relationship
+ * will will be removed first.</p>
+ * <p>This method is used by [EOEntity-addRelationship:] and
+ * [EOEntity-removeRelationship:] which should be used for general relationship
+ * manipulations.  This method should only be useful
+ * when creating flattend relationships programmatically.</p>
+ */
 - (void)setEntity: (EOEntity *)entity
 {
   //OK
@@ -1309,13 +1318,26 @@ relationships. Nil if none" **/
     {
       [self _flushCache];
       [self willChange];
-      /* FIXME docs say we should... but currently -removeRelationship 
-       * calls us, so it would cause an infinite loop */
-      // [_entity removeRelationship:self];
-      [_entity _setIsEdited];
-      [entity _setIsEdited];
+
+      if (_entity)
+	{
+	  NSString *relationshipName;
+	  EORelationship *relationship;
+
+	  /* Check if we are still in the entities arrays to
+	     avoid recursive loop when removeRelationship:
+	     calls this method.  */
+	  relationshipName = [self name];
+	  relationship = [_entity relationshipNamed: relationshipName];
+          if (self == relationship)
+	    {
+	      [_entity removeRelationship: self];
+	    }
+	}
       _entity = entity;
     }
+  /* This method is used by EOEntity's remove/addRelatinship: and is not
+     responsible for calling _setIsEdited on the entity.  */
 }
 
 - (void)setUserInfo: (NSDictionary *)dictionary

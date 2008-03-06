@@ -1,3 +1,11 @@
+2008-03-06  David Ayers  <ayers@fsfe.org>
+
+	* EOAccess/EORelationship.m ([-setEntity:]): Modify remove
+	relatioship from previous entity and add recursion detection.
+	Add documention.
+	* EOAccess/EOEntity.m ([-removeRelationship:]): Move call
+	to [EORelationship-setEntity:] to allow recursion detection.
+	
 2008-03-05  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOKeyGlobalID.m ([+assignGloballyUniqueBytes:]):
