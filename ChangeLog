@@ -1,3 +1,8 @@
+2008-03-07  Matt Rice  <ratmice@gmail.com>
+
+	* Documentation/GDL2Intro/Examples/GNUmakefile: Link in EOAccess and
+	EOControl to reflect changes to gdl2.make.
+
 2008-03-06  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/Modeler.m,
