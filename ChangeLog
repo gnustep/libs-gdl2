@@ -1,3 +1,8 @@
+2008-03-07  Matt Rice  <ratmice@gmail.com>
+
+	* EOAccess/EORelationship.m (_makeInverseRelationship):  Call
+	-setEntity: last to avoid unwanted calls to entity -_setIsEdited.
+
 2008-03-07  Tim McIntosh  <tmcintos@avalon.net>
 
 	* EOControl/EOFault.m ([+initialize]): Handle runtimes

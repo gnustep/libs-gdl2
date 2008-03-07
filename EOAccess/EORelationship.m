@@ -1052,7 +1052,6 @@ relationships. Nil if none" **/
   NSAssert(![self isFlattened], @"Flatten Relationship");
 
   inverseRelationship = [[EORelationship new] autorelease];
-  [inverseRelationship setEntity: _destination];
 
   name = [NSString stringWithFormat: @"_eofInv_%@_%@",
 		   [_entity name],
@@ -1085,6 +1084,8 @@ relationships. Nil if none" **/
 
   [inverseRelationship setInverseRelationship: self];
 
+  /* call this last to avoid calls to [_destination _setIsEdited] */
+  [inverseRelationship setEntity: _destination];
   EOFLOGObjectFnStop();
 
   return inverseRelationship;
