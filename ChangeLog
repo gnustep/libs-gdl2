@@ -1,3 +1,9 @@
+2008-03-07  Tim McIntosh  <tmcintos@avalon.net>
+
+	* EOControl/EOFault.m ([+initialize]): Handle runtimes
+	that do not implement forward:: on NSObject.
+	([-forward]): Update comment.
+	
 2008-03-07  Matt Rice  <ratmice@gmail.com>
 
 	* Documentation/GDL2Intro/Examples/GNUmakefile: Link in EOAccess and

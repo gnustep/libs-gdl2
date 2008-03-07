@@ -85,11 +85,14 @@ static Class EOFaultClass = NULL;
       GSMethod nsfwd = GSGetMethod([NSObject class],
 				    @selector(forward::),
 				    YES,NO);
-      GSMethod eofwd = GSGetMethod(self,
-				    @selector(forward::),
-				    YES,NO);
-      eofwd->method_imp = nsfwd->method_imp;
-      GSFlushMethodCacheForClass(self);
+      if (nsfwd != NULL)
+        {
+          GSMethod eofwd = GSGetMethod(self,
+                                        @selector(forward::),
+                                        YES,NO);
+          eofwd->method_imp = nsfwd->method_imp;
+          GSFlushMethodCacheForClass(self);
+        }
 
       EOFaultClass = [EOFault class];
     }
@@ -487,7 +490,10 @@ static Class EOFaultClass = NULL;
 }
 
 /**
- * This method is replaced by the current implementation of NSObject.
+ * This method is replaced by the current implementation of NSObject (if any).
+ *
+ * It is assumed that this method will not be called if NSObject does not
+ * implement it.
  */
 - (retval_t)forward: (SEL)selector
                    : (arglist_t)args
