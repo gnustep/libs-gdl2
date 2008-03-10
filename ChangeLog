@@ -22,6 +22,11 @@
 	* EOAccess/EORelationship.m (-setIsToMany): Test if the flag actually
 	changes.  Call -_setIsEdited.
 
+	* TODO: Add an item.
+	* DBModeler/Inspectors/RelationshipInspector.m: Fix row index check.
+	* DBModeler/Inspectors/GNUmakefile: Use lower case in
+	HAS_RESOURCE_BUNDLES.
+
 2008-03-07  Matt Rice  <ratmice@gmail.com>
 
 	* EOAccess/EORelationship.m (_makeInverseRelationship):  Call

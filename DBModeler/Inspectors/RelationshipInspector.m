@@ -46,7 +46,7 @@
   int row = [destEntity_tableView selectedRow];
   NSArray *entities = [[[EOMApp activeDocument] model] entities];
   
-  if (row == -1 || row == NSNotFound || row > [entities count])
+  if (row == -1 || row == NSNotFound || row >= [entities count])
     return nil;
   
   return [[[[EOMApp activeDocument] model] entities] objectAtIndex:row];
@@ -57,11 +57,10 @@
   int row = [destAttrib_tableView selectedRow];
   NSArray *attribs = [[self selectedEntity] attributes];
   
-  if (row == -1 || row == NSNotFound || row > [attribs count])
+  if (row == -1 || row == NSNotFound || row >= [attribs count])
     return nil;
   
-  return [[[self selectedEntity] attributes]
-	  	objectAtIndex:[destAttrib_tableView selectedRow]];
+  return [attribs objectAtIndex:[destAttrib_tableView selectedRow]];
 }
 
 - (EOAttribute *)selectedSourceAttribute
@@ -69,7 +68,7 @@
   int row = [srcAttrib_tableView selectedRow];
   NSArray *attribs = [[[self selectedObject] entity] attributes];
   
-  if (row == -1 || row == NSNotFound || row > [attribs count])
+  if (row == -1 || row == NSNotFound || row >= [attribs count])
     return nil;
   
   return [attribs objectAtIndex:[srcAttrib_tableView selectedRow]];

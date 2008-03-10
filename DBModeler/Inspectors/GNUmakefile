@@ -30,7 +30,7 @@ SUBPROJECT_NAME=Inspectors
 ADDITIONAL_INCLUDE_DIRS+=-I../../
 
 Inspectors_NEEDS_GUI=YES
-Inspectors_HAS_RESOURCE_BUNDLE=YES
+Inspectors_HAS_RESOURCE_BUNDLE=yes
 
 Inspectors_RESOURCE_FILES+=	\
 RelationshipInspector.gorm	\
