@@ -1,3 +1,27 @@
+2008-03-10  Matt Rice  <ratmice@gmail.com>
+	
+	* EOAccess/EOAttribute.m (-setname:): Remove call to
+	-_attributeNameChangedFrom:to:.
+	* EOAccess/EOEntityPriv.h: Remove -_attributeNameChangedFrom:to:.
+	* EOAccess/EOEntity.m (-attributes:): Don't handle both arrays of
+	plists and arrays of EOAttributes in lazy loading code.  Remove some
+	logging, and assertions.
+	(-attributes:): Don't handle both arrays of
+	plists and arrays of EORelationships in lazy loading code, and
+	don't clear the cache. Remove some logging and assertions.
+	(-classProperties:): Fix warning.
+	(-addAttribute:): Don't create _attributesByName as _setIsEdited:
+	will set it to nil.
+	(-removeAttribute:): Remove uneccessary call to -removeObjectForKey:.
+	(-_setIsEdited:): Don't set _relationshipsIsLazy flag, and clean
+	_attributesByName cache.
+	(-_attributesNameChangedFrom:to:): Remove.
+	(-attributesByName): Don't call -attributes unless _attributesIsLazy.
+	recreate _attributesByName.
+	(-relationshipsByName): Ditto for _relationshipsByName.
+	* EOAccess/EORelationship.m (-setIsToMany): Test if the flag actually
+	changes.  Call -_setIsEdited.
+
 2008-03-07  Matt Rice  <ratmice@gmail.com>
 
 	* EOAccess/EORelationship.m (_makeInverseRelationship):  Call

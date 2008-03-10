@@ -808,7 +808,6 @@ RCS_ID("$Id$")
       if (_flags.isParentAnEOEntity)
 	{
 	  [_parent _setIsEdited];
-	  [_parent _attributeNameChangedFrom: oldName to: name];
 	}
     }
 

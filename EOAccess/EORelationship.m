@@ -1230,8 +1230,12 @@ relationships. Nil if none" **/
                  NSStringFromClass([self class]),
                  self];
 
-  [self willChange];
-  _flags.isToMany = flag;
+  if (_flags.isToMany != flag)
+    {
+      [self willChange];
+      [_entity _setIsEdited];
+      _flags.isToMany = flag;
+    }
 }
 
 - (void)setName: (NSString *)name

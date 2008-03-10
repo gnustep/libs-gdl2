@@ -87,7 +87,6 @@ GDL2ACCESS_EXPORT void GDL2DestinationEntitiesRemoveRelationship(EOEntity *entit
 - (EOMKKDInitializer *)_propertyDictionaryInitializer;
 - (EOMKKDInitializer *)_instanceDictionaryInitializer;
 - (void)_setIsEdited;
-- (void)_attributeNameChangedFrom: (NSString *)oldName to: (NSString *)newName;
 - (NSArray *)_classPropertyAttributes;
 
 - (Class)classForObjectWithGlobalID: (EOKeyGlobalID *)globalID;

@@ -756,12 +756,6 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
           _attributes = [NSMutableArray new];
           _attributesByName = [NSMutableDictionary new];
 
-          NSAssert2((!_attributesByName
-		     || [_attributesByName isKindOfClass: GDL2_NSDictionaryClass]),
-                    @"_attributesByName is not a NSDictionary but a %@. _attributesByName [%p]",
-                    [_attributesByName class],
-                    _attributesByName);
-
           if (!_flags.relationshipsIsLazy)
             relationshipsByName = [self relationshipsByName];
 
@@ -780,9 +774,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
                   EOAttribute *attribute = nil;
                   NSString *attributeName = nil;
 		  
-		  attribute = [attrPList isKindOfClass: GDL2_EOAttributeClass]
-		    ? attrPList
-		    : [EOAttribute attributeWithPropertyList: attrPList
+		  attribute = [EOAttribute attributeWithPropertyList: attrPList
 				   owner: self];
 		  attributeName = [attribute name];
 
@@ -792,6 +784,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 
 		  /* We just created this dictionary so the ivar is
 		     initialized.  */
+		  // FIXME -validatename instead? or checks for invalid name
                   if ([_attributesByName objectForKey: attributeName])
                     {
                       [NSException raise: NSInvalidArgumentException
@@ -812,66 +805,16 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
                                    attributeName];
                     }
 
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"Add attribute: %@",
-					attribute);
-
                   [_attributes addObject: attribute];
                   [_attributesByName setObject: attribute
 				     forKey: attributeName];
                 }
 
-              EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesByName class=%@",
-				    [_attributesByName class]);
-              NSAssert2((!_attributesByName
-			 || [_attributesByName isKindOfClass:
-						 [NSDictionary class]]),
-                        @"_attributesByName is not a NSDictionary but a %@. _attributesByName [%p]",
-                        [_attributesByName class],
-                        _attributesByName);
-
-              EOFLOGObjectLevelArgs(@"EOEntity", @"_attributes [%p]=%@",
-				    _attributes, _attributes);
-              EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesByName class=%@",
-				    [_attributesByName class]);
-              EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesByName [%p]",
-				    _attributesByName);
-              EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesByName class=%@",
-				    [_attributesByName class]);
-              //TODO[self _setIsEdited];//To Clean Buffers
-              EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesByName [%p]",
-				    _attributesByName);
-              EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesByName class=%@",
-				    [_attributesByName class]);
-
-              NSAssert2((!_attributesByName
-			 || [_attributesByName isKindOfClass:
-						 [NSDictionary class]]),
-                        @"_attributesByName is not a NSDictionary but a %@. _attributesByName [%p]",
-                        [_attributesByName class],
-                        _attributesByName);
-
               attrNames = [_attributes resultsOfPerformingSelector:
 					 @selector(name)];
-              NSAssert2((!_attributesByName
-			 || [_attributesByName isKindOfClass:
-						 [NSDictionary class]]),
-                        @"_attributesByName is not a NSDictionary but a %@. _attributesByName [%p]",
-                        [_attributesByName class],
-                        _attributesByName);
-
-              EOFLOGObjectLevelArgs(@"EOEntity", @"attrNames [%p]=%@",
-				    attrNames, attrNames);
-
               count = [attrNames count];
-              EOFLOGObjectLevelArgs(@"EOEntity", @"self=%p Attributes count=%d",
-				    self, count);
               NSAssert(count == [attributePLists count],
 		       @"Error during attribute creations");
-              EOFLOGObjectLevelArgs(@"EOEntity", @"attributePLists=%@",
-				    attributePLists);
-              EOFLOGObjectLevelArgs(@"EOEntity", @"self=%p attributePLists count=%d",
-				    self, [attributePLists count]);
-
 	      {
                 int pass = 0;
 
@@ -889,8 +832,6 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 					      attrName);
 			
 			attrPList = [attributePLists objectAtIndex: i];
-			if ([attrPList isKindOfClass: GDL2_EOAttributeClass])
-			  continue;
 			definition = [attrPList objectForKey: @"definition"];
                         if ((pass == 0 && definition == nil)
 			    || (pass == 1 && definition != nil))
@@ -908,12 +849,6 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
                       }
                   }
               }
-              NSAssert2((!_attributesByName
-			 || [_attributesByName isKindOfClass:
-						 [NSDictionary class]]),
-                        @"_attributesByName is not a NSDictionary but a %@. _attributesByName [%p]",
-                        [_attributesByName class],
-                        _attributesByName);
             }
           NS_HANDLER
             {
@@ -1016,12 +951,6 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
           if (!_flags.attributesIsLazy)
             {
               attributesByName = [self attributesByName];
-              NSAssert2((!attributesByName
-			 || [attributesByName isKindOfClass:
-						[NSDictionary class]]),
-                        @"attributesByName is not a NSDictionary but a %@. attributesByName [%p]",
-                        [attributesByName class],
-                        attributesByName);
             }
 
           _flags.relationshipsIsLazy = NO;
@@ -1039,12 +968,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
                   EORelationship *relationship = nil;
                   NSString *relationshipName = nil;
 
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"attrPList: %@",
-					attrPList);
-
-                  relationship=[attrPList isKindOfClass: [EORelationship class]]
-			       ? attrPList 
-			       : [EORelationship
+                  relationship= [EORelationship
 				     relationshipWithPropertyList: attrPList
 				     owner: self];
 
@@ -1053,6 +977,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
                   EOFLOGObjectLevelArgs(@"EOEntity", @"relationshipName: %@",
 					relationshipName);
 
+		  // FIXME -validatename instead (also checks for invalid name)
                   if ([attributesByName objectForKey: relationshipName])
                     {
                       [NSException raise: NSInvalidArgumentException
@@ -1085,7 +1010,6 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 
               EOFLOGObjectLevel(@"EOEntity", @"Rels added");
 
-              [self _setIsEdited];//To Clean Buffers
               relNames = [_relationships
 			   resultsOfPerformingSelector: @selector(name)];
 
@@ -1219,7 +1143,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
               NSString *classPropertyName = [classPropertiesList
 					      objectAtIndex: i];
 #else
-              NSString *classPropertyName = (
+              id classPropertyName = (
        [[classPropertiesList objectAtIndex:i] isKindOfClass:[NSString class]] ?
         [classPropertiesList objectAtIndex:i] :
         [(EOEntity *)[classPropertiesList objectAtIndex: i] name]);
@@ -1784,13 +1708,6 @@ createInstanceWithEditingContext:globalID:zone:
   
   [self willChange]; 
   [_attributes addObject: attribute];
-
-  if (_attributesByName == nil)
-    {
-      _attributesByName = [NSMutableDictionary new];
-    }
-  [_attributesByName setObject: attribute forKey: attributeName];
-
   [self _setIsEdited]; //To clean caches
   [attribute setParent: self];
 }
@@ -1814,10 +1731,6 @@ createInstanceWithEditingContext:globalID:zone:
       [_classProperties removeObject:attribute]; 
       [_primaryKeyAttributes removeObject:attribute];
 
-      // in _setIsEdited _attributesByName isn't cleared do it here??
-      [_attributesByName removeObjectForKey: [attribute name]];
-      // _classProperty*Names is cleared
-      // _primaryKeyAttributeNames is cleared
       [self _setIsEdited];//To clean caches
     }
 }
@@ -2608,7 +2521,7 @@ createInstanceWithEditingContext:globalID:zone:
                         _relationshipsByName,
                         (_relationshipsByName ? "Not NIL" : "NIL"));
   AUTORELEASE_SETNIL(_relationshipsByName);
-  _flags.relationshipsIsLazy = YES;
+  AUTORELEASE_SETNIL(_attributesByName);
 
   //TODO call _flushCache on each attr
   NSAssert4(!_attributesToFetch
@@ -2622,56 +2535,42 @@ createInstanceWithEditingContext:globalID:zone:
   EOFLOGObjectLevelArgs(@"EOEntity", @"STOP%s", "");
 }
 
-- (void)_attributeNameChangedFrom: (NSString *)oldName to: (NSString *)newName
-{
-  EOAttribute *attribute = [_attributesByName objectForKey: oldName];
-  [_attributesByName setObject: attribute forKey: newName];
-  [_attributesByName removeObjectForKey: oldName];
-}
-
-
 /** Returns attributes by name (only attributes, not relationships) **/
 - (NSDictionary*)attributesByName
 {
-  EOFLOGObjectFnStart();
+  if (_flags.attributesIsLazy)
+    [self attributes];
 
-  if (_attributesByName)
+  if (!_attributesByName)
     {
-      EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesByName [%p] (%@)",
-			    _attributesByName,
-			    [_attributesByName class]);
-      NSAssert2((!_attributesByName
-		 || [_attributesByName isKindOfClass: [NSDictionary class]]),
-                @"_attributesByName is not a NSDictionary but a %@. _attributesByName [%p]",
-                [_attributesByName class],
-                _attributesByName);
+      unsigned int i, c;
+
+      _attributesByName = [[NSMutableDictionary alloc] init]; 
+      for (i = 0, c = [_attributes count]; i < c; i++)
+	{
+	  [_attributesByName setObject:[_attributes objectAtIndex:i]
+				forKey:[[_attributes objectAtIndex:i] name]];
+	} 
     }
-  else
-    {
-      EOFLOGObjectLevel(@"EOEntity", @"Will Rebuild attributes");
-
-      [self attributes]; //To rebuild
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesByName [%p] (%@)",
-			    _attributesByName,
-			    [_attributesByName class]);
-      NSAssert2((!_attributesByName
-		 || [_attributesByName isKindOfClass:[NSDictionary class]]),
-                @"_attributesByName is not a NSDictionary but a %@. _attributesByName [%p]",
-                [_attributesByName class],
-                _attributesByName);
-    }
-
-  EOFLOGObjectFnStop();
 
   return _attributesByName;
 }
 
 - (NSDictionary*)relationshipsByName
 {
+  if (_flags.relationshipsIsLazy)
+    [self relationships];
   if (!_relationshipsByName)
     {
-      [self relationships]; //To rebuild
+      unsigned int i, c;
+      
+      _relationshipsByName = [[NSMutableDictionary alloc] init]; 
+
+      for (i = 0, c = [_relationships count]; i < c; i++)
+	{
+	  [_relationshipsByName setObject:[_relationships objectAtIndex:i]
+				forKey:[[_relationships objectAtIndex:i] name]];
+	} 
     }
   return _relationshipsByName;
 }
