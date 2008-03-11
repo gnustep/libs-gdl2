@@ -1,3 +1,21 @@
+2008-03-06  David Ayers  <ayers@fsfe.org>
+	
+	* DBModeler/GNUmakefile,
+	* DBModeler/Inspectors/GNUmakefile,
+	* Documentation/GDL2Intro/Examples/GNUmakefile.connection,
+	* Documentation/GDL2Intro/Examples/GNUmakefile.eoexample,
+	* Documentation/GDL2Intro/Examples/GNUmakefile.eoexample2,
+	* EOAccess/GNUmakefile,
+	* EOAdaptors/PostgreSQLAdaptor/GNUmakefile.in,
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/GNUmakefile,
+	* EOAdaptors/SQLiteAdaptor/GNUmakefile.in,
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/GNUmakefile,
+	* EOControl/GNUmakefile,
+	* EOInterface/GNUmakefile,
+	* EOModeler/GNUmakefile,
+	* GDL2Palette/GNUmakefile,
+	* Tools/GNUmakefile (XXX_NEEDS_GUI): Use lowercase value.
+
 2008-03-10  Matt Rice  <ratmice@gmail.com>
 	
 	* EOAccess/EOAttribute.m (-setname:): Remove call to

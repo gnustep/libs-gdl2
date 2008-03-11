@@ -1,5 +1,5 @@
 TOOL_NAME+=eoexample
 
-eoexample_NEEDS_GUI=NO
+eoexample_NEEDS_GUI=no
 eoexample_OBJC_FILES=eoexample.m
 eoexample_RESOURCE_FILES=library.eomodel

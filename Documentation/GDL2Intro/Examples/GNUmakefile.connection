@@ -1,5 +1,5 @@
 TOOL_NAME+=connection
 
-connection_NEEDS_GUI=NO
+connection_NEEDS_GUI=no
 connection_OBJC_FILES=connection.m
 connection_RESOURCE_FILES=library.eomodel

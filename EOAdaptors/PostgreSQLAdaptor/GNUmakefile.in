@@ -33,7 +33,7 @@ POSTGRES_DATABASE=@POSTGRES_DATABASE@
 FRAMEWORK_NAME=PostgreSQLEOAdaptor
 SUBPROJECTS = LoginPanel
 
-PostgreSQLEOAdaptor_NEEDS_GUI = NO
+PostgreSQLEOAdaptor_NEEDS_GUI = yes
 # The framework principal class
 PostgreSQLEOAdaptor_PRINCIPAL_CLASS = PostgreSQLAdaptor
 

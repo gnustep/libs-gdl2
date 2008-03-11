@@ -34,12 +34,13 @@ ADDITIONAL_NATIVE_LIB_DIRS+=../EOControl ../EOAccess
 ADDITIONAL_NATIVE_LIBS+=EOControl EOAccess
 ADDITIONAL_INCLUDE_DIRS+=-I../../
 
-SQLite3EOAdaptor_NEEDS_GUI=NO
+SQLite3EOAdaptor_NEEDS_GUI=no
 SQLite3EOAdaptor_PRINCIPAL_CLASS=SQLite3Adaptor
-SQLite3EOAdaptor_OBJC_FILES=SQLite3Adaptor.m \
-SQLite3Context.m SQLite3Expression.m \
-SQLite3Channel.m
-
+SQLite3EOAdaptor_OBJC_FILES=\
+	SQLite3Adaptor.m \
+	SQLite3Context.m \
+	SQLite3Expression.m \
+	SQLite3Channel.m
 
 include ../../common.make
 

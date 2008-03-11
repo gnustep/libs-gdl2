@@ -32,7 +32,7 @@ include ../common.make
 # The library to be compiled
 TOOL_NAME=gdlgsdoc eoutil
 
-gdlgsdoc_NEEDS_GUI = NO
+gdlgsdoc_NEEDS_GUI = no
 # The C source files to be compiled
 gdlgsdoc_C_FILES = 
 
@@ -72,7 +72,7 @@ gdl2gsdoc_AGSDOC_FLAGS = \
 	$(GDL2_AGSDOC_FLAGS)
 
 
-eoutil_NEEDS_GUI = NO
+eoutil_NEEDS_GUI = no
 eoutil_OBJC_FILES = eoutil.m
 
 eoutil_HEADER_FILES = 

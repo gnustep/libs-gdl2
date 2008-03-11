@@ -32,7 +32,7 @@ include ../common.make
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOInterface
 
-EOInterface_NEEDS_GUI = YES
+EOInterface_NEEDS_GUI = yes
 # The C source files to be compiled
 EOInterface_C_FILES = 
 

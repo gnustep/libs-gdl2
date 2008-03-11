@@ -28,7 +28,7 @@ include $(GNUSTEP_MAKEFILES)/common.make
 include ../common.make
 
 PALETTE_NAME=GDL2
-GDL2_NEEDS_GUI = YES
+GDL2_NEEDS_GUI = yes
 GDL2_PRINCIPAL_CLASS = GDL2Palette
 
 ADDITIONAL_INCLUDE_DIRS+=-I../

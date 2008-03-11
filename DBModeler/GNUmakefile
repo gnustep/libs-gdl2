@@ -28,7 +28,7 @@ include ../common.make
 
 APP_NAME = DBModeler
 
-DBModeler_NEEDS_GUI = YES
+DBModeler_NEEDS_GUI = yes
 DBModeler_SUBPROJECTS=Inspectors
 
 ADDITIONAL_INCLUDE_DIRS+=-I../
