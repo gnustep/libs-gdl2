@@ -146,8 +146,9 @@ RCS_ID("$Id$")
       model = [owner model];
       relationshipName = [propertyList objectForKey: @"name"];
 
-      [self setName: relationshipName]; 
+      /* so setName: can validate against the owner */
       [self setEntity: owner];
+      [self setName: relationshipName]; 
 
       destinationEntityName = [propertyList objectForKey: @"destination"];
 

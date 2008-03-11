@@ -181,7 +181,20 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
           id		tmpObject = nil;
 
           _flags.updating = YES;
-          ASSIGN(_name, [propertyList objectForKey: @"name"]);
+	  
+	  /* set this before validation. */
+	  if ([owner isKindOfClass:[EOModel class]])
+	    [self _setModel:owner];
+	  // else _setParent:??
+
+	  tmpString = [propertyList objectForKey:@"name"];
+	  /*
+ 	     we dont want it to call _updateCache. So we validate and
+	     set the name directly, as we haven't been added to the model yet,
+	     and this would causes problems.
+	   */
+	  [[self validateName:tmpString] raise];
+	  ASSIGN(_name, tmpString);
 
           [self setExternalName: [propertyList objectForKey: @"externalName"]];
 	  tmpObject = [propertyList objectForKey: @"externalQuery"];
@@ -748,7 +761,6 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
         {
           int i = 0;
           NSArray *attributePLists = AUTORELEASE(RETAIN(_attributes));
-          NSDictionary *relationshipsByName = nil;
 
           DESTROY(_attributes);
           DESTROY(_attributesByName);
@@ -756,8 +768,9 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
           _attributes = [NSMutableArray new];
           _attributesByName = [NSMutableDictionary new];
 
-          if (!_flags.relationshipsIsLazy)
-            relationshipsByName = [self relationshipsByName];
+	  /* if we've already loaded relationships rebuild the name cache */
+          if (!_flags.relationshipsIsLazy && _relationshipsByName == nil)
+            [self relationshipsByName];
 
           _flags.attributesIsLazy = NO;
 
@@ -773,38 +786,13 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
                   id attrPList = [attributePLists objectAtIndex: i];
                   EOAttribute *attribute = nil;
                   NSString *attributeName = nil;
-		  
+
+		  // this should validate name against its owner via setName: 
 		  attribute = [EOAttribute attributeWithPropertyList: attrPList
 				   owner: self];
 		  attributeName = [attribute name];
 
-                  EOFLOGObjectLevelArgs(@"EOEntity",
-					@"XXX 1 ATTRIBUTE: attribute=%@",
-					attribute);
-
-		  /* We just created this dictionary so the ivar is
-		     initialized.  */
-		  // FIXME -validatename instead? or checks for invalid name
-                  if ([_attributesByName objectForKey: attributeName])
-                    {
-                      [NSException raise: NSInvalidArgumentException
-                                   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model as attribute",
-                                   NSStringFromSelector(_cmd),
-                                   NSStringFromClass([self class]),
-                                   self,
-                                   attributeName];
-                    }
-
-                  if ([relationshipsByName objectForKey: attributeName])
-                    {
-                      [NSException raise: NSInvalidArgumentException
-                                   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
-                                   NSStringFromSelector(_cmd),
-                                   NSStringFromClass([self class]),
-                                   self,
-                                   attributeName];
-                    }
-
+		  // don't call -addAttribute: because it wipes our name cache
                   [_attributes addObject: attribute];
                   [_attributesByName setObject: attribute
 				     forKey: attributeName];
@@ -941,17 +929,14 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
         {
           int i = 0;
           NSArray *relationshipPLists = _relationships;
-          NSDictionary *attributesByName = nil;
 
           DESTROY(_relationshipsByName);
 
           _relationships = [NSMutableArray new];
           _relationshipsByName = [NSMutableDictionary new];
 
-          if (!_flags.attributesIsLazy)
-            {
-              attributesByName = [self attributesByName];
-            }
+          if (!_flags.attributesIsLazy && _attributesByName == nil)
+            [self attributesByName];
 
           _flags.relationshipsIsLazy = NO;
           [EOObserverCenter suppressObserverNotification];
@@ -968,40 +953,12 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
                   EORelationship *relationship = nil;
                   NSString *relationshipName = nil;
 
+		  /* this should cause validation to occur. */
                   relationship= [EORelationship
 				     relationshipWithPropertyList: attrPList
 				     owner: self];
 
                   relationshipName = [relationship name];
-
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"relationshipName: %@",
-					relationshipName);
-
-		  // FIXME -validatename instead (also checks for invalid name)
-                  if ([attributesByName objectForKey: relationshipName])
-                    {
-                      [NSException raise: NSInvalidArgumentException
-                                   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model as attribute",
-                                   NSStringFromSelector(_cmd),
-                                   NSStringFromClass([self class]),
-                                   self,
-                                   relationshipName];
-                    }
-
-                  if ([_relationshipsByName objectForKey: relationshipName])
-                    {
-                      [NSException raise: NSInvalidArgumentException
-                                   format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
-                                   NSStringFromSelector(_cmd),
-                                   NSStringFromClass([self class]),
-                                   self,
-                                   relationshipName];
-                    }
-
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"Add rel %p",
-					relationship);
-                  EOFLOGObjectLevelArgs(@"EOEntity", @"Add rel=%@",
-					relationship);
 
                   [_relationships addObject: relationship];
                   [_relationshipsByName setObject: relationship

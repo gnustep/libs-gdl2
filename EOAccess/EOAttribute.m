@@ -109,12 +109,13 @@ RCS_ID("$Id$")
       NSString *tmpString = nil;
       id tmpObject = nil;
 
+      // set this first so the name can validate against the parent.
+      [self setParent: owner];
       [self setName: [propertyList objectForKey: @"name"]];
 
       EOFLOGObjectLevelArgs(@"gsdb", @"Attribute parent=%p %@",
 		   owner, [(EOEntity *)owner name]);
 
-      [self setParent: owner];
 //      EOFLOGObjectLevel(@"gsdb", @"Attribute Entity=%@", [self entity]);
 
       [self setExternalType: [propertyList objectForKey: @"externalType"]];

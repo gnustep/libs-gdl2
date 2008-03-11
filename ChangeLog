@@ -1,3 +1,14 @@
+2008-03-11  Matt Rice  <ratmice@gmail.com>
+
+	* EOAccess/EOModel.m (-addEntity:): Reword assertion message.
+	(-_setEntity:forEntityName:className:): Add assertion.
+	* EOAccess/EOAttribute.m (-initWithPropertyList:owner:): Validate the
+	name.
+	* EOAccess/EORelationship.m (-initWithPropertyList:owner:): Ditto.
+	* EOAccess/EOEntity.m (-initWithPropertyList:owner:): Ditto. 
+	(-attributes): Remove checks for duplicate names.
+	(-relationships): Remove checks for duplicate names.
+
 2008-03-06  David Ayers  <ayers@fsfe.org>
 	
 	* DBModeler/GNUmakefile,

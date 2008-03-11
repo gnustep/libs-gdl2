@@ -1358,6 +1358,9 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSAssert(entityName, @"No entity name");
   NSAssert(className, @"No class name");
 
+  NSAssert1([_entitiesByName objectForKey: entityName] == nil,
+	    @"Entity '%@' is already registered with this model",
+	    entityName);
   //Seems OK
   [_entitiesByName setObject: entity
                    forKey: entityName];
@@ -1430,7 +1433,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSString *className = nil;
 
   NSAssert1([self entityNamed: [entity name]] == nil,
-	    @"Entity '%@' already registered as with this model",
+	    @"Entity '%@' is already registered with this model",
 	    entityName);
 
   NSAssert2([entity model]==nil,
