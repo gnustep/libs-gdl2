@@ -31,16 +31,16 @@
 ADDITIONAL_CPPFLAGS = $(FND_DEFINE) $(RUNTIME_DEFINE) -g
 
 # Additional flags to pass to the Objective-C compiler
-ADDITIONAL_OBJCFLAGS = 
+ADDITIONAL_OBJCFLAGS = $(TEST_CFLAGS) 
 
 # Additional flags to pass to the C compiler
-ADDITIONAL_CFLAGS = 
+ADDITIONAL_CFLAGS = $(TEST_CFLAGS) 
 
 # Additional include directories the compiler should search
 ADDITIONAL_INCLUDE_DIRS = -I../EOControl/$(GNUSTEP_TARGET_DIR) -I..
 
 # Additional LDFLAGS to pass to the linker
-ADDITIONAL_LDFLAGS = 
+ADDITIONAL_LDFLAGS = $(TEST_LDFLAGS) 
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS =
@@ -63,6 +63,8 @@ endif
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
 endif
+
+LIBRARIES_DEPEND_UPON += $(TEST_COVERAGE_LIBS)
 
 ADDITIONAL_NATIVE_LIB_DIRS += ../EOControl ../EOAccess
 

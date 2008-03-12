@@ -96,6 +96,7 @@ EOInterface_AGSDOC_FLAGS = \
 
 -include Makefile.preamble
 -include GNUmakefile.local
+-include ../GNUmakefile.local
 
 include $(GNUSTEP_MAKEFILES)/native-library.make
 # Only build the doc if doc=yes was passed on the command line

@@ -40,10 +40,12 @@
 ADDITIONAL_CPPFLAGS += 
 
 # Additional flags to pass to the Objective-C compiler
-ADDITIONAL_OBJCFLAGS += 
+ADDITIONAL_OBJCFLAGS += $(TEST_CFLAGS)
 
 # Additional flags to pass to the C compiler
-ADDITIONAL_CFLAGS += 
+ADDITIONAL_CFLAGS += $(TEST_CFLAGS) 
+
+ADDITIONAL_LDFLAGS += $(TEST_LDFLAGS)
 
 # Additional include directories the compiler should search
 ADDITIONAL_INCLUDE_DIRS += \
@@ -56,6 +58,8 @@ ADDITIONAL_NATIVE_LIB_DIRS+=../../EOControl ../../EOAccess
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
 endif
+
+LIBRARIES_DEPEND_UPON += $(TEST_COVERAGE_LIBS)
 
 #
 # Flags dealing with installing and uninstalling
