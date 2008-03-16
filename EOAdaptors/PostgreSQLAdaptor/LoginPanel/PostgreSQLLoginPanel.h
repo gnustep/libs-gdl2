@@ -28,6 +28,13 @@
 #include "PostgreSQLChannel.h"
 #include "PostgreSQLExpression.h"
 
+@class NSTextField;
+@class NSButton;
+@class NSImageView;
+@class NSComboBox;
+@class NSWindow;
+@class NSSecureTextField;
+
 @interface PostgreSQLLoginPanel : EOLoginPanel
 {
   /* gui stuff */ 

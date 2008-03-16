@@ -24,20 +24,23 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. 
 */
 
-#include <Foundation/Foundation.h>
-#include <AppKit/AppKit.h>
 #include <EOAccess/EOAccess.h>
 
 #ifndef GNUSTEP
+#import <Foundation/Foundation.h>
+#import <AppKit/AppKit.h>
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSCategories.h>
+#else
+#include <Foundation/Foundation.h>
+#include <AppKit/AppKit.h>
 #endif
 
 #include "PostgreSQLLoginPanel.h"
 
 static BOOL insideModalLoop;
 
-static NSString *windowTitle = @"PostgreSQLql login";
+static NSString *windowTitle = @"PostgreSQL login";
 static NSString *newDatabaseTitle = @"New";
 static NSString *userNameTitle = @"Username: ";
 static NSString *passwordTitle = @"Password: ";

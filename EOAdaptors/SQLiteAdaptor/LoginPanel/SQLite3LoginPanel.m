@@ -28,6 +28,11 @@
 
 #import <AppKit/AppKit.h>
 
+#ifndef GNUSTEP
+#include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSCategories.h>
+#endif
+
 static BOOL insideModalLoop = YES;
 
 @interface SQLite3LoginPanel(Private)

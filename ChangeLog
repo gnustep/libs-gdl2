@@ -1,3 +1,13 @@
+2008-03-16  Matt Rice  <ratmice@gmail.com
+
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m,
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.h,
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.m:
+	Add missing includes.
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/GNUmakefile,
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/GNUmakefile:
+	Link to Foundation and AppKit frameworks on apple.
+
 2008-03-16  Blake Nicholson  <blaken@umich.edu>
 
 	* EOAdaptors/SQLiteAdaptor/SQLite3Context.m, 

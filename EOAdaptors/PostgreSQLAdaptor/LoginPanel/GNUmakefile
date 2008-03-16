@@ -44,7 +44,7 @@ ADDITIONAL_NATIVE_LIBS+=EOAccess EOControl
 ADDITIONAL_NATIVE_LIB_DIRS+=../../../EOControl ../../../EOAccess
 
 ifneq ($(FOUNDATION_LIB),gnu)
-LoginPanel_OBJC_LIBS += -lgnustep-baseadd
+LoginPanel_BUNDLE_LIBS += -lgnustep-baseadd -framework Foundation -framework AppKit
 endif
 
 LoginPanel_COPY_INTO_DIR = ../PostgreSQLEOAdaptor.framework/Resources
