@@ -251,11 +251,11 @@ initialize(void)
  * EOKeyValueCoding protocol<br/>
  * This overrides NSObjects implementation of this method.
  * Generally this method returns an array of objects
- * returned by invoking [NSObject-valueForKey:]
+ * returned by invoking valueForKey:
  * for each item in the receiver, substituting EONull for nil.
- * Keys formated like "@function.someKey" are resolved by invoking
- * <code>NSArray compute<em>Function</em>WithKey:</code> "someKey" on the receiver.
- * If the key is omitted, the function will be called with nil.
+ * Keys formated like "@function.someKeyPath" are resolved by invoking
+ * <code>NSArray compute<em>Function</em>WithKey:</code> "someKeyPath" on the receiver.
+ * If the keyPath is omitted, the function will be called with nil.
  * The following functions are supported by default:
  * <list>
  *  <item>@sum   -> -computeSumForKey:</item>
@@ -264,12 +264,9 @@ initialize(void)
  *  <item>@min   -> -computeMinForKey:</item>
  *  <item>@count -> -computeCountForKey:</item>
  * </list>
- * Computational components generally expect a key to be passed to
+ * Computational components generally expect a keyPath to be passed to
  * the function.  This is not mandatory in which case 'nil' will be supplied.
- * (i.e. you may use "@myFuncWhichCanHandleNil" as a key.)
- * As a special case the key "count" does not actually invoke
- * computeCountForKey: on receiver but returns the number of objects of 
- * the receiver.<br/>
+ * (i.e. you may use "@myFuncWhichCanHandleNil" as a key.)<br/>
  * There is no special handling of EONull.  Therefore expect exceptions
  * on EONull not responding to decimalValue and compare: when the are
  * used with this mechanism. 
@@ -281,11 +278,7 @@ initialize(void)
   INITIALIZE;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
-  if ([key isEqualToString: @"count"] || [key isEqualToString: @"@count"])
-    {
-      result = [NSDecimalNumber numberWithUnsignedInt: [self count]];
-    }
-  else if ([key hasPrefix:@"@"])
+  if ([key hasPrefix:@"@"])
     {
       NSString *selStr;
       NSString *attrStr;
@@ -330,26 +323,14 @@ initialize(void)
 
 /**
  * EOKeyValueCoding protocol<br/>
- * Returns the object returned by invoking [NSObject-valueForKeyPath:]
- * on the object returned by invoking [NSObject-valueForKey:]
+ * Returns the object returned by invoking valueForKeyPath:
+ * on the object returned by invoking valueForKey:
  * on the receiver with the first key component supplied by the key path,
  * with rest of the key path.<br/>
  * If the first component starts with "@", the first component includes the key
- * of the computational key component and as the form "@function.key".
+ * of the computational key component and as the form "@function.keyPath".
  * If there is only one key component, this method invokes 
- * [NSObject-valueForKey:] in the receiver with that component.
- * Unlike the reference implementation GDL2 allows you to continue the keyPath
- * in a meaningful way after @count but the path must then contain a key as
- * the computational key structure implies.
- * (i.e. you may use "@count.self.decimalValue") The actual key "self" is
- * in fact ignored during the computation, but the formal structure must be
- * maintained.<br/>
- * It should be mentioned that the reference implementation
- * would return the result of "@count" independent
- * of any additional key paths, even if they were meaningless like
- * "@count.bla.strange".  GDL2 will raise, if the object returned by
- * valueForKey:@"count.bla" (which generally is an NSDecimalNumber) raises on
- * valueForKey:@"strange".
+ * valueForKey: in the receiver with that component.
  */
 - (id)valueForKeyPath: (NSString *)keyPath
 {
@@ -357,24 +338,8 @@ initialize(void)
   id        result;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
-  r = [keyPath rangeOfString: @"."];
-  if ([keyPath hasPrefix: @"@"] == YES
-      && [keyPath isEqualToString: @"@count"] == NO
-      && r.location != NSNotFound)
-    {
-      NSRange rr;
-      unsigned length;
 
-      length = [keyPath length];
-
-      rr.location = NSMaxRange(r);
-      rr.length   = length - rr.location;
-      r = [keyPath rangeOfString: @"." 
-		   options: 0
-		   range: rr];
-    }
-    
-  if (r.length == 0)
+  if ([keyPath hasPrefix: @"@"] || (r = [keyPath rangeOfString: @"."]).location == NSNotFound)
     {
       result = [self valueForKey: keyPath];
     }
@@ -387,6 +352,7 @@ initialize(void)
     }
 
   EOFLOGObjectFnStopCond(@"EOKVC");
+
   return result;
 }
 
@@ -417,7 +383,7 @@ initialize(void)
       for (i=0; i<count; i++)
         {
           left = result;
-          right = [[GDL2_ObjectAtIndexWithImp(self,oaiIMP,i) valueForKey: key] decimalValue];
+          right = [[GDL2_ObjectAtIndexWithImp(self,oaiIMP,i) valueForKeyPath: key] decimalValue];
           NSDecimalAdd(&result, &left, &right, mode);
         }
     };
@@ -455,7 +421,7 @@ initialize(void)
       for (i=0; i<count; i++)
         {
           left = result;
-          right = [[GDL2_ObjectAtIndexWithImp(self,oaiIMP,i) valueForKey: key] decimalValue];
+          right = [[GDL2_ObjectAtIndexWithImp(self,oaiIMP,i) valueForKeyPath: key] decimalValue];
           NSDecimalAdd(&result, &left, &right, mode);
         }
     }
@@ -506,12 +472,12 @@ initialize(void)
       for(i=0; i<count && (resultVal == nil || resultVal == GDL2_EONull); i++)
 	{
 	  result    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
-	  resultVal = [result valueForKey: key];
+	  resultVal = [result valueForKeyPath: key];
 	}          
       for (; i<count; i++)
 	{
 	  current    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
-	  currentVal = [current valueForKey: key];
+	  currentVal = [current valueForKeyPath: key];
 
 	  if (currentVal == nil || currentVal == GDL2_EONull)
             continue;
@@ -549,12 +515,12 @@ initialize(void)
       for(i=0; i<count && (resultVal == nil || resultVal == GDL2_EONull); i++)
 	{
 	  result    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
-	  resultVal = [result valueForKey: key];
+	  resultVal = [result valueForKeyPath: key];
 	}          
       for (; i<count; i++)
 	{
 	  current    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
-	  currentVal = [current valueForKey: key];
+	  currentVal = [current valueForKeyPath: key];
 
 	  if (currentVal == nil || currentVal == GDL2_EONull) continue;
 

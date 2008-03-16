@@ -1,3 +1,18 @@
+2008-03-16  Tim McIntosh  <tmcintos@avalon.net>
+
+	* EOControl/EOKeyValueCoding.m
+	([NSArray-valueForKey:],[NSArray-valueForKeyPath:]):
+	Remove special handling of @count.
+	This is not WO45 compatible but is more consistent with KVC
+	in general and with current Cocoa implementations. Also any
+	sane key path using count with WO45 semantics will continue
+	to work as expected.  This change could be reverted if a
+	valid use case of WO45 behavior arises.
+	([NSArray-computeSumForKey:],[NSArray-computeAvgForKey:],
+	[NSArray-computeMaxForKey:],[NSArray-computeMinForKey:]):
+	Call valueForKeyPath: on components with the rest of the
+	key path to allow for extended key paths.
+
 2008-03-12  Matt Rice  <ratmice@gmail.com>
 
 	* EOInterface/Makefile.preamble,
