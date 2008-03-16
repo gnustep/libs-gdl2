@@ -193,7 +193,6 @@ RCS_ID("$Id$")
 {
   EOObjectStore *store;
   NSString *entityName = [_fetchSpecification entityName];
-  static SEL modelGroupSel = @selector(modelGroup);
   EOModelGroup *modelGroup = nil;
   
   store = [_editingContext rootObjectStore];
@@ -219,9 +218,9 @@ RCS_ID("$Id$")
 	}
       return nil;
     }
-  else if ([store respondsToSelector:modelGroupSel])
+  else if ([store respondsToSelector:@selector(modelGroup:)])
     {
-      modelGroup = [store performSelector:modelGroupSel];
+      modelGroup = [store performSelector:@selector(modelGroup:)];
     }
   
   if (modelGroup != nil)

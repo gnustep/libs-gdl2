@@ -383,7 +383,6 @@ main(int argc, char **argv, char **env)
 
       for (i = 0; goOn && i < [files count]; i++)
         {
-          int xmlId = 0;
           NSString *file = [files objectAtIndex: i];
           NSAutoreleasePool *arp = [NSAutoreleasePool new];
 
@@ -405,7 +404,6 @@ main(int argc, char **argv, char **env)
               if (model)
                 {	  
                   NSString *gsdocModelContent = nil;
-                  NSString *gsdocEntitiesContent = nil;
                   NSDictionary *entities = nil;
 
                   NSLog(@"Model %@ loaded", file);

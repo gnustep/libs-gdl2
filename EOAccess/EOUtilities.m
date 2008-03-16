@@ -76,8 +76,6 @@ RCS_ID("$Id$")
 #include "EOPrivate.h"
 
 NSString *EOMoreThanOneException = @"EOMoreThanOneException";
-NSString *NSObjectNotAvailableException = @"NSObjectNotAvailableException";
-
 
 @implementation EOEditingContext (EOUtilities)
 

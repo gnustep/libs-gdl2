@@ -114,7 +114,9 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
   { @"NSWindowsCP1250StringEncoding", NSWindowsCP1250StringEncoding },
   { @"NSISO2022JPStringEncoding",     NSISO2022JPStringEncoding },
   { @"NSMacOSRomanStringEncoding",    NSMacOSRomanStringEncoding },
+#if defined(GNUSTEP_BASE_LIBRARY) || OS_API_VERSION(GS_API_NONE,MAC_OS_X_VERSION_10_5)
   { @"NSProprietaryStringEncoding",   NSProprietaryStringEncoding },
+#endif
   { @"NSKOI8RStringEncoding",         NSKOI8RStringEncoding }, 
   { @"NSISOLatin3StringEncoding",     NSISOLatin3StringEncoding },
   { @"NSISOLatin4StringEncoding",     NSISOLatin4StringEncoding },

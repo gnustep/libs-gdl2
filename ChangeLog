@@ -1,5 +1,24 @@
 2008-03-16  Blake Nicholson  <blaken@umich.edu>
 
+	* EOAdaptors/SQLiteAdaptor/SQLite3Context.m, 
+	* EOAdaptors/SQLiteAdaptor/SQLite3Channel.m,
+	* EOAdaptors/SQLiteAdaptor/SQLite3Adaptor.m,
+	* EOControl/EOPrivate.m,
+	* EOControl/EOAggregateEvent.m,
+	* EOAccess/EOPrivate.m: Add missing include.
+	* EOAccess/EOAdaptor.m: Only use NSProprietaryStringEncoding where
+	available.
+	* Tools/gsdoc-model.m: Remove unused variables.
+	* Tools/Makefile.preamble: Fix NATIVE_LIB_DIRS path.
+
+2008-03-16  Matt Rice  <ratmice@gmail.com
+
+	* EOAccess/EOUtilities.m: Remove NSObjectNotAvailableException.
+	Moved to base.
+	* EOAccess/EODatabaseDataSource.m: Remove selector caching.
+
+2008-03-16  Blake Nicholson  <blaken@umich.edu>
+
 	* EOInterface/EOAssociation.m ([+objectDeallocated:]):
 	Use makeObjectsPerformSelector: instead of makeObjectsPerform:.
 

@@ -43,6 +43,7 @@ RCS_ID("$Id$")
 
 #include <EOControl/EOFault.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
+#include <EOAccess/EOAttribute.h>
 #include <EOAccess/EODatabaseContext.h>
 
 #include "EOPrivate.h"

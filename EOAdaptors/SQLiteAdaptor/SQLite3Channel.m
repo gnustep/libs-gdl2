@@ -37,6 +37,8 @@
 
 #include <EOAccess/EOAttribute.h>
 
+#include <GNUstepBase/GNUstep.h>
+
 @interface SQLite3Channel (Private)
 -(void) _raise;
 - (void) _raiseWith:(id)statement;

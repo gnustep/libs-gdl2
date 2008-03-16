@@ -25,6 +25,8 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 */
 
+#include <GNUstepBase/GNUstep.h>
+
 #include  "SQLite3Adaptor.h"
 #include  "SQLite3Context.h"
 #include  "SQLite3Channel.h"

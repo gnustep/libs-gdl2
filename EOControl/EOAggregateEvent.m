@@ -25,6 +25,8 @@
 
 #include <Foundation/Foundation.h>
 
+#include <GNUstepBase/GNUstep.h>
+
 #include "EOAggregateEvent.h"
 
 @implementation EOAggregateEvent
