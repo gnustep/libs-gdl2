@@ -1,3 +1,11 @@
+2008-03-16  Matt Rice  <ratmice@gmail.com>
+
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLExpression.m
+	(-formatValue:forAttribute:): Use unichars, and getCharacter:.
+	in case insertString: modifies the string buffer.
+	* EOAdaptors/SQLiteAdaptor/SQLiteExpression.m (escapeString): Ditto.
+	Rename to escapeValue, since it works on values other than strings. 
+
 2008-03-16  Tim McIntosh  <tmcintos@avalon.net>
 
 	* EOControl/EOKeyValueCoding.m

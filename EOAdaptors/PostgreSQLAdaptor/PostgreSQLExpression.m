@@ -97,9 +97,6 @@ RCS_ID("$Id$")
 {
   NSString *formatted = nil;
   NSString        *externalType;
-  NSMutableString *string;
-  const char      *tempString;
-  int              i, dif;
 
   EOFLOGObjectFnStart();
 
@@ -332,46 +329,36 @@ RCS_ID("$Id$")
     }
   else // String...
     {
-      int length = 0;
+      NSMutableString *string = [NSMutableString stringWithFormat:@"%@", value];
+      unsigned i, dif;
+      unsigned length = [string length];
 
-      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-			    @"other case - value=%@ class=%@",
-			    value, [value class]);      
-
-      string = [NSMutableString stringWithFormat: @"%@", value];
-
-      EOFLOGObjectLevelArgs(@"EOSQLExpression", @"string %p='%@'",
-			    string, string);
-
-      length=[string cStringLength];
-      tempString = [string cString];
-      EOFLOGObjectLevelArgs(@"EOSQLExpression", @"string '%@' tempString=%s",
-			    string, tempString);
-
-      for (i = 0, dif = 0; i < length; i++)
+      if (length > 0)
         {
-          switch (tempString[i])
+          unichar tempString[length];
+
+	  [string getCharacters:tempString];
+
+	  for (i = 0, dif = 0; i < length; i++)
             {
-            case '\\':
-            case '\'':
-              [string insertString: @"\\" atIndex: dif + i];
-              dif++;
-              break;
-            case '_':
-              [string insertString: @"\\" atIndex: dif + i];
-              dif++;
-              break;
-            default:
-              break;
+              switch (tempString[i])
+                {
+                case '\\':
+                case '\'':
+                  [string insertString: @"\\" atIndex: dif + i];
+                  dif++;
+                  break;
+                case '_':
+                  [string insertString: @"\\" atIndex: dif + i];
+                  dif++;
+                  break;
+                default:
+                  break;
+                }
             }
         }
-      EOFLOGObjectLevelArgs(@"EOSQLExpression", @"string '%@' tempString=%s",
-			    string, tempString);
 
       formatted = [NSString stringWithFormat: @"'%@'", string];      
-
-      EOFLOGObjectLevelArgs(@"EOSQLExpression", @"formatted %p=%@",
-			    formatted, formatted);
     }
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"formatted=%@", formatted);

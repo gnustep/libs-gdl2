@@ -37,27 +37,31 @@
 #include <Foundation/NSData.h>
 
 @implementation SQLite3Expression 
-static NSString *escapeString(NSString *value)
+static NSString *escapeValue(id value)
 {
-  int length = 0, dif, i;
   NSMutableString *string = [NSMutableString stringWithFormat: @"%@", value];
-  const char *tempString;
-  
-  length=[string cStringLength];
-  tempString = [string cString];
+  unsigned length = [string length];
+  unsigned dif, i;
 
-  for (i = 0, dif = 0; i < length; i++)
+  if (length)
     {
-      switch (tempString[i])
+      unichar tempString[length];
+   
+      [string getCharacters:tempString];
+
+      for (i = 0, dif = 0; i < length; i++)
         {
-          case '\'':
-            [string insertString: @"'" atIndex: dif + i];
-            dif++;
-            break;
-          default:
-            break;
-        }
-    } 
+          switch (tempString[i])
+            {
+              case '\'':
+                [string insertString: @"'" atIndex: dif + i];
+                dif++;
+                break;
+              default:
+                break;
+            }
+        } 
+    }
   return string;
 }
 
@@ -76,7 +80,7 @@ static NSString *escapeString(NSString *value)
     }
   else if ([externalType isEqual:@"TEXT"])
     {
-      return [NSString stringWithFormat:@"'%@'", escapeString(value)];
+      return [NSString stringWithFormat:@"'%@'", escapeValue(value)];
     }
   else if ([externalType isEqual:@"BLOB"])
     {
@@ -84,7 +88,7 @@ static NSString *escapeString(NSString *value)
     }
   else
     {
-      return [NSString stringWithFormat:@"'%@'", escapeString(value)];
+      return [NSString stringWithFormat:@"'%@'", escapeValue(value)];
     }
 }
 - (NSString *)lockClause
