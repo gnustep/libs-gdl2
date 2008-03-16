@@ -33,6 +33,7 @@
 #include <AppKit/AppKit.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include "EOPickTextAssociation.h"
 
 @implementation EOPickTextAssociation

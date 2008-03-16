@@ -44,6 +44,7 @@ RCS_ID("$Id$")
 #include <AppKit/AppKit.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include <EOAccess/EODatabaseDataSource.h>
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EODataSource.h>

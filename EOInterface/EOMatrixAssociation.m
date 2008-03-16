@@ -34,6 +34,7 @@
 #include <AppKit/AppKit.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include "EOControlAssociation.h"
 #include "EOMatrixAssociation.h"
 #include "EODisplayGroup.h"

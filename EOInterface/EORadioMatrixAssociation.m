@@ -34,6 +34,7 @@
 #include <AppKit/AppKit.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include "EOControlAssociation.h"
 #include "EORadioMatrixAssociation.h"
 #include "SubclassFlags.h"
@@ -54,7 +55,7 @@
    
       while (j-- > 0)
         {
-          if ([[_cells[i][j] title] isEqual: title])
+	  if ([[[self cellAtRow: i column: j] title] isEqual: title])
             {
               [self selectCellAtRow:i column:j];
               return YES;

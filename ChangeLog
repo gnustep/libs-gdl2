@@ -1,3 +1,34 @@
+2008-03-16  Blake Nicholson  <blaken@umich.edu>
+
+	* EOInterface/EOAssociation.m ([+objectDeallocated:]):
+	Use makeObjectsPerformSelector: instead of makeObjectsPerform:.
+
+	* EOInterface/EORadioMatrixAssociation.m
+	([NSMatrix-_selectCellWithTitle:]): Do not access instance variables
+	directly.  Use accessor methods instead.
+	
+	* EOInterface/EOActionAssociation.m,
+	* EOInterface/EOActionInsertionAssociation.m,
+	* EOInterface/EOAspectConnector.m,
+	* EOInterface/EOAssociation.m,
+	* EOInterface/EOColumnAssociation.m,
+	* EOInterface/EOComboBoxAssociation.m,
+	* EOInterface/EODetailSelectionAssociation.m,
+	* EOInterface/EODisplayGroup.m,
+	* EOInterface/EOGenericControlAssociation.m,
+	* EOInterface/EOMasterCopyAssociation.m,
+	* EOInterface/EOMasterDetailAssociation.m,
+	* EOInterface/EOMatrixAssociation.m,
+	* EOInterface/EOPickTextAssociation.m,
+	* EOInterface/EOPopUpAssociation.m,
+	* EOInterface/EORadioMatrixAssociation.m,
+	* EOInterface/EORecursiveBrowserAssociation.m,
+	* EOInterface/EOTableViewAssociation.m,
+	* EOInterface/EOTableViewAssociation.m,
+	* EOInterface/EOTextAssociation.m,
+	* EOInterface/NSImage+Additions.m:
+	Add include for <GNUstepBase/GNUstep.h>.
+
 2008-03-16  Matt Rice  <ratmice@gmail.com>
 
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLExpression.m

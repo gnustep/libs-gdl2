@@ -33,6 +33,7 @@
 #include <Foundation/Foundation.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include <EOControl/EODataSource.h>
 
 #include "EOControlAssociation.h"

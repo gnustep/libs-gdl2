@@ -25,6 +25,7 @@
 
 #include "EOAspectConnector.h"
 #include <Foundation/NSCoder.h>
+#include <GNUstepBase/GNUstep.h>
 #include <EOInterface/EOAssociation.h>
 
 @implementation EOAspectConnector : NSNibConnector

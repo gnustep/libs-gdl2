@@ -35,6 +35,7 @@
 #include <Foundation/Foundation.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 
 #include "EODisplayGroup.h"
@@ -56,7 +57,7 @@ static NSMapTable *_objectToAssociations;
   
   if (associations)
     {
-      [associations makeObjectsPerform: @selector(breakConnection)];
+      [associations makeObjectsPerformSelector: @selector(breakConnection)];
       NSMapRemove(_objectToAssociations, object);
     }
 }

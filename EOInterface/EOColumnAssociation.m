@@ -36,6 +36,7 @@
 #include <AppKit/AppKit.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include "EODisplayGroup.h"
 #include "EOColumnAssociation.h"
 #include "SubclassFlags.h"

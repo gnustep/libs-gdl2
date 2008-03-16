@@ -24,6 +24,7 @@
 */
 
 #include "EOControlAssociation.h"
+#include <GNUstepBase/GNUstep.h>
 
 @implementation NSImage (EOImageFactory)
 

@@ -32,6 +32,7 @@
 
 #include <EOControl/EODetailDataSource.h>
 
+#include <GNUstepBase/GNUstep.h>
 #include "EODisplayGroup.h"
 #include "EOMasterDetailAssociation.h"
 #include "SubclassFlags.h"

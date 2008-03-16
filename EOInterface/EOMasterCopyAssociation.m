@@ -30,6 +30,7 @@
 #include <Foundation/Foundation.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include "EODisplayGroup.h"
 #include "EOMasterCopyAssociation.h"
 

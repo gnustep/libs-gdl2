@@ -39,7 +39,12 @@
 #include <AppKit/AppKit.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include "EOColumnAssociation.h"
+#include "EOControlAssociation.h"
+#include "EOPickTextAssociation.h"
+#include "EOActionAssociation.h"
+#include "EOActionInsertionAssociation.h"
 #include "EODisplayGroup.h"
 @implementation EOTableViewAssociation
 

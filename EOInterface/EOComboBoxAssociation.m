@@ -34,6 +34,7 @@
 #include <Foundation/Foundation.h>
 #endif
 
+#include <GNUstepBase/GNUstep.h>
 #include "EOControlAssociation.h"
 #include "EOComboBoxAssociation.h"
 
