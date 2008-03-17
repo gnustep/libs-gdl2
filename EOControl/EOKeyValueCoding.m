@@ -442,10 +442,12 @@ initialize(void)
 
 - (id)computeCountForKey: (NSString *)key
 {
+  NSArray *array;
   id result;
 
   EOFLOGObjectFnStartCond(@"EOKVC");
-  result = [NSDecimalNumber numberWithUnsignedInt: [self count]];
+  array = key ? [self valueForKeyPath: key] : self;
+  result = [NSDecimalNumber numberWithUnsignedInt: [array count]];
 
   EOFLOGObjectFnStopCond(@"EOKVC");
   return result;

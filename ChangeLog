@@ -1,7 +1,10 @@
-2008-03-06  David Ayers  <ayers@fsfe.org>
+2008-03-17  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOClassDescription.m ([NSObject-classDescriptionForClass:]):
 	Post notification only the first time the description is needed.
+
+	* EOControl/EOKeyValueCoding.m ([NSArray-computeCountForKey:):
+	Handle extended aggregate keys.
 	
 2008-03-16  Matt Rice  <ratmice@gmail.com>
 
