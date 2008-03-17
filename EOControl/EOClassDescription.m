@@ -164,15 +164,10 @@ static NSRecursiveLock *local_lock = nil;
 {
   EOClassDescription *classDescription;
 
-  EOFLOGObjectFnStart();
-
-  NSDebugMLLog(@"gsdb", @"aClass=%@", aClass);
   NSAssert(aClass, @"No class");
-  NSDebugMLLog(@"gsdb", @"class name=%s", GSNameFromClass(aClass));
 
   classDescription = NSMapGet(classDescriptionForClass, aClass);  
 
-  NSDebugMLLog(@"gsdb", @"classDescription=%@", classDescription);
   if (!classDescription)
     {
       [[NSNotificationCenter defaultCenter]
@@ -180,18 +175,16 @@ static NSRecursiveLock *local_lock = nil;
 	object: aClass];
 
       classDescription = NSMapGet(classDescriptionForClass, aClass);
-      NSDebugMLLog(@"gsdb", @"classDescription=%@", classDescription);
 
       if (!classDescription)
         {
           NSLog(@"Warning: No class description for class named: %s",
-		GSNameFromClass(aClass));
+		NSStringFromClass(aClass));
         }
+      NSMapInsert(classDescriptionForClass, aClass, GDL2_EONull);
     }
 
-  EOFLOGObjectFnStop();
-
-  return classDescription;
+  return classDescription == (id)GDL2_EONull ? nil : classDescription;
 }
 
 + (EOClassDescription *)classDescriptionForEntityName: (NSString *)entityName

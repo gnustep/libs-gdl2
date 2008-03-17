@@ -1,4 +1,9 @@
-2008-03-16  Matt Rice  <ratmice@gmail.com
+2008-03-06  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EOClassDescription.m ([NSObject-classDescriptionForClass:]):
+	Post notification only the first time the description is needed.
+	
+2008-03-16  Matt Rice  <ratmice@gmail.com>
 
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m,
 	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.h,
@@ -271,7 +276,7 @@
 	* EOControl/EOClassDescription.h: Include NSDictionary.h to compile
 	with new versions of -base/Foundation.
 	
-2007-11-27  David Ayers  
+2007-11-27  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOClassDescription.h/m
 	([NSObject-validateTakeValue:forKeyPath:]): Implement.
