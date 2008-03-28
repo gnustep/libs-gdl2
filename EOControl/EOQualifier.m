@@ -223,6 +223,8 @@ getKey(const unichar **cFormat,
   unichar quoteChar;
   BOOL quoted = NO;
   BOOL literalNumber = NO;
+  BOOL isQualVar = NO;
+  BOOL isFormat = NO;
 
   while (**s && spaceCIM(spaceSet, cimSEL, **s))
     (*s)++;
@@ -302,6 +304,11 @@ getKey(const unichar **cFormat,
 		 be safe.  */
 
 	      int argInt;
+
+	      /* TODO userInfo would be nice */
+	      if (isQualVar)
+		[NSException raise:NSInvalidArgumentException
+				format:@"error parsing qualifier format"];
 
 	      if (isKeyValue)
 	        {
@@ -420,10 +427,16 @@ getKey(const unichar **cFormat,
 		  break;
 
 		case '%':
-		  *cFormat = *s + 2;
-		  (*s)++;
-		  [key appendString: [NSString stringWithCharacters: *cFormat
+		  {
+		    /* TODO userInfo would be nice */
+		    if ((*s - *cFormat) <= 2)
+		      [NSException raise:NSInvalidArgumentException
+				format:@"error parsing qualifier format"];
+		    *cFormat = *s + 2;
+		    (*s)++;
+		    [key appendString: [NSString stringWithCharacters: *cFormat
 					       length: *s - *cFormat]];
+		  }
 		  break;
 
 		default:
@@ -432,11 +445,23 @@ getKey(const unichar **cFormat,
 		      = @"%@ -- %@: unrecognized character (%@) in the conversion specification";
 		    NSString *specChar 
 		      = [NSString stringWithCharacters: (*s + 1) length: 1];
-		    [NSException raise: NSInvalidArgumentException
+		    [NSException raise: NSInvalidArgumentException 
 				 format: fmt, @"EOQualifier", 
 				 @"qualifierParser", specChar];
 		    break;
 		  } 
+		}
+	    }
+	  else if (**s == '$')
+	    {
+ 	      /* TODO userInfo would be nice */
+	      if (isFormat)
+		[NSException raise:NSInvalidArgumentException
+				format:@"error parsing qualifier format"];
+	      if (isKeyValue)
+		{
+		  *isKeyValue = YES;
+		  isQualVar = YES;
 		}
 	    }
 
@@ -445,13 +470,34 @@ getKey(const unichar **cFormat,
 
       if (*cFormat != *s)
 	{
-	  NSString *str = [NSString stringWithCharacters: *cFormat
-				    length: *s - *cFormat];
+	  unsigned int length = *s - *cFormat;
+	  const unichar *c = *cFormat;
+	  NSString *str;
+
+	  if (isKeyValue && c[0] == '$')
+	    {
+	      c++;
+	      length--;	      
+	    }
+
+	  str  = [NSString stringWithCharacters: c 
+				    length: length];
 	  [key appendString: str];
 	}
     }
 
-  if (isKeyValue)
+  if (classString && (!(quoted || literalNumber)))
+    {
+      [NSException raise:NSInvalidArgumentException
+		 format:@"expected string literal after cast to class"];
+    }
+
+  /* not sure about this !isQualVar */
+  if (isQualVar)
+    {
+      key = (id)[[EOQualifierVariable alloc] initWithKey:key];
+    }
+  else if (isKeyValue)
     {
       *isKeyValue = (quoted || literalNumber);
 
@@ -936,7 +982,7 @@ static Class whichQualifier(const unichar **cFormat, const unichar **s)
 {
   NSMutableDictionary* bindings = (id)[NSMutableDictionary dictionary];
   [self _addBindingsToDictionary:bindings];
-  return [bindings allKeys];
+  return [bindings allValues];
 }
 
 //NO
@@ -1066,6 +1112,11 @@ static Class whichQualifier(const unichar **cFormat, const unichar **s)
 - (void)encodeWithKeyValueArchiver: (EOKeyValueArchiver *)archiver
 {
   [archiver encodeObject: _key forKey: @"_key"];
+}
+
+- (NSString *) description
+{
+  return _key;
 }
 
 @end
