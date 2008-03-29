@@ -1,3 +1,16 @@
+2008-03-29  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EOQualifier.m ([-dealloc]): Remove empty implementation.
+	([+qualifierWithQualifierFormat:varargList:]): Move implementation to...
+	(_qualifierWithArgs): ... new static function.  Update getKey usage.
+	([+qualifierWithQualifierFormat:arguments:]): Implement via
+	_qualifierWithArgs.
+	(getKey): Add useVAList flag and optional enumerator to use instead.
+
+	* EOAccess/EOEntity.m (initWithPropertyList:owner:): Call
+	[EOQualifier+qualifierWithQualifierFormat:arguments:] to avoid invalid
+	stack access.
+	
 2008-03-28  Matt Rice  <ratmice@gmail.com>
 
 	* EOAccess/EOEntity.m (initWithPropertyList:owner:): Pass format along

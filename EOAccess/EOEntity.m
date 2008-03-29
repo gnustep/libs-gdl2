@@ -206,10 +206,9 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           if (tmpString)
             {
-	      /* FIXME use qualifierWithQualifierFormat:arguments maybe so
-		 we don't smash the stack */
               EOQualifier *restrictingQualifier
-		= [EOQualifier qualifierWithQualifierFormat: tmpString];
+		= [EOQualifier qualifierWithQualifierFormat: tmpString
+			       arguments:nil];
 
               [self setRestrictingQualifier: restrictingQualifier];
             }
