@@ -1,3 +1,13 @@
+2008-03-28  Matt Rice  <ratmice@gmail.com>
+
+	* EOAccess/EOEntity.m (initWithPropertyList:owner:): Pass format along
+	as is.
+	* EOControl/EOQualifier.m (getKey): Add some exceptions for invalid
+	qualifier formats, and parse binding variables.
+	(bindingKeys): Return the binding variable keys, not the qualifier keys
+	with binding variable values.
+	(EOQualifierVariable -description): Implement.
+
 2008-03-17  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOClassDescription.m ([NSObject-classDescriptionForClass:]):
