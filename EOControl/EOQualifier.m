@@ -195,8 +195,8 @@ getKey(const unichar **cFormat,
        const unichar **s,
        BOOL *isKeyValue,
        BOOL useVAList,
-       va_list *args,
-       NSEnumerator *argsEnum)
+       NSEnumerator *argsEnum,
+       va_list args)
 {
   NSMutableString *key;
   NSString *classString = nil;
@@ -300,7 +300,7 @@ getKey(const unichar **cFormat,
 		case '@':
 		  if (useVAList)
 		    {
-		      argObj = va_arg(*args, id);
+		      argObj = va_arg(args, id);
 		    }
 		  else
 		    {
@@ -332,7 +332,7 @@ getKey(const unichar **cFormat,
 		case 's':
 		  if (useVAList)
 		    {
-		      argString = va_arg(*args, const char *);
+		      argString = va_arg(args, const char *);
 		    }
 		  else
 		    {
@@ -366,7 +366,7 @@ getKey(const unichar **cFormat,
 		case 'd':
 		  if (useVAList)
 		    {
-		      argInt = va_arg(*args, int);
+		      argInt = va_arg(args, int);
 		    }
 		  else
 		    {
@@ -402,7 +402,7 @@ getKey(const unichar **cFormat,
 		    {
 		      /* 'float' is promoted to 'double' when passed through '...'
 			 (so you should pass `double' not `float' to `va_arg') */
-		      argFloat = va_arg(*args, double);
+		      argFloat = va_arg(args, double);
 		    }
 		  else
 		    {
@@ -584,7 +584,7 @@ whichQualifier(const unichar **cFormat, const unichar **s)
 }
 
 static EOQualifier *
-_qualifierWithArgs(id self, SEL _cmd, NSString *format, BOOL useVAList, va_list args, NSArray *array)
+_qualifierWithArgs(id self, SEL _cmd, NSString *format, BOOL useVAList, NSArray *array, va_list args)
 {
   NSEnumerator *argEnum = [array objectEnumerator];
   unichar *s0;
@@ -651,9 +651,9 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, BOOL useVAList, va_list 
       }
       
       notQual = isNotQualifier(&cFormat, &s);
-      leftKey = getKey(&cFormat, &s, NULL, useVAList, &args, argEnum);
+      leftKey = getKey(&cFormat, &s, NULL, useVAList, argEnum, args);
       operator = getOperator(&cFormat, &s);
-      rightKey = getKey(&cFormat, &s, &isKeyValue, useVAList, &args, argEnum);
+      rightKey = getKey(&cFormat, &s, &isKeyValue, useVAList, argEnum, args);
 
       operatorSelector = [EOQualifier operatorSelectorForString: operator];
       if (!operatorSelector)
@@ -805,13 +805,15 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, BOOL useVAList, va_list 
 + (EOQualifier *)qualifierWithQualifierFormat: (NSString *)format
 				    arguments: (NSArray *)args
 {
-  return _qualifierWithArgs(self, _cmd, format, NO, (va_list)0, args);	       
+  va_list varargs;
+
+  return _qualifierWithArgs(self, _cmd, format, NO, args, varargs);	       
 }
 
 + (EOQualifier *)qualifierWithQualifierFormat: (NSString *)format
 				   varargList: (va_list)args
 {
-  return _qualifierWithArgs(self, _cmd, format, YES, args, nil);	       
+  return _qualifierWithArgs(self, _cmd, format, YES, nil, args);	       
 }
 
 + (EOQualifier *)qualifierToMatchAllValues: (NSDictionary *)values
@@ -920,7 +922,7 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, BOOL useVAList, va_list 
   if (sel_eq(selector, EOQualifierOperatorEqual))
     return @"=";
   else if (sel_eq(selector, EOQualifierOperatorNotEqual))
-    return @"!=";
+    return @"<>";
   else if (sel_eq(selector, EOQualifierOperatorLessThan))
     return @"<";
   else if (sel_eq(selector, EOQualifierOperatorGreaterThan))
@@ -957,6 +959,8 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, BOOL useVAList, va_list 
     return EOQualifierOperatorNotEqual;
   else if ([string isEqualToString: @"!="])
     return EOQualifierOperatorNotEqual;
+  else if ([string isEqualToString: @"contains"])
+    return EOQualifierOperatorContains;
   else if ([string isEqualToString: @"doesContain"])
     return EOQualifierOperatorContains;
   else if ([string isEqualToString: @"like"])
@@ -1265,13 +1269,23 @@ _isLike (NSString *self, NSString *regExpr, BOOL isCaseSensative)
 
 	      for (; *cScanned != 0; cScanned++)
 		{
-		  if (*cScanned == '?' 
-		      && tokens[c - 1] != isLikeWildCardTokenS)
+		  if (*cScanned == '?') 
 		    {
-		      tokens[c++] = isLikeWildCardTokenQ; 
+		      /* sanitize the token list (*??bar -> ?*?bar -> ??*bar)
+			 throughout this loop */
+		      if (c != 0 && tokens[c - 1] == isLikeWildCardTokenS)
+			{
+			  /* replace *? with ?* which both match 1 or more */
+			  tokens[c - 1] = isLikeWildCardTokenQ;
+			  tokens[c++] = isLikeWildCardTokenS;
+			}
+		      else
+			{
+		          tokens[c++] = isLikeWildCardTokenQ;
+			}
 		    }
-		  else if (*cScanned == '*'
-		      && tokens[c - 1] != isLikeWildCardTokenS)
+		  else if (*cScanned == '*' /* ignore ** */
+		      && (c == 0 || tokens[c - 1] != isLikeWildCardTokenS))
 		    {
 		      tokens[c++] = isLikeWildCardTokenS;
 		    }
@@ -1292,10 +1306,13 @@ _isLike (NSString *self, NSString *regExpr, BOOL isCaseSensative)
 	}
       else if (tokens[i] == isLikeWildCardTokenS)
 	{
+	  // no more tokens except a * we have a match.
 	  if (i == c - 1)
 	    {
 	      return YES;
 	    }
+
+	  // tokens[i + 1] should be the 'bar' in *bar  
 	  [valueScanner scanUpToString: tokens[i + 1]
 			intoString: 0];
 	}

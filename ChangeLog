@@ -1,3 +1,16 @@
+2008-03-30  Matt Rice  <ratmice@gmail.com>
+
+	* EOControl/EOQualifier.m (_qualifierWithArgs),
+	(+qualifierWithQualifierFormat:varargList:),
+	(+qualifierWithQualifierFormat:arguments:)
+	(getKey): Don't use a pointer to a va_list. See 
+	http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14557
+	Also move variable argument parameters to the end
+	(_isLike): Fix a crash when matching the first character.
+	Fix handling of '*?' glob, comment. 
+	(operatorSelectorForString:): Add contains.
+	(stringForOperatorSelector:): Change string for not equals..
+
 2008-03-29  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOQualifier.m ([-dealloc]): Remove empty implementation.
