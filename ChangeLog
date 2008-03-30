@@ -1,3 +1,8 @@
+2008-03-30  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EOQualifier.m (getKey): Fix parsing of '%%'
+	as literal '%'.
+	
 2008-03-30  Matt Rice  <ratmice@gmail.com>
 
 	* EOControl/EOQualifier.m (_qualifierWithArgs),

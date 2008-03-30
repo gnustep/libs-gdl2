@@ -272,6 +272,7 @@ getKey(const unichar **cFormat,
 		     || **s == '@' || **s == '#' || **s == '_' || **s == '$' 
 		     || **s == '%' || **s == '.' || **s == '-'))
         {
+	  /* Parse format specifier */
 	  if (**s == '%')
 	    {
 	      const char *argString;
@@ -436,14 +437,18 @@ getKey(const unichar **cFormat,
 
 		case '%':
 		  {
-		    /* TODO userInfo would be nice */
-		    if ((*s - *cFormat) <= 2)
-		      [NSException raise:NSInvalidArgumentException
-				format:@"error parsing qualifier format"];
-		    *cFormat = *s + 2;
+		    /* The documentation states that '%%' results in a literal '%'.
+		       The intention seems to be to allow key/key qualifiers like foo = %%foo
+		       to be interpreted as foo = %foo. (Useful for in memory evaluation?) 
+		       Yet WO45 actually fails to parse this, but we can do better.  */
+		    NSString *str;
+
 		    (*s)++;
-		    [key appendString: [NSString stringWithCharacters: *cFormat
-					       length: *s - *cFormat]];
+		    str = [NSString stringWithCharacters: *cFormat
+				    length: *s - *cFormat];
+		    [key appendString: str];
+					       
+		    *cFormat = *s + 1;
 		  }
 		  break;
 
