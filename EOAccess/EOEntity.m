@@ -457,13 +457,19 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   if (_docComment)
     [propertyList setObject: _docComment
                   forKey: @"docComment"];
+
   if (_batchCount)
-    [propertyList setObject: [NSNumber numberWithInt: _batchCount]
+    [propertyList setObject: [NSString stringWithFormat:@"%d",  _batchCount]
                   forKey: @"maxNumberOfInstancesToBatchFetch"];
 
   if (_flags.cachesObjects)
-    [propertyList setObject: [NSNumber numberWithBool: _flags.cachesObjects]
+    [propertyList setObject: @"Y"
                   forKey: @"cachesObjects"];
+
+  if (_flags.isAbstractEntity)
+    [propertyList setObject: @"Y"
+                  forKey: @"isAbstractEntity"];
+
   if (_parent)
     [propertyList setObject: [_parent name]
 	    	  forKey: @"parent"];

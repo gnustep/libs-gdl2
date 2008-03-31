@@ -113,16 +113,11 @@ RCS_ID("$Id$")
       [self setParent: owner];
       [self setName: [propertyList objectForKey: @"name"]];
 
-      EOFLOGObjectLevelArgs(@"gsdb", @"Attribute parent=%p %@",
-		   owner, [(EOEntity *)owner name]);
-
-//      EOFLOGObjectLevel(@"gsdb", @"Attribute Entity=%@", [self entity]);
-
       [self setExternalType: [propertyList objectForKey: @"externalType"]];
 
       tmpString = [propertyList objectForKey: @"allowsNull"];
       if (tmpString)
-        [self setAllowsNull: [tmpString isEqual: @"Y"]];
+        [self setAllowsNull: [tmpString boolValue]];
 
       [self setValueType: [propertyList objectForKey: @"valueType"]];
       [self setValueClassName: [propertyList objectForKey: @"valueClassName"]];
@@ -198,23 +193,17 @@ RCS_ID("$Id$")
       tmpString = [propertyList objectForKey: @"parameterDirection"];
       if (tmpString)
         {
-	  if ([tmpString isKindOfClass: GDL2_NSNumberClass])
-	    {
-	      [self setParameterDirection: [tmpString intValue]];
-	    }
-	  else
-	    {
-	      EOParameterDirection eDirection = EOVoid;
+	  EOParameterDirection tmpDir = [tmpString intValue];
+	  EOParameterDirection eDirection = EOVoid;
 
-	      if ([tmpString isEqual: @"in"])
-		eDirection = EOInParameter;
-	      else if ([tmpString isEqual: @"out"])
-		eDirection = EOOutParameter;
-	      else if ([tmpString isEqual: @"inout"])
-		eDirection = EOInOutParameter;
+	  if ([tmpString isEqual: @"in"] || tmpDir == EOInParameter)
+ 	    eDirection = EOInParameter;
+	  else if ([tmpString isEqual: @"out"] || tmpDir == EOOutParameter)
+ 	    eDirection = EOOutParameter;
+	  else if ([tmpString isEqual: @"inout"] || tmpDir == EOInOutParameter)
+	    eDirection = EOInOutParameter;
 
-	      [self setParameterDirection: eDirection];
-	    }
+	  [self setParameterDirection: eDirection];
         }
 
       tmpObject = [propertyList objectForKey: @"userInfo"];
@@ -239,13 +228,9 @@ RCS_ID("$Id$")
       if (tmpString)
         [self setDocComment: tmpString];
 
-      EOFLOGObjectLevelArgs(@"gsdb", @"Attribute name=%@", _name);
-
       tmpString = [propertyList objectForKey: @"isReadOnly"];
-      EOFLOGObjectLevelArgs(@"gsdb", @"tmpString=%@", tmpString);
 
-      [self setReadOnly: [tmpString isEqual: @"Y"]];
-      EOFLOGObjectLevelArgs(@"gsdb", @"tmpString=%@", tmpString);
+      [self setReadOnly: [tmpString boolValue]];
     }
 
   return self;

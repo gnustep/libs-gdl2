@@ -92,7 +92,16 @@ RCS_ID("$Id$")
   if (!_userInfo)
     [self setUserInfo:[propertyList objectForKey:@"userInfo"]];
 
-  array = [propertyList objectForKey:@"attributes"];
+  array = [propertyList objectForKey:@"arguments"];
+  if (!array)
+    {
+      array = [propertyList objectForKey:@"attributes"];
+      if (array)
+        {
+	  NSLog(@"warning found 'attributes' key in property list you should"
+		@"fix your model files to use the 'arguments' key!!");
+	}
+    }
   if ([array count])
     {
       _arguments = [[NSMutableArray alloc] initWithCapacity: [array count]];
@@ -156,7 +165,7 @@ RCS_ID("$Id$")
 	  [attributesPList addObject: attributePList];
 	}
 
-      [propertyList setObject: attributesPList forKey: @"attributes"];
+      [propertyList setObject: attributesPList forKey: @"arguments"];
     }
 }
 

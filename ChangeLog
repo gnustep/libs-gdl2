@@ -1,3 +1,13 @@
+2008-03-31  Matt Rice  <ratmice@gmail.com>
+
+	* EOAccess/EOStoredProcedure.m (initWithPropertyList:owner:),
+	(encodeIntoPropertyList:): Change key from attributes to arguments.
+	* EOAccess/EOAttribute.m (initWithPropertyList:owner:):
+	Handle parameter direction being a string containing a number.
+	Use boolValue instead of comparing against Y.
+	* EOAccess/Entity.m (encodeIntoPropetyList:): Encode flags as
+	strings.
+
 2008-03-30  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOQualifier.m (getKey): Fix parsing of '%%'
