@@ -277,8 +277,11 @@ initialize(void)
 
   INITIALIZE;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
-  if ([key hasPrefix:@"@"])
+  if ([key isEqual: @"count"] || [key isEqual: @"@count"])
+    {
+      result = [NSDecimalNumber numberWithUnsignedInt: [self count]];
+    }
+  else if ([key hasPrefix:@"@"])
     {
       NSString *selStr;
       NSString *attrStr;
@@ -317,7 +320,6 @@ initialize(void)
 		     defaultResult: GDL2_EONull];
     }
 
-  EOFLOGObjectFnStopCond(@"EOKVC");
   return result;
 }
 
