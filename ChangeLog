@@ -1,3 +1,8 @@
+2008-04-03  Georg Fleischmann  <georg@vhf.de>
+
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLExpression.m
+	([+formatValue:forAttribute:]): Fix quoting.
+
 2008-04-01  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOKeyValueCoding.m

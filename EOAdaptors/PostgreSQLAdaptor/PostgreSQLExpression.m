@@ -343,8 +343,11 @@ RCS_ID("$Id$")
             {
               switch (tempString[i])
                 {
+		case '\'':
+		  [string insertString: @"'" atIndex: dif + i];
+                  dif++;
+                  break;
                 case '\\':
-                case '\'':
                   [string insertString: @"\\" atIndex: dif + i];
                   dif++;
                   break;
