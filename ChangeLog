@@ -1,3 +1,10 @@
+2008-04-03  Matt Rice  <ratmice@gmail.com>
+
+	* EOAccess/EOSQLExpression.m
+	(-[prepareSelectExpressionWithAttributes:lock:fetchSpecification:)]:
+	Conjoin the fetch specification qualifier with the restricting
+	qualifier.
+
 2008-04-03  Georg Fleischmann  <georg@vhf.de>
 
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLExpression.m

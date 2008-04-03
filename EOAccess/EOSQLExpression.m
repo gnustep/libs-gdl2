@@ -704,7 +704,17 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"fetchQualifier=%@",
 			fetchQualifier);
 
-  restrictingQualifier = [_entity restrictingQualifier]; //OK //nil //TODO use it !! 
+  restrictingQualifier = [_entity restrictingQualifier]; 
+
+  if (fetchQualifier && restrictingQualifier)
+    {
+      fetchQualifier = [[EOAndQualifier alloc] initWithQualifiers:fetchQualifier, restrictingQualifier, nil];
+      AUTORELEASE(fetchQualifier);
+    }
+  else
+    {
+      fetchQualifier = fetchQualifier ? fetchQualifier : restrictingQualifier;
+    }
 
   //Build Where Clause
   whereClauseString = [(id<EOQualifierSQLGeneration>)fetchQualifier sqlStringForSQLExpression: self];
