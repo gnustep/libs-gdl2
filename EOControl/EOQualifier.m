@@ -37,6 +37,7 @@ RCS_ID("$Id$")
 
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #ifdef GNUSTEP
 #include <Foundation/NSCoder.h>
@@ -194,9 +195,8 @@ static id
 getKey(const unichar **cFormat, 
        const unichar **s,
        BOOL *isKeyValue,
-       BOOL useVAList,
        NSEnumerator *argsEnum,
-       va_list args)
+       va_list *args)
 {
   NSMutableString *key;
   NSString *classString = nil;
@@ -299,9 +299,9 @@ getKey(const unichar **cFormat,
 	      switch (*(*s+1))
 		{
 		case '@':
-		  if (useVAList)
+		  if (args)
 		    {
-		      argObj = va_arg(args, id);
+		      argObj = va_arg(*args, id);
 		    }
 		  else
 		    {
@@ -331,9 +331,9 @@ getKey(const unichar **cFormat,
 		  break;
 
 		case 's':
-		  if (useVAList)
+		  if (args)
 		    {
-		      argString = va_arg(args, const char *);
+		      argString = va_arg(*args, const char *);
 		    }
 		  else
 		    {
@@ -365,9 +365,9 @@ getKey(const unichar **cFormat,
 		  break;
 
 		case 'd':
-		  if (useVAList)
+		  if (args)
 		    {
-		      argInt = va_arg(args, int);
+		      argInt = va_arg(*args, int);
 		    }
 		  else
 		    {
@@ -399,11 +399,11 @@ getKey(const unichar **cFormat,
 		  break;
 
 		case 'f':
-		  if (useVAList)
+		  if (args)
 		    {
 		      /* 'float' is promoted to 'double' when passed through '...'
 			 (so you should pass `double' not `float' to `va_arg') */
-		      argFloat = va_arg(args, double);
+		      argFloat = va_arg(*args, double);
 		    }
 		  else
 		    {
@@ -589,7 +589,7 @@ whichQualifier(const unichar **cFormat, const unichar **s)
 }
 
 static EOQualifier *
-_qualifierWithArgs(id self, SEL _cmd, NSString *format, BOOL useVAList, NSArray *array, va_list args)
+_qualifierWithArgs(id self, SEL _cmd, NSString *format, NSArray *array, va_list *args)
 {
   NSEnumerator *argEnum = [array objectEnumerator];
   unichar *s0;
@@ -656,9 +656,9 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, BOOL useVAList, NSArray 
       }
       
       notQual = isNotQualifier(&cFormat, &s);
-      leftKey = getKey(&cFormat, &s, NULL, useVAList, argEnum, args);
+      leftKey = getKey(&cFormat, &s, NULL, argEnum, args);
       operator = getOperator(&cFormat, &s);
-      rightKey = getKey(&cFormat, &s, &isKeyValue, useVAList, argEnum, args);
+      rightKey = getKey(&cFormat, &s, &isKeyValue, argEnum, args);
 
       operatorSelector = [EOQualifier operatorSelectorForString: operator];
       if (!operatorSelector)
@@ -810,15 +810,19 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, BOOL useVAList, NSArray 
 + (EOQualifier *)qualifierWithQualifierFormat: (NSString *)format
 				    arguments: (NSArray *)args
 {
-  va_list varargs;
-
-  return _qualifierWithArgs(self, _cmd, format, NO, args, varargs);	       
+  return _qualifierWithArgs(self, _cmd, format, args, NULL);
 }
 
 + (EOQualifier *)qualifierWithQualifierFormat: (NSString *)format
 				   varargList: (va_list)args
 {
-  return _qualifierWithArgs(self, _cmd, format, YES, nil, args);	       
+  EOQualifier *qualifier;
+  va_list varargs;
+
+  va_copy(varargs, args);
+  qualifier = _qualifierWithArgs(self, _cmd, format, nil, &varargs);
+  va_end(varargs);
+  return qualifier;
 }
 
 + (EOQualifier *)qualifierToMatchAllValues: (NSDictionary *)values

@@ -1,3 +1,14 @@
+2008-04-24  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EOQualifer.m: Include <stdarg.h> explicitly.
+	(getKey): Accept pointer to a va_list instead of the value.
+	Remove usage of useVAList
+	(_qualifierWithArgs): Ditto.
+	(qualifierWithQualifierFormat:arguments:): Pass NULL as va_list
+	pointer anddrop obsoleted va_list variable and useVAList parameter.
+	(qualifierWithQualifierFormat:varargList:): Copy va_list to local
+	variable before passing a reference to it.
+	
 2008-04-03  Matt Rice  <ratmice@gmail.com>
 
 	* EOAccess/EOSQLExpression.m
