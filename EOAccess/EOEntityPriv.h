@@ -92,6 +92,7 @@ GDL2ACCESS_EXPORT void GDL2DestinationEntitiesRemoveRelationship(EOEntity *entit
 - (Class)classForObjectWithGlobalID: (EOKeyGlobalID *)globalID;
 - (id)globalIDForRow: (NSDictionary *)row
 	     isFinal: (BOOL)isFinal;
+- (BOOL) _hasAttributeNamed:(NSString *)name;
 @end
 
 @interface EOEntity (EOEntityRelationshipPrivate)

@@ -1178,7 +1178,7 @@ relationships. Nil if none" **/
 					 *p]
                         userInfo: nil];
       
-      if ([[self entity] anyAttributeNamed: name])
+      if ([[self entity] _hasAttributeNamed: name])
         exc++;
       else if ([[self entity] anyRelationshipNamed: name])
         exc++;

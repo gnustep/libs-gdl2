@@ -903,6 +903,13 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   attr = [self attributeNamed:attributeName];
 
   //VERIFY
+  /* I suppose this is intended to find the 'hidden' attributes mentioned in
+   * the documentation of this method, but if these are in -primaryKeyAttributes
+   * they don't appear to be well hidden, and _primaryKeyAttributes is filled
+   * by calling -attributeNamed: and doesn't appear to be modified outside
+   * -primaryKeyAttributes:, so this check appears to be redundant to the one
+   * above.
+   */
   if (!attr)
     {
       IMP enumNO=NULL;
@@ -2240,6 +2247,13 @@ createInstanceWithEditingContext:globalID:zone:
 @end
 
 @implementation EOEntity (EOEntityPrivate)
+
+/* private method for finding out if there is an attribute with a name
+   without triggering lazy loading */
+- (BOOL) _hasAttributeNamed:(NSString *)name
+{
+   return [[_attributes valueForKey:@"name"] containsObject:name];
+}
 
 - (BOOL)isPrototypeEntity
 {

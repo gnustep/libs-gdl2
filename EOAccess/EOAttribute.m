@@ -739,7 +739,7 @@ RCS_ID("$Id$")
 					  name,
 					  *p]
 			userInfo: nil];
-      if ([[self entity] attributeNamed:name])
+      if ([[self entity] _hasAttributeNamed:name])
 	exc++;
       else if ((storedProcedures = [[[self entity] model] storedProcedures]))
         {

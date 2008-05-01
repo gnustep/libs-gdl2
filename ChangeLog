@@ -1,3 +1,13 @@
+2008-05-01  Matt Rice  <ratmice@gmail.com>
+
+	* EOAccess/EOEntityPriv.h: Declare new private method
+	_hasAttributeNamed:.
+	* EOAccess/EOEntity.m (-_hasAttributeNamed:): New private method.
+	(-anyAttributeNamed:): Add a comment.
+	* EOAccess/EOAttribute.m (-validateName:): Use -_hasAttributeNamed:
+	instead of -anyAttributeNamed:
+	* EOAccess/EORelationship.m (-validateName:): Ditto.
+
 2008-04-24  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOQualifer.m: Include <stdarg.h> explicitly.
