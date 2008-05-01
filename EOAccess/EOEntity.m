@@ -1549,17 +1549,10 @@ createInstanceWithEditingContext:globalID:zone:
   //OK
   NSMutableDictionary *dictionaryForPrimaryKey = nil;
 
-  EOFLOGObjectFnStart();
-
-  NSDebugMLLog(@"EOEntity", @"gid=%@", gid);
-
   if ([gid isKindOfClass: [EOKeyGlobalID class]]) //if ([gid isFinal])//?? or class test ??//TODO
     {
       NSArray *primaryKeyAttributeNames = [self primaryKeyAttributeNames];
       int count = [primaryKeyAttributeNames count];
-
-      NSDebugMLLog(@"EOEntity", @"primaryKeyAttributeNames=%@",
-		   primaryKeyAttributeNames);
 
       if (count > 0)
         {
@@ -1575,8 +1568,6 @@ createInstanceWithEditingContext:globalID:zone:
               NSAssert1(dictionaryForPrimaryKey,
 			@"No dictionaryForPrimaryKey in entity %@",
                         [self name]);
-              NSDebugMLLog(@"EOEntity", @"dictionaryForPrimaryKey=%@",
-			   dictionaryForPrimaryKey);
 
               for (i = 0; i < count; i++)
                 {
@@ -1593,11 +1584,6 @@ createInstanceWithEditingContext:globalID:zone:
       NSDebugLog(@"EOEntity (%@): primaryKey is *nil* for globalID = %@",
 		 _name, gid);
     }
-
-  NSDebugMLLog(@"EOEntity", @"dictionaryForPrimaryKey=%@",
-	       dictionaryForPrimaryKey);
-
-  EOFLOGObjectFnStop();
 
   return dictionaryForPrimaryKey;
 }
@@ -2847,21 +2833,11 @@ createInstanceWithEditingContext:globalID:zone:
   EOMKKDInitializer *propertyDictionaryInitializer = nil;
   EOMutableKnownKeyDictionary *dictionaryForProperties = nil;
 
-  EOFLOGObjectFnStart();
-
   propertyDictionaryInitializer = [self _propertyDictionaryInitializer];
 
-  EOFLOGObjectLevelArgs(@"EOEntity", @"propertyDictionaryInitializer=%@",
-			propertyDictionaryInitializer);
-
-  dictionaryForProperties = [EOMutableKnownKeyDictionary
-			      dictionaryWithInitializer:
+  dictionaryForProperties
+    = [EOMutableKnownKeyDictionary dictionaryWithInitializer:
 				propertyDictionaryInitializer];
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"dictionaryForProperties=%@",
-			dictionaryForProperties);
-
-  EOFLOGObjectFnStop();
 
   return dictionaryForProperties;
 }
@@ -2875,12 +2851,7 @@ returns nil if there's no key in the instanceDictionaryInitializer
   EOMKKDInitializer *instanceDictionaryInitializer = nil;
   EOMutableKnownKeyDictionary *dictionaryForProperties = nil;
 
-  EOFLOGObjectFnStart();
-
   instanceDictionaryInitializer = [self _instanceDictionaryInitializer];
-
-  EOFLOGObjectLevelArgs(@"EOEntity", @"instanceDictionaryInitializer=%@",
-			instanceDictionaryInitializer);
 
   // No need to build the dictionary if there's no key.
   // The only drawback I see is if someone use extraData feature of MKK dictionary
@@ -2890,10 +2861,6 @@ returns nil if there's no key in the instanceDictionaryInitializer
                                   dictionaryWithInitializer:
                                     instanceDictionaryInitializer];
     }
-  EOFLOGObjectLevelArgs(@"EOEntity", @"dictionaryForProperties=%@",
-			dictionaryForProperties);
-
-  EOFLOGObjectFnStop();
 
   return dictionaryForProperties;
 }

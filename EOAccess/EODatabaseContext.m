@@ -2284,9 +2284,6 @@ forDatabaseOperation:(EODatabaseOperation *)op
         }
     };
 
-  NSLog(@"** %@ # %@", globalID, [op dbSnapshot]);
-  NSLog(@"-- %@", [op newRow]);
-
   NSMapInsert(_dbOperationsByGlobalID, globalID, op);
 
   return op;
@@ -6712,7 +6709,7 @@ Raises an exception is the adaptor is unable to perform the operations.
               if (![foreignKeyForSourceRow
                      containsObjectsNotIdenticalTo: GDL2_EONull])
                 {
-                  NSLog(@"foreignKeyForSourceRow=%@",foreignKeyForSourceRow);
+                  NSLog(@"foreignKeyForSourceRow=%@",[foreignKeyForSourceRow debugDescription]);
                   NSEmitTODO();//TODO: what to do if rel is mandatory ?
                   relObject = nil;
                 }
