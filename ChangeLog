@@ -1,9 +1,15 @@
+2008-05-03  Matt Rice  <ratmice@gmail.com>
+
+	* EOAccess/EOEntity.m (-[isValidPrimaryKeyAttribute:],
+	-[isValidAttributeUsedForLocking:],
+	-[isValidClassProperty:]): Test object equality as well as name.
+
 2008-05-01  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EODatabaseContext.m 
 	([-initializeObject:row:entity:editingContext:]): Remove debug logs.
 	* EOAccess/EOEntity.m ([-_dictionaryForInstanceProperties],
-	[-primaryKeyForGlobalID:]) Remove debug logs.
+	[-primaryKeyForGlobalID:]): Remove debug logs.
 	
 2008-05-01  Matt Rice  <ratmice@gmail.com>
 

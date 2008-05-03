@@ -1432,7 +1432,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 - (BOOL)isValidAttributeUsedForLocking: (EOAttribute *)attribute
 {
   if (!([attribute isKindOfClass: GDL2_EOAttributeClass]
-	&& [[self attributesByName] objectForKey: [attribute name]]))
+	&& ([self attributeNamed: [attribute name]] == attribute)))
     return NO;
 
   if ([attribute isDerived])
@@ -1444,7 +1444,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 - (BOOL)isValidPrimaryKeyAttribute: (EOAttribute *)attribute
 {
   if (!([attribute isKindOfClass: GDL2_EOAttributeClass]
-	&& [[self attributesByName] objectForKey: [attribute name]]))
+	&& ([self attributeNamed: [attribute name]] == attribute)))
     return NO;
 
   if ([attribute isDerived])
@@ -1496,8 +1496,8 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 
   thePropertyName = [(EOAttribute *)property name];
 
-  if ([[self attributesByName] objectForKey: thePropertyName]
-      || [[self relationshipsByName] objectForKey: thePropertyName])
+  if ([[self attributesByName] objectForKey: thePropertyName] == property
+      || [[self relationshipsByName] objectForKey: thePropertyName] == property)
     return YES;
 
   return NO;
