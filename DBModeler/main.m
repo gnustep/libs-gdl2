@@ -24,9 +24,16 @@
 **/
 
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSAutoreleasePool.h>
+#endif
+
 #include <EOModeler/EOModelerApp.h>
 #include "Modeler.h"
+
+#include <GNUstepBase/GNUstep.h>
 
 int main (int argc, const char **argv)
 {

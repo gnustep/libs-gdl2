@@ -26,14 +26,22 @@
 
 #include "Preferences.h"
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSInvocation.h>
 #include <Foundation/NSUserDefaults.h>
+#endif
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSNibLoading.h>
 #include <AppKit/NSWindow.h>
 #include <AppKit/NSButton.h>
 #include <AppKit/NSTableView.h>
 #include <AppKit/NSMatrix.h>
+#endif
 
 #define DisableAttributeDetailsCheck      @"DisableAttributeDetailsCheck"
 #define DisableEntityStoredProcedureCheck @"DisableEntityStoredProcedureCheck"

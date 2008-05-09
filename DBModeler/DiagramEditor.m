@@ -28,8 +28,15 @@
 #include <EOModeler/EOModelerDocument.h>
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
+
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSScrollView.h>
 #include <AppKit/NSClipView.h>
+#endif
+
+#include <GNUstepBase/GNUstep.h>
 
 @implementation DiagramEditor
 - (void) dealloc

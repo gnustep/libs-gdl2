@@ -23,9 +23,19 @@
     </license>
 **/
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSObject.h>
-#include <AppKit/NSNibDeclarations.h>
+#endif
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
+#include <AppKit/NSNibDeclarations.h>
+#endif
+
+@class NSArray;
 @class NSWindow;
 @class NSButton;
 @class NSTableView;

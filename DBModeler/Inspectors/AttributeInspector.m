@@ -22,7 +22,15 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "AttributeInspector.h"
+
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSObjCRuntime.h>
+#endif
+
+#include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSCategories.h>
 
 #define NO_ZEROS(x, i) i ? [x setIntValue:i] : [x setStringValue:@""];
 

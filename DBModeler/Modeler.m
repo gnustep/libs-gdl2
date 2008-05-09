@@ -44,10 +44,21 @@
 
 #include <EOControl/EOObserver.h>
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSOpenPanel.h>
+#endif
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSObject.h>
 #include <Foundation/NSFileManager.h>
+#endif
+
+#include <GNUstepBase/GNUstep.h>
+
 @interface DebugObserver : NSObject <EOObserving> 
 {
 

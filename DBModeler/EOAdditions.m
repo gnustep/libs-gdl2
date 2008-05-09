@@ -27,8 +27,14 @@
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EORelationship.h>
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSArray.h>
 #include <Foundation/NSValue.h>
+#endif
+
+#include <GNUstepBase/GNUstep.h>
 
 /* this is all stuff for key value coding.. */
 static inline NSNumber * isClassProperty(id self)

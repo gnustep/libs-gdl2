@@ -26,14 +26,23 @@
 #include "SQLGenerator.h"
 #include "Modeler.h"
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSException.h>
 #include <Foundation/NSDictionary.h>
+#endif
+
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSNibLoading.h>
 
 #include <AppKit/NSButton.h>
 #include <AppKit/NSTextView.h>
 #include <AppKit/NSSavePanel.h>
 #include <AppKit/NSWindow.h>
+#endif
 
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAdaptorChannel.h>
@@ -43,6 +52,8 @@
 #include <EOAccess/EOModel.h>
 #include <EOModeler/EOModelerApp.h>
 #include <EOModeler/EOModelerDocument.h>
+
+#include <GNUstepBase/GNUstep.h>
 
 static SQLGenerator *sharedGenerator;
 static BOOL loadedNib;

@@ -31,11 +31,15 @@
 
 #include <EOInterface/EODisplayGroup.h>
 #include <EOAccess/EOEntity.h>
+#include <EOAccess/EOModel.h>
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EOObserver.h>
 #include <EOModeler/EOModelerApp.h>
 #include <EOModeler/EOModelerDocument.h>
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSImage.h>
 #include <AppKit/NSSplitView.h>
 #include <AppKit/NSScrollView.h>
@@ -45,6 +49,9 @@
 #include <AppKit/NSMenuItem.h>
 #include <AppKit/NSPopUpButton.h>
 #include <AppKit/NSPopUpButtonCell.h>
+#endif
+
+#include <GNUstepBase/GNUstep.h>
 
 @interface EOModelerDocument (asdf)
 -(void)_setDisplayGroup:(id)displayGroup;

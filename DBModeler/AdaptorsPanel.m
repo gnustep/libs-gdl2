@@ -25,6 +25,9 @@
 
 #include "AdaptorsPanel.h"
 #include <AppKit/AppKit.h>
+
+#include <GNUstepBase/GNUstep.h>
+
 static NSArray *_adaptorNames;
 
 @implementation AdaptorsPanel

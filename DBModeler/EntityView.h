@@ -25,7 +25,12 @@
 
 #ifndef _ENTITY_VIEW_H
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSView.h>
+#endif
+
 #include <EOAccess/EOEntity.h>
 #include "AttributeCell.h"
 

@@ -23,7 +23,11 @@
     </license>
 **/
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSObject.h>
+#endif
 
 @class NSNotification;
 

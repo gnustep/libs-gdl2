@@ -23,7 +23,12 @@
 */
 
 #include <EOModeler/EOMInspector.h>
+
+#ifdef NeXT_GUI_LIBRARY
 #include <AppKit/AppKit.h>
+#else
+#include <AppKit/AppKit.h>
+#endif
 
 @class EOModel;
 @class EOEntity;

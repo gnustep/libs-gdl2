@@ -31,7 +31,11 @@
 #include <EOInterface/EOColumnAssociation.h>
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
+#include <EOAccess/EORelationship.h>
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSTableColumn.h>
 #include <AppKit/NSTableHeaderCell.h>
 #include <AppKit/NSCell.h>
@@ -39,8 +43,15 @@
 #include <AppKit/NSButtonCell.h>
 #include <AppKit/NSTableView.h>
 #include <AppKit/NSImage.h>
+#endif
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSDictionary.h>
+#endif
+
+#include <GNUstepBase/GNUstep.h>
 
 #define DICTSIZE(dict) (sizeof(dict) / sizeof(dict[0]))
 

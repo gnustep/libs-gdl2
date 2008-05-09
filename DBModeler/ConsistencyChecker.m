@@ -35,7 +35,11 @@
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EORelationship.h>
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSNotification.h>
+#endif
 
 #define MY_PRETTY NSMutableAttributedString \
 	mutableAttributedStringWithBoldSubstitutionsWithFormat

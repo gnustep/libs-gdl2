@@ -27,17 +27,31 @@
 #include "DiagramView.h"
 #include "EntityView.h"
 #include "AttributeCell.h"
+
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSSet.h>
+#endif
+
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
+#include <AppKit/NSColor.h>
 #include <AppKit/NSScrollView.h>
 #include <AppKit/NSEvent.h>
 #include <AppKit/NSGraphics.h>
 #include <AppKit/NSBezierPath.h>
 #include <AppKit/NSPasteboard.h>
 #include <AppKit/NSDragging.h>
+#endif
+
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EORelationship.h>
 #include <EOModeler/EOModelExtensions.h>
+
+#include <GNUstepBase/GNUstep.h>
 
 @implementation DiagramView
 - (id) initWithFrame:(NSRect)frameRect

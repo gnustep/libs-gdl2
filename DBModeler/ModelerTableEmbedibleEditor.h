@@ -25,7 +25,13 @@
 */ 
 
 #include <EOModeler/EOModelerEditor.h>
+
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSMenuItem.h>
+#endif
+
 @class EODisplayGroup;
 @class NSPopUpButton;
 @class NSTableView;

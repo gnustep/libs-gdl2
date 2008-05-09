@@ -25,8 +25,12 @@
 
 #ifndef __ATTRIBUTE_CELL_H
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSCell.h>
 #include <AppKit/NSTextFieldCell.h>
+#endif
 
 @class NSImageCell;
 

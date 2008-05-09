@@ -32,7 +32,11 @@
 #include <EOModeler/EOModelerApp.h>
 #include <EOModeler/EOModelerDocument.h>
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSArray.h>
+#endif
 
 @implementation RelationshipInspector
 

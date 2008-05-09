@@ -23,7 +23,12 @@
     </license>
 **/
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSRunLoop.h>
+#include <Foundation/NSNotification.h>
+#endif
 
 #include "MainModelEditor.h"
 #include "ModelerEntityEditor.h"
@@ -36,11 +41,16 @@
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOAttribute.h>
+#include <EOAccess/EORelationship.h>
 
 #include <EOControl/EOObserver.h>
 #include <EOControl/EOEditingContext.h>
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSPanel.h>
+#include <AppKit/NSBox.h>
 #include <AppKit/NSImage.h>
 #include <AppKit/NSOutlineView.h>
 #include <AppKit/NSPasteboard.h>
@@ -48,8 +58,11 @@
 #include <AppKit/NSSplitView.h>
 #include <AppKit/NSTableColumn.h>
 #include <AppKit/NSView.h>
+#include <AppKit/NSWindowController.h>
+#endif
 
-#include <Foundation/NSNotification.h>
+#include <GNUstepBase/GNUstep.h>
+
 #define DEBUG_STUFF 0 
 
 @interface ModelerOutlineView : NSOutlineView

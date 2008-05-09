@@ -25,11 +25,20 @@
 #include <EOAccess/EOAttribute.h>
 #include <EOModeler/EOMInspector.h>
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSBox.h>
 #include <AppKit/NSTextField.h>
 #include <AppKit/NSPopUpButton.h>
 #include <AppKit/NSNibDeclarations.h>
+#endif
+
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSDictionary.h>
+#endif
 
 
 @interface AttributeInspector : EOMInspector

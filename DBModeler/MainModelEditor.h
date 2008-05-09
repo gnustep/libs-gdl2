@@ -26,9 +26,13 @@
 
 #include <EOModeler/EOModelerEditor.h>
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSOutlineView.h>
 #include <AppKit/NSWindow.h>
 #include <AppKit/NSSplitView.h>
+#endif
 
 @interface MainModelEditor : EOModelerCompoundEditor
 {

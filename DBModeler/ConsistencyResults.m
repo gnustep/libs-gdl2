@@ -26,12 +26,16 @@
 
 #include <ConsistencyResults.h>
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSApplication.h>
 #include <AppKit/NSButton.h>
 #include <AppKit/NSNibLoading.h>
 #include <AppKit/NSPanel.h>
 #include <AppKit/NSTextView.h>
 #include <AppKit/NSTextStorage.h>
+#endif
 
 static ConsistencyResults *_sharedResults;
 

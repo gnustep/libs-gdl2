@@ -24,7 +24,13 @@
 **/
 
 #ifndef __DIAGRAM_VIEW_H
+
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSView.h>
+#endif
+
 @class NSColor;
 @class NSMutableDictionary;
 @class EOModel;

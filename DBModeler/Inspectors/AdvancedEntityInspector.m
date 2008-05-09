@@ -25,9 +25,19 @@
 #include <EOModeler/EOMInspector.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOModel.h>
+
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSButton.h>
 #include <AppKit/NSTableView.h>
+#endif
+
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSValue.h>
+#endif
 
 @implementation AdvancedEntityInspector
 - (NSString *)displayName

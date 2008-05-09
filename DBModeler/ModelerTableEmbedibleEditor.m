@@ -26,16 +26,23 @@
 
 #include "ModelerTableEmbedibleEditor.h"
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSMenuItem.h>
 #include <AppKit/NSPopUpButton.h>
 #include <AppKit/NSTableColumn.h>
 #include <AppKit/NSTableView.h>
 #include <AppKit/NSScrollView.h>
 #include <AppKit/NSImage.h>
+#endif
 
 #include <EOInterface/EODisplayGroup.h>
 #include <EOInterface/EOAssociation.h>
 #include "EOModeler/EOModelerApp.h"
+
+#include <GNUstepBase/GNUstep.h>
+
 /* base class with some methods shared among default embedible editors */
 @implementation ModelerTableEmbedibleEditor : EOModelerEmbedibleEditor
 - (void) setupCornerView:(NSPopUpButton *)cornerView

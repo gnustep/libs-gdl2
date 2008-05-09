@@ -27,7 +27,14 @@
 #include "DiagramView.h"
 #include "AttributeCell.h"
 #include "NSView+Additions.h"
+
+
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSApplication.h>
+#include <AppKit/NSColor.h>
+#include <AppKit/NSFont.h>
 #include <AppKit/NSGraphics.h>
 #include <AppKit/NSTextFieldCell.h>
 #include <AppKit/NSMatrix.h>
@@ -36,8 +43,9 @@
 #include <AppKit/NSImageCell.h>
 #include <AppKit/NSImage.h>
 #include <AppKit/NSScrollView.h>
+#endif
 
-
+#include <GNUstepBase/GNUstep.h>
 
 @interface AttributeMatrix : NSMatrix
 @end

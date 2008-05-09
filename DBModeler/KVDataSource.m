@@ -30,10 +30,17 @@
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EOEditingContext.h>
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSCoder.h>
 #include <Foundation/NSArray.h>
 #include <Foundation/NSException.h>
+#endif
+
 #include "KVDataSource.h"
+
+#include <GNUstepBase/GNUstep.h>
 
 @implementation KVDataSource
 

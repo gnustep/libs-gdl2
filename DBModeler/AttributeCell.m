@@ -24,10 +24,17 @@
 **/
 
 #include "AttributeCell.h"
+
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSTextFieldCell.h>
 #include <AppKit/NSImageCell.h>
 #include <AppKit/NSImage.h>
 #include <AppKit/NSGraphics.h>
+#endif
+
+#include <GNUstepBase/GNUstep.h>
 
 @implementation TitleCell
 - (void) setShowsFirstResponder:(BOOL)flag

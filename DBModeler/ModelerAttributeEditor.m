@@ -28,6 +28,9 @@
 #include "ModelerEntityEditor.h"
 #include "KVDataSource.h"
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSImage.h>
 #include <AppKit/NSTableView.h>
 #include <AppKit/NSTableColumn.h>
@@ -35,8 +38,11 @@
 #include <AppKit/NSPopUpButtonCell.h>
 #include <AppKit/NSScrollView.h>
 #include <AppKit/NSSplitView.h>
+#endif
 
+#include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
+#include <EOAccess/EORelationship.h>
 
 #include <EOControl/EOEditingContext.h>
 
@@ -45,8 +51,14 @@
 
 #include <EOInterface/EODisplayGroup.h>
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSRunLoop.h>
+#endif
   
+#include <GNUstepBase/GNUstep.h>
+
 @interface NSArray (EOMAdditions)
 - (id) firstSelectionOfClass:(Class) aClass;
 @end
