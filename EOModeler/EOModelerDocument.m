@@ -190,6 +190,8 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   NS_HANDLER
     return nil;
   NS_ENDHANDLER
+
+  return nil;
 }
 
 - (EOModel *)model;
@@ -254,6 +256,8 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 		       [localException reason]);
     return NO;
   NS_ENDHANDLER
+
+  return NO;
 }
 
 - (BOOL)checkCloseDocument

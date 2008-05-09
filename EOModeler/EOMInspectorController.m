@@ -175,7 +175,7 @@ static NSMatrix *_iconBar;
 	      [inspector prepareForDisplay];
 	  
 	      if ([lastInspector view] && lastInspector != inspector)
-	        [[window contentView] removeSubview:[lastInspector view]];
+                [[lastInspector view] removeFromSuperview];
 
 	      if ([inspector view] && lastInspector != inspector)
 	        [[window contentView] addSubview:[inspector view]];
@@ -209,7 +209,7 @@ static NSMatrix *_iconBar;
   [inspector prepareForDisplay];
   
   if ([lastInspector view] && lastInspector != inspector)
-    [[window contentView] removeSubview:[lastInspector view]];
+    [[lastInspector view] removeFromSuperview];
 
   if ([inspector view] && lastInspector != inspector)
     [[window contentView] addSubview:[inspector view]];

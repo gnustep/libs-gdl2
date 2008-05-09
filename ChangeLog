@@ -2,6 +2,10 @@
 
 	* DBModeler/*.[h,m]: Fix includes for OS X.
 	* EOModeler/*.[h,m]: Fix includes for OS X.
+	* EOModeler/EOModelerDocument.m: Add return statements to suppress
+	warnings.
+	* EOModeler/EOMInspectorController.m: Use -removeFromSuperview instead
+	of -removeSubview.
 
 2008-05-03  Matt Rice  <ratmice@gmail.com>
 
