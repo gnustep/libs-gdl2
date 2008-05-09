@@ -1,6 +1,7 @@
 2008-05-09  Blake Nicholson  <blaken@umich.edu>
 
 	* DBModeler/*.[h,m]: Fix includes for OS X.
+	* EOModeler/*.[h,m]: Fix includes for OS X.
 
 2008-05-03  Matt Rice  <ratmice@gmail.com>
 

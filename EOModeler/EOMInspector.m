@@ -26,11 +26,21 @@
 **/
 
 #include <AppKit/AppKit.h>
+
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
+#include <Foundation/NSArray.h>
+#endif
+
 #include "EOModeler/EOMInspector.h"
 #include "EOModeler/EOMInspectorController.h"
 #include "EOModeler/EOModelerApp.h"
 #include "EOModeler/EOModelerEditor.h"
-#include <Foundation/NSArray.h>
+
+#include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSObjCRuntime.h>
+
 static NSMapTable *_inspectorsByClass;
 
 

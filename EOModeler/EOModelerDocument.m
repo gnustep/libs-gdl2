@@ -30,8 +30,12 @@
 #include "EOModeler/EOModelerEditor.h"
 #include "EOModeler/EOModelerApp.h"
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSMenuItem.h>
 #include <AppKit/NSOpenPanel.h>
+#endif
 
 #include <EOInterface/EODisplayGroup.h>
 
@@ -44,6 +48,9 @@
 
 #include <EOControl/EOEditingContext.h>
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSAttributedString.h>
 #include <Foundation/NSCharacterSet.h>
 #include <Foundation/NSException.h>
@@ -51,6 +58,9 @@
 #include <Foundation/NSUndoManager.h>
 #include <Foundation/NSUserDefaults.h>
 #include <Foundation/NSValue.h>
+#endif
+
+#include <GNUstepBase/GNUstep.h>
 
 @interface ConsistencyResults : NSObject 
 + (id) sharedConsistencyPanel;

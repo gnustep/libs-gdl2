@@ -32,13 +32,24 @@
 
 #include <EOControl/EOObserver.h>
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSView.h>
+#endif
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSArray.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSNotification.h>
 #include <Foundation/NSObject.h>
 #include <Foundation/NSRunLoop.h>
+#endif
+
+#include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSCategories.h>
 
 @implementation EOModelerEditor
 - (void) dealloc

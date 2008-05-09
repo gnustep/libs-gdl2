@@ -25,8 +25,12 @@
   </license>
 **/
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSArray.h>
 #include <Foundation/NSDictionary.h>
+#endif
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOModelGroup.h>
@@ -34,6 +38,8 @@
 #include "EOModeler/EODefines.h"
 #include "EOModeler/EOModelerApp.h"
 #include "EOModeler/EOModelerDocument.h"
+
+#include <GNUstepBase/GNUstep.h>
 
 EOModelerApp *EOMApp;
 NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";

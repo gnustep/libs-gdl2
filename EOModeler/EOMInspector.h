@@ -26,8 +26,17 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSNibDeclarations.h>
+#endif
+
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSObject.h>
+#endif
 
 @class NSArray;
 @class NSWindow;

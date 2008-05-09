@@ -31,13 +31,21 @@
 #include <GNUstepBase/GSCategories.h>
 #endif
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSDictionary.h>
 #include <Foundation/NSEnumerator.h>
 #include <Foundation/NSScanner.h>
 #include <Foundation/NSString.h>
+#endif
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSFont.h>
 #include <AppKit/NSAttributedString.h>
+#endif
 
 #include <EOControl/EODebug.h>
 

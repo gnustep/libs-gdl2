@@ -30,15 +30,24 @@
 #include <EOModeler/EOMInspectorController.h>
 #include <EOModeler/EOModelerEditor.h>
 
+#ifdef NeXT_GUI_LIBRARY
+#include <AppKit/AppKit.h>
+#else
 #include <AppKit/NSBox.h>
 #include <AppKit/NSButtonCell.h>
 #include <AppKit/NSMatrix.h>
 #include <AppKit/NSScrollView.h>
 #include <AppKit/NSPanel.h>
+#include <AppKit/NSView.h>
+#endif
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
 #include <Foundation/NSNotification.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSArray.h>
+#endif
 
 static EOMInspectorController *_sharedInspectorController;
 
