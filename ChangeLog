@@ -1,3 +1,8 @@
+2008-05-11  Blake Nicholson  <blaken@umich.edu>
+
+	* GNUmakefile.in: Add EOInterface, EOModeler, and DBModeler to
+	SUBPROJECTS if GUI_LIB is apple.
+
 2008-05-09  Blake Nicholson  <blaken@umich.edu>
 
 	* DBModeler/*.[h,m]: Fix includes for OS X.
