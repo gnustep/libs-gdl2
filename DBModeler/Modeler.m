@@ -78,7 +78,7 @@
 @implementation NSMenu (im_lazy)
 - (NSMenuItem *)addItemWithTitle: (NSString *)s
 {
-        return [self addItemWithTitle: s  action: nil keyEquivalent: @""];
+        return [self addItemWithTitle: s  action: NULL keyEquivalent: @""];
 }
 
 - (NSMenuItem *)addItemWithTitle: (NSString *)s  action: (SEL)sel
@@ -132,7 +132,7 @@
   [subMenu setAutoenablesItems:YES];
 
   [subMenu addItemWithTitle: _(@"About DBModeler")
-                     action: nil];
+                     action: NULL];
 
   [subMenu addItem: [NSMenuItem separatorItem]];
 

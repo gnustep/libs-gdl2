@@ -1,3 +1,7 @@
+2008-05-12  Blake Nicholson  <blaken@umich.edu>
+
+	* Modeler.m: Use NULL instead of nil for an empty NSMenuItem action.
+
 2008-05-11  Blake Nicholson  <blaken@umich.edu>
 
 	* GNUmakefile.in: Add EOInterface, EOModeler, and DBModeler to
