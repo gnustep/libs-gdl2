@@ -3,6 +3,17 @@
 	* GNUmakefile.in: Add EOInterface, EOModeler, and DBModeler to
 	SUBPROJECTS if GUI_LIB is apple.
 
+	* Modeler.m: Changed use of the NSMenuItem protocol to the NSMenuItem class.
+	The NSMenuItem protocol is deprecated as of OS X 10.5.
+
+	Modified the menu creation code so that it creates a native-looking menu on
+	OS X.  Added a top-level app menu, as well as a services menu.
+
+	Whitespace clean-up.  Changed everything to spaces.
+
+	* AttributeCell.m (drawWithFrame:inView:): Changed access of instance
+	variable to use an accessor method instead for showsFirstResponder.
+
 2008-05-09  Blake Nicholson  <blaken@umich.edu>
 
 	* DBModeler/*.[h,m]: Fix includes for OS X.

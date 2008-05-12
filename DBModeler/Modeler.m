@@ -71,19 +71,19 @@
 }
 @end
 @interface NSMenu (im_lazy)
--(id <NSMenuItem>) addItemWithTitle: (NSString *)s;
--(id <NSMenuItem>) addItemWithTitle: (NSString *)s  action: (SEL)sel;
+- (NSMenuItem *)addItemWithTitle: (NSString *)s;
+- (NSMenuItem *)addItemWithTitle: (NSString *)s  action: (SEL)sel;
 @end
 
 @implementation NSMenu (im_lazy)
--(id <NSMenuItem>) addItemWithTitle: (NSString *)s
+- (NSMenuItem *)addItemWithTitle: (NSString *)s
 {
-        return [self addItemWithTitle: s  action: NULL  keyEquivalent: nil];
+        return [self addItemWithTitle: s  action: nil keyEquivalent: @""];
 }
 
--(id <NSMenuItem>) addItemWithTitle: (NSString *)s  action: (SEL)sel
+- (NSMenuItem *)addItemWithTitle: (NSString *)s  action: (SEL)sel
 {
-        return [self addItemWithTitle: s  action: sel  keyEquivalent: nil];
+        return [self addItemWithTitle: s  action: sel  keyEquivalent: @""];
 }
 @end
 
@@ -100,14 +100,14 @@
   int i,c;
   NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
   NSArray *bundlesToLoad = RETAIN([defaults arrayForKey: @"BundlesToLoad"]);
-  NSMenu *mainMenu,*subMenu;
+  NSMenu *mainMenu,*subMenu,*servicesMenu;
   NSFileManager *fm = [NSFileManager defaultManager];
  
 //  [EOObserverCenter addOmniscientObserver:[DebugObserver new]];
   [[NSNotificationCenter defaultCenter] addObserver:self
-  	selector:@selector(bundleDidLoad:)
-	name:NSBundleDidLoadNotification
-	object:nil];
+        selector:@selector(bundleDidLoad:)
+        name:NSBundleDidLoadNotification
+        object:nil];
   for (i=0, c = [bundlesToLoad count]; i < c; i++)
     {
       BOOL isDir;
@@ -127,116 +127,157 @@
    
   mainMenu = [[NSMenu alloc] init];
   [mainMenu setAutoenablesItems:YES];
-  subMenu = [[NSMenu alloc] init];
+
+  subMenu = [[NSMenu alloc] initWithTitle: _(@"Info")];
   [subMenu setAutoenablesItems:YES];
 
-  [subMenu addItemWithTitle: _(@"Info...")
-                     action: @selector(orderFrontStandardInfoPanel:)];
+  [subMenu addItemWithTitle: _(@"About DBModeler")
+                     action: nil];
+
+  [subMenu addItem: [NSMenuItem separatorItem]];
 
   [subMenu addItemWithTitle: _(@"Preferences...")
-                     action: @selector(openPrefs:)];
+                     action: @selector(openPrefs:)
+              keyEquivalent: @","];
 
-  [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle: _(@"Info")]];
+#ifdef NeXT_GUI_LIBRARY
+  [subMenu addItem: [NSMenuItem separatorItem]];
+
+  servicesMenu = [[NSMenu alloc] initWithTitle: _(@"Services")];
+  [subMenu setSubmenu: servicesMenu forItem: [subMenu addItemWithTitle: _(@"Services")]];
+  [NSApp setServicesMenu: servicesMenu];
+  [servicesMenu release];
+
+  [subMenu addItem: [NSMenuItem separatorItem]];
+
+  [subMenu addItemWithTitle: _(@"Hide DBModeler")
+                     action: @selector(hide:)
+              keyEquivalent: @"h"];
+
+  [subMenu addItemWithTitle: _(@"Hide Others")
+                     action: @selector(hideOtherApplications:)
+              keyEquivalent: @""];
+
+  [subMenu addItemWithTitle: _(@"Show All")
+                     action: @selector(unhideAllApplications:)
+              keyEquivalent: @""];
+
+  [subMenu addItem: [NSMenuItem separatorItem]];
+
+  [subMenu addItemWithTitle: _(@"Quit DBModeler")
+                     action: @selector(terminate:)
+              keyEquivalent: @"q"];
+#endif /* NeXT_GUI_LIBRARY */
+       
+  [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle: @"Info"]];
   [subMenu release];
 
-  subMenu = [[NSMenu alloc] init];
+  subMenu = [[NSMenu alloc] initWithTitle: _(@"Model")];
    
- 
   [subMenu addItemWithTitle: _(@"New...")
                      action: @selector(new:)
               keyEquivalent: @"n"];
-  [subMenu addItemWithTitle: _(@"New from databse...")
+  [subMenu addItemWithTitle: _(@"New From Database...")
                      action: @selector(newFromDatabase:)
               keyEquivalent: @""]; 
 
   [subMenu addItemWithTitle: _(@"Open")
                      action: @selector(open:)
               keyEquivalent: @"o"];
-	      
+      
+  [subMenu addItem:[NSMenuItem separatorItem]];
+
   [subMenu addItemWithTitle: _(@"Save")
                      action: @selector(save:)
-              keyEquivalent: @""];
-	      
-  [subMenu addItemWithTitle: _(@"Save As")
+              keyEquivalent: @"s"];
+      
+  [subMenu addItemWithTitle: _(@"Save As...")
                      action: @selector(saveAs:)
-              keyEquivalent: @""];
-	      
-  [subMenu addItemWithTitle: _(@"Revert")
+              keyEquivalent: @"S"];
+      
+  [subMenu addItemWithTitle: _(@"Revert to Saved")
                      action: @selector(revert:) 
-              keyEquivalent: @""];
-	      
-  [subMenu addItemWithTitle: _(@"Set Adaptor Info")
+              keyEquivalent: @"u"];
+      
+  [subMenu addItem:[NSMenuItem separatorItem]];
+
+  [subMenu addItemWithTitle: _(@"Set Adaptor Info...")
                      action: @selector(setAdaptor:)
-              keyEquivalent: @""];
-	      
-  [subMenu addItemWithTitle: _(@"Switch Adaptor")
+              keyEquivalent: @"I"];
+      
+  [subMenu addItemWithTitle: _(@"Switch Adaptor...")
                      action: @selector(switchAdaptor:)
               keyEquivalent: @""];
-	      
+      
   [ConsistencyChecker class];
-  [[subMenu addItemWithTitle: _(@"Check consistency")
+  [[subMenu addItemWithTitle: _(@"Check Consistency...")
                      action: @selector(checkConsistency:)
               keyEquivalent: @""] setRepresentedObject:[ConsistencyResults sharedConsistencyPanel]];
   
   [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle:_(@"Model")]];
   [subMenu release];
 
-  subMenu = [[NSMenu alloc] init];
-  
-  subMenu = [[NSMenu alloc] init];
+  subMenu = [[NSMenu alloc] initWithTitle: _(@"Edit")];
   [subMenu setAutoenablesItems:YES];
 
   [subMenu addItemWithTitle: _(@"Copy")
                      action: @selector(copy:)
-	      keyEquivalent:@"c"];
+              keyEquivalent: @"c"];
   [subMenu addItemWithTitle: _(@"Cut")
                      action: @selector(cut:)
-	      keyEquivalent:@"x"];
+              keyEquivalent: @"x"];
   [subMenu addItemWithTitle: _(@"Paste")
                      action: @selector(paste:)
-	      keyEquivalent:@"v"];
+              keyEquivalent: @"v"];
   [mainMenu setSubmenu: subMenu forItem: [mainMenu addItemWithTitle: _(@"Edit")]];
   [subMenu release];
 
   
-  subMenu = [[NSMenu alloc] init];
-  [subMenu addItemWithTitle:_(@"Inspector")
-	  	action: @selector(showInspector:)
-		keyEquivalent: @"i"];
+  subMenu = [[NSMenu alloc] initWithTitle: _(@"Tools")];
+  [subMenu addItemWithTitle: _(@"Inspector")
+                     action: @selector(showInspector:)
+              keyEquivalent: @"i"];
   
   [subMenu addItemWithTitle: _(@"Generate SQL")
                      action: @selector(generateSQL:)
-              keyEquivalent: @""]; 
+              keyEquivalent: @""];
 
   [subMenu addItemWithTitle: _(@"Table Editor")
-	  	     action: @selector(showEditor:)
-		     keyEquivalent:@""];
+                     action: @selector(showEditor:)
+              keyEquivalent: @""];
 
   [subMenu addItemWithTitle: _(@"Diagram Editor")
-	  	     action: @selector(showEditor:)
-		     keyEquivalent:@""];
+                     action: @selector(showEditor:)
+              keyEquivalent: @""];
   [mainMenu setSubmenu:subMenu forItem:[mainMenu addItemWithTitle:_(@"Tools")]];
   [subMenu release];
 
-  subMenu = [[NSMenu alloc] init];
+  subMenu = [[NSMenu alloc] initWithTitle: _(@"Property")];
   [subMenu setAutoenablesItems:YES];
-  [subMenu addItemWithTitle: _(@"Add entity")
+  [subMenu addItemWithTitle: _(@"Add Entity")
                      action: @selector(addEntity:)
-              keyEquivalent: @"e"];
+              keyEquivalent: @"E"];
   
-  [subMenu addItemWithTitle: _(@"Add attribute")
+  [subMenu addItemWithTitle: _(@"Add Attribute")
                      action: @selector(addAttribute:)
-              keyEquivalent: @"a"];
+              keyEquivalent: @"A"];
   
-  [subMenu addItemWithTitle: _(@"Add relationship")
+  [subMenu addItemWithTitle: _(@"Add Relationship")
                      action: @selector(addRelationship:)
-              keyEquivalent: @"r"];
-  [subMenu addItemWithTitle: _(@"delete")
+              keyEquivalent: @"R"];
+
+  [subMenu addItemWithTitle: _(@"Delete")
                      action: @selector(delete:)
               keyEquivalent: @""];
 
   [mainMenu setSubmenu:subMenu forItem:[mainMenu addItemWithTitle:_(@"Property")]];
   [subMenu release];
+
+#ifdef GNU_GUI_LIBRARY
+  servicesMenu = [[NSMenu alloc] initWithTitle: _(@"Services")];
+  [mainMenu setSubmenu: servicesMenu forItem: [mainMenu addItemWithTitle: _(@"Services")]];
+  [NSApp setServicesMenu: servicesMenu];
+  [servicesMenu release];
 
   [mainMenu addItemWithTitle: _(@"Hide")
                       action: @selector(hide:)
@@ -244,8 +285,9 @@
 
   [mainMenu addItemWithTitle: _(@"Quit...")
                       action: @selector(terminate:)
-	       keyEquivalent: @"q"];
-	       
+               keyEquivalent: @"q"];
+#endif /* GNU_GUI_LIBRARY */
+
   [NSApp setMainMenu: mainMenu];
   /* make this a default? */
   [EOModelerDocument setDefaultEditorClass: NSClassFromString(@"MainModelEditor")];
@@ -279,7 +321,7 @@
 - (void)new:(id)sender
 {
   EOModel           *newModel = [[EOModel alloc] init];
-  NSString		*modelName;
+  NSString *modelName;
   NSArray *docs = [EOMApp documents];
   unsigned docNumber, c, i;
 
@@ -339,18 +381,18 @@
       connDict = [adaptor runLoginPanel];
 
       if (connDict)
-	{
-	  [adaptor setConnectionDictionary:[adaptor runLoginPanel]];
-	  ctxt = [adaptor createAdaptorContext];
-	  channel = [ctxt createAdaptorChannel];
-	  [channel openChannel];
-	  newModel = [channel describeModelWithTableNames:[channel describeTableNames]];
-	  [newModel setConnectionDictionary:[adaptor connectionDictionary]];
-	  [newModel setName: [[adaptor connectionDictionary] objectForKey:@"databaseName"]];
-	  [channel closeChannel];
-	  [self _newDocumentWithModel:newModel];
-	  RELEASE(newModel);
-	}
+        {
+          [adaptor setConnectionDictionary:[adaptor runLoginPanel]];
+          ctxt = [adaptor createAdaptorContext];
+          channel = [ctxt createAdaptorChannel];
+          [channel openChannel];
+          newModel = [channel describeModelWithTableNames:[channel describeTableNames]];
+          [newModel setConnectionDictionary:[adaptor connectionDictionary]];
+          [newModel setName: [[adaptor connectionDictionary] objectForKey:@"databaseName"]];
+          [channel closeChannel];
+          [self _newDocumentWithModel:newModel];
+          RELEASE(newModel);
+        }
     }
 }
 
@@ -393,23 +435,23 @@
   BOOL flag;
 #if 0
   NSLog(@"%@ %@ %i %i %i %i %i", NSStringFromSelector(_cmd), filename,
-	[fm isReadableFileAtPath:filename] == YES,
-	[pathExt isEqual:@"eomodel"],
-	[pathExt isEqual:@"eomodeld"],
-	[fm fileExistsAtPath:filename isDirectory:&flag],
-	flag);
+        [fm isReadableFileAtPath:filename] == YES,
+        [pathExt isEqual:@"eomodel"],
+        [pathExt isEqual:@"eomodeld"],
+        [fm fileExistsAtPath:filename isDirectory:&flag],
+        flag);
 #endif
   if (([fm isReadableFileAtPath:filename] == YES
        && [pathExt isEqual:@"eomodel"])
       || ([pathExt isEqual:@"eomodeld"]
-	  && [fm fileExistsAtPath:filename isDirectory:&flag] && flag))
+          && [fm fileExistsAtPath:filename isDirectory:&flag] && flag))
     {
       EOModel *model;
 
       NS_DURING
-	model = [[EOModel alloc] initWithContentsOfFile:filename];
+        model = [[EOModel alloc] initWithContentsOfFile:filename];
       NS_HANDLER
-	return NO;
+        return NO;
       NS_ENDHANDLER
 
       [self _newDocumentWithModel:model];
@@ -431,25 +473,25 @@
       
       for (i = 0, c = [modelPaths count]; i < c; i++)
         {
-	  NSString *modelPath = [modelPaths objectAtIndex:i];
+          NSString *modelPath = [modelPaths objectAtIndex:i];
           NSString *pathExt = [[modelPath pathExtension] lowercaseString];
 
-	  if ([fm isReadableFileAtPath:modelPath] == YES
-	      && ([pathExt isEqual:@"eomodeld"]
-		  || [pathExt isEqual:@"eomodel"]))
-	    {
-	      EOModel *model;
-	      
-	      NS_DURING
-		model = [[EOModel alloc] initWithContentsOfFile:modelPath];
-	      NS_HANDLER
-		return;
-	      NS_ENDHANDLER
+          if ([fm isReadableFileAtPath:modelPath] == YES
+              && ([pathExt isEqual:@"eomodeld"]
+                  || [pathExt isEqual:@"eomodel"]))
+            {
+              EOModel *model;
+              
+              NS_DURING
+                model = [[EOModel alloc] initWithContentsOfFile:modelPath];
+              NS_HANDLER
+                return;
+              NS_ENDHANDLER
 
-	      [self _newDocumentWithModel:model];
-	      RELEASE(model);
-	    }
-	}
+              [self _newDocumentWithModel:model];
+              RELEASE(model);
+            }
+        }
     }
 }
 

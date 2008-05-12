@@ -139,7 +139,7 @@
   if (isProp)
     [prop drawWithFrame:NSMakeRect(frame.size.width - 54, frame.origin.y + 2, 9, 8) inView:view];
  
-  if (_cell.shows_first_responder)
+  if ([self showsFirstResponder])
     {
       NSFrameRect(frame);
     }
