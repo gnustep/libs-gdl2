@@ -31,6 +31,12 @@ APP_NAME = DBModeler
 DBModeler_NEEDS_GUI = yes
 DBModeler_SUBPROJECTS=Inspectors
 
+ifeq ($(GUI_LIB),apple)
+DBModeler_APPLICATION_ICON = DBModeler.icns
+else
+DBModeler_APPLICATION_ICON = DBModeler.tiff
+endif
+
 ADDITIONAL_INCLUDE_DIRS+=-I../
 ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess ../EOControl ../EOInterface ../EOModeler
 ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOInterface EOModeler
@@ -51,6 +57,7 @@ $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/Preferences.gorm		\
 	Resources/ConsistencyResults.gorm	\
 	Resources/DBModeler.tiff		\
+	Resources/DBModeler.icns		\
 	Resources/AllowsNull_On.tiff		\
 	Resources/AllowsNull_Header.tiff
 

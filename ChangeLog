@@ -2,6 +2,11 @@
 
 	* Modeler.m: Use NULL instead of nil for an empty NSMenuItem action.
 
+	* DBModeler/GNUmakefile: Added DBModeler.icns to the list of resources,
+	and set DBModeler_APPLICATION_ICON so the icon will be set appropriately.
+
+	* DBModeler/Resources/DBModeler.icns: Initial import
+
 2008-05-11  Blake Nicholson  <blaken@umich.edu>
 
 	* GNUmakefile.in: Add EOInterface, EOModeler, and DBModeler to
