@@ -43,7 +43,7 @@ ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOInterface EOModeler Renaissance
 
 $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/ModelDrag.tiff		\
-	Resources/SQLGenerator.gorm		\
+	Resources/SQLGenerator.gsmarkup	\
 	Resources/Info-gnustep.plist    	\
 	Resources/Key_Diagram.tiff		\
 	Resources/Key_Header.tiff		\
@@ -55,7 +55,6 @@ $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/ClassProperty_Header.tiff	\
 	Resources/ClassProperty_On.tiff 	\
 	Resources/Preferences.gorm		\
-	Resources/ConsistencyResults.gorm	\
 	Resources/DBModeler.tiff		\
 	Resources/DBModeler.icns		\
 	Resources/AllowsNull_On.tiff		\

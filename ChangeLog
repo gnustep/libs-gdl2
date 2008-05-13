@@ -1,3 +1,11 @@
+2008-05-13  Blake Nicholson  <blaken@umich.edu>
+
+	* DBModeler/SQLGenerator.m: Updated to use new gsmarkup file.
+	* DBModeler/Resources/SQLGenerator.gsmarkup: Initial import.
+	* DBModeler/Resources/SQLGenerator.gorm: Removed.
+	* DBModeler/GNUmakefile: Replaced the SQLGenerator.gorm resource with
+	SQLGenerator.gsmarkup.  Removed reference to ConsistencyResults.gorm.
+
 2008-05-13  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/Resources/Menu-{Cocoa,GNUstep}.gsmarkup: Remove a TODO

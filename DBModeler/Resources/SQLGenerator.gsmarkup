@@ -1,0 +1,97 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+
+		<window title="SQL Generation" id="sqlgenWindow" resizable="no">
+			<vbox leftPadding="10" padding="10">
+				<box title="SQL Generation Options" topPadding="10"
+					leftPadding="15" rightPadding="15" width="425">
+					<hbox halign="wexpand">
+						<vbox halign="left" valign="wexpand">
+							<button id="dropDatabase" title="Drop Database"
+								type="switch" halign="left" valign="top"
+								action="switchChanged:" target="#NSOwner"
+								padding="1.5" />
+							<button id="dropTables" title="Drop Tables"
+								type="switch" halign="left" valign="top"
+								action="switchChanged:" target="#NSOwner"
+								padding="1.5" />
+							<vspace />
+							<button id="dropPKSupport"
+								title="Drop Primary Key Support" type="switch"
+								halign="left" valign="bottom"
+								action="switchChanged:" target="#NSOwner"
+								padding="1.5" />
+						</vbox>
+						<hspace />
+						<vbox halign="right" valign="top">
+							<button id="createDB" title="Create Database"
+								type="switch" halign="left" valign="top"
+								action="switchChanged:" target="#NSOwner"
+								padding="1.5" />
+							<button id="createTables" title="Create Tables"
+								type="switch" halign="left" valign="top"
+								action="switchChanged:" target="#NSOwner"
+								padding="1.5" />
+							<button id="createPKConstraints"
+								title="Primary Key Constraints" type="switch"
+								halign="left" valign="top"
+								action="switchChanged:" target="#NSOwner"
+								padding="1.5" />
+							<button id="createFKConstraints"
+								title="Foreign Key Constraints" type="switch"
+								halign="left" valign="top"
+								action="switchChanged:" target="#NSOwner"
+								padding="1.5" />
+							<button id="createPKSupport"
+							   	title="Create Primary Key Support"
+								type="switch" halign="left" valign="top"
+								action="switchChanged:" target="#NSOwner"
+								padding="1.5" />
+						</vbox>
+					</hbox>
+				</box>
+				<scrollView width="425" height="300"
+					borderType="bezel" leftPadding="15" rightPadding="15"
+					hasHorizontalScroller="no">
+					<textView id="sqlOutput"/>
+				</scrollView>
+				<hbox halign="left" padding="8">
+					<button id="executeSQL" title="Execute SQL"
+						type="momentaryPushIn" halign="left" valign="center"
+						action="executeSQL:" target="#NSOwner" width="115"
+						leftPadding="5" />
+					<button id="saveAs" title="Save As..."
+						type="momentaryPushIn" halign="left" valign="center"
+						action="saveAs:" target="#NSOwner" width="100" />
+					<button id="tables" title="Tables..."
+						type="momentaryPushIn" halign="left" valign="center"
+						action="showTables:" target="#NSOwner" width="100" />
+				</hbox>
+			</vbox>
+		</window>
+
+	</objects>
+
+	<connectors>
+		<outlet source="#NSOwner" target="#sqlgenWindow" key="window"/>
+		<outlet source="#NSOwner" target="#dropDatabase"
+			key="dropDatabaseSwitch" />
+		<outlet source="#NSOwner" target="#createDB"
+			key="createDatabaseSwitch"/>
+		<outlet source="#NSOwner" target="#dropTables"
+			key="dropTablesSwitch"/>
+		<outlet source="#NSOwner" target="#createTables"
+		   	key="createTablesSwitch"/>
+		<outlet source="#NSOwner" target="#dropPKSupport"
+		   	key="dropPKSwitch"/>
+		<outlet source="#NSOwner" target="#createPKSupport"
+		   	key="createPKSwitch"/>
+		<outlet source="#NSOwner" target="#createPKConstraints"
+		   	key="createPKConstraintsSwitch" />
+		<outlet source="#NSOwner" target="#createFKConstraints"
+		   	key="createFKConstraintsSwitch" />
+		<outlet source="#NSOwner" target="#sqlOutput" key="sqlOutput"/>
+	</connectors>
+</gsmarkup>

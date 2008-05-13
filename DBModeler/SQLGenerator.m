@@ -44,6 +44,8 @@
 #include <AppKit/NSWindow.h>
 #endif
 
+#include <Renaissance/Renaissance.h>
+
 #include <EOAccess/EOAdaptor.h>
 #include <EOAccess/EOAdaptorChannel.h>
 #include <EOAccess/EOAdaptorContext.h>
@@ -85,11 +87,11 @@ static NSString *_otherScript;
   adminSwitchButtons = [[NSMutableArray alloc] initWithCapacity:3];
   otherSwitchButtons = [[NSMutableArray alloc] initWithCapacity:7];
   opts = [[NSMutableDictionary alloc] initWithCapacity:8];
-  loadedNib = [NSBundle loadNibNamed:@"SQLGenerator" owner:self];
+  loadedNib = [NSBundle loadGSMarkupNamed: @"SQLGenerator" owner: self];
   return self;
 }
 
-- (void) awakeFromNib
+- (void) awakeFromGSMarkup
 {
   [[dropDatabaseSwitch cell] setRepresentedObject: EODropDatabaseKey];
   [[createDatabaseSwitch cell] setRepresentedObject: EOCreateDatabaseKey];
