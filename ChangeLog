@@ -1,11 +1,18 @@
 2008-05-12  Blake Nicholson  <blaken@umich.edu>
 
 	* Modeler.m: Use NULL instead of nil for an empty NSMenuItem action.
+	Removed the main menu creation code.  This is now handled by Renaissance.
 
 	* DBModeler/GNUmakefile: Added DBModeler.icns to the list of resources,
 	and set DBModeler_APPLICATION_ICON so the icon will be set appropriately.
+	Added gsmarkup files for the main menu to the list of resources.  Added
+	dependency upon the Renaissance framework.
 
 	* DBModeler/Resources/DBModeler.icns: Initial import
+
+	* DBModeler/Resources/MainMenu-{Cocoa,GNUstep}.gsmarkup: Initial import.
+
+	* DBModeler/main.m: Load the gsmarkup for the main menu.
 
 2008-05-11  Blake Nicholson  <blaken@umich.edu>
 

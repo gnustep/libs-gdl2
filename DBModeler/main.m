@@ -33,14 +33,25 @@
 #include <EOModeler/EOModelerApp.h>
 #include "Modeler.h"
 
+#include <Renaissance/Renaissance.h>
+
 #include <GNUstepBase/GNUstep.h>
 
 int main (int argc, const char **argv)
 {
+  Modeler *m;
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
  
   [EOModelerApp sharedApplication];
-  [NSApp setDelegate: [[Modeler alloc] init]];
+  m = [[Modeler alloc] init];
+  [NSApp setDelegate: m];
+
+#ifdef NeXT_GUI_LIBRARY
+  [NSBundle loadGSMarkupNamed: @"Menu-Cocoa" owner: m];
+#else
+  [NSBundle loadGSMarkupNamed: @"Menu-GNUstep" owner: m];
+#endif
+
   [NSApp run];
   RELEASE(pool);
   return 0;

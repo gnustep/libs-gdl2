@@ -39,7 +39,7 @@ endif
 
 ADDITIONAL_INCLUDE_DIRS+=-I../
 ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess ../EOControl ../EOInterface ../EOModeler
-ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOInterface EOModeler
+ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOInterface EOModeler Renaissance
 
 $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/ModelDrag.tiff		\
@@ -59,7 +59,9 @@ $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/DBModeler.tiff		\
 	Resources/DBModeler.icns		\
 	Resources/AllowsNull_On.tiff		\
-	Resources/AllowsNull_Header.tiff
+	Resources/AllowsNull_Header.tiff	\
+	Resources/Menu-Cocoa.gsmarkup	\
+	Resources/Menu-GNUstep.gsmarkup
 
 $(APP_NAME)_OBJC_FILES =		\
 	main.m				\
