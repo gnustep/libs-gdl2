@@ -61,7 +61,8 @@ $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/AllowsNull_On.tiff		\
 	Resources/AllowsNull_Header.tiff	\
 	Resources/Menu-Cocoa.gsmarkup	\
-	Resources/Menu-GNUstep.gsmarkup
+	Resources/Menu-GNUstep.gsmarkup \
+	Resources/ConsistencyResults.gsmarkup
 
 $(APP_NAME)_OBJC_FILES =		\
 	main.m				\

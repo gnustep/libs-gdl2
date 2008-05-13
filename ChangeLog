@@ -3,6 +3,10 @@
 	* DBModeler/Resources/Menu-{Cocoa,GNUstep}.gsmarkup: Remove a TODO
 	for an old unused hack.
 	* EOModeler/EOModelerDocument.m: Add some comments about the new hack.
+	* DBModeler/Resources/ConsistencyResults.gsmarkup: initial import.
+	* DBModeler/GNUmakefile: Add ConsistencyResults.gsmarkup.
+	* DBModeler/ConsistencyResults.m: Use gsmarkup file.
+	* DBModeler/Resources/ConsistencyResults.gorm: Remove file.
 
 2008-05-12  Matt Ride  <ratmice@gmail.com>
 

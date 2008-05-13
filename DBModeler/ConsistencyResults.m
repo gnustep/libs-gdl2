@@ -37,6 +37,8 @@
 #include <AppKit/NSTextStorage.h>
 #endif
 
+#include <Renaissance/Renaissance.h>
+
 static ConsistencyResults *_sharedResults;
 
 @implementation ConsistencyResults
@@ -51,7 +53,7 @@ static ConsistencyResults *_sharedResults;
 - (id) init
 {
   self = [super init];
-  [NSBundle loadNibNamed:@"ConsistencyResults" owner:self];
+  [NSBundle loadGSMarkupNamed:@"ConsistencyResults" owner:self];
   successful = YES;
   return self;
 }
