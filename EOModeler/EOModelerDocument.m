@@ -71,6 +71,19 @@ showOnSuccess:(BOOL)flag;
 static Class      _defaultEditorClass;
 static EOModelerEditor *_currentEditorForDocument;
 
+/* FIXME we cross the library->application boundry whenever working
+ * with the ConsistencyResults class which is declared in DBModeler
+ * theres a few ways this is crossed:
+ *
+ * enabling/disabling the cancel button
+ * appending text
+ * avoiding running the panel if all checks pass.
+ *
+ * this could possibly be done with private methods in this class
+ * called from the receiver of an EOMCheckConsistencyEndNotification 
+ * on the notification -object (or something).
+ */
+
 /** Notification sent when beginning consistency checks.
   * The notifications object is the EOModelerDocument.
   * The receiver should call -appendConsistencyCheckErrorText:

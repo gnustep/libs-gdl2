@@ -1,6 +1,12 @@
+2008-05-13  Matt Rice  <ratmice@gmail.com>
+
+	* DBModeler/Resources/Menu-{Cocoa,GNUstep}.gsmarkup: Remove a TODO
+	for an old unused hack.
+	* EOModeler/EOModelerDocument.m: Add some comments about the new hack.
+
 2008-05-12  Matt Ride  <ratmice@gmail.com>
 
-	* DBModeler/Resources/MainMenu-GNUstep.gsmarkup: Use openPrefs: action
+	* DBModeler/Resources/Menu-GNUstep.gsmarkup: Use openPrefs: action
 	for preferences menu item.
 
 2008-05-12  Blake Nicholson  <blaken@umich.edu>

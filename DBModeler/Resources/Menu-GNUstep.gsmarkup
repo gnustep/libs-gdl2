@@ -33,7 +33,6 @@
 					action="switchAdaptor:" />
 				<menuItem title="Check Consistency..."
 					action="checkConsistency:" />
-				<!-- TODO: representedObject for checkConsistency -->
 			</menu>
 
 			<menu title="Edit" autoenablesItems="yes">
