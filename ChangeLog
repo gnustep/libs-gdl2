@@ -1,3 +1,8 @@
+2008-05-12  Matt Ride  <ratmice@gmail.com>
+
+	* DBModeler/Resources/MainMenu-GNUstep.gsmarkup: Use openPrefs: action
+	for preferences menu item.
+
 2008-05-12  Blake Nicholson  <blaken@umich.edu>
 
 	* Modeler.m: Use NULL instead of nil for an empty NSMenuItem action.

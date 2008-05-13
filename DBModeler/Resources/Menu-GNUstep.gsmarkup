@@ -8,7 +8,7 @@
 					action="orderFrontStandardAboutPanel:" />
 				<menuItem title="Info Panel..."
 					action="orderFrontStandardInfoPanel:"/>
-				<menuItem title="Preferences..." action="runPreferencesPanel:"/>
+				<menuItem title="Preferences..." action="openPrefs:"/>
 				<menuItem title="Help..." action="orderFrontHelpPanel:"/>
 			</menu>
 
