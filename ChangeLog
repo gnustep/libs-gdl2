@@ -1,3 +1,10 @@
+2008-05-22  Blake Nicholson  <blaken@umich.edu>
+
+	* DBModeler/ModelerEntityEditor.m, DBModeler/ModelerAttributeEditor.m,
+	DBModeler/MainModelEditor.m: Added preprocessor directives to wrap methods
+	deprecated on OS X and to use recently introduced methods that yield a
+	better NSTableView display.
+
 2008-05-13  Blake Nicholson  <blaken@umich.edu>
 
 	* DBModeler/SQLGenerator.m: Updated to use new gsmarkup file.

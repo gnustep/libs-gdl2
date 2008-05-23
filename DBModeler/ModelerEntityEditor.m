@@ -52,6 +52,7 @@
 #endif
 
 #include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSVersionMacros.h>
 
 @interface EOModelerDocument (asdf)
 -(void)_setDisplayGroup:(id)displayGroup;
@@ -109,7 +110,18 @@
 
       _topTable = [[NSTableView alloc] initWithFrame:NSMakeRect(0,0,10,10)];
       _bottomTable = [[NSTableView alloc] initWithFrame:NSMakeRect(0,0,10,10)];
+
+#if OS_API_VERSION(GS_API_NONE, MAC_OS_X_VERSION_10_4)
       [_topTable setAutoresizesAllColumnsToFit:NO];
+#else
+      [_topTable setColumnAutoresizingStyle:NSTableViewLastColumnOnlyAutoresizingStyle];
+#endif
+
+#if OS_API_VERSION(MAC_OS_X_VERSION_10_3, GS_API_LATEST) || GNU_GUI_LIBRARY
+      [_topTable setUsesAlternatingRowBackgroundColors:YES];
+      [_topTable setGridStyleMask:NSTableViewSolidVerticalGridLineMask];
+#endif
+
       [scrollView setDocumentView:_topTable];
       RELEASE(_topTable);
       [_splitView addSubview:scrollView];
@@ -119,7 +131,18 @@
       [scrollView setHasHorizontalScroller:YES];
       [scrollView setHasVerticalScroller:YES];
       [scrollView setBorderType: NSBezelBorder];
+
+#if OS_API_VERSION(GS_API_NONE, MAC_OS_X_VERSION_10_4)
       [_bottomTable setAutoresizesAllColumnsToFit:NO];
+#else
+      [_bottomTable setColumnAutoresizingStyle:NSTableViewLastColumnOnlyAutoresizingStyle];
+#endif
+
+#if OS_API_VERSION(MAC_OS_X_VERSION_10_3, GS_API_LATEST) || GNU_GUI_LIBRARY
+      [_bottomTable setUsesAlternatingRowBackgroundColors:YES];
+      [_bottomTable setGridStyleMask:NSTableViewSolidVerticalGridLineMask];
+#endif
+
       [scrollView setDocumentView:_bottomTable];
       RELEASE(_bottomTable);
       [_splitView addSubview:scrollView];

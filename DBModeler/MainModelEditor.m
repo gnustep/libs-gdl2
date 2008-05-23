@@ -62,6 +62,7 @@
 #endif
 
 #include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSVersionMacros.h>
 
 #define DEBUG_STUFF 0 
 
@@ -106,7 +107,13 @@
       _col = [(NSTableColumn *)[NSTableColumn alloc] initWithIdentifier:@"name"];
       [_iconPath addTableColumn:_col];
       [_iconPath setOutlineTableColumn:AUTORELEASE(_col)];
+
+#if OS_API_VERSION(GS_API_NONE, MAC_OS_X_VERSION_10_4)
       [_iconPath setAutoresizesAllColumnsToFit:YES];
+#else
+      [_iconPath setColumnAutoresizingStyle:NSTableViewUniformColumnAutoresizingStyle];
+#endif
+
       [_iconPath sizeToFit];
       
       _window = [[NSWindow alloc] initWithContentRect:NSMakeRect(20,80,600,400)

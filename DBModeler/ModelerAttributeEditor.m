@@ -58,6 +58,7 @@
 #endif
   
 #include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSVersionMacros.h>
 
 @interface NSArray (EOMAdditions)
 - (id) firstSelectionOfClass:(Class) aClass;
@@ -78,7 +79,16 @@
   /* setup the attributes table view */
   scrollView = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,100,100)];
   _attributes_tableView = [[NSTableView alloc] initWithFrame:NSMakeRect(0,0,100,100)];
+#if OS_API_VERSION(GS_API_NONE, MAC_OS_X_VERSION_10_4)
   [_attributes_tableView setAutoresizesAllColumnsToFit:NO];
+#else
+  [_attributes_tableView setColumnAutoresizingStyle:NSTableViewLastColumnOnlyAutoresizingStyle];
+#endif
+
+#if OS_API_VERSION(MAC_OS_X_VERSION_10_3, GS_API_LATEST) || GNU_GUI_LIBRARY
+  [_attributes_tableView setUsesAlternatingRowBackgroundColors:YES];
+  [_attributes_tableView setGridStyleMask:NSTableViewSolidVerticalGridLineMask];
+#endif
   [_attributes_tableView setAllowsMultipleSelection:YES];
   [_attributes_tableView setAllowsEmptySelection:YES];
 
@@ -128,7 +138,18 @@
   [scrollView setHasHorizontalScroller:YES];
   [scrollView setHasVerticalScroller:YES];
   _relationships_tableView = [[NSTableView alloc] initWithFrame:NSMakeRect(0,0,100,100)];
+
+#if OS_API_VERSION(GS_API_NONE, MAC_OS_X_VERSION_10_4)
   [_relationships_tableView setAutoresizesAllColumnsToFit:NO];
+#else
+  [_relationships_tableView setColumnAutoresizingStyle:NSTableViewLastColumnOnlyAutoresizingStyle];
+#endif
+
+#if OS_API_VERSION(MAC_OS_X_VERSION_10_3, GS_API_LATEST) || GNU_GUI_LIBRARY
+  [_relationships_tableView setUsesAlternatingRowBackgroundColors:YES];
+  [_relationships_tableView setGridStyleMask:NSTableViewSolidVerticalGridLineMask];
+#endif
+
   [_relationships_tableView setAllowsMultipleSelection:YES];
   [_relationships_tableView setAllowsEmptySelection:YES];
   [scrollView setDocumentView:_relationships_tableView];
