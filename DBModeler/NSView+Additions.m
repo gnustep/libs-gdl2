@@ -24,7 +24,7 @@
 **/
 #include "NSView+Additions.h" 
 
-@implementation NSView (Additions)	
+@implementation NSView (Additions)
 - (void) orderViewFront:(NSView *)v
 {
   [[self superview] orderViewFront:self];

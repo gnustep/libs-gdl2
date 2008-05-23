@@ -91,8 +91,8 @@ return self;
   return AUTORELEASE(object);
 */ 
   [[NSException exceptionWithName:NSInternalInconsistencyException
-	  		reason: [NSString stringWithFormat:@"%@ not supported by %@", NSStringFromSelector(_cmd), NSStringFromClass([self class])]
-			userInfo:nil] raise];
+                           reason: [NSString stringWithFormat:@"%@ not supported by %@", NSStringFromSelector(_cmd), NSStringFromClass([self class])]
+                        userInfo:nil] raise];
   return nil;
 }
 - (void) insertObject:(id)object
@@ -108,8 +108,8 @@ return self;
    } 
 */
   [[NSException exceptionWithName:NSInternalInconsistencyException
-	  		reason: [NSString stringWithFormat:@"%@ not supported by %@", NSStringFromSelector(_cmd), NSStringFromClass([self class])]
-			userInfo:nil] raise];
+                           reason: [NSString stringWithFormat:@"%@ not supported by %@", NSStringFromSelector(_cmd), NSStringFromClass([self class])]
+                        userInfo:nil] raise];
 }
 
 - (void) deleteObject:(id)object

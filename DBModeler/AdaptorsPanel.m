@@ -99,11 +99,11 @@ static NSArray *_adaptorNames;
       fr2 = [btn_cancel frame];
       
       fr1.size.width = fr2.size.width = fr1.size.width > fr2.size.width
-      					? fr1.size.width
-					: fr2.size.width;
+                                        ? fr1.size.width
+                                        : fr2.size.width;
       fr1.size.height = fr2.size.height = fr1.size.height > fr2.size.height
-      					? fr1.size.height
-					: fr2.size.height;
+                                        ? fr1.size.height
+                                        : fr2.size.height;
       fr2.origin.x = NSMaxX(fr1) + 8;
       
       [btn_ok setFrame:fr1];
@@ -160,8 +160,8 @@ static NSArray *_adaptorNames;
 
 - (void)browser:(NSBrowser*)sender
         willDisplayCell:(NSBrowserCell*)cell
-	          atRow:(int)row
-		 column:(int)column
+                  atRow:(int)row
+                 column:(int)column
 {
   [cell setLeaf:YES];
   [cell setTitle: [_adaptorNames objectAtIndex:row]];

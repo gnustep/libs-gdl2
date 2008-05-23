@@ -79,8 +79,8 @@ static NSString *_otherScript;
   if (sharedGenerator)
     {
       [[NSException exceptionWithName:NSInternalInconsistencyException
-	    		reason: @"singleton initialized multiple times"
-			userInfo:nil] raise];
+                               reason: @"singleton initialized multiple times"
+                             userInfo:nil] raise];
       return nil;
     }
   self = [super init];
@@ -157,16 +157,16 @@ static NSString *_otherScript;
       connDict = [adaptor runLoginPanel];
 
       if (connDict)
-	[adaptor setConnectionDictionary:connDict];
+        [adaptor setConnectionDictionary:connDict];
     }
  
   if (!adaptor || [[connDict allKeys] count] == 0)
     {
       NSRunAlertPanel(@"Error",
-		      @"SQL generator requires a valid adaptor and connection dictionary",
-		      @"Ok",
-		      nil,
-		      nil);
+                      @"SQL generator requires a valid adaptor and connection dictionary",
+                      @"Ok",
+                      nil,
+                      nil);
       return;
     }
 
@@ -273,7 +273,7 @@ static NSString *_otherScript;
      {
        btn = [adminSwitchButtons objectAtIndex:i];
        [opts setObject:([[btn objectValue] boolValue]) ? @"YES" : @"NO"
- 		forKey: [[btn cell] representedObject]];
+                forKey: [[btn cell] representedObject]];
      }
   
   for (i = 0, c = [otherSwitchButtons count]; i < c; i++)
@@ -284,7 +284,7 @@ static NSString *_otherScript;
   
   arr = [[[EOMApp activeDocument] model] entities];
   _adminScript = RETAIN([expr schemaCreationScriptForEntities:arr
-	  				options:opts]);
+                                          options:opts]);
 
   for (i = 0, c = [adminSwitchButtons count]; i < c; i++)
      {
@@ -296,12 +296,12 @@ static NSString *_otherScript;
      {
        btn = [otherSwitchButtons objectAtIndex:i];
        [opts setObject:([[btn objectValue] boolValue]) ? @"YES" : @"NO"
-	            forKey: [[btn cell] representedObject]];
+                    forKey: [[btn cell] representedObject]];
      }
   
   arr = [[[EOMApp activeDocument] model] entities];
   _otherScript = RETAIN([expr schemaCreationScriptForEntities:arr
-	  				options:opts]);
+                                          options:opts]);
   
   [_sqlOutput setString:[_adminScript stringByAppendingString:_otherScript]];
 }

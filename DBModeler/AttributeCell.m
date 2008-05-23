@@ -127,7 +127,6 @@
 
 - (void) drawWithFrame:(NSRect)frame inView:(NSView *)view
 {
-	
   [name drawWithFrame:NSMakeRect(frame.origin.x, frame.origin.y, sz.width, sz.height) inView:view];
   
   if (isKey)

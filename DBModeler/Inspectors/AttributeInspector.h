@@ -43,39 +43,39 @@
 
 @interface AttributeInspector : EOMInspector
 {
-  IBOutlet NSTextField		*_extNameField;
-  IBOutlet NSTextField		*_extTypeField;
-  IBOutlet NSPopUpButton	*_valueTypeSelect;
-  IBOutlet NSPopUpButton	*_flipSelect;// select which valueClassName/flip
-  IBOutlet NSBox		*_flipView; // gets replaced with a *Flip...
-  IBOutlet NSBox		*_internalData;
-  IBOutlet NSTextField		*_nameField;
+  IBOutlet NSTextField          *_extNameField;
+  IBOutlet NSTextField          *_extTypeField;
+  IBOutlet NSPopUpButton        *_valueTypeSelect;
+  IBOutlet NSPopUpButton        *_flipSelect;// select which valueClassName/flip
+  IBOutlet NSBox                *_flipView; // gets replaced with a *Flip...
+  IBOutlet NSBox                *_internalData;
+  IBOutlet NSTextField          *_nameField;
 
-  NSDictionary			*_flipDict;
-  NSDictionary			*_classTitleDict;
-  NSDictionary			*_valueTypeDict;
+  NSDictionary                  *_flipDict;
+  NSDictionary                  *_classTitleDict;
+  NSDictionary                  *_valueTypeDict;
   
-  IBOutlet NSBox		*_customFlip; // default
-  IBOutlet NSBox		*_dataFlip;
-  IBOutlet NSBox		*_dateFlip;
-  IBOutlet NSBox		*_decimalFlip;
-  IBOutlet NSBox		*_numberFlip;
-  IBOutlet NSBox		*_stringFlip;
+  IBOutlet NSBox                *_customFlip; // default
+  IBOutlet NSBox                *_dataFlip;
+  IBOutlet NSBox                *_dateFlip;
+  IBOutlet NSBox                *_decimalFlip;
+  IBOutlet NSBox                *_numberFlip;
+  IBOutlet NSBox                *_stringFlip;
 
-  NSTextField 			*_custom_width;
-  NSTextField			*_custom_class;
-  NSTextField			*_custom_factory;
-  NSTextField			*_custom_conversion;
-  NSPopUpButton			*_custom_arg;
+  NSTextField                   *_custom_width;
+  NSTextField                   *_custom_class;
+  NSTextField                   *_custom_factory;
+  NSTextField                   *_custom_conversion;
+  NSPopUpButton                 *_custom_arg;
 
-  NSTextField			*_string_width;
+  NSTextField                   *_string_width;
   
-  NSTextField			*_decimal_precision;
-  NSTextField			*_decimal_width;
+  NSTextField                   *_decimal_precision;
+  NSTextField                   *_decimal_width;
 
-  NSTextField			*_data_width;
+  NSTextField                   *_data_width;
 
-  NSButton			*_date_tz;
+  NSButton                      *_date_tz;
 }
 /* generic */
 - (IBAction) selectInternalDataType:(id)sender;

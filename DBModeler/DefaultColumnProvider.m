@@ -69,37 +69,37 @@ struct column_info {
 };
 
 static struct column_info attribute_columns[] = {
-	{@"isPrimaryKey",	@"Primary key",		YES},
-	{@"isClassProperty",	@"Class property",	YES},
-	{@"allowNull",		@"Allows null",		YES}, 
-	{@"isUsedForLocking",	@"Locking",		YES},
-	{@"name",		@"Name",		YES},
-	{@"columnName",		@"Column name",		YES},
-	{@"valueClassName",	@"Value class name",	YES},
-	{@"externalType",	@"External Type",	YES},
-	{@"definition",		@"Definition",		NO},
-	{@"precision",		@"Precision", 	 	NO},	
-	{@"readFormat",		@"Read format", 	NO},
-	{@"scale",		@"Scale",		NO}, 
-	{@"valueType",		@"Value type",		NO},
-	{@"width",		@"Width",		YES}, 
-	{@"writeFormat",	@"Write format",	NO} 
+        {@"isPrimaryKey",     @"Primary key",      YES},
+        {@"isClassProperty",  @"Class property",   YES},
+        {@"allowNull",        @"Allows null",      YES}, 
+        {@"isUsedForLocking", @"Locking",          YES},
+        {@"name",             @"Name",             YES},
+        {@"columnName",       @"Column name",      YES},
+        {@"valueClassName",   @"Value class name", YES},
+        {@"externalType",     @"External Type",    YES},
+        {@"definition",       @"Definition",        NO},
+        {@"precision",        @"Precision",         NO},
+        {@"readFormat",       @"Read format",       NO},
+        {@"scale",            @"Scale",             NO}, 
+        {@"valueType",        @"Value type",        NO},
+        {@"width",            @"Width",            YES}, 
+        {@"writeFormat",      @"Write format",      NO} 
 };
   
 static struct column_info relationship_columns[]= {
-	{@"isClassProperty",		@"Class property",	YES},
-	{@"definition",			@"Definition",		NO}, 
-	{@"name",			@"Name",		YES},
-	{@"destinationEntity.name",	@"Destination Entity",  YES}	
-	
+        {@"isClassProperty",        @"Class property",     YES},
+        {@"definition",             @"Definition",          NO}, 
+        {@"name",                   @"Name",               YES},
+        {@"destinationEntity.name", @"Destination Entity", YES}        
+        
 };
 
 static struct column_info entity_columns[] = {
-	{@"name",		@"Name",		YES},
-	{@"className",		@"Class name",		YES},
-	{@"externalName",	@"External name",	YES},
-	{@"externalQuery",	@"External query",	NO},
-	{@"parentEntity.name",	@"Parent",		NO}
+        {@"name",              @"Name",           YES},
+        {@"className",         @"Class name",     YES},
+        {@"externalName",      @"External name",  YES},
+        {@"externalQuery",     @"External query",  NO},
+        {@"parentEntity.name", @"Parent",          NO}
 
 };
 
@@ -108,13 +108,13 @@ static struct column_info entity_columns[] = {
  * which looks like
  { 
    Class = { 
-   	     columnName1 = "aspectKey1";
-	     columnName2 = "aspectKey2";
-	   };
-	   
+             columnName1 = "aspectKey1";
+             columnName2 = "aspectKey2";
+           };
+           
    Class2 = {
-	      otherColumnName = "otherAspectKey";
-   	    };
+              otherColumnName = "otherAspectKey";
+            };
  }
  */
 void registerColumnsForClass(struct column_info columns[], int count, Class aClass,NSMutableArray *defaultColumnsArray)
@@ -134,21 +134,21 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
        objects[i] = columns[i].key;
        keys[i] = columns[i].name;
        if (columns[i].isDefault == YES)
-	 {
-	   [defaultColumnsArray addObject:keys[i]]; 
-	 }
+         {
+           [defaultColumnsArray addObject:keys[i]]; 
+         }
      }
   tmp = [NSDictionary dictionaryWithObjects:objects
-	  			    forKeys:keys
-				      count:count];
+                                      forKeys:keys
+                                      count:count];
   [EOMApp registerColumnNames: [tmp allKeys]
-	  	     forClass: aClass
-		     provider:_sharedDefaultColumnProvider];
+                       forClass: aClass
+                     provider:_sharedDefaultColumnProvider];
   NSZoneFree([_sharedDefaultColumnProvider zone], objects);
   NSZoneFree([_sharedDefaultColumnProvider zone], keys);
   
   [_aspectsAndKeys setObject: tmp 
-		      forKey: aClass];
+                      forKey: aClass];
 }
 
 + (void)initialize
@@ -161,17 +161,17 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
   _sharedDefaultColumnProvider = [[self alloc] init];
   _aspectsAndKeys = [[NSMutableDictionary alloc] init]; 
   registerColumnsForClass(attribute_columns,
-		  	  DICTSIZE(attribute_columns),
-			  [EOAttribute class],
-			  DefaultAttributeColumns); 
+                            DICTSIZE(attribute_columns),
+                          [EOAttribute class],
+                          DefaultAttributeColumns); 
   registerColumnsForClass(entity_columns,
-		  	  DICTSIZE(entity_columns),
-			  [EOEntity class],
-			  DefaultEntityColumns);
+                            DICTSIZE(entity_columns),
+                          [EOEntity class],
+                          DefaultEntityColumns);
   registerColumnsForClass(relationship_columns,
-		  	  DICTSIZE(relationship_columns),
-			  [EORelationship class],
-			  DefaultRelationshipColumns);
+                            DICTSIZE(relationship_columns),
+                          [EORelationship class],
+                          DefaultRelationshipColumns);
 }
 
 - (void) setupTitleForColumn:(NSTableColumn *)tc named:(NSString *)name
@@ -267,14 +267,14 @@ void registerColumnsForClass(struct column_info columns[], int count, Class aCla
 
 - (void)initColumn:(NSTableColumn *)tc
              class:(Class)class 
-	      name:(NSString *)columnName 
+              name:(NSString *)columnName 
       displayGroup:(EODisplayGroup *)displayGroup 
           document:(EOModelerDocument *)doc
 {
     EOColumnAssociation *association;
-    NSCell		*cell;
-    NSString		*aspectKey;
-    NSString		*aspect;
+    NSCell         *cell;
+    NSString  *aspectKey;
+    NSString     *aspect;
 
     aspectKey = [[_aspectsAndKeys objectForKey:class] objectForKey:columnName];
     aspect = @"value";

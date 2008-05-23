@@ -174,8 +174,8 @@
       
       classDescription = nil; 
       wds = [[KVDataSource alloc]
-	      initWithClassDescription:classDescription 
-  			editingContext:[[self document] editingContext]];
+              initWithClassDescription:classDescription 
+                        editingContext:[[self document] editingContext]];
   
       [wds setDataObject: [[self document] model]];
       [wds setKey:@"entities"];
@@ -187,12 +187,12 @@
       [dg setDelegate: self]; 
       
       [self setupCornerView:cornerView
-	  tableView:_topTable
-	  displayGroup:dg
-	  forClass:[EOEntity class]];
+          tableView:_topTable
+          displayGroup:dg
+          forClass:[EOEntity class]];
   
       [self addDefaultTableColumnsForTableView:_topTable
-	  		displayGroup:dg];
+                                  displayGroup:dg];
 
       
     }
@@ -217,7 +217,7 @@
   [dg fetch];
 
   [dg selectObjectsIdenticalTo:[self selectionWithinViewedObject]
-	  selectFirstOnNoMatch:NO];
+          selectFirstOnNoMatch:NO];
 }
 
 - (NSView *)mainView
@@ -228,11 +228,11 @@
 - (void) objectWillChange:(id)anObject
 {
   [[NSRunLoop currentRunLoop]
-	  performSelector:@selector(needToFetch:)
-	  	   target:self
-		 argument:nil
-		    order:999 /* this number is probably arbitrary */
-		    modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
+          performSelector:@selector(needToFetch:)
+                   target:self
+                 argument:nil
+                    order:999 /* this number is probably arbitrary */
+                    modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
 }
 
 - (void) needToFetch:(id)sth

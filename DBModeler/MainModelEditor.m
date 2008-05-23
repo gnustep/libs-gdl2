@@ -71,8 +71,8 @@
 @implementation ModelerOutlineView
 
 - (NSImage *) dragImageForRows:(NSArray *)dragRows
-		event: (NSEvent *)dragEvent
-		dragImageOffset: (NSPoint *)dragImageOffset
+                event: (NSEvent *)dragEvent
+                dragImageOffset: (NSPoint *)dragImageOffset
 {
   id foo = [self itemAtRow:[[dragRows objectAtIndex:0] intValue]];
   NSImage *img = nil;
@@ -117,9 +117,9 @@
       [_iconPath sizeToFit];
       
       _window = [[NSWindow alloc] initWithContentRect:NSMakeRect(20,80,600,400)
-      					styleMask: NSTitledWindowMask | NSMiniaturizableWindowMask | NSClosableWindowMask | NSResizableWindowMask
-      					backing:NSBackingStoreBuffered
-					defer:YES];
+                                            styleMask: NSTitledWindowMask | NSMiniaturizableWindowMask | NSClosableWindowMask | NSResizableWindowMask
+                                              backing:NSBackingStoreBuffered
+                                                defer:YES];
       [_window setTitle:[[document model] name]];
       [_window setReleasedWhenClosed:NO];
       
@@ -139,7 +139,7 @@
       
       [_vSplit setAutoresizesSubviews:YES];
       [_vSplit setAutoresizingMask: NSViewWidthSizable
-	      			   | NSViewHeightSizable];
+                                         | NSViewHeightSizable];
       [_vSplit adjustSubviews];
       [[_window contentView] addSubview:_vSplit];
       RELEASE(_vSplit);
@@ -149,9 +149,9 @@
       [_window setDelegate: document];
 
       [[NSNotificationCenter defaultCenter] addObserver: self
-	      	selector:@selector(ecStuff:)
-		name: EOObjectsChangedInEditingContextNotification
-		object: [[self document] editingContext]];
+                         selector:@selector(ecStuff:)
+                             name: EOObjectsChangedInEditingContextNotification
+                           object: [[self document] editingContext]];
       
       [self setViewedObjectPath:[NSArray arrayWithObject:[document model]]]; 
     }
@@ -197,8 +197,8 @@
     {
       [_window makeKeyAndOrderFront:self];
       [self activateEmbeddedEditor:
-	        [self embedibleEditorOfClass:
-				NSClassFromString(@"ModelerEntityEditor")]];
+                [self embedibleEditorOfClass:
+                                NSClassFromString(@"ModelerEntityEditor")]];
 
     }
   [_iconPath reloadData];
@@ -210,7 +210,7 @@
   id selection;
   if ([[self selectionWithinViewedObject] count] == 0)
     return;
-	  
+          
   selection = [[self selectionWithinViewedObject] objectAtIndex:0];
 #if DEBUG_STUFF == 1 
   GSPrintf(stderr, @"viewing %@(%@)\n", NSStringFromClass([selection class]), [(EOModel *)selection name]);
@@ -228,50 +228,50 @@
       for (i = 0, c = [friends count]; i < c; i++)
         {
           for (j = 0,editorsCount = [_editors count]; j < editorsCount; j++)
-	    {
-	      id friendEditor = [_editors objectAtIndex:j];
+            {
+              id friendEditor = [_editors objectAtIndex:j];
               id friendClass = [friends objectAtIndex:i];
-	        
-	      if ([friendEditor isKindOfClass: friendClass])
-	        {
-	          if ([friendEditor canSupportCurrentSelection])
-		    {
-	              [self activateEmbeddedEditor:friendEditor];
-  	              [super viewSelectedObject];
-		      return;
-		    }
-		}
-	    }
-	}
+                
+              if ([friendEditor isKindOfClass: friendClass])
+                {
+                  if ([friendEditor canSupportCurrentSelection])
+                    {
+                      [self activateEmbeddedEditor:friendEditor];
+                      [super viewSelectedObject];
+                      return;
+                    }
+                }
+            }
+        }
       /* instantiate friends to see if we can support the current selection */ 
       for (i = 0,c = [friends count]; i < c; i++)
          {
            id friendClass = [friends objectAtIndex:i];
            id friend = [[friendClass alloc] initWithParentEditor:self];
-	   if ([friend canSupportCurrentSelection])
-	     {
-	       [self activateEmbeddedEditor:friend];
-	       RELEASE(friend);
-  	       [super viewSelectedObject];
-	       return;
-	     }
-	   RELEASE(friend);
-	 }
+           if ([friend canSupportCurrentSelection])
+             {
+               [self activateEmbeddedEditor:friend];
+               RELEASE(friend);
+               [super viewSelectedObject];
+               return;
+             }
+           RELEASE(friend);
+         }
       /* look for any old editor this isn't very nice...
        * because it only works with registered editors, and we can only
        * register instances of editors, so a) can't load on demand non-friend 
        * editors, or b) we should register instances of all editors */
       for (i = 0, c = [_editors count]; i < c; i++)
         {
-	  id anEditor = [_editors objectAtIndex:i];
-	  
-	  if ([anEditor canSupportCurrentSelection])
-	    {
-	      [self activateEmbeddedEditor:anEditor];
-  	      [super viewSelectedObject];
-	      return;
-	    }
-	}
+          id anEditor = [_editors objectAtIndex:i];
+          
+          if ([anEditor canSupportCurrentSelection])
+            {
+              [self activateEmbeddedEditor:anEditor];
+              [super viewSelectedObject];
+              return;
+            }
+        }
       
     } 
   [super viewSelectedObject];
@@ -365,21 +365,21 @@
   while (bar != item)
     {
       if (item == nil)
-	{
-	  
-	  item = [_iconPath itemAtRow:selectedRow];
-	  [foo insertObject:[NSArray arrayWithObject:item] atIndex:0];
-	}
+        {
+          
+          item = [_iconPath itemAtRow:selectedRow];
+          [foo insertObject:[NSArray arrayWithObject:item] atIndex:0];
+        }
       else if ([item isKindOfClass:[EOEntity class]])
-	{
-	  item = [item model];
+        {
+          item = [item model];
           [foo insertObject:item atIndex:0];
-	}
+        }
       else if ([item isKindOfClass:[EORelationship class]])
         {
-	  item = [item entity];
+          item = [item entity];
           [foo insertObject:item atIndex:0];
-	}
+        }
     }
 #if DEBUG_STUFF == 1 
   {
@@ -388,18 +388,18 @@
     NSLog(@"current selection path"); 
     for (i = 0, c = [selpath count]; i < c; i++)
       {
-	id obj = [selpath objectAtIndex:i];
-        	
-	if ([obj isKindOfClass:[NSArray class]])
-	  {
-	    int j,d;
-	    for (j = 0, d = [obj count]; j < d; j++)
-	      {
-		GSPrintf(stderr, @"* %@(%@)\n", [[obj objectAtIndex:j] class], [(EOModel *)[obj objectAtIndex:j] name]);
-	      }
-	  }
-	else
-	  GSPrintf(stderr, @"%@(%@)\n", [obj class], [(EOModel *)obj name]);  
+        id obj = [selpath objectAtIndex:i];
+                
+        if ([obj isKindOfClass:[NSArray class]])
+          {
+            int j,d;
+            for (j = 0, d = [obj count]; j < d; j++)
+              {
+                GSPrintf(stderr, @"* %@(%@)\n", [[obj objectAtIndex:j] class], [(EOModel *)[obj objectAtIndex:j] name]);
+              }
+          }
+        else
+          GSPrintf(stderr, @"%@(%@)\n", [obj class], [(EOModel *)obj name]);  
       }
     NSLog(@"changing to");
     selpath = foo;
@@ -439,24 +439,24 @@ toPasteboard:(NSPasteboard *)pboard
     {
       if (item == bar)
         {
-	  NSString *modelPath = [item valueForKey:@"path"];
-	  if (modelPath == nil)
-	    {
-	      NSRunAlertPanel(@"Error", @"Must save before dragging", @"OK",@"Cancel",nil);
-	      return NO;
-	    }
+          NSString *modelPath = [item valueForKey:@"path"];
+          if (modelPath == nil)
+            {
+              NSRunAlertPanel(@"Error", @"Must save before dragging", @"OK",@"Cancel",nil);
+              return NO;
+            }
           [foo insertObject:modelPath atIndex:0];
-	  item = nil;
+          item = nil;
         }
       else if ([item isKindOfClass:[EOEntity class]])
         {
           [foo insertObject:[item valueForKey:@"name"] atIndex:0];
-	  item = [item model];
+          item = [item model];
         }
       else if ([item isKindOfClass:[EORelationship class]])
         {
           [foo insertObject:[item valueForKey:@"name"] atIndex:0];
-	  item = [item entity];
+          item = [item entity];
         }
     }  
   [pboard declareTypes: [NSArray arrayWithObject: EOMPropertyPboardType] owner:nil];
@@ -471,7 +471,7 @@ forTableColumn:(NSTableColumn *)tc
 item:(id)item
 {
   //if (![[tc identifier] isEqual:@"name"])
-//	  return; 
+//          return; 
   if ([item isKindOfClass:[EOModel class]])
     [cell setImage: [NSImage imageNamed:@"Model_small.tiff"]];
   if ([item isKindOfClass:[EOEntity class]])

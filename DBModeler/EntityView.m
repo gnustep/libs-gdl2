@@ -182,21 +182,21 @@
       [dv orderViewFront:self];
 
       while ((ev = [NSApp nextEventMatchingMask:NSLeftMouseDraggedMask|NSLeftMouseUpMask untilDate:nil inMode:NSEventTrackingRunLoopMode dequeue:YES]))
-	{
-	  float tox, toy;
-	  if ([ev type] == NSLeftMouseUp) break;
+        {
+          float tox, toy;
+          if ([ev type] == NSLeftMouseUp) break;
           NSPoint pt2 = [dv convertPoint:[ev locationInWindow] fromView:nil];
-	  tox = pt2.x - in;
-	  toy = pt2.y - up;
-	  /* contrain to a positive x,y. */ 
-	  // at 1.0 we can get some libart artifacts for some reason.. 
-  	  pt2.x = tox > 1.0 ? tox : 1.1;
-	  pt2.y = toy > 1.0 ? toy : 1.1; 
-	  [self setFrameOrigin:pt2];
-	  [self autoscroll:ev];
-	  [dv setNeedsDisplay:YES];
-	  [self setNeedsDisplay:YES];
-	}
+          tox = pt2.x - in;
+          toy = pt2.y - up;
+          /* contrain to a positive x,y. */ 
+          // at 1.0 we can get some libart artifacts for some reason.. 
+          pt2.x = tox > 1.0 ? tox : 1.1;
+          pt2.y = toy > 1.0 ? toy : 1.1; 
+          [self setFrameOrigin:pt2];
+          [self autoscroll:ev];
+          [dv setNeedsDisplay:YES];
+          [self setNeedsDisplay:YES];
+        }
     }
 }
 

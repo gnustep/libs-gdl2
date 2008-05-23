@@ -36,7 +36,7 @@
 
 @interface MainModelEditor : EOModelerCompoundEditor
 {
-  NSView	*_editorView;
+  NSView    *_editorView;
   NSWindow      *_window;
   NSOutlineView *_iconPath;
   NSSplitView   *_vSplit;

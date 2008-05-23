@@ -40,54 +40,54 @@
   RETAIN(_internalData);
   _flipDict =
     [[NSDictionary alloc] initWithObjectsAndKeys:
-      _stringFlip,	@"String",
-      _customFlip,	@"Custom", 
-      _dataFlip,	@"Data",
-      _dateFlip,	@"Date",
-      _decimalFlip,	@"Decimal Number",
-      _numberFlip,	@"Number",
+      _stringFlip,      @"String",
+      _customFlip,      @"Custom", 
+      _dataFlip,        @"Data",
+      _dateFlip,        @"Date",
+      _decimalFlip,     @"Decimal Number",
+      _numberFlip,      @"Number",
       nil];
 
   _valueTypeDict = 
      [[NSDictionary alloc] initWithObjectsAndKeys:
-	@"i",	@"int",
-	@"d",	@"double",
-	@"f",	@"float",
-     	@"c",	@"char",
-	@"s",	@"short",
-	@"I",	@"unsigned int",
-	@"C",	@"unsigned char",
-	@"S",	@"unsigned short",
-	@"l",	@"long",
-	@"L",	@"unsigned long",
-	@"u",	@"long long",
-	@"U",	@"unsigned long long",
-     	@"char",		@"c",	
-	@"unsigned char",	@"C",	
-	@"short",		@"s",	
-	@"unsigned short",	@"S",	
-	@"int", 		@"i",	
-	@"unsigned int", 	@"I",	
-	@"long", 		@"l",	
-	@"unsigned long", 	@"L",	
-	@"long long", 		@"u",	
-	@"unsigned long long", 	@"U",	
-	@"float", 		@"f",	
-	@"double", 		@"d",	
-	nil];
+        @"i", @"int",
+        @"d", @"double",
+        @"f", @"float",
+        @"c", @"char",
+        @"s", @"short",
+        @"I", @"unsigned int",
+        @"C", @"unsigned char",
+        @"S", @"unsigned short",
+        @"l", @"long",
+        @"L", @"unsigned long",
+        @"u", @"long long",
+        @"U", @"unsigned long long",
+        @"char",               @"c",        
+        @"unsigned char",      @"C",        
+        @"short",              @"s",        
+        @"unsigned short",     @"S",        
+        @"int",                @"i",        
+        @"unsigned int",       @"I",        
+        @"long",               @"l",        
+        @"unsigned long",      @"L",        
+        @"long long",          @"u",        
+        @"unsigned long long", @"U",        
+        @"float",              @"f",        
+        @"double",             @"d",        
+        nil];
 
   _classTitleDict = 
     [[NSDictionary alloc] initWithObjectsAndKeys:
-      @"String",	@"NSString",
-      @"Data",		@"NSData",
-      @"Number",	@"NSNumber", 
-      @"Date",		@"NSCalendarDate",
-      @"Decimal Number",	@"NSDecimalNumber",
-      @"NSString",		@"String",
-      @"NSData",		@"Data",
-      @"NSNumber",		@"Number",
-      @"NSDecimalNumber",	@"Decimal Number",
-      @"NSCalendarDate",	@"Date",
+      @"String",          @"NSString",
+      @"Data",            @"NSData",
+      @"Number",          @"NSNumber", 
+      @"Date",            @"NSCalendarDate",
+      @"Decimal Number",  @"NSDecimalNumber",
+      @"NSString",        @"String",
+      @"NSData",          @"Data",
+      @"NSNumber",        @"Number",
+      @"NSDecimalNumber", @"Decimal Number",
+      @"NSCalendarDate",  @"Date",
       nil];
 }
 
@@ -148,7 +148,7 @@
     {
       if (![obj valueType])
         {
-	  [obj setValueType:@"d"];
+          [obj setValueType:@"d"];
         }
     }
   else
@@ -173,7 +173,7 @@
   [_internalData replaceSubview:_flipView with:flipTo];
   _flipView = flipTo;
   [self performSelector:
-	  NSSelectorFromString([@"update" stringByAppendingString:[title stringByReplacingString:@" " withString:@""]])];
+          NSSelectorFromString([@"update" stringByAppendingString:[title stringByReplacingString:@" " withString:@""]])];
 }
 
 - (void) updateString
@@ -193,7 +193,7 @@
   [_custom_factory setStringValue:[obj valueFactoryMethodName]];
   [_custom_conversion setStringValue:[obj adaptorValueConversionMethodName]];
   [_custom_arg selectItemAtIndex:
-	  [_custom_arg indexOfItemWithTag: [obj factoryMethodArgumentType]]];
+          [_custom_arg indexOfItemWithTag: [obj factoryMethodArgumentType]]];
 }
 
 - (void) updateDecimalNumber
@@ -255,7 +255,7 @@
 
 - (IBAction) setTimeZone:(id)sender;
 {
-  // fixme	
+  // fixme
 }
 
 - (IBAction) setWidth:(id)sender;

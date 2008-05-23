@@ -40,18 +40,18 @@
  */
 @interface ModelerTableEmbedibleEditor : EOModelerEmbedibleEditor
 - (void) setupCornerView:(NSPopUpButton *)cornerView
-		tableView:(NSTableView *)tableView
-		displayGroup:(EODisplayGroup *)dg
-		forClass:(Class)aClass;
+               tableView:(NSTableView *)tableView
+            displayGroup:(EODisplayGroup *)dg
+                forClass:(Class)aClass;
 
 - (void) _cornerAction:(id)sender;
 - (NSArray *)defaultColumnNamesForClass:(Class)aClass;
 - (void) addDefaultTableColumnsForTableView:(NSTableView *)tv
-		displayGroup:(EODisplayGroup *)dg;
+                               displayGroup:(EODisplayGroup *)dg;
 - (void) addTableColumnForItem:(NSMenuItem <NSMenuItem>*)item
-	  tableView:(NSTableView *)tv;
+                     tableView:(NSTableView *)tv;
 - (void) removeTableColumnForItem:(NSMenuItem <NSMenuItem>*)menuItem
-	  tableView:(NSTableView *)tv;
+                        tableView:(NSTableView *)tv;
 
 @end
 

@@ -40,7 +40,7 @@
 static inline NSNumber * isClassProperty(id self)
 {
   return [NSNumber numberWithBool:
-	  	[[[self entity] classProperties] containsObject:self]];
+                  [[[self entity] classProperties] containsObject:self]];
 }
 
 static inline void setIsClassProperty(id self, NSNumber *flag)
@@ -52,22 +52,22 @@ static inline void setIsClassProperty(id self, NSNumber *flag)
     {
       if (!props)
         {
-	  if (![[self entity] setClassProperties: [NSArray arrayWithObject:self]])
-	    NSLog(@"invalid class property");
-	}
+          if (![[self entity] setClassProperties: [NSArray arrayWithObject:self]])
+            NSLog(@"invalid class property");
+        }
       else if (![props containsObject:self])
         {
-	  [[self entity] setClassProperties: [props arrayByAddingObject:self]];
-	}
+          [[self entity] setClassProperties: [props arrayByAddingObject:self]];
+        }
     }
   else
     {
       if ([props containsObject:self])
-	{
-	  NSMutableArray *newProps = [NSMutableArray arrayWithArray:props];
-	  [newProps removeObject: self];
-	  [[self entity] setClassProperties: newProps];
-	}
+        {
+          NSMutableArray *newProps = [NSMutableArray arrayWithArray:props];
+          [newProps removeObject: self];
+          [[self entity] setClassProperties: newProps];
+        }
     }
 }
 
@@ -86,26 +86,26 @@ static inline void setIsClassProperty(id self, NSNumber *flag)
 
   if (isKey)
     {
-	if (!pka)
-	  {
-	    [[self entity]
-		setPrimaryKeyAttributes: [NSArray arrayWithObject:self]];
-	  }
-	else if (![pka containsObject:self])
+        if (!pka)
           {
-	    [[self entity]
-		setPrimaryKeyAttributes: [pka arrayByAddingObject:self]];
-	  }
+            [[self entity]
+                setPrimaryKeyAttributes: [NSArray arrayWithObject:self]];
+          }
+        else if (![pka containsObject:self])
+          {
+            [[self entity]
+                setPrimaryKeyAttributes: [pka arrayByAddingObject:self]];
+          }
     }
   else
     {
       if ([pka containsObject:self])
-	{
-	  NSMutableArray *newPks = [NSMutableArray arrayWithArray:pka];
-	  [newPks removeObject: self];
-	  [[self entity] setPrimaryKeyAttributes: newPks];
-	  
-	}
+        {
+          NSMutableArray *newPks = [NSMutableArray arrayWithArray:pka];
+          [newPks removeObject: self];
+          [[self entity] setPrimaryKeyAttributes: newPks];
+          
+        }
     }
 }
 
@@ -139,24 +139,24 @@ static inline void setIsClassProperty(id self, NSNumber *flag)
     {
 
       if (la == nil)
-	{
-	  [[self entity]
-		setAttributesUsedForLocking:[NSArray arrayWithObject:self]];
-	}
+        {
+          [[self entity]
+                setAttributesUsedForLocking:[NSArray arrayWithObject:self]];
+        }
       else if (![la containsObject:self])
         {
-	  [[self entity]
-		setAttributesUsedForLocking:[la arrayByAddingObject:self]];
-	}
+          [[self entity]
+                setAttributesUsedForLocking:[la arrayByAddingObject:self]];
+        }
     }
   else
     {
       if ([la containsObject:self])
-	{
-	   NSMutableArray *newLA = [NSMutableArray arrayWithArray:la];
-	   [newLA removeObject:self];
-	   [[self entity] setAttributesUsedForLocking:newLA];
-	}
+        {
+           NSMutableArray *newLA = [NSMutableArray arrayWithArray:la];
+           [newLA removeObject:self];
+           [[self entity] setAttributesUsedForLocking:newLA];
+        }
     }
 }
 

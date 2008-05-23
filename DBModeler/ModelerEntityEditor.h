@@ -41,7 +41,7 @@
   NSTableView *_bottomTable;
   NSSplitView *_splitView;
   NSWindow    *_window;
-  NSBox	      *_box;
+  NSBox       *_box;
   EODisplayGroup *dg;
 }
 

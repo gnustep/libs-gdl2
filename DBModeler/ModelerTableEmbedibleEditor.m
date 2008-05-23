@@ -46,9 +46,9 @@
 /* base class with some methods shared among default embedible editors */
 @implementation ModelerTableEmbedibleEditor : EOModelerEmbedibleEditor
 - (void) setupCornerView:(NSPopUpButton *)cornerView
-		tableView:(NSTableView *)tableView
-		displayGroup:(EODisplayGroup *)dg
-		forClass:(Class)aClass
+               tableView:(NSTableView *)tableView
+            displayGroup:(EODisplayGroup *)dg
+                forClass:(Class)aClass
 {
   NSArray *columnNames = [EOMApp columnNamesForClass:aClass];
   int i, c;
@@ -77,7 +77,7 @@
 }
 
 - (void) addDefaultTableColumnsForTableView:(NSTableView *)tv
-			       displayGroup:(EODisplayGroup *)dg
+                               displayGroup:(EODisplayGroup *)dg
 {
   Class aClass = [[(NSPopUpButton*)[tv cornerView] cell] representedObject];
   NSArray *columnNames = [self defaultColumnNamesForClass:aClass];
@@ -98,7 +98,7 @@
       RELEASE(tc);
       
       [provider initColumn:tc class:aClass name:columnName
-	      displayGroup:dg document:[self document]]; 
+              displayGroup:dg document:[self document]]; 
       item = (NSMenuItem *)[cv itemWithTitle:columnName];
       [item setRepresentedObject:tc];
       [item setState:NSOnState];
@@ -107,7 +107,7 @@
 }
 
 - (void) addTableColumnForItem:(NSMenuItem <NSMenuItem>*)item
-	  tableView:(NSTableView *)tv
+          tableView:(NSTableView *)tv
 {
   NSString *columnName = [item title];
   Class aClass = [[(NSPopUpButton *)[tv cornerView] cell] representedObject];
@@ -123,16 +123,16 @@
   /* this requires that the table at least have 1 table column in it...
    * so we have to have another method to setup the default table columns */
   [provider initColumn:tc
-	  class:aClass
+          class:aClass
            name:columnName
    displayGroup:[[tv delegate] displayGroupForAspect:@"source"] // <-+-^
        document:[self document]];
   [tc sizeToFit]; 
   [tv tile];
 }
-	  
+          
 - (void) removeTableColumnForItem:(NSMenuItem <NSMenuItem>*)item
-	  tableView:(NSTableView *)tv
+          tableView:(NSTableView *)tv
 {
   [tv removeTableColumn:[item representedObject]];
   [item setRepresentedObject:nil];
@@ -154,11 +154,11 @@
 }
 
 - (void) displayGroup:(EODisplayGroup *)dg didSetValue:(id)value
-	    forObject:(id)obj key:(NSString *)key
+            forObject:(id)obj key:(NSString *)key
 {
   [[NSNotificationCenter defaultCenter]
-	  postNotificationName:EOMSelectionChangedNotification
-	  object:nil];
+          postNotificationName:EOMSelectionChangedNotification
+          object:nil];
 }
 
 @end

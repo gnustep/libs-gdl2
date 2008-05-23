@@ -206,173 +206,173 @@ int sortSubviews(id view1, id view2, void *context)
        
        for (j = 0, d = [rels count]; j < d; j++)
          {
-	   EORelationship *rel = [rels objectAtIndex:j];
-	   EOEntity *dest = [rel destinationEntity];
-	   id srcName = [ent name];
-	   id destName = [dest name]; 
-	   EntityView *from = [_shownEntities objectForKey:srcName];
-	   EntityView *to = [_shownEntities objectForKey:destName];
-	   NSArray *srcAttribs = [rel sourceAttributes]; 
-	   NSArray *destAttribs = [rel destinationAttributes]; 
-	   int k, e;
-	   for (k = 0, e = [srcAttribs count]; k < e; k++)
-	     {
-	       id sAttrib = [srcAttribs objectAtIndex:k];
-	       id dAttrib = [destAttribs objectAtIndex:k];
-	       int sIdx = [[ent attributes] indexOfObject:sAttrib];
-	       int dIdx = [[dest attributes] indexOfObject:dAttrib];
-	       NSRect fromRect = [from attributeRectAtRow:sIdx];
-	       NSRect toRect = [to attributeRectAtRow:dIdx];
-	       NSRect fromViewFrame = [from frame];
-	       NSRect toViewFrame = [to frame];
-	       NSPoint midPoint;
-	       NSPoint tmp; 
-	       float arrowOffset; 
- 	       NSBezierPath *path = [NSBezierPath bezierPath];
-	       BOOL fromRight;
-	       BOOL toRight;
+           EORelationship *rel = [rels objectAtIndex:j];
+           EOEntity *dest = [rel destinationEntity];
+           id srcName = [ent name];
+           id destName = [dest name]; 
+           EntityView *from = [_shownEntities objectForKey:srcName];
+           EntityView *to = [_shownEntities objectForKey:destName];
+           NSArray *srcAttribs = [rel sourceAttributes]; 
+           NSArray *destAttribs = [rel destinationAttributes]; 
+           int k, e;
+           for (k = 0, e = [srcAttribs count]; k < e; k++)
+             {
+               id sAttrib = [srcAttribs objectAtIndex:k];
+               id dAttrib = [destAttribs objectAtIndex:k];
+               int sIdx = [[ent attributes] indexOfObject:sAttrib];
+               int dIdx = [[dest attributes] indexOfObject:dAttrib];
+               NSRect fromRect = [from attributeRectAtRow:sIdx];
+               NSRect toRect = [to attributeRectAtRow:dIdx];
+               NSRect fromViewFrame = [from frame];
+               NSRect toViewFrame = [to frame];
+               NSPoint midPoint;
+               NSPoint tmp; 
+               float arrowOffset; 
+                NSBezierPath *path = [NSBezierPath bezierPath];
+               BOOL fromRight;
+               BOOL toRight;
 
-	       [path setLineWidth:2];
+               [path setLineWidth:2];
 
-	       fromRect.origin.y += fromViewFrame.origin.y; 
-	       toRect.origin.y += toViewFrame.origin.y; 
-	      
-	       /* which side of the EntityView the arrow line will be connecting
-		* to, for the source and destination entities */
-	       fromRight = (fromViewFrame.origin.x - 40 < toViewFrame.origin.x + toViewFrame.size.width);
-	       toRight = (toViewFrame.origin.x - 40 < fromViewFrame.origin.x + fromViewFrame.size.width);
-	       
-	       if (fromRight)
-	         {
-		   fromRect.origin.x = fromViewFrame.origin.x + fromViewFrame.size.width + 5;
-	         }
-	       else
-	         {
-	           fromRect.origin.x = fromViewFrame.origin.x - 5;
-	         }
-	       
-	       if (toRight)
-		 {
-		   toRect.origin.x = toViewFrame.origin.x + toViewFrame.size.width;
-	           toRect.origin.x += 5;
-		   /* <- */
-		   arrowOffset = -5.0;
-		 }
-	       else
-	         {
-		   toRect.origin.x = toViewFrame.origin.x;
-	           toRect.origin.x -= 5;
-		   /* -> */
-		   arrowOffset = 5.0;
-		 }
+               fromRect.origin.y += fromViewFrame.origin.y; 
+               toRect.origin.y += toViewFrame.origin.y; 
+              
+               /* which side of the EntityView the arrow line will be connecting
+                * to, for the source and destination entities */
+               fromRight = (fromViewFrame.origin.x - 40 < toViewFrame.origin.x + toViewFrame.size.width);
+               toRight = (toViewFrame.origin.x - 40 < fromViewFrame.origin.x + fromViewFrame.size.width);
+               
+               if (fromRight)
+                 {
+                   fromRect.origin.x = fromViewFrame.origin.x + fromViewFrame.size.width + 5;
+                 }
+               else
+                 {
+                   fromRect.origin.x = fromViewFrame.origin.x - 5;
+                 }
+               
+               if (toRight)
+                 {
+                   toRect.origin.x = toViewFrame.origin.x + toViewFrame.size.width;
+                   toRect.origin.x += 5;
+                   /* <- */
+                   arrowOffset = -5.0;
+                 }
+               else
+                 {
+                   toRect.origin.x = toViewFrame.origin.x;
+                   toRect.origin.x -= 5;
+                   /* -> */
+                   arrowOffset = 5.0;
+                 }
 
-	       fromRect.origin.y = NSMidY(fromRect);
-	       toRect.origin.y = NSMidY(toRect);
-	       
-	       /* every line segment is drawn forwards and backwards so we dont
-		* end up with lightning bolts when filling the arrow */
+               fromRect.origin.y = NSMidY(fromRect);
+               toRect.origin.y = NSMidY(toRect);
+               
+               /* every line segment is drawn forwards and backwards so we dont
+                * end up with lightning bolts when filling the arrow */
 
-	       /* a recursive relationship... 
-		* Don't think they are particularly useful but... */
-	       if (fromRect.origin.y == toRect.origin.y
-		   && fromRect.origin.x == toRect.origin.x)
-	         {  
-		   [path moveToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y)];
-		   [path lineToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y + 5)];
-		   [path lineToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y)];
+               /* a recursive relationship... 
+                * Don't think they are particularly useful but... */
+               if (fromRect.origin.y == toRect.origin.y
+                   && fromRect.origin.x == toRect.origin.x)
+                 {  
+                   [path moveToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y)];
+                   [path lineToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y + 5)];
+                   [path lineToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y)];
 
-		   [path moveToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y + 5)];
-		   [path lineToPoint:NSMakePoint(toRect.origin.x + 20, toRect.origin.y + 5)];
-		   [path lineToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y + 5)];
-		   
-		   [path moveToPoint:NSMakePoint(toRect.origin.x + 20, toRect.origin.y + 5)];
-		   [path lineToPoint:NSMakePoint(toRect.origin.x + 20, toRect.origin.y)];
-		   [path lineToPoint:NSMakePoint(toRect.origin.x + 20, toRect.origin.y + 5)];
-	         }
-	       
-	       if ((fromRight || toRight) && !(fromRight && toRight))
-	         {
-		   /* a line like...   +-----
-		    *                  |   
-		    *             -----+ 
-		    *  (from the right side, to the left side or vice versa)
-		    */           
-	           [path moveToPoint:fromRect.origin];
-	       
-	           midPoint.x = (fromRect.origin.x + toRect.origin.x) / 2;
-	           midPoint.y = fromRect.origin.y;
-	           [path lineToPoint:midPoint];
-	       
-	           [path lineToPoint:fromRect.origin];
- 	           [path moveToPoint:midPoint]; 
-	           tmp = midPoint;
-	           midPoint.x = (fromRect.origin.x + toRect.origin.x) / 2;
-	           midPoint.y = toRect.origin.y;
-	           [path lineToPoint:midPoint];
-	           [path lineToPoint:tmp];
+                   [path moveToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y + 5)];
+                   [path lineToPoint:NSMakePoint(toRect.origin.x + 20, toRect.origin.y + 5)];
+                   [path lineToPoint:NSMakePoint(toRect.origin.x + 15, toRect.origin.y + 5)];
+                   
+                   [path moveToPoint:NSMakePoint(toRect.origin.x + 20, toRect.origin.y + 5)];
+                   [path lineToPoint:NSMakePoint(toRect.origin.x + 20, toRect.origin.y)];
+                   [path lineToPoint:NSMakePoint(toRect.origin.x + 20, toRect.origin.y + 5)];
+                 }
+               
+               if ((fromRight || toRight) && !(fromRight && toRight))
+                 {
+                   /* a line like...   +-----
+                    *                  |   
+                    *             -----+ 
+                    *  (from the right side, to the left side or vice versa)
+                    */           
+                   [path moveToPoint:fromRect.origin];
+               
+                   midPoint.x = (fromRect.origin.x + toRect.origin.x) / 2;
+                   midPoint.y = fromRect.origin.y;
+                   [path lineToPoint:midPoint];
+               
+                   [path lineToPoint:fromRect.origin];
+                    [path moveToPoint:midPoint]; 
+                   tmp = midPoint;
+                   midPoint.x = (fromRect.origin.x + toRect.origin.x) / 2;
+                   midPoint.y = toRect.origin.y;
+                   [path lineToPoint:midPoint];
+                   [path lineToPoint:tmp];
 
-	           [path moveToPoint:midPoint];
-	           [path lineToPoint:toRect.origin];
-	           [path lineToPoint:midPoint];
-		 }
-	       else if (fromRight && toRight)
-	         {
-	           /*  need to       --+   or -------+ <- joint end or start.
-	 	    * make a line      |             |
-		    * like...   -------+           --+ <- joint start or end.
-		    * from the right side to the right side.
-		    */
-			 
-		   NSPoint jointStart;
-		   NSPoint jointEnd;
-		   
-		   if (toRect.origin.x + toRect.size.width < fromRect.origin.x + fromRect.size.width)
-		     {
-		       jointStart = NSMakePoint(fromRect.origin.x + 20, fromRect.origin.y);
-		       jointEnd = NSMakePoint(fromRect.origin.x + 20, toRect.origin.y);
-		     }
-		   else
-		     {
-		       jointStart = NSMakePoint(toRect.origin.x + 20, fromRect.origin.y);
-		       jointEnd = NSMakePoint(toRect.origin.x + 20, toRect.origin.y);
-		     } 
-		   [path moveToPoint:fromRect.origin];
-		   [path lineToPoint:jointStart];
-		   [path lineToPoint:fromRect.origin];
-		   
-		   [path moveToPoint:jointStart];
-		   [path lineToPoint:jointEnd];
-		   [path lineToPoint:jointStart];
-		   
-		   [path moveToPoint:jointEnd]; 
-		   [path lineToPoint:toRect.origin];
-		   [path lineToPoint:jointEnd];
-	         }
+                   [path moveToPoint:midPoint];
+                   [path lineToPoint:toRect.origin];
+                   [path lineToPoint:midPoint];
+                 }
+               else if (fromRight && toRight)
+                 {
+                   /*  need to       --+   or -------+ <- joint end or start.
+                     * make a line      |             |
+                    * like...   -------+           --+ <- joint start or end.
+                    * from the right side to the right side.
+                    */
+                         
+                   NSPoint jointStart;
+                   NSPoint jointEnd;
+                   
+                   if (toRect.origin.x + toRect.size.width < fromRect.origin.x + fromRect.size.width)
+                     {
+                       jointStart = NSMakePoint(fromRect.origin.x + 20, fromRect.origin.y);
+                       jointEnd = NSMakePoint(fromRect.origin.x + 20, toRect.origin.y);
+                     }
+                   else
+                     {
+                       jointStart = NSMakePoint(toRect.origin.x + 20, fromRect.origin.y);
+                       jointEnd = NSMakePoint(toRect.origin.x + 20, toRect.origin.y);
+                     } 
+                   [path moveToPoint:fromRect.origin];
+                   [path lineToPoint:jointStart];
+                   [path lineToPoint:fromRect.origin];
+                   
+                   [path moveToPoint:jointStart];
+                   [path lineToPoint:jointEnd];
+                   [path lineToPoint:jointStart];
+                   
+                   [path moveToPoint:jointEnd]; 
+                   [path lineToPoint:toRect.origin];
+                   [path lineToPoint:jointEnd];
+                 }
 
-	       /* draw arrows.. */ 
-	       if ([rel isToMany]) 
-	         {
-	           [path moveToPoint:toRect.origin]; 
-	           [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y + arrowOffset)];
-	           [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y - arrowOffset)]; 
-	           [path lineToPoint:toRect.origin]; 
-		   toRect.origin.x -= arrowOffset;
-	           [path moveToPoint:toRect.origin]; 
-	           [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y + arrowOffset)];
-	           [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y - arrowOffset)]; 
-	           [path lineToPoint:toRect.origin]; 
-	         }
-	       else
-	         {
-	           [path moveToPoint:toRect.origin]; 
-	           [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y + arrowOffset)];
-	           [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y - arrowOffset)]; 
-	           [path lineToPoint:toRect.origin]; 
-	         }
+               /* draw arrows.. */ 
+               if ([rel isToMany]) 
+                 {
+                   [path moveToPoint:toRect.origin]; 
+                   [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y + arrowOffset)];
+                   [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y - arrowOffset)]; 
+                   [path lineToPoint:toRect.origin]; 
+                   toRect.origin.x -= arrowOffset;
+                   [path moveToPoint:toRect.origin]; 
+                   [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y + arrowOffset)];
+                   [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y - arrowOffset)]; 
+                   [path lineToPoint:toRect.origin]; 
+                 }
+               else
+                 {
+                   [path moveToPoint:toRect.origin]; 
+                   [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y + arrowOffset)];
+                   [path lineToPoint:NSMakePoint(toRect.origin.x - arrowOffset, toRect.origin.y - arrowOffset)]; 
+                   [path lineToPoint:toRect.origin]; 
+                 }
 
-	       [path closePath];
-	       [_relationships addObject:path];
-	     }
+               [path closePath];
+               [_relationships addObject:path];
+             }
 
          }
      }

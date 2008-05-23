@@ -126,11 +126,11 @@
   [_attributes_dg setDelegate:self];
 
   [self setupCornerView:cornerView
-	  tableView:_attributes_tableView
-	  displayGroup:_attributes_dg 
-	  forClass:[EOAttribute class]];
+          tableView:_attributes_tableView
+          displayGroup:_attributes_dg 
+          forClass:[EOAttribute class]];
   [self addDefaultTableColumnsForTableView:_attributes_tableView 
-	  		displayGroup:_attributes_dg];
+                          displayGroup:_attributes_dg];
   
   /* setup the relationships table view */ 
   scrollView = [[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,100,100)];
@@ -181,12 +181,12 @@
   [_relationships_dg setDelegate:self];
   
   [self setupCornerView:cornerView
-	  tableView:_relationships_tableView
-	  displayGroup:_relationships_dg 
-	  forClass:[EORelationship class]];
+          tableView:_relationships_tableView
+          displayGroup:_relationships_dg 
+          forClass:[EORelationship class]];
 
   [self addDefaultTableColumnsForTableView:_relationships_tableView 
-	  		displayGroup:_relationships_dg];
+                          displayGroup:_relationships_dg];
   
   return self;
 }
@@ -248,12 +248,12 @@
   
   if (![[_attributes_dg selectedObjects] isEqual:selWithin]
       && ![_attributes_dg selectObjectsIdenticalTo:selWithin
-	  			selectFirstOnNoMatch:NO])
+                                  selectFirstOnNoMatch:NO])
     [_attributes_dg clearSelection];
   
   if (![[_relationships_dg selectedObjects] isEqual:selWithin]
       && ![_relationships_dg selectObjectsIdenticalTo:selWithin
-  				selectFirstOnNoMatch:NO])
+                                  selectFirstOnNoMatch:NO])
     [_relationships_dg clearSelection];
 }
 
@@ -265,11 +265,11 @@
 - (void) objectWillChange:(id)sender
 {
   [[NSRunLoop currentRunLoop]
-	  performSelector:@selector(needToFetch:) 
-	  	   target:self
-		 argument:nil
-		    order:999 /* this number is probably arbitrary */
-		    modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
+          performSelector:@selector(needToFetch:) 
+                   target:self
+                 argument:nil
+                    order:999 /* this number is probably arbitrary */
+                    modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
 }
 
 - (NSArray *)defaultColumnNamesForClass:(Class)aClass
@@ -278,11 +278,11 @@
   if (colNames == nil || [colNames count] == 0)
     {
       if (aClass == [EOAttribute class])
-	return DefaultAttributeColumns; 
+        return DefaultAttributeColumns; 
       else if (aClass == [EORelationship class])
-	return DefaultRelationshipColumns;
+        return DefaultRelationshipColumns;
       else
-	return nil;
+        return nil;
     }
     
   return colNames;

@@ -75,7 +75,7 @@
 
   selObj = [self selectedObject];
   selectedParent = [[[selObj model] entities]
-	  			objectAtIndex:[entities selectedRow]];
+                                  objectAtIndex:[entities selectedRow]];
   
   if ([selObj parentEntity] == selectedParent)
     {
@@ -109,7 +109,7 @@
   if (selectedRow == -1) return;
 
   selectedParent = [[[selObj model] entities]
-	  			objectAtIndex:selectedRow];
+                                  objectAtIndex:selectedRow];
   [parent setEnabled:YES];
   [parent setState: ([selObj parentEntity] == selectedParent) ? NSOnState : NSOffState];
 }

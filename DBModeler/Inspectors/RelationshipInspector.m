@@ -132,24 +132,24 @@
     {
       BOOL flag;
       id join = [joins objectAtIndex:i];
-	  
+          
       /* if both arguments are non-nil, both must be equal,
        * if one argument is nil the non-nil argument must be equal */
       flag = ((srcAttrib 
-	       && destAttrib
-	       && [srcAttrib isEqual:[join sourceAttribute]]
-	       && [destAttrib isEqual:[join destinationAttribute]])
-	      || (srcAttrib
-	          && (destAttrib ==  nil)
-	          && [srcAttrib isEqual:[join sourceAttribute]])
-	      || (destAttrib
-	          && (srcAttrib == nil)
-		  && [destAttrib isEqual:[join destinationAttribute]]));
-			  
+               && destAttrib
+               && [srcAttrib isEqual:[join sourceAttribute]]
+               && [destAttrib isEqual:[join destinationAttribute]])
+              || (srcAttrib
+                  && (destAttrib ==  nil)
+                  && [srcAttrib isEqual:[join sourceAttribute]])
+              || (destAttrib
+                  && (srcAttrib == nil)
+                  && [destAttrib isEqual:[join destinationAttribute]]));
+                          
       if (flag)  
-	{
-	  return join;
-	}
+        {
+          return join;
+        }
     }
   return nil;
 }
@@ -157,7 +157,7 @@
 - (EOJoin *) selectedJoin
 {
   EOJoin *join = [self joinWithSource:[self selectedSourceAttribute]
-	  	  	  destination:[self selectedDestinationAttribute]];
+                              destination:[self selectedDestinationAttribute]];
   return join;
 }
 
@@ -227,13 +227,13 @@
     {
       if ([self numberOfRowsInTableView:srcAttrib_tableView])
         {
-	  [srcAttrib_tableView selectRow:0 byExtendingSelection:NO];
-	}
+          [srcAttrib_tableView selectRow:0 byExtendingSelection:NO];
+        }
 
       if ([self numberOfRowsInTableView:destAttrib_tableView])
         {
-	  [destAttrib_tableView selectRow:0 byExtendingSelection:NO];
-	}
+          [destAttrib_tableView selectRow:0 byExtendingSelection:NO];
+        }
     }
 
   [self updateConnectButton]; 
@@ -255,7 +255,7 @@
     {
       int selectedRow = [destEntity_tableView selectedRow];
       if (selectedRow == -1 || selectedRow == NSNotFound)
-	return 0;
+        return 0;
       return [[(EOEntity *)[[activeModel entities] objectAtIndex:[destEntity_tableView selectedRow]] attributes] count]; 
 
     }
@@ -281,7 +281,7 @@ row:(int)rowIndex
       if (selectedRow == NSNotFound)
         [destEntity_tableView selectRow:0 byExtendingSelection:NO];
       return [(EOAttribute *)[[(EOEntity *)[[activeModel entities] objectAtIndex:[destEntity_tableView selectedRow]]
-				   attributes] objectAtIndex:rowIndex] name]; 
+                                   attributes] objectAtIndex:rowIndex] name]; 
     } 
 
   return nil;

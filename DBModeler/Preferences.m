@@ -111,9 +111,9 @@ static NSString *_switches[][2] =
     }
   [check_matrix sizeToCells];
   [consistencyCheckOnSave 
-	setState:[ud boolForKey:DisableConsistencyCheckOnSave]
-		 ? NSOffState
-		 : NSOnState];
+        setState:[ud boolForKey:DisableConsistencyCheckOnSave]
+                 ? NSOffState
+                 : NSOnState];
   [bundlesToLoad reloadData];
 }
 
@@ -174,7 +174,7 @@ static NSString *_switches[][2] =
 
 - (BOOL) relationshipCheck
 {
-  return FROBKEY(DisableRelationshipCheck);	 
+  return FROBKEY(DisableRelationshipCheck);
 }
 
 - (BOOL) storedProcedureCheck
@@ -198,7 +198,7 @@ static NSString *_switches[][2] =
 - (void) tableView:(NSTableView *)tv
 setObjectValue:(id)newVal
 forTableColumn:(NSTableColumn *)tc
-	   row:(int)rowIndex
+           row:(int)rowIndex
 {
   [_bundles replaceObjectAtIndex:rowIndex withObject:newVal];
   [ud setObject:_bundles forKey:BundlesToLoad];

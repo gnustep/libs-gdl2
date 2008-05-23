@@ -42,7 +42,7 @@
 #endif
 
 #define MY_PRETTY NSMutableAttributedString \
-	mutableAttributedStringWithBoldSubstitutionsWithFormat
+        mutableAttributedStringWithBoldSubstitutionsWithFormat
 
 static NSMutableArray *successText;
 static EOModelerDocument *doc;
@@ -51,22 +51,22 @@ static EOModelerDocument *doc;
 +(void) initialize
 {
   [[NSNotificationCenter defaultCenter]
-  	addObserver:self
-  	   selector:@selector(beginConsistencyCheck:)
-	       name:EOMCheckConsistencyBeginNotification
-	     object:nil];
+          addObserver:self
+             selector:@selector(beginConsistencyCheck:)
+                 name:EOMCheckConsistencyBeginNotification
+               object:nil];
 
   [[NSNotificationCenter defaultCenter]
-  	addObserver:self
-  	   selector:@selector(endConsistencyCheck:)
-	       name:EOMCheckConsistencyEndNotification
-	     object:nil];
+          addObserver:self
+             selector:@selector(endConsistencyCheck:)
+                 name:EOMCheckConsistencyEndNotification
+               object:nil];
 
   [[NSNotificationCenter defaultCenter]
-  	addObserver:self
-  	   selector:@selector(modelConsistencyCheck:)
-	       name:EOMCheckConsistencyForModelNotification
-	     object:nil];
+          addObserver:self
+             selector:@selector(modelConsistencyCheck:)
+                 name:EOMCheckConsistencyForModelNotification
+               object:nil];
 
   successText = [[NSMutableArray alloc] initWithCapacity:8];  
 }
@@ -115,74 +115,74 @@ static BOOL isInvalid(NSString *str)
       unsigned j, d;
 
       for (j = 0, d = [arr count]; j < d; j++)
-	{
-	  EOAttribute *attrib = [arr objectAtIndex:j];
-	  NSString *className = [attrib valueClassName];
+        {
+          EOAttribute *attrib = [arr objectAtIndex:j];
+          NSString *className = [attrib valueClassName];
 
-	  if ([[attrib className] isEqualToString:@"NSNumber"])
-	    {
-	      if (isInvalid([attrib externalType]))
-	        {
-		  pass(NO,[MY_PRETTY: @"Fail: %@ of type 'NSNumber has no external type\n",[(EOAttribute *)attrib name]]);
-		  flag = NO;
-		}
-	    }
-	  
-	  /* TODO check whether NSCalendarDate/NSData require valueFactory...*/
-	  if ((!isInvalid(className))
-	       && (![className isEqual:@"NSString"]
-	             && ![className isEqual:@"NSNumber"]
-	             && ![className isEqual:@"NSDecimalNumber"]
-		     && ![className isEqual:@"NSDate"]
-		     && ![className isEqual:@"NSData"])
-	       && (isInvalid([attrib valueFactoryMethodName])))
-	    {
-	       pass(NO,[MY_PRETTY: @"Fail: attribute '%@' of type '%@' requires a value factory method name\n",[(EOAttribute *)attrib name], className]);
-	       flag = NO;
-	    }
-	}
+          if ([[attrib className] isEqualToString:@"NSNumber"])
+            {
+              if (isInvalid([attrib externalType]))
+                {
+                  pass(NO,[MY_PRETTY: @"Fail: %@ of type 'NSNumber has no external type\n",[(EOAttribute *)attrib name]]);
+                  flag = NO;
+                }
+            }
+          
+          /* TODO check whether NSCalendarDate/NSData require valueFactory...*/
+          if ((!isInvalid(className))
+               && (![className isEqual:@"NSString"]
+                     && ![className isEqual:@"NSNumber"]
+                     && ![className isEqual:@"NSDecimalNumber"]
+                     && ![className isEqual:@"NSDate"]
+                     && ![className isEqual:@"NSData"])
+               && (isInvalid([attrib valueFactoryMethodName])))
+            {
+               pass(NO,[MY_PRETTY: @"Fail: attribute '%@' of type '%@' requires a value factory method name\n",[(EOAttribute *)attrib name], className]);
+               flag = NO;
+            }
+        }
       /* relationship primary key propagation */
       arr = [entity relationships];
       for (j = 0, d = [arr count]; j < d; j++)
         { 
-	  EORelationship *rel = [arr objectAtIndex:j];
-	  
-	  if ([rel propagatesPrimaryKey] == YES)
-	    {
-	      NSArray *attribs = [rel sourceAttributes];
-	      NSArray *pkAttribs = [[rel entity] primaryKeyAttributes];
-	      unsigned k, e;
-	      id pkey;
-	      BOOL ok = YES;
+          EORelationship *rel = [arr objectAtIndex:j];
+          
+          if ([rel propagatesPrimaryKey] == YES)
+            {
+              NSArray *attribs = [rel sourceAttributes];
+              NSArray *pkAttribs = [[rel entity] primaryKeyAttributes];
+              unsigned k, e;
+              id pkey;
+              BOOL ok = YES;
 
-	      for (k = 0, e = [pkAttribs count]; ok == YES && k < e; i++)
-		{
-		  pkey = [pkAttribs objectAtIndex:k];
-	          ok = [attribs containsObject:pkey];
-		}
-	      
-	      if (ok == NO)
-		{
-		  pass(NO,[MY_PRETTY: @"Fail: relationship '%@' propagates primary key but its source attributes does not contain the source entity's primary key attributes\n",[(EORelationship *)rel name]]);
-		  flag = NO;
-		}
-	      
-	      ok = YES;
-	      attribs = [rel destinationAttributes];
-	      pkAttribs = [[rel destinationEntity] primaryKeyAttributes];
-	      
-	      for (k = 0, e = [pkAttribs count]; ok == YES && k < e; i++)
-		{
-		  pkey = [pkAttribs objectAtIndex:k];
-	          ok = [attribs containsObject:pkey];
-		}
-	      
-	      if (ok == NO)
-		{
-		  pass(NO, [MY_PRETTY: @"Fail: relationship '%@' propagates primary key but its destination attributes does not contain the destination entity's primary key attributes\n",[(EORelationship *)rel name]]);
-		  flag = NO;
-		}
-	    }
+              for (k = 0, e = [pkAttribs count]; ok == YES && k < e; i++)
+                {
+                  pkey = [pkAttribs objectAtIndex:k];
+                  ok = [attribs containsObject:pkey];
+                }
+              
+              if (ok == NO)
+                {
+                  pass(NO,[MY_PRETTY: @"Fail: relationship '%@' propagates primary key but its source attributes does not contain the source entity's primary key attributes\n",[(EORelationship *)rel name]]);
+                  flag = NO;
+                }
+              
+              ok = YES;
+              attribs = [rel destinationAttributes];
+              pkAttribs = [[rel destinationEntity] primaryKeyAttributes];
+              
+              for (k = 0, e = [pkAttribs count]; ok == YES && k < e; i++)
+                {
+                  pkey = [pkAttribs objectAtIndex:k];
+                  ok = [attribs containsObject:pkey];
+                }
+              
+              if (ok == NO)
+                {
+                  pass(NO, [MY_PRETTY: @"Fail: relationship '%@' propagates primary key but its destination attributes does not contain the destination entity's primary key attributes\n",[(EORelationship *)rel name]]);
+                  flag = NO;
+                }
+            }
         }
     }
   if (flag == YES)
@@ -213,49 +213,49 @@ static BOOL isInvalid(NSString *str)
       
       for (j = 0, d = [subEnts count]; j < d; j++)
         {
-	  EOEntity *subEnt = [subEnts objectAtIndex:j];
+          EOEntity *subEnt = [subEnts objectAtIndex:j];
           NSArray *arr = [ent attributes];
-	  NSArray *subArr = [subEnt attributes];
-	  unsigned k, e;
-	  
-	  for (k = 0, e = [arr count]; k < e; k++) 
+          NSArray *subArr = [subEnt attributes];
+          unsigned k, e;
+          
+          for (k = 0, e = [arr count]; k < e; k++) 
             {
-	      EOAttribute *attrib = [arr objectAtIndex:k];
-	      
-	      if (![subArr containsObject:[(EOAttribute *)attrib name]])
-		{
-		  pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' missing parent's '%@' attribute",[(EOEntity *)subEnt name], [(EOAttribute *)attrib name]]);
-		  flag = NO;
-		}
-	    }
+              EOAttribute *attrib = [arr objectAtIndex:k];
+              
+              if (![subArr containsObject:[(EOAttribute *)attrib name]])
+                {
+                  pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' missing parent's '%@' attribute",[(EOEntity *)subEnt name], [(EOAttribute *)attrib name]]);
+                  flag = NO;
+                }
+            }
 
-	  arr = [ent relationships];
-	  for (k = 0, e = [arr count]; k < e; k++)
-	    {
-	      EORelationship *rel = [arr objectAtIndex:k];
-	      EORelationship *subRel = [subEnt relationshipNamed:[(EORelationship *)rel name]];
-	      
-	      if (!subRel || ![[rel definition] isEqual:[subRel definition]])
-		{
-		  pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' missing relationship '%@' or definitions do not match", [(EOEntity *)subEnt name], [(EORelationship *)rel name]]);
-		  flag = NO;
-		}
-	    }
+          arr = [ent relationships];
+          for (k = 0, e = [arr count]; k < e; k++)
+            {
+              EORelationship *rel = [arr objectAtIndex:k];
+              EORelationship *subRel = [subEnt relationshipNamed:[(EORelationship *)rel name]];
+              
+              if (!subRel || ![[rel definition] isEqual:[subRel definition]])
+                {
+                  pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' missing relationship '%@' or definitions do not match", [(EOEntity *)subEnt name], [(EORelationship *)rel name]]);
+                  flag = NO;
+                }
+            }
 
-	  arr = [ent primaryKeyAttributes];
-	  subArr = [subEnt primaryKeyAttributes];
-	  if (![arr isEqual:subArr])
-	    {
-	      pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' and parent entities primary keys do not match", [(EOEntity *)subEnt name]]);
-	      flag = NO;
-	    }
-	  if ([[subEnt externalName] isEqual:[ent externalName]] 
-	      && (![subEnt restrictingQualifier] || ![ent restrictingQualifier]))
-	    {
-	      pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' and parent entity in same table must contain a restricting qualifier", [(EOEntity *)subEnt name]]); 
-	      flag = NO;
-	    }
-	}
+          arr = [ent primaryKeyAttributes];
+          subArr = [subEnt primaryKeyAttributes];
+          if (![arr isEqual:subArr])
+            {
+              pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' and parent entities primary keys do not match", [(EOEntity *)subEnt name]]);
+              flag = NO;
+            }
+          if ([[subEnt externalName] isEqual:[ent externalName]] 
+              && (![subEnt restrictingQualifier] || ![ent restrictingQualifier]))
+            {
+              pass(NO, [MY_PRETTY: @"FAIL: sub entity '%@' and parent entity in same table must contain a restricting qualifier", [(EOEntity *)subEnt name]]); 
+              flag = NO;
+            }
+        }
     }
  
   if (flag == YES)
@@ -278,67 +278,66 @@ static BOOL isInvalid(NSString *str)
       unsigned j, d;
       
       for (j = 0, d = [arr count]; j < d; j++)
-	{
-	  id rel = [arr objectAtIndex:j];
-	  
-	  if (![[rel joins] count])
-	    {
-	      pass(NO,[MY_PRETTY: @"Fail: relationship '%@' does not contain a join\n", [(EORelationship *)rel name]]);
-	      flag = NO;
-	    }
-
-	  if ([rel isToMany] == NO)
+        {
+          id rel = [arr objectAtIndex:j];
+          
+          if (![[rel joins] count])
             {
-	      NSArray *pkAttribs = [[rel destinationEntity]
-		      				primaryKeyAttributes];
-	      NSArray *attribs = [rel destinationAttributes];
-	      
-	      if (![pkAttribs isEqual:attribs])
-		{
-		  pass(NO, [MY_PRETTY: @"Fail: destination attributes of relationship '%@' are not the destination entity primary keys\n",[(EORelationship *)rel name]]); 
-	          flag = NO;
-	        }
-	    }
+              pass(NO,[MY_PRETTY: @"Fail: relationship '%@' does not contain a join\n", [(EORelationship *)rel name]]);
+              flag = NO;
+            }
 
-	  if ([rel propagatesPrimaryKey])
-	    {
-	      NSArray *pkAttribs = [[rel entity] primaryKeyAttributes];
-	      NSArray *attribs = [rel sourceAttributes];
-	      unsigned k, e;
-	      BOOL ok = YES;
+          if ([rel isToMany] == NO)
+            {
+              NSArray *pkAttribs = [[rel destinationEntity] primaryKeyAttributes];
+              NSArray *attribs = [rel destinationAttributes];
+              
+              if (![pkAttribs isEqual:attribs])
+                {
+                  pass(NO, [MY_PRETTY: @"Fail: destination attributes of relationship '%@' are not the destination entity primary keys\n",[(EORelationship *)rel name]]); 
+                  flag = NO;
+                }
+            }
 
-	      for (k = 0, e = [pkAttribs count]; ok == YES && k < e; k++) 
-		 {
-		   ok = [attribs containsObject: [pkAttribs objectAtIndex:k]];
-		 }
+          if ([rel propagatesPrimaryKey])
+            {
+              NSArray *pkAttribs = [[rel entity] primaryKeyAttributes];
+              NSArray *attribs = [rel sourceAttributes];
+              unsigned k, e;
+              BOOL ok = YES;
 
-	      if (ok == NO)
-		{
-		  pass(NO, [MY_PRETTY: @"Fail: relationship '%@' propagates primary keys but does not contain source entities primary key attributes\n", [(EORelationship *)rel name]]);
-		  flag = NO;
-		}
-	      
-	      pkAttribs = [[rel destinationEntity] primaryKeyAttributes];
-	      attribs = [rel destinationAttributes];
+              for (k = 0, e = [pkAttribs count]; ok == YES && k < e; k++) 
+                 {
+                   ok = [attribs containsObject: [pkAttribs objectAtIndex:k]];
+                 }
 
-	      for (k = 0, e = [pkAttribs count]; ok == YES && k < e; k++) 
-		 {
-		   ok = [attribs containsObject: [pkAttribs objectAtIndex:k]];
-	         }
+              if (ok == NO)
+                {
+                  pass(NO, [MY_PRETTY: @"Fail: relationship '%@' propagates primary keys but does not contain source entities primary key attributes\n", [(EORelationship *)rel name]]);
+                  flag = NO;
+                }
+              
+              pkAttribs = [[rel destinationEntity] primaryKeyAttributes];
+              attribs = [rel destinationAttributes];
 
-	      if (ok == NO)
-		{
-		  pass(NO, [MY_PRETTY: @"Fail: relationship '%@' propagates primary keys but does not contain destination entities primary key attributes\n", [(EORelationship *)rel name]]);
-		  flag = NO;
-		}
-	      
-	      if ([[rel inverseRelationship] propagatesPrimaryKey])
-		{
-		  pass(NO,[MY_PRETTY: @"Fail: both relationship '%@' and inverse relationship '%@' should not propagate primary keys\n", [(EORelationship *)rel name], [(EORelationship *)[rel inverseRelationship] name]]);
-		  flag = NO;
-		}
-	    }
-	}
+              for (k = 0, e = [pkAttribs count]; ok == YES && k < e; k++) 
+                 {
+                   ok = [attribs containsObject: [pkAttribs objectAtIndex:k]];
+                 }
+
+              if (ok == NO)
+                {
+                  pass(NO, [MY_PRETTY: @"Fail: relationship '%@' propagates primary keys but does not contain destination entities primary key attributes\n", [(EORelationship *)rel name]]);
+                  flag = NO;
+                }
+              
+              if ([[rel inverseRelationship] propagatesPrimaryKey])
+                {
+                  pass(NO,[MY_PRETTY: @"Fail: both relationship '%@' and inverse relationship '%@' should not propagate primary keys\n", [(EORelationship *)rel name], [(EORelationship *)[rel inverseRelationship] name]]);
+                  flag = NO;
+                }
+            }
+        }
     }
   if (flag == YES)
     pass(YES, [MY_PRETTY: @"Success: relationship check\n"]);
@@ -356,10 +355,10 @@ static BOOL isInvalid(NSString *str)
        NSArray *arr = [entity primaryKeyAttributes];
        
        if (![arr count])
- 	 {
+          {
            pass(NO,[MY_PRETTY: @"Fail: Entity '%@' does not have a primary key.\n", [(EOEntity *)entity name]]);
-	   flag = NO;
-	 }
+           flag = NO;
+         }
      }
   if (flag == YES)
     pass(YES, [MY_PRETTY:@"Success: primary key check\n"]);
@@ -377,31 +376,31 @@ static BOOL isInvalid(NSString *str)
       EOEntity *entity = [ents objectAtIndex:i];
       NSString *extName = [entity externalName];
       if (isInvalid(extName))
-	{
-	  pass(NO,[MY_PRETTY: @"Fail: Entity '%@' does not have an external name\n",
-			  	  [(EOEntity *)entity name]]);
-	  flag = NO;
-	}
+        {
+          pass(NO,[MY_PRETTY: @"Fail: Entity '%@' does not have an external name\n",
+                                    [(EOEntity *)entity name]]);
+          flag = NO;
+        }
       arr = [entity attributes];
       for (j = 0, d = [arr count]; j<d; j++)
         {
           EOAttribute *attrib = [arr objectAtIndex:j];
-	  
+          
           extName = [attrib columnName];
           if (isInvalid(extName))
-	    {
-	      pass(NO,[MY_PRETTY: @"Fail: Attribute '%@' does not have an external name\n",
-			  	  [(EOAttribute *)attrib name]]);
-	      flag = NO;
+            {
+              pass(NO,[MY_PRETTY: @"Fail: Attribute '%@' does not have an external name\n",
+                                    [(EOAttribute *)attrib name]]);
+              flag = NO;
             }
 
-	  extName = [attrib valueClassName];
-	  if (isInvalid(extName))
-	    {
-	      pass(NO,[MY_PRETTY: @"Fail: Attribute '%@' does not have a value class name\n", [(EOAttribute *)attrib name]]);
-	      flag = NO;
-	    }
-	}
+          extName = [attrib valueClassName];
+          if (isInvalid(extName))
+            {
+              pass(NO,[MY_PRETTY: @"Fail: Attribute '%@' does not have a value class name\n", [(EOAttribute *)attrib name]]);
+              flag = NO;
+            }
+        }
      }
   if (flag == YES)
     pass(YES, [MY_PRETTY: @"Success: external name check\n"]);

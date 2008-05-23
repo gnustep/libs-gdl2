@@ -1,3 +1,20 @@
+2008-05-23  Blake Nicholson  <blaken@umich.edu>
+
+	* DBModeler/AdaptorsPanel.m, DBModeler/AttributeCell.m,
+	DBModeler/ConsistencyChecker.m, DBModeler/DefaultColumnProvider.m,
+	DBModeler/DiagramView.m, DBModeler/EOAdditions.m, DBModeler/EntityView.m,
+	DBModeler/GNUmakefile, DBModeler/KVDataSource.m,
+	DBModeler/MainModelEditor.h, DBModeler/MainModelEditor.m,
+	DBModeler/ModelerAttributeEditor.m, DBModeler/ModelerEntityEditor.h,
+	DBModeler/ModelerEntityEditor.m, DBModeler/ModelerTableEmbedibleEditor.h,
+	DBModeler/ModelerTableEmbedibleEditor.m, DBModeler/NSView+Additions.m,
+	DBModeler/Preferences.m, DBModeler/SQLGenerator.m,
+	DBModeler/Inspectors/AdvancedEntityInspector.m,
+	DBModeler/Inspectors/AttributeInspector.h,
+	DBModeler/Inspectors/AttributeInspector.m,
+	DBModeler/Inspectors/RelationshipInspector.h,
+	DBModeler/Inspectors/RelationshipInspector.m: Replaced tabs with spaces.
+
 2008-05-22  Blake Nicholson  <blaken@umich.edu>
 
 	* DBModeler/ModelerEntityEditor.m, DBModeler/ModelerAttributeEditor.m,
