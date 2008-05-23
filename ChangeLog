@@ -4,6 +4,9 @@
 	DBModeler/MainModelEditor.m: Added preprocessor directives to wrap methods
 	deprecated on OS X and to use recently introduced methods that yield a
 	better NSTableView display.
+	* configure.ac, GNUmakefile.in: Added logic to try to use gnustep-config
+	to determine the value of GNUSTEP_MAKEFILES if it is not already set.
+	* configure: Regenerated.
 
 2008-05-13  Blake Nicholson  <blaken@umich.edu>
 

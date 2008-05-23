@@ -26,6 +26,11 @@ builtin(include, config/postgres.m4)dnl
 builtin(include, config/sqlite3.m4)dnl
 AC_INIT
 
+# If GNUSTEP_MAKEFILES is undefined, try to use gnustep-config to determine it.
+if test -z "$GNUSTEP_MAKEFILES"; then
+  GNUSTEP_MAKEFILES=`gnustep-config --variable=GNUSTEP_MAKEFILES 2>&5`
+fi
+
 if test -z "$GNUSTEP_MAKEFILES"; then
   AC_MSG_ERROR([You must set GNUSTEP_MAKEFILES or run the GNUstep initialization script first!])
 fi
