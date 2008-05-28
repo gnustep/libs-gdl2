@@ -200,7 +200,7 @@
         {
 	  int tag = [[self valueForAspect:@"selectedTag"] intValue];
 
-	  [_object selectItemAtIndex:tag];
+	  [_object selectItemAtIndex:[_object indexOfItemWithTag:tag]];
 	}
     }
   else if (subclassFlags & SelectedTitleAspectMask)
