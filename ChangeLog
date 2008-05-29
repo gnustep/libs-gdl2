@@ -1,5 +1,12 @@
 2008-05-29  Blake Nicholson  <blaken@umich.edu>
 
+	* DBModeler/Modeler.m: Removed duplicate invocation of [adaptor
+	runLoginPanel].
+
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.m:
+	Changed the panel's backing to NSBackingStoreBuffered instead of
+	NSBackingStoreRetained.
+
 	* GNUmakefile.in, EOInterface/GNUmakefile, EOAccess/GNUmakefile,
 	DBModeler/Inspectors/GNUmakefile, DBModeler/GNUmakefile,
 	Tools/GNUmakefile, EOAdaptors/SQLiteAdaptor/LoginPanel/GNUmakefile,

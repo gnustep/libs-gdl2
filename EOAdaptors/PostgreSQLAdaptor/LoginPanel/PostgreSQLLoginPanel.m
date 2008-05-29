@@ -335,7 +335,7 @@ vfmaxf (int n, float aFloat, ...)
       
       _win = [[NSWindow alloc] initWithContentRect: tempRect 
 			       styleMask: NSTitledWindowMask
-			       backing: NSBackingStoreRetained
+			       backing: NSBackingStoreBuffered
 			       defer: YES];
       [_win setTitle: windowTitle];
       [_win setDelegate:self];

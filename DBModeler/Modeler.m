@@ -219,7 +219,7 @@
 
       if (connDict)
         {
-          [adaptor setConnectionDictionary:[adaptor runLoginPanel]];
+          [adaptor setConnectionDictionary:connDict];
           ctxt = [adaptor createAdaptorContext];
           channel = [ctxt createAdaptorChannel];
           [channel openChannel];
