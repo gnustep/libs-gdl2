@@ -1,3 +1,4 @@
+include ../../../common.make
 include $(GNUSTEP_MAKEFILES)/common.make
 include $(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
 

@@ -1,3 +1,4 @@
+include ../common.make
 include $(GNUSTEP_MAKEFILES)/common.make
 
 SUBPROJECTS=GDL2Intro

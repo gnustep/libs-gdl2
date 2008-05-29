@@ -23,11 +23,9 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-
-include $(GNUSTEP_MAKEFILES)/common.make
-
-include ../Version
 include ../common.make
+include $(GNUSTEP_MAKEFILES)/common.make
+include ../Version
 
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOInterface

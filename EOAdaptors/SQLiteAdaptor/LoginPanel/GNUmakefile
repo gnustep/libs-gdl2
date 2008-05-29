@@ -23,6 +23,7 @@
 #  If not, write to the Free Software Foundation, Inc., 
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. 
 
+include ../../../common.make
 include $(GNUSTEP_MAKEFILES)/common.make
 
 BUNDLE_NAME=LoginPanel
@@ -47,7 +48,6 @@ endif
 LoginPanel_COPY_INTO_DIR=../SQLite3EOAdaptor.framework/Resources
 -include ../config.mak
 -include Makefile.preamable
-include ../../../common.make
 -include GNUmakefile.local
 include $(GNUSTEP_MAKEFILES)/bundle.make
 -include Makefile.postamble

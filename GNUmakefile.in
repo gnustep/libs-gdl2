@@ -23,16 +23,8 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-ifeq ($(GNUSTEP_MAKEFILES),)
- GNUSTEP_MAKEFILES := $(shell gnustep-config --variable=GNUSTEP_MAKEFILES 2>/dev/null)
-endif
-
-ifeq ($(GNUSTEP_MAKEFILES),)
-  $(error You need to set GNUSTEP_MAKEFILES before compiling!)
-endif
-
+include common.make
 include $(GNUSTEP_MAKEFILES)/common.make
-
 include ./Version
 
 PACKAGE_NAME=gnustep-dl2
@@ -58,7 +50,6 @@ DOCUMENT_NAME = GDL2
 GDL2_AGSDOC_FILES = GDL2.gsdoc
 
 -include Makefile.preamble
-include common.make
 
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 ifeq ($(doc),yes)

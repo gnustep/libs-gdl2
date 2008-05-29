@@ -21,6 +21,7 @@
 #  If not, write to the Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
+include ../../common.make
 include $(GNUSTEP_MAKEFILES)/common.make
 
 SUBPROJECTS=LoginPanel
@@ -42,7 +43,6 @@ SQLite3EOAdaptor_OBJC_FILES=\
 	SQLite3Expression.m \
 	SQLite3Channel.m
 
-include ../../common.make
 
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 include $(GNUSTEP_MAKEFILES)/framework.make

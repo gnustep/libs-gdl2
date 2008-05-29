@@ -1,3 +1,18 @@
+2008-05-29  Blake Nicholson  <blaken@umich.edu>
+
+	* GNUmakefile.in, EOInterface/GNUmakefile, EOAccess/GNUmakefile,
+	DBModeler/Inspectors/GNUmakefile, DBModeler/GNUmakefile,
+	Tools/GNUmakefile, EOAdaptors/SQLiteAdaptor/LoginPanel/GNUmakefile,
+	EOAdaptors/SQLiteAdaptor/GNUmakefile.in, EOAdaptors/GNUmakefile.in,
+	EOAdaptors/PostgreSQLAdaptor/LoginPanel/GNUmakefile,
+	EOAdaptors/PostgreSQLAdaptor/GNUmakefile.in, EOControl/GNUmakefile,
+	GDL2Palette/GNUmakefile, Documentation/GDL2Intro/GNUmakefile,
+	Documentation/GDL2Intro/Examples/GNUmakefile,
+	Documentation/GNUmakefile, EOModeler/GNUmakefile, common.make: Added
+	logic to the local common.make to try to populate GNUSTEP_MAKEFILES by
+	calling gnustep-config, if GNUSTEP_MAKEFILES is not already
+	populated.
+
 2008-05-27  Matt Rice  <ratmice@gmail.com>
 
 	* EOInterface/EOPopUpAssociation.m (subjectChanged:): Select

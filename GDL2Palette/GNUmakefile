@@ -24,8 +24,8 @@
 #
 
 
-include $(GNUSTEP_MAKEFILES)/common.make
 include ../common.make
+include $(GNUSTEP_MAKEFILES)/common.make
 
 PALETTE_NAME=GDL2
 GDL2_NEEDS_GUI = yes

@@ -24,6 +24,7 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. 
 
 
+include ../../../common.make
 include $(GNUSTEP_MAKEFILES)/common.make
 
 BUNDLE_NAME=LoginPanel
@@ -52,7 +53,6 @@ LoginPanel_COPY_INTO_DIR = ../PostgreSQLEOAdaptor.framework/Resources
 include ../config.mak
 
 -include Makefile.preamble
-include ../../../common.make
 
 -include GNUmakefile.local
 
