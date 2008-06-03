@@ -1,3 +1,8 @@
+2008-06-03  Matt Rice  <ratmice@gmail.com>
+
+	* README: Reflect name change of PostgreSQL adaptor, and addition of
+	SQLite adaptor. Bump supported version of Postgres Adaptor.
+
 2008-05-29  Blake Nicholson  <blaken@umich.edu>
 
 	* DBModeler/Modeler.m: Removed duplicate invocation of [adaptor
@@ -70,7 +75,7 @@
 	* DBModeler/ConsistencyResults.m: Use gsmarkup file.
 	* DBModeler/Resources/ConsistencyResults.gorm: Remove file.
 
-2008-05-12  Matt Ride  <ratmice@gmail.com>
+2008-05-12  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/Resources/Menu-GNUstep.gsmarkup: Use openPrefs: action
 	for preferences menu item.

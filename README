@@ -35,10 +35,11 @@ which an EOEditingContext contains.
 - EOAdaptors
 
 This is a collection of concrete EOAdaptor projects needed to connect
-to specific databases.  GDL2 currently only supplies an Adaptor for
-the PostgreSQL database.  Even though the Adaptor is still called
-Postgres95 we aim to support PostgreSQL 7.2 and higher API.  In fact
-the Adaptor may very soon be renamed to PostgreSQL.
+to specific databases.  GDL2 currently supplies Adaptors for
+the PostgreSQL and SQLite databases.
+
+   - PostgreSQL: we aim to support PostgreSQL 8.1 and higher API.
+   - SQLite: Compatible with SQLite version 3.x
 
 - DBModeler
 
