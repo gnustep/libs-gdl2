@@ -1,0 +1,68 @@
+{
+    EOModelVersion = 2;
+    adaptorName = PostgreSQL;
+    entities = (
+	{
+	    className = EOGenericRecord;
+	    name = Customer;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = CustomerGroup;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = EOPostgreSQLPrototypes;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = EOPostgres95Prototypes;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = EOSQLite3Prototypes;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = Order;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = OrderPos;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = PriceList;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = PriceListPos;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = Product;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = ProductGroup;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = Supplier;
+	}
+    );
+    storedProcedures = (
+	procName
+    );
+    userInfo = {
+	PostgreSQLConnectionDictionary = {
+	    databaseName = gdl2trading;
+	};
+	Postgres95ConnectionDictionary = {
+	    databaseName = gdl2trading;
+	};
+	SQLite3ConnectionDictionary = {
+	    databasePath = "/tmp/gdl2trading";
+	};
+    };
+}

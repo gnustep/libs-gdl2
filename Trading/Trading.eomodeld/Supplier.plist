@@ -1,0 +1,39 @@
+{
+    attributes = (
+	{
+	    columnName = NAME;
+	    name = name;
+	    prototypeName = char;
+	    width = 90;
+	},
+	{
+	    columnName = PID;
+	    name = pid;
+	    prototypeName = integer;
+	}
+    );
+    className = EOGenericRecord;
+    classProperties = (
+	name,
+	products
+    );
+    externalName = TST_SUPPLIER;
+    name = Supplier;
+    primaryKeyAttributes = (
+	pid
+    );
+    relationships = (
+	{
+	    destination = Product;
+	    isToMany = Y;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = supid;
+		    sourceAttribute = pid;
+		}
+	    );
+	    name = products;
+	}
+    );
+}

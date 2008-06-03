@@ -46,6 +46,13 @@ the PostgreSQL and SQLite databases.
 GDL2 will offers a UI application to create and maintain .eomodel(d)
 files.  This is the first release of a preliminary version.
 
+- Trading
+ 
+The Trading framework, provides an example model, and some routines to
+create a database from the model, and populate the database with data,
+while not an example itself it is indented for use by example applications 
+using GDL2 alone, EOInterface or GSWeb, and for higher level tests.
+
 ======================
 *** Important Note ***
 ======================

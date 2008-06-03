@@ -1,0 +1,85 @@
+{
+    attributes = (
+	{
+	    columnName = GRPID;
+	    externalType = integer;
+	    name = grpid;
+	    prototypeName = integer;
+	},
+	{
+	    columnName = NAME;
+	    name = name;
+	    prototypeName = char;
+	},
+	{
+	    columnName = PID;
+	    name = pid;
+	    prototypeName = integer;
+	},
+	{
+	    allowsNull = Y;
+	    columnName = PRICE;
+	    externalType = decimal;
+	    name = price;
+	    valueClassName = NSDecimalNumber;
+	},
+	{
+	    allowsNull = Y;
+	    columnName = SUPID;
+	    externalType = integer;
+	    name = supid;
+	    valueClassName = NSNumber;
+	}
+    );
+    className = EOGenericRecord;
+    classProperties = (
+	name,
+	orderPos,
+	price,
+	productGroup,
+	supplier
+    );
+    externalName = TST_PRODUCT;
+    name = Product;
+    primaryKeyAttributes = (
+	pid
+    );
+    relationships = (
+	{
+	    destination = ProductGroup;
+	    isToMany = N;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = pid;
+		    sourceAttribute = grpid;
+		}
+	    );
+	    name = productGroup;
+	},
+	{
+	    destination = Supplier;
+	    isToMany = N;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = pid;
+		    sourceAttribute = supid;
+		}
+	    );
+	    name = supplier;
+	},
+	{
+	    destination = OrderPos;
+	    isToMany = Y;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = prdid;
+		    sourceAttribute = pid;
+		}
+	    );
+	    name = orderPos;
+	}
+    );
+}

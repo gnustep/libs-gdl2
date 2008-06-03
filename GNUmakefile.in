@@ -42,7 +42,7 @@ ifeq ($(GUI_MAKE_LOADED),yes)
 SUBPROJECTS += EOInterface EOModeler DBModeler @GUI_SUBPROJECTS@
 endif
 ifeq ($(GUI_LIB),apple)
-SUBPROJECTS += EOInterface EOModeler DBModeler @GUI_SUBPROJECTS@
+SUBPROJECTS += EOInterface EOModeler DBModeler Trading @GUI_SUBPROJECTS@
 endif
 
 DOCUMENT_NAME = GDL2

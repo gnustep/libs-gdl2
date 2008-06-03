@@ -1,0 +1,57 @@
+{
+    attributes = (
+	{
+	    allowsNull = Y;
+	    columnName = GRPID;
+	    name = grpid;
+	    prototypeName = integer;
+	},
+	{
+	    columnName = NAME;
+	    name = name;
+	    prototypeName = char;
+	},
+	{
+	    columnName = PID;
+	    name = pid;
+	    prototypeName = integer;
+	}
+    );
+    className = EOGenericRecord;
+    classProperties = (
+	customerGroup,
+	name,
+	orders
+    );
+    externalName = TST_CUSTOMER;
+    name = Customer;
+    primaryKeyAttributes = (
+	pid
+    );
+    relationships = (
+	{
+	    destination = CustomerGroup;
+	    isToMany = N;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = pid;
+		    sourceAttribute = grpid;
+		}
+	    );
+	    name = customerGroup;
+	},
+	{
+	    destination = Order;
+	    isToMany = Y;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = cstid;
+		    sourceAttribute = pid;
+		}
+	    );
+	    name = orders;
+	}
+    );
+}

@@ -1,0 +1,61 @@
+{
+    attributes = (
+	{
+	    columnName = PID;
+	    name = pid;
+	    prototypeName = integer;
+	},
+	{
+	    columnName = PRDID;
+	    name = prdid;
+	    prototypeName = integer;
+	},
+	{
+	    columnName = PRICE;
+	    name = price;
+	    prototypeName = decimal;
+	},
+	{
+	    columnName = PRLID;
+	    name = prlid;
+	    prototypeName = integer;
+	}
+    );
+    className = EOGenericRecord;
+    classProperties = (
+	price,
+	priceList,
+	product
+    );
+    externalName = TST_PRICELISTPOS;
+    name = PriceListPos;
+    primaryKeyAttributes = (
+	pid
+    );
+    relationships = (
+	{
+	    destination = Product;
+	    isToMany = N;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = pid;
+		    sourceAttribute = prdid;
+		}
+	    );
+	    name = product;
+	},
+	{
+	    destination = PriceList;
+	    isToMany = N;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = pid;
+		    sourceAttribute = prlid;
+		}
+	    );
+	    name = priceList;
+	}
+    );
+}

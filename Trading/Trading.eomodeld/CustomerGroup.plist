@@ -1,0 +1,51 @@
+{
+    attributes = (
+	{
+	    columnName = NAME;
+	    name = name;
+	    prototypeName = char;
+	},
+	{
+	    columnName = PID;
+	    name = pid;
+	    prototypeName = integer;
+	}
+    );
+    className = EOGenericRecord;
+    classProperties = (
+	customers,
+	name,
+	priceList
+    );
+    externalName = TST_CUSTOMERGROUP;
+    name = CustomerGroup;
+    primaryKeyAttributes = (
+	pid
+    );
+    relationships = (
+	{
+	    destination = Customer;
+	    isToMany = Y;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = grpid;
+		    sourceAttribute = pid;
+		}
+	    );
+	    name = customers;
+	},
+	{
+	    destination = PriceList;
+	    isToMany = Y;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = cstgrpid;
+		    sourceAttribute = pid;
+		}
+	    );
+	    name = priceList;
+	}
+    );
+}

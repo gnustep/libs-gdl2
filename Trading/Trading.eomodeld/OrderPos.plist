@@ -1,0 +1,81 @@
+{
+    attributes = (
+	{
+	    columnName = ORDID;
+	    name = ordid;
+	    prototypeName = integer;
+	},
+	{
+	    columnName = PID;
+	    name = pid;
+	    prototypeName = integer;
+	},
+	{
+	    columnName = POSNR;
+	    name = posnr;
+	    prototypeName = integer;
+	},
+	{
+	    columnName = PRDID;
+	    name = prdid;
+	    prototypeName = integer;
+	},
+	{
+	    columnName = PRICE;
+	    name = price;
+	    prototypeName = decimal;
+	},
+	{
+	    columnName = QUANTITY;
+	    name = quantity;
+	    prototypeName = decimal;
+	},
+	{
+	    columnName = VALUE;
+	    name = value;
+	    prototypeName = decimal;
+	}
+    );
+    className = EOGenericRecord;
+    classProperties = (
+	order,
+	posnr,
+	price,
+	product,
+	quantity,
+	value
+    );
+    externalName = TST_ORDERPOS;
+    name = OrderPos;
+    primaryKeyAttributes = (
+	pid
+    );
+    relationships = (
+	{
+	    destination = Product;
+	    isMandatory = Y;
+	    isToMany = N;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = pid;
+		    sourceAttribute = prdid;
+		}
+	    );
+	    name = product;
+	},
+	{
+	    destination = Order;
+	    isMandatory = Y;
+	    isToMany = N;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = pid;
+		    sourceAttribute = ordid;
+		}
+	    );
+	    name = order;
+	}
+    );
+}

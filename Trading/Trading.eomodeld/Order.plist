@@ -1,0 +1,57 @@
+{
+    attributes = (
+	{
+	    allowsNull = Y;
+	    columnName = CSTID;
+	    name = cstid;
+	    prototypeName = integer;
+	},
+	{
+	    columnName = DATE;
+	    name = date;
+	    prototypeName = date;
+	},
+	{
+	    columnName = PID;
+	    name = pid;
+	    prototypeName = integer;
+	}
+    );
+    className = EOGenericRecord;
+    classProperties = (
+	customer,
+	date,
+	orderPos
+    );
+    externalName = TST_ORDER;
+    name = Order;
+    primaryKeyAttributes = (
+	pid
+    );
+    relationships = (
+	{
+	    destination = OrderPos;
+	    isToMany = Y;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = ordid;
+		    sourceAttribute = pid;
+		}
+	    );
+	    name = orderPos;
+	},
+	{
+	    destination = Customer;
+	    isToMany = N;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = pid;
+		    sourceAttribute = cstid;
+		}
+	    );
+	    name = customer;
+	}
+    );
+}

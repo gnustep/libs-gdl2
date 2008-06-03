@@ -1,0 +1,15 @@
+{
+    arguments = (
+	{
+	    allowsNull = Y;
+	    columnName = "";
+	    externalType = varchar;
+	    name = argument;
+	    parameterDirection = 1;
+	    valueClassName = NSString;
+	    width = 20;
+	}
+    );
+    externalName = externalProcName;
+    name = procName;
+}

@@ -1,0 +1,58 @@
+{
+    attributes = (
+	{
+	    columnName = CSTGRPID;
+	    externalType = integer;
+	    name = cstgrpid;
+	    valueClassName = NSNumber;
+	},
+	{
+	    columnName = NAME;
+	    externalType = char;
+	    name = name;
+	    prototypeName = char;
+	},
+	{
+	    columnName = PID;
+	    name = pid;
+	    prototypeName = integer;
+	}
+    );
+    className = EOGenericRecord;
+    classProperties = (
+	customerGroup,
+	name,
+	priceListPos
+    );
+    externalName = TST_PRICELIST;
+    name = PriceList;
+    primaryKeyAttributes = (
+	pid
+    );
+    relationships = (
+	{
+	    destination = CustomerGroup;
+	    isToMany = N;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = pid;
+		    sourceAttribute = cstgrpid;
+		}
+	    );
+	    name = customerGroup;
+	},
+	{
+	    destination = PriceListPos;
+	    isToMany = Y;
+	    joinSemantic = EOInnerJoin;
+	    joins = (
+		{
+		    destinationAttribute = prlid;
+		    sourceAttribute = pid;
+		}
+	    );
+	    name = priceListPos;
+	}
+    );
+}

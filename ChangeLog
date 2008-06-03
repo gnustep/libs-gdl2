@@ -3,6 +3,10 @@
 	* README: Reflect name change of PostgreSQL adaptor, and addition of
 	SQLite adaptor. Bump supported version of Postgres Adaptor.
 
+	* README: Add Trading framework.
+	* GNUmakefile: Ditto.
+	* Trading/*: Initial import.
+
 2008-05-29  Blake Nicholson  <blaken@umich.edu>
 
 	* DBModeler/Modeler.m: Removed duplicate invocation of [adaptor
