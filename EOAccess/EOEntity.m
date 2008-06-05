@@ -595,6 +595,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 {
   int i, c;
   
+  arr = [arr copy];
   for (i = 0, c = [arr count]; i < c; i++)
     {
       id obj = [arr objectAtIndex:i];
@@ -604,6 +605,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 	  [obj performSelector:selector withObject:arg];
         }
     }
+  RELEASE(arr);
 }
 
 - (void) dealloc

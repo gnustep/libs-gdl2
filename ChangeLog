@@ -9,6 +9,9 @@
 	(-setDocComment:, -setValueFactoryMethodName:):
 	(-setAdaptorValueConversionMethodName:): Use ASSIGNCOPY instead of
 	ASSIGN.
+	* EOAccess/EOEntity.m 
+	(performSelectorOnArrayWithEachObjectOfClass()): Perform the selectors
+	on a copy of the array.
 
 2008-06-03  Matt Rice  <ratmice@gmail.com>
 
