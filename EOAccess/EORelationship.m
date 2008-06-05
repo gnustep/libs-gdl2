@@ -1246,7 +1246,7 @@ relationships. Nil if none" **/
   [self willChange];
   [_entity _setIsEdited];
 
-  ASSIGN(_name, name);
+  ASSIGNCOPY(_name, name);
 }
 
 - (void)setDefinition: (NSString *)definition
@@ -1367,7 +1367,7 @@ relationships. Nil if none" **/
 {
   //OK
   [self willChange];
-  ASSIGN(_docComment, docComment);
+  ASSIGNCOPY(_docComment, docComment);
   /* Ayers: Not sure what justifies this. */
   [_entity _setIsEdited];
 }

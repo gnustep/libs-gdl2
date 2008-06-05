@@ -1392,7 +1392,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 	}
 
       [self willChange];
-      ASSIGN(_name, name);
+      ASSIGNCOPY(_name, name);
 
       if (group)
 	{
@@ -1404,7 +1404,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 - (void) setAdaptorName: (NSString *)adaptorName
 {
   [self willChange];
-  ASSIGN(_adaptorName, adaptorName);
+  ASSIGNCOPY(_adaptorName, adaptorName);
 }
 
 - (void) setConnectionDictionary: (NSDictionary *)connectionDictionary
@@ -1422,7 +1422,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 - (void) setDocComment: (NSString *)docComment
 {
   [self willChange];
-  ASSIGN(_docComment, docComment);
+  ASSIGNCOPY(_docComment, docComment);
 }
 
 - (void) addEntity: (EOEntity *)entity

@@ -790,7 +790,7 @@ RCS_ID("$Id$")
 
       oldName = AUTORELEASE(RETAIN(_name));
       [self willChange];
-      ASSIGN(_name, name);
+      ASSIGNCOPY(_name, name);
       if (_flags.isParentAnEOEntity)
 	{
 	  [_parent _setIsEdited];
@@ -810,7 +810,7 @@ RCS_ID("$Id$")
   //seems OK
   [self willChange];
 
-  ASSIGN(_columnName, columnName);
+  ASSIGNCOPY(_columnName, columnName);
   DESTROY(_definitionArray);
 
   [_parent _setIsEdited];
@@ -892,7 +892,7 @@ return nexexp
   //OK
   [self willChange];
 
-  ASSIGN(_externalType, type);
+  ASSIGNCOPY(_externalType, type);
 
   [_parent _setIsEdited];
   [self _setOverrideForKeyEnum: 0];//TODO
@@ -903,7 +903,7 @@ return nexexp
   //OK
   [self willChange];
 
-  ASSIGN(_valueType, type);
+  ASSIGNCOPY(_valueType, type);
 
   if ([_valueType length]==1)
     _valueTypeCharacter = [_valueType characterAtIndex:0];
@@ -917,7 +917,7 @@ return nexexp
 {
   [self willChange];
 
-  ASSIGN(_valueClassName, name);
+  ASSIGNCOPY(_valueClassName, name);
 
   _valueClass = NSClassFromString(_valueClassName);
 
@@ -957,13 +957,13 @@ return nexexp
 - (void)setWriteFormat: (NSString *)string
 {
   [self willChange];
-  ASSIGN(_writeFormat, string);
+  ASSIGNCOPY(_writeFormat, string);
 }
 
 - (void)setReadFormat: (NSString *)string
 {
   [self willChange];
-  ASSIGN(_readFormat, string);
+  ASSIGNCOPY(_readFormat, string);
 }
 
 - (void)setParameterDirection: (EOParameterDirection)parameterDirection
@@ -996,7 +996,7 @@ return nexexp
 {
   //OK
   [self willChange];
-  ASSIGN(_docComment, docComment);
+  ASSIGNCOPY(_docComment, docComment);
   [_parent _setIsEdited];
 }
 
@@ -1531,7 +1531,7 @@ See also: -setFactoryMethodArgumentType:
 - (void)setValueFactoryMethodName: (NSString *)factoryMethodName
 {
   [self willChange];
-  ASSIGN(_valueFactoryMethodName, factoryMethodName);
+  ASSIGNCOPY(_valueFactoryMethodName, factoryMethodName);
   _valueFactoryMethod = NSSelectorFromString(_valueFactoryMethodName);
 }
 
@@ -1545,7 +1545,7 @@ See also: -setFactoryMethodArgumentType:
 - (void)setAdaptorValueConversionMethodName: (NSString *)conversionMethodName
 {
   [self willChange];
-  ASSIGN(_adaptorValueConversionMethodName, conversionMethodName);
+  ASSIGNCOPY(_adaptorValueConversionMethodName, conversionMethodName);
 
   _adaptorValueConversionMethod 
     = NSSelectorFromString(_adaptorValueConversionMethodName);

@@ -207,13 +207,13 @@ RCS_ID("$Id$")
 - (void)setName: (NSString *)name
 {
   [self willChange];
-  ASSIGN(_name, name);
+  ASSIGNCOPY(_name, name);
 }
 
 - (void)setExternalName: (NSString *)name
 {
   [self willChange];
-  ASSIGN(_externalName, name);
+  ASSIGNCOPY(_externalName, name);
 }
 
 - (void)setArguments: (NSArray *)arguments

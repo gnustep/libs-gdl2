@@ -1,3 +1,15 @@
+2008-06-05  Matt Rice  <ratmice@gmail.com>
+	
+	* EOAccess/EOModel.m (-setName:, -setAdaptorName:, -setDocComment):
+	* EOAccess/EORelationship.m (-setName:, -setDocComment:):
+	* EOAccess/EOStoredProcedure.m (-setName:, -setExternalName:):
+	* EOAccess/EOAttribute.m (-setAdaptorValueConversionMethodName:)
+	(-setName, -setColumnName:, -setExternalType:, -setValueType:):
+	(-setValueClassName:, -setWriteFormat:, -setReadFormat:):
+	(-setDocComment:, -setValueFactoryMethodName:):
+	(-setAdaptorValueConversionMethodName:): Use ASSIGNCOPY instead of
+	ASSIGN.
+
 2008-06-03  Matt Rice  <ratmice@gmail.com>
 
 	* README: Reflect name change of PostgreSQL adaptor, and addition of
