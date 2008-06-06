@@ -1,5 +1,7 @@
 2008-06-06  David Ayers  <ayers@fsfe.org>
 
+	* EOAccess/EOAttribute.m (-setDefinition:): Clear _columnName before
+	calling _setIsEdited on the parent.  Document.
 	* EOAccess/EORelationship.h/m (-setInverseRelationship:): Rename to...
 	(-_setInverseRelationship:): ... and move to local privat method.
 	

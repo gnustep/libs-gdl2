@@ -863,14 +863,24 @@ return nexexp
   return definition;
 }
 
+/**
+ * <p>Sets the definition of a derived attribute.</p>
+ * <p>An EOAttribute can either reference column from the entites
+ * external representation or define a derived attribute such a
+ * cacluclated value or a key path.  The values to these attributes
+ * are cached in memory.<p>
+ * <p>To set the definition of an attribute, the attribute must
+ * already be contained by its parent entity.</p>
+ * <p>Setting the the definition clears the column name.</p>
+ */
 - (void)setDefinition:(NSString *)definition
 {
   if(definition)
     {
       [self willChange];
       [self _setDefinitionWithoutFlushingCaches: definition];
+      DESTROY(_columnName);
       [_parent _setIsEdited];
-      DESTROY(_columnName);//??
     }
 }
 
