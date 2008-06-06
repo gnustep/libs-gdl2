@@ -1,3 +1,8 @@
+2008-06-06  Matt Rice  <ratmice@gmail.com>
+
+	* EOControl/EOPrivate.m (GDL2_PrivateInit):
+	* EOAccess/EOPrivate.m (GDL2_AccessPrivateInit): Set initialized to YES.
+
 2008-06-06  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOAttribute.m (-setDefinition:): Clear _columnName before

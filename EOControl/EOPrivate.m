@@ -116,6 +116,8 @@ void GDL2_PrivateInit()
   static BOOL initialized=NO;
   if (!initialized)
     {
+      initialized = YES;
+
       // ==== Classes ====
       GDL2_NSArrayClass=[NSArray class];
       GDL2_NSMutableArrayClass=[NSMutableArray class];

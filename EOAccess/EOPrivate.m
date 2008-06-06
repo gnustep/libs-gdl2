@@ -62,6 +62,8 @@ void GDL2_EOAccessPrivateInit()
   static BOOL initialized=NO;
   if (!initialized)
     {
+      initialized = YES;
+
       GDL2_PrivateInit();
 
       // ==== Classes ====
