@@ -1,3 +1,8 @@
+2008-06-06  David Ayers  <ayers@fsfe.org>
+
+	* EOAccess/EORelationship.h/m (-setInverseRelationship:): Rename to...
+	(-_setInverseRelationship:): ... and move to local privat method.
+	
 2008-06-05  Matt Rice  <ratmice@gmail.com>
 	
 	* EOAccess/EOModel.m (-setName:, -setAdaptorName:, -setDocComment):

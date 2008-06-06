@@ -69,6 +69,10 @@ RCS_ID("$Id$")
 #include "EOAttributePriv.h"
 #include "EOEntityPriv.h"
 
+@interface EORelationship (EORelationshipPrivate)
+- (void)_setInverseRelationship: (EORelationship *)relationship;
+@end
+
 
 @implementation EORelationship
 
@@ -1033,7 +1037,7 @@ relationships. Nil if none" **/
 		    addObject: inverseRelationship]; //not very clean !!!
   EOFLOGObjectLevel(@"EORelationship", @"set inverse rel");
 
-  [inverseRelationship setInverseRelationship: self];
+  [inverseRelationship _setInverseRelationship: self];
 
   EOFLOGObjectFnStop();
 
@@ -1083,7 +1087,7 @@ relationships. Nil if none" **/
 
   EOFLOGObjectLevel(@"EORelationship", @"set inverse rel");
 
-  [inverseRelationship setInverseRelationship: self];
+  [inverseRelationship _setInverseRelationship: self];
 
   /* call this last to avoid calls to [_destination _setIsEdited] */
   [inverseRelationship setEntity: _destination];
@@ -1691,10 +1695,16 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 @implementation EORelationship (EORelationshipPrivate)
 
-/* TODO this method should probably be private. */
-- (void)setInverseRelationship: (EORelationship*)relationship
+/*
+  This method is private to GDL2 to allow the inverse relationship
+  to be set from the original relationship.  It exists to avoid the
+  ASSIGN(inverseRelationship->_inverseRelationship, self);
+  and to insure that associations will be updated if we ever display
+  inverse relationships in DBModeler.
+*/
+- (void)_setInverseRelationship: (EORelationship*)relationship
 {
-  [self willChange]; // TODO: verify
+  [self willChange];
   ASSIGN(_inverseRelationship,relationship);
 }
 

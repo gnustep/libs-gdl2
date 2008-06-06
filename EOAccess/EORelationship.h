@@ -185,18 +185,6 @@ typedef enum {
 @end
 
 
-@interface EORelationship (EORelationshipPrivate)
-
-/*+ (EORelationship *)relationshipFromPropertyList: (id)propertyList
-	model: (EOModel *)model;
-- (void)replaceStringsWithObjects;
-- (void)initFlattenedRelationship;
-
-- (id)propertyList;*/
-
-- (void)setInverseRelationship: (EORelationship *)relationship;
-@end /* EORelationship (EORelationshipPrivate) */
-
 @interface EORelationship (EORelationshipXX)
 
 - (NSArray *)_intermediateAttributes;
