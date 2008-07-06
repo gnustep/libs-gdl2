@@ -1,3 +1,9 @@
+2008-07-06  David Wetzel  <dave@turbocat.de>
+
+	* EOControl/EOClassDescription.m (classDescriptionForClass:):  Only
+	register null internally if the notification returned nothing.
+	Adjust NSLog typespeficier.
+	
 2008-06-06  Matt Rice  <ratmice@gmail.com>
 
 	* EOControl/EOPrivate.m (GDL2_PrivateInit):

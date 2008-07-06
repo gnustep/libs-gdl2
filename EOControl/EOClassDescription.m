@@ -178,10 +178,10 @@ static NSRecursiveLock *local_lock = nil;
 
       if (!classDescription)
         {
-          NSLog(@"Warning: No class description for class named: %s",
+          NSLog(@"Warning: No class description for class named: %@",
 		NSStringFromClass(aClass));
+	  NSMapInsert(classDescriptionForClass, aClass, GDL2_EONull);
         }
-      NSMapInsert(classDescriptionForClass, aClass, GDL2_EONull);
     }
 
   return classDescription == (id)GDL2_EONull ? nil : classDescription;
