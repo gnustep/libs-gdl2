@@ -39,6 +39,6 @@
 
 #define RCS_ID(name) \
 	static const char RCSID[] = name; \
-	static const char *getRCSID() { if (0) getRCSID(); return RCSID;}
+	static inline const char *getRCSID() { if (0) getRCSID(); return RCSID;}
 
 #endif /* __config_h__ */

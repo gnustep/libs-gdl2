@@ -1,3 +1,7 @@
+2008-10-27  David Ayers  <ayers@fsfe.org>
+
+	* config.h.in (getRCSID): Mark inline to avoid compiler warnings.
+	
 2008-07-06  David Wetzel  <dave@turbocat.de>
 
 	* EOControl/EOClassDescription.m (classDescriptionForClass:):  Only
