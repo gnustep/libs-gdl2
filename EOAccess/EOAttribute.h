@@ -144,9 +144,9 @@ typedef enum {
 
 - (NSString *)valueType;
 
-- (unsigned)width;
+- (unsigned int)width;
 
-- (unsigned)precision;
+- (unsigned int)precision;
 
 - (int)scale;
 
@@ -186,9 +186,9 @@ typedef enum {
 
 - (void)setValueClassName: (NSString *)name;
 
-- (void)setWidth: (unsigned)length;
+- (void)setWidth: (unsigned int)length;
 
-- (void)setPrecision: (unsigned)precision;
+- (void)setPrecision: (unsigned int)precision;
 
 - (void)setScale: (int)scale;
 
@@ -235,12 +235,12 @@ typedef enum {
               encoding: (NSStringEncoding)encoding;
 
 - (NSCalendarDate *)newDateForYear: (int)year
-                             month: (unsigned)month
-                               day: (unsigned)day
-                              hour: (unsigned)hour
-                            minute: (unsigned)minute
-                            second: (unsigned)second
-                       millisecond: (unsigned)millisecond
+                             month: (unsigned int)month
+                               day: (unsigned int)day
+                              hour: (unsigned int)hour
+                            minute: (unsigned int)minute
+                            second: (unsigned int)second
+                       millisecond: (unsigned int)millisecond
                           timezone: (NSTimeZone *)timezone
                               zone: (NSZone *)zone;
 

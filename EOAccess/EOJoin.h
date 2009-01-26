@@ -35,13 +35,9 @@
 
 @interface EOJoin : NSObject
 {
-  /* Garbage collectable objects */
   EOAttribute *_sourceAttribute;
   EOAttribute *_destinationAttribute;
 }
-
-+ (EOJoin *)joinWithSourceAttribute: (EOAttribute *)source
-               destinationAttribute: (EOAttribute *)destination;
 
 - (id)initWithSourceAttribute: (EOAttribute *)source
 	 destinationAttribute: (EOAttribute *)destination;
@@ -61,6 +57,9 @@
 //+ (EOJoin *)joinFromPropertyList: (id)propertyList;
 //- (void)replaceStringsWithObjectsInRelationship: (EORelationship *)entity;
 //- (id)propertyList;
++ (EOJoin *)joinWithSourceAttribute: (EOAttribute *)source
+               destinationAttribute: (EOAttribute *)destination;
+
 
 @end /* EOJoin (EOJoinPrivate) */
 

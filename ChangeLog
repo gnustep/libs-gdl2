@@ -1,3 +1,10 @@
+2009-01-26  David Ayers  <ayers@fsfe.org>
+
+	* EOAccess/EOJoin.h: Update memory mangement comments.
+	* EOAccess/EOJoin.m (dealloc): Implement.
+	* EOAccess/EORelationship.m (dealloc,_flushCahce): Fix memory leaks.
+	* EOAccess/EOAttribute.h: Update some signatures.
+	
 2009-01-25  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/MainModelEditor.m: Implement

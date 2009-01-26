@@ -114,6 +114,8 @@ RCS_ID("$Id$")
 
 - (void)dealloc
 {
+  [self _flushCache];
+
   DESTROY(_name);
   DESTROY(_qualifier);
   DESTROY(_sourceNames);
@@ -121,9 +123,15 @@ RCS_ID("$Id$")
   DESTROY(_userInfo);
   DESTROY(_internalInfo);
   DESTROY(_docComment);
+  DESTROY(_joins);
   DESTROY(_sourceToDestinationKeyMap);
   DESTROY(_sourceRowToForeignKeyMapping);
 
+  DESTROY(_definitionArray);
+
+  _entity = nil;
+  _destination = nil;
+  
   [super dealloc];
 }
 
@@ -679,8 +687,17 @@ to know what to-many mean :-)  **/
   return joinSemanticString;
 }
 
+/**
+ * Returns the array of relationships composing this flattend relationship.
+ * Returns nil of the reciever isn't flattend.
+ */
 - (NSArray *)componentRelationships
 {
+  /* FIXME:TODO: Have this method deterimne the components dynamically
+   without caching them in the ivar.  Possibly add some tracing code to
+   see if caching the values can actually improve performance.
+   (Unlikely that it's worth the trouble this may cause for entity
+   edititng). */
   if (!_componentRelationships)
     {
       return _definitionArray; //OK ??????
@@ -2157,6 +2174,7 @@ dst entity primaryKeyAttributeNames
   DESTROY(_destinationAttributes);
   DESTROY(_inverseRelationship);
   DESTROY(_hiddenInverseRelationship);
+  DESTROY(_componentRelationships);
 }
 
 - (EOExpressionArray*) _definitionArray

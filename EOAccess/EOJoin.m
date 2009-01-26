@@ -80,6 +80,13 @@ RCS_ID("$Id$")
   return self;
 }
 
+- (void)dealloc
+{
+  DESTROY(_sourceAttribute);
+  DESTROY(_destinationAttribute);
+  [super dealloc];
+}
+
 - (unsigned)hash
 {
   return [_sourceAttribute hash];
