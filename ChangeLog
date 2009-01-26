@@ -1,3 +1,8 @@
+2009-01-25  Matt Rice  <ratmice@gmail.com>
+
+	* DBModeler/MainModelEditor.m: Implement
+	-draggingSourceOperationMaskForLocal:.
+
 2008-10-27  David Ayers  <ayers@fsfe.org>
 
 	* config.h.in (getRCSID): Mark inline to avoid compiler warnings.

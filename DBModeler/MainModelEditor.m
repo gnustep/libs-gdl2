@@ -85,6 +85,13 @@
     }
   return img;
 }
+
+
+- (NSDragOperation) draggingSourceOperationMaskForLocal:(BOOL)flag
+{
+  return NSDragOperationAll;
+}
+
 @end
 @implementation MainModelEditor 
 - (id) initWithDocument:(EOModelerDocument *)document
