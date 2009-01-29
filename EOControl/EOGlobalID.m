@@ -54,6 +54,7 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 
 #include <string.h>
+#include <limits.h>
 
 NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
 

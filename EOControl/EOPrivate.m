@@ -487,6 +487,16 @@ static SEL eqSel;
   return self;
 }
 
+- (id) copyWithZone:(NSZone *)zone
+{
+  return [self mutableCopyWithZone:zone];
+}
+
+- (id) mutableCopyWithZone:(NSZone *)zone
+{
+  return [[GDL2NonRetainingMutableArray allocWithZone:zone] initWithArray:self copyItems:NO];
+}
+
 /* designated initializer */
 - (id) initWithCapacity:(unsigned)capacity
 {

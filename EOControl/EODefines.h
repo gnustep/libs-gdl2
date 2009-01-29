@@ -33,7 +33,7 @@ extern "C" {
 
 #ifdef GNUSTEP_WITH_DLL
 
-#if BUILD_libgnustep_db2control_DLL
+#if BUILD_libEOControl_DLL
 
 # if defined(__MINGW32__)
   /* On Mingw, the compiler will export all symbols automatically, so

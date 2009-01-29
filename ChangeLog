@@ -1,3 +1,13 @@
+2009-01-29  Matt Rice  <ratmice@gmail.com>
+
+	* EOControl/EODefines.h: switch BUILD_libgnustep-db2control_DLL define
+	to BUILD_libEOControl_DLL.
+	* EOControl/EOGlobalID.m: include limits.h.
+	* EOControl/EOPrivate.m: implement -copyWithZone: and
+	-mutableCopyWithZone: in GDL2NonRetainingArray.
+	* EOAccess/EODefines.h: switch BUILD_libgnustep-db2_DLL define to
+	BUILD_libEOAccess_DLL.
+
 2009-01-26  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOJoin.h: Update memory mangement comments.
