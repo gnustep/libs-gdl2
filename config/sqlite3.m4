@@ -1,12 +1,12 @@
 dnl AM_PATH_SQLITE3([, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 AC_DEFUN(AM_PATH_SQLITE3,[
   AC_ARG_WITH(sqlite3-include,
-    [  --with-sqlite3-include=PATH  include path for sqlite3 headers],
+    [  --with-sqlite3-include=-I{PATH}  include path for sqlite3 headers],
     sqlite3_incdir="$withval", sqlite3_incdir=)
 
   AC_ARG_WITH(sqlite3-library,
-    [  --with-sqlite3-library=PATH  library path for sqlite3 libraries],
-    sqlite3="$withval", sqlite3_libdir=)
+    [  --with-sqlite3-library=-L{PATH}  library path for sqlite3 libraries],
+    sqlite3_libdir="$withval", sqlite3_libdir=)
 
   cppflags_temp="$CPPFLAGS"
   libs_temp=$LIBS
