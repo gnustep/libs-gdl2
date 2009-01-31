@@ -1,5 +1,10 @@
 2009-01-31  Nicola Pero <nicola.pero@meta-innovation.com>
 
+	* EOAdaptors/SQLiteAdaptor/GNUmakefile.in (ADDITIONAL_NATIVE_LIB_DIRS):
+	Fixed typo, it should link ../../EOControl, not ../EOControl.
+	
+2009-01-31  Nicola Pero <nicola.pero@meta-innovation.com>
+
 	* config/sqlite3.m4: Fixed typo in implementation of
 	--with-sqlite3-library=xxx.
 	* configure: Regenerated.
