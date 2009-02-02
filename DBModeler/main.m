@@ -37,6 +37,10 @@
 
 #include <GNUstepBase/GNUstep.h>
 
+
+// required for windows.
+int (*linkRenaissanceIn)(int, const char **) = GSMarkupApplicationMain; 
+
 int main (int argc, const char **argv)
 {
   Modeler *m;
