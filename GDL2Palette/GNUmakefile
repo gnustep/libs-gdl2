@@ -51,6 +51,6 @@ GDL2_OBJC_FILES=		\
 	KeyWrapper.m		\
 	DisplayGroupInspector.m
 
-PALETTE_LIBS=$(ADDITIONAL_OBJC_LIBS)
+PALETTE_LIBS=$(ADDITIONAL_OBJC_LIBS) -lGorm
 
 include $(GNUSTEP_MAKEFILES)/palette.make
