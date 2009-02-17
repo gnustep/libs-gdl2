@@ -1515,6 +1515,8 @@ _mergeValueForKey(id obj, id value,
 //"Receive NSUndoManagerCheckpointNotification Notification
 - (void) _undoManagerCheckpoint: (NSNotification*)notification
 {
+  /* TODO Figure out when checkpoint notifications should cause the
+     editing context to process changes */
   [self _processEndOfEventNotification: notification];
 }
 

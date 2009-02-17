@@ -1,6 +1,7 @@
 2009-02-17  Matt Rice  <ratmice@gmail.com>
 
 	* EOControl/EOEditingContext.m: Revert last patch.
+	* EOControl/EOEditingContext.m: Add comment.
 
 2009-02-17  Matt Rice  <ratmice@gmail.com>
 
