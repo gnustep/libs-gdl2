@@ -1,3 +1,14 @@
+2009-02-17  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/gdl2.EOControl.make
+	* EOAccess/gdl2.EOAccess.make
+	* EOInterface/gdl2.EOInterface.make
+	* EOControl/Makefile.postamble
+	* EOAccess/Makefile.postamble
+	* EOInterface/Makefile.postamble
+	Install makefile fragments for each 'core' library which adds
+	linker flags.
+
 2009-02-17  Matt Rice  <ratmice@gmail.com>
 
 	* EOControl/EOEditingContext.m: Revert last patch.
