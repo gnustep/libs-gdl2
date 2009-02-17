@@ -1,3 +1,9 @@
+2009-02-17  Matt Rice  <ratmice@gmail.com>
+
+	* EOControl/EOEditingContext.m (_undoManagerCheckpoint:): call
+	_processEndOfEventNotification by performing a selector through the
+	runloop.
+
 2009-02-02  Matt Rice  <ratmice@gmail.com>
 
 	* GDL2Palette/GNUmakefile: link to libGorm.
