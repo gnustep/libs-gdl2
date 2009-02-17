@@ -1,5 +1,9 @@
 2009-02-17  Matt Rice  <ratmice@gmail.com>
 
+	* EOControl/EOEditingContext.m: Revert last patch.
+
+2009-02-17  Matt Rice  <ratmice@gmail.com>
+
 	* EOControl/EOEditingContext.m (_undoManagerCheckpoint:): call
 	_processEndOfEventNotification by performing a selector through the
 	runloop.

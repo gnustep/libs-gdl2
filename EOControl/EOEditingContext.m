@@ -1269,7 +1269,7 @@ _mergeValueForKey(id obj, id value,
         {
           /*
            * Make sure there is something registered to force processing.
-           * This seems to correspond to the reference implementation but
+           * The seems to correspond to the reference implementation but
            * also seems very hacky.
            */
           [_undoManager registerUndoWithTarget: self
@@ -1278,23 +1278,17 @@ _mergeValueForKey(id obj, id value,
         }
       else
         {
-	  // TODO We have some shared code with _undoManagerCheckpoint: here.
-	  // which is called (eventually) from the above if statement,
-	  // but it is not entirely obvious whether _undoManagerCheckpoint:
-	  // can be called independently of _enqueueEndOfEventNotification
-	  // so it is possible that this could use a little clean up.
           NSArray *modes;
 
-	  modes = [[EODelayedObserverQueue defaultObserverQueue] runLoopModes];
-
+          modes = [[EODelayedObserverQueue defaultObserverQueue] runLoopModes];
           [[NSRunLoop currentRunLoop]
             performSelector: @selector(_processEndOfEventNotification:)
             target: self
             argument: nil
             order: EOEditingContextFlushChangesRunLoopOrdering
             modes: modes];
-      	  _flags.registeredForCallback = YES;
         }
+      _flags.registeredForCallback = YES;
     }
   EOFLOGObjectFnStop();
 }
@@ -1521,37 +1515,7 @@ _mergeValueForKey(id obj, id value,
 //"Receive NSUndoManagerCheckpointNotification Notification
 - (void) _undoManagerCheckpoint: (NSNotification*)notification
 {
-
-  #if 0
   [self _processEndOfEventNotification: notification];
-  #else
-  /* shared code from _enqueueEndOfEventNotification
-     added as a workaround for bug #25607, it isn't entirely clear
-     if this code acting 'defensively' against calling
-     _processEndOfEventNotiication: before any changes have been made
-     is correct, nor that calling _processEndOfEventNotification only once
-     per runloop iteration is incorrect.
-     because of this I have left the original implemenation #if'd out above.
-
-     see _enqueEndOfEventNotification also for comments on potential 
-     clean ups. */
-  if (_flags.registeredForCallback == NO)
-    {
-      NSArray *modes;
-
-          modes = [[EODelayedObserverQueue defaultObserverQueue] runLoopModes];
-
-          [[NSRunLoop currentRunLoop]
-            performSelector: @selector(_processEndOfEventNotification:)
-            target: self
-            argument: nil
-            order: EOEditingContextFlushChangesRunLoopOrdering
-            modes: modes];
-
-	_flags.registeredForCallback = YES;
-    }
-  #endif
-
 }
 
 - (BOOL) _processRecentChanges
