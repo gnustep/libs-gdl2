@@ -39,7 +39,7 @@ SVN_BASE_URL=http://svn.gna.org/svn/gnustep/libs
 SUBPROJECTS = EOControl EOAccess EOAdaptors Tools
 
 ifeq ($(GUI_MAKE_LOADED),yes)
-SUBPROJECTS += EOInterface EOModeler DBModeler @GUI_SUBPROJECTS@
+SUBPROJECTS += EOInterface EOModeler DBModeler Trading @GUI_SUBPROJECTS@
 endif
 ifeq ($(GUI_LIB),apple)
 SUBPROJECTS += EOInterface EOModeler DBModeler Trading @GUI_SUBPROJECTS@

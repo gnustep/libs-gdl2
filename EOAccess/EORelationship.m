@@ -561,6 +561,11 @@ destination entity of the last relationship in definition. **/
           NSAssert3(destinationEntity, @"No destinationEntity in last relationship: %@ of relationship %@ in entity %@",
                     lastRelationship, self, [_entity name]);
         }
+      else
+        {
+	  [self _joinsChanged];
+	  destinationEntity = _destination;
+	}
     }
   else if ([destinationEntity isKindOfClass: [NSString class]] == YES)
     destinationEntity = [[_entity model] 
@@ -2314,38 +2319,26 @@ dst entity primaryKeyAttributeNames
 
 - (void) _joinsChanged
 {
-  //TODO VERIFY
-  int count;
+  //VERIFIED DA 
+  int count = [_joins count];
 
   EOFLOGObjectFnStart();
 
-  count = [_joins count];
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"_joinsChanged:%@\nin %@", _joins, self);
 
   if (count > 0)
     {
-      int i;
+      EOJoin *join = [_joins objectAtIndex: 0];
+      EOAttribute *destinationAttribute = [join destinationAttribute];
+      EOEntity *destinationEntity = [destinationAttribute entity];
 
-      for (i = 0; i < count; i++)
-        {
-          EOJoin *join = [_joins objectAtIndex: i];
-          EOAttribute *destinationAttribute = [join destinationAttribute];
-          EOEntity *destinationEntity = [destinationAttribute entity];
-
-          _destination = destinationEntity;
-        }
+      _destination = destinationEntity;
     }
   else
     {
       _destination = nil;
     }
-//_joins count
-  //[self notImplemented:_cmd]; // TODO-NOW
-/*
-join destinationAttribute
-attr entity
-*/
 
   EOFLOGObjectFnStop();
 }

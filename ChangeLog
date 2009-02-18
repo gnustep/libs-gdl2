@@ -1,3 +1,10 @@
+2009-02-18  Matt Rice  <ratmice@gmail.com>
+
+	* GNUmakefile.in: Add Trading subproject.
+	* EOAccess/EORelationship.m (-_joinsChanged:): Set the destination to
+	the first object.
+	(-destinationEntity): Call _joinsChanged if the destination is nil.
+
 2009-02-18  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/Makefile.postamble
