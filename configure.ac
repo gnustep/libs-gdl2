@@ -71,10 +71,17 @@ AC_SUBST(EOADAPTORS)
 
 # FIXME: Once we have a generic reliable way to test-link GNUstep projects
 #        this should be replaced with that technique.
+GUI_SUBPROJECTS=""
+AC_ARG_ENABLE(gui-projects,
+	[  --disable-gui-projects to disable building GUI projects], ,
+	enable_gui_projects=yes)
+if test "$enable_gui_projects" = "yes"; then
+  GUI_SUBPROJECTS="$GUI_SUBPROJECTS EOInterface EOModeler DBModeler"
+fi
+
 AC_ARG_ENABLE(gorm-palette,
 	[  --disable-gorm-palette to disable building gorm palette], ,
-	enable_gorm_palette=yes)
-GUI_SUBPROJECTS=""
+	enable_gorm_palette=${enable_gui_projects})
 if test "$enable_gorm_palette" = "yes"; then
   GUI_SUBPROJECTS="$GUI_SUBPROJECTS GDL2Palette"
 fi

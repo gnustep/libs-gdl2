@@ -1256,6 +1256,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --disable-gui-projects to disable building GUI projects
   --disable-gorm-palette to disable building gorm palette
 
 Optional Packages:
@@ -4059,14 +4060,25 @@ fi
 
 # FIXME: Once we have a generic reliable way to test-link GNUstep projects
 #        this should be replaced with that technique.
+GUI_SUBPROJECTS=""
+# Check whether --enable-gui-projects was given.
+if test "${enable_gui_projects+set}" = set; then
+  enableval=$enable_gui_projects;
+else
+  enable_gui_projects=yes
+fi
+
+if test "$enable_gui_projects" = "yes"; then
+  GUI_SUBPROJECTS="$GUI_SUBPROJECTS EOInterface EOModeler DBModeler"
+fi
+
 # Check whether --enable-gorm-palette was given.
 if test "${enable_gorm_palette+set}" = set; then
   enableval=$enable_gorm_palette;
 else
-  enable_gorm_palette=yes
+  enable_gorm_palette=${enable_gui_projects}
 fi
 
-GUI_SUBPROJECTS=""
 if test "$enable_gorm_palette" = "yes"; then
   GUI_SUBPROJECTS="$GUI_SUBPROJECTS GDL2Palette"
 fi

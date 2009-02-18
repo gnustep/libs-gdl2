@@ -1,3 +1,11 @@
+2009-02-18  David Ayers  <ayers@fsfe.org>
+
+	* configure.ac (enable-gui-projects): New option to disable builing
+	of projects depending -gui/AppKit.  Default to yes.
+	(enable-gorm-palette): Default to the setting for enable-gui-projects.
+	* configure: Regenerate.
+	* GNUmakefile.in: Extract all GUI libs into variable.
+	
 2009-02-18  Matt Rice  <ratmice@gmail.com>
 
 	* GNUmakefile.in: Add Trading subproject.
