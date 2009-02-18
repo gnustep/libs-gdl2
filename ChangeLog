@@ -22,6 +22,8 @@
 	* GNUmakefile.in: Ditto.
 	* configure: Regenerate.
 
+	* GDL2.gsdoc: Update relative path to sub project documentation.
+
 2009-02-18  Matt Rice  <ratmice@gmail.com>
 
 	* GNUmakefile.in: Add Trading subproject.
