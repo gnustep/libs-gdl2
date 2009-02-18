@@ -671,6 +671,7 @@ SQLITE3_LIB_DIRS
 SQLITE3_LIBS
 EOADAPTORS
 GUI_SUBPROJECTS
+EXAMPLE_SUBPROJECTS
 VERSION
 MAJOR_VERSION
 MINOR_VERSION
@@ -1258,6 +1259,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --disable-gui-projects to disable building GUI projects
   --disable-gorm-palette to disable building gorm palette
+  --enable-examples to enable building examples from top level
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -4084,6 +4086,19 @@ if test "$enable_gorm_palette" = "yes"; then
 fi
 
 
+EXAMPLE_SUBPROJECTS=""
+# Check whether --enable-examples was given.
+if test "${enable_examples+set}" = set; then
+  enableval=$enable_examples;
+else
+  enable_examples=no
+fi
+
+if test "$enable_examples" = "yes"; then
+  EXAMPLE_SUBPROJECTS=" Examples"
+fi
+
+
 #--------------------------------------------------------------------
 # Record the version
 #--------------------------------------------------------------------
@@ -4784,6 +4799,7 @@ SQLITE3_LIB_DIRS!$SQLITE3_LIB_DIRS$ac_delim
 SQLITE3_LIBS!$SQLITE3_LIBS$ac_delim
 EOADAPTORS!$EOADAPTORS$ac_delim
 GUI_SUBPROJECTS!$GUI_SUBPROJECTS$ac_delim
+EXAMPLE_SUBPROJECTS!$EXAMPLE_SUBPROJECTS$ac_delim
 VERSION!$VERSION$ac_delim
 MAJOR_VERSION!$MAJOR_VERSION$ac_delim
 MINOR_VERSION!$MINOR_VERSION$ac_delim
@@ -4793,7 +4809,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 66; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 67; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

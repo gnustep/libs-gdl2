@@ -87,6 +87,15 @@ if test "$enable_gorm_palette" = "yes"; then
 fi
 AC_SUBST(GUI_SUBPROJECTS)
 
+EXAMPLE_SUBPROJECTS=""
+AC_ARG_ENABLE(examples,
+	[  --enable-examples to enable building examples from top level], ,
+	enable_examples=no)
+if test "$enable_examples" = "yes"; then
+  EXAMPLE_SUBPROJECTS=" Examples"
+fi
+AC_SUBST(EXAMPLE_SUBPROJECTS)
+
 #--------------------------------------------------------------------
 # Record the version
 #--------------------------------------------------------------------
