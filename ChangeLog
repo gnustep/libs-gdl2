@@ -5,7 +5,18 @@
 	(enable-gorm-palette): Default to the setting for enable-gui-projects.
 	* configure: Regenerate.
 	* GNUmakefile.in: Extract all GUI libs into variable.
-	
+
+	* Documentation/GDL2Intro/Examples: Move to ...
+	* Examples: ... here.
+	* Examples/GNUmakefile: Adapt to new location.
+	* Documentation/GDL2Intro/GNUmakefile: Remove subproject.
+	* Documentation/GDL2Intro/GDL2Intro.texi: Update references to new
+	location.
+	* Trading: Move to ...
+	* Examples/Trading: ... here.
+	* Examples/Trading/GNUmakefile: Adapte to new location.
+	* Examples/GNUmakefile: Add Trading.
+
 2009-02-18  Matt Rice  <ratmice@gmail.com>
 
 	* GNUmakefile.in: Add Trading subproject.

@@ -46,7 +46,7 @@ provide a starting point for people unfamiliar with GDL2 or EOF
 to get started developing their first application.
 
 If you are reading this document from the GDL2 Sources, most example sources 
-are provided in the Examples/ directory.
+are provided in the ../../Examples/ directory.
 
 @menu
 * Concepts:: Important concepts 
@@ -668,7 +668,7 @@ for the sake of demonstration i'm ignoring books with multiple authors.
 
 it also contains an adaptor name, and an adaptor specific connection dictionary.
 
-@verbatiminclude Examples/library.eomodel
+@verbatiminclude ../../Examples/library.eomodel
 
 @node Creating with DBModeler, , Example model file, Model creation 
 @subsection Creating with DBModeler
@@ -737,7 +737,7 @@ foo_RESOURCE_FILES=foo.eomodeld
 
 @subsection A complete GNUmakefile 
 @example
-@verbatiminclude Examples/example.GNUmakefile
+@verbatiminclude ../../Examples/example.GNUmakefile
 @end example
 
 @node Database creation, Database connection, Project creation, Top
@@ -759,7 +759,7 @@ An example which connects to and then disconnects from the database.
 provided you have already created the database in previous section
 
 @example
-@verbatiminclude Examples/connection.m
+@verbatiminclude ../../Examples/connection.m
 @end example
 
 @node Working with data, EOInterface, Database connection, Top
@@ -770,7 +770,7 @@ Here we have more complete example which writes a record to the database,
 then fetches the record and updates it and saves the data again, then removes the record.
 
 @example
-@verbatiminclude Examples/eoexample.m
+@verbatiminclude ../../Examples/eoexample.m
 @end example
 
 @section Working with relationships
@@ -779,7 +779,7 @@ we'll add an author, and some books, and then traverse the relationship in
 a couple of different ways.
 
 @example
-@verbatiminclude Examples/eoexample2.m
+@verbatiminclude ../../Examples/eoexample2.m
 @end example
 
 @node EOInterface, Index, Working with data, Top
