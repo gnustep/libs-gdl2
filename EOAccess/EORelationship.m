@@ -168,8 +168,6 @@ RCS_ID("$Id$")
         {
           destinationEntity = [model entityNamed: destinationEntityName];
 
-	  GDL2DestinationEntitiesRemoveRelationship(_destination, self);
-	  GDL2DestinationEntitiesAddRelationship(destinationEntity, self);
           _destination = destinationEntity;
         }
 
@@ -1292,7 +1290,6 @@ relationships. Nil if none" **/
       EOFLOGObjectLevelArgs(@"EORelationship", @"_definitionArray=%@", _definitionArray);
       EOFLOGObjectLevelArgs(@"EORelationship", @"[self definition]=%@", [self definition]);
 
-      GDL2DestinationEntitiesRemoveRelationship(_destination, self);
       _destination = nil;
 
       {        
@@ -2175,6 +2172,8 @@ dst entity primaryKeyAttributeNames
   DESTROY(_inverseRelationship);
   DESTROY(_hiddenInverseRelationship);
   DESTROY(_componentRelationships);
+  _destination = nil;
+
 }
 
 - (EOExpressionArray*) _definitionArray
@@ -2334,8 +2333,6 @@ dst entity primaryKeyAttributeNames
           EOAttribute *destinationAttribute = [join destinationAttribute];
           EOEntity *destinationEntity = [destinationAttribute entity];
 
-	  GDL2DestinationEntitiesRemoveRelationship(_destination, self);
-	  GDL2DestinationEntitiesAddRelationship(destinationEntity, self);
           _destination = destinationEntity;
         }
     }

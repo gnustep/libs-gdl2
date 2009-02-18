@@ -88,56 +88,6 @@ RCS_ID("$Id$")
 #include "EOAttributePriv.h"
 #include "../EOControl/EOPrivate.h"
 
-static NSMapTable *_destinationEntitiesRelationshipMap;
-
-void GDL2DestinationEntitiesAddRelationship(EOEntity *entity, EORelationship *relationship);
-void GDL2DestinationEntitiesRemoveRelationship(EOEntity *entity, EORelationship *relationship);
-
-static void GDL2DestinationEntitiesRemoveEntity(EOEntity *entity)
-{
-  GDL2NonRetainingMutableArray *rels;
-  
-  rels = NSMapGet(_destinationEntitiesRelationshipMap, entity);
-  if (rels)
-    {
-      [rels makeObjectsPerformSelector:@selector(_joinsChanged)];
-    }
-  NSMapRemove(_destinationEntitiesRelationshipMap, entity);
-}
-
-void GDL2DestinationEntitiesAddRelationship(EOEntity *entity, EORelationship *relationship)
-{
-  GDL2NonRetainingMutableArray *rels;
-
-  if (!entity) return;
-
-  rels = NSMapGet(_destinationEntitiesRelationshipMap, entity);
-  if (!rels)
-    {
-      rels = [[GDL2NonRetainingMutableArray alloc] init];
-      NSMapInsert(_destinationEntitiesRelationshipMap, entity, rels);
-      RELEASE(rels);
-    }
-  [rels addObject:relationship];
-}
-
-void GDL2DestinationEntitiesRemoveRelationship(EOEntity *entity, EORelationship *relationship)
-{
-  GDL2NonRetainingMutableArray *rels;
-
-  if (!entity) return;
-
-  rels = NSMapGet(_destinationEntitiesRelationshipMap, entity);
-  
-  [rels removeObject:relationship];
-  if ([rels count] == 0)
-    {
-      NSMapRemove(_destinationEntitiesRelationshipMap, entity);
-    }
-}
-
-
-
 @interface EOModel (Privat)
 - (void)_updateCache;
 @end
@@ -157,9 +107,6 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
   if (!initialized)
     {
       initialized=YES;
-      _destinationEntitiesRelationshipMap =
-	      NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks,
-			       NSObjectMapValueCallBacks, 0); 
       GDL2_EOAccessPrivateInit();
     };
 };
@@ -618,8 +565,6 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   					      nil, [EOAttribute class]);
   performSelectorOnArrayWithEachObjectOfClass(_relationships, @selector(setEntity:),
   					      nil, [EORelationship class]);
-  // this must come after _attributes is cleared.
-  GDL2DestinationEntitiesRemoveEntity(self);
 
   DESTROY(_adaptorDictionaryInitializer);
   DESTROY(_instanceDictionaryInitializer);
