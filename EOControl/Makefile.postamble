@@ -51,7 +51,8 @@ after-install::	$(DESTDIR)$(GNUSTEP_MAKEFILES)/Auxiliary
 # before-uninstall::
 
 # Things to do after uninstalling
-# after-uninstall::
+after-uninstall::
+	rm -f $(DESTDIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.EOControl.make
 
 # Things to do before cleaning
 # before-clean::

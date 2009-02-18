@@ -1,3 +1,10 @@
+2009-02-18  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/Makefile.postamble
+	* EOAccess/Makefile.postamble
+	* EOInterface/Makefile.postamble
+	(after-uninstall::) Remove make file fragments.
+	
 2009-02-17  Matt Rice  <ratmice@gmail.com>
 
 	* EOAccess/EOEntityPriv.h: Remove
