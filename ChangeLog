@@ -4,6 +4,9 @@
 	* EOAccess/Makefile.postamble
 	* EOInterface/Makefile.postamble
 	(after-uninstall::) Remove make file fragments.
+
+	* EOAccess/EOEntity.m (-dealloc): Invalidate class description
+	cache.
 	
 2009-02-17  Matt Rice  <ratmice@gmail.com>
 

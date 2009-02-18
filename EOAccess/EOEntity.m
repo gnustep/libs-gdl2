@@ -566,6 +566,8 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   performSelectorOnArrayWithEachObjectOfClass(_relationships, @selector(setEntity:),
   					      nil, [EORelationship class]);
 
+  if (_classDescription) [[EOClassDescription class] invalidateClassDescriptionCache];
+
   DESTROY(_adaptorDictionaryInitializer);
   DESTROY(_instanceDictionaryInitializer);
   DESTROY(_primaryKeyDictionaryInitializer);
