@@ -1,5 +1,11 @@
 2009-02-18  David Ayers  <ayers@fsfe.org>
 
+	* EOAccess/EOGenericRecord.h/m ([-entity]): New category.
+	* EOAccess/GNUmakefile (EOGenericRecord): Build and install new
+	category.
+	
+2009-02-18  David Ayers  <ayers@fsfe.org>
+
 	* configure.ac (disable-gui-projects): New option to disable builing
 	of projects depending -gui/AppKit.  Default to yes.
 	(disable-gorm-palette): Default to the setting for enable-gui-projects.

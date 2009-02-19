@@ -2244,7 +2244,7 @@ else if([attribute isDerived] == YES)
 }
 
 - (NSMutableDictionary *)bindVariableDictionaryForAttribute: (EOAttribute *)attribute
-                                                      value: value
+                                                      value: (id)value
 {
   [self subclassResponsibility: _cmd];
   return nil;

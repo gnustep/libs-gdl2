@@ -59,6 +59,7 @@ EODatabaseChannel.m \
 EODatabaseContext.m \
 EOAccessFault.m \
 EODatabaseDataSource.m \
+EOGenericRecord.m \
 EOUtilities.m \
 EOPrivate.m
 
@@ -86,6 +87,7 @@ EOPropertyListEncoding.h \
 EODatabaseDataSource.h \
 EOSchemaSynchronization.h \
 EOSchemaGeneration.h \
+EOGenericRecord.h \
 EOUtilities.h \
 EODefines.h \
 EODeprecated.h \
