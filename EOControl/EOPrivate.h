@@ -362,7 +362,7 @@ GDL2CONTROL_EXPORT unsigned int EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDIn
 // ==== EOEditingContext ====
 
 GDL2CONTROL_EXPORT id EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext* edContext,IMP* impPtr,EOGlobalID* gid);
-EOGlobalID* EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object);
+GDL2CONTROL_EXPORT EOGlobalID* EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object);
 GDL2CONTROL_EXPORT id EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext* edContext,IMP* impPtr,id object,EOGlobalID* gid);
 
 
@@ -370,6 +370,10 @@ GDL2CONTROL_EXPORT id EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingC
 
 GDL2CONTROL_EXPORT void EOHashAddTable(NSHashTable *to, NSHashTable *from);
 
+
+// ==== hash convienience functions ====
+
+GDL2CONTROL_EXPORT BOOL GDL2_isLegalDBName(NSString *name);
 
 // ==== Memory Management Utilities ====
 

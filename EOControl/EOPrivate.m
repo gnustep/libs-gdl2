@@ -642,3 +642,27 @@ static SEL eqSel;
 }
 
 @end
+
+
+BOOL
+GDL2_isLegalDBName(NSString* name)
+{
+  static NSCharacterSet *illegalSet = nil;
+  NSRange range;
+  
+  if (illegalSet == nil)
+    {
+      NSMutableCharacterSet *mutableSet;
+      illegalSet = [NSCharacterSet alphanumericCharacterSet];
+      mutableSet = AUTORELEASE([illegalSet mutableCopy]);
+      [mutableSet addCharactersInString:@"_-"];
+      illegalSet = RETAIN([mutableSet invertedSet]);
+    }
+
+  if (![name length])
+    { 
+      return NO;
+    }
+  range = [name rangeOfCharacterFromSet: illegalSet];
+  return (range.location == NSNotFound) ? YES : NO;
+}

@@ -502,12 +502,19 @@ getKey(const unichar **cFormat,
   if (classString && (!(quoted || literalNumber)))
     {
       [NSException raise:NSInvalidArgumentException
-		 format:@"expected string literal after cast to class"];
+		   format:@"expected string literal after cast to class"];
     }
 
   /* not sure about this !isQualVar */
   if (isQualVar)
     {
+      if (!GDL2_isLegalDBName(key))
+	{
+	  NSString *format 
+	    = [NSString stringWithFormat: @"illegal qualifier variable $%@",key];
+	  [NSException raise:NSInvalidArgumentException
+		       format:format];
+	}
       key = (id)[[EOQualifierVariable alloc] initWithKey:key];
     }
   else if (isKeyValue)

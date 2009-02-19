@@ -3,6 +3,9 @@
 	* EOAccess/EOGenericRecord.h/m ([-entity]): New category.
 	* EOAccess/GNUmakefile (EOGenericRecord): Build and install new
 	category.
+
+	* EOControl/EOPrivate.h/m (GDL2_isLegalDBName): New function.
+	* EOQualifier.m (getKey): Validate qualifier bind variable key.
 	
 2009-02-18  David Ayers  <ayers@fsfe.org>
 
