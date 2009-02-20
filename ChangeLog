@@ -1,4 +1,21 @@
-2009-02-18  David Ayers  <ayers@fsfe.org>
+2009-02-20  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/gdl2.EOControl.make,
+	* EOAccess/gdl2.EOAccess.make,
+	* EOInterface/gdl2.EOInterface.make: Remove convenience 
+	make file fragements.
+	* EOControl/Makefile.postamble,
+	* EOAccess/Makefile.postamble,
+	* EOInterface/Makefile.postamble: Remove references to
+	convenience make file fragements.
+
+	* README: Add documentation on usage of GDL2 components.
+	Update versions of dependencies.  Add documentation for some missing
+	components.  Remove obsolete documentation.  Refer to TODO file for
+	missing features.
+	* TODO: Update.
+
+2009-02-19  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EOGenericRecord.h/m ([-entity]): New category.
 	* EOAccess/GNUmakefile (EOGenericRecord): Build and install new

@@ -43,16 +43,13 @@
 # before-install::
 
 # Things to do after installing
-after-install::	$(DESTDIR)$(GNUSTEP_MAKEFILES)/Auxiliary
-	$(INSTALL_DATA) gdl2.EOInterface.make \
-		$(DESTDIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.EOInterface.make
+# after-install::
 
 # Things to do before uninstalling
 # before-uninstall::
 
 # Things to do after uninstalling
-after-uninstall::
-	rm -f $(DESTDIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.EOInterface.make
+# after-uninstall::
 
 # Things to do before cleaning
 # before-clean::

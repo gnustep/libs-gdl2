@@ -6,10 +6,11 @@ Objective-C objects to rows of relational database management systems
 (RDBMS).  It aims to be compatible with Enterprise Objects Framework
 (EOF) as released with WebObjects 4.5 from Apple Inc.  It has been tested
 against the following package versions:
-- the GNUstep Make Package 2.0.0
-- the Base Package 1.14.0
-- the GUI/Back Package 1.12.0
-- the GORM Package 1.2.0
+- the GNUstep Make Package 2.0.6
+- the Base Package 1.16.3
+- the GUI/Back Package 1.14.0
+- the GORM Package 1.2.6
+- the Renaissance SVN Version 27301 (0.10.0 prerelease)
 
 GDL2 consists of the following components:
 
@@ -46,12 +47,38 @@ the PostgreSQL and SQLite databases.
 GDL2 will offers a UI application to create and maintain .eomodel(d)
 files.  This is the first release of a preliminary version.
 
-- Trading
+- EOModeler
+
+This framework is which is used by DBModeler can used to write bundles
+for DBModeler to interface with the application.
+
+- GDL2Palette
+Both Gorm and InterfaceBuilder can be used to create nib files which
+contain display groups an EOEditingContext.  The palette provides those
+applications with the necessary code to hook up UI components with
+the model objects.
+
+- Examples/Trading
  
 The Trading framework, provides an example model, and some routines to
 create a database from the model, and populate the database with data,
 while not an example itself it is indented for use by example applications 
 using GDL2 alone, EOInterface or GSWeb, and for higher level tests.
+
+- Using GDL2 in other Projects
+
+Typically you would want to use EOControl and EOAccess for tools and
+EOInterface additionally for applications.  
+
+Tools:
+ADDITIONAL_NATIVE_LIBS += EOControl EOAccess
+
+Applications:
+ADDITIONAL_NATIVE_LIBS += EOControl EOAccess EOInterface
+
+GDL2 based Palettes / DBModeler Bundles:
+ADDITIONAL_NATIVE_LIBS += EOControl EOAccess EOInterface EOModeler
+
 
 ======================
 *** Important Note ***
@@ -67,11 +94,9 @@ Expect the current interface to change especially with respect to
 functions and methods not documented in EOF 4.5.  Even the library
 names themselves may change.
 
-With respect to EOF, GDL2 is currently missing EOSharedEditingContext,
-EOMultiReaderLocks and the EOEvent classes.  Also we currently do not
-support the EOSchemaSynchronization methods yet.  But you are likely
-to find many more missing implementations within the source.  If you
-identify something that you need, please let us know at
+See the TODO file for parts that still need implementains or testing.
+
+If you identify something that you need, please let us know at
 <discuss-gnustep@gnu.org> or even better get copyright assignment for
 the FSF and post a patch.
 
@@ -79,8 +104,8 @@ Initial reading
 ===============
 
    The file `NEWS' has the library's feature history.
-
-   The files `INSTALL' gives instructions for installing the library.
+   The file `INSTALL' gives instructions for installing the library.
+   The file `TODO' lists components which are not fully implemented.
 
 License
 =======

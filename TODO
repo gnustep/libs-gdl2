@@ -1,29 +1,25 @@
 EOControl:
-	validateTakeValue:forKeyPath:
-		test whether the method propagates
-		thourgh key path
-		determine who calls this from within
-		GDL2
+	Implement & Test: EOControl/EOMultiReaderLocks
+	Implement & Test: EOControl/EOEvent(Center)
+	Test: EOSharedEditingContext
+	Test: validateTakeValue:forKeyPath: (does the method propagate or is it forwarded down to last component?)
+		
 EOAccess:
-	Headers/Categories:
-		EOGenericRecord (category)
-		EOSchemaSynchronization
+	Implement databaseFailedToFetchObject mechanism. (EODatabaseContextDelegation) Cf Developper's guide p 121
+	Implement & Test: EOAccesss/EOSchemaSynchronization
+	Test: EOAccess/EOGenericRecord category
 
-Documentation:
-	API Documentation
-	Tutorials
-
-Examples:
-
-Adaptors:
-
-o Implement databaseFailedToFetchObject mechanism.
-        Cf Developper's guide p 121
-o Implement to-one PK to Foreign Key support
-        Not implemented by WO but it's really cool.
+	Implement & Test: to-one PK to Foreign Key support (Not implemented by WO but it's really cool)
 
 DBModeler:
 	when removing something, make sure there is no references to it,
 	if there are pop up a dialog allowing the user to cancel, or remove the
 	references.
 
+Adaptors:
+
+Documentation:
+	API Documentation
+	Tutorials: See Trading example of a Framework usable for EOInterface and GSWeb
+
+Examples:
