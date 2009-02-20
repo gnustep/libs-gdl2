@@ -1,5 +1,11 @@
 2009-02-20  David Ayers  <ayers@fsfe.org>
 
+	* Version 0.12.0
+	* ANNOUNCE: Update for release.
+	* NEWS: Ditto.
+
+2009-02-20  David Ayers  <ayers@fsfe.org>
+
 	* EOControl/gdl2.EOControl.make,
 	* EOAccess/gdl2.EOAccess.make,
 	* EOInterface/gdl2.EOInterface.make: Remove convenience 

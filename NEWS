@@ -1,7 +1,24 @@
 News
 ****
 
-The currently released version of the library is `0.11.0'.
+The currently released version of the library is `0.12.0'.
+
+'alpha' release 0.12.0
+========================================
+This release contains the following changes:
+- Added Renaissance dependency to ease porting
+- Licensed under GNU GPL/LGPL v3
+- Added first projects for more complete examples
+- Reorganized examples and documentation
+- minor compile flag fixes
+- improved make 2.0 integration
+  to avoid forcing users to link against EOAccess simply to include
+  the GDL2 version makefile fragment, users must now expicitly add:
+  ADDITIONAL_NATIVE_LIBS+=EOControl EOAccess
+  to thier makefiles for tools or:
+  ADDITIONAL_NATIVE_LIBS+=EOControl EOAccess EOInterface
+  for applications
+
 
 'alpha' release 0.11.0
 ========================================

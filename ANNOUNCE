@@ -1,5 +1,5 @@
 
-The GNUstep Database Library 2 Package, version 0.11.0 is now available.
+The GNUstep Database Library 2 Package, version 0.12.0 is now available.
 
 What is the GNUstep Database Library 2 Package?
 ====================================
@@ -12,12 +12,24 @@ Objective-C objects to rows of relational database management systems
 - the Base Package
 - the GUI Package
 - the Back Package
+- the Renaissance Package
 - the GORM Package
 
 
-The package has been tested on:
+The release has been tested on:
 
 Debian Etch/x86
+Debian Lenny/x86
+CentOS 5.2/x68_64
+
+Changes in version 0.12.0
+=========================
+This release contains the following changes:
+- Use of Renaissance to ease porting
+- Licensed under GNU GPL/LGPL v3
+- minor compile flag fixes
+- improved make 2.0 integration
+- minor bug fixes
 
 Changes in version 0.11.0
 =========================
