@@ -228,7 +228,6 @@
           [newModel setName: [[adaptor connectionDictionary] objectForKey:@"databaseName"]];
           [channel closeChannel];
           [self _newDocumentWithModel:newModel];
-          RELEASE(newModel);
         }
     }
 }
