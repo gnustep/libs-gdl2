@@ -71,6 +71,8 @@
   RELEASE(_relationships);
   RELEASE(_subview_order);
   RELEASE(_bgColor);
+  RELEASE(_model);
+
   [super dealloc];
 }
 

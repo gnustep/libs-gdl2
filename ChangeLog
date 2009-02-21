@@ -1,6 +1,7 @@
 2009-02-21  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/Modeler.m (-newFromDatabase:): Remove extra release.
+	* DBModeler/DiagramView.m (-dealloc):  Release model.
 
 2009-02-20  David Ayers  <ayers@fsfe.org>
 
