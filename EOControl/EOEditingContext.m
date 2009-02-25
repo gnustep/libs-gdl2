@@ -1517,7 +1517,16 @@ _mergeValueForKey(id obj, id value,
 {
   /* TODO Figure out when checkpoint notifications should cause the
      editing context to process changes */
-  [self _processEndOfEventNotification: notification];
+
+  /* In WO45 the NSUndoManager did not send a
+     NSUndoManagerCheckpointNotification upon beginning an
+     undo grouping.  Current incarnations of GNUStep/Cocoa do.
+     There for we guard against processing end of event during
+     the beginning if an undo group here.  */
+  if ([_undoManager groupingLevel] > 0)
+    {
+      [self _processEndOfEventNotification: notification];
+    }
 }
 
 - (BOOL) _processRecentChanges

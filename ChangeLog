@@ -1,3 +1,9 @@
+2009-02-25  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EOEditingContext.m (_undoManagerCheckpoint:):
+	Insure we only call _processEndOfEventNotification: if we
+	already have a grouping level.
+	
 2009-02-21  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/Modeler.m (-newFromDatabase:): Remove extra release.
