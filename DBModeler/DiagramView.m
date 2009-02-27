@@ -52,6 +52,7 @@
 #include <EOModeler/EOModelExtensions.h>
 
 #include <GNUstepBase/GNUstep.h>
+#include <math.h>
 
 @implementation DiagramView
 - (id) initWithFrame:(NSRect)frameRect

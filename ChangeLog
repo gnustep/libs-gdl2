@@ -2,6 +2,7 @@
 
 	* DBModeler/MainModelEditor.m: Implement -viewSelectedObject
 	calling _activateSelection.
+	* DBModeler/DiagramView.m: Include math.h.
 
 2009-02-26  Matt Rice  <ratmice@gmail.com>
 
