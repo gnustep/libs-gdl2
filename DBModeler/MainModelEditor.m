@@ -212,6 +212,12 @@
   [super activate];
 }
 
+- (void) viewSelectedObject
+{
+  [self _activateSelection];
+  [super viewSelectedObject];
+}
+
 - (void) _activateSelection 
 {
   id selection;
