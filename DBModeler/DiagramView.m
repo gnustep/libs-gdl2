@@ -137,8 +137,8 @@
       evFrame = [ev frame];
   
       /* this "layout mechanism" is pure evil... */
-      toPoint.x = vis.origin.x  + ((vis.size.width - evFrame.size.width) * rand()/(RAND_MAX + vis.origin.x));
-      toPoint.y = vis.origin.y + ((vis.size.height - evFrame.size.height) * rand()/(RAND_MAX + vis.origin.y));
+      toPoint.x = floor(vis.origin.x  + ((vis.size.width - evFrame.size.width) * rand()/(RAND_MAX + vis.origin.x)));
+      toPoint.y = floor(vis.origin.y + ((vis.size.height - evFrame.size.height) * rand()/(RAND_MAX + vis.origin.y)));
       
       [ev setFrameOrigin:toPoint];
       [_shownEntities setObject:ev forKey:[entity name]];
@@ -180,7 +180,7 @@ int sortSubviews(id view1, id view2, void *context)
   idx1 = [self->_subview_order indexOfObject:view1];
   idx2 = [self->_subview_order indexOfObject:view2];
   
-  return (idx1 < idx2) ? NSOrderedDescending : NSOrderedAscending;
+  return (idx1 < idx2) ? NSOrderedAscending : NSOrderedDescending;
 }
 
 - (void) orderViewFront:(NSView *)v
@@ -188,7 +188,7 @@ int sortSubviews(id view1, id view2, void *context)
   int idx = [_subview_order indexOfObject:v];
   RETAIN(v);
   [_subview_order removeObjectAtIndex:idx];
-  [_subview_order insertObject:v atIndex:0];
+  [_subview_order addObject:v];
   RELEASE(v);
   [self sortSubviewsUsingFunction:(int (*)(id, id, void *))sortSubviews context:self];
   [self setNeedsDisplay:YES];

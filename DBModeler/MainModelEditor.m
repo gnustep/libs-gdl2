@@ -212,7 +212,7 @@
   [super activate];
 }
 
-- (void) viewSelectedObject
+- (void) _activateSelection 
 {
   id selection;
   if ([[self selectionWithinViewedObject] count] == 0)
@@ -244,7 +244,6 @@
                   if ([friendEditor canSupportCurrentSelection])
                     {
                       [self activateEmbeddedEditor:friendEditor];
-                      [super viewSelectedObject];
                       return;
                     }
                 }
@@ -259,7 +258,6 @@
              {
                [self activateEmbeddedEditor:friend];
                RELEASE(friend);
-               [super viewSelectedObject];
                return;
              }
            RELEASE(friend);
@@ -275,13 +273,11 @@
           if ([anEditor canSupportCurrentSelection])
             {
               [self activateEmbeddedEditor:anEditor];
-              [super viewSelectedObject];
               return;
             }
         }
       
     } 
-  [super viewSelectedObject];
 }
 
 /* NSOutlineView datasource stuff */
@@ -428,7 +424,7 @@
   }
 #endif
   [self setSelectionPath:AUTORELEASE(foo)];
-  [self viewSelectedObject];
+  [self _activateSelection];
 }
 
 - (BOOL) outlineView:(NSOutlineView *)view

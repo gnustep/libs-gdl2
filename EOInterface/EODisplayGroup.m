@@ -807,10 +807,13 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 	  id object = [_displayedObjects objectAtIndex: 0];
           selected = [self selectObject: object];
 	}
-      else if (c)
+#if 0 
+      // this really doesn't seem like it belongs here.
+      else if (c) 
         {
 	  [self setSelectionIndexes:_selection]; 
 	}
+#endif
       else
 	{
 	  [self clearSelection];
@@ -861,8 +864,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 
 - (void)setSelectedObjects: (NSArray *)objects
 {
-  ASSIGN (_selectedObjects, 
-	  AUTORELEASE([objects mutableCopyWithZone: [self zone]]));
+  ASSIGNCOPY(_selectedObjects, objects);
 }
 
 - (id)selectedObject

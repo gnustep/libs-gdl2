@@ -291,12 +291,18 @@
 - (void) displayGroupDidChangeSelection:(EODisplayGroup *)displayGroup
 {
   NSArray *selObj = [displayGroup selectedObjects];
-  NSArray *selWithin = [self selectionWithinViewedObject];
+  NSArray *selWithin = RETAIN([self selectionWithinViewedObject]);
 
-  if ([selObj count]
-      && (![selObj isEqual:selWithin])
-      && ![selWithin containsObject:_entityToObserve])
-    [self setSelectionWithinViewedObject: selObj];
+  if ([selObj count] && (![selObj isEqual:selWithin]))
+    {
+      if ([selWithin containsObject:_entityToObserve])
+        {
+          NSAssert([selWithin count] == 1, @"how on earth?");
+          [[self parentEditor] viewSelectedObject]; 
+	}
+      [self setSelectionWithinViewedObject: selObj];
+    }
+  RELEASE(selWithin);
 }
 
 @end

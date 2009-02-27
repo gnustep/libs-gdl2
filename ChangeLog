@@ -1,3 +1,20 @@
+2009-02-26  Matt Rice  <ratmice@gmail.com>
+
+	* EOInterface/EODisplayGroup.m:
+	(-selectObjectsIdenticalTo:selectFirstOnNoMatch:): Disable some
+	questionable code.
+	(-setSelectedObjects:): Use a copy, not a mutable copy.
+	* DBModeler/DiagramView.m (-orderViewFront:): Move the view to
+	the end, not the beginning.
+	(sortSubviews()): Flip the ascending/descending order.
+	(showEntity:): floor randomly generated points.
+	* DBModeler/MainModelEditor.m: Rename -viewSelectedObject method
+	to _activateSelection. Remove calls to super viewSelectedObject.
+	* DBModeler/ModelerAttributeEditor.m
+	(-displayGroupDidChangeSelection): View the selected object when
+	the current selection is the attribute editors entity.
+
+
 2009-02-25  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOEditingContext.m (_undoManagerCheckpoint:):
