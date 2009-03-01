@@ -1,3 +1,10 @@
+2009-03-01  Matt Rice  <ratmice@gmail.com>
+
+	* EOAccess/EORelationship.m (-referencesProperty:): Check if property
+	is the relationships destination entity.
+	* EOModeler/EOModelerDocument (-delete:): Call referencesToProperty:
+	on all model objects.
+
 2009-02-27  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/MainModelEditor.m: Implement -viewSelectedObject

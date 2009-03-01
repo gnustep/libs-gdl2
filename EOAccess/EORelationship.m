@@ -760,21 +760,27 @@ to know what to-many mean :-)  **/
 - (BOOL)referencesProperty: (id)property
 {
   BOOL referencesProperty = NO;
-  NSArray *srcAttribs = [self sourceAttributes];
-  NSArray *destAttribs = [self destinationAttributes];
-  NSArray *compRels = [self componentRelationships];
+  NSArray *srcAttribs;
+  NSArray *destAttribs;
+  NSArray *compRels;
 
-  NSEmitTODO();  //TODO
+  if (property == nil)
+    return NO;  
+
+  destAttribs = [self destinationAttributes];
+  srcAttribs = [self sourceAttributes];
+  compRels = [self componentRelationships];
+
   EOFLOGObjectLevelArgs(@"EORelationship", @"in referencesProperty:%@",
 			property);
-
   referencesProperty =
 	  	((srcAttribs
 		  && [srcAttribs indexOfObject: property] != NSNotFound)
 		|| (destAttribs
-		    && [destAttribs indexOfObject: property] != NSNotFound)
+		   && [destAttribs indexOfObject: property] != NSNotFound)
 		|| (compRels
-		    && [compRels indexOfObject: property] != NSNotFound));
+		    && [compRels indexOfObject: property] != NSNotFound)
+		|| (_destination == property));
 
   return referencesProperty;
 }

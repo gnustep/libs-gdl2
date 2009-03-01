@@ -536,30 +536,34 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
       for (i = 0, c = [objects count]; i < c; i++)
         {
           id object = [objects objectAtIndex:i];
-	  
-          if ([object isKindOfClass:[EOAttribute class]])
- 	    {
-	      NSArray *refs;
-	      
-	      refs = [[[object entity] model] referencesToProperty:object];
-	      if (![refs count])
-		[[object entity] removeAttribute:object];
-	      else
+	  NSArray *refs;
+	  if ([object isKindOfClass:[EOAttribute class]]
+	      || [object isKindOfClass:[EORelationship class]])
+	    refs = [[[object entity] model] referencesToProperty:object];
+	  else if ([object isKindOfClass:[EOEntity class]])
+	    refs = [[object model] referencesToProperty:object]; 
+
+	  if ([refs count])
+	    {
+	      NSMutableString *str;
+	      unsigned i,c;
+	      str = [NSMutableString stringWithFormat:@"object(%@) is referenced by other properties\n", [object name]];
+	      for (i = 0, c = [refs count]; i < c; i++)
 		{
-	          NSMutableString *str;
-		  unsigned i,c;
-		  str = [NSMutableString stringWithFormat:@"attribute is referenced by properties\n"];
-		  for (i = 0, c = [refs count]; i < c; i++)
-		    {
-		      id prop = [refs objectAtIndex:i];
-		      NSString *tmp;
-		      tmp=[NSString stringWithFormat:@"%@ in %@\n",[prop name],
-			  			[[prop entity] name]];
-		      [str appendString:tmp];
-		    }
-		  
-		  NSRunAlertPanel(@"unable to remove attribute", str, @"ok", nil, nil);
+		  id prop = [refs objectAtIndex:i];
+		  NSString *tmp;
+		  tmp=[NSString stringWithFormat:@"%@ of type %@\n",
+					[prop name],
+					[prop class]];
+		  [str appendString:tmp];
 		}
+		  
+	      NSRunAlertPanel(@"unable to remove property", str, @"ok", nil, nil);
+	      return;
+	    }
+          else if ([object isKindOfClass:[EOAttribute class]])
+ 	    {
+		[[object entity] removeAttribute:object];
   	    }
           else if ([object isKindOfClass:[EOEntity class]])
  	    {
@@ -573,6 +577,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
       [[EOMApp currentEditor] setSelectionWithinViewedObject:[NSArray array]];
     }
 }
+
 - (void)addFetchSpecification:(id)sender
 {
 
