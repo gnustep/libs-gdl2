@@ -1,5 +1,12 @@
 2009-03-01  Matt Rice  <ratmice@gmail.com>
 
+	* DBModeler/Inspectors/AttributesInspector.m: Implement
+	controlTextDidEndEditing:.
+	* DBModeler/Inspectors/AttributesInspector.gorm: Set text field
+	delegates, and nextKeyView.
+
+2009-03-01  Matt Rice  <ratmice@gmail.com>
+
 	* EOAccess/EORelationship.m (-referencesProperty:): Check if property
 	is the relationships destination entity.
 	* EOModeler/EOModelerDocument (-delete:): Call referencesToProperty:

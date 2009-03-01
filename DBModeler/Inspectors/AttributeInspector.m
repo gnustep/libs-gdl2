@@ -288,5 +288,31 @@
 {
   [[self selectedObject] setFactoryMethodArgumentType:[[sender selectedItem] tag]];
 }
+
+- (void) controlTextDidEndEditing:(NSNotification *)notif
+{
+  id obj = [notif object];
+
+  if (obj == _extNameField)
+    [self setExternalName:_extNameField];
+  else if (obj == _extTypeField)
+    [self setExternalType:_extTypeField];
+  else if (obj == _nameField)
+    [self setName:_nameField];
+  else if (obj == _custom_width
+	   || obj == _data_width
+	   || obj == _decimal_width
+	   || obj == _string_width)
+    [self setWidth:_custom_width];
+  else if (obj == _decimal_precision)
+    [self setPrecision:_decimal_precision];
+  else if (obj == _custom_class)
+    [self setClassName:_custom_class];
+  else if (obj == _custom_factory)
+    [self setFactoryMethod:_custom_factory];
+  else if (obj == _custom_conversion)
+    [self setConversionMethod:_custom_conversion];
+}
+
 @end
 
