@@ -198,10 +198,19 @@
 
 - (void) dealloc
 {
+  int i, c;
+
   if (_entityToObserve)
     [EOObserverCenter removeObserver:self forObject:_entityToObserve];
-  if (_attributeToObserve)
-    [EOObserverCenter removeObserver:self forObject:_attributeToObserve];
+
+  c = [_oldSelection count];
+  for (i = 0; i < c; i++)
+    {
+      [EOObserverCenter removeObserver:self 
+			forObject:[_oldSelection objectAtIndex:i]];
+    }
+
+  RELEASE(_oldSelection);
   RELEASE(_mainView);
   RELEASE(_relationships_dg);
   RELEASE(_attributes_dg);
@@ -269,7 +278,6 @@
 
 - (void) selectionDidChange:(NSNotification *)notif
 {
-  EOModelerDocument *doc = [notif object];
   NSArray *newSelection = [[EOMApp currentEditor] selectionWithinViewedObject];
   int i, c;
 
