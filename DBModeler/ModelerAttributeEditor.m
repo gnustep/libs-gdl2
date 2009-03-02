@@ -187,7 +187,12 @@
 
   [self addDefaultTableColumnsForTableView:_relationships_tableView 
                           displayGroup:_relationships_dg];
-  
+
+  [[NSNotificationCenter defaultCenter]
+	 addObserver:self
+	 selector:@selector(selectionDidChange:)
+	 name:EOMSelectionChangedNotification
+	 object:[self document]];
   return self;
 }
 
@@ -260,6 +265,31 @@
 - (NSArray *) friendEditorClasses
 {
   return [NSArray arrayWithObjects: [ModelerEntityEditor class], nil];
+}
+
+- (void) selectionDidChange:(NSNotification *)notif
+{
+  EOModelerDocument *doc = [notif object];
+  NSArray *newSelection = [[EOMApp currentEditor] selectionWithinViewedObject];
+  int i, c;
+
+  c = [_oldSelection count];
+
+  for (i = 0; i < c; i++)
+    {
+      id obj = [_oldSelection objectAtIndex:i];
+
+      [EOObserverCenter removeObserver:self forObject:obj];
+    }
+
+  c = [newSelection count];
+  for (i = 0; i < c; i++)
+    {
+      id obj = [newSelection objectAtIndex:i];
+
+      [EOObserverCenter addObserver:self forObject:obj];
+    }
+  ASSIGN(_oldSelection, newSelection);
 }
 
 - (void) objectWillChange:(id)sender

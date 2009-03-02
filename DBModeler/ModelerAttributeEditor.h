@@ -31,6 +31,7 @@
 @class NSTableView;
 @class EODisplayGroup;
 @class PlusMinusView;
+@class NSArray;
 
 @interface ModelerAttributeEditor : ModelerTableEmbedibleEditor <EOObserving>
 {
@@ -41,6 +42,7 @@
   EODisplayGroup *_relationships_dg;
   id _entityToObserve;
   id _attributeToObserve;
+  NSArray *_oldSelection;
 }
 
 @end

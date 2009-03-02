@@ -4,6 +4,12 @@
 	controlTextDidEndEditing:.
 	* DBModeler/Inspectors/AttributesInspector.gorm: Set text field
 	delegates, and nextKeyView.
+	* DBModeler/Inspectors/RelationshipInspector.m (-awakeFromNib):
+	Set text field delegate, implement controlTextDidEndEditing.
+	* DBModeler/Resources/Preferences.gorm: Remove unimplemented outlets.
+	* DBModeler/ModelerAttributeEditor.h: Add ivar.
+	* DBModeler/ModelerAttributeEditor.m: Add EOObserving for the current
+	selection.
 
 2009-03-01  Matt Rice  <ratmice@gmail.com>
 

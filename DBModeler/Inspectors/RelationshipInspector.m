@@ -163,6 +163,7 @@
 
 - (void) awakeFromNib
 {
+  [name_textField setDelegate:self];
   [destEntity_tableView setAllowsEmptySelection:NO];
   [srcAttrib_tableView setAllowsEmptySelection:NO];
   [destAttrib_tableView setAllowsEmptySelection:NO];
@@ -384,6 +385,15 @@ row:(int)row
 {
   /* the tag in the nib for to-one must be 0 to-many 1 */
   [[self selectedObject] setToMany: [[sender selectedCell] tag]];
+}
+
+- (void) controlTextDidEndEditing:(NSNotification *)notif
+{
+  id sender = [notif object];
+  NSLog(@"%@ %@", NSStringFromSelector(_cmd), sender);
+
+  if (sender == name_textField)
+    [self nameChanged:sender];
 }
 
 @end
