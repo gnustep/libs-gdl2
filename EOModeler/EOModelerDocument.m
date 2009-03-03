@@ -369,17 +369,22 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   [newEntity setClassName:@"EOGenericRecord"];
   [_editingContext insertObject:newEntity];
   [_model addEntity:AUTORELEASE(newEntity)];
+
+  /* FIXME -parentEditor  */
   [(EOModelerCompoundEditor *)[EOMApp currentEditor] setSelectionWithinViewedObject:[NSArray arrayWithObject:newEntity]];
 }
 
 - (void)addAttribute:(id)sender
 {
   EOAttribute *attrb;
-  EOModelerEditor *currEd = [EOMApp currentEditor];
+  EOModelerCompoundEditor *currEd;
   unsigned int attributeNumber;
   EOEntity *entityObject;
   NSArray *attributes;
   int i,c;
+
+  /* FIXME -parentEditor  */
+  currEd = (EOModelerCompoundEditor *)[EOMApp currentEditor];
 
   /* the currentEditor must be in this document */
   if (![_editors containsObject:currEd])
@@ -431,19 +436,22 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   
   if ([[[EOMApp currentEditor] selectionWithinViewedObject] count]
       && [[[[EOMApp currentEditor] selectionWithinViewedObject] objectAtIndex:0] isKindOfClass:[EOEntity class]])
-    [(EOModelerCompoundEditor *)[EOMApp currentEditor] viewSelectedObject];
+    [currEd viewSelectedObject];
   
-  [(EOModelerCompoundEditor *)[EOMApp currentEditor] setSelectionWithinViewedObject:[NSArray arrayWithObject:attrb]];
+  [currEd setSelectionWithinViewedObject:[NSArray arrayWithObject:attrb]];
+  [currEd activateSelection];
 }
 
 - (void)addRelationship:(id)sender
 {
   EORelationship *newRel;
   EOEntity *srcEntity;
-  EOModelerEditor *currentEditor = [EOMApp currentEditor];
+  EOModelerCompoundEditor *currentEditor;
   NSArray *relationships;
   int relationshipNum, i, c;
 
+  /* FIXME -parentEditor  */
+  currentEditor = (EOModelerCompoundEditor *)[EOMApp currentEditor];
   if (![_editors containsObject:currentEditor])
     {
       [[NSException  exceptionWithName:NSInternalInconsistencyException
@@ -492,13 +500,17 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   
   if ([[[EOMApp currentEditor] selectionWithinViewedObject] count]
       && [[[[EOMApp currentEditor] selectionWithinViewedObject] objectAtIndex:0] isKindOfClass:[EOEntity class]])
-    [(EOModelerCompoundEditor *)[EOMApp currentEditor] viewSelectedObject];
-  [(EOModelerCompoundEditor *)[EOMApp currentEditor] setSelectionWithinViewedObject:[NSArray arrayWithObject:newRel]];
+    [currentEditor viewSelectedObject];
+
+  [currentEditor setSelectionWithinViewedObject:[NSArray arrayWithObject:newRel]];
+  [currentEditor activateSelection];
 }
 
 - (void)delete:(id)sender
 {
   NSArray *objects = [[EOMApp currentEditor] selectionWithinViewedObject];
+  NSMutableArray *tmp = [NSMutableArray array];
+  NSArray *vop = [[EOMApp currentEditor] viewedObjectPath];
   unsigned i,c = [objects count];
 
   if (c == 0)
@@ -574,7 +586,17 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 	      [[object entity] removeRelationship: object];
  	    }
         }
-      [[EOMApp currentEditor] setSelectionWithinViewedObject:[NSArray array]];
+      c = [vop count] - 1;
+      for (i = 0; i < c; i++)
+	{
+	  [tmp addObject: [vop objectAtIndex:i]];
+	}
+      [tmp addObject:[NSArray arrayWithObject:[vop lastObject]]];
+      
+      [[EOMApp currentEditor] setSelectionPath: tmp];
+
+      /* FIXME -parentEditor  */
+      [(EOModelerCompoundEditor *)[EOMApp currentEditor] activateSelection];
     }
 }
 

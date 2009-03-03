@@ -80,5 +80,10 @@
 - (void) selectionDidChange:(NSNotification *)notif;
 @end
 
+/* gdl2 extension */
+@interface EOModelerCompoundEditor(activation)
+- (void) activateSelection;
+@end
+
 #endif // __EOModelerEditor_H__
 

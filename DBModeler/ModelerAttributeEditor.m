@@ -336,10 +336,17 @@
       if ([selWithin containsObject:_entityToObserve])
         {
           NSAssert([selWithin count] == 1, @"how on earth?");
-          [[self parentEditor] viewSelectedObject]; 
+	  /* we need to turn 
+	     (model, (entity)) into
+	     (model, entity, ()) 
+	   */
+          [[self parentEditor] viewSelectedObject];
 	}
+      /* now select the attribute/relationship */
       [self setSelectionWithinViewedObject: selObj];
+      [self activate];
     }
+
   RELEASE(selWithin);
 }
 

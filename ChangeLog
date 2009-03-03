@@ -1,3 +1,20 @@
+2009-03-03  Matt Rice  <ratmice@gmail.com>
+
+	* DBModeler/ModelerAttributeEditor.m
+	(-displaygroupDidChangeSelection:): Activate self on selection change.
+	* DBModeler/MainModelEditor.m (-_activateSelection): Move method to
+	EOModeler.
+	(viewSelectedObject): Remove method.
+	(outlineViewSelectionDidChange:): Call -activateSelection. 
+	* EOModeler/EOModelerEditor.m: Add activateSelection extension/method.
+	* EOModeler/EOModelerEditor.h: Ditto.
+	* EOModeler/EOModelerDocument.m (-addAttribute):
+	(-addRelationship): Add some Fixme's.  Call -activateSelection on the
+	editor.
+	(-delete:): Revert the selection back to the viewed object, and
+	activate the new selection.
+
+
 2009-03-02  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/ModelerAttributeEditor.m (dealloc): Remove observers and

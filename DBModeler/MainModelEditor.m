@@ -212,80 +212,6 @@
   [super activate];
 }
 
-- (void) viewSelectedObject
-{
-  [self _activateSelection];
-  [super viewSelectedObject];
-}
-
-- (void) _activateSelection 
-{
-  id selection;
-  if ([[self selectionWithinViewedObject] count] == 0)
-    return;
-          
-  selection = [[self selectionWithinViewedObject] objectAtIndex:0];
-#if DEBUG_STUFF == 1 
-  GSPrintf(stderr, @"viewing %@(%@)\n", NSStringFromClass([selection class]), [(EOModel *)selection name]);
-#endif
-  if ([[self activeEditor] canSupportCurrentSelection])
-    [self activateEmbeddedEditor: [self activeEditor]];
-  else
-    {
-      NSArray *friends = [[self activeEditor] friendEditorClasses];
-      int editorsCount;
-      int i,j,c;
-      
-      /* first look for instances of our friend classes that can support the
-         current selection */
-      for (i = 0, c = [friends count]; i < c; i++)
-        {
-          for (j = 0,editorsCount = [_editors count]; j < editorsCount; j++)
-            {
-              id friendEditor = [_editors objectAtIndex:j];
-              id friendClass = [friends objectAtIndex:i];
-                
-              if ([friendEditor isKindOfClass: friendClass])
-                {
-                  if ([friendEditor canSupportCurrentSelection])
-                    {
-                      [self activateEmbeddedEditor:friendEditor];
-                      return;
-                    }
-                }
-            }
-        }
-      /* instantiate friends to see if we can support the current selection */ 
-      for (i = 0,c = [friends count]; i < c; i++)
-         {
-           id friendClass = [friends objectAtIndex:i];
-           id friend = [[friendClass alloc] initWithParentEditor:self];
-           if ([friend canSupportCurrentSelection])
-             {
-               [self activateEmbeddedEditor:friend];
-               RELEASE(friend);
-               return;
-             }
-           RELEASE(friend);
-         }
-      /* look for any old editor this isn't very nice...
-       * because it only works with registered editors, and we can only
-       * register instances of editors, so a) can't load on demand non-friend 
-       * editors, or b) we should register instances of all editors */
-      for (i = 0, c = [_editors count]; i < c; i++)
-        {
-          id anEditor = [_editors objectAtIndex:i];
-          
-          if ([anEditor canSupportCurrentSelection])
-            {
-              [self activateEmbeddedEditor:anEditor];
-              return;
-            }
-        }
-      
-    } 
-}
-
 /* NSOutlineView datasource stuff */
 - (BOOL)outlineView: (NSOutlineView *)outlineView
    isItemExpandable: (id)item
@@ -430,7 +356,7 @@
   }
 #endif
   [self setSelectionPath:AUTORELEASE(foo)];
-  [self _activateSelection];
+  [self activateSelection];
 }
 
 - (BOOL) outlineView:(NSOutlineView *)view
