@@ -1,3 +1,9 @@
+2009-03-16  David Ayers  <ayers@fsfe.org>
+
+	* EOAccess/EODatabase.m (setUpdateStrategy:): Count the snapshots
+	to determine if we actually already have fetched them.
+	Reported by: Thierry Delhaise <befree_fr@mac.com>
+	
 2009-03-03  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/ModelerAttributeEditor.m
@@ -13,7 +19,6 @@
 	editor.
 	(-delete:): Revert the selection back to the viewed object, and
 	activate the new selection.
-
 
 2009-03-02  Matt Rice  <ratmice@gmail.com>
 

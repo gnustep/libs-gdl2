@@ -575,7 +575,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 
   //Can't set pessimistic locking where there's already snapshosts !
   if (strategy == EOUpdateWithPessimisticLocking
-      && [_database snapshots])
+      && [[_database snapshots] count])
     [NSException raise: NSInvalidArgumentException
                  format: @"%@ -- %@ 0x%x: can't set EOUpdateWithPessimisticLocking when receive's EODatabase already has snapshots",
                  NSStringFromSelector(_cmd),
