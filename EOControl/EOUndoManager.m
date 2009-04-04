@@ -46,6 +46,17 @@ RCS_ID("$Id$")
 
 @implementation EOUndoManager
 
++ (Class) class
+{
+  return [NSUndoManager class];
+}
+
++ (id) allocWithZone: (NSZone *)zone
+{
+  return [NSUndoManager allocWithZone: zone];
+}
+
+
 - (void) forgetAllWithTarget: (id)target
 {
   EOFLOGObjectFnStart();
