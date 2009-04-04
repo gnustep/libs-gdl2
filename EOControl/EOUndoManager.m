@@ -46,17 +46,6 @@ RCS_ID("$Id$")
 
 @implementation EOUndoManager
 
-+ (Class) class
-{
-  return [NSUndoManager class];
-}
-
-+ (id) allocWithZone: (NSZone *)zone
-{
-  return [NSUndoManager allocWithZone: zone];
-}
-
-
 - (void) forgetAllWithTarget: (id)target
 {
   EOFLOGObjectFnStart();
@@ -79,9 +68,10 @@ RCS_ID("$Id$")
                        selector: (SEL)selector
                             arg: (id)argument
 {
-  EOFLOGObjectFnStart();
-
-  [self notImplemented: _cmd]; //TODO
+  // Ayers: TODO Verify functionality.
+  [super registerUndoWithTarget: target
+	 selector: selector
+	 object: argument];
 //  [self _registerUndoObject:_NSUndoLightInvocation target/selector/object];
 /*_registerUndoObject: 
           call _prepareEventGrouping
@@ -89,16 +79,12 @@ RCS_ID("$Id$")
                            _prepareEventGrouping
                                  postNotificationName:NSUndoManagerDidOpenUndoGroupNotification object:self
 */
-  EOFLOGObjectFnStop();
 }
 
 - (void) reenableUndoRegistration
 {
-  EOFLOGObjectFnStart();
-
-  [self notImplemented: _cmd]; //TODO
-
-  EOFLOGObjectFnStop();
+  // Ayers: TODO Verify functionality.
+  [super enableUndoRegistration];
 }
 
 @end

@@ -1,7 +1,7 @@
 2009-04-04  David Ayers  <ayers@fsfe.org>
 
-	* EOControl/EOUndoManager.m (+[class],+[allocWithZone:]): Defer to
-	NSUndoManager.
+	* EOControl/EOUndoManager.m (-[registerUndoWithTarget:selector:arg:]):
+	Defer to NSUndoManager's -[registerUndoWithTarget:selector:object:].
 	
 2009-03-16  David Ayers  <ayers@fsfe.org>
 
