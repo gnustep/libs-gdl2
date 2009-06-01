@@ -1,3 +1,9 @@
+2009-06-01  Georg Fleischmann  <g.fleischmann@vhf.de>
+
+	* EOAdaptor/PostgreSQLAdaptor/EOPostgreSQLExpression.m
+	(+[formatValue:forAttribute:]): Do not escape underscore characters
+	in values.
+
 2009-06-01  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOAndQualifier.m
@@ -14,8 +20,8 @@
 	
 2009-03-16  David Ayers  <ayers@fsfe.org>
 
-	* EOAccess/EODatabase.m (setUpdateStrategy:): Count the snapshots
-	to determine if we actually already have fetched them.
+	* EOAccess/EODatabaseContext.m (setUpdateStrategy:): Count the
+	snapshots to determine if we actually already have fetched them.
 	Reported by: Thierry Delhaise <befree_fr@mac.com>
 	
 2009-03-03  Matt Rice  <ratmice@gmail.com>

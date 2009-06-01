@@ -351,10 +351,6 @@ RCS_ID("$Id$")
                   [string insertString: @"\\" atIndex: dif + i];
                   dif++;
                   break;
-                case '_':
-                  [string insertString: @"\\" atIndex: dif + i];
-                  dif++;
-                  break;
                 default:
                   break;
                 }
