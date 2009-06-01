@@ -1,3 +1,12 @@
+2009-06-01  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EOAndQualifier.m
+	* EOControl/EOKeyComparisonQualifier.m
+	* EOControl/EONotQualifier.m
+	* EOControl/EOOrQualifier.m
+	* EOControl/EOQualifier.m
+	* EOAccess/EOSQLQualifier.m: Include NSArray.h.
+	
 2009-04-04  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOUndoManager.m (-[registerUndoWithTarget:selector:arg:]):

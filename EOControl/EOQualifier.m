@@ -40,6 +40,7 @@ RCS_ID("$Id$")
 #include <stdarg.h>
 
 #ifdef GNUSTEP
+#include <Foundation/NSArray.h>
 #include <Foundation/NSCoder.h>
 #include <Foundation/NSDebug.h>
 #include <Foundation/NSDictionary.h>
@@ -57,12 +58,15 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GSCategories.h>
 #endif
 
+#include <GNUstepBase/GSObjCRuntime.h>
+
 #include <EOControl/EOQualifier.h>
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
 #include <EOControl/EOClassDescription.h>
 
-#include <GNUstepBase/GSObjCRuntime.h>
+#include "EOPrivate.h"
+
 
 NSString *EOQualifierVariableSubstitutionException=@"EOQualifierVariableSubstitutionException";
 
