@@ -4,10 +4,16 @@
 	* EOAccess/EOPrivate.h (EOQualifier <EOQualifierSQLGeneration>):
 	Declare.
 	* EOAccess/EOSQLQualifier.m
-	([EOQualifier schemaBasedQualifierWithRootEntity:]),
-	([EOQualifier sqlStringForSQLExpression:]): Add preliminary dummy
+	([EOQualifier-schemaBasedQualifierWithRootEntity:]),
+	([EOQualifier-sqlStringForSQLExpression:]): Add preliminary dummy
 	implementations.
-	([EONotQualifier schemaBasedQualifierWithRootEntity:]): Implement.
+	([EONotQualifier-schemaBasedQualifierWithRootEntity:]): Implement.
+
+	* EOAccess/EOSQLQualifier.m
+	(-[initWithEntity:qualifierFormat:]): Implement.
+	(-[schemaBasedQualifierWithRootEntity:]): Ditto.
+	(-[sqlStringForSQLExpression:]): Ditto.
+	(-[dealloc]): Ditto.
 	
 2009-06-01  Georg Fleischmann  <g.fleischmann@vhf.de>
 

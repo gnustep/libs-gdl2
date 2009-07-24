@@ -59,6 +59,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOJoin.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EOExpressionArray.h>
 
 #include <EOControl/EOQualifier.h>
 #include <EOControl/EOEditingContext.h>
@@ -80,25 +81,41 @@ RCS_ID("$Id$")
 - (id)initWithEntity: (EOEntity *)entity 
      qualifierFormat: (NSString *)qualifierFormat, ...
 {
-  NSEmitTODO();  //TODO
-  [self notImplemented: _cmd]; //TODO
-  return nil;
+  va_list           args;
+  NSMutableString   *sqlString;
+
+  NSAssert(entity,@"no entity specified");
+
+  ASSIGN(_entity, entity);
+
+  va_start (args, qualifierFormat);
+  sqlString = [NSString stringWithFormat: qualifierFormat arguments: args];
+  va_end (args);
+
+  _contents = [[EOExpressionArray alloc] initWithPrefix: sqlString
+					 infix: nil
+					 suffix: nil];
+
+  return self;
 }
 
 - (EOQualifier *)schemaBasedQualifierWithRootEntity:(EOEntity *)entity
 {
-  NSEmitTODO();  //TODO
-  [self notImplemented: _cmd];
-  return nil;
+  return self;
 }
 
 - (NSString *)sqlStringForSQLExpression:(EOSQLExpression *)sqlExpression
 {
-  NSEmitTODO();  //TODO
-  [self notImplemented: _cmd];
-  return nil;
+  return [_contents expressionValueForContext:nil];
 }
 
+- (void)dealloc
+{
+  DESTROY(_entity);
+  DESTROY(_contents);
+
+  [super dealloc];
+}
 @end
 
 
