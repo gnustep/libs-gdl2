@@ -365,8 +365,8 @@ if it's a string return NO
 
           relValue = [obj valueForSQLExpression: sqlExpression];
 
-          if (i > 0)
-            [value appendString: @"."];
+          if (i > 0 && _infix)
+            [value appendString: _infix];
 
           [value appendString: relValue];
         }

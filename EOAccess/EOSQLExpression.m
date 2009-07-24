@@ -684,9 +684,23 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
     {
       EOAttribute *attribute = [attributes objectAtIndex: i];
 
+      /* Add non-relationship definitions such as aggregates.  */
       if ([attribute isFlattened])
-        {
-          NSEmitTODO();  //TODO???
+	{
+	  NSMutableString *listString = [self listString];
+	  NSString *definition = [attribute definition];
+
+	  if (definition) 
+	    {
+	      NSRange range = [definition rangeOfString:@"."];
+
+	      if (range.length == 0)
+		{
+		  [self appendItem: definition
+			toListString: listString];
+		}
+	    }
+
           EOFLOGObjectLevelArgs(@"EOSQLExpression", @"flattened attribute=%@",
 				attribute);
         }

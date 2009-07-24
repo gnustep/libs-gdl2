@@ -14,6 +14,12 @@
 	(-[schemaBasedQualifierWithRootEntity:]): Ditto.
 	(-[sqlStringForSQLExpression:]): Ditto.
 	(-[dealloc]): Ditto.
+
+	* EOAccess/EOExpressionArray.m (-[valueForSQLExpression:):
+	Use _infix instead of @"." and skip if _infix is not set.
+	* EOAccess/EOSQLExpression
+	([EOSQLExpression-prepareSelectExpressionWithAttributes:]):
+	Set listString for "flattened attributes" for aggregate definitions.
 	
 2009-06-01  Georg Fleischmann  <g.fleischmann@vhf.de>
 
