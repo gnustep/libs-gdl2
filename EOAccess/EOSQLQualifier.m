@@ -70,12 +70,10 @@ RCS_ID("$Id$")
 #include "EOEntityPriv.h"
 
 @implementation EOSQLQualifier
-
 + (EOQualifier *)qualifierWithQualifierFormat: (NSString *)format, ...
 {
   NSEmitTODO();  //TODO
   [self notImplemented: _cmd]; //TODO
-
   return nil;
 }
 
@@ -84,24 +82,43 @@ RCS_ID("$Id$")
 {
   NSEmitTODO();  //TODO
   [self notImplemented: _cmd]; //TODO
-
   return nil;
 }
 
 - (EOQualifier *)schemaBasedQualifierWithRootEntity:(EOEntity *)entity
 {
+  NSEmitTODO();  //TODO
   [self notImplemented: _cmd];
   return nil;
 }
 
 - (NSString *)sqlStringForSQLExpression:(EOSQLExpression *)sqlExpression
 {
+  NSEmitTODO();  //TODO
   [self notImplemented: _cmd];
   return nil;
 }
 
 @end
 
+
+/* Undocumente method which uses EORequestConcreteImplementation
+   to determine an implementation to use for non EOF-Qualifiers.
+ */
+@implementation EOQualifier (EOQualifierSQLGeneration)
+- (EOQualifier *)schemaBasedQualifierWithRootEntity:(EOEntity *)entity
+{
+  NSEmitTODO();  //TODO
+  [self notImplemented: _cmd];
+  return nil;
+}
+- (NSString *)sqlStringForSQLExpression:(EOSQLExpression *)sqlExpression
+{
+  NSEmitTODO();  //TODO
+  [self notImplemented: _cmd];
+  return nil;
+}
+@end
 
 @implementation EOAndQualifier (EOQualifierSQLGeneration)
 
@@ -496,9 +513,20 @@ RCS_ID("$Id$")
 
 - (EOQualifier *)schemaBasedQualifierWithRootEntity: (EOEntity *)entity
 {
-  //TODO
-  [self notImplemented: _cmd];
-  return nil;
+  EOQualifier *returnedQualifier = self;
+  EOQualifier *schemaBasedQualifier;
+
+  schemaBasedQualifier 
+    = [_qualifier schemaBasedQualifierWithRootEntity: entity];
+
+  // If we've got a different qualifier, return a new EONotQualifier
+  if (schemaBasedQualifier != _qualifier)
+    {
+      returnedQualifier 
+	= [[self class] qualifierWithQualifier: schemaBasedQualifier];
+    }
+
+  return returnedQualifier;
 }
 
 @end

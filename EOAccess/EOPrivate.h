@@ -30,6 +30,8 @@
 #include "EODefines.h"
 #include "../EOControl/EOPrivate.h"
 
+#include "EOSQLQualifier.h"
+
 @class EODatabaseContext;
 
 // ==== Classes ====
@@ -46,5 +48,14 @@ GDL2ACCESS_EXPORT void GDL2_EOAccessPrivateInit();
 // ==== EODatabaseContext ====
 GDL2ACCESS_EXPORT NSDictionary* EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,EOGlobalID* gid);
 GDL2ACCESS_EXPORT EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,id object);
+
+/* EOQualifier implements schemaBasedQualifierWithRootEntity:
+   but it instead of simply declaring and documenting that EOF
+   merely declares the protocol for its subclasses and uses
+   EORequestConcreteImplementation for other classes.
+*/
+@interface EOQualifier (EOQualifierSQLGeneration) <EOQualifierSQLGeneration>
+@end
+
 
 #endif /* __EOAccess_EOPrivat_h__ */
