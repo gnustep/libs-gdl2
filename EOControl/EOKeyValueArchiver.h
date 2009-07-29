@@ -37,6 +37,7 @@
 
 
 @class NSArray;
+@class NSMutableArray;
 @class NSDictionary;
 @class NSMutableDictionary;
 @class NSString;

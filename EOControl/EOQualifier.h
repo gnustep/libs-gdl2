@@ -27,22 +27,11 @@
 #ifndef __EOQualifier_h__
 #define __EOQualifier_h__
 
-#ifdef GNUSTEP
-#include <Foundation/NSObject.h>
-#else
 #include <Foundation/Foundation.h>
-#endif
 
 #include <EOControl/EOKeyValueArchiver.h>
 
 #include <EOControl/EODefines.h>
-
-@class NSArray;
-@class NSDictionary;
-@class NSString;
-@class NSSet;
-@class NSMutableSet;
-@class NSException;
 
 @class EOClassDescription;
 @class EOSQLExpression;

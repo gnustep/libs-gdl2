@@ -1,3 +1,9 @@
+2009-07-29 04:06-EDT Gregory John Casamento <greg.casamento@gmail.com>
+
+	* EOControl/EOKeyValueArchiver.h: Add forward declaration of
+	NSMutableArray.
+	* EOControl/EOQualifier.h: Add missing include for NSArray.
+
 2009-06-24  Georg Fleischmann  <g.fleischmann@vhf.de>
 2009-06-24  David Ayers  <ayers@fsfe.org>
 
