@@ -1,3 +1,7 @@
+2010-02-11  Nicola Pero  <nicola.pero@meta-innovation.com>
+
+	* EOControl/Makefile.postamble: Removed unused dependency rule.
+
 2009-07-29 04:06-EDT Gregory John Casamento <greg.casamento@gmail.com>
 
 	* EOControl/EOKeyValueArchiver.h: Add forward declaration of

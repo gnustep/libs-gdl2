@@ -70,8 +70,6 @@ after-distclean::
 # Things to do after checking
 # after-check:
 
-$(GNUSTEP_OBJ_DIR)/EOModel$(OEXT): EOKeyValueCoding.m EOCustomValues.m
-
 $(GNUSTEP_TARGET_DIR)/config.h: ../config.status
 	$(MKDIRS) $(GNUSTEP_TARGET_DIR)
 	-mv ../config.h $(GNUSTEP_TARGET_DIR)
