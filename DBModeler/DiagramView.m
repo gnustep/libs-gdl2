@@ -53,6 +53,7 @@
 
 #include <GNUstepBase/GNUstep.h>
 #include <math.h>
+#include <stdlib.h>
 
 @implementation DiagramView
 - (id) initWithFrame:(NSRect)frameRect

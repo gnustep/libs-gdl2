@@ -1,3 +1,7 @@
+2010-03-07  Matt Rice  <ratmice@gmail.com>
+
+	* DBModeler/DiagramView.m: Add missing include.
+
 2010-02-11  Nicola Pero  <nicola.pero@meta-innovation.com>
 
 	* EOControl/Makefile.postamble: Removed unused dependency rule.
