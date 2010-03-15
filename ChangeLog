@@ -1,3 +1,12 @@
+2010-03-15  Richard Frith-Macdonald <rfm@gnu.org>
+
+	* EOControl/EONSAddOns.h:
+	* EOControl/EONSAddOns.m:
+	* EOControl/EOKeyValueCoding.m:
+	* EOControl/EOClassDescription.m:
+	Rewrite mechanism to try to ensure that our implementations are used
+	for KVC.  New version should work with the objc runtime API.
+	
 2010-03-07  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/DiagramView.m: Add missing include.

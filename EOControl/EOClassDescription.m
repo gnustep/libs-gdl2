@@ -739,17 +739,13 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
 
 @end
 
-
-@implementation NSObject (EOClassDescriptionPrimitives)
-
-- (void)GDL2CDNSObjectICategoryID
-{
-}
+@interface GDL2CDNSObject : NSObject
+@end
+@implementation GDL2CDNSObject
 
 + (void)load
 {
-  GDL2_ActivateCategory("NSObject",
-                        @selector(GDL2CDNSObjectICategoryID), YES);
+  GDL2_Activate([self class], YES);
 }
 
 // when you enable the NSDebugMLLogs here you will have a loop. dave

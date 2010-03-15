@@ -64,6 +64,11 @@ RCS_ID("$Id$")
 
 #include "EOPrivate.h"
 
+@class GDL2KVCNSObject;
+@class GDL2KVCNSArray;
+@class GDL2KVCNSDictionary;
+@class GDL2KVCNSMutableDictionary;
+@class GDL2CDNSObject;
 
 static NSRecursiveLock *local_lock = nil;
 static BOOL GSStrictWO451Flag = NO;
@@ -98,6 +103,7 @@ GSUseStrictWO451Compatibility (NSString *key)
 void
 GDL2_DumpMethodList(Class cls, SEL sel, BOOL isInstance)
 {
+/*
   void *iterator = 0;
   GSMethodList mList;
   
@@ -113,39 +119,30 @@ GDL2_DumpMethodList(Class cls, SEL sel, BOOL isInstance)
 	      mList, meth, imp);
     }
   fprintf(stderr,"List finished\n"); fflush(stderr);
+*/
 }
 
 void
-GDL2_ActivateCategory(const char *className, SEL sel, BOOL isInstance)
+GDL2_Activate(Class cls, BOOL isInstance)
 {
-  Class cls;
-  GSMethodList mList;
-
-  cls = GSClassFromName(className);
-  mList = GSMethodListForSelector(cls, sel, 0, isInstance);
-
-  GSRemoveMethodList(cls, mList, isInstance);
-  GSAddMethodList(cls, mList, isInstance);
-
-  GSFlushMethodCacheForClass(cls);
+  if (NO == isInstance)
+    {
+      cls = object_getClass(cls);
+    }
+  GSObjCAddClassOverride([cls superclass], cls);
 }
 
 void
 GDL2_ActivateAllGDL2Categories(void)
 {
   /* EOKeyValueCoding */
-  GDL2_ActivateCategory("NSObject",
-                        @selector(GDL2KVCNSObjectICategoryID), YES);
-  GDL2_ActivateCategory("NSArray",
-			@selector(GDL2KVCNSArrayICategoryID), YES);
-  GDL2_ActivateCategory("NSDictionary",
-                        @selector(GDL2KVCNSDictionaryICategoryID), YES);
-  GDL2_ActivateCategory("NSMutableDictionary",
-                        @selector(GDL2KVCNSMutableDictionaryICategoryID), YES);
+  GDL2_Activate([GDL2KVCNSObject class], YES);
+  GDL2_Activate([GDL2KVCNSArray class], YES);
+  GDL2_Activate([GDL2KVCNSDictionary class], YES);
+  GDL2_Activate([GDL2KVCNSMutableDictionary class], YES);
 
   /* EOClassDescription */
-  GDL2_ActivateCategory("NSObject",
-                        @selector(GDL2CDNSObjectICategoryID), YES);
+  GDL2_Activate([GDL2CDNSObject class], YES);
 
 }
 

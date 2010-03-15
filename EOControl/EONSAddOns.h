@@ -51,7 +51,7 @@ GDL2CONTROL_EXPORT BOOL
 GSUseStrictWO451Compatibility(NSString *key);
 
 GDL2CONTROL_EXPORT void
-GDL2_ActivateCategory(const char *className, SEL sel, BOOL isInstance);
+GDL2_Activate(Class cls, BOOL isInstance);
 
 GDL2CONTROL_EXPORT void
 GDL2_ActivateAllGDL2Categories(void);

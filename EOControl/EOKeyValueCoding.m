@@ -92,16 +92,13 @@ initialize(void)
 #define INITIALIZE if (!initialized) initialize();
 
 
-@implementation NSObject (_EOKeyValueCodingCompatibility)
-
-- (void)GDL2KVCNSObjectICategoryID
-{
-}
+@interface	GDL2KVCNSObject : NSObject
+@end
+@implementation GDL2KVCNSObject
 
 + (void)load
 {
-  GDL2_ActivateCategory("NSObject",
-			@selector(GDL2KVCNSObjectICategoryID), YES);
+  GDL2_Activate([self class], YES);
 }
 
 
@@ -235,16 +232,13 @@ initialize(void)
 @end
 
 
-@implementation NSArray (EOKeyValueCoding)
-
-- (void)GDL2KVCNSArrayICategoryID
-{
-}
+@interface	GDL2KVCNSArray : NSArray
+@end
+@implementation	GDL2KVCNSArray
 
 + (void)load
 {
-  GDL2_ActivateCategory("NSArray",
-			@selector(GDL2KVCNSArrayICategoryID), YES);
+  GDL2_Activate([self class], YES);
 }
 
 /**
@@ -543,16 +537,14 @@ initialize(void)
 @end
 
 
-@implementation NSDictionary (EOKeyValueCoding)
+@interface	GDL2KVCNSDictionary : NSDictionary
+@end
+@implementation	GDL2KVCNSDictionary
 
-- (void)GDL2KVCNSDictionaryICategoryID
-{
-}
 
 + (void)load
 {
-  GDL2_ActivateCategory("NSDictionary",
-			@selector(GDL2KVCNSDictionaryICategoryID), YES);
+  GDL2_Activate([self class], YES);
 }
 
 /**
@@ -851,16 +843,13 @@ initialize(void)
           isSmart: (BOOL)smartFlag;
 @end
 
-@implementation NSMutableDictionary (EOKVCGNUstepExtensions)
-
-- (void)GDL2KVCNSMutableDictionaryICategoryID
-{
-}
+@interface	GDL2KVCNSMutableDictionary : NSMutableDictionary
+@end
+@implementation GDL2KVCNSMutableDictionary
 
 + (void)load
 {
-  GDL2_ActivateCategory("NSMutableDictionary",
-			@selector(GDL2KVCNSMutableDictionaryICategoryID), YES);
+  GDL2_Activate([self class], YES);
 }
 
 /**
