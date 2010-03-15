@@ -743,11 +743,6 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
 @end
 @implementation GDL2CDNSObject
 
-+ (void)load
-{
-  GDL2_Activate([self class], YES);
-}
-
 // when you enable the NSDebugMLLogs here you will have a loop. dave
 - (EOClassDescription *)classDescription
 {

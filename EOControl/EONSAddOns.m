@@ -133,7 +133,7 @@ GDL2_Activate(Class cls, BOOL isInstance)
 }
 
 void
-GDL2_ActivateAllGDL2Categories(void)
+GDL2_ActivateAll(void)
 {
   /* EOKeyValueCoding */
   GDL2_Activate([GDL2KVCNSObject class], YES);
@@ -146,6 +146,12 @@ GDL2_ActivateAllGDL2Categories(void)
 
 }
 
+@implementation NSObject (GDL2_Activate)
++(void)load
+{
+  GDL2_ActivateAll();
+}
+@end
 
 @implementation NSObject (NSObjectPerformingSelector)
 
