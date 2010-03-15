@@ -739,7 +739,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
 
 @end
 
-@interface GDL2CDNSObject : NSObject
+@interface GDL2CDNSObject
 @end
 @implementation GDL2CDNSObject
 

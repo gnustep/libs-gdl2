@@ -92,7 +92,7 @@ initialize(void)
 #define INITIALIZE if (!initialized) initialize();
 
 
-@interface	GDL2KVCNSObject : NSObject
+@interface	GDL2KVCNSObject
 @end
 @implementation GDL2KVCNSObject
 
@@ -226,7 +226,7 @@ initialize(void)
 @end
 
 
-@interface	GDL2KVCNSArray : NSArray
+@interface	GDL2KVCNSArray : NSObject
 @end
 @implementation	GDL2KVCNSArray
 
@@ -526,7 +526,7 @@ initialize(void)
 @end
 
 
-@interface	GDL2KVCNSDictionary : NSDictionary
+@interface	GDL2KVCNSDictionary : NSObject
 @end
 @implementation	GDL2KVCNSDictionary
 
@@ -826,7 +826,7 @@ initialize(void)
           isSmart: (BOOL)smartFlag;
 @end
 
-@interface	GDL2KVCNSMutableDictionary : NSMutableDictionary
+@interface	GDL2KVCNSMutableDictionary : NSDictionary
 @end
 @implementation GDL2KVCNSMutableDictionary
 

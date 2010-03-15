@@ -123,26 +123,23 @@ GDL2_DumpMethodList(Class cls, SEL sel, BOOL isInstance)
 }
 
 void
-GDL2_Activate(Class cls, BOOL isInstance)
+GDL2_Activate(Class sup, Class cls)
 {
-  if (NO == isInstance)
-    {
-      cls = object_getClass(cls);
-    }
-  GSObjCAddClassOverride([cls superclass], cls);
+  GSObjCAddClassOverride(sup, cls);
 }
 
 void
 GDL2_ActivateAll(void)
 {
   /* EOKeyValueCoding */
-  GDL2_Activate([GDL2KVCNSObject class], YES);
-  GDL2_Activate([GDL2KVCNSArray class], YES);
-  GDL2_Activate([GDL2KVCNSDictionary class], YES);
-  GDL2_Activate([GDL2KVCNSMutableDictionary class], YES);
+  GDL2_Activate([NSObject class], [GDL2KVCNSObject class]);
+  GDL2_Activate([NSArray class], [GDL2KVCNSArray class]);
+  GDL2_Activate([NSDictionary class], [GDL2KVCNSDictionary class]);
+  GDL2_Activate([NSMutableDictionary class], 
+    [GDL2KVCNSMutableDictionary class]);
 
   /* EOClassDescription */
-  GDL2_Activate([GDL2CDNSObject class], YES);
+  GDL2_Activate([NSObject class], [GDL2CDNSObject class]);
 
 }
 
