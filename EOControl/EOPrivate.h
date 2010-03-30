@@ -101,6 +101,7 @@ GDL2CONTROL_EXPORT NSArray* GDL2_NSArray;
 
 // ==== Init Method ====
 GDL2CONTROL_EXPORT void GDL2_PrivateInit();
+GDL2CONTROL_EXPORT void GDL2_AssignAtomicallyIfNil (id *address,id value);
 
 // ==== IMP Helpers ====
 

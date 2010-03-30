@@ -39,6 +39,7 @@ RCS_ID("$Id$")
 #define GSI_ARRAY_NO_RETAIN 1
 #define GSI_ARRAY_NO_RELEASE 1
 #include <GNUstepBase/GSIArray.h>
+#include <GNUstepBase/GSLock.h>
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
@@ -110,6 +111,9 @@ NSNumber* GDL2_NSNumberBool_No=nil;
 EONull* GDL2_EONull=nil;
 NSArray* GDL2_NSArray=nil;
 
+// ==== Private Variables ====
+static NSRecursiveLock *GDL2_Lock=nil;
+
 // ==== Init Method ====
 void GDL2_PrivateInit()
 {
@@ -117,6 +121,8 @@ void GDL2_PrivateInit()
   if (!initialized)
     {
       initialized = YES;
+
+      GDL2_Lock = [GSLazyRecursiveLock new];
 
       // ==== Classes ====
       GDL2_NSArrayClass=[NSArray class];
@@ -206,6 +212,18 @@ void GDL2_PrivateInit()
       ASSIGN(GDL2_NSArray,[NSArray array]);
 
     };
+}
+
+void
+GDL2_AssignAtomicallyIfNil (id *address,id value)
+{
+  GDL2_PrivateInit();
+  [GDL2_Lock lock];
+  if (address && *address == nil)
+    {
+      *address = value;
+    }
+  [GDL2_Lock unlock];
 }
 
 /* EOMultipleKnownKeyDictionary */

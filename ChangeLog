@@ -1,4 +1,12 @@
-2010-03-15  Richard Frith-Macdonald <rfm@gnu.org>
+2010-03-30  David Ayers <ayers@fsfe.org>
+
+	* EOControl/EONSAddOns.m (GSUseStrictWO451Compatibility): Avoid usage
+	of GS_INITIALIZED_LOCK.
+	* EOControl/EOPrivate.h/m (GDL2_AssignAtomicallyIfNil): New convenience
+	function for initializing variables in multithreaded environments.
+	Reported by: Tim Kack
+
+2010-03-15  Richard Frith-Macdonald  <rfm@gnu.org>
 
 	* EOControl/EONSAddOns.h:
 	* EOControl/EONSAddOns.m:
@@ -15,7 +23,7 @@
 
 	* EOControl/Makefile.postamble: Removed unused dependency rule.
 
-2009-07-29 04:06-EDT Gregory John Casamento <greg.casamento@gmail.com>
+2009-07-29 04:06-EDT Gregory John Casamento  <greg.casamento@gmail.com>
 
 	* EOControl/EOKeyValueArchiver.h: Add forward declaration of
 	NSMutableArray.

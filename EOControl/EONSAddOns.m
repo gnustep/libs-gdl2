@@ -79,7 +79,12 @@ GSUseStrictWO451Compatibility (NSString *key)
   static BOOL read = NO;
   if (read == NO)
     {
-      [GS_INITIALIZED_LOCK(local_lock, GSLazyRecursiveLock) lock];
+      if (local_lock == nil)
+	{
+	  NSRecursiveLock *l = [GSLazyRecursiveLock new];
+	  GDL2_AssignAtomicallyIfNil(&local_lock, l);
+	}
+      [local_lock lock];
 
       NS_DURING
         if (read == NO)
