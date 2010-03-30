@@ -72,27 +72,30 @@ RCS_ID("$Id$")
   NSArray *entities = [self entities];
   int i, count = [entities count];
 
+  NSString *chapter = [self name] 
+    ? [NSString stringWithFormat: @" id=\"%@\"", [self name]]
+    : @"";
+  NSString *model = [self name] ? [self name] : @"";
+  NSString *debugId = xmlIdPtr
+    ? [NSString stringWithFormat: @" debugId=\"%d\"", (*xmlIdPtr)++]
+    : @"";
+  NSString *name = ([self name]
+		   ? [NSString stringWithFormat: @" name=\"%@\"", [self name]]
+		   : @"");
+  NSString *adaptorName = [self adaptorName]
+    ? [NSString stringWithFormat: @" adaptorName=\"%@\"", [self adaptorName]]
+    : @"";
+  NSString *adaptorClassName = [self adaptorClassName]
+    ? [NSString stringWithFormat: @" adaptorClassName=\"%@\"", 
+		[self adaptorClassName]]
+    : @" adaptorClassName=\"\"";
+
   NSLog(@"Start: %@", [self class]);
 
   content = [content stringByAppendingFormat:
-		       @"<chapter%@>\n<heading>EOModel %@</heading>\n<EOModel %@%@%@%@%@>\n",
-		     ([self name]
-		      ? [NSString stringWithFormat: @" id=\"%@\"",
-				  [self name]] : @""),
-		     ([self name] ? [self name] : @""),
-		     (xmlIdPtr
-		      ? [NSString stringWithFormat: @" debugId=\"%d\"",
-				  (*xmlIdPtr)++] : @""),
-		     ([self name]
-		      ? [NSString stringWithFormat: @" name=\"%@\"",
-				  [self name]] : @""),
-		     ([self adaptorName]
-		      ? [NSString stringWithFormat: @" adaptorName=\"%@\"",
-				  [self adaptorName]] : @""),
-		     ([self adaptorClassName]
-		      ? [NSString stringWithFormat: @" adaptorClassName=\"%@\"",
-				  [self adaptorClassName]]
-		      : @" adaptorClassName=\"\"")];
+		       @"<chapter%@>\n<heading>EOModel %@</heading>\n<EOModel %@%@%@%@>\n",
+		     chapter, model,
+		     debugId, name, adaptorName, adaptorClassName];
 
   if ([self connectionDictionary])
     content = [content stringByAppendingString:

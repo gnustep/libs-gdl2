@@ -1,5 +1,11 @@
 2010-03-30  David Ayers <ayers@fsfe.org>
 
+	* Tools/EOModel+GSDoc.m (-[gsdocContentSplittedByEntities:idPtr:]):
+	Split out parameters into local variables.  Fix format string to
+	match parameters.
+	Reported by: Federico Gimenez Nieto, Sergey Golovin.
+	Fix reported by: Richard Frith-Macdonald.
+
 	* EOControl/EONSAddOns.m (GSUseStrictWO451Compatibility): Avoid usage
 	of GS_INITIALIZED_LOCK.
 	* EOControl/EOPrivate.h/m (GDL2_AssignAtomicallyIfNil): New convenience
