@@ -1,3 +1,9 @@
+2010-03-30  Sergey Golovin <golovin.sv@gmail.com>
+
+	* EOAccess/EORelationship.m (-[isToManyToOne]): Correct index
+	used to retrieved second relationship.
+	Bug #29369
+
 2010-03-30  David Ayers <ayers@fsfe.org>
 
 	* Tools/EOModel+GSDoc.m (-[gsdocContentSplittedByEntities:idPtr:]):
@@ -5,12 +11,14 @@
 	match parameters.
 	Reported by: Federico Gimenez Nieto, Sergey Golovin.
 	Fix reported by: Richard Frith-Macdonald.
+	Bug #29191
 
 	* EOControl/EONSAddOns.m (GSUseStrictWO451Compatibility): Avoid usage
 	of GS_INITIALIZED_LOCK.
 	* EOControl/EOPrivate.h/m (GDL2_AssignAtomicallyIfNil): New convenience
 	function for initializing variables in multithreaded environments.
 	Reported by: Tim Kack
+	Bug #28900
 
 2010-03-15  Richard Frith-Macdonald  <rfm@gnu.org>
 

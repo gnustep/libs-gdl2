@@ -1919,7 +1919,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
           if (isToMany)
             {
               EORelationship *secondRelationship = [_definitionArray
-						     objectAtIndex: 0];
+						     objectAtIndex: 1];
 
               if (![secondRelationship isToMany])
                 {
