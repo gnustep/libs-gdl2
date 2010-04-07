@@ -24,8 +24,9 @@
 */
 
 #ifdef GNUSTEP
-#include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>
+#include <Foundation/NSString.h>
+#include <Foundation/NSException.h>
 
 #include <AppKit/NSPopUpButton.h>
 #else

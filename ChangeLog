@@ -1,10 +1,15 @@
-2010-03-30  Sergey Golovin <golovin.sv@gmail.com>
+2010-04-07  David Ayers  <ayers@fsfe.org>
+
+	* EOInterface/EOPopUpAssociation.m: Add missing include.
+	Reported by: German Arias.
+
+2010-03-30  Sergey Golovin  <golovin.sv@gmail.com>
 
 	* EOAccess/EORelationship.m (-[isToManyToOne]): Correct index
 	used to retrieved second relationship.
 	Bug #29369
 
-2010-03-30  David Ayers <ayers@fsfe.org>
+2010-03-30  David Ayers  <ayers@fsfe.org>
 
 	* Tools/EOModel+GSDoc.m (-[gsdocContentSplittedByEntities:idPtr:]):
 	Split out parameters into local variables.  Fix format string to
