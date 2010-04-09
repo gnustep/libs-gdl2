@@ -9,8 +9,12 @@
 	* DBModeler/ModelerAttributeEditor.m: Rearrange includes.
 
 	* EOControl/EOGenericRecord.m
-	(_infoForInstanceVariableNamed:stringName:retType:retSize:retOffset:):
+	(-_infoForInstanceVariableNamed:stringName:retType:retSize:retOffset:):
 	Rearrange initialization to avoid warning.
+	* EOControl/EOSharedEditingContext.m
+	(-objectsByEntityName, -objectsByEntityNameAndFetchSpecificationName)
+	(objectForGlobalID:,faultForGlobalID:editingContext:,registeredObjects):
+	Initialize variables.
 	
 2010-04-09 Fred Kiefer <FredKiefer@gmx.de>
 

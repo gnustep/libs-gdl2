@@ -214,7 +214,7 @@ static EOSharedEditingContext *dfltSharedEditingContext = nil;
  */
 - (NSDictionary *)objectsByEntityName
 {
-  NSDictionary *oben;
+  NSDictionary *oben = nil;
   [self lockForReading];
   NS_DURING
     {
@@ -238,7 +238,7 @@ static EOSharedEditingContext *dfltSharedEditingContext = nil;
  */
 - (NSDictionary *)objectsByEntityNameAndFetchSpecificationName
 {
-  NSDictionary *oben;
+  NSDictionary *oben = nil;
   [self lockForReading];
   NS_DURING
     {
@@ -443,7 +443,7 @@ static EOSharedEditingContext *dfltSharedEditingContext = nil;
  */
 - (id)objectForGlobalID: (EOGlobalID *)globalID
 {
-  id obj;
+  id obj = nil;
   [self lockForReading];
   NS_DURING
     {
@@ -467,7 +467,7 @@ static EOSharedEditingContext *dfltSharedEditingContext = nil;
 - (id)faultForGlobalID: (EOGlobalID *)globalID
 	editingContext: (EOEditingContext *)context
 {
-  id obj;
+  id obj = nil;
   [self lockForReading];
   NS_DURING
     {
@@ -562,7 +562,7 @@ static EOSharedEditingContext *dfltSharedEditingContext = nil;
  */
 - (NSArray *)registeredObjects
 {
-  NSArray *objs;
+  NSArray *objs = nil;
   [self lockForReading];
   NS_DURING
     {
