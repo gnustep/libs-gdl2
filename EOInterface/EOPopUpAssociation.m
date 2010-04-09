@@ -27,6 +27,7 @@
 #include <Foundation/NSArray.h>
 #include <Foundation/NSString.h>
 #include <Foundation/NSException.h>
+#include <Foundation/NSValue.h>
 
 #include <AppKit/NSPopUpButton.h>
 #else

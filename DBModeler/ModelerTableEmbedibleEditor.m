@@ -29,6 +29,8 @@
 #ifdef NeXT_GUI_LIBRARY
 #include <AppKit/AppKit.h>
 #else
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSUserDefaults.h>
 #include <AppKit/NSMenuItem.h>
 #include <AppKit/NSPopUpButton.h>
 #include <AppKit/NSTableColumn.h>

@@ -40,6 +40,7 @@
 #ifdef NeXT_GUI_LIBRARY
 #include <AppKit/AppKit.h>
 #else
+#include <Foundation/NSRunLoop.h>
 #include <AppKit/NSImage.h>
 #include <AppKit/NSSplitView.h>
 #include <AppKit/NSScrollView.h>

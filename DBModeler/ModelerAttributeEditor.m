@@ -31,6 +31,7 @@
 #ifdef NeXT_GUI_LIBRARY
 #include <AppKit/AppKit.h>
 #else
+#include <Foundation/NSNotification.h>
 #include <AppKit/NSImage.h>
 #include <AppKit/NSTableView.h>
 #include <AppKit/NSTableColumn.h>

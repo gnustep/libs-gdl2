@@ -1,3 +1,10 @@
+2010-04-09 Fred Kiefer <FredKiefer@gmx.de>
+
+	* EOInterface/EOPopUpAssociation.m
+	* DBModeler/ModelerEntityEditor.m
+	* DBModeler/ModelerTableEmbedibleEditor.m
+	* DBModeler/ModelerAttributeEditor.m: Add missing includes.
+
 2010-04-07  David Ayers  <ayers@fsfe.org>
 
 	* EOInterface/EOPopUpAssociation.m: Add missing include.
