@@ -22,6 +22,7 @@
 	(objectForGlobalID:,faultForGlobalID:editingContext:,registeredObjects):
 	Initialize variables.
 
+	* DBModeler/Inspectors/AttributeInspector.m: Add missing guard to include.
 	
 2010-04-09 Fred Kiefer <FredKiefer@gmx.de>
 

@@ -28,8 +28,10 @@
 #include <Foundation/NSObjCRuntime.h>
 #endif
 
+#ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSCategories.h>
+#endif
 
 #define NO_ZEROS(x, i) i ? [x setIntValue:i] : [x setStringValue:@""];
 
