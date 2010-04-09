@@ -1,4 +1,3 @@
-
 /*
     AttributesInspector.m
  
@@ -239,7 +238,7 @@
 - (IBAction) setValueType:(id)sender
 {
   EOAttribute *obj = [self selectedObject];
-  NSString *valueType;
+  NSString *valueType = nil;
   
   if (sender == _valueTypeSelect)
     {

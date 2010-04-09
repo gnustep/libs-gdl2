@@ -196,8 +196,8 @@
   
   for (i = 0; i < 3; i++)
     {
-      int type;
-      NSArray *tmp;
+      int type = 0;
+      NSArray *tmp = nil;
 
       switch(i)
         {

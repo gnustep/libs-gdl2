@@ -1108,9 +1108,9 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   //OK
   NSMutableString *valueList=nil;
   NSString *writeFormat=nil;
-  NSString *valueSQLString;
+  NSString *valueSQLString=nil;
   NSMutableString *listString;
-  NSString *attributeSQLString;
+  NSString *attributeSQLString=nil;
 
   EOFLOGObjectFnStartCond(@"EOSQLExpression");
 

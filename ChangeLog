@@ -11,10 +11,17 @@
 	* EOControl/EOGenericRecord.m
 	(-_infoForInstanceVariableNamed:stringName:retType:retSize:retOffset:):
 	Rearrange initialization to avoid warning.
+
+	* EOInterface/EODisplayGroup.m (_qualifierForKey:value:defaultOperator:):
+	* EOAccess/EOUtilities.m (-rawRowsWithStoredProcedureNamed:arguments:):
+	* EOAccess/EOSQLExpression.m (addInsertListAttribute:value:):
+	* GDL2Palette/ConnectionInspector.m (_keysFromClassDescription:):
+	* DBModeler/Inspectors/AttributeInspector.m (setValueType:):
 	* EOControl/EOSharedEditingContext.m
 	(-objectsByEntityName, -objectsByEntityNameAndFetchSpecificationName)
 	(objectForGlobalID:,faultForGlobalID:editingContext:,registeredObjects):
 	Initialize variables.
+
 	
 2010-04-09 Fred Kiefer <FredKiefer@gmx.de>
 

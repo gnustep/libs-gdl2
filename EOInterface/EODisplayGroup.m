@@ -462,7 +462,7 @@ static BOOL _globalDefaultForValidatesChangesImmediately = NO;
 		 defaultOperator:(char)defaultOp
 {
   NSString *op;
-  SEL selector;
+  SEL selector = NULL;
   NSString *fmt = nil;
   
   EOClassDescription *classDesc = [_dataSource classDescriptionForObjects];

@@ -671,7 +671,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   EODatabaseChannel *databaseChannel;
   EOAdaptorChannel *adaptorChannel;
   EOStoredProcedure *storedProcedure;
-  NSMutableArray *results;
+  NSMutableArray *results = nil;
   NSDictionary *row;
   
   storedProcedure = [[self modelGroup] storedProcedureNamed: name];
