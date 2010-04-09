@@ -6,6 +6,10 @@
 	* DBModeler/ModelerEntityEditor.m
 	* DBModeler/ModelerTableEmbedibleEditor.m
 	* DBModeler/ModelerAttributeEditor.m: Rearrange includes.
+
+	* EOControl/EOGenericRecord.m
+	(_infoForInstanceVariableNamed:stringName:retType:retSize:retOffset:):
+	Rearrange initialization to avoid warning.
 	
 2010-04-09 Fred Kiefer <FredKiefer@gmx.de>
 

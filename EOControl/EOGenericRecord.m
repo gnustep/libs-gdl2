@@ -1244,9 +1244,9 @@ You can override this to exclude properties manually handled by derived object *
 
   [allGenericRecordsLock lock];
 
+  arp = [NSAutoreleasePool new];
   NS_DURING
     {
-      arp = [NSAutoreleasePool new];
       hashEnum = NSEnumerateHashTable(allGenericRecords);
  
       while ((record = (EOGenericRecord*)NSNextHashEnumeratorItem(&hashEnum)))
