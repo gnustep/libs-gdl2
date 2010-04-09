@@ -1,5 +1,6 @@
 2010-04-09  David Ayers  <ayers@fsfe.org>
 
+	* EOControl/EOClassDescription.m
 	* EOControl/EOKeyValueCoding.m: Add declartions for method
 	replacement hack.
 

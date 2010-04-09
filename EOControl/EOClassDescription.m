@@ -741,6 +741,11 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
 
 @interface GDL2CDNSObject
 @end
+@interface GDL2CDNSObject (EOClassDescription) <NSObject>
++ (EOClassDescription*) classDescriptionForClass: (Class)aClass;
+- (id) valueForKey: (NSString*)aKey;
+- (void) takeValue: (id)anObject forKey: (NSString*)aKey;
+@end
 @implementation GDL2CDNSObject
 
 // when you enable the NSDebugMLLogs here you will have a loop. dave
