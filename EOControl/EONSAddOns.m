@@ -1,7 +1,8 @@
 /** 
    EONSAddOns.m <title>EONSAddOns</title>
 
-   Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
+   Copyright (C) 2000-2002,2003,2004,2005,2006,2007,2010
+   Free Software Foundation, Inc.
 
    Author: Manuel Guesdon <mguesdon@orange-concept.com>
    Date: October 2000
@@ -61,6 +62,7 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 
 #include <limits.h>
+#include <assert.h>
 
 #include "EOPrivate.h"
 
@@ -130,30 +132,10 @@ GDL2_DumpMethodList(Class cls, SEL sel, BOOL isInstance)
 void
 GDL2_Activate(Class sup, Class cls)
 {
+  assert(sup!=Nil);
+  assert(cls!=Nil);
   GSObjCAddClassOverride(sup, cls);
 }
-
-void
-GDL2_ActivateAll(void)
-{
-  /* EOKeyValueCoding */
-  GDL2_Activate([NSObject class], [GDL2KVCNSObject class]);
-  GDL2_Activate([NSArray class], [GDL2KVCNSArray class]);
-  GDL2_Activate([NSDictionary class], [GDL2KVCNSDictionary class]);
-  GDL2_Activate([NSMutableDictionary class], 
-    [GDL2KVCNSMutableDictionary class]);
-
-  /* EOClassDescription */
-  GDL2_Activate([NSObject class], [GDL2CDNSObject class]);
-
-}
-
-@implementation NSObject (GDL2_Activate)
-+(void)load
-{
-  GDL2_ActivateAll();
-}
-@end
 
 @implementation NSObject (NSObjectPerformingSelector)
 

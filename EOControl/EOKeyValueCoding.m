@@ -109,6 +109,11 @@ initialize(void)
 
 @implementation GDL2KVCNSObject
 
++ (void)load
+{
+  GDL2_Activate(GSClassFromName("NSObject"), self);
+}
+
 /* This is what -base(add) will call.  It should invoke what the API
    specifies should be overridden.  */
 - (void) setNilValueForKey: (NSString*)aKey
@@ -250,6 +255,10 @@ initialize(void)
 @end
 @implementation	GDL2KVCNSArray
 
++ (void)load
+{
+  GDL2_Activate(GSClassFromName("NSArray"), self);
+}
 /**
  * EOKeyValueCoding protocol<br/>
  * This overrides NSObjects implementation of this method.
@@ -561,6 +570,11 @@ initialize(void)
 @end
 @implementation	GDL2KVCNSDictionary
 
++ (void)load
+{
+  GDL2_Activate(GSClassFromName("NSDictionary"), self);
+}
+
 /**
  * Returns the object stored in the dictionary for this key.
  * Unlike Foundation, this method may return objects for keys other than
@@ -868,6 +882,10 @@ initialize(void)
 @end
 @implementation GDL2KVCNSMutableDictionary
 
++ (void)load
+{
+  GDL2_Activate(GSClassFromName("NSMutableDictionary"), self);
+}
 /**
  * Method to augment the NSKeyValueCoding implementation
  * to account for added functionality such as quoted key paths.

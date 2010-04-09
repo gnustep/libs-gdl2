@@ -1,5 +1,15 @@
 2010-04-09  David Ayers  <ayers@fsfe.org>
 
+	* EOControl/EONSAddOns.h (GDL2_ActivateAllGDL2Categories):
+	Remove obsolete declaration.
+	* EOControl/EONSAddOns.m (GDL2_ActivateAll): Remove.
+	(GDL2_Activate): Add assertions for parameters.
+	* EOControl/EOClassDescription.m (+[GDL2CDNSObject load])
+	* EOControl/EOKeyValueCoding.m (+[GDL2KVCNSObject load])
+	(+[GDL2KVCNSArray load], +[GDL2KVCNSDictionary load])
+	(+[GDL2KVCNSMutableDictionary load]): Setup classes individually
+	to insure the are available in the runtime.
+	
 	* EOControl/EOClassDescription.m
 	* EOControl/EOKeyValueCoding.m: Add declartions for method
 	replacement hack.
