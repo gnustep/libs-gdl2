@@ -1,3 +1,8 @@
+2010-04-09  David Ayers  <ayers@fsfe.org>
+
+	* EOControl/EOKeyValueCoding.m: Add declartions for method
+	replacement hack.
+	
 2010-04-09 Fred Kiefer <FredKiefer@gmx.de>
 
 	* EOInterface/EOPopUpAssociation.m

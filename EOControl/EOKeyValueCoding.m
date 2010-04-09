@@ -13,8 +13,7 @@
    Date: January 2002
 
    Author: David Ayers <ayers@fsfe.org>
-   Date: February 2003
-
+   Date: February 2003-2010
 
    <abstract></abstract>
 
@@ -50,9 +49,9 @@ RCS_ID("$Id$")
 #include <Foundation/NSEnumerator.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSHashTable.h>
+#include <Foundation/NSKeyValueCoding.h>
 #include <Foundation/NSMapTable.h>
 #include <Foundation/NSObjCRuntime.h>
-#include <Foundation/NSObject.h>
 #include <Foundation/NSString.h>
 #include <Foundation/NSValue.h>
 #else
@@ -94,6 +93,20 @@ initialize(void)
 
 @interface	GDL2KVCNSObject
 @end
+@interface	GDL2KVCNSObject (NSKeyValueCoding) <NSObject>
+- (void) unableToSetNilForKey: (NSString*)aKey;
+- (BOOL) validateValue: (id*)aValue
+		forKey: (NSString*)aKey
+		 error: (NSError**)anError;
+- (BOOL) validateValue: (id*)aValue
+	    forKeyPath: (NSString*)aKey
+		 error: (NSError**)anError;
+- (id) valueForKey: (NSString*)aKey;
+- (id) valueForKeyPath: (NSString*)aKey;
+- (id) valueForUndefinedKey: (NSString*)aKey;
+- (NSDictionary*) valuesForKeys: (NSArray*)keys;
+@end
+
 @implementation GDL2KVCNSObject
 
 /* This is what -base(add) will call.  It should invoke what the API
@@ -129,6 +142,7 @@ initialize(void)
   const char	*type = 0;
   int		off;
   unsigned	size = [aKey length];
+  id		self_id = self;
 
   if (size > 0)
     {
@@ -170,7 +184,7 @@ initialize(void)
 	    }
 	}
     }
-  GSObjCSetVal(self, [aKey UTF8String], anObject, sel, type, size, off);
+  GSObjCSetVal(self_id, [aKey UTF8String], anObject, sel, type, size, off);
 }
 
 
@@ -227,6 +241,12 @@ initialize(void)
 
 
 @interface	GDL2KVCNSArray : NSObject
+@end
+@interface GDL2KVCNSArray (NSArray)
+- (NSUInteger) count;
+- (NSArray *)resultsOfPerformingSelector: (SEL)sel
+			      withObject: (NSString *)key
+                           defaultResult: (id)defaultResult;
 @end
 @implementation	GDL2KVCNSArray
 
@@ -528,6 +548,17 @@ initialize(void)
 
 @interface	GDL2KVCNSDictionary : NSObject
 @end
+@interface	GDL2KVCNSDictionary (NSDictionary)
+- (NSArray*) allKeys;
+- (NSArray*) allValues;
+- (id) objectForKey: (id)aKey;
+- (NSUInteger) count;
+- (void)smartTakeValue: (id)object 
+            forKeyPath: (NSString *)keyPath;
+- (void)takeValue: (id)value
+       forKeyPath: (NSString *)keyPath
+          isSmart: (BOOL)smartFlag;
+@end
 @implementation	GDL2KVCNSDictionary
 
 /**
@@ -827,6 +858,13 @@ initialize(void)
 @end
 
 @interface	GDL2KVCNSMutableDictionary : NSDictionary
+@end
+@interface	GDL2KVCNSMutableDictionary (NSMutableDictionary)
+- (void) removeObjectForKey: (id)aKey;
+- (void) setObject: (id)anObject forKey: (id)aKey;
+- (void)takeValue: (id)value
+       forKeyPath: (NSString *)keyPath
+          isSmart: (BOOL)smartFlag;
 @end
 @implementation GDL2KVCNSMutableDictionary
 
