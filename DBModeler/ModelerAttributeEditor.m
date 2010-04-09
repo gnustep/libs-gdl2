@@ -31,7 +31,6 @@
 #ifdef NeXT_GUI_LIBRARY
 #include <AppKit/AppKit.h>
 #else
-#include <Foundation/NSNotification.h>
 #include <AppKit/NSImage.h>
 #include <AppKit/NSTableView.h>
 #include <AppKit/NSTableColumn.h>
@@ -41,6 +40,13 @@
 #include <AppKit/NSSplitView.h>
 #endif
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSRunLoop.h>
+#endif
+  
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EORelationship.h>
@@ -52,12 +58,6 @@
 
 #include <EOInterface/EODisplayGroup.h>
 
-#ifdef NeXT_Foundation_LIBRARY
-#include <Foundation/Foundation.h>
-#else
-#include <Foundation/NSRunLoop.h>
-#endif
-  
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSVersionMacros.h>
 

@@ -2,6 +2,10 @@
 
 	* EOControl/EOKeyValueCoding.m: Add declartions for method
 	replacement hack.
+
+	* DBModeler/ModelerEntityEditor.m
+	* DBModeler/ModelerTableEmbedibleEditor.m
+	* DBModeler/ModelerAttributeEditor.m: Rearrange includes.
 	
 2010-04-09 Fred Kiefer <FredKiefer@gmx.de>
 

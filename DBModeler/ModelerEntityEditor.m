@@ -40,7 +40,6 @@
 #ifdef NeXT_GUI_LIBRARY
 #include <AppKit/AppKit.h>
 #else
-#include <Foundation/NSRunLoop.h>
 #include <AppKit/NSImage.h>
 #include <AppKit/NSSplitView.h>
 #include <AppKit/NSScrollView.h>
@@ -50,6 +49,12 @@
 #include <AppKit/NSMenuItem.h>
 #include <AppKit/NSPopUpButton.h>
 #include <AppKit/NSPopUpButtonCell.h>
+#endif
+
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
+#include <Foundation/NSRunLoop.h>
 #endif
 
 #include <GNUstepBase/GNUstep.h>

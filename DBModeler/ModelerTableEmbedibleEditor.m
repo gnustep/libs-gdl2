@@ -29,8 +29,6 @@
 #ifdef NeXT_GUI_LIBRARY
 #include <AppKit/AppKit.h>
 #else
-#include <Foundation/NSNotification.h>
-#include <Foundation/NSUserDefaults.h>
 #include <AppKit/NSMenuItem.h>
 #include <AppKit/NSPopUpButton.h>
 #include <AppKit/NSTableColumn.h>
@@ -39,6 +37,13 @@
 #include <AppKit/NSImage.h>
 #endif
 
+#ifdef NeXT_Foundation_LIBRARY
+#include <Foundation/Foundation.h>
+#else
+#include <Foundation/NSNotification.h>
+#include <Foundation/NSUserDefaults.h>
+#endif
+  
 #include <EOInterface/EODisplayGroup.h>
 #include <EOInterface/EOAssociation.h>
 #include "EOModeler/EOModelerApp.h"
