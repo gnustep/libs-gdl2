@@ -1,5 +1,5 @@
 
-The GNUstep Database Library 2 Package, version 0.12.0 is now available.
+The GNUstep Database Library 2 Package, version 0.12.1 is now available.
 
 What is the GNUstep Database Library 2 Package?
 ====================================
@@ -22,6 +22,12 @@ Debian Etch/x86
 Debian Lenny/x86
 CentOS 5.2/x68_64
 
+Changes in version 0.12.1
+=========================
+This release contains the following changes:
+- Fix minor memory management bugs in DBModeler.
+- Adapt NSUndoManager handling to new behavior.
+
 Changes in version 0.12.0
 =========================
 This release contains the following changes:
@@ -31,31 +37,10 @@ This release contains the following changes:
 - improved make 2.0 integration
 - minor bug fixes
 
-Changes in version 0.11.0
-=========================
-This release contains the following changes:
-- Build as NATIVE_LIBRARY and renamed projects to
-  (lib)EOControl, (lib)EOAccess and (lib)EOInterface
-- Adaption to the gnustep-make 2.0 infrastructure
-- Addition of an SQLiteAdaptor.
-- Removed dependency on GC classes.
-- Started update of the Postgres95->PostgreSQL adaptor
-  (The goal is to migrate to the PostgreSQL 7/8 API and datatypes
-   but this is still WIP.)
-- Much improved DBModeler application including initial diagram support.
-- Much improved GDL2Palette support.
-- Improved EODisplayGroup implementation.
-
-- Bug fixes
-  - Correct propagation or relationship attributes.
-  - Correct determination of seconds and milliseconds in the
-    PostgreSQL adaptor
-
-
 Where can you get it?  How can you compile it?
 ==============================================
 
-The gnustep-dl2-0.11.0.tar.gz distribution file has been placed at
+The gnustep-dl2-0.12.1.tar.gz distribution file has been placed at
 <http://ftp.gnustep.org/pub/gnustep/libs>
 
 Please log bug reports on the GNUstep project page

@@ -50,7 +50,7 @@
 - (NSArray *)keyValuesArray;
 
 - (BOOL)isEqual: (id)other;
-- (unsigned)hash;
+- (NSUInteger)hash;
 
 - (BOOL)isFinal;
 - (NSString *)description;

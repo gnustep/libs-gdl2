@@ -81,7 +81,7 @@
 - (BOOL)tryLockForReading
 {
   NSThread *ct = [NSThread currentThread];
-  int cnt = (int)NSMapGet(_readerThreads,ct);
+  NSInteger cnt = (NSInteger)NSMapGet(_readerThreads,ct);
   BOOL flag;
 
   if (ct == _writerLockThread)

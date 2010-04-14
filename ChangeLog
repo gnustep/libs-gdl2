@@ -1,3 +1,12 @@
+2010-04-14  David Ayers  <ayers@fsfe.org>
+
+	* EOMutableKnownKeyDictionary.h/m ([-initWithObjects:forKeys:count:]):
+	* EOFault.h/m ([-retainCount]):
+	* EOKeyGlobalID.h/m ([-hash]):
+	* EOMultiReaderLock.m ([-tryLockForReading]):
+	* EOCheapArray.h/m ([-initWithObjects:count:],[initWithCapacity:]):
+	* EOGlobalID.h/m ([-hash]): Use NS(U)Integer instead of int.
+	
 2010-04-09  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EONSAddOns.h (GDL2_ActivateAllGDL2Categories):

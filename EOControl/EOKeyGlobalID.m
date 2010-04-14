@@ -155,7 +155,7 @@ RCS_ID("$Id$")
 }
 
 
-- (unsigned int)hash
+- (NSUInteger)hash
 {
   int i;
   unsigned int hash = 0;

@@ -154,7 +154,7 @@
 		  objects: (id *)objects;
 - (id)initWithObjects: (id *)objects
 	      forKeys: (id *)keys
-		count: (unsigned int)count;
+		count: (NSUInteger)count;
 - (unsigned int)count;
 - (id)objectForKey: (id)key;
 - (void)setObject: (id)object

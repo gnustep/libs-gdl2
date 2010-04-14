@@ -388,7 +388,7 @@ static Class EOFaultClass = NULL;
   return self;
 }
 
-- (unsigned)retainCount
+- (NSUInteger)retainCount
 {
   return [_handler extraRefCount];
 }

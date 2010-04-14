@@ -77,7 +77,7 @@ NSString *EOGlobalIDChangedNotification = @"EOGlobalIDChangedNotification";
   return NO;
 }
 
-- (unsigned)hash
+- (NSUInteger)hash
 {
   return 0;
 }

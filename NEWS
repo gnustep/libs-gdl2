@@ -1,6 +1,14 @@
 News
 ****
 
+The currently released version of the library is `0.12.1'.
+
+'alpha' release 0.12.1
+========================================
+This release contains the following changes:
+- Fix minor memory management bugs in DBModeler.
+- Adapt NSUndoManager handling to new behavior.
+
 The currently released version of the library is `0.12.0'.
 
 'alpha' release 0.12.0

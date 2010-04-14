@@ -751,7 +751,7 @@ RCS_ID("$Id$")
 // This is the designated initializer
 - (id) initWithObjects: (id*)objects
                forKeys: (id*)keys
-                 count: (unsigned int)count
+                 count: (NSUInteger)count
 {
   //OK
   EOMKKDInitializer *initializer = nil;

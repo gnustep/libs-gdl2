@@ -50,7 +50,7 @@ GDL2CONTROL_EXPORT NSString *EOGlobalIDChangedNotification;
 @interface EOGlobalID : NSObject <NSCopying>
 
 - (BOOL)isEqual: (id)other;
-- (unsigned)hash;
+- (NSUInteger)hash;
 
 - (BOOL)isTemporary;
 

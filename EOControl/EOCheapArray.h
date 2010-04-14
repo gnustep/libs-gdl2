@@ -45,7 +45,7 @@
 
 - (id)initWithArray: (NSArray *)array;
 - (id)initWithObjects: (id *)objects
-		count: (unsigned int)count;
+		count: (NSUInteger)count;
 - (void)release;
 - (unsigned int)retainCount;
 - (id)retain;
@@ -66,9 +66,9 @@
   id _immutableCopy;
 }
 
-- (id)initWithCapacity: (unsigned int)capacity;
+- (id)initWithCapacity: (NSUInteger)capacity;
 - (id)initWithObjects: (id *)objects
-		count: (unsigned int)count;
+		count: (NSUInteger)count;
 - (id)initWithArray: (NSArray *)array;
 - (void)dealloc;
 - (NSArray *)shallowCopy;

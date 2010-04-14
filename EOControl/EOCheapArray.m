@@ -81,7 +81,7 @@ RCS_ID("$Id$")
 }
 
 - (id) initWithObjects: (id*)objects
-                 count: (unsigned int)count
+                 count: (NSUInteger)count
 {
 #ifdef DEBUG
   NSDebugFLog(@"initWithObjects EOCheapCopyArray %p", 
@@ -206,7 +206,7 @@ RCS_ID("$Id$")
 
 @implementation EOCheapCopyMutableArray
 
-- (id) initWithCapacity: (unsigned int)capacity
+- (id) initWithCapacity: (NSUInteger)capacity
 {
   if (capacity == 0)
     {
@@ -221,7 +221,7 @@ RCS_ID("$Id$")
 }
 
 - (id) initWithObjects: (id*)objects
-                 count: (unsigned int)count
+                 count: (NSUInteger)count
 {
   self = [self initWithCapacity: count];
 

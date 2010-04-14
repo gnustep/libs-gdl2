@@ -95,7 +95,7 @@
 - (id)retain;
 - (void)release;
 - (id)autorelease;
-- (unsigned)retainCount;
+- (NSUInteger)retainCount;
 
 - (NSString *)description;
 - (NSString *)descriptionWithIndent: (unsigned)level;
