@@ -62,7 +62,7 @@ the model objects.
  
 The Trading framework, provides an example model, and some routines to
 create a database from the model, and populate the database with data,
-while not an example itself it is intended for use by example applications 
+while not an example itself it is indented for use by example applications 
 using GDL2 alone, EOInterface or GSWeb, and for higher level tests.
 
 - Using GDL2 in other Projects
