@@ -33,6 +33,8 @@
 #include <Foundation/Foundation.h>
 #endif
 
+#include <EOControl/EOCustomObject.h>
+
 
 @class NSString;
 @class NSMutableDictionary;
@@ -43,7 +45,7 @@
 @class EOMutableKnownKeyDictionary;
 
 
-@interface EOGenericRecord : NSObject
+@interface EOGenericRecord : EOCustomObject
 {
   EOClassDescription *classDescription;
   EOMutableKnownKeyDictionary *dictionary;

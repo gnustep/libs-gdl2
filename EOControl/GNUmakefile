@@ -1,7 +1,7 @@
 #
 #  EOControl makefile for GNUstep Database Library.
 #  
-#  Copyright (C) 1997,2002,2003,2004,2005 Free Software Foundation, Inc.
+#  Copyright (C) 1997,2002,2003,2004,2005,2010 Free Software Foundation, Inc.
 #
 #  Written by:	Scott Christley <scottc@net-community.com>
 #
@@ -39,6 +39,7 @@ EOControl_C_FILES =
 EOControl_OBJC_FILES = \
 EOSortOrdering.m \
 EOFetchSpecification.m \
+EOCustomObject.m \
 EOGenericRecord.m \
 EOClassDescription.m \
 EOKeyValueCoding.m \
@@ -79,6 +80,7 @@ EOControl_HEADER_FILES_INSTALL_DIR = /EOControl
 EOControl_HEADER_FILES = \
 EOSortOrdering.h \
 EOFetchSpecification.h \
+EOCustomObject.h \
 EOGenericRecord.h \
 EOClassDescription.h \
 EOKeyValueCoding.h \
