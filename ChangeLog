@@ -1,6 +1,7 @@
 2010-04-17  David Wetzel <dave@turbocat.de>
-        * EOCustomObject.h/m new class like in EOF3. Use this as your EO's superclass or
-          use EOGenericRecords
+    * EOCustomObject.h/m new class like in EOF3. Use this as your EO's superclass or
+      use EOGenericRecords
+    * EOControl/EOControl.h: add EOCustomObject.h
 
 2010-04-14  David Ayers  <ayers@fsfe.org>
 

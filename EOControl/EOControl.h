@@ -30,6 +30,7 @@
 
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOFetchSpecification.h>
+#include <EOControl/EOCustomObject.h>
 #include <EOControl/EOGenericRecord.h>
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EOKeyValueCoding.h>
