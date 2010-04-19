@@ -35,6 +35,8 @@
 #include <Foundation/Foundation.h>
 #endif
 
+#import <Foundation/NSClassDescription.h>
+
 #include <EOControl/EODefines.h>
 
 @class NSDictionary;
@@ -53,7 +55,7 @@ typedef enum
 } EODeleteRule;
 
 
-@interface EOClassDescription : NSObject
+@interface EOClassDescription : NSClassDescription
 
 + (void)registerClassDescription: (EOClassDescription *)description
                         forClass: (Class)aClass;
@@ -118,42 +120,6 @@ fromFetchInEditingContext: (EOEditingContext *)editingContext;
 @end
 
 
-@interface NSObject (EOInitialization)
-
-- (id)initWithEditingContext: (EOEditingContext *)editingContext
-	    classDescription: (EOClassDescription *)classDescription
-		    globalID: (EOGlobalID *)globalID;
-
-@end
-
-@interface NSObject (EOClassDescriptionPrimitives)
-
-- (EOClassDescription *)classDescription;
-
-- (NSString *)entityName;
-- (NSArray *)attributeKeys;
-- (NSArray *)toOneRelationshipKeys;
-- (NSArray *)toManyRelationshipKeys;
-- (NSString *)inverseForRelationshipKey: (NSString *)relationshipKey;
-- (EODeleteRule)deleteRuleForRelationshipKey: (NSString *)relationshipKey;
-- (BOOL)ownsDestinationObjectsForRelationshipKey: (NSString *)relationshipKey;
-- (EOClassDescription *)classDescriptionForDestinationKey: (NSString *)detailKey;
-
-- (NSString *)userPresentableDescription;
-
-- (NSException *)validateValue: (id *)valueP forKey: (NSString *)key;
-- (id)validateTakeValue:(id)value forKeyPath:(NSString *)path;
-
-- (NSException *)validateForSave;
-
-- (NSException *)validateForDelete;
-
-- (void)awakeFromInsertionInEditingContext: (EOEditingContext *)editingContext;
-
-- (void)awakeFromFetchInEditingContext: (EOEditingContext *)editingContext;
-
-@end
-
 GDL2CONTROL_EXPORT NSString *EOClassDescriptionNeededNotification;
 GDL2CONTROL_EXPORT NSString *EOClassDescriptionNeededForClassNotification;
 GDL2CONTROL_EXPORT NSString *EOClassDescriptionNeededForEntityNameNotification;
@@ -162,42 +128,6 @@ GDL2CONTROL_EXPORT NSString *EOClassDescriptionNeededForEntityNameNotification;
 @interface NSArray (EOShallowCopy)
 
 - (NSArray *)shallowCopy;
-
-@end
-
-@interface NSObject (EOClassDescriptionExtras)
-
-- (NSDictionary *)snapshot;
-
-- (void)updateFromSnapshot: (NSDictionary *)snapshot;
-
-- (BOOL)isToManyKey: (NSString *)key;
-
-- (NSException *)validateForInsert;
-- (NSException *)validateForUpdate;
-
-- (NSArray *)allPropertyKeys;
-
-- (void)clearProperties;
-
-- (void)propagateDeleteWithEditingContext: (EOEditingContext *)editingContext;
-
-- (NSString *)eoShallowDescription;
-- (NSString *)eoDescription;
-
-@end
-
-@interface NSObject (EOKeyRelationshipManipulation)
-
-- (void)addObject: (id)object toPropertyWithKey: (NSString *)key;
-
-- (void)removeObject: (id)object fromPropertyWithKey: (NSString *)key;
-
-- (void)addObject: (id)object 
-toBothSidesOfRelationshipWithKey: (NSString *)key;
-
-- (void)removeObject: (id)object
-fromBothSidesOfRelationshipWithKey: (NSString *)key;
 
 @end
 
@@ -222,16 +152,6 @@ GDL2CONTROL_EXPORT NSString *EOValidatedPropertyUserInfoKey;
 - (BOOL)shouldPropagateDeleteForObject: (id)object
 		      inEditingContext: (EOEditingContext *)editingContext
 		    forRelationshipKey: (NSString *)key;
-
-@end
-
-
-@interface NSObject (_EOValueMerging)
-
-- (void)mergeValue: (id)value forKey: (id)key;
-- (void)mergeChangesFromDictionary: (NSDictionary *)changes;
-- (NSDictionary *)changesFromSnapshot: (NSDictionary *)snapshot;
-- (void)reapplyChangesFromSnapshot: (NSDictionary *)changes;
 
 @end
 

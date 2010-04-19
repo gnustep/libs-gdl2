@@ -29,15 +29,95 @@
 
 #ifdef GNUSTEP
 #include <Foundation/NSObject.h>
+#include <Foundation/NSKeyValueCoding.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
+
+#include <EOControl/EOClassDescription.h>
+
+@class EOEditingContext;
 
 
 @interface EOCustomObject : NSObject
 {
 
 }
+
+- (id)initWithEditingContext: (EOEditingContext *)editingContext
+            classDescription: (EOClassDescription *)classDescription
+                    globalID: (EOGlobalID *)globalID;
+
+
+// -----------------------------------------------
+// those used to be EOClassDescriptionPrimitives
+
+- (EOClassDescription *)classDescription;
+
+- (NSString *)entityName;
+- (NSArray *)attributeKeys;
+- (NSArray *)toOneRelationshipKeys;
+- (NSArray *)toManyRelationshipKeys;
+- (NSString *)inverseForRelationshipKey: (NSString *)relationshipKey;
+- (EODeleteRule)deleteRuleForRelationshipKey: (NSString *)relationshipKey;
+- (BOOL)ownsDestinationObjectsForRelationshipKey: (NSString *)relationshipKey;
+- (EOClassDescription *)classDescriptionForDestinationKey: (NSString *)detailKey;
+
+- (NSString *)userPresentableDescription;
+
+- (NSException *)validateValue: (id *)valueP forKey: (NSString *)key;
+- (id)validateTakeValue:(id)value forKeyPath:(NSString *)path;
+
+- (NSException *)validateForSave;
+
+- (NSException *)validateForDelete;
+
+- (void)awakeFromInsertionInEditingContext: (EOEditingContext *)editingContext;
+
+- (void)awakeFromFetchInEditingContext: (EOEditingContext *)editingContext;
+
+// -----------------------------------------------
+
+// those used to be EOKeyRelationshipManipulation
+
+- (void)addObject: (id)object toPropertyWithKey: (NSString *)key;
+
+- (void)removeObject: (id)object fromPropertyWithKey: (NSString *)key;
+
+- (void)addObject: (id)object toBothSidesOfRelationshipWithKey: (NSString *)key;
+
+- (void)removeObject: (id)object fromBothSidesOfRelationshipWithKey: (NSString *)key;
+
+// -----------------------------------------------
+
+// those used to be NSObject (_EOValueMerging)
+
+- (void)mergeValue: (id)value forKey: (id)key;
+- (void)mergeChangesFromDictionary: (NSDictionary *)changes;
+- (NSDictionary *)changesFromSnapshot: (NSDictionary *)snapshot;
+- (void)reapplyChangesFromSnapshot: (NSDictionary *)changes;
+
+// -----------------------------------------------
+
+// those used to be NSObject (EOClassDescriptionExtras)
+
+- (NSDictionary *)snapshot;
+
+- (void)updateFromSnapshot: (NSDictionary *)snapshot;
+
+- (BOOL)isToManyKey: (NSString *)key;
+
+- (NSException *)validateForInsert;
+- (NSException *)validateForUpdate;
+
+- (NSArray *)allPropertyKeys;
+
+- (void)clearProperties;
+
+- (void)propagateDeleteWithEditingContext: (EOEditingContext *)editingContext;
+
+- (NSString *)eoShallowDescription;
+- (NSString *)eoDescription;
 
 @end
 

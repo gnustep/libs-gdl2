@@ -1,3 +1,14 @@
+2010-04-19  David Wetzel <dave@turbocat.de>
+    * EOInterface/EOAssociation.m: remove hacks
+    * EOControl/EOEditingContext.m: remove hacks, adapt to EOCustomObject
+    * EOControl/EOCustomObject.h/m: added code here
+    * EOControl/EOClassDescription.h/m: adapt to EOCustomObject
+    * EOControl/EOPrivate.h: adapt to EOCustomObject
+    * EOControl/EOClassDescription.m:adapt to EOCustomObject
+
+    * EOAccess/EODatabaseContext.m rewrote qualifierForLockingAttributes:primaryKeyAttributes:entity:snapshot:
+
+
 2010-04-17  David Wetzel <dave@turbocat.de>
     * EOCustomObject.h/m new class like in EOF3. Use this as your EO's superclass or
       use EOGenericRecords

@@ -30,13 +30,13 @@
 #include <Foundation/NSArray.h>
 #include <Foundation/NSHashTable.h>
 #include <EOControl/EOObserver.h>
+#include <EOControl/EOEditingContext.h>
 #include "EODefines.h"
 
 @class NSNumber;
 @class EONull;
 @class EOMutableKnownKeyDictionary;
 @class EOMKKDInitializer;
-@class EOEditingContext;
 @class EOGlobalID;
 
 typedef unsigned int (*GDL2IMP_UINT)(id, SEL, ...);
@@ -378,8 +378,8 @@ GDL2CONTROL_EXPORT BOOL GDL2_isLegalDBName(NSString *name);
 
 // ==== Memory Management Utilities ====
 
-@interface NSObject (DeallocHack)
-- (void) registerAssociationForDeallocHack:(id)object;
+@interface EOEditingContext (EOMemoryManagement)
++ (void)_objectDeallocated:(id)object;
 @end
 
 @interface EOObserverCenter(EOPrivate)

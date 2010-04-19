@@ -55,7 +55,7 @@ RCS_ID("$Id$")
 #include "EONSAddOns.h"
 #include "EODeprecated.h"
 #include "EODebug.h"
-
+#include "EOCustomObject.h"
 #include "EOPrivate.h"
 
 @class EOEntityClassDescription;
@@ -171,8 +171,8 @@ static Class EOAssociationClass = nil;
 static EOObjectStore *defaultParentStore = nil;
 static NSTimeInterval defaultFetchLag = 3600.0;
 
-static NSHashTable *ecDeallocHT = 0;
-static NSHashTable *assocDeallocHT = 0;
+//static NSHashTable *ecDeallocHT = 0;
+//static NSHashTable *assocDeallocHT = 0;
 
 /* Notifications */
 NSString *EOObjectsChangedInEditingContextNotification
@@ -265,9 +265,15 @@ _mergeValueForKey(id obj, id value,
     }
 }
 
-+ (void)objectDeallocated:(id)object
++ (void)_objectDeallocated:(id)object
 {
   [[object editingContext] forgetObject: object];
+  
+  if (EOAssociationClass != nil)
+  {
+    [EOAssociationClass objectDeallocated: object]; // rename to _objectDeallocated: ? -- dw
+  }
+  
 }
 
 + (NSTimeInterval)defaultFetchTimestampLag
@@ -1407,71 +1413,59 @@ _mergeValueForKey(id obj, id value,
          withGlobalID: (EOGlobalID *)gid
 {
   EOGlobalID *gidBis = nil;
-
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"Object %p=%@", object, object);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@",gid);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
-			[self unprocessedDescription]);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
-			[self objectsDescription]);
-
+  
   NSAssert(object, @"No Object");
-
+  
+  NSAssert([object isKindOfClass:[EOCustomObject class]] , @"Sorry, only subclasses of EOCustomObject supported in this version.");
+  
+  
   //GSWDisplayGroup -insertAtIndex+EODataSource createObject call insert ! So object is inserted twice
-
+  
   if (_insertedObjects && NSHashGet(_insertedObjects, object))
-    {
-//      NSLog(@"Already inserted object [_insertedObjects] %p=%@",object,object);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", 
-                            @"Already inserted gid=%@ object [_insertedObjects] %p=%@",
-                            gid, object, object);    
-    }
+  {
+    //      NSLog(@"Already inserted object [_insertedObjects] %p=%@",object,object);
+    EOFLOGObjectLevelArgs(@"EOEditingContext", 
+                          @"Already inserted gid=%@ object [_insertedObjects] %p=%@",
+                          gid, object, object);    
+  }
   else if (_unprocessedInserts && NSHashGet(_unprocessedInserts, object))
-    {
-//      NSLog(@"Already inserted object [_unprocessedInserts] %p=%@",object,object);
-      EOFLOGObjectLevelArgs(@"EOEditingContext",
-                            @"Already inserted gid=%@ object [_unprocessedInserts] %p=%@", 
-                            gid, object, object);      
-    }
-
+  {
+    //      NSLog(@"Already inserted object [_unprocessedInserts] %p=%@",object,object);
+    EOFLOGObjectLevelArgs(@"EOEditingContext",
+                          @"Already inserted gid=%@ object [_unprocessedInserts] %p=%@", 
+                          gid, object, object);      
+  }
+  
   if ([gid isTemporary])
+  {
+    [self _registerClearStateWithUndoManager];
+    [_undoManager registerUndoWithTarget: self
+                                selector: @selector(deleteObject:)
+                                  object: object];
+    
+    gidBis = EOEditingContext_globalIDForObjectWithImpPtr(self,NULL,object);
+    
+    /* Record object for GID mappings.  */
+    if (gidBis)
     {
-      [self _registerClearStateWithUndoManager];
-      [_undoManager registerUndoWithTarget: self
-                    selector: @selector(deleteObject:)
-                    object: object];
-
-      gidBis = EOEditingContext_globalIDForObjectWithImpPtr(self,NULL,object);
-
-      /* Record object for GID mappings.  */
-      if (gidBis)
-        {
-          EOFLOGObjectLevelArgs(@"EOEditingContext",
-                                @"Already recored gid=%@ previous gid=%@ object %p=%@", 
-                                gid, gidBis, object, object);
-        }
-      else
-        {
-          NSAssert(gid, @"No gid");
-
-          EOEditingContext_recordObjectGlobalIDWithImpPtr(self,NULL,object,gid);
-        }
-
-      /* Do the actual insert into the editing context,
-	 independent  of whether this object has ever been
-         previously tracked by the GID mappings.  */
-      NSHashInsert(_unprocessedInserts, object);
-      [self _enqueueEndOfEventNotification];
+      EOFLOGObjectLevelArgs(@"EOEditingContext",
+                            @"Already recored gid=%@ previous gid=%@ object %p=%@", 
+                            gid, gidBis, object, object);
     }
-
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
-			[self unprocessedDescription]);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
-			[self objectsDescription]);
-
-  EOFLOGObjectFnStop();
+    else
+    {
+      NSAssert(gid, @"No gid");
+      
+      EOEditingContext_recordObjectGlobalIDWithImpPtr(self,NULL,object,gid);
+    }
+    
+    /* Do the actual insert into the editing context,
+     independent  of whether this object has ever been
+     previously tracked by the GID mappings.  */
+    NSHashInsert(_unprocessedInserts, object);
+    [self _enqueueEndOfEventNotification];
+  }
+  
 }
 
 - (void)_processEndOfEventNotification: (NSNotification*)notification
@@ -2841,14 +2835,10 @@ _mergeValueForKey(id obj, id value,
 {
   EOObjectStore *rootObjectStore;
 
-  EOFLOGObjectFnStart();
-
   if ([_objectStore isKindOfClass: [EOEditingContext class]] == YES)
     rootObjectStore = [(EOEditingContext *)_objectStore rootObjectStore];
   else
     rootObjectStore=_objectStore;
-
-  EOFLOGObjectFnStop();
 
   return rootObjectStore;
 }
@@ -2964,12 +2954,12 @@ _mergeValueForKey(id obj, id value,
   NSAssert(globalID, @"No GlobalID");
   
   /* Global hash table for faster dealloc.  */
-  if (!ecDeallocHT)
-    {
-      ecDeallocHT 
-	= NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 64);
-    }
-  NSHashInsert(ecDeallocHT, object);
+//  if (!ecDeallocHT)
+//    {
+//      ecDeallocHT 
+//	= NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 64);
+//    }
+//  NSHashInsert(ecDeallocHT, object);
 
   EOFLOGObjectLevel(@"EOEditingContext", @"insertInto _globalIDsByObject");
   NSMapInsert(_globalIDsByObject, object, globalID);
@@ -3008,7 +2998,7 @@ _mergeValueForKey(id obj, id value,
   EOFLOGObjectFnStart();
 
   /* Global hash table for faster dealloc.  */
-  NSHashRemove(ecDeallocHT, object);
+  //NSHashRemove(ecDeallocHT, object);
 
   gid = EOEditingContext_globalIDForObjectWithImpPtr(self,NULL,object);
 
@@ -4029,43 +4019,4 @@ static BOOL usesContextRelativeEncoding = NO;
 {
   [self notImplemented: _cmd]; //TODO
 }
-@end
-
-@implementation NSObject (DeallocHack)
-/*
- * This is a real hack that shows that the design of this
- * library did not take the reference counting mechanisms
- * of OpenStep to heart.  I'm sorry kids, but this seems
- * how it has to be done to remain compatible.  Any hints
- * on how to speed this up are appreciated.  But understand
- * that we don't know the classes which need to call this
- * and there could be deep hierarchy.
- */
-- (void) dealloc
-{
-  if (ecDeallocHT && NSHashGet(ecDeallocHT, self))
-    {
-      [GDL2_EOEditingContextClass objectDeallocated: self];
-    }
-  if (assocDeallocHT && NSHashGet(assocDeallocHT, self))
-    {
-      [EOAssociationClass objectDeallocated: self];
-      NSHashRemove(assocDeallocHT,self);
-    }
-  [EOObserverCenter _forgetObject:self];
-
-  /* We cannot if (0) [super dealloc]; as NSObject does not have superclass. */
-  NSDeallocateObject (self);
-}
-
-- (void) registerAssociationForDeallocHack:(id)object
-{
-  if (!assocDeallocHT)
-    {
-      assocDeallocHT = NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 64);
-    }
-
-  NSHashInsert(assocDeallocHT, object);
-}
-
 @end

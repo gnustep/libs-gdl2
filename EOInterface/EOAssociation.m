@@ -212,43 +212,43 @@ static NSMapTable *_objectToAssociations;
 - (void)establishConnection
 {
   if (_isConnected == NO)
+  {
+    NSMapEnumerator displayGroupEnum;
+    EODisplayGroup *displayGroup;
+    void *unusedKey;
+    GDL2NonRetainingMutableArray *associations;
+    
+    displayGroupEnum = NSEnumerateMapTable(_displayGroupMap);
+    while (NSNextMapEnumeratorPair(&displayGroupEnum,
+                                   &unusedKey, (void*)&displayGroup))
     {
-      NSMapEnumerator displayGroupEnum;
-      EODisplayGroup *displayGroup;
-      void *unusedKey;
-      GDL2NonRetainingMutableArray *associations;
-
-      displayGroupEnum = NSEnumerateMapTable(_displayGroupMap);
-      while (NSNextMapEnumeratorPair(&displayGroupEnum,
-				     &unusedKey, (void*)&displayGroup))
-	{
-	  [displayGroup retain];
-	  [EOObserverCenter addObserver:self forObject:displayGroup];
-	}
-      NSEndMapTableEnumeration (&displayGroupEnum);
-      
-      /* registerAssociationForDeallocHack is implemented in
-         EOControl/EOEditingContext.m this causes +objectDeallocated:
-	 to be called when '_object' is deallocated, which will break the
-	 connection which releases the association instance. */
-      [self retain];
-      [self registerAssociationForDeallocHack:_object];
-
-      associations = (id)NSMapGet(_objectToAssociations, _object);
-
-      if (!associations)
-	{
-	  associations = [[GDL2NonRetainingMutableArray alloc] initWithCapacity:32];
-          [associations addObject:self];
-	  NSMapInsert(_objectToAssociations, _object, associations);
-	}
-      else
-	{
-	  [associations addObject:self];
-	}
-      
-      _isConnected = YES;
+      [displayGroup retain];
+      [EOObserverCenter addObserver:self forObject:displayGroup];
     }
+    NSEndMapTableEnumeration (&displayGroupEnum);
+    
+    /* registerAssociationForDeallocHack is implemented in
+     EOControl/EOEditingContext.m this causes +objectDeallocated:
+     to be called when '_object' is deallocated, which will break the
+     connection which releases the association instance. */
+    [self retain];
+    // [self registerAssociationForDeallocHack:_object];
+    
+    associations = (id)NSMapGet(_objectToAssociations, _object);
+    
+    if (!associations)
+    {
+      associations = [[GDL2NonRetainingMutableArray alloc] initWithCapacity:32];
+      [associations addObject:self];
+      NSMapInsert(_objectToAssociations, _object, associations);
+    }
+    else
+    {
+      [associations addObject:self];
+    }
+    
+    _isConnected = YES;
+  }
 }
 
 - (void)breakConnection
