@@ -1,18 +1,26 @@
-2010-04-19  David Wetzel <dave@turbocat.de>
-    * EOInterface/EOAssociation.m: remove hacks
-    * EOControl/EOEditingContext.m: remove hacks, adapt to EOCustomObject
-    * EOControl/EOCustomObject.h/m: added code here
-    * EOControl/EOClassDescription.h/m: adapt to EOCustomObject
-    * EOControl/EOPrivate.h: adapt to EOCustomObject
-    * EOControl/EOClassDescription.m:adapt to EOCustomObject
+2010-04-19  David Ayers  <ayers@fsfe.org>
 
-    * EOAccess/EODatabaseContext.m rewrote qualifierForLockingAttributes:primaryKeyAttributes:entity:snapshot:
+	* EOAccess/EODatabaseContext.m 
+	(qualifierForLockingAttributes:primaryKeyAttributes:entity:snapshot:)
+	Revert rewrite.  Adapt to NSUInteger.
+
+2010-04-19  David Wetzel <dave@turbocat.de>
+
+	* EOInterface/EOAssociation.m: remove hacks
+	* EOControl/EOEditingContext.m: remove hacks, adapt to EOCustomObject
+	* EOControl/EOCustomObject.h/m: added code here
+	* EOControl/EOClassDescription.h/m: adapt to EOCustomObject
+	* EOControl/EOPrivate.h: adapt to EOCustomObject
+	* EOControl/EOClassDescription.m:adapt to EOCustomObject
+
+	* EOAccess/EODatabaseContext.m rewrote qualifierForLockingAttributes:primaryKeyAttributes:entity:snapshot:
 
 
 2010-04-17  David Wetzel <dave@turbocat.de>
-    * EOCustomObject.h/m new class like in EOF3. Use this as your EO's superclass or
-      use EOGenericRecords
-    * EOControl/EOControl.h: add EOCustomObject.h
+
+	* EOCustomObject.h/m new class like in EOF3. Use this as your EO's superclass or 
+	use EOGenericRecords
+	* EOControl/EOControl.h: add EOCustomObject.h
 
 2010-04-14  David Ayers  <ayers@fsfe.org>
 
