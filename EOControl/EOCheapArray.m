@@ -90,7 +90,7 @@ RCS_ID("$Id$")
 
   if (count > 0)
     {
-      unsigned  i;
+      NSUInteger i;
 
       _contents_array = NSZoneMalloc([self zone], sizeof(id) * count);
 
@@ -127,7 +127,7 @@ RCS_ID("$Id$")
   if (_contents_array)
     {
 #if     !GS_WITH_GC
-      unsigned i;
+      NSUInteger i;
 
       for (i = 0; i < _count; i++)
         {
@@ -184,7 +184,7 @@ RCS_ID("$Id$")
   return [super retain];
 }
 
-- (id) objectAtIndex: (unsigned int)index
+- (id) objectAtIndex: (NSUInteger)index
 {
   if (index >= _count)
     {
@@ -196,7 +196,7 @@ RCS_ID("$Id$")
 }
 
 //- (id) copyWithZone: (NSZone*)zone;
-- (unsigned int) count
+- (NSUInteger) count
 {
   return _count;
 }
@@ -264,7 +264,7 @@ RCS_ID("$Id$")
   if (_contents_array)
     {
 #if     !GS_WITH_GC
-      unsigned  i;
+      NSUInteger  i;
       for (i = 0; i < _count; i++)
         {
           [_contents_array[i] release];
@@ -318,12 +318,12 @@ RCS_ID("$Id$")
   DESTROY(_immutableCopy);
 }
 
-- (unsigned int) count
+- (NSUInteger) count
 {
   return _count;
 }
 
-- (id) objectAtIndex: (unsigned int)index
+- (id) objectAtIndex: (NSUInteger)index
 {
   if (index >= _count)
     {
@@ -372,9 +372,9 @@ RCS_ID("$Id$")
 }
 
 - (void) insertObject: (id)object
-              atIndex: (unsigned int)index
+              atIndex: (NSUInteger)index
 {
-  unsigned i;
+  NSUInteger i;
 
   if (!object)
     {
@@ -439,7 +439,7 @@ RCS_ID("$Id$")
   RELEASE(_contents_array[_count]);
 }
 
-- (void) removeObjectAtIndex: (unsigned int)index
+- (void) removeObjectAtIndex: (NSUInteger)index
 {
   id    obj;
 
@@ -462,7 +462,7 @@ RCS_ID("$Id$")
   RELEASE(obj); /* Adjust array BEFORE releasing object.        */
 }
 
-- (void) replaceObjectAtIndex: (unsigned int)index
+- (void) replaceObjectAtIndex: (NSUInteger)index
                    withObject: (id)object;
 {
   id    obj;
@@ -490,8 +490,8 @@ RCS_ID("$Id$")
 //TODO implement it for speed ?? - (BOOL) containsObject:(id)object
 //TODO implement it for speed ?? - (unsigned int) indexOfObjectIdenticalTo:(id)object
 //TODO implement it for speed ?? - (void) removeAllObjects;
-- (void) exchangeObjectAtIndex: (unsigned int)index1
-             withObjectAtIndex: (unsigned int)index2
+- (void) exchangeObjectAtIndex: (NSUInteger)index1
+             withObjectAtIndex: (NSUInteger)index2
 {
   id obj = nil;
 

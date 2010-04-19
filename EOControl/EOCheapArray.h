@@ -34,60 +34,28 @@
 #include <Foundation/Foundation.h>
 #endif
 
-
-
 @interface EOCheapCopyArray : NSArray
 {
-  unsigned int _count;
+  NSUInteger _count;
   id *_contents_array;
-  unsigned int _refcount;
 }
-
-- (id)initWithArray: (NSArray *)array;
-- (id)initWithObjects: (id *)objects
-		count: (NSUInteger)count;
-- (void)release;
-- (unsigned int)retainCount;
-- (id)retain;
-- (id)objectAtIndex: (unsigned int)index;
-//- (id)copyWithZone: (NSZone *)zone;
-- (unsigned int)count;
-//- (BOOL)containsObject: (id)obejct;
 
 @end
 
 
 @interface EOCheapCopyMutableArray : NSMutableArray
 {
-  unsigned int _count;
+  NSUInteger _count;
   id *_contents_array;
-  unsigned int _capacity;
+  NSUInteger _capacity;
   unsigned int _grow_factor;
   id _immutableCopy;
 }
 
-- (id)initWithCapacity: (NSUInteger)capacity;
-- (id)initWithObjects: (id *)objects
-		count: (NSUInteger)count;
-- (id)initWithArray: (NSArray *)array;
-- (void)dealloc;
 - (NSArray *)shallowCopy;
 - (void)_setCopy: (id)param0;
 - (void)_mutate;
-- (unsigned int)count;
-- (id)objectAtIndex: (unsigned int)index;
-- (void)addObject: (id)object;
-- (void)insertObject: (id)object
-	     atIndex: (unsigned int)index;
-- (void)removeLastObject;
-- (void)removeObjectAtIndex: (unsigned int)index;
-- (void)replaceObjectAtIndex: (unsigned int)index
-		  withObject: (id)object;
-//- (BOOL)containsObject: (id)object;
-//- (unsigned int)indexOfObjectIdenticalTo: (id)object;
-//- (void)removeAllObjects;
-- (void)exchangeObjectAtIndex: (unsigned int)index1
-	    withObjectAtIndex: (unsigned int)index2;
+
 @end
 
 

@@ -120,7 +120,7 @@ RCS_ID("$Id$")
           EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%@ RETAINCOUNT=%d",
 				key, [key retainCount]);
 
-          oldValue = NSMapInsertIfAbsent(_keyToIndex,key, (const void*)(i + 1)); //+1 because 0 = no object
+          oldValue = NSMapInsertIfAbsent(_keyToIndex,key, (const void*)(uintptr_t)(i + 1)); //+1 because 0 = no object
           _keys[i] = key; //Don't retain: already retained by Map
 
           EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%@ RETAINCOUNT=%d",
@@ -194,7 +194,7 @@ RCS_ID("$Id$")
 }
 
 - (void) setObject: (id)object
-          forIndex: (unsigned int)index
+          forIndex: (NSUInteger)index
         dictionary: (NSMutableDictionary*)dictionary
 {
   //OK?
@@ -208,7 +208,7 @@ RCS_ID("$Id$")
               forKey: key];
 }
 
-- (id) objectForIndex: (unsigned int)index
+- (id) objectForIndex: (NSUInteger)index
            dictionary: (NSDictionary*)dictionary
 {
   id key;
@@ -220,14 +220,14 @@ RCS_ID("$Id$")
   return [dictionary objectForKey: key];
 }
 
-- (unsigned int) indexForKey: (id)key
+- (NSUInteger) indexForKey: (id)key
 {
   void *index = NSMapGet(_keyToIndex, (const void *)key);
 
   if (!index)
     return NSNotFound;
   else
-    return (unsigned int)(index - 1);
+    return (NSUInteger)(index - 1);
 }
 
 - (BOOL)hasKey: (id)key
@@ -379,7 +379,7 @@ RCS_ID("$Id$")
   return _keys;
 }
 
-- (unsigned int) count
+- (NSUInteger) count
 {
   return _count;
 }

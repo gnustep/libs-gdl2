@@ -46,7 +46,7 @@
 
 @interface EOMKKDInitializer : NSObject
 {
-  unsigned int _count;
+  NSUInteger _count;
   NSMapTable *_keyToIndex; //key to index
   NSString **_keys;
 }
@@ -58,13 +58,13 @@
 
 - (id)initWithKeys: (NSArray *)keys;
 - (NSString *)description;
-- (unsigned int)count;
+- (NSUInteger)count;
 - (void)setObject: (id)object
-	 forIndex: (unsigned int)index
+	 forIndex: (NSUInteger)index
        dictionary: (NSMutableDictionary *)dictionary;
-- (id)objectForIndex: (unsigned int)index
+- (id)objectForIndex: (NSUInteger)index
 	  dictionary: (NSDictionary *)dictionary;
-- (unsigned int)indexForKey: (id)key;
+- (NSUInteger)indexForKey: (id)key;
 - (EOMKKDArrayMapping *)arrayMappingForKeys: (NSArray *)keys;
 - (EOMKKDSubsetMapping *)subsetMappingForSourceDictionaryInitializer: (EOMKKDInitializer *)init
 							  sourceKeys: (NSArray *)sourceKeys
@@ -152,17 +152,8 @@
 - (id)initWithInitializer: (EOMKKDInitializer *)initializer;
 - (id)initWithInitializer: (EOMKKDInitializer *)initializer
 		  objects: (id *)objects;
-- (id)initWithObjects: (id *)objects
-	      forKeys: (id *)keys
-		count: (NSUInteger)count;
-- (unsigned int)count;
-- (id)objectForKey: (id)key;
-- (void)setObject: (id)object
-	   forKey: (id)key;
-- (void)removeObjectForKey: (id)key;
 - (BOOL)containsObjectsNotIdenticalTo: (id)object;
 - (void)addEntriesFromDictionary: (NSDictionary *)dictionary;
-- (NSEnumerator *)keyEnumerator;
 - (EOMKKDInitializer *)eoMKKDInitializer;
 - (NSMutableDictionary *)extraData;
 - (BOOL)hasKey: (id)key;

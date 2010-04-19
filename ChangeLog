@@ -1,3 +1,11 @@
+2010-04-19 Fred Kiefer <FredKiefer@gmx.de>
+
+	* EOControl/EOMutableKnownKeyDictionary.h,
+	* EOControl/EOMutableKnownKeyDictionary.m,
+	* EOControl/EOCheapArray.h,
+	* EOControl/EOCheapArray.m: Use NSUInteger and remove methods
+	declared in super class.
+
 2010-04-19  David Ayers  <ayers@fsfe.org>
 
 	* EOAccess/EODatabaseContext.m 
