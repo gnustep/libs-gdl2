@@ -82,8 +82,12 @@ RCS_ID("$Id$")
 
 - (NSString *) lossyASCIIString
 {
-#warning TODO: implement lossyASCIIString
-  return self;
+  NSData *d;
+
+  d = [self dataUsingEncoding: NSASCIIStringEncoding 
+         allowLossyConversion: YES];
+  return [[[NSString alloc] initWithData: d 
+                                encoding: NSASCIIStringEncoding] autorelease];
 }
 
 @end
@@ -424,7 +428,6 @@ dump(NSArray *arguments)
         }
       else if ([anArg isEqualToString: @"-ascii"])
 	{
-#warning TODO: ascii option is currently not used
 	  if (convertsNonASCII)
 	    [NSException raise: NSInvalidArgumentException
 			 format: @"More than one occurence of parameter '-ascii'"];

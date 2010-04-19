@@ -1274,7 +1274,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 {
   //OK
   NSAssert3(!_attributesToFetch 
-	    | [_attributesToFetch isKindOfClass: [NSArray class]],
+	    || [_attributesToFetch isKindOfClass: [NSArray class]],
             @"entity %@ attributesToFetch %p is not an NSArray but a %@",
             [self name],
             _attributesToFetch,

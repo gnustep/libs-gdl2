@@ -1,5 +1,10 @@
 2010-04-19 Fred Kiefer <FredKiefer@gmx.de>
 
+	* EOAccess/EOEntity.m: Use '||' instead of '|'. 
+	* Tools/eoutil.m: Implement -lossyASCIIString.
+
+2010-04-19 Fred Kiefer <FredKiefer@gmx.de>
+
 	* EOControl/EOMutableKnownKeyDictionary.h,
 	* EOControl/EOMutableKnownKeyDictionary.m,
 	* EOControl/EOCheapArray.h,
