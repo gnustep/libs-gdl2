@@ -5389,104 +5389,62 @@ Raises an exception is the adaptor is unable to perform the operations.
   return retAttributes;
 }
 
+
 - (EOQualifier*) qualifierForLockingAttributes: (NSArray*)attributes
-			  primaryKeyAttributes: (NSArray*)primaryKeyAttributes
-					entity: (EOEntity*)entity
-				      snapshot: (NSDictionary*)snapshot
+                          primaryKeyAttributes: (NSArray*)primaryKeyAttributes
+                                        entity: (EOEntity*)entity
+                                      snapshot: (NSDictionary*)snapshot
 {
-  //OK
-  EOQualifier *qualifier = nil;
-  NSMutableArray *qualifiers = nil;
-  int which;
+  NSMutableArray *qualifiers = [NSMutableArray arrayWithCapacity:[attributes count] + [primaryKeyAttributes count]];
+  EOQualifier    *qual       = nil;
+  int                j       = 0;
+  NSUInteger         i       = 0;
+  
+  // do this for attributes and primaryKeyAttributes
+  for (j = 1; j <= 2; j++)
+  {   
+    NSArray * loopArray = ((j != 1) ? attributes : primaryKeyAttributes);
 
-  EOFLOGObjectFnStart();
-
-  NSDebugMLLog(@"EODatabaseContext", @"attributes=%@", attributes);
-  NSDebugMLLog(@"EODatabaseContext", @"primaryKeyAttributes=%@",
-	       primaryKeyAttributes);
-  NSDebugMLLog(@"EODatabaseContext", @"snapshot=%@", snapshot);
-
-  //First use primaryKeyAttributes, next use attributes
-  for (which = 0; which < 2; which++)
-    {
-      NSArray *array = (which == 0 ? primaryKeyAttributes : attributes);
-      int count = [array count];
-
-      if (count>0)
-        {
-          IMP oaiIMP=[array methodForSelector: @selector(objectAtIndex:)];
-          int i=0;
-
-          for (i = 0; i < count; i++)
-            {
-              EOAttribute *attribute = GDL2_ObjectAtIndexWithImp(array,oaiIMP,i);
-              
-              NSDebugMLLog(@"EODatabaseContext", @"attribute=%@", attribute);
-              
-              if (which == 0 || ![primaryKeyAttributes containsObject: attribute])// Test if we haven't already processed it
-                {
-                  if (![self isValidQualifierTypeForAttribute: attribute])
-                    {
-                      NSLog(@"Invalid externalType for attribute '%@' of entity named '%@' - model '%@'",
-                            [attribute name], [[attribute entity] name],
-                            [[[attribute entity] model] name]);
-                      NSEmitTODO();
-                      [self notImplemented: _cmd]; //TODO
-                    }
-                  else
-                    {
-                      NSString *attributeName = nil;
-                      NSString *snapName = nil;
-                      id value = nil;
-                      EOQualifier *aQualifier = nil;
-                      
-                      attributeName = [attribute name];
-                      NSAssert1(attributeName, @"no attribute name for attribute %@", attribute);
-                      
-                      snapName = [entity snapshotKeyForAttributeName: attributeName];
-                      NSAssert2(snapName, @"no snapName for attribute %@ in entity %@", attributeName, [entity name]);
-                      
-                      value = [snapshot objectForKey:snapName];
-                      
-                      if (!value)
-                        {
-                          NSDebugMLLog(@"EODatabaseContext", @"NO VALUE");
-                        }
-                      
-                      NSAssert4(value, @"no value for snapshotKey '%@' in snapshot (address=%p) %@ for entity %@",
-                                snapName, snapshot, snapshot, [entity name]);
-                      
-                      aQualifier = [EOKeyValueQualifier
-                                     qualifierWithKey: attributeName
-                                     operatorSelector: @selector(isEqualTo:)
-                                     value: value];
-                      
-                      NSDebugMLLog(@"EODatabaseContext", @"aQualifier=%@",
-                                   aQualifier);
-                      
-                      if (!qualifiers)
-                        qualifiers = [NSMutableArray array];
-                      
-                      [qualifiers addObject: aQualifier];
-                      
-                      NSDebugMLLog(@"EODatabaseContext", @"qualifiers=%@",
-                                   qualifiers);
-                    }
-                }
-            }
+    i = [loopArray count];
+    while (i > 0) {
+      EOAttribute *attr = nil;
+      NSString    *snapKey;
+      id           snapValue;
+      
+      attr = [loopArray objectAtIndex:i-1];
+            
+      if ((![self isValidQualifierTypeForAttribute:attr]) || ((loopArray == attributes) && [primaryKeyAttributes containsObject:attr]))
+      {
+        //NSLog(@"XX skipping for is %@",attr);
+      } else {
+        snapKey = [entity snapshotKeyForAttributeName:[attr name]];
+        snapValue = [snapshot objectForKey:snapKey];
+        
+        if (snapValue) {
+          EOKeyValueQualifier * kvQual = [EOKeyValueQualifier qualifierWithKey:[attr name]
+                                                              operatorSelector:EOQualifierOperatorEqual
+                                                                         value:snapValue];
+          [qualifiers addObject:kvQual];
         }
-    }
-
-  if ([qualifiers count] == 1)
-    qualifier = [qualifiers objectAtIndex: 0];
-  else
-    qualifier = [EOAndQualifier qualifierWithQualifierArray: qualifiers];
-
-  NSDebugMLLog(@"EODatabaseContext", @"qualifier=%@", qualifier);
-
-  EOFLOGObjectFnStop();
-
-  return qualifier;
+      }
+      i--;
+    } 
+  }
+    
+  switch ([qualifiers count]) {
+    case 0:
+      return nil;
+      break;
+    case 1:
+      qual = [qualifiers objectAtIndex: 0];
+      break;
+    default:
+      qual = [EOAndQualifier qualifierWithQualifierArray: qualifiers];
+      break;
+  }
+  
+  
+  return qual;
 }
 
 - (void) insertEntity: (EOEntity*)entity
