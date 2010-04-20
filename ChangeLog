@@ -3,6 +3,9 @@
       start transaction in
       objectsWithFetchSpecification: editingContext:
       if none was in place before.
+
+    * EOAccess/EOEntity.m:
+      globalIDForRow: isFinal: - create EOKeyGlobalID ouside loop
       
 2010-04-19 Fred Kiefer <FredKiefer@gmx.de>
 

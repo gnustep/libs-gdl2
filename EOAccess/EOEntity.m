@@ -2296,9 +2296,9 @@ createInstanceWithEditingContext:globalID:zone:
   EOKeyGlobalID *globalID = nil;
   NSArray *primaryKeyAttributeNames = nil;
   int count = 0;
-
+  
   NSAssert([row count] > 0, @"Empty Row.");
-
+  
   primaryKeyAttributeNames = [self primaryKeyAttributeNames];
   count = [primaryKeyAttributeNames count];  
   {
@@ -2306,25 +2306,25 @@ createInstanceWithEditingContext:globalID:zone:
     int i;
     IMP rowOFK=NULL;
     IMP pkanOAI=NULL;
-
+    
     memset(keyArray, 0, sizeof(id) * count);
-
+    
     for (i = 0; i < count; i++)
-      {
-        keyArray[i] = GDL2_ObjectForKeyWithImpPtr(row,&rowOFK,
-                                                 GDL2_ObjectAtIndexWithImpPtr(primaryKeyAttributeNames,
+    {
+      keyArray[i] = GDL2_ObjectForKeyWithImpPtr(row,&rowOFK,
+                                                GDL2_ObjectAtIndexWithImpPtr(primaryKeyAttributeNames,
                                                                              &pkanOAI,i));
-
-        globalID = [EOKeyGlobalID globalIDWithEntityName: [self name]
-                                  keys: keyArray
-                                  keyCount: count
-                                  zone: [self zone]];
-      }
-  };
-
+      
+    }
+    globalID = [EOKeyGlobalID globalIDWithEntityName: [self name]
+                                                keys: keyArray
+                                            keyCount: count
+                                                zone: [self zone]];
+  }
+  
   //NSEmitTODO();  //TODO
   //TODO isFinal  ??
-
+  
   return globalID;
 }
 
