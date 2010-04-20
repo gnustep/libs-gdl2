@@ -1347,6 +1347,15 @@ userInfo = {
 
   NSDebugMLLog(@"EODatabaseContext", @"fetchSpecification=%@", fetchSpecification);
 
+#warning fix this method! -- dw
+  
+  if (_flags.beganTransaction == NO)
+  {
+    [_adaptorContext beginTransaction];
+    
+    _flags.beganTransaction = YES;
+  }
+  
   if (_delegateRespondsTo.shouldFetchObjects == YES)
     {
       array = (id)[_delegate databaseContext: self
@@ -1435,7 +1444,7 @@ userInfo = {
 		BOOL promptsAfterFetchLimit = NO;
 		NSAutoreleasePool *arp = nil;//To avoid too much memory use when fetching a lot of objects
 		int limit = 0;
-
+                
 		[channel selectObjectsWithFetchSpecification: fetchSpecification
 			 editingContext: context];//OK
 
@@ -1601,8 +1610,7 @@ userInfo = {
               channelFetchRowWithZoneIMP=
                 [adaptorChannel methodForSelector:@selector(fetchRowWithZone:)];
 
-              if (_flags.beganTransaction == NO
-                  && _updateStrategy == EOUpdateWithPessimisticLocking)
+              if (_flags.beganTransaction == NO && _updateStrategy == EOUpdateWithPessimisticLocking)
                 {
                   [_adaptorContext beginTransaction];
 
