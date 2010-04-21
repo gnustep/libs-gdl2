@@ -28,11 +28,7 @@
 #define __EOObserver_h__
 
 
-#ifdef GNUSTEP
-#include <Foundation/NSObject.h>
-#else
-#include <Foundation/Foundation.h>
-#endif
+#include <EOControl/EOCustomObject.h>
 
 @class NSArray;
 
@@ -88,7 +84,7 @@ typedef enum {
 #define EOObserverNumberOfPriorities ((unsigned)EOObserverPriorityLater + 1)
 
 
-@interface EODelayedObserver : NSObject <EOObserving>
+@interface EODelayedObserver : EOCustomObject <EOObserving>
 {
   @public
     EODelayedObserver *_next;   /* Linked List.  */

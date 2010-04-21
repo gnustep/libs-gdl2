@@ -1,18 +1,27 @@
-2010-04-20  David Wetzel <dave@turbocat.de>
-    * EOAccess/EODatabaseContext.m:
-      start transaction in
-      objectsWithFetchSpecification: editingContext:
-      if none was in place before.
+2010-04-21  David Ayers  <ayers@fsfe.org>
 
-    * EOAccess/EOEntity.m:
-      globalIDForRow: isFinal: - create EOKeyGlobalID ouside loop
+	* EOControl/EOObserver.h
+	(EODelayedObserver): Inherit from EOCustomObject
+	to be able to rely on implicit breaking of connections
+	during dealloc.
+	* EOInterface/EOAssociation.m
+	(establishConnection): Reactivate implicit connection handling.
+
+2010-04-20  David Wetzel  <dave@turbocat.de>
+
+	* EOAccess/EODatabaseContext.m:
+	(-objectsWithFetchSpecification:editingContext:):
+	Start transaction if none was in place before.
+
+	* EOAccess/EOEntity.m: (-globalIDForRow:isFinal:)
+	Create EOKeyGlobalID outside loop.
       
-2010-04-19 Fred Kiefer <FredKiefer@gmx.de>
+2010-04-19  Fred Kiefer  <FredKiefer@gmx.de>
 
 	* EOAccess/EOEntity.m: Use '||' instead of '|'. 
 	* Tools/eoutil.m: Implement -lossyASCIIString.
 
-2010-04-19 Fred Kiefer <FredKiefer@gmx.de>
+2010-04-19  Fred Kiefer  <FredKiefer@gmx.de>
 
 	* EOControl/EOMutableKnownKeyDictionary.h,
 	* EOControl/EOMutableKnownKeyDictionary.m,

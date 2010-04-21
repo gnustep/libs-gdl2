@@ -228,11 +228,11 @@ static NSMapTable *_objectToAssociations;
     NSEndMapTableEnumeration (&displayGroupEnum);
     
     /* registerAssociationForDeallocHack is implemented in
-     EOControl/EOEditingContext.m this causes +objectDeallocated:
+     EOControl/EOCustomObject.m this causes +objectDeallocated:
      to be called when '_object' is deallocated, which will break the
      connection which releases the association instance. */
     [self retain];
-    // [self registerAssociationForDeallocHack:_object];
+    [self registerAssociationForDeallocHack:_object];
     
     associations = (id)NSMapGet(_objectToAssociations, _object);
     
