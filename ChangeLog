@@ -1,3 +1,8 @@
+2010-04-21  Sergey Golovin  <golovin.sv@gmail.com>
+
+	* DBModeler/ConsistencyChecker.m (attributeDetailsCheckForModel:)
+	Fix iterator variable.
+
 2010-04-21  David Ayers  <ayers@fsfe.org>
 
 	* EOControl/EOObserver.h

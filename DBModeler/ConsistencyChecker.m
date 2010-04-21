@@ -155,7 +155,7 @@ static BOOL isInvalid(NSString *str)
               id pkey;
               BOOL ok = YES;
 
-              for (k = 0, e = [pkAttribs count]; ok == YES && k < e; i++)
+              for (k = 0, e = [pkAttribs count]; ok == YES && k < e; k++)
                 {
                   pkey = [pkAttribs objectAtIndex:k];
                   ok = [attribs containsObject:pkey];
@@ -171,7 +171,7 @@ static BOOL isInvalid(NSString *str)
               attribs = [rel destinationAttributes];
               pkAttribs = [[rel destinationEntity] primaryKeyAttributes];
               
-              for (k = 0, e = [pkAttribs count]; ok == YES && k < e; i++)
+              for (k = 0, e = [pkAttribs count]; ok == YES && k < e; k++)
                 {
                   pkey = [pkAttribs objectAtIndex:k];
                   ok = [attribs containsObject:pkey];
