@@ -2,6 +2,9 @@
 
 	* DBModeler/ConsistencyChecker.m (attributeDetailsCheckForModel:)
 	Fix iterator variable.
+	* EOAccess/EODatabaseContext.m
+	(prepareForSaveWithCoordinator:editingContext:): Correct logic
+	for primary key generation.
 
 2010-04-21  David Ayers  <ayers@fsfe.org>
 

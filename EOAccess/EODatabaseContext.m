@@ -2396,7 +2396,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
                               i--;
                             };
                         }
-                      else if (round>0)
+                      else if (round == 0)
                         {
                           if (!noPKObjects)
                             noPKObjects=(NSMutableArray*)[NSMutableArray array];
