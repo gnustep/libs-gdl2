@@ -78,8 +78,8 @@
 @interface EOMKKDKeyEnumerator : NSEnumerator
 {
   EOMutableKnownKeyDictionary *_target;
-  int _position;
-  int _end;
+  NSUInteger _position;
+  NSUInteger _end;
   //  id* tvalues;
   id _extraEnumerator;
   NSString **_keys;
@@ -96,10 +96,10 @@
 @public
   EOMKKDInitializer *_sourceDescription;
   EOMKKDInitializer *_destinationDescription;
-  int _sourceOffsetForDestinationOffset[1];
+  NSUInteger _sourceOffsetForDestinationOffset[1];
 }
 
-+(id)newInstanceWithKeyCount: (unsigned int)keyCount
++(id)newInstanceWithKeyCount: (NSUInteger) keyCount
            sourceDescription: (EOMKKDInitializer *)source
       destinationDescription: (EOMKKDInitializer *)destination
                         zone: (NSZone *)zone;
@@ -111,9 +111,9 @@
 {
 @public
   EOMKKDInitializer *_destinationDescription;
-  int _destinationOffsetForArrayIndex[1];
+  NSUInteger _destinationOffsetForArrayIndex[1];
 }
-+ (id)newInstanceWithKeyCount: (unsigned int)keyCount
++ (id)newInstanceWithKeyCount: (NSUInteger)keyCount
        destinationDescription: (EOMKKDInitializer *)destination
 			 zone: (NSZone *)zone;
 - (NSString *)description;

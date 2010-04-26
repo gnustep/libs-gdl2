@@ -50,7 +50,6 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
 #endif
 
 #include <EOControl/EOMutableKnownKeyDictionary.h>
@@ -92,11 +91,11 @@ RCS_ID("$Id$")
 }
 
 - (id)initWithKeys: (id*)keys
-	     count: (int)count
+	     count: (NSUInteger)count
 {
   if ((self = [self init]))
     {
-      int i;
+      NSUInteger i;
 
       NSAssert(keys, @"No array of keys");
       NSAssert(count > 0, @"No keys in array");
@@ -120,7 +119,7 @@ RCS_ID("$Id$")
           EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%@ RETAINCOUNT=%d",
 				key, [key retainCount]);
 
-          oldValue = NSMapInsertIfAbsent(_keyToIndex,key, (const void*)(uintptr_t)(i + 1)); //+1 because 0 = no object
+          oldValue = NSMapInsertIfAbsent(_keyToIndex,key, (const void*)(NSUInteger)(i + 1)); //+1 because 0 = no object
           _keys[i] = key; //Don't retain: already retained by Map
 
           EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%@ RETAINCOUNT=%d",
@@ -136,7 +135,7 @@ RCS_ID("$Id$")
 
 - (id)initWithKeys: (NSArray*)keys
 {
-  int count = [keys count];
+  NSUInteger count = [keys count];
 
   NSAssert(keys, @"No array of keys");
   NSAssert([keys count] > 0, @"No keys in array");
@@ -175,10 +174,10 @@ RCS_ID("$Id$")
 - (NSString*)description
 {
   NSString *dscr;
-  int i;
+  NSUInteger i;
 
   dscr = [NSString stringWithFormat: @"<%s %p - keys=",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self];
 
   for (i = 0; i < _count; i++)
@@ -200,7 +199,7 @@ RCS_ID("$Id$")
   //OK?
   id key;
 
-  NSAssert2(index < _count, @"bad index %d (count=%u)", index, _count);
+  NSAssert3(index < _count, @"%s: bad index %d (count=%u)", __PRETTY_FUNCTION__, index, _count);
 
   key = _keys[index];
 
@@ -213,7 +212,7 @@ RCS_ID("$Id$")
 {
   id key;
 
-  NSAssert2(index < _count, @"bad index %d (count=%u)", index, _count);
+  NSAssert3(index < _count, @"%s: bad index %d (count=%u)", __PRETTY_FUNCTION__, index, _count);
 
   key = _keys[index];
 
@@ -223,11 +222,13 @@ RCS_ID("$Id$")
 - (NSUInteger) indexForKey: (id)key
 {
   void *index = NSMapGet(_keyToIndex, (const void *)key);
-
-  if (!index)
+  
+  if (!index) {
+    NSLog(@"%s:'%@' not found", __PRETTY_FUNCTION__, key);
     return NSNotFound;
-  else
-    return (NSUInteger)(index - 1);
+  }
+  
+  return (NSUInteger)(index - 1);
 }
 
 - (BOOL)hasKey: (id)key
@@ -237,8 +238,8 @@ RCS_ID("$Id$")
 
 - (EOMKKDArrayMapping*) arrayMappingForKeys: (NSArray*)keys
 {
-  int selfKeyCount = [keys count];
-  int keyCount = [keys count];
+  NSUInteger selfKeyCount = [keys count];
+  NSUInteger keyCount = [keys count];
   EOMKKDArrayMapping *arrayMapping = nil;
 
   NSAssert(keyCount <= selfKeyCount, @"key count greater than our key count");
@@ -249,7 +250,7 @@ RCS_ID("$Id$")
 
   if (keyCount>0)
     {
-      int i=0;
+      NSUInteger i=0;
       GDL2IMP_UINT indexForKeyIMP=NULL;
       IMP objectAtIndexIMP=[keys methodForSelector:@selector(objectAtIndex:)];
 
@@ -270,8 +271,8 @@ RCS_ID("$Id$")
                                                           sourceKeys: (NSArray*)sourceKeys
                                                      destinationKeys: (NSArray*)destinationKeys
 {
-  unsigned int selfKeyCount = [self count];
-  unsigned int keyCount = [destinationKeys count];
+  NSUInteger selfKeyCount = [self count];
+  NSUInteger keyCount = [destinationKeys count];
   EOMKKDSubsetMapping *subsetMapping = nil;
 
   NSAssert([sourceKeys count] == keyCount, @"Source and destination keys count are different");
@@ -289,7 +290,7 @@ RCS_ID("$Id$")
 
   if (keyCount>0)
       {
-        int i;
+        NSUInteger i;
         GDL2IMP_UINT selfIndexForKeyIMP=NULL;
         GDL2IMP_UINT sourceInitializerIndexForKeyIMP=NULL;
         IMP sourceObjectAtIndexIMP=[sourceKeys methodForSelector:@selector(objectAtIndex:)];
@@ -299,8 +300,8 @@ RCS_ID("$Id$")
           {
             NSString *sourceKey = nil;
             NSString *destinationKey = nil;
-            int destinationIndex = 0;
-            int sourceIndex = 0;
+            NSUInteger destinationIndex = 0;
+            NSUInteger sourceIndex = 0;
             
             sourceKey = 
               GDL2_ObjectAtIndexWithImp(sourceKeys,sourceObjectAtIndexIMP,i);
@@ -351,13 +352,13 @@ RCS_ID("$Id$")
 
   if (keyCount>0)
     {
-      int i=0;
+      NSUInteger i=0;
       GDL2IMP_UINT indexForKeyIMP=NULL;
   
       for (i = 0; i < keyCount; i++)
         {
           NSString *key;
-          int index;
+          NSInteger index;
           
           key = _keys[i];
           EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%@", key);
@@ -403,6 +404,7 @@ RCS_ID("$Id$")
       initializer = [_target eoMKKDInitializer];
       _end = [initializer count];
       _keys = [initializer keys];
+      _position = 0;
     }
 
   return self;
@@ -422,7 +424,7 @@ RCS_ID("$Id$")
   NSString *dscr;
 
   dscr = [NSString stringWithFormat: @"<%s %p - target=%p>",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
                    _target];
   return dscr;
@@ -452,24 +454,27 @@ RCS_ID("$Id$")
 
 @implementation EOMKKDSubsetMapping
 
-+ (id)newInstanceWithKeyCount: (unsigned int)keyCount
++ (id)newInstanceWithKeyCount: (NSUInteger)keyCount
 	    sourceDescription: (EOMKKDInitializer*)source
        destinationDescription: (EOMKKDInitializer*)destination
 			 zone: (NSZone*)zone
 {
-  unsigned extraBytes = (keyCount > 0 ? (keyCount - 1) : 0) * sizeof(int);
+  unsigned extraBytes = (keyCount > 0 ? (keyCount - 1) : 0) * sizeof(NSUInteger);
   EOMKKDSubsetMapping *subsetMapping;
 
   subsetMapping = (EOMKKDSubsetMapping*)NSAllocateObject([EOMKKDSubsetMapping class],
 							 extraBytes,
 							 zone);
+
+  NSLog(@"before [subsetMapping init] (%p)",subsetMapping);
   [subsetMapping init];
+  NSLog(@"after [subsetMapping init]");
 
   ASSIGN(subsetMapping-> _sourceDescription,source);
   ASSIGN(subsetMapping-> _destinationDescription,destination);
 
   memset(subsetMapping-> _sourceOffsetForDestinationOffset, 0, 
-	 extraBytes + sizeof(int));
+	 extraBytes + sizeof(NSUInteger));
 
   return subsetMapping;
 }
@@ -486,11 +491,11 @@ RCS_ID("$Id$")
 {
   NSString *dscr;
   NSMutableString *offsets = [NSMutableString string];
-  int i;
+  NSUInteger i;
   int count = [_destinationDescription count];
 
   dscr = [NSString stringWithFormat: @"<%s %p - ",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self];
   dscr = [dscr stringByAppendingFormat: @"\nsourceDescription=%@",
 	       [_sourceDescription description]];
@@ -510,11 +515,11 @@ RCS_ID("$Id$")
 
 @implementation EOMKKDArrayMapping
 
-+ (id)newInstanceWithKeyCount: (unsigned int)keyCount
++ (id)newInstanceWithKeyCount: (NSUInteger)keyCount
        destinationDescription: (EOMKKDInitializer*)destination
 			 zone: (NSZone*)zone
 {
-  unsigned extraBytes = (keyCount > 0 ? (keyCount - 1) : 0) * sizeof(int);
+  NSUInteger extraBytes = (keyCount > 0 ? (keyCount - 1) : 0) * sizeof(NSUInteger);
   EOMKKDArrayMapping *arrayMapping;
 
   arrayMapping = (EOMKKDArrayMapping*)NSAllocateObject([EOMKKDArrayMapping class],
@@ -524,7 +529,7 @@ RCS_ID("$Id$")
 
   ASSIGN(arrayMapping->_destinationDescription, destination);
   memset(arrayMapping->_destinationOffsetForArrayIndex, 0,
-	 extraBytes + sizeof(int));
+	 extraBytes + sizeof(NSUInteger));
 
   return arrayMapping;
 }
@@ -541,7 +546,7 @@ RCS_ID("$Id$")
   NSString *dscr;
 
   dscr = [NSString stringWithFormat: @"<%s %p >",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self];
   return dscr;
 }
@@ -574,7 +579,7 @@ RCS_ID("$Id$")
 			     zone: (NSZone*)zone
 {
   EOMutableKnownKeyDictionary *newDict = nil;  
-  int objectsCount;
+  NSUInteger objectsCount;
 
   NSAssert(dict, @"No dictionary");
   NSAssert(subsetMapping, @"No subsetMapping");
@@ -591,7 +596,7 @@ RCS_ID("$Id$")
   if (objectsCount > 0)
     {
       id objects[objectsCount];
-      int i;
+      NSUInteger i;
 
       for (i = 0; i < objectsCount; i++)
 	{
@@ -599,7 +604,7 @@ RCS_ID("$Id$")
 
 	  if (subsetMapping->_sourceOffsetForDestinationOffset[i] > 0)
 	    {
-	      int index = subsetMapping->_sourceOffsetForDestinationOffset[i] - 1;
+	      NSUInteger index = subsetMapping->_sourceOffsetForDestinationOffset[i] - 1;
 
 	      EOFLOGObjectLevelArgs(@"EOMKKD", @"index=%d", index);
 
@@ -646,8 +651,8 @@ RCS_ID("$Id$")
 		    forKeys: (NSArray*)keys
 {
   EOMutableKnownKeyDictionary *dict = nil;
-  int objectsCount = [objects count];
-  int keysCount = [keys count];
+  NSUInteger objectsCount = [objects count];
+  NSUInteger keysCount = [keys count];
 
   NSAssert2(objectsCount == keysCount,
             @"Objects Count (%d) is not equal to keys Count (%d)",
@@ -698,7 +703,7 @@ RCS_ID("$Id$")
 
   if ((self = [self init]))
     {
-      int count;
+      NSUInteger count;
 
       NSAssert(initializer, @"No Initializer");
       EOFLOGObjectLevel(@"EOMKKD", @"suite");
@@ -729,8 +734,8 @@ RCS_ID("$Id$")
 
       if (objects)
         {
-          int i;
-          int count = [_MKKDInitializer count];
+          NSUInteger i;
+          NSUInteger count = [_MKKDInitializer count];
 
           EOFLOGObjectLevelArgs(@"EOMKKD", @"count=%d", count);
 
@@ -775,7 +780,7 @@ RCS_ID("$Id$")
 
       if (objects)
         {
-          int i;
+          NSUInteger i;
 
           for (i = 0; i < count; i++)
             {
@@ -797,8 +802,8 @@ RCS_ID("$Id$")
 
   if (_values)    
     {
-      int i;
-      unsigned int count = [_MKKDInitializer count];
+      NSUInteger i;
+      NSUInteger count = [_MKKDInitializer count];
 
       for (i = 0; i < count; i++)
         {
@@ -814,7 +819,7 @@ RCS_ID("$Id$")
   [super dealloc];
 }
 
-- (unsigned int) count
+- (NSUInteger) count
 {
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
   return [_MKKDInitializer count];
@@ -823,37 +828,32 @@ RCS_ID("$Id$")
 - (id) objectForKey: (id)key
 {
   id object = nil;
-  unsigned int index;
-
-//  EOFLOGObjectFnStart();
+  NSUInteger index;
+  
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
-
+  
   index = EOMKKDInitializer_indexForKeyWithImpPtr(_MKKDInitializer,NULL,key);
-
-//  EOFLOGObjectLevelArgs(@"EOMKKD", @"index=%d", index);
-
-  if (index == NSNotFound)
-    {
-      if (_extraData)
-        object = [_extraData objectForKey: key];
-    }
+    
+  if ((index == NSNotFound))
+  {
+    if (_extraData)
+      object = [_extraData objectForKey: key];
+  }
   else
-    {
-      NSAssert2(index < [_MKKDInitializer count], @"bad index %d (count=%u)",
-		index, [_MKKDInitializer count]);
-      object = _values[index];
-    }
-
-//  EOFLOGObjectLevelArgs(@"EOMKKD",@"object=%p",object);
-//  EOFLOGObjectFnStop();
-
+  {
+    NSAssert2(index < [_MKKDInitializer count], @"bad index %d (count=%u)",
+              index, [_MKKDInitializer count]);
+          object = _values[index];
+  }
+  
+  
   return object;
 }
 
 - (void) setObject: (id)object
             forKey: (id)key
 {
-  unsigned int index;
+  NSUInteger index;
 
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
 
@@ -878,7 +878,7 @@ RCS_ID("$Id$")
 
 - (void) removeObjectForKey: (id)key
 {
-  unsigned int index;
+  NSUInteger index;
 
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
 
@@ -901,8 +901,8 @@ RCS_ID("$Id$")
 - (BOOL) containsObjectsNotIdenticalTo: (id)object
 {
   BOOL result = NO;
-  int i;
-  unsigned int count = [_MKKDInitializer count];
+  NSUInteger i;
+  NSUInteger count = [_MKKDInitializer count];
 
   for (i = 0; !result && i < count; i++)
     {
@@ -960,12 +960,12 @@ RCS_ID("$Id$")
 - (NSString*)debugDescription
 {
   NSString *dscr;
-  int i;
-  int count;
+  NSUInteger i;
+  NSUInteger count;
   id *keys;
 
   dscr = [NSString stringWithFormat: @"<%s %p - KV=",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self];
 
   count = [_MKKDInitializer count];
