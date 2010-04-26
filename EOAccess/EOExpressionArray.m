@@ -54,8 +54,8 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
 #include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #define GSI_ARRAY_TYPES GSUNION_OBJ

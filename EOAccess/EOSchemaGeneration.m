@@ -49,7 +49,7 @@ RCS_ID("$Id: EOSchemaGeneration.m 23653 2006-09-28 15:25:30Z ratmice $")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EODebug.h>

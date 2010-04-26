@@ -94,10 +94,11 @@ struct _EOTransactionScope;
   NSHashTable *_nonPrimaryKeyGenerators;
 
   struct {
+    unsigned int willPrepareForSave:1;
     unsigned int preparingForSave:1;
     unsigned int beganTransaction:1;
     unsigned int ignoreEntityCaching:1;
-    unsigned int _reserved:29;
+    unsigned int _reserved:28;
   } _flags;
   id _delegate; /* unretained */
   struct {

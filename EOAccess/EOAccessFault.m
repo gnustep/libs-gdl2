@@ -47,7 +47,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOCheapArray.h>
@@ -147,7 +147,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
   if ((self = [super init]))
     {
       NSDebugFLog(@"INIT EOAccessFaultHandler %p. ThreadID=%@",
-		  (void*)self,GSCurrentThread());
+		  (void*)self, [NSThread currentThread]);
     }
 
   return self;
@@ -185,7 +185,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 {
 #ifdef DEBUG
   NSDebugFLog(@"Dealloc EOAccessFaultHandler %p. ThreadID=%@",
-              (void*)self, GSCurrentThread());
+              (void*)self, [NSThread currentThread]);
 #endif
 
   DESTROY(gid);
@@ -324,7 +324,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 {
 #ifdef DEBUG
   NSDebugFLog(@"Dealloc EOAccessArrayFaultHandler %p. ThreadID=%@",
-              (void*)self,GSCurrentThread());
+              (void*)self, [NSThread currentThread]);
 #endif
 
   DESTROY(sgid);

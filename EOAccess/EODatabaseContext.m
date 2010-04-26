@@ -56,7 +56,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <GNUstepBase/GSObjCRuntime.h>
@@ -411,13 +411,13 @@ static Class _contextClass = Nil;
 - (BOOL)hasBusyChannels
 {
   BOOL busy = NO;
-  int count = 0;
+  NSUInteger count = 0;
 
   count = [_registeredChannels count];  
 
   if (count>0)
     {
-      int i = 0;
+      NSUInteger i = 0;
       IMP oaiIMP=[_registeredChannels methodForSelector: @selector(objectAtIndex:)];
 
       for (i = 0 ; !busy && i < count; i++)
@@ -435,7 +435,7 @@ static Class _contextClass = Nil;
 - (NSArray *)registeredChannels
 {
   NSMutableArray *array = nil;
-  int i, count;
+  NSUInteger i, count;
 
   count = [_registeredChannels count];
   array = [NSMutableArray arrayWithCapacity: count];
@@ -467,8 +467,8 @@ static Class _contextClass = Nil;
 
 - (void)unregisterChannel: (EODatabaseChannel *)channel
 {
-  int i;
-  int count= [_registeredChannels count];
+  NSUInteger i;
+  NSUInteger count= [_registeredChannels count];
   if (count>0)
     {
       IMP oaiIMP=[_registeredChannels methodForSelector: @selector(objectAtIndex:)];
@@ -521,7 +521,7 @@ static Class _contextClass = Nil;
 - (EODatabaseChannel *)availableChannel
 {
   EODatabaseChannel *channel = nil;
-  int num = 2;
+  NSUInteger num = 2;
 
   while (!channel && num)
     {
@@ -635,7 +635,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 
 - (void)handleDroppedConnection
 {
-  int i;
+  NSUInteger i;
 
   EOFLOGObjectFnStartOrCond2(@"DatabaseLevel", @"EODatabaseContext");
 
@@ -917,7 +917,7 @@ userInfo = {
       NSArray *updatedObjects = [userInfo objectForKey: EOUpdatedKey];
       //NSArray *insertedObjects = [userInfo objectForKey: EOInsertedKey];
       //NSArray *deletedObjects = [userInfo objectForKey: EODeletedKey];
-      int i, count = [updatedObjects count];
+      NSUInteger i, count = [updatedObjects count];
 
       NSDebugMLLog(@"EODatabaseContext", @"updatedObjects=%@", updatedObjects);
 
@@ -977,7 +977,7 @@ userInfo = {
   id sourceObjectFault = nil;
   id relationshipValue = nil;
   NSArray *sourceSnapshot = nil;
-  int sourceSnapshotCount = 0;
+  NSUInteger sourceSnapshotCount = 0;
 
   EOFLOGObjectFnStart();
 
@@ -1012,7 +1012,7 @@ userInfo = {
     {
       EOGlobalID *snapGID = nil;
       id snapFault = nil;
-      int i;
+      NSUInteger i;
       IMP addObjectIMP=NULL;
       IMP oaiIMP=NULL;
 
@@ -1044,7 +1044,7 @@ userInfo = {
     {  
       EOEntity *entity;
       EORelationship *relationship;
-      unsigned int maxBatch = 0;
+      NSUInteger maxBatch = 0;
       BOOL isToManyToOne = NO;
       EOEntity *destinationEntity = nil;
       EOModel *destinationEntityModel = nil;
@@ -1339,8 +1339,8 @@ userInfo = {
     NSArray *subEntities = nil;*/
   NSArray* rawRowKeyPaths = nil;
   BOOL usesDistinct = NO;
-  int num = 0;
-  int limit=0;
+  NSUInteger num = 0;
+  NSUInteger limit=0;
   id obj = nil;
 
   EOFLOGObjectFnStart();
@@ -1781,11 +1781,11 @@ userInfo = {
 
               if ([entity isAbstractEntity] == NO) //Mirko ???
                 {
-                  int autoreleaseSteps = 20;
-                  int autoreleaseStep = autoreleaseSteps;
+                  NSUInteger autoreleaseSteps = 20;
+                  NSUInteger autoreleaseStep = autoreleaseSteps;
                   BOOL promptsAfterFetchLimit = NO;
                   NSAutoreleasePool *arp = nil;//To avoid too much memory use when fetching a lot of objects
-                  int limit = 0;
+                  NSUInteger limit = 0;
 
                   [channel selectObjectsWithFetchSpecification: fetchSpecification
                            editingContext: context];//OK
@@ -3318,23 +3318,25 @@ Raises an exception is the adaptor is unable to perform the operations.
   dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
 
   while (NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid, (void **)&dbOpe))
+  {
+    NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
+    
+    //REVOIR
+    if ([dbOpe databaseOperator] == EODatabaseNothingOperator)
     {
-      NSDebugMLLog(@"EODatabaseContext", @"dbOpe=%@", dbOpe);
-
-      //REVOIR
-      if ([dbOpe databaseOperator] == EODatabaseNothingOperator)
-        {
-          NSDebugMLLog(@"EODatabaseContext", @"Db Ope %@ for Nothing !!!",
-		       dbOpe);
-        }
-      else
-        {
-          [self _verifyNoChangesToReadonlyEntity: dbOpe];
-          //MIRKO snapshot = [op dbSnapshot];
-          [self createAdaptorOperationsForDatabaseOperation: dbOpe];
-        }
+      NSDebugMLLog(@"EODatabaseContext", @"Db Ope %@ for Nothing !!!",
+                   dbOpe);
     }
-
+    else
+    {
+      [self _verifyNoChangesToReadonlyEntity: dbOpe];
+      //MIRKO snapshot = [op dbSnapshot];
+      [self createAdaptorOperationsForDatabaseOperation: dbOpe];
+    }
+  }
+  // avoid leaks! -- dw
+  NSEndMapTableEnumeration(&dbOpeEnum);
+  
   NSDebugMLLog(@"EODatabaseContext", @"orderedAdaptorOperations A=%@",
 	       orderedAdaptorOperations);
 
@@ -3517,11 +3519,15 @@ Raises an exception is the adaptor is unable to perform the operations.
                 }
             }
         }
+      // avoid leaks! -- dw
+      NSEndMapTableEnumeration(&dbOpeEnum);
     }
 
   EOFLOGObjectFnStop();
 }
 
+
+// TODO: change to SYNCRONIZED and free memorory properly -- dw
 - (void)commitChanges
 {
   BOOL doIt = NO;
@@ -3535,16 +3541,18 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   //REVOIR: don't do it if no adaptor ope
   {
-      NSMapEnumerator dbOpeEnum;
-      EOGlobalID *gid = nil;
-      EODatabaseOperation *dbOpe = nil;
-      dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
-
-      while (!doIt && NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid,
-					      (void **)&dbOpe))
-        {
-          doIt = ([dbOpe adaptorOperations] != nil);
-        }
+    NSMapEnumerator dbOpeEnum;
+    EOGlobalID *gid = nil;
+    EODatabaseOperation *dbOpe = nil;
+    dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
+    
+    while (!doIt && NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid,
+                                            (void **)&dbOpe))
+    {
+      doIt = ([dbOpe adaptorOperations] != nil);
+    }
+    // avoid leaks! -- dw
+    NSEndMapTableEnumeration(&dbOpeEnum);
   }
 
   /* If a transaction is open, it could be holding locks
@@ -3690,6 +3698,8 @@ Raises an exception is the adaptor is unable to perform the operations.
                   break;
                 }
             }
+          // avoid leaks! -- dw
+          NSEndMapTableEnumeration(&dbOpeEnum);
         }
     }
 
@@ -6587,7 +6597,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   //really near ok
   NSArray *relationships = nil;
   NSArray *classPropertyAttributeNames = nil;
-  int count = 0;
+  NSUInteger count = 0;
   IMP objectTakeStoredValueForKeyIMP=NULL;
   IMP rowObjectForKeyIMP=NULL;
 
@@ -6604,7 +6614,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      int i=0;
+      NSUInteger i=0;
       IMP oaiIMP=[classPropertyAttributeNames methodForSelector:@selector(objectAtIndex:)];
 
       NSAssert(!_isFault(object),
@@ -6641,7 +6651,7 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   if (count>0)
     {
-      int i=0;
+      NSUInteger i=0;
       IMP oaiIMP=[relationships methodForSelector:@selector(objectAtIndex:)];
 
       if (!objectTakeStoredValueForKeyIMP)
@@ -6822,56 +6832,37 @@ Raises an exception is the adaptor is unable to perform the operations.
 
 - (void)_commitTransaction
 {
-  EOFLOGObjectFnStart();
-
-  NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
-	       self, _uniqueStack, _uniqueStack);
-
+  
   if ([_uniqueStack count] > 0)
+  {
+    NSMutableDictionary *snapshotsDict = [_uniqueStack lastObject];
+    NSMutableDictionary *toManySnapshotsDict = [_uniqueArrayStack lastObject];
+    NSMutableSet *deleteSnapshotsSet = [_deleteStack lastObject];
+    NSEnumerator *deletedGIDEnum = [deleteSnapshotsSet objectEnumerator];
+    EOGlobalID *gid;
+    
+    while ((gid = [deletedGIDEnum nextObject]))
     {
-      NSMutableDictionary *snapshotsDict 
-	= [_uniqueStack lastObject];
-      NSMutableDictionary *toManySnapshotsDict 
-	= [_uniqueArrayStack lastObject];
-      NSMutableSet *deleteSnapshotsSet 
-	= [_deleteStack lastObject];
-      NSEnumerator *deletedGIDEnum
-       = [deleteSnapshotsSet objectEnumerator];
-      EOGlobalID *gid;
-
-      while ((gid = [deletedGIDEnum nextObject]))
-	{
-	  [_database forgetSnapshotForGlobalID: gid];
-	}
-
-      [_database recordSnapshots: snapshotsDict];
-      [_database recordToManySnapshots: toManySnapshotsDict];
-
-      [self forgetAllLocks];
-
-      [_uniqueStack removeLastObject];
-      [_uniqueArrayStack removeLastObject];
-      [_deleteStack removeLastObject];
+      [_database forgetSnapshotForGlobalID: gid];
     }
-
-  NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
-	       self, _uniqueStack, _uniqueStack);
-
-  EOFLOGObjectFnStop();
+    
+    [_database recordSnapshots: snapshotsDict];
+    [_database recordToManySnapshots: toManySnapshotsDict];
+    
+    [self forgetAllLocks];
+    
+    [_uniqueStack removeLastObject];
+    [_uniqueArrayStack removeLastObject];
+    [_deleteStack removeLastObject];
+  }
+  
 }
 
 - (void) _beginTransaction
 {
-  EOFLOGObjectFnStart();
-
   [_uniqueStack addObject: [NSMutableDictionary dictionary]];
   [_uniqueArrayStack addObject: [NSMutableDictionary dictionary]];
   [_deleteStack addObject: [NSMutableSet set]];
-
-  NSDebugMLLog(@"EODatabaseContext", @"self=%p _uniqueStack %p=%@",
-	       self, _uniqueStack, _uniqueStack);
-
-  EOFLOGObjectFnStop();
 }
 
 - (EODatabaseChannel*) _obtainOpenChannel
@@ -6950,8 +6941,8 @@ Raises an exception is the adaptor is unable to perform the operations.
 
 - (void) _cleanUpAfterSave
 {
-//TODO
-  EOFLOGObjectFnStart();
+  // TODO -- dw
+  //EODatabase * eodatabase = [self database];
 
   _coordinator = nil; //realesae ?
   _editingContext = nil; //realesae ?
@@ -6963,15 +6954,16 @@ Raises an exception is the adaptor is unable to perform the operations.
       _dbOperationsByGlobalID = NULL;
     }
 
+  _flags.beganTransaction = NO;
+  _flags.willPrepareForSave = NO;
   _flags.preparingForSave = NO;
-
-  //TODO HERE or in _commitTransaction ?
-  if (_lockedObjects)
-    {
-      NSResetHashTable(_lockedObjects);
-    }
-
-  EOFLOGObjectFnStop();
+  
+  // TODO -- dw
+//  if (eodatabase != nil)
+//  {
+//    [eodatabase _clearLastRecords];
+//  }
+  
 }
 
 - (EOGlobalID*)_globalIDForObject: (id)object
@@ -7189,7 +7181,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       //	will relay it's pk to parent which is not good
       NSDictionary *objectSnapshot=nil;
       NSArray *relationships=nil;
-      int relationshipsCount=0;
+      NSUInteger relationshipsCount=0;
 
       NSDebugMLLog(@"EODatabaseContext", @"object=%@", object);
 
@@ -7207,7 +7199,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       if (relationshipsCount>0)
         {
           IMP oaiIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
-          int i = 0;
+          NSUInteger i = 0;
 
           for (i = 0; i < relationshipsCount; i++)
             {
@@ -7304,7 +7296,7 @@ Raises an exception is the adaptor is unable to perform the operations.
   NSArray *objects[3];
   NSHashTable *processedEntities = NULL;
   NSMutableArray *entityToProcess = nil;
-  int which;
+  NSUInteger which;
 
   EOFLOGObjectFnStart();
 
@@ -7321,12 +7313,12 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   for (which = 0; which < 3; which++)
     {
-      int count = [objects[which] count];
+      NSUInteger count = [objects[which] count];
 
       if (count>0)
         {
           IMP oaiIMP=[objects[which] methodForSelector: @selector(objectAtIndex:)];
-          int i = 0;
+          NSUInteger i = 0;
           
           for (i = 0; i < count; i++)
             {
@@ -7355,12 +7347,12 @@ Raises an exception is the adaptor is unable to perform the operations.
       if (!NSHashInsertIfAbsent(processedEntities, entity)) //Already processed ?
         {
           NSArray *relationships = [entity relationships];
-          int relationshipsCount = [relationships count];
+          NSUInteger relationshipsCount = [relationships count];
 
           if (relationshipsCount>0)
             {
               IMP relObjectAtIndexIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
-              int iRelationship = 0;
+              NSUInteger iRelationship = 0;
           
               for (iRelationship = 0;
                    iRelationship < relationshipsCount;
@@ -7385,7 +7377,7 @@ Raises an exception is the adaptor is unable to perform the operations.
                         {
                           NSArray *destAttrs;
                           NSArray *pkAttrs;
-                          int count;
+                          NSUInteger count;
                           BOOL destPK = NO;
                           
                           destAttrs = [relationship destinationAttributes];
@@ -7395,7 +7387,7 @@ Raises an exception is the adaptor is unable to perform the operations.
                           if (count>0)
                             {
                               IMP destAttrsObjectAtIndexIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
-                              int i=0;
+                              NSUInteger i=0;
                               for (i = 0; i < count; i++)
                                 {
                                   if ([pkAttrs containsObject:
@@ -7483,10 +7475,17 @@ If the object has been just inserted, the dictionary is empty.
   return snapshot;
 }
 
-
 - (void) _assertValidStateWithSelector: (SEL)sel
 {
-//  [self notImplemented:_cmd]; //TODO
+  if ((!_flags.preparingForSave) && (!_flags.willPrepareForSave))
+  {
+    [NSException raise: NSInternalInconsistencyException
+                format: @"_assertValidStateWithSelector:%s %s is in invalid state, "
+                         "call prepareForSaveWithCoordinator: before calling this method.",
+     sel_getName(sel),
+     object_getClassName(self)];
+    
+  }
 }
 
 - (id) _addDatabaseContextStateToException: (id)param0

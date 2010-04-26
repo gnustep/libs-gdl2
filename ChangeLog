@@ -12,6 +12,12 @@
     fix includes for non-GNUstep platforms
     * EOAdaptors/PostgreSQLAdaptor/PostgreSQLExpression.m
     fix includes for non-GNUstep platforms
+    * EOAccess/EODatabaseContext.m
+    implemented _assertValidStateWithSelector:
+    fixed leaks
+    * EOAccess/Makefile.preamble: added -Werror-implicit-function-declaration
+    * EOAccess/*: ported to new runtime and OS X
+
 
 2010-04-21  Sergey Golovin  <golovin.sv@gmail.com>
 

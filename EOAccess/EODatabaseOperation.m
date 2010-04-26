@@ -49,7 +49,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EODebug.h>
@@ -350,7 +350,7 @@ RCS_ID("$Id$")
     }
 
   desc = [NSString stringWithFormat: @"<%s %p : operator: %@ entity: %@ globalID:%@\nnewRow %p: %@\nobject %p: %@\ndbSnapshot %p: %@>",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
 		   operatorString,
 		   [_entity name],

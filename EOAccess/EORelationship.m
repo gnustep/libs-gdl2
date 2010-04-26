@@ -49,7 +49,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOObserver.h>
@@ -490,7 +490,7 @@ RCS_ID("$Id$")
   NS_DURING //Just for debugging
     {
       dscr = [NSString stringWithFormat: @"<%s %p - name=%@ entity=%@ destinationEntity=%@ definition=%@",
-		       object_get_class_name(self),
+		       object_getClassName(self),
 		       (void*)self,
 		       [self name],
 		       [[self entity]name],
@@ -2130,12 +2130,10 @@ dst entity primaryKeyAttributeNames
                   adaptorDictionaryInitializer);
 
       sourceRowToForeignKeyMapping = 
-	[destinationDictionaryInitializer
-	  subsetMappingForSourceDictionaryInitializer:
-	    adaptorDictionaryInitializer
-	  sourceKeys: sourceKeys
-	  destinationKeys: destinationKeys];
-
+      [destinationDictionaryInitializer subsetMappingForSourceDictionaryInitializer: adaptorDictionaryInitializer
+                                                                         sourceKeys: sourceKeys
+                                                                    destinationKeys: destinationKeys];
+      
       ASSIGN(_sourceRowToForeignKeyMapping, sourceRowToForeignKeyMapping);
 
       EOFLOGObjectLevelArgs(@"EORelationship",@"%@ to %@: _sourceRowToForeignKeyMapping=%@",

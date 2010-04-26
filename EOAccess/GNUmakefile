@@ -27,6 +27,8 @@ include ../common.make
 include $(GNUSTEP_MAKEFILES)/common.make
 include ../Version
 
+-include Makefile.preamble
+
 # The library to be compiled
 NATIVE_LIBRARY_NAME=EOAccess
 
@@ -93,7 +95,6 @@ EODefines.h \
 EODeprecated.h \
 EOAccess.h
 
-
 DOCUMENT_NAME = EOAccess
 
 # autogsdoc scan the source files corresponding to the headers
@@ -108,7 +109,8 @@ EOAccess_AGSDOC_FLAGS = \
 	$(GDL2_AGSDOC_FLAGS)
 
 
--include Makefile.preamble
+ADDITIONAL_OBJCFLAGS = -Werror-implicit-function-declaration
+
 
 -include GNUmakefile.local
 

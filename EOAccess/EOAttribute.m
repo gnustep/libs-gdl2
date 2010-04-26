@@ -60,7 +60,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EONull.h>
@@ -384,7 +384,7 @@ RCS_ID("$Id$")
 - (NSString *)description
 {
   NSString *dscr = [NSString stringWithFormat: @"<%s %p - name=%@ entity=%@ columnName=%@ definition=%@ ",
-			     object_get_class_name(self),
+			     object_getClassName(self),
 			     (void*)self,
 			     [self name],
 			     [[self entity] name],

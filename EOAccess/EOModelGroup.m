@@ -49,7 +49,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOAccess/EOModelGroup.h>
@@ -76,11 +76,7 @@ static EOModelGroup *globalModelGroup = nil;
 + (EOModelGroup *)defaultGroup
 {
   EOModelGroup *modelGroup = nil;
-
-  EOFLOGObjectFnStart();
-
-  NSDebugMLLog(@"gsdb", @"defaultModelGroup=%p",defaultModelGroup);
-
+  
   if (defaultModelGroup)
     modelGroup = defaultModelGroup;
   else if (delegateDefaultModelGroup)
@@ -93,18 +89,11 @@ static EOModelGroup *globalModelGroup = nil;
       NSLog(@"WARNING: No default Group");
     }
 
-  NSDebugMLLog(@"gsdb", @"modelGroup=%p",modelGroup);
-
-  EOFLOGObjectFnStop();
-
   return modelGroup;
 }
 
 + (void)setDefaultGroup: (EOModelGroup *)group
 {
-  NSDebugMLLog(@"gsdb", @"group=%p defaultModelGroup=%p",
-               group,defaultModelGroup);
-
   if (group != defaultModelGroup)
     {
       if (defaultModelGroup)

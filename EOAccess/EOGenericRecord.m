@@ -31,7 +31,6 @@ RCS_ID("$Id: EOEntity.m 27910 2009-02-18 05:52:42Z ayers $")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
 #endif
 
 #include <EOAccess/EOEntity.h>

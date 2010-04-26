@@ -55,7 +55,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOEditingContext.h>
@@ -182,7 +182,7 @@ RCS_ID("$Id$")
 {
   return [NSString stringWithFormat:
 		     @"<%s %p : entity name=%@ editingContext=%p fetchSpecification=%@>",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void *)self,
                    [[self entity]name],
                    _editingContext,

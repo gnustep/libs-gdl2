@@ -56,7 +56,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOFetchSpecification.h>
@@ -1518,13 +1518,13 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"selectorSQLString=%@",
 			selectorSQLString);
 
-  if (sel_eq([qualifier selector], EOQualifierOperatorLike))
+  if (sel_isEqual([qualifier selector], EOQualifierOperatorLike))
     {
       value = [[self class] sqlPatternFromShellPattern: value];
       valueSQLString = [self sqlStringForValue: value
                              attributeNamed: key];
     }
-  else if (sel_eq([qualifier selector], EOQualifierOperatorCaseInsensitiveLike))
+  else if (sel_isEqual([qualifier selector], EOQualifierOperatorCaseInsensitiveLike))
     {      
       value = [[self class] sqlPatternFromShellPattern: value];
 
@@ -1604,13 +1604,13 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
   orderSelector = [sortOrdering selector];
 
-  if (sel_eq(orderSelector, EOCompareAscending))
+  if (sel_isEqual(orderSelector, EOCompareAscending))
     orderStringFormat = @"(%@) asc";
-  else if (sel_eq(orderSelector, EOCompareDescending))
+  else if (sel_isEqual(orderSelector, EOCompareDescending))
     orderStringFormat = @"(%@) desc";
-  else if (sel_eq(orderSelector, EOCompareCaseInsensitiveAscending))
+  else if (sel_isEqual(orderSelector, EOCompareCaseInsensitiveAscending))
     orderStringFormat = @"upper(%@) asc";
-  else if (sel_eq(orderSelector, EOCompareCaseInsensitiveDescending))
+  else if (sel_isEqual(orderSelector, EOCompareCaseInsensitiveDescending))
     orderStringFormat = @"upper(%@) desc";
 
   key = [sortOrdering key];
@@ -1780,33 +1780,33 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
                              value: (id)value
 {
   //seems OK
-  if (sel_eq(selector, EOQualifierOperatorEqual))
+  if (sel_isEqual(selector, EOQualifierOperatorEqual))
     {
       if (value==GDL2_EONull)
         return @"is";
       else
         return @"=";
     }
-  else if (sel_eq(selector, EOQualifierOperatorNotEqual))
+  else if (sel_isEqual(selector, EOQualifierOperatorNotEqual))
     {
       if (value==GDL2_EONull)
         return @"is not";
       else
         return @"<>";
     }
-  else if (sel_eq(selector, EOQualifierOperatorLessThan))
+  else if (sel_isEqual(selector, EOQualifierOperatorLessThan))
     return @"<";
-  else if (sel_eq(selector, EOQualifierOperatorGreaterThan))
+  else if (sel_isEqual(selector, EOQualifierOperatorGreaterThan))
     return @">";
-  else if (sel_eq(selector, EOQualifierOperatorLessThanOrEqualTo))
+  else if (sel_isEqual(selector, EOQualifierOperatorLessThanOrEqualTo))
     return @"<=";
-  else if (sel_eq(selector, EOQualifierOperatorGreaterThanOrEqualTo))
+  else if (sel_isEqual(selector, EOQualifierOperatorGreaterThanOrEqualTo))
     return @">=";
-  else if (sel_eq(selector, EOQualifierOperatorLike))
+  else if (sel_isEqual(selector, EOQualifierOperatorLike))
     return @"like";
-  else if (sel_eq(selector, EOQualifierOperatorCaseInsensitiveLike))
+  else if (sel_isEqual(selector, EOQualifierOperatorCaseInsensitiveLike))
     return @"like"; //same as sensitive
-/*  //TODO else if(sel_eq(selector, EOQualifierOperatorContains))
+/*  //TODO else if(sel_isEqual(selector, EOQualifierOperatorContains))
     return @"like";*/
   else
     {

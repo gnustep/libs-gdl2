@@ -43,7 +43,8 @@ ADDITIONAL_CPPFLAGS = $(FND_DEFINE) $(RUNTIME_DEFINE) -g
 ADDITIONAL_OBJCFLAGS = $(TEST_CFLAGS)
 
 # Additional flags to pass to the C compiler
-ADDITIONAL_CFLAGS = $(TEST_CFLAGS) 
+ADDITIONAL_CFLAGS = $(TEST_CFLAGS)
+CFLAGS += -Werror-implicit-function-declaration
 
 # Additional include directories the compiler should search
 ADDITIONAL_INCLUDE_DIRS = -I../EOControl/$(GNUSTEP_TARGET_DIR) -I..

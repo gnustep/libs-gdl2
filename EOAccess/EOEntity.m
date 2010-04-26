@@ -63,6 +63,7 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 #include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOKeyValueCoding.h>
@@ -625,7 +626,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   NSString *dscr = nil;
 
   dscr = [NSString stringWithFormat: @"<%s %p - name=%@ className=%@ externalName=%@ externalQuery=%@",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
 		   _name,
 		   _className,
@@ -3981,7 +3982,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 - (NSString *) description
 {
   return [NSString stringWithFormat: @"<%s %p - Entity: %@>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    self,
                    [self entityName]];
 }

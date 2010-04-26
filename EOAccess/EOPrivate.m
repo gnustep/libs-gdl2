@@ -38,7 +38,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/GSObjCRuntime.h>
 #endif
 
 #include <EOControl/EOFault.h>
@@ -90,7 +90,7 @@ EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(dbContext)==GDL2_EODatabaseContextClass
+          if (object_getClass(dbContext)==GDL2_EODatabaseContextClass
               && GDL2_EODatabaseContext_snapshotForGlobalIDIMP)
             imp=GDL2_EODatabaseContext_snapshotForGlobalIDIMP;
           else
@@ -113,7 +113,7 @@ EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODatabaseContext* dbC
         imp=*impPtr;
       if (!imp)
         {
-          if (GSObjCClass(dbContext)==GDL2_EODatabaseContextClass
+          if (object_getClass(dbContext)==GDL2_EODatabaseContextClass
               && GDL2_EODatabaseContext__globalIDForObjectIMP)
             imp=GDL2_EODatabaseContext__globalIDForObjectIMP;
           else

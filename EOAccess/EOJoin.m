@@ -45,7 +45,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EODebug.h>
@@ -87,7 +87,7 @@ RCS_ID("$Id$")
   [super dealloc];
 }
 
-- (unsigned)hash
+- (NSUInteger)hash
 {
   return [_sourceAttribute hash];
 }
@@ -137,7 +137,7 @@ RCS_ID("$Id$")
 */  
 
   dscr = [NSString stringWithFormat: @"<%s %p -",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self];
   dscr = [dscr stringByAppendingFormat: @" sourceAttribute=%@",
 	       [_sourceAttribute name]];

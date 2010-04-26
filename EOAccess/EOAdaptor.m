@@ -65,7 +65,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <GNUstepBase/Unicode.h>
@@ -354,7 +354,8 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
  */
 + (NSArray *)availableAdaptorNames
 {
-  NSArray	 *pathArray = NSStandardLibraryPaths();
+  NSArray	 *pathArray =  NSSearchPathForDirectoriesInDomains(NSAllLibrariesDirectory,
+                                                             NSAllDomainsMask, YES);
   NSEnumerator	 *pathEnum = [pathArray objectEnumerator];
   NSString	 *searchPath;
   NSFileManager  *defaultManager = [NSFileManager defaultManager];
