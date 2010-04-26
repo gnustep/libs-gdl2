@@ -119,10 +119,6 @@ RCS_ID("$Id$")
 
 - (void) dealloc
 {
-#ifdef DEBUG
-  NSDebugFLog(@"Deallocate EOCheapCopyArray %p zone=%p _contents_array=%p _count=%d _refcount=%d", 
-               self, [self zone], _contents_array, _count, _refcount);
-#endif
 
   if (_contents_array)
     {
@@ -165,7 +161,7 @@ RCS_ID("$Id$")
   [super release];
 }
 
-- (unsigned int) retainCount
+- (NSUInteger) retainCount
 {
 #ifdef DEBUG
   NSDebugFLog(@"retainCount EOCheapCopyArray %p. %@",

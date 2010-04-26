@@ -28,7 +28,6 @@
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
 #include <Foundation/Foundation.h>
 #else
 #include <Foundation/NSLock.h>
@@ -122,6 +121,8 @@
 - (void)lockForReading
 {
   NSThread *ct = [NSThread currentThread];
+
+#warning is int good here? I don't think so. -- dw
   int cnt = (int)NSMapGet(_readerThreads,ct);
 
   if (ct == _writerLockThread)

@@ -37,7 +37,7 @@ RCS_ID("$Id$")
 //TODO EOMultiReaderLocks 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <Foundation/Foundation.h>
@@ -172,7 +172,7 @@ static EOObjectStore *defaultParentStore = nil;
 static NSTimeInterval defaultFetchLag = 3600.0;
 
 //static NSHashTable *ecDeallocHT = 0;
-//static NSHashTable *assocDeallocHT = 0;
+static NSHashTable *assocDeallocHT = 0;
 
 /* Notifications */
 NSString *EOObjectsChangedInEditingContextNotification
@@ -265,14 +265,20 @@ _mergeValueForKey(id obj, id value,
     }
 }
 
+// rename to _objectWillDealloc: ? -- dw
 + (void)_objectDeallocated:(id)object
 {
-  [[object editingContext] forgetObject: object];
-  
   if (EOAssociationClass != nil)
   {
-    [EOAssociationClass objectDeallocated: object]; // rename to _objectDeallocated: ? -- dw
+    if (assocDeallocHT && NSHashGet(assocDeallocHT, object))	 
+    {	 
+      // rename to _objectWillDealloc: ? -- dw
+      [EOAssociationClass objectDeallocated: object];
+      NSHashRemove(assocDeallocHT,object);	 
+    }	
   }
+  
+  [[object editingContext] forgetObject: object];
   
 }
 
@@ -4019,4 +4025,25 @@ static BOOL usesContextRelativeEncoding = NO;
 {
   [self notImplemented: _cmd]; //TODO
 }
+@end
+
+@implementation EOCustomObject (AssociationsHack)
+
+/*
+ this is used for EOAssociations
+ */
+
+- (void) registerAssociationForDeallocHack:(id)object	 
+{	 
+  if (EOAssociationClass != nil) 
+  {
+    if (!assocDeallocHT)	 
+    {	 
+      assocDeallocHT = NSCreateHashTable(NSNonOwnedPointerHashCallBacks, 64);	 
+    }	 
+    
+    NSHashInsert(assocDeallocHT, object);
+  }
+}	
+
 @end

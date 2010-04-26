@@ -53,7 +53,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <GNUstepBase/GSLock.h>
@@ -1112,7 +1112,7 @@ infinite loop in description **/
     }
 
   return [NSString stringWithFormat: @"<%s %p : classDescription=%@\nvalues=%@>",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
 		   classDescription,
                    dict];
@@ -1202,7 +1202,7 @@ infinite loop in description **/
     }
 
   return [NSString stringWithFormat: @"<%s %p : classDescription=%@\nvalues=%@>",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
 		   classDescription,
                    dict];
@@ -1517,16 +1517,14 @@ You can override this to exclude properties manually handled by derived object *
 
 - (unsigned int)eoGetSize
 {
-  unsigned int size = 0;
+  size_t size = 0;
   Class selfClass = Nil;
-
-//  EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
-
+  
   selfClass = [self class];
-  size = selfClass->instance_size;
 
-//  EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
-
+  //  size = selfClass->instance_size;
+  size = class_getInstanceSize(selfClass);
+  
   return size;
 }
 
@@ -1539,11 +1537,7 @@ You can override this to exclude properties manually handled by derived object *
   unsigned int size;
   //consider 2bytes string
 
-  //EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
-
   size = [super eoGetSize] + [self length] * 2;
-
-  //EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
 
   return size;
 }
@@ -1619,7 +1613,7 @@ You can override this to exclude properties manually handled by derived object *
 
       [processed setObject: [NSNumber numberWithUnsignedInt: 0]
                  forKey: objectP];
-      size += objectClass->instance_size;
+      size += class_getInstanceSize(objectClass);
 
       if ([object isKindOfClass: [NSArray class]])
         baseSize += size;

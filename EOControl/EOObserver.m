@@ -49,7 +49,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOObserver.h>
@@ -68,12 +68,7 @@ RCS_ID("$Id$")
  */
 - (void)willChange
 {
-  EOFLOGObjectFnStart();
-
-  EOFLOGObjectLevelArgs(@"EOObserver", @"willChange self=%p", self);
   [EOObserverCenter notifyObserversObjectWillChange: self];
-
-  EOFLOGObjectFnStop();
 }
 
 @end
@@ -200,61 +195,49 @@ static id lastObject;
  */
 + (void)notifyObserversObjectWillChange: (id)object
 {
-  EOFLOGClassFnStart();
-
-  EOFLOGObjectLevelArgs(@"EOObserver", @"object=%p", object);
-
   if (!notificationSuppressCount)
+  {
+    SEL objectWillChangeSel = @selector(objectWillChange:);
+    
+    if (object == nil)
     {
-      SEL objectWillChangeSel = @selector(objectWillChange:);
-      EOFLOGObjectLevelArgs(@"EOObserver", @"object=%p lastObject=%p",
-			    object, lastObject);
-
-      if (object == nil)
-	{
-	  NSHashEnumerator omniscEnum = NSEnumerateHashTable(omniscientHash);
-	  id obj;
-
-	  lastObject = nil;
-	  while ((obj = (id)NSNextHashEnumeratorItem(&omniscEnum)))
+      NSHashEnumerator omniscEnum = NSEnumerateHashTable(omniscientHash);
+      id obj;
+      
+      lastObject = nil;
+      while ((obj = (id)NSNextHashEnumeratorItem(&omniscEnum)))
 	    {
 	      [obj performSelector:objectWillChangeSel withObject:object];
 	    }
-	}
-      else if (lastObject != object)
-	{
-	  NSHashTable *observersHash;
-	  NSHashEnumerator observersEnum;
-	  id obj;
-
-	  lastObject = object;
-
-	  observersHash = NSMapGet(observersMap, object);
-
-	  if (observersHash)
+    }
+    else if (lastObject != object)
+    {
+      NSHashTable *observersHash;
+      NSHashEnumerator observersEnum;
+      id obj;
+      
+      lastObject = object;
+      
+      observersHash = NSMapGet(observersMap, object);
+      
+      if (observersHash)
 	    {
 	      observersEnum = NSEnumerateHashTable(observersHash);
-              EOFLOGObjectLevelArgs(@"EOObserver", @"observersArray count=%d",
-			      	NSCountHashTable(observersHash));
-	     
+        
 	      while ((obj = (id)NSNextHashEnumeratorItem(&observersEnum)))
-	        {
-	          [obj performSelector:objectWillChangeSel withObject:object];
-	        }
+        {
+          [obj performSelector:objectWillChangeSel withObject:object];
+        }
 	    }
-	  
-          EOFLOGObjectLevelArgs(@"EOObserver", @"omniscientObservers count=%d",
-				NSCountHashTable(omniscientHash));
-
-	  observersEnum = NSEnumerateHashTable(omniscientHash);
-	  while ((obj = (id)NSNextHashEnumeratorItem(&observersEnum)))
+      
+      observersEnum = NSEnumerateHashTable(omniscientHash);
+      while ((obj = (id)NSNextHashEnumeratorItem(&observersEnum)))
 	    {
 	      [obj performSelector:objectWillChangeSel withObject:object];
 	    }
-	}
     }
-
-  EOFLOGClassFnStop();
+  }
+  
 }
 
 /**
@@ -288,25 +271,29 @@ static id lastObject;
 + (id)observerForObject: (id)object ofClass: (Class)targetClass
 {
   NSHashTable *observersHash;
-
+  id observer = nil;
+  
   if (object == nil)
     return nil;
-    
+  
   observersHash = NSMapGet(observersMap, object);
   if (observersHash)
+  {
+    NSHashEnumerator observersEnum;
+    observersEnum = NSEnumerateHashTable(observersHash);
+    
+    while ((observer = (id)NSNextHashEnumeratorItem(&observersEnum)))
     {
-      NSHashEnumerator observersEnum;
-      observersEnum = NSEnumerateHashTable(observersHash);
-      id observer;
-      
-      while ((observer = (id)NSNextHashEnumeratorItem(&observersEnum)))
-        {
-          if ([observer isKindOfClass: targetClass])
-            return observer;
-        }
+      if ([observer isKindOfClass: targetClass])
+      {
+        break; 
+      }
     }
-
-  return nil;
+    // avoid memory leak! -- dw
+    NSEndHashTableEnumeration(&observersEnum);
+  }
+  
+  return observer;
 }
 
 /**

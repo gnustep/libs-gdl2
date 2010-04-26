@@ -329,7 +329,7 @@ EOMKKD_hasKeyWithImpPtr(NSDictionary* mkkd,
     return NO;
 };
 
-unsigned int 
+NSUInteger 
 EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,
 			     GDL2IMP_UINT* impPtr,
 			     NSString* key)
@@ -355,8 +355,7 @@ EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,
     return 0;
 };
 
-unsigned int
-EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,
+NSUInteger EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,
 					GDL2IMP_UINT* impPtr,
 					NSString* key)
 {
@@ -478,7 +477,7 @@ void EOHashAddTable(NSHashTable *to, NSHashTable *from)
 static SEL eqSel;
 
 @interface GDL2NonRetainingMutableArray (PrivateExceptions)
-- (void) _raiseRangeExceptionWithIndex:(unsigned) index from:(SEL)selector;
+- (void) _raiseRangeExceptionWithIndex:(NSUInteger) index from:(SEL)selector;
 @end
 
 /**
@@ -516,7 +515,7 @@ static SEL eqSel;
 }
 
 /* designated initializer */
-- (id) initWithCapacity:(unsigned)capacity
+- (id) initWithCapacity:(NSUInteger)capacity
 {
   self = [super init];
   _contents = NSZoneMalloc([self zone], sizeof(GSIArray_t));
@@ -524,7 +523,7 @@ static SEL eqSel;
   return self; 
 }
 
-- (id) initWithObjects:(id *)objects count:(unsigned)count
+- (id) initWithObjects:(id *)objects count:(NSUInteger)count
 {
   int i;
   self = [self initWithCapacity:count];
@@ -534,12 +533,12 @@ static SEL eqSel;
 }
 
 /* These are *this* subclasses responsibility */
-- (unsigned) count
+- (NSUInteger) count
 {
   return GSIArrayCount(_contents);
 }
 
-- (id) objectAtIndex:(unsigned) index
+- (id) objectAtIndex:(NSUInteger) index
 {
   if (index >= GSIArrayCount(_contents))
     [self _raiseRangeExceptionWithIndex:index from:_cmd];
@@ -559,7 +558,7 @@ static SEL eqSel;
   GSIArrayAddItem(_contents, (GSIArrayItem)object);
 }
 
-- (void) replaceObjectAtIndex:(unsigned)index withObject:(id)object
+- (void) replaceObjectAtIndex:(NSUInteger)index withObject:(id)object
 {
   if (object == nil)
     {
@@ -576,7 +575,7 @@ static SEL eqSel;
   GSIArraySetItemAtIndex(_contents, (GSIArrayItem)object, index);
 }
 
-- (void) insertObject:(id)object atIndex:(unsigned)index
+- (void) insertObject:(id)object atIndex:(NSUInteger)index
 {
   if (object == nil)
     {
@@ -592,7 +591,7 @@ static SEL eqSel;
   GSIArrayInsertItem(_contents, (GSIArrayItem)object, index);
 }
 
-- (void) removeObjectAtIndex:(unsigned)index
+- (void) removeObjectAtIndex:(NSUInteger)index
 {
   if (index >= GSIArrayCount(_contents))
     {
@@ -639,16 +638,16 @@ static SEL eqSel;
 }
 
 /* private methods. */
-- (void) _raiseRangeExceptionWithIndex: (unsigned)index from: (SEL)sel
+- (void) _raiseRangeExceptionWithIndex: (NSUInteger)index from: (SEL)sel
 {
   NSDictionary *info;
   NSException  *exception;
   NSString     *reason;
-  unsigned     count = GSIArrayCount(_contents);
+  NSUInteger     count = GSIArrayCount(_contents);
 
   info = [NSDictionary dictionaryWithObjectsAndKeys:
-    [NSNumber numberWithUnsignedInt: index], @"Index",
-    [NSNumber numberWithUnsignedInt: count], @"Count",
+    [NSNumber numberWithUnsignedInteger: index], @"Index",
+    [NSNumber numberWithUnsignedInteger: count], @"Count",
     self, @"Array", nil, nil];
 
   reason = [NSString stringWithFormat: @"Index %d is out of range %d (in '%@')",    index, count, NSStringFromSelector(sel)];

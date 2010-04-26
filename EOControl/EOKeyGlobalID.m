@@ -47,7 +47,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOKeyGlobalID.h>
@@ -200,7 +200,7 @@ RCS_ID("$Id$")
   int i;
 
   dscr = [NSString stringWithFormat: @"<%s %p - Entity %@ - keysValues:",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
                    _entityName];
 

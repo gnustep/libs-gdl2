@@ -55,7 +55,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <GNUstepBase/GSObjCRuntime.h>
@@ -939,23 +939,23 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, NSArray *array, va_list 
 
 + (NSString *)stringForOperatorSelector: (SEL)selector
 {
-  if (sel_eq(selector, EOQualifierOperatorEqual))
+  if (sel_isEqual(selector, EOQualifierOperatorEqual))
     return @"=";
-  else if (sel_eq(selector, EOQualifierOperatorNotEqual))
+  else if (sel_isEqual(selector, EOQualifierOperatorNotEqual))
     return @"<>";
-  else if (sel_eq(selector, EOQualifierOperatorLessThan))
+  else if (sel_isEqual(selector, EOQualifierOperatorLessThan))
     return @"<";
-  else if (sel_eq(selector, EOQualifierOperatorGreaterThan))
+  else if (sel_isEqual(selector, EOQualifierOperatorGreaterThan))
     return @">";
-  else if (sel_eq(selector, EOQualifierOperatorLessThanOrEqualTo))
+  else if (sel_isEqual(selector, EOQualifierOperatorLessThanOrEqualTo))
     return @"<=";
-  else if (sel_eq(selector, EOQualifierOperatorGreaterThanOrEqualTo))
+  else if (sel_isEqual(selector, EOQualifierOperatorGreaterThanOrEqualTo))
     return @">=";
-  else if (sel_eq(selector, EOQualifierOperatorContains))
+  else if (sel_isEqual(selector, EOQualifierOperatorContains))
     return @"doesContain";
-  else if (sel_eq(selector, EOQualifierOperatorLike))
+  else if (sel_isEqual(selector, EOQualifierOperatorLike))
     return @"like";
-  else if (sel_eq(selector, EOQualifierOperatorCaseInsensitiveLike))
+  else if (sel_isEqual(selector, EOQualifierOperatorCaseInsensitiveLike))
     return @"caseInsensitiveLike";
 
   return NSStringFromSelector(selector);

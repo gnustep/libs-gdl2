@@ -51,7 +51,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOQualifier.h>
@@ -249,7 +249,7 @@ RCS_ID("$Id$")
   NSString *dscr;
 
   dscr = [NSString stringWithFormat: @"<%s %p - qualifiers: %@>",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
                    _qualifiers];
 

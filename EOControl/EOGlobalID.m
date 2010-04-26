@@ -259,7 +259,7 @@ static unsigned short sequence = USHRT_MAX;
     }
   dst[j] = 0;
   return [NSString stringWithFormat: @"<%s %s>",
-		   GSClassNameFromObject(self), dst];
+		   object_getClassName(self), dst];
 }
 
 @end

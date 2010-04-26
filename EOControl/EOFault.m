@@ -56,7 +56,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <objc/Protocol.h>
@@ -78,22 +78,8 @@ static Class EOFaultClass = NULL;
 
 + (void)initialize
 {
-  // Must be here as initialize is called for each root class
-  // without asking if it responds to it !
   if (EOFaultClass == NULL)
     {
-      GSMethod nsfwd = GSGetMethod([NSObject class],
-				    @selector(forward::),
-				    YES,NO);
-      if (nsfwd != NULL)
-        {
-          GSMethod eofwd = GSGetMethod(self,
-                                        @selector(forward::),
-                                        YES,NO);
-          eofwd->method_imp = nsfwd->method_imp;
-          GSFlushMethodCacheForClass(self);
-        }
-
       EOFaultClass = [EOFault class];
     }
 }
@@ -172,7 +158,7 @@ static Class EOFaultClass = NULL;
   /*
    *	Since 'self' is an class, get_imp() will get the instance method.
    */
-  return get_imp((Class)self, selector);
+  return class_getMethodImplementation((Class)self, selector);
 }
 
 // Fault class methods
@@ -312,43 +298,12 @@ static Class EOFaultClass = NULL;
 
 - (BOOL)conformsToProtocol: (Protocol *)protocol
 {
-  int i;
-  struct objc_protocol_list* protos;
-  Class class, sClass;
-
-  class = [_handler targetClass];
-
-  for (protos = class->protocols; protos; protos = protos->next)
-    {
-      for (i = 0; i < protos->count; i++)
-	if ([protos->list[i] conformsTo: protocol])
-	  return YES;
-    }
-
-  sClass = [class superclass];
-
-  if (sClass)
-    return [sClass conformsToProtocol: protocol];
-  else
-    return NO;
+  return class_conformsToProtocol([_handler targetClass], protocol);
 }
 
 - (BOOL)respondsToSelector: (SEL)selector
 {
-  Class class;
-  BOOL respondsToSelector;
-
-  NSDebugFLLog(@"gsdb", @"START self=%p", self);
-
-  class = [_handler targetClass];
-  NSDebugFLLog(@"gsdb", @"class=%@ selector=%@", class,
-	       NSStringFromSelector(selector));
-
-  respondsToSelector 
-    = (GSGetMethod(class, selector, YES, YES) != (GSMethod)0);
-  NSDebugFLLog(@"gsdb", @"STOP self=%p", self);
-
-  return respondsToSelector;
+  return class_respondsToSelector([_handler targetClass], selector);
 }
 
 - (NSMethodSignature *)methodSignatureForSelector: (SEL)selector
@@ -487,20 +442,6 @@ static Class EOFaultClass = NULL;
                NSStringFromClass([self class]),
                self,
                NSStringFromSelector(selector)];
-}
-
-/**
- * This method is replaced by the current implementation of NSObject (if any).
- *
- * It is assumed that this method will not be called if NSObject does not
- * implement it.
- */
-- (retval_t)forward: (SEL)selector
-                   : (arglist_t)args
-{
-  retval_t ret = 0;
-  NSAssert(NO,@"This should never be called (see +initialize).");
-  return ret;
 }
 
 - (void)forwardInvocation: (NSInvocation *)invocation

@@ -39,7 +39,7 @@
 @class EOMKKDInitializer;
 @class EOGlobalID;
 
-typedef unsigned int (*GDL2IMP_UINT)(id, SEL, ...);
+typedef NSUInteger (*GDL2IMP_UINT)(id, SEL, ...);
 typedef BOOL (*GDL2IMP_BOOL)(id, SEL, ...);
 typedef NSStringEncoding (*GDL2IMP_NSStringEncoding)(id, SEL, ...);
 
@@ -357,8 +357,8 @@ GDL2CONTROL_EXPORT void EOMKKD_setObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP*
 GDL2CONTROL_EXPORT void EOMKKD_removeObjectForKeyWithImpPtr(NSDictionary* mkkd,IMP* impPtr,NSString* key);
 GDL2CONTROL_EXPORT BOOL EOMKKD_hasKeyWithImpPtr(NSDictionary* mkkd,GDL2IMP_BOOL* impPtr,NSString* key);
 
-GDL2CONTROL_EXPORT unsigned int EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,GDL2IMP_UINT* impPtr,NSString* key);
-GDL2CONTROL_EXPORT unsigned int EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,GDL2IMP_UINT* impPtr,NSString* key);
+GDL2CONTROL_EXPORT NSUInteger EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,GDL2IMP_UINT* impPtr,NSString* key);
+GDL2CONTROL_EXPORT NSUInteger EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,GDL2IMP_UINT* impPtr,NSString* key);
 
 // ==== EOEditingContext ====
 

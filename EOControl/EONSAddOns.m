@@ -54,6 +54,7 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSCategories.h>
 #include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 #include <GNUstepBase/Unicode.h>
 #include <GNUstepBase/GSLock.h>
@@ -177,7 +178,7 @@ GDL2_Activate(Class sup, Class cls)
                         @"%@: No result for object %@ resultOfPerformingSelector:\"%s\" withEachObjectInArray:",
                         self,
                         object,
-                        sel_get_name(sel));
+                        sel_getName(sel));
 
               [results addObject: result];
             }
@@ -573,10 +574,13 @@ GDL2_Activate(Class sup, Class cls)
   unichar *chars;
   unsigned int length = [self length];
 
-  chars = objc_malloc(length * sizeof(unichar));
+  chars = NSZoneMalloc(NSDefaultMallocZone(),length * sizeof(unichar));
   [self getCharacters: chars];
   chars[0]=uni_toupper(chars[0]);
 
+  
+  // CHECKME: does this really free how we want it? -- dw
+  
   return AUTORELEASE([[NSString alloc] initWithCharactersNoCopy: chars
 				       length: length
 				       freeWhenDone: YES]);
@@ -663,7 +667,7 @@ GDL2_Activate(Class sup, Class cls)
     [NSException raise: NSInvalidArgumentException
                 format: @"%@ null selector given", NSStringFromSelector(_cmd)];
   
-  msg = get_imp(GSObjCClass(self), selector);
+  msg = class_getMethodImplementation([self class], selector);
   if (!msg)
     {
       [NSException raise: NSGenericException

@@ -44,6 +44,9 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
 #include <Foundation/FoundationErrors.h>
 #else
 #include <Foundation/Foundation.h>
+#include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include "EOCustomObject.h"

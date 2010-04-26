@@ -1,3 +1,4 @@
+
 /** 
    EOKeyValueCoding.m <title>EOKeyValueCoding</title>
 
@@ -60,7 +61,8 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOKeyValueCoding.h>
@@ -384,12 +386,14 @@ initialize(void)
 
   INITIALIZE;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
-
   mode = [[NSDecimalNumber defaultBehavior] roundingMode];
   count = [self count];
-  NSDecimalFromComponents(&result, 0, 0, NO);
+  
+  // does not seem to exist on snow leopad -- dw
+  // NSDecimalFromComponents(&result, 0, 0, NO);
 
+  result = [[NSDecimalNumber zero] decimalValue];
+  
   if (count>0)
     {
       unsigned int i=0;
@@ -403,7 +407,7 @@ initialize(void)
     };
         
   ret = [NSDecimalNumber decimalNumberWithDecimal: result];
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
   return ret;
 }
 
@@ -425,7 +429,11 @@ initialize(void)
   EOFLOGObjectFnStartCond(@"EOKVC");
   mode = [[NSDecimalNumber defaultBehavior] roundingMode];
   count = [self count];
-  NSDecimalFromComponents(&result, 0, 0, NO);
+  
+  result = [[NSDecimalNumber zero] decimalValue];
+
+  // not available on snow leo -- dw
+  // NSDecimalFromComponents(&result, 0, 0, NO);
 
   if (count>0)
     {
@@ -445,7 +453,10 @@ initialize(void)
     }
 
   left  = result;
-  NSDecimalFromComponents(&right, (unsigned long long) count, 0, NO);
+  
+  right = [[NSNumber numberWithUnsignedLongLong:count] decimalValue];
+
+//  NSDecimalFromComponents(&right, (unsigned long long) count, 0, NO);
 
   NSDecimalDivide(&result, &left, &right, mode);
         

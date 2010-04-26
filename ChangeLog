@@ -17,7 +17,11 @@
     fixed leaks
     * EOAccess/Makefile.preamble: added -Werror-implicit-function-declaration
     * EOAccess/*: ported to new runtime and OS X
-
+    * EOControl/EOMutableKnownKeyDictionary.*: ported, works for me, please double check
+    * EOControl/EOEditingContext.m:
+    added @implementation EOCustomObject (AssociationsHack)
+    re-added registerAssociationForDeallocHack
+    * EOControl/*: ported to new runtime and OS X
 
 2010-04-21  Sergey Golovin  <golovin.sv@gmail.com>
 

@@ -188,41 +188,41 @@ RCS_ID("$Id$")
     {
       return (*imp) (leftVal, _selector, rightVal);
     }
-  if (sel_eq(_selector, EOQualifierOperatorEqual) == YES)
+  if (sel_isEqual(_selector, EOQualifierOperatorEqual) == YES)
     {
       return [leftVal isEqual: rightVal];
     }
-  else if (sel_eq(_selector, EOQualifierOperatorNotEqual) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorNotEqual) == YES)
     {
       return ([leftVal isEqual: rightVal]?NO:YES);
     }
-  else if (sel_eq(_selector, EOQualifierOperatorLessThan) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorLessThan) == YES)
     {
       return [leftVal compare: rightVal] == NSOrderedAscending;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorGreaterThan) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorGreaterThan) == YES)
     {
       return [leftVal compare: rightVal] == NSOrderedDescending;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
     {
       return [leftVal compare: rightVal] != NSOrderedDescending;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
     {
       return [leftVal compare: rightVal] != NSOrderedAscending;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorContains) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorContains) == YES)
     {
       return [(id)leftVal rangeOfString: (id)rightVal].location != NSNotFound;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorLike) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorLike) == YES)
     {
       NSEmitTODO();  //TODO
       return [leftVal isEqual: rightVal]
 	== NSOrderedSame;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorCaseInsensitiveLike) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorCaseInsensitiveLike) == YES)
     {
       NSEmitTODO();  //TODO
       return [[(id)leftVal uppercaseString] isEqual: [(id)rightVal uppercaseString]]
@@ -260,7 +260,7 @@ RCS_ID("$Id$")
       selectorString = NSStringFromSelector(_selector);
     }
   return [NSString stringWithFormat:@"<%s %p - %@ %@ %@>",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
 		   _leftKey,
 		   selectorString,

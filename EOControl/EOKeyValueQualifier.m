@@ -52,7 +52,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOQualifier.h>
@@ -229,15 +229,15 @@ RCS_ID("$Id$")
     {
       return (*imp) (objectValue, _selector, selfValue);
     }
-  if (sel_eq(_selector, EOQualifierOperatorEqual) == YES)
+  if (sel_isEqual(_selector, EOQualifierOperatorEqual) == YES)
     {
       return [objectValue isEqual: selfValue];
     }
-  else if (sel_eq(_selector, EOQualifierOperatorNotEqual) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorNotEqual) == YES)
     {
       return ([objectValue isEqual: selfValue]?NO:YES);
     }
-  else if (sel_eq(_selector, EOQualifierOperatorLessThan) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorLessThan) == YES)
     {
       if (objectValue==GDL2_EONull)
         return ((selfValue==GDL2_EONull) ? NO : YES);
@@ -246,7 +246,7 @@ RCS_ID("$Id$")
       else
         return [objectValue compare: selfValue] == NSOrderedAscending;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorGreaterThan) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorGreaterThan) == YES)
     {
       if (objectValue==GDL2_EONull)
         return NO;
@@ -255,7 +255,7 @@ RCS_ID("$Id$")
       else
         return [objectValue compare: selfValue] == NSOrderedDescending;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorLessThanOrEqualTo) == YES)
     {
       if (objectValue==GDL2_EONull)
         return YES;
@@ -264,7 +264,7 @@ RCS_ID("$Id$")
       else
         return [objectValue compare: selfValue] != NSOrderedDescending;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorGreaterThanOrEqualTo) == YES)
     {
       if (objectValue==GDL2_EONull)
         return ((selfValue==GDL2_EONull) ? YES : NO);
@@ -273,7 +273,7 @@ RCS_ID("$Id$")
       else
         return [objectValue compare: selfValue] != NSOrderedAscending;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorContains) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorContains) == YES)
     {
       //Philosophical question: does nil contains nil ??
 
@@ -285,13 +285,13 @@ RCS_ID("$Id$")
         return [(NSString*)objectValue rangeOfString: 
                              (NSString*)selfValue].location != NSNotFound;
     }
-  else if (sel_eq(_selector, EOQualifierOperatorLike) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorLike) == YES)
     {
       NSEmitTODO();  //TODO
       //How to handle nil like ?
       return [objectValue isEqual: selfValue];
     }
-  else if (sel_eq(_selector, EOQualifierOperatorCaseInsensitiveLike) == YES)
+  else if (sel_isEqual(_selector, EOQualifierOperatorCaseInsensitiveLike) == YES)
     {
       NSEmitTODO();  //TODO
       //How to handle nil like ?
@@ -335,7 +335,7 @@ RCS_ID("$Id$")
       selectorString = NSStringFromSelector(_selector);
     }
   return [NSString stringWithFormat:@"<%s %p - %@ %@ (%@)'%@'>",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
 		   _key,
 		   selectorString,

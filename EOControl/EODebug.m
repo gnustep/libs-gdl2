@@ -45,7 +45,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <unistd.h>
@@ -67,12 +67,12 @@ EOFLogC_(const char *file, int line, const char *string)
   if ([NSThread isMultiThreaded])
     {
       fprintf(stderr, "%s PID=(%d) ",
-	      [[GSCurrentThread() description] cString],
+              [[[NSThread currentThread] description] cStringUsingEncoding:NSUTF8StringEncoding],
 	      (int)getpid());
     }
 
   fprintf(stderr, "File %s: %d. ", file, line);
-  fprintf(stderr, string);
+  fprintf(stderr, string, NULL);  // the NULL makes the compiler happy -- dw
 
   len = strlen(string);
 
@@ -128,14 +128,14 @@ IVarInString(const char* _type, void* _value)
 	  {
 	    Class *pvalue = (Class*)_value;
 	    return [NSString stringWithFormat: @"Class:%s",
-			     class_get_class_name(*pvalue)];
+			     class_getName(*pvalue)];
 	  }
 	  break;
 	case _C_SEL:
 	  {
 	    SEL *pvalue = (SEL*)_value;
 	    return [NSString stringWithFormat: @"SEL:%s",
-			     sel_get_name(*pvalue)];
+			     sel_getName(*pvalue)];
 	  }
 	  break;
 	case _C_CHR:
@@ -321,69 +321,81 @@ TypeToNSString(const char* _type)
 static void 
 DumpIVar(id object, GSIVar ivar, int deep)
 {
+#ifndef GNUSTEP
+#warning DumpIVar() is not ported to your platform
+#else
   if (ivar && object && deep >= 0)
+  {
+    void *pValue = ((void*)object) + ivar->ivar_offset;
+    NSString *pType = TypeToNSString(ivar->ivar_type);
+    NSString *pIVar = IVarInString(ivar->ivar_type,pValue);
+    
+    NSDebugFLog(@"IVar %s type:%@ value:%@\n",
+                ivar->ivar_name,
+                pType,
+                pIVar);
+    
+    if (deep > 0 && ivar->ivar_type && *ivar->ivar_type == _C_ID && pValue)
     {
-      void *pValue = ((void*)object) + ivar->ivar_offset;
-      NSString *pType = TypeToNSString(ivar->ivar_type);
-      NSString *pIVar = IVarInString(ivar->ivar_type,pValue);
-
-      NSDebugFLog(@"IVar %s type:%@ value:%@\n",
-		  ivar->ivar_name,
-		  pType,
-		  pIVar);
-
-      if (deep > 0 && ivar->ivar_type && *ivar->ivar_type == _C_ID && pValue)
-	{
-	  EOFLogDumpObject_(NULL, 0, *((id*)pValue), deep);
-	}
+      EOFLogDumpObject_(NULL, 0, *((id*)pValue), deep);
     }
+  }
+#endif
 }
 
 //Dump object 
 void 
 EOFLogDumpObject_(const char *file, int line, id object, int deep)
 {
+#ifndef GNUSTEP
+#warning EOFLogDumpObject_() is not ported to your platform
+#else
+  
   USTART
-
+  
   if (object && deep > 0)
+  {
+    struct objc_ivar_list *ivars = NULL;
+    Class class = [object class];
+    
+    if (class)
     {
-      struct objc_ivar_list *ivars = NULL;
-      Class class = [object class];
-
-      if (class)
-	{
-	  NSDebugFLog(@"--%s %d [%d] Dumping object %p of Class %s Description:%@\n",
-		      (file && isalpha(*file) && line >= 0
-		       && line<=20000) ? file :"",
-		      line,
-		      deep,
-		      (void*)object,
-		      class->name,
-		      objectDescription(object));
-	  while (class)
+      NSDebugFLog(@"--%s %d [%d] Dumping object %p of Class %s Description:%@\n",
+                  (file && isalpha(*file) && line >= 0
+                   && line<=20000) ? file :"",
+                  line,
+                  deep,
+                  (void*)object,
+                  class_getName(class),
+                  objectDescription(object));
+      while (class)
 	    {
 	      ivars = class->ivars;
-	      class = class->super_class;
-
+	      class = class_getSuperclass(class);
+        
 	      if (ivars)
-		{
-		  int   i;
-
-		  for (i = 0; i < ivars->ivar_count; i++)
-		    {
-		      DumpIVar(object,&ivars->ivar_list[i],deep-1);
-		    }
-		}
-	    }
+        {
+          int   i;
+          
+          for (i = 0; i < ivars->ivar_count; i++)
+          {
+            DumpIVar(object,&ivars->ivar_list[i],deep-1);
+          }
         }
+	    }
     }
-
+  }
+  
   USTOP
+#endif
 }
 
 void 
 EOFLogAssertGood_(const char *file, int line, id object)
 {
+#ifndef GNUSTEP
+#warning EOFLogDumpObject_() is not ported to your platform
+#else
   if (object)
     {
       if (object->class_pointer == ((Class)0xdeadface))
@@ -404,6 +416,8 @@ EOFLogAssertGood_(const char *file, int line, id object)
 	    line);
       NSCParameterAssert(object);
     }
+#endif
+
 }
 
 #endif

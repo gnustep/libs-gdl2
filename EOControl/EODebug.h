@@ -40,7 +40,6 @@
 #endif
 
 #ifndef GNUSTEP
-#include <GNUstepBase/GSCategories.h>
 #endif
 
 #include <EOControl/EODefines.h>

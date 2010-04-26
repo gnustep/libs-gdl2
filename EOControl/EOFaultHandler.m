@@ -50,7 +50,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOFault.h>
@@ -124,7 +124,7 @@ RCS_ID("$Id$")
 {
   Class class;
 
-  for (class = _targetClass; class != Nil; class = class_get_super_class(class))
+  for (class = _targetClass; class != Nil; class = class_getSuperclass(class))
     {
       if (class == aclass)
 	return YES;
@@ -142,25 +142,31 @@ RCS_ID("$Id$")
 - (BOOL)conformsToProtocol: (Protocol *)protocol 
                   forFault: (id)fault
 {
-  int i;
-  struct objc_protocol_list *proto_list;
-  Class class;
-
-  for(class = _targetClass; class != Nil; class = class_get_super_class(class))
+  
+  // TODO: check on GNUstep if class_conformsToProtocol() works -- dw
+  //int i;
+  //struct objc_protocol_list *proto_list;
+  //Class class;
+  
+  return class_conformsToProtocol(_targetClass, protocol);
+  
+/*
+  for(class = _targetClass; class != Nil; class = class_getSuperclass(class))
+  {
+    for (proto_list =
+         ((struct objc_class *)_targetClass)->class_pointer->protocols;
+         proto_list; proto_list = proto_list->next)
     {
-      for (proto_list =
-	     ((struct objc_class *)_targetClass)->class_pointer->protocols;
-	   proto_list; proto_list = proto_list->next)
-	{
-	  for (i = 0; i < proto_list->count; i++)
+      for (i = 0; i < proto_list->count; i++)
 	    {
 	      if ([proto_list->list[i] conformsTo: protocol])
-		return YES;
+          return YES;
 	    }
-	}
     }
-
+  }
+  
   return NO;
+ */
 }
 
 - (BOOL)respondsToSelector: (SEL)sel
