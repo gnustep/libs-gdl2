@@ -1,7 +1,10 @@
 /** 
    PostgreSQLChannel.m <title>PostgreSQLChannel</title>
 
-   Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
+   Copyright (C) 2000-2002,2003,2004,2005,2010 Free Software Foundation, Inc.
+
+   Author: David Wetzel <dave@turbocat.de>
+   Date: 2010
 
    Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
@@ -61,7 +64,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EONull.h>
@@ -553,6 +556,11 @@ newValueForBytesLengthAttribute (const void *bytes,
   //OK
   NSAssert(!_pgConn, @"Channel already opened");
 
+  // set some reasonable defaults
+  _evaluateExprInProgress = NO;
+  _fetchBlobsOid = NO;
+  _isFetchInProgress = NO;
+  
   _pgConn = [(PostgreSQLAdaptor *)[[self adaptorContext] adaptor] newPGconn];
 
   if (_pgConn)
@@ -673,159 +681,147 @@ newValueForBytesLengthAttribute (const void *bytes,
 
 - (NSMutableDictionary *)fetchRowWithZone: (NSZone *)zone
 {
-//TODO
-/*
-//self cleanupFetch quand plus de row !!
-valueClassName...externaltype on each attr
-self adaptorContext
-context adaptor
-adaptor databaseEncoding//2
-
-
-self dictionaryWithObjects:??? 
-forAttributes:_attributes
-zone:zone
-//end
-*/
+  //TODO
+  /*
+   //self cleanupFetch quand plus de row !!
+   valueClassName...externaltype on each attr
+   self adaptorContext
+   context adaptor
+   adaptor databaseEncoding//2
+   
+   
+   self dictionaryWithObjects:??? 
+   forAttributes:_attributes
+   zone:zone
+   //end
+   */
   NSMutableDictionary *dict = nil;
-
+  
   EOFLOGObjectFnStart();
-
+  
   if (_delegateRespondsTo.willFetchRow)
     [_delegate adaptorChannelWillFetchRow: self];
   
   NSDebugMLLog(@"gsdb",@"[self isFetchInProgress]: %s",
-	       ([self isFetchInProgress] ? "YES" : "NO"));
-
+               ([self isFetchInProgress] ? "YES" : "NO"));
+  
   if ([self isFetchInProgress])
+  {
+    NSDebugMLLog(@"gsdb", @"ATTRIBUTES=%@", _attributes);
+    
+    if (!_attributes)
+      [self _describeResults];
+    
+    if ([self advanceRow] == NO)
     {
-      NSDebugMLLog(@"gsdb", @"ATTRIBUTES=%@", _attributes);
-
-      if (!_attributes)
-        [self _describeResults];
-
-      if ([self advanceRow] == NO)
-        {
-          NSDebugMLLog(@"gsdb", @"No Advance Row", "");
-
-          // Return nil to indicate that the fetch operation was finished      
-          if (_delegateRespondsTo.didFinishFetching)
-            [_delegate adaptorChannelDidFinishFetching: self];
+      NSDebugMLLog(@"gsdb", @"No Advance Row", "");
       
-          [self _cancelResults];
-        }
+      // Return nil to indicate that the fetch operation was finished      
+      if (_delegateRespondsTo.didFinishFetching)
+        [_delegate adaptorChannelDidFinishFetching: self];
+      
+      [self _cancelResults];
+    }
+    else
+    {    
+      int i;
+      NSUInteger count = [_attributes count];
+      id valueBuffer[100];
+      id *values = NULL;
+      IMP attributesOAI=NULL; // objectAtIndex:
+            
+      if (count > PQnfields(_pgResult))
+      {
+        [NSException raise: PostgreSQLException
+                    format: @"attempt to read %d attributes "
+         @"when the result set has only %d columns",
+         count, PQnfields(_pgResult)];
+      }
+      
+      if (count > 100)
+        values = (id *)NSZoneMalloc(zone, count * sizeof(id));
       else
-        {    
-          int i;
-          int count = [_attributes count];
-          id valueBuffer[100];
-          id *values = NULL;
-          IMP attributesOAI=NULL; // objectAtIndex:
-
-          NSDebugMLLog(@"gsdb", @"count=%d", count);
-
-          if (count > PQnfields(_pgResult))
+        values = valueBuffer;
+      
+      for (i = 0; i < count; i++)
+      {
+        EOAttribute *attr = PSQLA_ObjectAtIndexWithImpPtr(_attributes,&attributesOAI,i);
+        int length = 0;
+        const char *string = NULL;
+        
+        // If the column has the NULL value insert EONull in row
+        
+        if (PQgetisnull(_pgResult, _currentResultRow, i))
+        {
+          // do we need RETAIN here? we could save a call -- dw.
+          values[i] = RETAIN(PSQLA_EONull); //to be compatible with others returned values
+        } else {
+          string = PQgetvalue(_pgResult, _currentResultRow, i);
+          length = PQgetlength(_pgResult, _currentResultRow, i);
+          
+          // if external type for this attribute is "inversion" then this
+          // column represents an Oid of a large object
+          
+          if ([[attr externalType] isEqual: @"inversion"])
+          {
+            if (!_fetchBlobsOid)
             {
-              NSDebugMLog(@"attempt to read %d attributes when the result set has only %d columns",
-                          count, PQnfields(_pgResult));
-              NSDebugMLog(@"_attributes=%@", _attributes);
-              NSDebugMLog(@"result=%@", [self lowLevelResultFieldNames:
-						_pgResult]);
-              [NSException raise: PostgreSQLException
-                           format: @"attempt to read %d attributes "
-                           @"when the result set has only %d columns",
-                           count, PQnfields(_pgResult)];
-            }
-
-          if (count > 100)
-            values = (id *)NSZoneMalloc(zone, count * sizeof(id));
-          else
-            values = valueBuffer;
-
-          for (i = 0; i < count; i++)
-            {
-              EOAttribute *attr = PSQLA_ObjectAtIndexWithImpPtr(_attributes,&attributesOAI,i);
-              int length = 0;
-              const char *string = NULL;
-
-              // If the column has the NULL value insert EONull in row
-
-              if (PQgetisnull(_pgResult, _currentResultRow, i))
-                {
-                  values[i] = RETAIN(PSQLA_EONull); //to be compatible with others returned values
-                }
-              else
-                {
-                  string = PQgetvalue(_pgResult, _currentResultRow, i);
-                  length = PQgetlength(_pgResult, _currentResultRow, i);
-                  
-                  // if external type for this attribute is "inversion" then this
-                  // column represents an Oid of a large object
-
-                  if ([[attr externalType] isEqual: @"inversion"])
-                    {
-                      if (!_fetchBlobsOid)
-                        {
-                          string = [self _readBinaryDataRow: (Oid)atol(string)
+              string = [self _readBinaryDataRow: (Oid)atol(string)
                                          length:&length zone: zone];
-
-                          values[i] = newValueForBytesLengthAttribute(string,length,attr,encoding);
-                        }
-                      else
-                        {
-                          // The documentatin states that for efficiency
-			  // reasons, the returned value is NOT autoreleased
-			  // yet in the case of GNUstep-base it would be more
-			  // efficient if the numberWithLong: method would be
-			  // used as we could often skip alloc / dealloc
-			  // and get a cached value.  We could use it and
-			  // send retain, or we could start maintaing our
-			  // own cache.
-                          values[i] = [PSQLA_alloc(NSNumber) initWithLong: atol(string)];
-                        }
-                    }
-                  else
-                    {
-                      //For efficiency reasons, the returned value is NOT autoreleased !
-                      values[i] = newValueForBytesLengthAttribute(string,length,attr,encoding);
-                    }
-                }
-
-              NSDebugMLLog(@"gsdb", @"value[%d] (%p)=%@ of class: %@", 
-                           i, values[i], values[i], [values[i] class]);
-
-              // We don't want to add nil value to dictionary !
-              NSAssert1(values[i],@"No value for attribute: %@",attr);
+              
+              values[i] = newValueForBytesLengthAttribute(string,length,attr,encoding);
             }
-
-          NSDebugMLLog(@"gsdb", @"values count=%d values=%p", count, values);
-          NSDebugMLLog(@"gsdb", @"_attributes=%@", _attributes);
-
-          dict = [self dictionaryWithObjects: values
-                       forAttributes: _attributes
-                       zone: zone];
-
-	  /* The caller of newValue methods/funnction is
+            else
+            {
+              // The documentatin states that for efficiency
+              // reasons, the returned value is NOT autoreleased
+              // yet in the case of GNUstep-base it would be more
+              // efficient if the numberWithLong: method would be
+              // used as we could often skip alloc / dealloc
+              // and get a cached value.  We could use it and
+              // send retain, or we could start maintaing our
+              // own cache.
+              values[i] = [PSQLA_alloc(NSNumber) initWithLong: atol(string)];
+            }
+          }
+          else
+          {
+            //For efficiency reasons, the returned value is NOT autoreleased !
+            values[i] = newValueForBytesLengthAttribute(string,length,attr,encoding);
+          }
+        }
+                
+        // We don't want to add nil value to dictionary !
+        NSAssert1(values[i],@"No value for attribute: %@",attr);
+      }
+            
+      dict = [self dictionaryWithObjects: values
+                           forAttributes: _attributes
+                                    zone: zone];
+      
+      /* The caller of newValue methods/funnction is
 	     responsible for releasing the values.  An adaptor can
 	     optimize allocation by taking that into account yet
 	     the retain balance must be kept.  */
-          for (i = 0; i < count; i++)
+      for (i = 0; i < count; i++)
 	    {
 	      [values[i] release];
 	    }
-
-          if (values != valueBuffer)
-            NSZoneFree(zone, values);
-
-          if (_delegateRespondsTo.didFetchRow)
-            [_delegate adaptorChannel: self didFetchRow: dict];
-        }
+      
+      if (values != valueBuffer)
+        NSZoneFree(zone, values);
+      
+      if (_delegateRespondsTo.didFetchRow)
+        [_delegate adaptorChannel: self didFetchRow: dict];
     }
-
-  NSDebugMLLog(@"gsdb", @"row: %@", dict);
-
-  EOFLOGObjectFnStop();
-
+  } else {
+    // no fetch, free memory
+    if (_pgResult != NULL) {
+      PQclear(_pgResult); _pgResult = NULL;
+    }
+    
+  }
+  
   return dict; //an EOMutableKnownKeyDictionary
 }
 
@@ -834,14 +830,8 @@ zone:zone
   BOOL ret = NO;
   ExecStatusType status;
 
-  EOFLOGObjectFnStart();
-
   // Check results
   status = PQresultStatus(_pgResult);
-
-  NSDebugMLLog(@"gsdb",@"status=%d (%s)",
-              (int)status,
-              PQresStatus(status));
 
   switch (status)
     {
@@ -874,12 +864,9 @@ zone:zone
         if ([self isDebugEnabled])
           NSLog(@"SQL expression '%@' caused %@",
                 [_sqlExpression statement], errorString);
-        NSDebugMLLog(@"SQL expression '%@' caused %@",
-                     [_sqlExpression statement], errorString);
+
         [NSException raise: PostgreSQLException
 		     format: @"unexpected result returned by PQresultStatus(): %@",errorString];
-
-        EOFLOGObjectFnStop();
 
         return NO;
       }
@@ -889,8 +876,6 @@ zone:zone
         if ([self isDebugEnabled])
           NSLog(@"SQL expression '%@' returned status %d: %@",
                 [_sqlExpression statement], status, errorString);
-        NSDebugMLLog(@"SQL expression '%@' returned status %d: %@",
-                     [_sqlExpression statement], status, errorString);
         [NSException raise: PostgreSQLException
 		     format: @"unexpected result returned by PQresultStatus(): status %d: %@",
                      status,errorString];
@@ -898,9 +883,6 @@ zone:zone
         break;
       }
     }
-
-  NSDebugMLLog(@"gsdb", @"ret=%s", (ret ? "YES" : "NO"));
-  NSDebugMLLog(@"gsdb", @"_isFetchInProgress=%s", (_isFetchInProgress ? "YES" : "NO"));
 
   if (ret == YES)
     {
@@ -927,12 +909,6 @@ zone:zone
         }
     }
 
-  NSDebugMLLog(@"gsdb",@"_isFetchInProgress=%s",
-	       (_isFetchInProgress ? "YES" : "NO"));
-
-  if ([self isFetchInProgress])// Mirko: TODO remove this !
-    [self _describeResults];
-
   if ([self isDebugEnabled])
     {
       NSString *message = [NSString stringWithCString: PQcmdStatus(_pgResult)];
@@ -944,63 +920,68 @@ zone:zone
       NSLog (@"PostgreSQLAdaptor: %@", message);
     }
   
-  NSDebugMLLog(@"gsdb", @"ret=%s", (ret ? "YES" : "NO"));
-
-  EOFLOGObjectFnStop();
-
+  if (_isFetchInProgress) {
+    [self _describeResults];
+  } else {
+    // make sure we free the memory! -- dw
+    PQclear(_pgResult);
+    _pgResult = NULL;
+  }
+  
   return ret;
 }
 
-- (BOOL)_evaluateExpression: (EOSQLExpression *)expression
-             withAttributes: (NSArray*)attributes
+/*
+ * PRIVATE. returns the number of affected rows
+ */
+
+- (NSUInteger)_evaluateExpression: (EOSQLExpression *)expression
+                   withAttributes: (NSArray*)attributes
 {
-  BOOL result = NO;
+//  BOOL result = NO;
+  NSUInteger       affectedRows = 0;
   EOAdaptorContext *adaptorContext = nil;
-
-  EOFLOGObjectFnStart();
-
-  NSDebugMLLog(@"gsdb", @"expression=%@", expression);
-
+  
   ASSIGN(_sqlExpression, expression);
   ASSIGN(_origAttributes, attributes);
-
-//  NSDebugMLLog(@"gsdb",@"EE _origAttributes=%@",_origAttributes);
-//  NSDebugMLLog(@"gsdb",@"EE _attributes=%@",_attributes);
-  NSDebugMLLog(@"gsdb", @"PostgreSQLAdaptor: execute command:\n%@\n",
-	       [expression statement]);
-
+  
   if ([self isDebugEnabled] == YES)
     NSLog(@"PostgreSQLAdaptor: execute command:\n%@\n",
-	  [expression statement]);
-//call PostgreSQLChannel numberOfAffectedRows
+          [expression statement]);
+  //call PostgreSQLChannel numberOfAffectedRows
   /* Send the expression to the SQL server */
-
+  
   _pgResult = PQexec(_pgConn, (char *)[[[expression statement] stringByAppendingString:@";"] cStringUsingEncoding: encoding]);
-  NSDebugMLLog(@"gsdb", @"_pgResult=%p", (void*)_pgResult);
-
+  affectedRows = strtoul(PQcmdTuples(_pgResult), NULL, 10);
+  
   if (_pgResult == NULL)
+  {
+    if ([self isDebugEnabled])
     {
-      if ([self isDebugEnabled])
-        {
-          adaptorContext = [self adaptorContext];
-          [(PostgreSQLAdaptor *)[adaptorContext adaptor]
-                                privateReportError: _pgConn];
-        }
+      adaptorContext = [self adaptorContext];
+      [(PostgreSQLAdaptor *)[adaptorContext adaptor]
+       privateReportError: _pgConn];
     }
+  }
   else
-    {
+  {
+    NS_DURING {
       /* Check command results */
-      if ([self _evaluateCommandsUntilAFetch] != NO)
-        result = YES;
-    }
+      if ([self _evaluateCommandsUntilAFetch] != NO) 
+      {
+        //result = YES;
 
-//self numberOfAffectedRows
-  NSDebugMLLog(@"gsdb", @"result: %s", (result ? "YES" : "NO"));
-//  NSDebugMLLog(@"gsdb",@"FF attributes=%@",_attributes);
-
-  EOFLOGObjectFnStop();
-
-  return result;
+      }
+    } NS_HANDLER {
+      // make sure we call PQclear *ALWAYS*
+      if (_pgResult != NULL) {
+        PQclear(_pgResult); _pgResult = NULL;
+        [localException raise];
+      }
+    } NS_ENDHANDLER;    
+  }
+  
+  return affectedRows;
 }
 
 - (void)evaluateExpression: (EOSQLExpression *)expression // OK quasi
@@ -1036,6 +1017,7 @@ zone:zone
   [self _cancelResults];
   [adaptorContext autoBeginTransaction: NO/*YES*/]; //TODO: shouldbe yes ??
 
+  _evaluateExprInProgress = YES;
   if (![self _evaluateExpression: expression
 	     withAttributes: nil])
     {
@@ -1213,9 +1195,8 @@ each key
 	      deleteStatementWithQualifier: qualifier
 	      entity: entity];
 
-  if ([self _evaluateExpression: sqlexpr withAttributes: nil])
-    rows = strtoul(PQcmdTuples(_pgResult), NULL, 10);
-
+  rows = [self _evaluateExpression: sqlexpr withAttributes: nil];
+  
   [adaptorContext autoCommitTransaction];
 
   EOFLOGObjectFnStop();
@@ -1458,16 +1439,14 @@ each key
       NSDebugMLLog(@"gsdb", @"[mrow count]=%d", [mrow count]);
 
       if ([mrow count] > 0)
-        {
-          sqlExpr = [[[_adaptorContext adaptor] expressionClass]
-                      updateStatementForRow: mrow
-                      qualifier: qualifier
-                      entity: entity];
-
-          //wo call evaluateExpression:
-          if ([self _evaluateExpression: sqlExpr withAttributes: nil])
-            rows = strtoul(PQcmdTuples(_pgResult), NULL, 10);
-        }
+      {
+        sqlExpr = [[[_adaptorContext adaptor] expressionClass]
+                   updateStatementForRow: mrow
+                   qualifier: qualifier
+                   entity: entity];
+        
+        rows = [self _evaluateExpression: sqlExpr withAttributes: nil];
+      }
 
       [adaptorContext autoCommitTransaction];
     }
@@ -1675,9 +1654,9 @@ each key
 {
   NSArray *desc;
 
-  EOFLOGObjectFnStart();
-
-  if (![self isFetchInProgress])
+  // if we just check isFetchInProgress here we fail on raw sql fetches. -- dw
+  
+  if ((!_isFetchInProgress) && (!_evaluateExprInProgress))
     [NSException raise: NSInternalInconsistencyException
                  format: @"%@ -- %@ 0x%x: attempt to describe results with no fetch in progress",
                  NSStringFromSelector(_cmd),
@@ -1686,16 +1665,12 @@ each key
 
   desc = [self attributesToFetch];
 
-  EOFLOGObjectFnStop();
-
   return desc;
 }
 
 - (void)_describeResults
 {
   int colsNumber;
-
-  EOFLOGObjectFnStart();
 
   colsNumber=_pgResult ? PQnfields(_pgResult): 0;
   NSDebugMLLog(@"gsdb", @"colsNumber=%d", colsNumber);
@@ -1796,9 +1771,6 @@ each key
 				     initWithObjects: attributes
 				     count: colsNumber])];
     }
-//  NSDebugMLLog(@"gsdb",@"_attributes=%@",_attributes);
-
-  EOFLOGObjectFnStop();
 }
 
 /* The methods used to generate an model from the meta-information kept by
@@ -2342,6 +2314,8 @@ each key
   NSDebugMLog(@"[self isFetchInProgress]=%s",
               ([self isFetchInProgress] ? "YES" : "NO"));
 
+  _evaluateExprInProgress = NO;
+  
   if ([self isFetchInProgress])
     {
       BOOL ok;

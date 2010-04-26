@@ -59,6 +59,7 @@
   int _currentResultRow;
   NSMutableDictionary *_oidToTypeName;
   BOOL _isFetchInProgress;
+  BOOL _evaluateExprInProgress;
   BOOL _fetchBlobsOid;
   NSArray *_pkAttributeArray;
   int _pgVersion;
@@ -89,8 +90,8 @@
 - (Oid)_updateBinaryDataRow: (Oid)oid data: (NSData*)binaryData;
 - (void)_describeDatabaseTypes;
 
-- (BOOL)_evaluateExpression: (EOSQLExpression *)expression
-	     withAttributes: (NSArray*)attributes;
+- (NSUInteger)_evaluateExpression: (EOSQLExpression *)expression
+                   withAttributes: (NSArray*)attributes;
 @end
 
 @interface NSObject (PostgreSQLChannelDelegate)

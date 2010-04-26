@@ -58,7 +58,7 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EONSAddOns.h>
@@ -129,15 +129,11 @@ postgresClientVersion()
 - (void)privateReportError: (PGconn*)pgConn
 {
   char *message = "NULL pgConn in privateReportError:";
-
-  EOFLOGObjectFnStart();
   
   if (pgConn)
     message = PQerrorMessage(pgConn);
   
   NSLog(@"%s", message);
-
-  EOFLOGObjectFnStop();
 }
 
 - (void)setCachePGconn: (BOOL)flag
