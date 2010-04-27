@@ -164,7 +164,7 @@ textShouldBeginEditing: (NSText *)fieldEditor;
 - (EOColumnAssociation *)editingAssociation;
 
 /* Providing table view data source.  */
-- (int)numberOfRowsInTableView: (NSTableView *)tableView;
+- (NSInteger)numberOfRowsInTableView: (NSTableView *)tableView;
 
 - (void)tableView: (NSTableView *)tableView
    setObjectValue: (id)object

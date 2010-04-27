@@ -49,7 +49,6 @@
 #endif
 
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
 
 @implementation EOModelerEditor
 - (void) dealloc
@@ -186,7 +185,7 @@
 
 - (void)activateEmbeddedEditor:(EOModelerEmbedibleEditor *)editor
 {
-  unsigned int index = [_editors indexOfObjectIdenticalTo: editor];
+  NSUInteger index = [_editors indexOfObjectIdenticalTo: editor];
   if (index == NSNotFound)
     {
       [_editors addObject: editor];
@@ -241,9 +240,13 @@
     the selection arrays.</p> */
 - (void)setSelectionPath:(NSArray *)newSelection
 {
-  unsigned int indexOfLast = [newSelection indexOfObject:[newSelection lastObject]];
+  NSUInteger indexOfLast = NSNotFound;
   NSRange allButLastElement;
-/* 
+  
+  if ((newSelection) && ([newSelection count] > 0)) {
+    indexOfLast = [newSelection indexOfObject:[newSelection lastObject]];
+  }
+  /* 
   int i,j;
 
   printf("%@\n",NSStringFromSelector(_cmd));  

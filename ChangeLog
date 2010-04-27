@@ -22,6 +22,9 @@
     added @implementation EOCustomObject (AssociationsHack)
     re-added registerAssociationForDeallocHack
     * EOControl/*: ported to new runtime and OS X
+    EOInterface/* numberOfRowsInTableView returns NSInteger now
+    EOModeler/EOModelerDocument.m: do not insert a model into EditingContext.
+    EOModeler/EOModelerEditor.m: avoid crash
 
 2010-04-21  Sergey Golovin  <golovin.sv@gmail.com>
 

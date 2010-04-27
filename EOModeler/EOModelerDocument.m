@@ -155,10 +155,14 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 
 @implementation EOModelerDocument 
 
+
+
 - (BOOL) validateMenuItem:(NSMenuItem <NSMenuItem>*)menuItem
 {
   NSArray *selection = [[EOMApp currentEditor] selectionPath];
 
+  
+    
   if ([[menuItem title] isEqualToString:@"Add attribute"])
     return ([selection firstSelectionOfClass:[EOEntity class]] != nil);
   else if ([[menuItem title] isEqualToString:@"Add relationship"])
@@ -167,6 +171,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
     return ([[selection lastObject] count]) ? YES : NO;
     // see -delete:
     //return ([[selection lastObject] count] || [selection count] > 2) ? YES : NO;
+  
   return YES;
 }
 
@@ -179,7 +184,8 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
       _userInfo = nil;
       _editors = [[NSMutableArray alloc] init];
       _editingContext = [[EOEditingContext alloc] init];
-      [_editingContext insertObject:model];
+      // why insert the model into the EC? -- dw
+      //      [_editingContext insertObject:model];
     }
   return self;
 }
@@ -761,6 +767,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   [[NSClassFromString(@"ConsistencyResults") sharedConsistencyPanel]
 	  appendConsistencyCheckSuccessText:successText];
 }
+
 
 @end
 

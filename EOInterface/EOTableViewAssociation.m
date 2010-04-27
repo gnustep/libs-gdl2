@@ -241,7 +241,7 @@ static NSMapTable *tvAssociationMap;
     }
 }
 
-- (int)numberOfRowsInTableView: (NSTableView *)tableView
+- (NSInteger)numberOfRowsInTableView: (NSTableView *)tableView
 {
   return [[[self displayGroupForAspect:@"source"] displayedObjects] count];
 }
