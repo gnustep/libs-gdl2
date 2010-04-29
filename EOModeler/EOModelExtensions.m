@@ -245,6 +245,40 @@
 
 - (NSString *)cScalarTypeString
 {
+  NSString * vType = [self valueType];
+  unichar  myChar;
+  
+  myChar = [vType characterAtIndex:0];
+  
+  switch (myChar) {
+    case 'c': return @"char";
+      break;
+    case 'C': return @"unsigned char";
+      break;
+    case 's': return @"short";
+      break;
+    case 'S': return @"unsigned short";
+      break;
+    case 'i': return @"int";
+      break;
+    case 'I': return @"unsigned int";
+      break;
+    case 'l': return @"long";
+      break;
+    case 'L': return @"unsigned long";
+      break;
+    case 'u': return @"long long";
+      break;
+    case 'U': return @"unsigned long long";
+      break;
+    case 'f': return @"float";
+      break;
+    case 'd': return @"double";
+      break;
+    default:
+      break;
+  }
+  
   return nil;
 }
 

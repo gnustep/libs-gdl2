@@ -82,6 +82,7 @@ $(APP_NAME)_OBJC_FILES =		\
 	AttributeCell.m			\
 	NSView+Additions.m		\
 	EntityView.m			\
-	DiagramEditor.m
+	DiagramEditor.m \
+  CodeGenerator.m
 
 include $(GNUSTEP_MAKEFILES)/application.make

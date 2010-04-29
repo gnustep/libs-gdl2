@@ -199,7 +199,7 @@ RCS_ID("$Id$")
   //OK?
   id key;
 
-  NSAssert3(index < _count, @"%s: bad index %d (count=%u)", __PRETTY_FUNCTION__, index, _count);
+  NSAssert2(index < _count, @"bad index %d (count=%u)", index, _count);
 
   key = _keys[index];
 
@@ -212,7 +212,7 @@ RCS_ID("$Id$")
 {
   id key;
 
-  NSAssert3(index < _count, @"%s: bad index %d (count=%u)", __PRETTY_FUNCTION__, index, _count);
+  NSAssert2(index < _count, @"bad index %d (count=%u)", index, _count);
 
   key = _keys[index];
 
@@ -224,7 +224,6 @@ RCS_ID("$Id$")
   void *index = NSMapGet(_keyToIndex, (const void *)key);
   
   if (!index) {
-    NSLog(@"%s:'%@' not found", __PRETTY_FUNCTION__, key);
     return NSNotFound;
   }
   

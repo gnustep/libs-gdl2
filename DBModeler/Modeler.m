@@ -31,6 +31,7 @@
 #include "ModelerEntityEditor.h"
 #include "SQLGenerator.h"
 #include "Preferences.h"
+#include "CodeGenerator.h"
 
 #include <EOModeler/EOModelerApp.h>
 #include <EOModeler/EOModelerEditor.h>
@@ -234,6 +235,13 @@
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
+  
+  if (([menuItem action] == @selector(createTemplate:))) {
+    NSLog(@"validateMenuItem: OK");
+    return YES;
+  }
+    
+  
   if ([[menuItem title] isEqualToString:@"Set Adaptor Info"])
     {
       return ([EOMApp activeDocument] != nil);
@@ -339,6 +347,14 @@
 - (void) openPrefs:(id)sender
 {
   [[DBModelerPrefs sharedPreferences] showPreferences:self]; 
+}
+
+- (void)createTemplate:(id)sender
+{
+  CodeGenerator * codeGen = [[CodeGenerator new] autorelease];
+  
+  [codeGen generate];
+  
 }
 
 @end

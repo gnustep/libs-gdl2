@@ -54,6 +54,8 @@
 				<menuItem title="Add Relationship" keyEquivalent="R"
 					action="addRelationship:" />
 				<menuItem title="Delete" action="delete:" />
+                <menuItem title="Generate ObjC Files.." 
+					action="createTemplate:" />
 			</menu>
 
 			<menu title="Tools">
