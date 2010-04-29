@@ -248,6 +248,10 @@
   NSString * vType = [self valueType];
   unichar  myChar;
   
+  if ([vType length] < 1) {
+    return nil;
+  }
+  
   myChar = [vType characterAtIndex:0];
   
   switch (myChar) {

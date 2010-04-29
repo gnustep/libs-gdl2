@@ -235,9 +235,7 @@
 
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
-  
-  if (([menuItem action] == @selector(createTemplate:))) {
-    NSLog(@"validateMenuItem: OK");
+  if (sel_isEqual([menuItem action], @selector(createTemplate:))) {
     return YES;
   }
     

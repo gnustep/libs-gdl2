@@ -6,6 +6,11 @@
     added - (NSString *)cScalarTypeString
     * DBModeler/CodeGenerator.h/m: new file
     Added a Code Generator like EOGenerator from www.rubicode.com
+    * DBModeler/Modeler.m: use sel_isEqual to check menu
+    * DBModeler/Resources/SQLGenerator.gsmarkup: make window resizeable
+    * DBModeler/CodeGenerator.m: add credits for initialCapitalString and
+      initialLowercaseString
+      use ASSIGN() in generated code.
 
 2010-04-26  David Wetzel  <dave@turbocat.de>
 

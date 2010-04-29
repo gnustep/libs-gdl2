@@ -3,12 +3,12 @@
 <gsmarkup> 
 	<objects>
 
-		<window title="SQL Generation" id="sqlgenWindow" resizable="no">
+		<window title="SQL Generation" id="sqlgenWindow" resizable="yes">
 			<vbox leftPadding="10" padding="10">
 				<box title="SQL Generation Options" topPadding="10"
 					leftPadding="15" rightPadding="15" width="425">
-					<hbox halign="wexpand">
-						<vbox halign="left" valign="wexpand">
+					<hbox halign="wexpand" valign="top">
+						<vbox halign="left" valign="top" rightPadding="15">
 							<button id="dropDatabase" title="Drop Database"
 								type="switch" halign="left" valign="top"
 								action="switchChanged:" target="#NSOwner"
@@ -17,14 +17,12 @@
 								type="switch" halign="left" valign="top"
 								action="switchChanged:" target="#NSOwner"
 								padding="1.5" />
-							<vspace />
 							<button id="dropPKSupport"
 								title="Drop Primary Key Support" type="switch"
-								halign="left" valign="bottom"
+								halign="left" valign="top"
 								action="switchChanged:" target="#NSOwner"
 								padding="1.5" />
 						</vbox>
-						<hspace />
 						<vbox halign="right" valign="top">
 							<button id="createDB" title="Create Database"
 								type="switch" halign="left" valign="top"
