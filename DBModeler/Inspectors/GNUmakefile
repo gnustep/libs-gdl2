@@ -37,7 +37,7 @@ RelationshipInspector.gorm	\
 RelationshipInspector.tiff
 Inspectors_OBJC_FILES+=RelationshipInspector.m
 
-Inspectors_RESOURCE_FILES+=AttributeInspector.gorm
+Inspectors_RESOURCE_FILES+=AttributeInspector.gorm AttributeInspector.gsmarkup
 Inspectors_OBJC_FILES+=AttributeInspector.m
 
 Inspectors_RESOURCE_FILES+=AdvancedEntityInspector.gorm

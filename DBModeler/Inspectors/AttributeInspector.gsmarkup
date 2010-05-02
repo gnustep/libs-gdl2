@@ -1,0 +1,180 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<window title="Inspector" width="268.0" heigth="365.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <label backgroundColor="white" selectable="no" textColor="555555">Nothing to Inspect</label>
+      </vbox> 
+		</window>
+    
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <grid rowType="proportional" columnType="proportional">
+          <gridRow>
+            <label halign="right" selectable="no">Name:</label> <textField id="nameField" delegate="#NSOwner"></textField>
+          </gridRow>
+          <gridRow>
+            <popUpButton autoenabledItems="no" target="#NSOwner" id="derivedPopUp" action="setDerived:" halign="right">
+              <popUpButtonItem tag="0" title="Column" />
+              <popUpButtonItem tag="1" title="Derived" />
+            </popUpButton>
+            <textField delegate="#NSOwner" id="extNameField" />
+          </gridRow>
+          <gridRow>
+            <label halign="right" selectable="no">External Type:</label> <textField id="extTypeField" delegate="#NSOwner" />
+          </gridRow>
+        </grid>
+        
+        <box title="Internal Data Type" topPadding="10" leftPadding="4" rightPadding="4" id="internalData">
+					<vbox>
+            <popUpButton target="#NSOwner" action="selectInternalDataType:" id="valueClassSelect">
+              <popUpButtonItem tag="0" title="String" />
+              <popUpButtonItem tag="1" title="Decimal Number" />
+              <popUpButtonItem tag="2" title="Number" />
+              <popUpButtonItem tag="3" title="Date" />
+              <popUpButtonItem tag="4" title="Data" />
+              <popUpButtonItem tag="5" title="Custom" />
+            </popUpButton>
+            <!-- width="254" halign="center" -->
+            <view id="flipView" halign="wexpand" height="180" >
+              <view/>
+            </view>
+					</vbox>
+        </box>
+      </vbox>
+      
+		</window>
+    
+    
+		<window title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <box title="Custom Flip" topPadding="10" leftPadding="15" rightPadding="15" id="customFlip">
+          <grid rowType="proportional" columnType="proportional">
+            <gridRow>
+              <label halign="right" selectable="no">External Width:</label> <textField id="custom_width" delegate="#NSOwner" />
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">Class:</label> <textField id="custom_class" delegate="#NSOwner" />
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">Factory Method:</label> <textField id="custom_factory" delegate="#NSOwner" />
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">Conversion Meth.:</label> <textField id="custom_conversion" delegate="#NSOwner" />
+            </gridRow>
+            
+            <gridRow>
+              <label halign="right" selectable="no">Init argument:</label>
+              <popUpButton halign="left" target="#NSOwner" action="changeLevel:" id="custom_arg">
+                <popUpButtonItem tag="0" title="NSData" />
+                <popUpButtonItem tag="1" title="NSString" />
+                <popUpButtonItem tag="2" title="Bytes" />
+              </popUpButton>
+            </gridRow>
+          </grid>
+        </box>
+        
+        <box title="Data Flip" topPadding="10" leftPadding="15" rightPadding="15" id="dataFlip">
+          <grid rowType="proportional" columnType="proportional">
+            <gridRow>
+              <label halign="right" selectable="no">External Width:</label> <textField id="data_width" delegate="#NSOwner" />
+            </gridRow>
+          </grid>
+        </box>
+        
+        <box title="String Flip"  width="250.0" heigth="50" topPadding="10" leftPadding="15" rightPadding="15" id="stringFlip">
+          <grid rowType="proportional" columnType="proportional">
+            <gridRow>
+              <label halign="right" selectable="no">External Width:</label> <textField id="string_width" delegate="#NSOwner" />
+            </gridRow>
+          </grid>
+        </box>
+        
+        <box title="Decimal Flip" topPadding="10" leftPadding="15" rightPadding="15" id="decimalFlip">
+          <vbox>
+            <grid rowType="proportional" columnType="proportional">
+              <gridRow>
+                <label halign="right" selectable="no">External Precision:</label> <textField id="decimal_precision" delegate="#NSOwner" />
+              </gridRow>
+              <gridRow>
+                <label halign="right" selectable="no">External Scale:</label> <textField id="decimal_scale" delegate="#NSOwner" />
+              </gridRow>
+            </grid>
+            <label color="grey">12345.67 has a precision of 7</label>
+            <label color="grey">and a scale of 2.</label>
+          </vbox>
+        </box>
+        
+        <box title="Number Flip" topPadding="10" leftPadding="15" rightPadding="15" id="numberFlip">
+          <vbox>
+            <grid rowType="proportional">
+              <gridRow>
+                <label halign="right" selectable="no">Value Type:</label>
+                <popUpButton halign="left" target="#NSOwner" action="changeValueType:" id="valueTypePopUp">
+                  <popUpButtonItem tag="0" title="int" />
+                  <popUpButtonItem tag="1" title="double" />
+                  <popUpButtonItem tag="2" title="float" />
+                  <popUpButtonItem tag="3" title="char" />
+                  <popUpButtonItem tag="4" title="short" />
+                  <popUpButtonItem tag="5" title="unsigned int" />
+                  <popUpButtonItem tag="6" title="unsigned char" />
+                  <popUpButtonItem tag="7" title="unsigned short" />
+                  <popUpButtonItem tag="8" title="long" />
+                  <popUpButtonItem tag="9" title="unsigned long" />
+                  <popUpButtonItem tag="10" title="long long" />
+                  <popUpButtonItem tag="11" title="uns. long long" />
+                </popUpButton>
+              </gridRow>
+            </grid>
+            <vbox>
+              <label textColor="red">Never use float or double for</label>
+              <label textColor="red">monetary values as rounding will</label>
+              <label textColor="red">lead to non-expected results.</label>
+            </vbox>
+          </vbox>
+          
+        </box>
+        
+        
+        <box title="Date Flip" topPadding="10" leftPadding="15" rightPadding="15" id="dateFlip">
+          <vbox>
+            <label textColor="red">Nothing here right now.</label>
+          </vbox>
+        </box>
+        
+        
+      </vbox>
+      
+    </window>
+    
+    
+  </objects>
+  
+  <connectors>
+    <outlet source="#NSOwner" target="#window" key="window"/>
+    <outlet source="#NSOwner" target="#derivedPopUp" key="derivedPopUp"/>
+    <outlet source="#NSOwner" target="#nameField" key="nameField"/>
+    <outlet source="#NSOwner" target="#extNameField" key="extNameField"/>
+    <outlet source="#NSOwner" target="#extTypeField" key="extTypeField"/>
+    <outlet source="#NSOwner" target="#internalData" key="internalData"/>
+    <outlet source="#NSOwner" target="#customFlip" key="customFlip"/>
+    <outlet source="#NSOwner" target="#decimalFlip" key="decimalFlip"/>
+    <outlet source="#NSOwner" target="#data_width" key="data_width"/>
+    <outlet source="#NSOwner" target="#dataFlip" key="dataFlip"/>
+    <outlet source="#NSOwner" target="#stringFlip" key="stringFlip"/>
+    <outlet source="#NSOwner" target="#valueClassSelect" key="valueClassSelect"/>
+    <outlet source="#NSOwner" target="#flipView" key="flipView"/>
+    <outlet source="#NSOwner" target="#decimal_scale" key="decimal_scale"/>
+    <outlet source="#NSOwner" target="#decimal_precision" key="decimal_precision"/>
+    <outlet source="#NSOwner" target="#string_width" key="string_width"/>
+    <outlet source="#NSOwner" target="#numberFlip" key="numberFlip"/>
+    <outlet source="#NSOwner" target="#valueTypePopUp" key="valueTypePopUp"/>
+    <outlet source="#NSOwner" target="#dateFlip" key="dateFlip"/>
+    <outlet source="#NSOwner" target="#custom_width" key="custom_width"/>
+    <outlet source="#NSOwner" target="#custom_class" key="custom_class"/>
+    <outlet source="#NSOwner" target="#custom_factory" key="custom_factory"/>
+    <outlet source="#NSOwner" target="#custom_conversion" key="custom_conversion"/>
+    <outlet source="#NSOwner" target="#custom_arg" key="custom_arg"/>
+  </connectors>
+</gsmarkup>

@@ -45,37 +45,39 @@
 {
   IBOutlet NSTextField          *_extNameField;
   IBOutlet NSTextField          *_extTypeField;
-  IBOutlet NSPopUpButton        *_valueTypeSelect;
+  IBOutlet NSPopUpButton        *_derivedPopUp; // or column
+  IBOutlet NSPopUpButton        *_valueClassSelect;
+  IBOutlet NSPopUpButton        *_valueTypePopUp; // int, float, ...
   IBOutlet NSPopUpButton        *_flipSelect;// select which valueClassName/flip
   IBOutlet NSBox                *_flipView; // gets replaced with a *Flip...
   IBOutlet NSBox                *_internalData;
-  IBOutlet NSTextField          *_nameField;
+  IBOutlet NSBox                *_numberFlip;   // to edit number properties
+  IBOutlet NSTextField          *_nameField;  
+  IBOutlet NSBox                *_customFlip; // default
+  IBOutlet NSBox                *_dataFlip;
+  IBOutlet NSBox                *_dateFlip;
+  IBOutlet NSBox                *_decimalFlip;
+  IBOutlet NSBox                *_stringFlip;
+
+  IBOutlet NSTextField          *_custom_width;
+  IBOutlet NSTextField          *_custom_class;
+  IBOutlet NSTextField          *_custom_factory;
+  IBOutlet NSTextField          *_custom_conversion;
+  IBOutlet NSPopUpButton        *_custom_arg;
+
+  IBOutlet NSTextField          *_string_width;
+  
+  IBOutlet NSTextField          *_decimal_precision;
+  IBOutlet NSTextField          *_decimal_scale;
+
+  IBOutlet NSTextField          *_data_width;
+
+  IBOutlet NSButton             *_date_tz;
 
   NSDictionary                  *_flipDict;
   NSDictionary                  *_classTitleDict;
   NSDictionary                  *_valueTypeDict;
   
-  IBOutlet NSBox                *_customFlip; // default
-  IBOutlet NSBox                *_dataFlip;
-  IBOutlet NSBox                *_dateFlip;
-  IBOutlet NSBox                *_decimalFlip;
-  IBOutlet NSBox                *_numberFlip;
-  IBOutlet NSBox                *_stringFlip;
-
-  NSTextField                   *_custom_width;
-  NSTextField                   *_custom_class;
-  NSTextField                   *_custom_factory;
-  NSTextField                   *_custom_conversion;
-  NSPopUpButton                 *_custom_arg;
-
-  NSTextField                   *_string_width;
-  
-  NSTextField                   *_decimal_precision;
-  NSTextField                   *_decimal_width;
-
-  NSTextField                   *_data_width;
-
-  NSButton                      *_date_tz;
 }
 /* generic */
 - (IBAction) selectInternalDataType:(id)sender;
@@ -89,7 +91,6 @@
 - (IBAction) setClassName:(id)sender;
 - (IBAction) setFactoryMethod:(id)sender;
 - (IBAction) setConversionMethod:(id)sender;
-- (IBAction) setInitArgument:(id)sender;
 - (IBAction) setValueType:(id)sender;
 - (IBAction) setTimeZone:(id)sender;
 @end

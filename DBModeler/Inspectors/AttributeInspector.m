@@ -3,6 +3,8 @@
  
     Author: Matt Rice <ratmice@gmail.com>
     Date: 2005, 2006
+    Author: David Wetzel <dave@turbocat.de>
+    Date: 2010
 
     This file is part of DBModeler.
 
@@ -30,23 +32,22 @@
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
 #endif
 
 #define NO_ZEROS(x, i) i ? [x setIntValue:i] : [x setStringValue:@""];
 
 @implementation AttributeInspector
-- (void) awakeFromNib
+- (void) awakeFromGSMarkup //awakeFromNib
 {
   RETAIN(_internalData);
   _flipDict =
     [[NSDictionary alloc] initWithObjectsAndKeys:
-      _stringFlip,      @"String",
-      _customFlip,      @"Custom", 
-      _dataFlip,        @"Data",
-      _dateFlip,        @"Date",
-      _decimalFlip,     @"Decimal Number",
-      _numberFlip,      @"Number",
+      [_stringFlip contentView],      @"NSString",
+      [_customFlip contentView],      @"Custom", 
+      [_dataFlip contentView],        @"NSData",
+      [_dateFlip contentView],        @"NSCalendarDate",
+      [_decimalFlip contentView],     @"NSDecimalNumber",
+      [_numberFlip contentView],      @"NSNumber",
       nil];
 
   _valueTypeDict = 
@@ -79,17 +80,13 @@
 
   _classTitleDict = 
     [[NSDictionary alloc] initWithObjectsAndKeys:
-      @"String",          @"NSString",
-      @"Data",            @"NSData",
-      @"Number",          @"NSNumber", 
-      @"Date",            @"NSCalendarDate",
-      @"Decimal Number",  @"NSDecimalNumber",
-      @"NSString",        @"String",
-      @"NSData",          @"Data",
-      @"NSNumber",        @"Number",
-      @"NSDecimalNumber", @"Decimal Number",
-      @"NSCalendarDate",  @"Date",
+      @"0",          @"NSString",
+      @"1",          @"NSDecimalNumber",
+      @"2",          @"NSNumber", 
+      @"3",          @"NSCalendarDate",
+      @"4",          @"NSData",
       nil];
+  
 }
 
 - (NSString *) _titleForPopUp
@@ -97,7 +94,10 @@
   NSString *vcn = [(EOAttribute *)[self selectedObject] valueClassName];
   NSString *ret;
 
+  NSLog(@"_titleForPopUp:vcn '%@' ",vcn);
+  
   ret = [_classTitleDict objectForKey:vcn];
+  NSLog(@"_titleForPopUp:ret '%@' ",ret);
   if (!ret) 
     return @"Custom";
 
@@ -111,7 +111,14 @@
 
 - (NSBox *) _viewForTitle:(NSString *)title
 {
-  return (NSBox *)[_flipDict objectForKey:title];
+  
+  NSBox * myview = [_flipDict objectForKey:title];
+  
+  if (!myview) {
+    myview = [_flipDict objectForKey:@"Custom"];
+  }
+  
+  return myview;
 }
 
 - (float) displayOrder
@@ -136,78 +143,258 @@
 
 - (IBAction) selectInternalDataType:(id)sender;
 {
-  EOAttribute *obj = [self selectedObject];
-  NSString *title = [_flipSelect titleOfSelectedItem]; 
-  NSString *className = [self _classNameForTitle:title];
-  
-  if (![[obj valueClassName] isEqual:className])
-    {
-      [obj setValueClassName:className];
-    }
-  
-  if ([className isEqual:@"NSNumber"])
-    {
-      if (![obj valueType])
-        {
-          [obj setValueType:@"d"];
-        }
-    }
-  else
-    {
-      [obj setValueType:@""];
-    }
+  EOAttribute *attr = [self selectedObject];
+
+  switch  ([[sender selectedItem] tag]) {
+    case 0: 
+      [attr setValueClassName:@"NSString"];
+      break;
+    case 1: 
+      [attr setValueClassName:@"NSDecimalNumber"];
+      break;
+    case 2: 
+      [attr setValueClassName:@"NSNumber"];
+      break;
+    case 3: 
+      [attr setValueClassName:@"NSCalendarDate"];
+      break;
+    case 4: 
+      [attr setValueClassName:@"NSData"];
+      break;
+    case 5: 
+      [attr setValueClassName:@"Custom"];
+      break;
+    default:
+      break;
+  }
   
   [self refresh];
+}
+
+- (void) putSubViewBack
+{
+  NSView * subView = nil;
+  
+  if ([[_flipView subviews] count] > 0) {
+    
+    subView = [[_flipView subviews] objectAtIndex:0];
+        
+    [subView removeFromSuperviewWithoutNeedingDisplay];
+  }
+  
+}
+
+- (IBAction) changeValueType:(NSPopUpButton*) sender
+{
+  EOAttribute * attr = [self selectedObject];
+  
+  switch  ([[sender selectedItem] tag]) {
+    case 0: /* int */
+      [attr setValueType:@"i"];
+      break;
+    case 1: /* double */
+      [attr setValueType:@"d"];
+      break;
+    case 2: /* float */
+      [attr setValueType:@"f"];
+      break;
+    case 3: /* char */
+      [attr setValueType:@"c"];
+      break;
+    case 4: /* short */
+      [attr setValueType:@"s"];
+      break;
+    case 5: /* unsigned int */
+      [attr setValueType:@"I"];
+      break;
+    case 6: /* unsigned char */
+      [attr setValueType:@"C"];
+      break;
+    case 7: /* unsigned short */
+      [attr setValueType:@"S"];
+      break;
+    case 8: /* long */
+      [attr setValueType:@"l"];
+      break;
+    case 9: /* unsigned long */
+      [attr setValueType:@"L"];
+      break;
+    case 10: /* long long */
+      [attr setValueType:@"u"];
+      break;
+    case 11: /* unsigned long long */
+      [attr setValueType:@"U"];
+      break;
+    default:
+      break;
+  }
+  
+}
+
+- (void) _updateValueTypePopUpWithAttribute:(EOAttribute*) attr
+{
+  NSString *valueType      = [attr valueType];
+  unichar  valueTypeChar;
+  
+  if ((valueType)  && ([valueType length])) {
+    valueTypeChar = [valueType characterAtIndex:0];
+  } else {
+    return;
+  }
+
+  
+  NSInteger tagValue = 0;
+  
+  switch (valueTypeChar) {
+    case 'i':
+      tagValue = 0;
+      break;
+    case 'd':
+      tagValue = 1;
+      break;
+    case 'f':
+      tagValue = 2;
+      break;
+    case 'c':
+      tagValue = 3;
+      break;
+    case 's':
+      tagValue = 4;
+      break;
+    case 'I':
+      tagValue = 5;
+      break;
+    case 'C':
+      tagValue = 6;
+      break;
+    case 'S':
+      tagValue = 7;
+      break;
+    case 'l':
+      tagValue = 8;
+      break;
+    case 'L':
+      tagValue = 9;
+      break;
+    case 'u':
+      tagValue = 10;
+      break;
+    case 'U':
+      tagValue = 11;
+      break;
+    default:
+      break;
+  }
+
+  [_valueTypePopUp selectItemWithTag:tagValue];
+
+}
+
+- (void) _updateStringViewWithAttribute:(EOAttribute*) attr
+{
+    NO_ZEROS(_string_width, [attr width]);
+}
+
+
+- (void) _updateDecimalNumberViewWithAttribute:(EOAttribute*) attr
+
+{
+  NO_ZEROS(_decimal_scale, [attr scale]);
+  NO_ZEROS(_decimal_precision, [attr precision]);  
+}
+
+- (void) _updateDataViewWithAttribute:(EOAttribute*) attr
+{  
+  NO_ZEROS(_data_width, [attr width]);
+}
+
+- (void) _updateCustomViewWithAttribute:(EOAttribute*) attr
+{
+  NSString * tmpStr = nil;
+  NO_ZEROS(_custom_width, [attr width]);
+  [_custom_class setStringValue:[attr valueClassName]];
+  
+  tmpStr = [attr valueFactoryMethodName];
+  
+  if (!tmpStr) {
+    [attr setValueFactoryMethodName:@""];
+  }
+  
+  tmpStr = [attr adaptorValueConversionMethodName];
+  
+  if (!tmpStr) {
+    [attr setAdaptorValueConversionMethodName:@""];
+  }
+
+  
+  [_custom_factory setStringValue:[attr valueFactoryMethodName]];
+  [_custom_conversion setStringValue:[attr adaptorValueConversionMethodName]];
+  [_custom_arg selectItemWithTag:[attr factoryMethodArgumentType]];
+}
+
+
+- (void) _updateValueClassPopUpWithAttribute:(EOAttribute*) attr
+{
+  NSString  * tagString = [_classTitleDict objectForKey:[attr valueClassName]];
+  NSInteger tagValue = 0;
+  
+  if (!tagString) {
+    tagValue = 5; // custom
+    [self _updateCustomViewWithAttribute:attr];
+  } else {
+    tagValue = [tagString integerValue];
+    
+    switch (tagValue) {
+      case 0: // NSString
+        [self _updateStringViewWithAttribute:attr];
+        break;
+      case 1: // NSDecimalNumber
+        [self _updateDecimalNumberViewWithAttribute:attr];
+        break;
+      case 2: // NSNumber
+        [self _updateValueTypePopUpWithAttribute:attr];
+        break;
+      case 3: // NSCalendarDate
+              // nothing for now
+        break;
+      case 4: // NSData
+        [self _updateDataViewWithAttribute:attr];
+        break;
+      default:
+        break;
+    }
+        
+  }
+  
+  [_valueClassSelect selectItemWithTag:tagValue];
 }
 
 - (void) refresh
 {
   EOAttribute *obj = [self selectedObject];
-  NSString *title = [self _titleForPopUp];
+  NSString *title = [obj valueClassName];
   NSBox *flipTo = [self _viewForTitle:title];
   
   [_nameField setStringValue:[obj name]];
   [_extNameField setStringValue:[obj columnName]];
   [_extTypeField setStringValue:[obj externalType]];
-  [_flipSelect selectItemWithTitle:title];
-  [flipTo setFrame: [_flipView frame]];
-  [_internalData replaceSubview:_flipView with:flipTo];
-  _flipView = flipTo;
-  [self performSelector:
-          NSSelectorFromString([@"update" stringByAppendingString:[title stringByReplacingString:@" " withString:@""]])];
+  
+  if ([obj isDerived]) {
+    [_derivedPopUp selectItemWithTag:1];
+  } else {
+    [_derivedPopUp selectItemWithTag:0];
+  }
+  
+  [self putSubViewBack];
+  [_flipView setNeedsDisplay:YES];
+
+  [_flipView addSubview:flipTo];
+   
+  [self _updateValueClassPopUpWithAttribute:obj];
+  
 }
 
-- (void) updateString
-{
-  int tmp;
-  tmp = [[self selectedObject] width];
-  NO_ZEROS(_string_width,tmp);
-}
 
-- (void) updateCustom
-{
-  EOAttribute *obj = [self selectedObject];
-  int tmp;
-  tmp = [obj width];
-  NO_ZEROS(_custom_width, tmp);
-  [_custom_class setStringValue:[obj valueClassName]];
-  [_custom_factory setStringValue:[obj valueFactoryMethodName]];
-  [_custom_conversion setStringValue:[obj adaptorValueConversionMethodName]];
-  [_custom_arg selectItemAtIndex:
-          [_custom_arg indexOfItemWithTag: [obj factoryMethodArgumentType]]];
-}
-
-- (void) updateDecimalNumber
-{
-  EOAttribute *obj = [self selectedObject];
-  int tmp;
-
-  tmp = [obj width];
-  NO_ZEROS(_decimal_width, tmp);
-  tmp = [obj precision];
-  NO_ZEROS(_decimal_precision, tmp);
-
-}
 
 - (void) updateNumber
 {
@@ -216,24 +403,14 @@
   NSString *valueTypeName;
   
   valueTypeName = [_valueTypeDict objectForKey: valType];
-  [_valueTypeSelect selectItemWithTitle:valueTypeName];
+  NSLog(@"updateNumber %@", valueTypeName);
+  [_valueClassSelect selectItemWithTitle:valueTypeName];
 }
 
-- (void) updateDate
-{
-
-}
-
-- (void) updateData
-{
-  int tmp;
-
-  tmp = [[self selectedObject] width];
-  NO_ZEROS(_data_width, tmp);
-}
 
 - (BOOL) canInspectObject:(id)obj
 {
+  NSLog(@"%s: %@", __PRETTY_FUNCTION__, obj);
   return [obj isKindOfClass:[EOAttribute class]];
 }
 
@@ -242,21 +419,31 @@
   EOAttribute *obj = [self selectedObject];
   NSString *valueType = nil;
   
-  if (sender == _valueTypeSelect)
-    {
-      valueType = [_valueTypeDict objectForKey:[sender titleOfSelectedItem]];
-    }
-  else if (sender == self)
-    {
-      valueType = @"";
-    }
   
   [obj setValueType:valueType];
+}
+
+- (IBAction) setDerived:(id)sender
+{
+  NSLog(@"%s:%@",__PRETTY_FUNCTION__, sender);
+//  EOAttribute *obj = [self selectedObject];
+
+//  if ([sender tag] == 0) { // Column
+//    [obj setIsDerived:NO];
+//  } else {
+//    [obj setIsDerived:YES];
+//  }
+
 }
 
 - (IBAction) setTimeZone:(id)sender;
 {
   // fixme
+}
+
+- (IBAction) changeLevel:(id)sender;
+{
+  [(EOAttribute *)[self selectedObject] setFactoryMethodArgumentType:[[sender selectedItem] tag]];
 }
 
 - (IBAction) setWidth:(id)sender;
@@ -267,6 +454,11 @@
 - (IBAction) setPrecision:(id)sender;
 {
   [(EOAttribute *)[self selectedObject] setPrecision:[sender intValue]];
+}
+
+- (IBAction) setScale:(id)sender;
+{
+  [(EOAttribute *)[self selectedObject] setScale:[sender intValue]];
 }
 
 - (IBAction) setClassName:(id)sender;
@@ -285,11 +477,6 @@
   [[self selectedObject] setAdaptorValueConversionMethodName:[sender stringValue]];
 }
 
-- (IBAction) setInitArgument:(id)sender
-{
-  [[self selectedObject] setFactoryMethodArgumentType:[[sender selectedItem] tag]];
-}
-
 - (void) controlTextDidEndEditing:(NSNotification *)notif
 {
   id obj = [notif object];
@@ -302,9 +489,10 @@
     [self setName:_nameField];
   else if (obj == _custom_width
 	   || obj == _data_width
-	   || obj == _decimal_width
 	   || obj == _string_width)
-    [self setWidth:_custom_width];
+    [self setWidth:obj];
+  else if (obj == _decimal_scale)
+    [self setScale:obj];
   else if (obj == _decimal_precision)
     [self setPrecision:_decimal_precision];
   else if (obj == _custom_class)
