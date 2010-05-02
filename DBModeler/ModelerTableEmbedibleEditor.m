@@ -113,7 +113,7 @@
   [tv tile];
 }
 
-- (void) addTableColumnForItem:(NSMenuItem <NSMenuItem>*)item
+- (void) addTableColumnForItem:(NSMenuItem *)item
           tableView:(NSTableView *)tv
 {
   NSString *columnName = [item title];
@@ -138,7 +138,7 @@
   [tv tile];
 }
           
-- (void) removeTableColumnForItem:(NSMenuItem <NSMenuItem>*)item
+- (void) removeTableColumnForItem:(NSMenuItem *)item
           tableView:(NSTableView *)tv
 {
   [tv removeTableColumn:[item representedObject]];
@@ -148,7 +148,7 @@
 
 - (void) _cornerAction:(id)sender
 {
-  NSMenuItem <NSMenuItem>*item = (NSMenuItem*)[sender selectedItem];
+  NSMenuItem *item = (NSMenuItem*)[sender selectedItem];
   NSTableView *tv = [[sender enclosingScrollView] documentView];
   if ([item state] == NSOnState)
     {

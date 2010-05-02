@@ -1,3 +1,8 @@
+2010-05-02  Matt Rice  <ratmice@gmail.com>
+
+	* DBModeler/ModelerTableEmbedibleEditor.h/m: Remove usage of
+	NSMenuItem protocol.
+
 2010-05-02  David Wetzel  <dave@turbocat.de>
     * DBModeler/Inspectors/AttributeInspector.*
     * DBModeler/Inspectors/GNUmakefile

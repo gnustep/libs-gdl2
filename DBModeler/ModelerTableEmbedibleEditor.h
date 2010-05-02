@@ -48,9 +48,9 @@
 - (NSArray *)defaultColumnNamesForClass:(Class)aClass;
 - (void) addDefaultTableColumnsForTableView:(NSTableView *)tv
                                displayGroup:(EODisplayGroup *)dg;
-- (void) addTableColumnForItem:(NSMenuItem <NSMenuItem>*)item
+- (void) addTableColumnForItem:(NSMenuItem*)item
                      tableView:(NSTableView *)tv;
-- (void) removeTableColumnForItem:(NSMenuItem <NSMenuItem>*)menuItem
+- (void) removeTableColumnForItem:(NSMenuItem *)menuItem
                         tableView:(NSTableView *)tv;
 
 @end
