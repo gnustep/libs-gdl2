@@ -161,9 +161,17 @@ static NSMapTable *_inspectorsByClass;
 
 - (void) load
 {
-  if (![NSBundle loadNibNamed:NSStringFromClass([self class])
-	    owner: self])
-      NSLog(@"failed to load: %@.gorm", NSStringFromClass([self class]));
+  
+  if (![NSBundle loadGSMarkupNamed:NSStringFromClass([self class]) 
+                             owner:self])
+  {
+    NSLog(@"failed to load: %@.gsmarkup", NSStringFromClass([self class]));
+  }
+  
+  
+  //  if (![NSBundle loadNibNamed:NSStringFromClass([self class])
+  //	    owner: self])
+  //      NSLog(@"failed to load: %@.gorm", NSStringFromClass([self class]));
 }
 
 - (void) unload
