@@ -1422,7 +1422,8 @@ _mergeValueForKey(id obj, id value,
   
   NSAssert(object, @"No Object");
   
-  NSAssert([object isKindOfClass:[EOCustomObject class]] , @"Sorry, only subclasses of EOCustomObject supported in this version.");
+  // give people a bit more time -- dw May, 2010
+  //NSAssert([object isKindOfClass:[EOCustomObject class]] , @"Sorry, only subclasses of EOCustomObject supported in this version.");
   
   
   //GSWDisplayGroup -insertAtIndex+EODataSource createObject call insert ! So object is inserted twice

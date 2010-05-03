@@ -1,3 +1,8 @@
+2010-05-03  David Wetzel  <dave@turbocat.de>
+    * EOAccess/EOAttribute.m: Add comment
+    * EOControl/EOEditingContext.m: Do not raise on inserting bad objects for now
+    (Non-EOCustomObject subclasses)
+
 2010-05-02  Matt Rice  <ratmice@gmail.com>
 
 	* DBModeler/ModelerTableEmbedibleEditor.h/m: Remove usage of

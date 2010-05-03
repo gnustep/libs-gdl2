@@ -473,6 +473,13 @@ RCS_ID("$Id$")
   return _docComment;
 }
 
+// http://www.omnigroup.com/mailman/archive/eof/1997/003003.html
+/*
+ Eric Hermanson wrote:
+ The precision is the number of digits including after decimal digits.  The scale is after
+ decimal digits.  Therefore, 12345.67 has a precision of 7 and a scale of 2.  The
+ difference between precision/scale really does need to be documented a bit better. 
+ */
 - (int)scale
 {
   if (_scale)
