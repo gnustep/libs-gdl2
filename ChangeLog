@@ -2,6 +2,11 @@
     * EOAccess/EOAttribute.m: Add comment
     * EOControl/EOEditingContext.m: Do not raise on inserting bad objects for now
     (Non-EOCustomObject subclasses)
+    * EOAccess/EORelationship.m
+    * EOAccess/EOPrivate.h
+    added + _joinSemanticForName:
+    added + _nameForJoinSemantic:
+    include JoinSemantic in description, use new methods in code.
 
 2010-05-02  Matt Rice  <ratmice@gmail.com>
 

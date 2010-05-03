@@ -94,6 +94,51 @@ RCS_ID("$Id$")
 				   owner: owner]);
 }
 
++ (EOJoinSemantic) _joinSemanticForName:(NSString*) semanticName
+{
+  if ([semanticName isEqual: @"EOInnerJoin"])
+    return EOInnerJoin;
+  else if ([semanticName isEqual: @"EOFullOuterJoin"])
+    return EOFullOuterJoin;
+  else if ([semanticName isEqual: @"EOLeftOuterJoin"])
+    return EOLeftOuterJoin;
+  else if ([semanticName isEqual: @"EORightOuterJoin"])
+    return EORightOuterJoin;
+  else 
+  {
+    [NSException raise: NSInvalidArgumentException
+                format: @"%s: Unknown joinSemantic '%@'", __PRETTY_FUNCTION__, semanticName];
+    
+  }
+  // make the compiler happy
+  return EOInnerJoin;
+}
+
++ (NSString *) _nameForJoinSemantic:(EOJoinSemantic) semantic
+{
+  switch (semantic)
+  {
+    case EOInnerJoin:
+      return @"EOInnerJoin";
+      
+    case EOFullOuterJoin:
+      return @"EOFullOuterJoin";
+      
+    case EOLeftOuterJoin:
+      return @"EOLeftOuterJoin";
+      
+    case EORightOuterJoin:
+      return @"EORightOuterJoin";
+  }
+  
+  [NSException raise: NSInvalidArgumentException
+              format: @"%s: Unknown joinSemantic '%d'", __PRETTY_FUNCTION__, semantic];
+  
+  // make the compiler happy
+  return nil;
+  
+}
+
 - (id)init
 {
 //OK
@@ -194,27 +239,11 @@ RCS_ID("$Id$")
 
       joinSemanticString = [propertyList objectForKey: @"joinSemantic"];
       if (joinSemanticString)
-        {
-          if ([joinSemanticString isEqual: @"EOInnerJoin"])
-            [self setJoinSemantic: EOInnerJoin];
-          else if ([joinSemanticString isEqual: @"EOFullOuterJoin"])
-            [self setJoinSemantic: EOFullOuterJoin];
-          else if ([joinSemanticString isEqual: @"EOLeftOuterJoin"])
-            [self setJoinSemantic: EOLeftOuterJoin];
-          else if ([joinSemanticString isEqual: @"EORightOuterJoin"])
-            [self setJoinSemantic: EORightOuterJoin];
-          else
-            {
-              EOFLOGObjectLevelArgs(@"EORelationship", @"Unknown joinSemanticString=%@. entityName=%@ relationshipName=%@",
-				    joinSemanticString,
-				    [(EOEntity*)owner name],
-				    relationshipName);
-              NSEmitTODO(); //TODO
-              [self notImplemented: _cmd]; //TODO
-            }
-        }
+      {
+        [self setJoinSemantic: [[self class] _joinSemanticForName:joinSemanticString]];        
+      }
       else
-        {
+      {
           if (destinationEntityName)
             {
               EOFLOGObjectLevelArgs(@"EORelationship", @"!joinSemanticString but destinationEntityName. entityName=%@ relationshipName=%@",
@@ -499,6 +528,8 @@ RCS_ID("$Id$")
 
       dscr = [dscr stringByAppendingFormat: @" userInfo=%@",
                    [self userInfo]];
+      dscr = [dscr stringByAppendingFormat: @" joinSemantic=%@",
+              [[self class] _nameForJoinSemantic:_joinSemantic]];      
       dscr = [dscr stringByAppendingFormat: @" joins=%@",
                    [self joins]];
       dscr = [dscr stringByAppendingFormat: @" sourceAttributes=%@",
@@ -663,31 +694,13 @@ to know what to-many mean :-)  **/
   return _joinSemantic;
 }
 
+/*
+ this seems to be GNUstep only -- dw
+ */
+
 - (NSString*)joinSemanticString
-{
-  NSString *joinSemanticString = nil;
-
-  switch ([self joinSemantic])
-    {
-    case EOInnerJoin:
-      joinSemanticString = @"EOInnerJoin";
-      break;
-    case EOFullOuterJoin:
-      joinSemanticString = @"EOFullOuterJoin";
-      break;
-    case EOLeftOuterJoin:
-      joinSemanticString = @"EOLeftOuterJoin";
-      break;
-    case EORightOuterJoin:
-      joinSemanticString = @"EORightOuterJoin";
-      break;
-    default:
-      NSAssert1(NO, @"Unknwon join semantic code %d",
-		(int)[self joinSemantic]);
-      break;
-    }
-
-  return joinSemanticString;
+{  
+  return [[self class] _nameForJoinSemantic:[self joinSemantic]];
 }
 
 /**

@@ -31,6 +31,7 @@
 #include "../EOControl/EOPrivate.h"
 
 #include "EOSQLQualifier.h"
+#include "EORelationship.h"
 
 @class EODatabaseContext;
 
@@ -55,6 +56,15 @@ GDL2ACCESS_EXPORT EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODa
    EORequestConcreteImplementation for other classes.
 */
 @interface EOQualifier (EOQualifierSQLGeneration) <EOQualifierSQLGeneration>
+@end
+
+
+@interface EORelationship (PrivateAPI)
+
++ (EOJoinSemantic) _joinSemanticForName:(NSString*) semanticName;
+
++ (NSString*) _nameForJoinSemantic:(EOJoinSemantic) semantic;
+
 @end
 
 
