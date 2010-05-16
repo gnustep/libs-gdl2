@@ -1544,13 +1544,47 @@ createInstanceWithEditingContext:globalID:zone:
 
 - (void)setName: (NSString *)name
 {
+  NSInteger fCount = -1;
+  NSInteger i;
+  EOModel   * oldModel = nil;
+  
   if (name && [name isEqual: _name]) return;
   
   [[self validateName: name] raise];
 
   [self willChange];
+  
+  RETAIN(self);
+  ASSIGN(oldModel,_model);
+    
+  // We have to make sure all references are loaded before we change the name
+  // if somebody finds a better solution, please tell me -- dw
+  [_model referencesToProperty:self];
+  
+  [_model removeEntity:self];
+  
+  // update the fetch specifications
+  
+  if (_fetchSpecificationNames) 
+  {
+    fCount = [_fetchSpecificationNames count];
+  }
+
+  for (i = 0; i < fCount; i++)
+  {
+    EOFetchSpecification * fetchSpec = [self fetchSpecificationNamed:[_fetchSpecificationNames objectAtIndex:i]];
+    [fetchSpec setEntityName:name];
+  }
+  
   ASSIGNCOPY(_name, name);
-  [_model _updateCache];
+  
+  [oldModel addEntity:self];
+  RELEASE(oldModel);
+  RELEASE(self);
+  [self _setIsEdited];
+
+  // this destroys everything. -- dw
+  //[_model _updateCache];
 }
 
 - (void)setExternalName: (NSString *)name

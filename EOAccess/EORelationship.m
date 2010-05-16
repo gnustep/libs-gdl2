@@ -87,6 +87,18 @@ RCS_ID("$Id$")
     }
 }
 
+/*
+ this is used for key-value observing.
+ */
+
++ (BOOL)automaticallyNotifiesObserversForKey:(NSString *)theKey
+{
+  if ([theKey isEqualToString:@"joins"]) {
+    return NO;
+  } 
+  return [super automaticallyNotifiesObserversForKey:theKey];
+}
+
 + (id) relationshipWithPropertyList: (NSDictionary *)propertyList
                               owner: (id)owner
 {
@@ -1444,134 +1456,140 @@ relationships. Nil if none" **/
 {
   EOAttribute *sourceAttribute = nil;
   EOAttribute *destinationAttribute = nil;
-
+  
   EOFLOGObjectFnStart();
-
+  
   EOFLOGObjectLevelArgs(@"EORelationship", @"Add join: %@\nto %@", join, self);
-
+  
   if ([self isFlattened] == YES)
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: receiver is a flattened relationship",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self];
+                format: @"%@ -- %@ 0x%x: receiver is a flattened relationship",
+     NSStringFromSelector(_cmd),
+     NSStringFromClass([self class]),
+     self];
   else
+  {
+    EOEntity *destinationEntity = [self destinationEntity];
+    EOEntity *sourceEntity = [self entity];
+    
+    EOFLOGObjectLevelArgs(@"EORelationship", @"destinationEntity=%@", destinationEntity);
+    
+    if (!destinationEntity)
     {
-      EOEntity *destinationEntity = [self destinationEntity];
-      EOEntity *sourceEntity = [self entity];
-
-      EOFLOGObjectLevelArgs(@"EORelationship", @"destinationEntity=%@", destinationEntity);
-
-      if (!destinationEntity)
-        {
-          NSEmitTODO(); //TODO
-          EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@", self);
-          //TODO ??
-        };
-
-      sourceAttribute = [join sourceAttribute];
-
-      NSAssert3(sourceAttribute, @"No source attribute in join %@ in relationship %@ of entity %@",
-                join,
-                self,
-                sourceEntity);
-
-      destinationAttribute = [join destinationAttribute];
-
-      NSAssert3(destinationAttribute, @"No destination attribute in join %@ in relationship %@ of entity %@",                
-                join,
-                self,
-                sourceEntity);
-
-      if ([sourceAttribute isFlattened] == YES
-	  || [destinationAttribute isFlattened] == YES)
+#warning checkme: do we need this? -- dw
+      //NSEmitTODO(); //TODO
+      //EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@", self);
+      //TODO ??
+    };
+    
+    sourceAttribute = [join sourceAttribute];
+    
+    NSAssert3(sourceAttribute, @"No source attribute in join %@ in relationship %@ of entity %@",
+              join,
+              self,
+              sourceEntity);
+    
+    destinationAttribute = [join destinationAttribute];
+    
+    NSAssert3(destinationAttribute, @"No destination attribute in join %@ in relationship %@ of entity %@",                
+              join,
+              self,
+              sourceEntity);
+    
+    if ([sourceAttribute isFlattened] == YES
+        || [destinationAttribute isFlattened] == YES)
+      [NSException raise: NSInvalidArgumentException
+                  format: @"%@ -- %@ 0x%x: join's attributes are flattened",
+       NSStringFromSelector(_cmd),
+       NSStringFromClass([self class]),
+       self];
+    else
+    {
+      EOEntity *joinDestinationEntity = [destinationAttribute entity];
+      EOEntity *joinSourceEntity = [sourceAttribute entity];
+      
+      /*          if (destinationEntity && ![[destinationEntity name] isEqual:[joinSourceEntity name]])
+       {
+       [NSException raise:NSInvalidArgumentException
+       format:@"%@ -- %@ 0x%x: join source entity (%@) is not equal to last join entity (%@)",
+       NSStringFromSelector(_cmd),
+       NSStringFromClass([self class]),
+       self,
+       [joinSourceEntity name],
+       [destinationEntity name]];
+       }*/
+      
+      if (sourceEntity
+          && ![[joinSourceEntity name] isEqual: [sourceEntity name]])
         [NSException raise: NSInvalidArgumentException
-                     format: @"%@ -- %@ 0x%x: join's attributes are flattened",
-                     NSStringFromSelector(_cmd),
-                     NSStringFromClass([self class]),
-                     self];
+                    format: @"%@ -- %@ 0x%x (%@): join source entity (%@) is not equal to relationship entity (%@)",
+         NSStringFromSelector(_cmd),
+         NSStringFromClass([self class]),
+         self,
+         [self name],
+         [joinSourceEntity name],
+         [sourceEntity name]];
+      else if (destinationEntity
+               && ![[joinDestinationEntity name]
+                    isEqual: [destinationEntity name]])
+        [NSException raise: NSInvalidArgumentException
+                    format: @"%@ -- %@ 0x%x (%@): join destination entity (%@) is not equal to relationship destination entity (%@)",
+         NSStringFromSelector(_cmd),
+         NSStringFromClass([self class]),
+         self,
+         [self name],
+         [joinDestinationEntity name],
+         [destinationEntity name]];
       else
+      {
+        if ([_sourceAttributes count])
         {
-          EOEntity *joinDestinationEntity = [destinationAttribute entity];
-          EOEntity *joinSourceEntity = [sourceAttribute entity];
-
-/*          if (destinationEntity && ![[destinationEntity name] isEqual:[joinSourceEntity name]])
-            {
-              [NSException raise:NSInvalidArgumentException
-                           format:@"%@ -- %@ 0x%x: join source entity (%@) is not equal to last join entity (%@)",
-                           NSStringFromSelector(_cmd),
-                           NSStringFromClass([self class]),
-                           self,
-                           [joinSourceEntity name],
-                           [destinationEntity name]];
-            }*/
-
-          if (sourceEntity
-	      && ![[joinSourceEntity name] isEqual: [sourceEntity name]])
-              [NSException raise: NSInvalidArgumentException
-                           format: @"%@ -- %@ 0x%x (%@): join source entity (%@) is not equal to relationship entity (%@)",
-                           NSStringFromSelector(_cmd),
-                           NSStringFromClass([self class]),
-                           self,
-                           [self name],
-                           [joinSourceEntity name],
-                           [sourceEntity name]];
-          else if (destinationEntity
-		   && ![[joinDestinationEntity name]
-			 isEqual: [destinationEntity name]])
-              [NSException raise: NSInvalidArgumentException
-                           format: @"%@ -- %@ 0x%x (%@): join destination entity (%@) is not equal to relationship destination entity (%@)",
-                           NSStringFromSelector(_cmd),
-                           NSStringFromClass([self class]),
-                           self,
-                           [self name],
-                           [joinDestinationEntity name],
-                           [destinationEntity name]];
-          else
-            {
-              if ([_sourceAttributes count])
-                {
-                  EOAttribute *sourceAttribute = [join sourceAttribute];
-                  EOAttribute *destinationAttribute;
-
-		  destinationAttribute = [join destinationAttribute];
-
-                  if (([_sourceAttributes indexOfObject: sourceAttribute]
-                      != NSNotFound)
-		      && ([_destinationAttributes
-			    indexOfObject: destinationAttribute]
-			  != NSNotFound))
-                    [NSException raise: NSInvalidArgumentException
-                                 format: @"%@ -- %@ 0x%x: TODO",
-                                 NSStringFromSelector(_cmd),
-                                 NSStringFromClass([self class]),
-                                 self];
-                }
-
-                [self _flushCache];
-                [self willChange];
-
-                EOFLOGObjectLevel(@"EORelationship", @"really add");
-                EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-				      _joins, [_joins class]);
-
-                if (!_joins)
-                  _joins = [NSMutableArray new];
-
-                [(NSMutableArray *)_joins addObject: join];      
-
-                EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-					  _joins, [_joins class]);
-
-                EOFLOGObjectLevel(@"EORelationship", @"added");
-
-                [self _joinsChanged];
-		/* Ayers: Not sure what justifies this. */
-		[_entity _setIsEdited];
-            }
+          EOAttribute *sourceAttribute = [join sourceAttribute];
+          EOAttribute *destinationAttribute;
+          
+          destinationAttribute = [join destinationAttribute];
+          
+          if (([_sourceAttributes indexOfObject: sourceAttribute]
+               != NSNotFound)
+              && ([_destinationAttributes
+                   indexOfObject: destinationAttribute]
+                  != NSNotFound))
+            [NSException raise: NSInvalidArgumentException
+                        format: @"%@ -- %@ 0x%x: TODO",
+             NSStringFromSelector(_cmd),
+             NSStringFromClass([self class]),
+             self];
         }
-    }
+        
+        [self _flushCache];
+        // do we still need willChange when we are not putting EORelationships into ECs? -- dw
+        [self willChange];
+        // needed for KV bbserving
+        [self willChangeValueForKey:@"joins"];
+        
+        EOFLOGObjectLevel(@"EORelationship", @"really add");
+        EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
+                              _joins, [_joins class]);
+        
+        if (!_joins)
+          _joins = [NSMutableArray new];
+        
+        [(NSMutableArray *)_joins addObject: join];      
+        
+        EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
+                              _joins, [_joins class]);
+        
+        EOFLOGObjectLevel(@"EORelationship", @"added");
+        
+        [self _joinsChanged];
+        [self didChangeValueForKey:@"joins"];
 
+        /* Ayers: Not sure what justifies this. */
+        [_entity _setIsEdited];
+      }
+    }
+  }
+  
   EOFLOGObjectFnStop();
 }
 
@@ -1589,6 +1607,8 @@ relationships. Nil if none" **/
                  self];
   else
     {
+      [self willChangeValueForKey:@"joins"];
+
       [self willChange];
       [(NSMutableArray *)_joins removeObject: join];
 
@@ -1602,8 +1622,10 @@ relationships. Nil if none" **/
 		       _joins, [_joins class]);
 
       [self _joinsChanged];
+
       /* Ayers: Not sure what justifies this. */
       [_entity _setIsEdited];
+      [self didChangeValueForKey:@"joins"];
     }
 
   EOFLOGObjectFnStop();

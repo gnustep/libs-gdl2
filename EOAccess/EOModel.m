@@ -303,16 +303,15 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 - (NSArray*) entities
 {
-  //TODO revoir ?
   if (!_entities)
-    {
-      NSArray *entityNames = [self entityNames];
-
-      ASSIGN(_entities,
-	[self resultsOfPerformingSelector: @selector(entityNamed:)
-	  withEachObjectInArray: entityNames]);
-    }
-
+  {
+    NSArray *entityNames = [self entityNames];
+    
+    // we need an mutable array here, otherwise we cannot remove entities from it. -- dw
+    ASSIGN(_entities,[NSMutableArray arrayWithArray:[self resultsOfPerformingSelector: @selector(entityNamed:)
+                       withEachObjectInArray: entityNames]]);
+  }
+  
   return _entities;
 }
 
@@ -1442,8 +1441,10 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
   [self willChange];
   
-  /* Do not access _entities until cache is triggered */
-  [(NSMutableArray *)[self entities] addObject: entity];
+  /* _entities is sorted. we want a new one! */
+  if (_entities) {
+    DESTROY(_entities);
+  }
 
   NSAssert(_entitiesByClass, @"No _entitiesByClass");
 
