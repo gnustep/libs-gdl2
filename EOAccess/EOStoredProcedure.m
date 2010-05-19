@@ -207,14 +207,25 @@ RCS_ID("$Id$")
 
 - (void)setName: (NSString *)name
 {
+  if ((_name == name)) {
+    return;
+  }
+  
+  if (_model != nil)
+  {
+    [_model loadAllModelObjects];
+  }
+  
   [self willChange];
   ASSIGNCOPY(_name, name);
 }
 
 - (void)setExternalName: (NSString *)name
 {
-  [self willChange];
-  ASSIGNCOPY(_externalName, name);
+  if (_externalName != name) {
+    [self willChange];
+    ASSIGNCOPY(_externalName, ([name length] > 0) ? name : nil);
+  }
 }
 
 - (void)setArguments: (NSArray *)arguments

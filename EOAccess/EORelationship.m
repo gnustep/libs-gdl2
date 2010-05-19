@@ -461,18 +461,22 @@ RCS_ID("$Id$")
         }
       
       if ([self isMandatory])
+      {
         [propertyList setObject: @"Y"
-                      forKey: @"isMandatory"];
+                         forKey: @"isMandatory"];
+      }
       
       if ([self ownsDestination])
-        {
-          NSEmitTODO(); //TODO
-        }
+      {
+        [propertyList setObject: @"Y"
+                         forKey: @"ownsDestination"];
+      }
       
       if ([self propagatesPrimaryKey])
-        {
-          NSEmitTODO(); //TODO
-        }
+      {
+        [propertyList setObject: @"Y"
+                         forKey: @"propagatesPrimaryKey"];
+      }
       
       {
         int joinsCount = [_joins count];

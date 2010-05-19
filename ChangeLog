@@ -1,3 +1,11 @@
+2010-05-19  David Wetzel  <dave@turbocat.de>
+    * EOAccess/EOStoredProcedure.m
+    setName: added loadAllModelObjects and checks
+    setExternalName: add checks
+    * EOAccess/EORelationship.m
+    encodeIntoPropertyList:
+    added code for ownsDestination and propagatesPrimaryKey from Sergey Golovin.
+    
 2010-05-16  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOModel.m:
     entities: make sure we use a mutable array. Destroy _entities cache when adding a new one.
