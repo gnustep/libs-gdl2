@@ -125,6 +125,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
       if ((self = [self init]) != nil)
         {
           NSArray	*array = nil;
+          NSDictionary * aDict = nil;
           NSString	*tmpString = nil;
           id		tmpObject = nil;
 
@@ -258,16 +259,24 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               _flags.relationshipsIsLazy = YES;
             }
 
-          array = [propertyList objectForKey: @"storedProcedureNames"];
-
-          EOFLOGObjectLevelArgs(@"EOEntity",@"relationships: %@",array);
-          if ([array count] > 0)
-            {
-              NSEmitTODO(); //TODO
+          if ((aDict == [propertyList objectForKey: @"storedProcedureNames"]))
+          {
+            NSEnumerator * keyEnumerator = [aDict keyEnumerator];
+            NSString     * curentKey;
+            ASSIGN(_storedProcedures, [NSMutableDictionary dictionary]);
+            
+            while ((curentKey = [keyEnumerator nextObject])) {
+              EOStoredProcedure * storedproc;
+              if ((storedproc = [_model storedProcedureNamed:[aDict objectForKey:curentKey]]))
+              {
+                [_storedProcedures setObject:storedproc
+                                      forKey:curentKey];
+              }
             }
-
-          tmpString 
-	    = [propertyList objectForKey: @"maxNumberOfInstancesToBatchFetch"];
+                        
+          }
+          
+          tmpString = [propertyList objectForKey: @"maxNumberOfInstancesToBatchFetch"];
 
           EOFLOGObjectLevelArgs(@"EOEntity",
 	    @"maxNumberOfInstancesToBatchFetch=%@ [%@]",
@@ -524,6 +533,27 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
                         forKey: @"relationships"];
       }
   }
+  // stored procedures
+  //
+  // storedProcedureNames = {EOInsertProcedure = fooproc; }; 
+
+  if ((_storedProcedures != nil) && ([_storedProcedures count]))
+  {
+    NSString      *currentKey     = nil;
+    NSEnumerator  *keyEnumerator = [[[_storedProcedures allKeys] 
+                                     sortedArrayUsingSelector:@selector(compare:)] objectEnumerator];
+    NSMutableDictionary * newDict = [NSMutableDictionary dictionary];
+    
+    while ((currentKey = [keyEnumerator nextObject])) {
+      [newDict setObject:[[_storedProcedures objectForKey:currentKey] name]
+                  forKey:currentKey];
+    }
+    
+    [propertyList setObject: newDict
+                     forKey: @"storedProcedureNames"];
+    
+  }
+  
 }
 
 - (id) init
@@ -2072,8 +2102,18 @@ createInstanceWithEditingContext:globalID:zone:
               forOperation: (NSString *)operation
 {
   [self willChange];
-  [_storedProcedures setObject: storedProcedure
-                     forKey: operation];
+  
+  if (!_storedProcedures)
+  {
+    ASSIGN(_storedProcedures, [NSMutableDictionary dictionary]);
+  }
+  
+  if (storedProcedure != nil) {
+    [_storedProcedures setObject:storedProcedure
+                          forKey:operation];
+  } else {
+    [_storedProcedures removeObjectForKey:operation];
+  }
 }
 
 @end
