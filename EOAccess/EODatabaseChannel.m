@@ -112,20 +112,30 @@ RCS_ID("$Id$")
   return [[[self alloc] initWithDatabaseContext: databaseContext] autorelease];
 }
 
+- (id) init
+{
+  [NSException raise: NSInvalidArgumentException
+              format: @"Use initWithDatabaseContext to init an instance of class %@",
+                      NSStringFromClass([self class])];
+  
+  return nil;
+}
+
 - (id) initWithDatabaseContext:(EODatabaseContext *)databaseContext
 {
   if ((self = [super init]))
     {
-      ASSIGN(_databaseContext, databaseContext);
-      ASSIGN(_adaptorChannel, [[_databaseContext adaptorContext]
+      ASSIGN(_adaptorChannel, [[databaseContext adaptorContext]
 				createAdaptorChannel]);
-//TODO NO<<<<
-      [_adaptorChannel openChannel];
       
-      _fetchProperties = [NSMutableArray new];
-      _fetchSpecifications = [NSMutableArray new];
-//NO>>>>>>>      
-      [_databaseContext registerChannel: self];//should be in caller
+      if (!_adaptorChannel)
+      {
+        [NSException raise: NSInternalInconsistencyException
+                    format: @"EODatabaseChannel is unable to obtain new channel from %@",
+                            [databaseContext adaptorContext]];      
+      } else {
+        ASSIGN(_databaseContext, databaseContext);
+      }
     }
 
   return self;

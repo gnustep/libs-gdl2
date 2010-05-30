@@ -101,6 +101,20 @@ RCS_ID("$Id$")
 			owner: owner] autorelease];
 }
 
++ (id) attributeWithParent:(EOEntity *) parent
+                definition:(NSString*) def
+{
+  EOAttribute * attr = [[[self alloc] init] autorelease];
+  
+  if (attr) {
+    [attr setName: def];
+    [attr setParent: parent];
+    [attr setDefinition: def];
+  }
+  
+  return attr;
+}
+
 - (id) initWithPropertyList: (NSDictionary *)propertyList
                       owner: (id)owner
 {

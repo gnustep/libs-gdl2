@@ -113,11 +113,11 @@ NSString *EOAdaptorContextRollbackTransactionNotification = @"EOAdaptorContextRo
 - (BOOL)hasOpenChannels
 {
   int i, count = [_channels count];
-
+  
   for (i = 0; i < count; i++)
     if ([[[_channels objectAtIndex: i] nonretainedObjectValue] isOpen])
       return YES;
-
+  
   return NO;
 }
 
@@ -277,23 +277,22 @@ NSString *EOAdaptorContextRollbackTransactionNotification = @"EOAdaptorContextRo
 {
   [_channels addObject: [NSValue valueWithNonretainedObject: channel]];
 
-  [channel setDebugEnabled: [self isDebugEnabled]];
-//call self delegate
-//call channel setDelegate: returned ?
+  [channel setDebugEnabled: [self isDebugEnabled]]; // not done on reference -- dw
+  [channel setDelegate:_delegate];
 }
 
 - (void)_channelWillDealloc:channel
 {
   int i;
-    
+  
   for (i = [_channels count] - 1; i >= 0; i--)
+  {
+    if ([[_channels objectAtIndex: i] nonretainedObjectValue] == channel)
     {
-      if ([[_channels objectAtIndex: i] nonretainedObjectValue] == channel)
-        {
-	  [_channels removeObjectAtIndex: i];
-	  break;
-        }
+      [_channels removeObjectAtIndex: i];
+      break;
     }
+  }
 }
 
 @end

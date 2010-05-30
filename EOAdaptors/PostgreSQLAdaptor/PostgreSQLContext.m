@@ -82,8 +82,6 @@ RCS_ID("$Id$")
 {
   PostgreSQLChannel *channel = nil;
 
-  EOFLOGObjectFnStart();
-
   if ([self transactionNestingLevel])
     [NSException raise: NSInternalInconsistencyException
                  format: @"%@ -- %@ 0x%x: attempted to begin a transaction within a transaction",
@@ -101,8 +99,13 @@ RCS_ID("$Id$")
                      self];
     }
 
+  if ((!_channels) || ([_channels count] < 1)) {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"%s: No open channel found. CreateAdaptorChannel first!",
+                       __PRETTY_FUNCTION__];
+  }
   channel = [[_channels objectAtIndex: 0] nonretainedObjectValue];
-
+  
   if ([channel isOpen] == NO)
     [NSException raise: PostgreSQLException
 		 format: @"cannot execute SQL expression. Channel is not opened."];
@@ -117,13 +120,6 @@ RCS_ID("$Id$")
 
   if (_delegateRespondsTo.didBegin)
     [_delegate adaptorContextDidBegin: self];
-
-  NSDebugMLLog(@"gsdb", @"_flags.didBegin=%s",
-	       (_flags.didBegin ? "YES" : "NO"));
-  NSDebugMLLog(@"gsdb", @"_flags.didAutoBegin=%s",
-	       (_flags.didAutoBegin ? "YES" : "NO"));
-
-  EOFLOGObjectFnStop();
 }
 
 - (void)commitTransaction

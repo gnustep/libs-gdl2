@@ -116,6 +116,11 @@ typedef enum {
 + (id)attributeWithPropertyList: (NSDictionary *)propertyList
 			  owner: (id)owner;
 
+/** returns an autoreleased attribute **/
+
++ (id) attributeWithParent:(EOEntity *) parent
+                definition:(NSString*) def;
+
 /* Accessing the entity */
 - (NSString *)name;
 
