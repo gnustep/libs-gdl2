@@ -108,7 +108,7 @@ static EOModelGroup *globalModelGroup = nil;
 
 + (EOModelGroup *)globalModelGroup
 {
-  EOFLOGObjectFnStart();
+
 
   if (globalModelGroup == nil)
     {
@@ -122,7 +122,7 @@ static EOModelGroup *globalModelGroup = nil;
 
       globalModelGroup = [EOModelGroup new];
 
-      NSDebugMLLog(@"gsdb", @"globalModelGroup=%p",globalModelGroup);
+
       
       [bundles addObjectsFromArray: [NSBundle allBundles]];
       [bundles addObjectsFromArray: [NSBundle allFrameworks]];
@@ -152,7 +152,7 @@ static EOModelGroup *globalModelGroup = nil;
 	}
     }
 
-  EOFLOGObjectFnStop();
+
 
   return globalModelGroup;
 }
@@ -179,7 +179,7 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
 {
   if ((self = [super init]))
     {
-      NSDebugMLLog(@"gsdb", @"model group=%p",self);
+
 
       _modelsByName = [NSMutableDictionary new];
     };
@@ -228,14 +228,14 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
   //call model entityNames
   NSString *modelName;
 
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"model=%p", model);
+
+
 
   modelName = [model name];
   [model setModelGroup: self];
 
-  NSDebugMLLog(@"gsdb", @"model=%p name=%@", model, modelName);
+
 
   if (!modelName) 
     {
@@ -256,29 +256,29 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
   [_modelsByName setObject: model
                  forKey: modelName];
 
-  NSDebugMLLog(@"gsdb", @"Notification for model:%p", model);
+
 
   [[NSNotificationCenter defaultCenter]
     postNotificationName: EOModelAddedNotification
     object: model];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (EOModel *)addModelWithFile: (NSString *)path
 {
   EOModel *model;
 
-  EOFLOGObjectFnStart();
+
 
   model = [EOModel modelWithContentsOfFile: path];
 
-  NSDebugMLLog(@"gsdb", @"model=%p", model);
+
 
   if (model)
     [self addModel: model];
 
-  EOFLOGObjectFnStop();
+
 
   return model;
 }
@@ -421,7 +421,7 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
   EOModelGroup *modelGroup;
   NSDictionary *userInfo;
 
-  EOFLOGObjectFnStart();
+
 
   userInfo = [self userInfo];
   modelGroup = [userInfo objectForKey: @"EOModelGroup"];
@@ -432,7 +432,7 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
       [self setModelGroup: modelGroup];
     }
 
-  EOFLOGObjectFnStop();
+
 
   return modelGroup;
 }
@@ -441,7 +441,7 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
 {
   NSMutableDictionary *userInfo;
 
-  EOFLOGObjectFnStart();
+
 
   userInfo = (NSMutableDictionary *)[self userInfo];
 
@@ -457,7 +457,7 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
       [self setUserInfo: userInfo];
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 @end

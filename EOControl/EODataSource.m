@@ -57,21 +57,21 @@ RCS_ID("$Id$")
   EOClassDescription *cd;
   EOEditingContext *receiverEdCtxt;
 
-  EOFLOGObjectFnStart();
+
 
   cd = [self classDescriptionForObjects];
-  EOFLOGObjectLevelArgs(@"EODataSource", @"cd=%@", cd);
+
 
   object = [cd createInstanceWithEditingContext: nil
                globalID: nil
                zone: NULL];
 
-  EOFLOGObjectLevelArgs(@"EODataSource", @"object=%@", object);
+
 
   if (object && (receiverEdCtxt = [self editingContext])) 
     [receiverEdCtxt insertObject: object];
 
-  EOFLOGObjectFnStop();
+
 
   return object;
 }

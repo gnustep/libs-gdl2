@@ -92,11 +92,11 @@ RCS_ID("$Id$")
 
 - (void)setAdaptorOperator: (EOAdaptorOperator)adaptorOperator
 {
-  NSDebugMLLog(@"gsdb", @"adaptorOperator=%d", adaptorOperator);
+
 
   _adaptorOperator = adaptorOperator;
 
-  NSDebugMLLog(@"gsdb", @"_adaptorOperator=%d", _adaptorOperator);
+
 }
 
 - (EOEntity *)entity
@@ -180,7 +180,7 @@ RCS_ID("$Id$")
   NSString *operatorString = nil;
   NSString *desc = nil;
 
-  EOFLOGObjectFnStart();
+
 
   switch(_adaptorOperator)
     {
@@ -218,7 +218,7 @@ RCS_ID("$Id$")
 		   _storedProcedure,
 		   _exception];
 
-  EOFLOGObjectFnStop();
+
 
   return desc;
 }

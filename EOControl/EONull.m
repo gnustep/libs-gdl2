@@ -56,8 +56,8 @@ RCS_ID("$Id$")
 
 - (NSString *)sqlString
 {
-  EOFLOGObjectFnStart();
-  EOFLOGObjectFnStop();
+
+
 
   return @"NULL";
 }

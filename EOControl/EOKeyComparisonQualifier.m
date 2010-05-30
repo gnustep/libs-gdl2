@@ -274,7 +274,7 @@ RCS_ID("$Id$")
 
 - (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver*)unarchiver
 {
-  EOFLOGObjectFnStartOrCond(@"EOQualifier");
+
   
   if ((self = [self init]))
   {
@@ -287,7 +287,7 @@ RCS_ID("$Id$")
     ASSIGN(_rightKey, [unarchiver decodeObjectForKey: @"rightKey"]);
   }
   
-  EOFLOGObjectFnStopOrCond(@"EOQualifier");
+
   
   return self;
 }

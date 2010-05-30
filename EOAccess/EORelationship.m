@@ -210,7 +210,7 @@ RCS_ID("$Id$")
       NSString* deleteRuleString = nil;
       NSString* relationshipName;
 
-      EOFLOGObjectFnStart();
+
 
       model = [owner model];
       relationshipName = [propertyList objectForKey: @"name"];
@@ -290,7 +290,7 @@ RCS_ID("$Id$")
         }
     }
 
-  EOFLOGObjectFnStop();
+
 
   return self;
 }
@@ -300,7 +300,7 @@ RCS_ID("$Id$")
   //OK for definition
   NSString *definition;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@", self);
 
@@ -427,7 +427,7 @@ RCS_ID("$Id$")
     };
   */
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)encodeIntoPropertyList: (NSMutableDictionary *)propertyList
@@ -816,8 +816,8 @@ to know what to-many mean :-)  **/
 
 - (EODeleteRule)deleteRule
 {
-  EOFLOGObjectFnStart();
-  EOFLOGObjectFnStop();
+
+
 
   return _flags.deleteRule;
 }
@@ -845,7 +845,7 @@ to know what to-many mean :-)  **/
   EOEntity *entity;
   EOEntity *relationshipDestinationEntity = nil;
 
-  EOFLOGObjectFnStart();
+
 
   entity = [self entity]; //OK
   relationshipDestinationEntity = [relationship destinationEntity];
@@ -994,7 +994,7 @@ to know what to-many mean :-)  **/
         }
     }
 
-  EOFLOGObjectFnStop();
+
 
   return isReciprocal;
 }
@@ -1004,7 +1004,7 @@ relationships. Nil if none" **/
 - (EORelationship *)inverseRelationship
 {
   //OK
-  EOFLOGObjectFnStart();
+
 
   if (!_inverseRelationship)
     {
@@ -1040,7 +1040,7 @@ relationships. Nil if none" **/
       NSDebugLog(@"_inverseRelationship=%@", _inverseRelationship);
     }
 
-  EOFLOGObjectFnStop();
+
 
   return _inverseRelationship;
 }
@@ -1053,7 +1053,7 @@ relationships. Nil if none" **/
   NSString *name = nil;
   int i, count;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert([self isFlattened], @"Not Flatten Relationship");
   EOFLOGObjectLevel(@"EORelationship", @"add joins");
@@ -1094,7 +1094,7 @@ relationships. Nil if none" **/
 
   [inverseRelationship _setInverseRelationship: self];
 
-  EOFLOGObjectFnStop();
+
 
   return inverseRelationship;
 }
@@ -1107,7 +1107,7 @@ relationships. Nil if none" **/
   NSArray *joins = nil;
   unsigned int i, count;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert(![self isFlattened], @"Flatten Relationship");
 
@@ -1146,7 +1146,7 @@ relationships. Nil if none" **/
 
   /* call this last to avoid calls to [_destination _setIsEdited] */
   [inverseRelationship setEntity: _destination];
-  EOFLOGObjectFnStop();
+
 
   return inverseRelationship;
 }
@@ -1154,7 +1154,7 @@ relationships. Nil if none" **/
 - (EORelationship*) hiddenInverseRelationship
 {
   //OK
-  EOFLOGObjectFnStart();
+
 
   if (!_hiddenInverseRelationship)
     {
@@ -1164,7 +1164,7 @@ relationships. Nil if none" **/
         _hiddenInverseRelationship = [self _makeInverseRelationship];
     }
 
-  EOFLOGObjectFnStop();
+
 
   return _hiddenInverseRelationship;
 }
@@ -1311,7 +1311,7 @@ relationships. Nil if none" **/
 - (void)setDefinition: (NSString *)definition
 {
   //Near OK
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"definition=%@", definition);
 
@@ -1362,7 +1362,7 @@ relationships. Nil if none" **/
   /* Ayers: Not sure what justifies this. */
   [_entity _setIsEdited];
 
-  EOFLOGObjectFnStop();
+
 }
 
 /**
@@ -1461,7 +1461,7 @@ relationships. Nil if none" **/
   EOAttribute *sourceAttribute = nil;
   EOAttribute *destinationAttribute = nil;
   
-  EOFLOGObjectFnStart();
+
   
   EOFLOGObjectLevelArgs(@"EORelationship", @"Add join: %@\nto %@", join, self);
   
@@ -1594,12 +1594,12 @@ relationships. Nil if none" **/
     }
   }
   
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)removeJoin: (EOJoin *)join
 {
-  EOFLOGObjectFnStart();
+
 
   [self _flushCache];
 
@@ -1632,7 +1632,7 @@ relationships. Nil if none" **/
       [self didChangeValueForKey:@"joins"];
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)setJoinSemantic: (EOJoinSemantic)joinSemantic
@@ -1728,7 +1728,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
   //OK
   NSException *exception = nil;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert(valueP, @"No value pointer");
 
@@ -1750,7 +1750,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
         }
     }
 
-  EOFLOGObjectFnStop();
+
 
   return exception;
 }
@@ -1897,7 +1897,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
   //Seems OK
   NSString *relationshipPath = nil;
 
-  EOFLOGObjectFnStart();
+
 
   if ([self isFlattened])
     {
@@ -1919,7 +1919,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
   else
     relationshipPath = [self name];
 
-  EOFLOGObjectFnStop();
+
 
   return relationshipPath;
 }
@@ -1928,7 +1928,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 {
   BOOL isToManyToOne = NO;
 
-  EOFLOGObjectFnStart();
+
 
   if ([self isFlattened])
     {
@@ -1984,7 +1984,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
         }
     }
 
-  EOFLOGObjectFnStop();
+
 
   return isToManyToOne;
 }
@@ -1992,7 +1992,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 -(NSDictionary*)_sourceToDestinationKeyMap
 {
   //OK
-  EOFLOGObjectFnStart();
+
 
   if (!_sourceToDestinationKeyMap)
     {
@@ -2002,7 +2002,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 	     [_entity _keyMapForRelationshipPath: relationshipPath]);
     }
 
-  EOFLOGObjectFnStop();
+
 
   return _sourceToDestinationKeyMap;
 }
@@ -2015,7 +2015,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
   int primaryKeyAttributesCount = 0;
   BOOL foreignKeyInDestination = NO;
 
-  EOFLOGObjectFnStart();
+
 
   destAttributes = [self destinationAttributes];
   primaryKeyAttributes = [[self destinationEntity] primaryKeyAttributes];
@@ -2044,7 +2044,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 	}
     }
 
-  EOFLOGObjectFnStop();
+
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"foreignKeyInDestination=%s",
 			(foreignKeyInDestination ? "YES" : "NO"));
@@ -2078,11 +2078,11 @@ dest entity
 dst entity primaryKeyAttributeNames 
 
 */
-  EOFLOGObjectFnStart();
+
 
   [self notImplemented: _cmd]; // TODO
 
-  EOFLOGObjectFnStop();
+
 
   return NO;
 };
@@ -2108,7 +2108,7 @@ dst entity primaryKeyAttributeNames
   EOMutableKnownKeyDictionary *foreignKey = nil;
   EOMKKDSubsetMapping *sourceRowToForeignKeyMapping = nil;
 
-  EOFLOGObjectFnStart();
+
 
   sourceRowToForeignKeyMapping = [self _sourceRowToForeignKeyMapping];
 
@@ -2122,14 +2122,14 @@ dst entity primaryKeyAttributeNames
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"row=%@\nforeignKey=%@", row, foreignKey);
 
-  EOFLOGObjectFnStop();
+
 
   return foreignKey;
 }
 
 - (EOMKKDSubsetMapping*) _sourceRowToForeignKeyMapping
 {
-  EOFLOGObjectFnStart();
+
 
   if (!_sourceRowToForeignKeyMapping)
     {
@@ -2181,7 +2181,7 @@ dst entity primaryKeyAttributeNames
 		   _sourceRowToForeignKeyMapping);
     }
 
-  EOFLOGObjectFnStop();
+
 
   return _sourceRowToForeignKeyMapping;
 }
@@ -2365,7 +2365,7 @@ dst entity primaryKeyAttributeNames
   //VERIFIED DA 
   int count = [_joins count];
 
-  EOFLOGObjectFnStart();
+
 
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"_joinsChanged:%@\nin %@", _joins, self);
@@ -2383,7 +2383,7 @@ dst entity primaryKeyAttributeNames
       _destination = nil;
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 @end

@@ -100,12 +100,12 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   EOEntity *entity;
   NSArray *objects;
   
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
   
   entity = [self entityForClass: classObject];
   objects = [self objectsForEntityNamed: [entity name]];
 
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
   
   return objects;
 }
@@ -166,7 +166,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   //OK
   NSArray *objects;
 
-  EOFLOGObjectFnStart();
+
   NSDebugMLLog(@"gsdb", @"START value=%@ key=%@ entityName=%@",
 	       value, key, entityName);
 
@@ -182,7 +182,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 				  forKey: key]
 		  entityNamed: entityName];
 
-  EOFLOGObjectFnStop();
+
 
   return objects;
 //TC:
@@ -191,7 +191,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   EOFetchSpecification *fetch;
   NSArray	*newArray;
 
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
 
   qualifier = [[EOKeyValueQualifier alloc]
 		initWithKey:key
@@ -204,7 +204,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 
   newArray = [self objectsWithFetchSpecification:fetch];
 
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
 
   return newArray;
 */
@@ -221,9 +221,9 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   id key=nil;
   NSMutableArray* kvQualifiers=nil;
 
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"START values=%@ entityName=%@", values, entityName);
+
+
 
   NS_DURING
     {
@@ -250,7 +250,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 					qualifier: qualifier
 					sortOrderings: nil];
 
-      NSDebugMLLog(@"gsdb", @"fetchSpec=%@", fetchSpec);
+
       objects = [self objectsWithFetchSpecification: fetchSpec];
     }
   NS_HANDLER
@@ -267,7 +267,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
     }
   NS_ENDHANDLER;
 
-  EOFLOGObjectFnStop();
+
 
   return objects;
 //TC:
@@ -380,7 +380,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   int count;
   NSArray *objects;
 
-  EOFLOGObjectFnStart();
+
 
   NSDebugMLLog(@"gsdb", @"START value=%@ key=%@ entityName=%@",
 	       value, key, entityName);
@@ -393,8 +393,8 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 		      forKey: key
 		      entityNamed: entityName];
 
-      NSDebugMLLog(@"gsdb", @"objects count=%d", [objects count]);
-      NSDebugMLLog(@"gsdb", @"objects=%@", objects);
+
+
 
       count = [objects count];
 
@@ -433,9 +433,9 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
     }
   NS_ENDHANDLER;
 
-  NSDebugMLLog(@"gsdb", @"object=%@", object);
 
-  EOFLOGObjectFnStop();
+
+
 
   return object;
 }
@@ -447,7 +447,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
   int count;
   NSArray *objects;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert([entityName length] > 0, @"No entity name");
 
@@ -476,7 +476,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
            break;
     }
 
-  EOFLOGObjectFnStop();
+
 
   return object;
 }
@@ -793,7 +793,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   id object;
   EOClassDescription *classDescription;
 
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
 
   classDescription = [EOClassDescription classDescriptionForEntityName:
 					   entityName];
@@ -809,7 +809,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
                              zone: [self zone]];
   [self insertObject: object];
 
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
 
   return object;
 }
@@ -820,14 +820,14 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   EOEntity *entity;
   NSDictionary *newDict;
 
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
 
   gid = (EOKeyGlobalID *)[self globalIDForObject: object];
   entity = [self entityForObject: object];
 
   newDict = [entity primaryKeyForGlobalID: gid];
 
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
 
   return newDict;
 }
@@ -897,14 +897,14 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   EOGlobalID *gid;
   id	newInstance;
 
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
 
   gid = [[object editingContext] globalIDForObject:object];
   
   newInstance = [self faultForGlobalID: gid
                       editingContext: self];
 
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
 
   return newInstance;
 }
@@ -915,7 +915,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   int i, count = [objects count];
   id obj;
   
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
   
   array = [NSMutableArray arrayWithCapacity: count];
 
@@ -925,7 +925,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
       [array addObject: obj];
     }
   
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
 
   return array;
 }
@@ -936,7 +936,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   EOObjectStoreCoordinator *objectStoreCoordinator;
   EOModelGroup *modelGroup;
   
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
   
   rootObjectStore = [self rootObjectStore];
 
@@ -948,7 +948,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   objectStoreCoordinator = (EOObjectStoreCoordinator *)rootObjectStore;
   modelGroup = [objectStoreCoordinator modelGroup];
   
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
 
   return modelGroup;
 }
@@ -958,7 +958,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   EOEntity *entity;
   EOModelGroup *modelGroup;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert([entityName length] > 0, @"No entity name");
 
@@ -973,7 +973,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
                  NSStringFromSelector(_cmd),
                  entityName];
 
-  EOFLOGObjectFnStop();
+
 
   return entity;
 }
@@ -992,7 +992,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   EOEntity *result = nil;
   BOOL matchesClassName;
   
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
   
   className = NSStringFromClass(classObject);
 
@@ -1039,7 +1039,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
                  format: @"%@ could not find entity for class named %@",
                  NSStringFromSelector(_cmd), className];
 
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
 
   return result;
 }
@@ -1049,7 +1049,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   EOClassDescription *classDesc;
   EOEntity *newEntity;
 
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
 
   classDesc = [(EOGenericRecord *)object classDescription];
 
@@ -1061,7 +1061,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
 
   newEntity = [(EOEntityClassDescription *)classDesc entity];
 
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
 
   return newEntity;
 }
@@ -1077,7 +1077,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
   EOFetchSpecification *newEOFetchSpecification = nil;
   EOModelGroup	       *anModelGroup;
 
-  EOFLOGClassFnStartOrCond(@"EOFetchSpecification");
+
 
   anModelGroup = [EOModelGroup defaultGroup];
 
@@ -1085,7 +1085,7 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
     newEOFetchSpecification = [anModelGroup fetchSpecificationNamed: name
                                             entityNamed: entityName];
 
-  EOFLOGObjectFnStopOrCond(@"EOFetchSpecification");
+
 
   return newEOFetchSpecification;
 }

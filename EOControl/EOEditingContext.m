@@ -493,7 +493,7 @@ _mergeValueForKey(id obj, id value,
   int i;
   IMP objectForGlobalIDIMP = NULL;
 
-  EOFLOGObjectFnStart();
+
 
   for (i=0; i<4; i++)
     {
@@ -530,7 +530,7 @@ _mergeValueForKey(id obj, id value,
                        forKeys: keys
                        count: 4];
 
-  EOFLOGObjectFnStop();
+
 
   return dict;
 }
@@ -578,9 +578,9 @@ _mergeValueForKey(id obj, id value,
   NSDictionary *objectChangeInfo;
   unsigned i,n;
 
-  EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"changes=%@", changes);
+
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
                         [self unprocessedDescription]);
@@ -665,7 +665,7 @@ _mergeValueForKey(id obj, id value,
     object: self
     userInfo: objectChangeInfo];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSArray *)_changesFromInvalidatingObjectsWithGlobalIDs: (NSArray *)globalIDs
@@ -889,7 +889,7 @@ _mergeValueForKey(id obj, id value,
   IMP enumNO=NULL; // nextObject
   IMP userInfoOFK=NULL; // objectForKey:
 
-  EOFLOGObjectFnStart();
+
 
   userInfo = [notification userInfo];
   enumerator = [userInfo keyEnumerator];
@@ -899,13 +899,13 @@ _mergeValueForKey(id obj, id value,
 
   while ((tempGID = GDL2_NextObjectWithImpPtr(enumerator,&enumNO)))
     {
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"tempGID=%@", tempGID);
+
 
       gid = GDL2_ObjectForKeyWithImpPtr(userInfo,&userInfoOFK,tempGID);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
+
 
       object = NSMapGet(_objectsByGID, tempGID);
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%@", object);
+
 
       if (object)
 	{
@@ -984,7 +984,7 @@ _mergeValueForKey(id obj, id value,
 	}
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)_processNotificationQueue
@@ -1084,7 +1084,7 @@ _mergeValueForKey(id obj, id value,
 {
   id object = nil;
 
-  EOFLOGObjectFnStart();
+
 
   NSDebugMLLog(@"EOEditingContext", @"forgetObjectWithGlobalID: %@",
                gid);
@@ -1103,7 +1103,7 @@ _mergeValueForKey(id obj, id value,
         }
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) _invalidateObject: (id)object
@@ -1112,7 +1112,7 @@ _mergeValueForKey(id obj, id value,
   SEL sel = @selector(editingContext:shouldInvalidateObject:globalID:);
   BOOL invalidate = YES;
 
-  EOFLOGObjectFnStart();
+
 
   NSDebugMLLog(@"EOEditingContext", @"invalidateObject:withGlobalID: %@",
                gid);
@@ -1130,14 +1130,14 @@ _mergeValueForKey(id obj, id value,
             editingContext: self];
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) _invalidateObjectWithGlobalID: (EOGlobalID*)gid
 {
   id object = nil;
 
-  EOFLOGObjectFnStart();
+
 
   NSDebugMLLog(@"EOEditingContext", @"invalidateObjectWithGlobalID: %@",
                gid);
@@ -1148,14 +1148,14 @@ _mergeValueForKey(id obj, id value,
       [self _invalidateObject: object withGlobalID: gid];
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) _invalidateObjectsWithGlobalIDs: (NSArray*)gids
 {
   unsigned count = 0;
   
-  EOFLOGObjectFnStart();
+
 
   count=[gids count];
 
@@ -1173,7 +1173,7 @@ _mergeValueForKey(id obj, id value,
         }
     };
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) invalidateObjectsWithGlobalIDs: (NSArray*)gids
@@ -1184,7 +1184,7 @@ _mergeValueForKey(id obj, id value,
   int i;
   int count = 0;
 
-  EOFLOGObjectFnStart();
+
 
   [self processRecentChanges];
 
@@ -1242,7 +1242,7 @@ _mergeValueForKey(id obj, id value,
 
   /* ... and lockForReading again when apropriate.  */
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) _resetAllChanges: (NSDictionary *)dictionary
@@ -1253,7 +1253,7 @@ _mergeValueForKey(id obj, id value,
 - (void) _resetAllChanges
 {
   //TODO: Ayers Verify
-  EOFLOGObjectFnStart();
+
 
   [self processRecentChanges];
 
@@ -1265,12 +1265,12 @@ _mergeValueForKey(id obj, id value,
 
   [self incrementUndoTransactionID];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)_enqueueEndOfEventNotification
 {
-  EOFLOGObjectFnStart();
+
 
   if (_flags.registeredForCallback == NO && _flags.processingChanges == NO)
     {
@@ -1302,19 +1302,19 @@ _mergeValueForKey(id obj, id value,
         }
       _flags.registeredForCallback = YES;
     }
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
 {
   NSArray *objects;
 
-  EOFLOGObjectFnStart();
+
 
   objects = [self objectsWithFetchSpecification: fetchSpecification
 		  editingContext: self];
 
-  EOFLOGObjectFnStop();
+
 
   return objects;
 }
@@ -1323,35 +1323,35 @@ _mergeValueForKey(id obj, id value,
 {
   EOGlobalID *gid;
 
-  EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%@", object);
+
+
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			[self unprocessedDescription]);
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			[self objectsDescription]);
 
   gid = EOEditingContext_globalIDForObjectWithImpPtr(self,NULL,object);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
+
 
   //GSWDisplayGroup -insertAtIndex+EODataSource createObject call insert ! So object is inserted twice
 
   if (_insertedObjects && NSHashGet(_insertedObjects, object))
     {
 //      NSLog(@"Already inserted object [_insertedObjects] %p=%@",object,object);
-//      EOFLOGObjectLevelArgs(@"EOEditingContext",@"Already inserted object [_insertedObjects] %p=%@",object,object);      
+//
     }
   else if (_unprocessedInserts && NSHashGet(_unprocessedInserts, object))
     {
 //      NSLog(@"Already inserted object [_unprocessedInserts] %p=%@",object,object);
-//      EOFLOGObjectLevelArgs(@"EOEditingContext",@"Already inserted object [_unprocessedInserts] %p=%@",object,object);    
+//
     }
   else
     {
       if (!gid)
         {
           gid = AUTORELEASE([EOTemporaryGlobalID new]);
-          EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
+
         }
 
       EOFLOGObjectLevelArgs(@"EOEditingContext",
@@ -1367,16 +1367,16 @@ _mergeValueForKey(id obj, id value,
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			[self objectsDescription]);
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)insertObject: (id)object
         withGlobalID: (EOGlobalID *)gid
 {
-  EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%@", object);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
+
+
+
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			[self unprocessedDescription]);
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
@@ -1412,7 +1412,7 @@ _mergeValueForKey(id obj, id value,
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			[self objectsDescription]);
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)_insertObject: (id)object
@@ -1477,7 +1477,7 @@ _mergeValueForKey(id obj, id value,
 
 - (void)_processEndOfEventNotification: (NSNotification*)notification
 {
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			[self unprocessedDescription]);
@@ -1497,12 +1497,12 @@ _mergeValueForKey(id obj, id value,
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			[self objectsDescription]);
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)noop: (id)object
 {
-  EOFLOGObjectFnStart();
+
   /*
    * This is just a dummy method which is only registered
    * to achieve the side effect of registering a method
@@ -1510,7 +1510,7 @@ _mergeValueForKey(id obj, id value,
    * undo manager will register another method which will later
    * post the NSUndoManagerCheckpointNotification.
    */
-  EOFLOGObjectFnStop();
+
 }
 
 //"Receive NSUndoManagerCheckpointNotification Notification
@@ -1526,7 +1526,7 @@ _mergeValueForKey(id obj, id value,
 {
   BOOL result = YES;
 
-  EOFLOGObjectFnStart();
+
 
   /* _assertSafeMultiThreadedAccess when/if necessary.  */
 
@@ -1819,7 +1819,7 @@ _mergeValueForKey(id obj, id value,
       _flags.registeredForCallback = NO;
     }
 
-  EOFLOGObjectFnStop();
+
 
   return result;
 }
@@ -1827,7 +1827,7 @@ _mergeValueForKey(id obj, id value,
 - (void) _processDeletedObjects
 {
   //OK finished ??
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			[self unprocessedDescription]);
@@ -1855,7 +1855,7 @@ _mergeValueForKey(id obj, id value,
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			[self objectsDescription]);
 
-  EOFLOGObjectFnStop();
+
 }
 
 /*
@@ -1937,7 +1937,7 @@ _mergeValueForKey(id obj, id value,
   NSMutableArray *exceptions = nil;
   BOOL validateForDelete = NO;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"unprocessed: %@",
 			[self unprocessedDescription]);
@@ -2016,7 +2016,7 @@ _mergeValueForKey(id obj, id value,
         }
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) validateDeletesUsingTable: (NSHashTable*)deleteTable
@@ -2043,7 +2043,7 @@ _mergeValueForKey(id obj, id value,
   NSHashEnumerator enumerator;
   id object = nil;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"table: %@",
 			NSStringFromHashTable(table));
@@ -2083,7 +2083,7 @@ _mergeValueForKey(id obj, id value,
     }
 
 //  NSEndHashTableEnumeration(enumerator);
-  EOFLOGObjectFnStop();
+
 
   return ok;
 }
@@ -2108,14 +2108,14 @@ _mergeValueForKey(id obj, id value,
   NSHashEnumerator enumerator;
   id object = nil;
 
-  EOFLOGObjectFnStart();
+
 
   enumerator = NSEnumerateHashTable(deleteTable);
 
   while ((object = (id)NSNextHashEnumeratorItem(&enumerator)))
     [object propagateDeleteWithEditingContext: self];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) _processOwnedObjectsUsingChangeTable: (NSHashTable*)changeTable 
@@ -2125,7 +2125,7 @@ _mergeValueForKey(id obj, id value,
   NSHashEnumerator enumerator;
   id object = nil;
 
-  EOFLOGObjectFnStart();
+
 
   enumerator = NSEnumerateHashTable(changeTable);
 
@@ -2137,7 +2137,7 @@ _mergeValueForKey(id obj, id value,
       int i;
       int count;
 
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"object:%@", object);
+
 
       toOneRelationshipKeys = [object toOneRelationshipKeys]; 
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"toOneRelationshipKeys:%@",
@@ -2154,7 +2154,7 @@ _mergeValueForKey(id obj, id value,
               BOOL ownsDestinationObjects
                 = [object ownsDestinationObjectsForRelationshipKey:relKey];
               
-              EOFLOGObjectLevelArgs(@"EOEditingContext", @"relKey:%@", relKey);
+
               EOFLOGObjectLevelArgs(@"EOEditingContext",
                                     @"ownsDestinationObjects: %s",
                                     (ownsDestinationObjects ? "YES" : "NO"));
@@ -2175,7 +2175,7 @@ _mergeValueForKey(id obj, id value,
                                         existingObject);
                   
                   value = [object storedValueForKey: relKey];
-                  EOFLOGObjectLevelArgs(@"EOEditingContext", @"value:%@", value);
+
                   
                   if (value != existingObject)
                     {
@@ -2212,7 +2212,7 @@ _mergeValueForKey(id obj, id value,
                             {
                               //We will insert it
                               NSHashInsertIfAbsent(objectsToInsert,value);
-                              EOFLOGObjectLevelArgs(@"EOEditingContext",@"Will insert %@",value);
+
                             }
                         }
                     }
@@ -2222,7 +2222,7 @@ _mergeValueForKey(id obj, id value,
 
       toManyRelationshipKeys = [object toManyRelationshipKeys];
 
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"object:%@", object);
+
       EOFLOGObjectLevelArgs(@"EOEditingContext", @"toManyRelationshipKeys: %@",
 			    toManyRelationshipKeys);
 
@@ -2236,7 +2236,7 @@ _mergeValueForKey(id obj, id value,
           BOOL ownsDestinationObjects
             = [object ownsDestinationObjectsForRelationshipKey: relKey];
           
-          EOFLOGObjectLevelArgs(@"EOEditingContext", @"relKey: %@", relKey);
+
           EOFLOGObjectLevelArgs(@"EOEditingContext",
                                 @"ownsDestinationObjects: %s",
                                 (ownsDestinationObjects ? "YES" : "NO"));
@@ -2302,7 +2302,7 @@ _mergeValueForKey(id obj, id value,
 
   while ((object = (id)NSNextHashEnumeratorItem(&enumerator)))
     {
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"Insert %@", object);
+
       [self insertObject: object];
     }
 
@@ -2311,7 +2311,7 @@ _mergeValueForKey(id obj, id value,
   //TODO-NOW: use deleteTable !
   //[self notImplemented:_cmd]; //TODO
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) registerUndoForModifiedObject: (id)object
@@ -2320,12 +2320,12 @@ _mergeValueForKey(id obj, id value,
   NSDictionary *snapshot;
   NSDictionary *undoObject;
 
-  EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%@", object);
+
+
 
   gid = EOEditingContext_globalIDForObjectWithImpPtr(self,NULL,object);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
+
 
   snapshot = [self currentEventSnapshotForObject: object];
   undoObject = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -2339,7 +2339,7 @@ _mergeValueForKey(id obj, id value,
 
   [_eventSnapshotsByGID removeObjectForKey: gid];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) _undoUpdate: (id)param0
@@ -2366,26 +2366,26 @@ _mergeValueForKey(id obj, id value,
 //pas appellee dans le cas d'un delete ?
   id object;
 
-  EOFLOGObjectFnStart();
+
 
   object = [NSNumber numberWithUnsignedInt: _undoTransactionID];
   _flags.registeredUndoTransactionID = YES;
 
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"_undoManager=%p", _undoManager);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"_undoManager=%@", _undoManager);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"self=%@", self);
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%@", object);
+
+
+
+
 
   [_undoManager registerUndoWithTarget: self
                 selector: @selector(_clearChangedThisTransaction:)
                 object: object];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)_clearChangedThisTransaction:(NSNumber *)transID
 {
-  EOFLOGObjectFnStart();
+
   if (_undoTransactionID == [transID unsignedShortValue])
     {
       static NSDictionary *info = nil;
@@ -2410,14 +2410,14 @@ _mergeValueForKey(id obj, id value,
         userInfo: info];
 
     }
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)deleteObject: (id)object
 {
-  EOFLOGObjectFnStart();
 
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%@", object);
+
+
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			[self unprocessedDescription]);
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
@@ -2462,7 +2462,7 @@ _mergeValueForKey(id obj, id value,
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			[self objectsDescription]);
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)lockObject: (id)object
@@ -2508,7 +2508,7 @@ _mergeValueForKey(id obj, id value,
   int which;
   IMP enumNO=NULL; // nextObject
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext",
 			@"Changes nb: inserted:%d deleted:%d changed:%d",
@@ -2570,7 +2570,7 @@ _mergeValueForKey(id obj, id value,
 			    objectsForNotification[2], EOUpdatedKey,
 			    nil, nil]];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)saveChanges
@@ -2578,7 +2578,7 @@ _mergeValueForKey(id obj, id value,
   id object = nil;
   NSEnumerator *enumerator;
 
-  EOFLOGObjectFnStart();
+
 
   //TODOLOCK
   [self lock];
@@ -2664,11 +2664,11 @@ _mergeValueForKey(id obj, id value,
 			@"_objectStore saveChangesInEditingContext");
 
       [_objectStore saveChangesInEditingContext: self];
-      EOFLOGObjectLevel(@"EOEditingContext", @"self didSaveChanges");
+
 
       [self didSaveChanges];
 
-      EOFLOGObjectFnStop();
+
     }
   NS_HANDLER
     {
@@ -2692,7 +2692,7 @@ _mergeValueForKey(id obj, id value,
 {
   NSException *newException = nil;
 
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
 
   NS_DURING
     {
@@ -2710,7 +2710,7 @@ _mergeValueForKey(id obj, id value,
     }
   NS_ENDHANDLER;
 
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
   
   return newException;
 }
@@ -2746,7 +2746,7 @@ _mergeValueForKey(id obj, id value,
   //Consider OK
   EOGlobalID *gid = nil;
 
-  EOFLOGObjectFnStart();
+
 
   gid = EOEditingContext_globalIDForObjectWithImpPtr(self,NULL,object);
 
@@ -2755,14 +2755,14 @@ _mergeValueForKey(id obj, id value,
       [_snapshotsByGID removeObjectForKey: gid];
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (id)objectForGlobalID:(EOGlobalID *)globalID
 {
   id object = nil;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", 
                         @"EditingContext: %p gid=%@", 
@@ -2778,7 +2778,7 @@ _mergeValueForKey(id obj, id value,
                         @"EditingContext: %p gid=%@ object=%p", 
                         self, globalID, object);
 
-  EOFLOGObjectFnStop();
+
 
   return object;
 }
@@ -2788,7 +2788,7 @@ _mergeValueForKey(id obj, id value,
   //Consider OK
   EOGlobalID *gid = nil;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext",
 			@"ed context=%p _globalIDsByObject=%p object=%p",
@@ -2800,9 +2800,9 @@ _mergeValueForKey(id obj, id value,
       gid = [_sharedContext globalIDForObject: object];
     }
 
-  EOFLOGObjectLevelArgs(@"EOEditingContext", @"gid=%@", gid);
 
-  EOFLOGObjectFnStop();
+
+
 
   return gid;
 }
@@ -2871,9 +2871,9 @@ _mergeValueForKey(id obj, id value,
 
 - (void)objectWillChange: (id)object
 {
-  EOFLOGObjectFnStart();
 
-//  EOFLOGObjectLevelArgs(@"EOEditingContext", @"object=%@", object);
+
+//
   EOFLOGObjectLevelArgs(@"EOEditingContext",
 			@"object=%@ _flags.ignoreChangeNotification=%d",
 			object, (int)_flags.ignoreChangeNotification);
@@ -2888,7 +2888,7 @@ _mergeValueForKey(id obj, id value,
 
       snapshot = [object snapshot]; // OK
 
-      EOFLOGObjectLevelArgs(@"EOEditingContext", @"snapshot=%@", snapshot);
+
 //if not in _unprocessedChanges: add in snaps and call _enqueueEndOfEventNotification
 /*
 [_undoManager registerUndoWithTarget:self
@@ -2944,14 +2944,14 @@ _mergeValueForKey(id obj, id value,
 	}
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)recordObject: (id)object
             globalID: (EOGlobalID *)globalID
 {
   //OK
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext",
 			@"Record %p for %@ in ed context %p _globalIDsByObject=%p",
@@ -2968,7 +2968,7 @@ _mergeValueForKey(id obj, id value,
 //    }
 //  NSHashInsert(ecDeallocHT, object);
 
-  EOFLOGObjectLevel(@"EOEditingContext", @"insertInto _globalIDsByObject");
+
   NSMapInsert(_globalIDsByObject, object, globalID);
 
   //TODO: Remove this test code
@@ -2990,19 +2990,19 @@ _mergeValueForKey(id obj, id value,
 
   NSMapInsert(_objectsByGID, globalID, object);
 
-  EOFLOGObjectLevel(@"EOEditingContext", @"addObserver");
+
 
   [EOObserverCenter addObserver: self
                     forObject: object];
 //call EOAccessFaultHandler  targetClass
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)forgetObject: (id)object
 {
   EOGlobalID *gid;
 
-  EOFLOGObjectFnStart();
+
 
   /* Global hash table for faster dealloc.  */
   //NSHashRemove(ecDeallocHT, object);
@@ -3021,7 +3021,7 @@ _mergeValueForKey(id obj, id value,
   [EOObserverCenter removeObserver: self
                     forObject: object];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSArray *)registeredObjects
@@ -3255,7 +3255,7 @@ It is updated after commiting new values.
   EOGlobalID* gid=nil;
   NSDictionary* snapshot=nil;
 
-  EOFLOGObjectFnStart();
+
 
   gid=EOEditingContext_globalIDForObjectWithImpPtr(self,NULL,object);
   snapshot=[_snapshotsByGID objectForKey: gid];
@@ -3264,7 +3264,7 @@ It is updated after commiting new values.
 			@"object=%p snapshot %p=%@",
 			object,snapshot,snapshot);
 
-  EOFLOGObjectFnStop();
+
 
   return snapshot;
 }
@@ -3426,13 +3426,13 @@ modified state of the object.**/
 {
   id object;
 
-  EOFLOGObjectFnStartOrCond(@"EOEditingContext");
+
 
   object = [self faultForRawRow: row
                  entityNamed: entityName 
                  editingContext: self];  
 
-  EOFLOGObjectFnStopOrCond(@"EOEditingContext");
+
 
   return object;
 }
@@ -3661,7 +3661,7 @@ modified state of the object.**/
   //OK
   NSArray *objects = nil;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEditingContext",
 			@"_objectStore=%@ fetchSpecification=%@ context=%@",
@@ -3696,7 +3696,7 @@ modified state of the object.**/
 
   [self unlock]; //TODOLOCK
 
-  EOFLOGObjectFnStop();
+
 
   return objects;
 }
@@ -3931,7 +3931,7 @@ static BOOL usesContextRelativeEncoding = NO;
 {
   NSString *desc;
 
-  EOFLOGObjectFnStart();
+
 
   desc = [NSString stringWithFormat: @"<%p:\nunprocessedChanges [nb:%d]=%p %@\n\nunprocessedDeletes [nb:%d]=%p %@\n\nunprocessedInserts[nb:%d]=%p %@>\n",
 		   self,
@@ -3945,7 +3945,7 @@ static BOOL usesContextRelativeEncoding = NO;
 		   _unprocessedInserts,
 		   NSStringFromHashTable(_unprocessedInserts)];
 
-  EOFLOGObjectFnStop();
+
 
   return desc;
 }
@@ -3954,7 +3954,7 @@ static BOOL usesContextRelativeEncoding = NO;
 {
   NSString *desc;
 
-  EOFLOGObjectFnStart();
+
 
   desc = [NSString stringWithFormat: @"<%p:\nchangedObjects [nb:%d]=%p %@\n\ndeletedObjects [nb:%d]=%p %@\n\ninsertedObjects [nb:%d]=%p %@>\n",
 		   self,
@@ -3968,7 +3968,7 @@ static BOOL usesContextRelativeEncoding = NO;
 		   _insertedObjects,
 		   NSStringFromHashTable(_insertedObjects)];
 
-  EOFLOGObjectFnStop();
+
 
   return desc;
 }
@@ -3988,7 +3988,7 @@ static BOOL usesContextRelativeEncoding = NO;
 {
   BOOL tryLock = NO;
 
-  EOFLOGObjectFnStart();
+
 
   tryLock = [_lock tryLock];
 
@@ -3997,29 +3997,29 @@ static BOOL usesContextRelativeEncoding = NO;
       _lockCount++;
     }
 
-  EOFLOGObjectFnStop();
+
 
   return tryLock;
 }
 
 - (void)lock
 {
-  EOFLOGObjectFnStart();
+
 
   [_lock lock];
   _lockCount++;
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)unlock
 {
-  EOFLOGObjectFnStart();
+
 
   _lockCount--;
   [_lock unlock];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) _assertSafeMultiThreadedAccess: (SEL)param0

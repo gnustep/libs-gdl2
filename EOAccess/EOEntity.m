@@ -853,7 +853,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   EOAttribute *attribute = nil;
   NSDictionary *attributesByName = nil;
 
-  EOFLOGObjectFnStart();
+
 
   attributesByName = [self attributesByName];
 
@@ -869,7 +869,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 
   attribute = [attributesByName objectForKey: attributeName];
 
-  EOFLOGObjectFnStop();
+
 
   return attribute;
 }
@@ -1071,7 +1071,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 - (NSArray *)classProperties
 {
   //OK
-  EOFLOGObjectFnStart();
+
 
   if (_flags.classPropertiesIsLazy)
     {
@@ -1130,7 +1130,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
         _flags.classPropertiesIsLazy = NO;
     }
 
-  EOFLOGObjectFnStop();
+
 
   return _classProperties;
 }
@@ -1138,7 +1138,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 - (NSArray *)classPropertyNames
 {
   //OK
-  EOFLOGObjectFnStart();
+
 
   if (!_classPropertyNames)
     {
@@ -1162,7 +1162,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
             [_attributesToFetch class],
             _attributesToFetch);
 
-  EOFLOGObjectFnStop();
+
 
   return _classPropertyNames;
 }
@@ -2134,7 +2134,7 @@ createInstanceWithEditingContext:globalID:zone:
 
 - (EOClassDescription *)classDescriptionForInstances
 {
-  EOFLOGObjectFnStart();
+
 
 //  EOFLOGObjectLevelArgs(@"EOEntity", @"in classDescriptionForInstances");
   EOFLOGObjectLevelArgs(@"EOEntity", @"_classDescription=%@",
@@ -2148,7 +2148,7 @@ createInstanceWithEditingContext:globalID:zone:
 //NO ? NotifyCenter addObserver:EOEntityClassDescription selector:_eoNowMultiThreaded: name:NSWillBecomeMultiThreadedNotification object:nil
     }
 
-  EOFLOGObjectFnStop();
+
 
   return _classDescription;
 }
@@ -2168,7 +2168,7 @@ createInstanceWithEditingContext:globalID:zone:
   EOEntity *entity = self;
   int i, count = 0;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
 
@@ -2203,7 +2203,7 @@ createInstanceWithEditingContext:globalID:zone:
   attribute = [entity anyAttributeNamed: part];
   EOFLOGObjectLevelArgs(@"EOEntity", @"resulting attribute=%@", attribute);
 
-  EOFLOGObjectFnStop();
+
 
   return attribute;
 }
@@ -2217,7 +2217,7 @@ createInstanceWithEditingContext:globalID:zone:
   NSArray *pathElements = nil;
   int i, count;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"path=%@", path);
 
@@ -2247,7 +2247,7 @@ createInstanceWithEditingContext:globalID:zone:
         }
     }
 
-  EOFLOGObjectFnStop();
+
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"relationship=%@", relationship);
 
@@ -2329,7 +2329,7 @@ createInstanceWithEditingContext:globalID:zone:
 
 - (Class)_classForInstances
 {
-  EOFLOGObjectFnStart();
+
 
   if (!_classForInstances)
     {
@@ -2352,7 +2352,7 @@ createInstanceWithEditingContext:globalID:zone:
         }
     }
 
-  EOFLOGObjectFnStop();
+
 
   return _classForInstances;
 }
@@ -2407,7 +2407,7 @@ createInstanceWithEditingContext:globalID:zone:
 {
   //near OK
   Class classForInstances = _classForInstances;
-  EOFLOGObjectFnStart();
+
 
   //TODO:use globalID ??
   if (!classForInstances)
@@ -2415,7 +2415,7 @@ createInstanceWithEditingContext:globalID:zone:
       classForInstances = [self _classForInstances];
     }
 
-  EOFLOGObjectFnStop();
+
 
   return _classForInstances;
 }
@@ -3605,7 +3605,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 - (NSArray*) dbSnapshotKeys
 {
   //OK
-  EOFLOGObjectFnStart();
+
 
   if (!_dbSnapshotKeys)
     {
@@ -3626,7 +3626,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 					  @selector(name)]]);
     }
 
-  EOFLOGObjectFnStop();
+
 
   return _dbSnapshotKeys;
 }
@@ -3683,7 +3683,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
   id objectToken = nil;
   id pool = nil;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"expression=%@", description);
 
@@ -3815,7 +3815,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
   NSArray *components = nil;
   int i, count = 0;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEntity",@"self=%p (name=%@) path=%@",
                self,[self name],path);
@@ -3910,7 +3910,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
   EOFLOGObjectLevelArgs(@"EOEntity", @"self=%p expressionArray=%@",
 			self, expressionArray);
 
-  EOFLOGObjectFnStop();
+
 
   return expressionArray;
 }
@@ -3922,7 +3922,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
   NSArray *components = nil;
   int i, count = 0;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"self=%p self name=%@ propertyName=%@",
 			self, [self name], propertyName);
@@ -4005,7 +4005,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
   EOFLOGObjectLevelArgs(@"EOEntity", @"self=%p expressionArray=\"%@\"",
 			self, expressionArray);
 
-  EOFLOGObjectFnStop();
+
 
   return expressionArray;
 }
@@ -4088,11 +4088,11 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 fromFetchInEditingContext: (EOEditingContext *)context
 {
   //OK
-  EOFLOGObjectFnStart();
+
   [super awakeObject: object
 	 fromFetchInEditingContext: context];
   //nothing to do
-  EOFLOGObjectFnStop();
+
 }
 
 /**
@@ -4115,7 +4115,7 @@ fromInsertionInEditingContext: (EOEditingContext *)context
   IMP objectTSVFK=NULL;
   IMP objectVFK=NULL;
 
-  EOFLOGObjectFnStart();
+
 
   [super awakeObject: object
          fromInsertionInEditingContext: context];
@@ -4177,7 +4177,7 @@ fromInsertionInEditingContext: (EOEditingContext *)context
 	    }
 	}
     }
-  EOFLOGObjectFnStop();
+
 }
 
 - (EOClassDescription *)classDescriptionForDestinationKey: (NSString *)detailKey
@@ -4186,7 +4186,7 @@ fromInsertionInEditingContext: (EOEditingContext *)context
   EOEntity *destEntity = nil;
   EORelationship *rel = nil;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOEntity", @"detailKey=%@", detailKey);
   EOFLOGObjectLevelArgs(@"EOEntity", @"_entity name=%@", [_entity name]);
@@ -4200,7 +4200,7 @@ fromInsertionInEditingContext: (EOEditingContext *)context
   cd = [destEntity classDescriptionForInstances];
   EOFLOGObjectLevelArgs(@"EOEntity", @"cd=%@", cd);
 
-  EOFLOGObjectFnStop();
+
 
   return cd;
 }
@@ -4212,7 +4212,7 @@ fromInsertionInEditingContext: (EOEditingContext *)context
   id obj = nil;
   Class objectClass;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert1(_entity, @"No _entity in %@", self);
 
@@ -4232,7 +4232,7 @@ fromInsertionInEditingContext: (EOEditingContext *)context
 			  globalID: globalID]);
     }
 
-  EOFLOGObjectFnStop();
+
 
   return obj;
 }
@@ -4254,7 +4254,7 @@ fromInsertionInEditingContext: (EOEditingContext *)context
   EORelationship *rel = nil;
   EODeleteRule deleteRule = 0;
 
-  EOFLOGObjectFnStart();
+
 
   rel = [_entity relationshipNamed: relationshipKey];
   EOFLOGObjectLevelArgs(@"EOEntity", @"relationship %p=%@", rel, rel);
@@ -4262,7 +4262,7 @@ fromInsertionInEditingContext: (EOEditingContext *)context
   deleteRule = [rel deleteRule];
   EOFLOGObjectLevelArgs(@"EOEntity", @"deleteRule=%d", (int)deleteRule);
 
-  EOFLOGObjectFnStop();
+
 
   return deleteRule;
 }
@@ -4372,13 +4372,13 @@ returns nil if there's no key in the instanceDictionaryInitializer
 {
   EOMutableKnownKeyDictionary* dict = nil;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert(_entity,@"No entity");
 
   dict = [_entity _dictionaryForInstanceProperties];
 
-  EOFLOGObjectFnStop();
+
 
   return dict;
 }

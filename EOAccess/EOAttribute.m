@@ -450,13 +450,13 @@ RCS_ID("$Id$")
 {
   NSString *definition = nil;
 
-//  EOFLOGObjectFnStart();
+//
 //  EOFLOGObjectLevel(@"gsdb",@"_definitionArray:%@",_definitionArray);
 
   definition = [_definitionArray valueForSQLExpression: nil];
 
 //  EOFLOGObjectLevel(@"gsdb",@"definition:%@",definition);
-//  EOFLOGObjectFnStop();
+//
 
   return definition;
 }
@@ -1636,7 +1636,7 @@ More details:
 {
   NSException *exception=nil;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert(valueP, @"No value pointer");
 
@@ -1839,7 +1839,7 @@ More details:
         }
     }
 
-  EOFLOGObjectFnStop();
+
 
   return exception;
 }

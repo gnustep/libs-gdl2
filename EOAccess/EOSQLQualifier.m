@@ -175,7 +175,7 @@ RCS_ID("$Id$")
   EOQualifier *returnedQualifier = self;
   int qualifierCount = 0;
   BOOL atLeastOneDifferentQualifier = NO; // YES if we find a changed qualifier
-  EOFLOGObjectFnStart();
+
 
   qualifierCount = [_qualifiers count];
 
@@ -213,7 +213,7 @@ RCS_ID("$Id$")
         };
     }
 
-  EOFLOGObjectFnStop();
+
 
   return returnedQualifier;
 }
@@ -258,7 +258,7 @@ RCS_ID("$Id$")
   EOQualifier *returnedQualifier = self;
   int qualifierCount = 0;
   BOOL atLeastOneDifferentQualifier = NO; // YES if we find a changed qualifier
-  EOFLOGObjectFnStart();
+
 
   qualifierCount = [_qualifiers count];
 
@@ -296,7 +296,7 @@ RCS_ID("$Id$")
         };
     }
 
-  EOFLOGObjectFnStop();
+
 
   return returnedQualifier;
 }
@@ -342,7 +342,7 @@ RCS_ID("$Id$")
   id key;
   EORelationship *relationship;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EOQualifier", @"self=%@", self);
 
@@ -514,7 +514,7 @@ RCS_ID("$Id$")
   EOFLOGObjectLevelArgs(@"EOQualifier", @"self=%@", self);
   EOFLOGObjectLevelArgs(@"EOQualifier", @"result qualifier=%@", qualifier);
 
-  EOFLOGObjectFnStop();
+
 
   return qualifier;
 }

@@ -173,7 +173,7 @@ RCS_ID("$Id$")
   int i = 0;
   int count = [_qualifiers count];
   NSMutableArray* newQualifiers = nil;
-  EOFLOGObjectLevelArgs(@"EOQualifier", @"bindings=%@", bindings);
+
 
   for(i=0; i<count; i++)
     {

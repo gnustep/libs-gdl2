@@ -114,7 +114,7 @@ static NSMutableArray *databaseInstances;
 //OK
 - initWithAdaptor: (EOAdaptor *)adaptor
 {
-  EOFLOGObjectFnStart();
+
 
   if (!adaptor)
     {
@@ -139,7 +139,7 @@ static NSMutableArray *databaseInstances;
       _toManySnapshots = [NSMutableDictionary new];
     }
 
-  EOFLOGObjectFnStop();
+
 
   return self;
 }
@@ -295,7 +295,7 @@ static NSMutableArray *databaseInstances;
   EOEntity *entity = nil;
   NSString *entityName = nil;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"object=%p (of class %@)",
 			object, [object class]);
@@ -326,7 +326,7 @@ static NSMutableArray *databaseInstances;
   entity = [self entityNamed: entityName];
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"entity=%p", entity);
-  EOFLOGObjectFnStop();
+
 
   return entity;
 }
@@ -339,12 +339,12 @@ static NSMutableArray *databaseInstances;
 - (void)setResultCache: (NSArray *)cache
         forEntityNamed: (NSString *)name
 {
-  EOFLOGObjectFnStart();
+
 
   [_entityCache setObject: cache
                 forKey: name];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)invalidateResultCacheForEntityNamed: (NSString *)name
@@ -384,7 +384,7 @@ static NSMutableArray *databaseInstances;
 - (void)recordSnapshot: (NSDictionary *)snapshot
            forGlobalID: (EOGlobalID *)gid
 {
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshot %p %@", snapshot, snapshot);
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gid=%@", gid);
@@ -398,7 +398,7 @@ static NSMutableArray *databaseInstances;
 
   NSAssert([_snapshots objectForKey: gid], @"SNAPSHOT not save !!");
 
-  EOFLOGObjectFnStop();
+
 }
 
 //"Receive EOGlobalIDChangedNotification notification"
@@ -418,7 +418,7 @@ static NSMutableArray *databaseInstances;
   EOGlobalID *tempGID = nil;
   EOGlobalID *gid = nil;
 
-  EOFLOGObjectFnStart();
+
 
   userInfo = [notification userInfo];
   enumerator = [userInfo keyEnumerator];
@@ -455,7 +455,7 @@ static NSMutableArray *databaseInstances;
 	}
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid
@@ -470,13 +470,13 @@ static NSMutableArray *databaseInstances;
   //seems OK
   NSDictionary *snapshot = nil;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert(gid, @"No gid");
 
   snapshot = [_snapshots objectForKey: gid];
 
-  EOFLOGObjectFnStop();
+
 
   return snapshot;
 }
@@ -488,7 +488,7 @@ static NSMutableArray *databaseInstances;
   //OK
   NSMutableDictionary *toMany = nil;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert(gid,@"No snapshot");
   NSAssert(gid,@"No Source Global ID");
@@ -510,7 +510,7 @@ static NSMutableArray *databaseInstances;
   [toMany setObject: gids
           forKey: name];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSArray *)snapshotForSourceGlobalID: (EOGlobalID *)gid
@@ -525,7 +525,7 @@ static NSMutableArray *databaseInstances;
 - (void)forgetSnapshotForGlobalID: (EOGlobalID *)gid
 {
   //Seems OK
-  EOFLOGObjectFnStart();
+
 
   NSAssert(gid,@"No Global ID");
 
@@ -541,7 +541,7 @@ static NSMutableArray *databaseInstances;
 			      [NSArray arrayWithObject: gid]
 			    forKey: EOInvalidatedKey]];
 
-  EOFLOGObjectFnStop();
+
 };
 
 - (void)forgetSnapshotsForGlobalIDs: (NSArray*)gids
@@ -549,7 +549,7 @@ static NSMutableArray *databaseInstances;
   NSEnumerator *gidEnum = nil;
   id gid = nil;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert(gids, @"No Global IDs");
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"gids=%@", gids);
@@ -568,7 +568,7 @@ static NSMutableArray *databaseInstances;
     userInfo: [NSDictionary dictionaryWithObject: gids
 			    forKey: EOInvalidatedKey]];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)forgetAllSnapshots
@@ -598,14 +598,14 @@ static NSMutableArray *databaseInstances;
 {
   //OK
   //VERIFY: be sure to replace all anapshot entries if any !
-  EOFLOGObjectFnStart();
+
 
   [_snapshots addEntriesFromDictionary: snapshots];
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"self=%p _snapshots=%@",
 			self, _snapshots);
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)recordToManySnapshots: (NSDictionary *)snapshots
@@ -614,7 +614,7 @@ static NSMutableArray *databaseInstances;
   NSEnumerator *keyEnum = nil;
   id key = nil;
 
-  EOFLOGObjectFnStart();
+
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshots=%@", snapshots);
   NSAssert(snapshots, @"No snapshots");
@@ -639,7 +639,7 @@ static NSMutableArray *databaseInstances;
 
   EOFLOGObjectLevelArgs(@"EODatabaseContext", @"snapshots=%@", snapshots);
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSDictionary *)snapshots

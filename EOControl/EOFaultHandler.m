@@ -182,18 +182,18 @@ RCS_ID("$Id$")
 { // TODO
   NSMethodSignature *sig;
 
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"_targetClass=%p", _targetClass);
-  NSDebugMLLog(@"gsdb", @"_targetClass=%@", _targetClass);
-  NSDebugMLLog(@"gsdb", @"selector=%@", NSStringFromSelector(selector));
+
+
+
+
   //TODO VERIFY
   NSAssert(_targetClass, @"No target class");
 
   sig = [_targetClass instanceMethodSignatureForSelector: selector];
 
-  NSDebugMLLog(@"gsdb",@"sig=%p", (void*)sig);
-  EOFLOGObjectFnStop();
+
+
 
   return sig;
 }

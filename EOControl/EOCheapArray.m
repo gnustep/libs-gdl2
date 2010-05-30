@@ -332,7 +332,7 @@ RCS_ID("$Id$")
 
 - (void)addObject: (id)object
 {
-  EOFLOGObjectFnStart();
+
 
   if (!object)
     {
@@ -364,7 +364,7 @@ RCS_ID("$Id$")
   _contents_array[_count] = RETAIN(object);
   _count++;     // Do this AFTER we have retained the object.
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) insertObject: (id)object

@@ -48,20 +48,20 @@ RCS_ID("$Id$")
 
 - (void) forgetAllWithTarget: (id)target
 {
-  EOFLOGObjectFnStart();
+
 
   [self notImplemented: _cmd]; //TODO
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) forgetAll
 {
-  EOFLOGObjectFnStart();
+
 
   [self notImplemented: _cmd]; //TODO
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) registerUndoWithTarget: (id)target

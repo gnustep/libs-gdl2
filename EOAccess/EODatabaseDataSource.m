@@ -426,7 +426,7 @@ RCS_ID("$Id$")
   EOEditingContext *editingContext = nil;
   NSString *fetchSpecificationName = nil;
 
-  EOFLOGObjectFnStart();
+
 
   entityName = [unarchiver decodeObjectForKey: @"entityName"];
   EOFLOGObjectLevelArgs(@"EODataSource",@"entityName=%@",entityName);

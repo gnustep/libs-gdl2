@@ -189,7 +189,7 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
   NSMutableArray *attributes = nil;
   BOOL isEqual = YES;
 
-  EOFLOGObjectFnStart();
+
   EOFLOGObjectLevelArgs(@"gsdb", @"attrs=%@", attrs);
   EOFLOGObjectLevelArgs(@"gsdb", @"entity=%@", entity);
   EOFLOGObjectLevelArgs(@"gsdb", @"qualifier=%@" ,qualifier);
@@ -254,7 +254,7 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
                    qualifier];
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)evaluateExpression: (EOSQLExpression *)expression
@@ -298,8 +298,8 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
 
 - (NSDictionary *)primaryKeyForNewRowWithEntity: (EOEntity *)entity
 {
-  EOFLOGObjectFnStart();
-  EOFLOGObjectFnStop();
+
+
 
   return nil;//no or subclass respo ?
 }
@@ -486,7 +486,7 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
   EOAdaptorOperator operator;
   NSDictionary *changedValues=nil;
 
-  EOFLOGObjectFnStart();
+
 
   adaptorContext = [self adaptorContext];
 //adaptorcontext transactionNestingLevel
@@ -575,7 +575,7 @@ prepareInsertExpressionWithRow:changedValues
 
 //end
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)performAdaptorOperations: (NSArray *)adaptorOperations
@@ -583,7 +583,7 @@ prepareInsertExpressionWithRow:changedValues
   int i = 0;
   int count = 0;
 
-  EOFLOGObjectFnStart();
+
 
   count=[adaptorOperations count];
 
@@ -628,7 +628,7 @@ prepareInsertExpressionWithRow:changedValues
       NS_ENDHANDLER;
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 @end

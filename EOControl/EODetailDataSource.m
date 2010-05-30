@@ -91,7 +91,7 @@ RCS_ID("$Id$")
 - (id)initWithKeyValueUnarchiver: (EOKeyValueUnarchiver *)unarchiver
 {
   //OK
-  EOFLOGObjectFnStart();
+
 
   if ((self = [self init]))
     {
@@ -99,7 +99,7 @@ RCS_ID("$Id$")
       NSString* masterClassDescriptionName=nil;
       EOClassDescription* masterClassDescription=nil;
 
-      EOFLOGObjectLevelArgs(@"EODataSource",@"EODetailDataSource %p",self);
+
 
       detailKey = [unarchiver decodeObjectForKey: @"detailKey"];
       masterClassDescriptionName = [unarchiver decodeObjectForKey:
@@ -116,7 +116,7 @@ RCS_ID("$Id$")
 			    self, self);
     }
 
-  EOFLOGObjectFnStop();
+
 
   return self;
 }
@@ -151,11 +151,11 @@ RCS_ID("$Id$")
 
 - (void)setMasterClassDescription: (EOClassDescription *)classDescription
 {
-  EOFLOGObjectFnStart();
+
 
   ASSIGN(_masterClassDescriptionName, [classDescription entityName]);
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (EOClassDescription *)classDescriptionForObjects
@@ -178,12 +178,12 @@ RCS_ID("$Id$")
 - (void)qualifyWithRelationshipKey: (NSString *)key
 			  ofObject: masterObject
 {
-  EOFLOGObjectFnStart();
+
 
   ASSIGN(_detailKey, key);
   ASSIGN(_masterObject, masterObject);
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSString *)detailKey
@@ -215,7 +215,7 @@ RCS_ID("$Id$")
 {
   id value=nil;
 
-  EOFLOGObjectFnStart();
+
 
   if(!_masterObject)
     value = [NSArray array];
@@ -234,14 +234,14 @@ RCS_ID("$Id$")
         value = [NSArray array];
     }
 
-  EOFLOGObjectFnStop();
+
 
   return value;
 }
 
 - (void)insertObject: (id)object
 {
-  EOFLOGObjectFnStart();
+
 
   if (!_masterObject)
     [NSException raise: NSInternalInconsistencyException
@@ -258,7 +258,7 @@ RCS_ID("$Id$")
   [_masterObject addObject: object
 		 toBothSidesOfRelationshipWithKey: _detailKey];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)deleteObject: (id)object

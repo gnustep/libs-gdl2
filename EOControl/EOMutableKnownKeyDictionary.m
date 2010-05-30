@@ -106,7 +106,7 @@ RCS_ID("$Id$")
 					     [self zone]);
       _keys = NSZoneMalloc([self zone], count * sizeof(NSString*));
 
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"keys=%p _keys=%p", keys, _keys);
+
 
       for (i = 0; i < count; i++)
         {
@@ -115,7 +115,7 @@ RCS_ID("$Id$")
 
           _count = i + 1;
 
-          EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%p", key);
+
           EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%@ RETAINCOUNT=%d",
 				key, [key retainCount]);
 
@@ -127,7 +127,7 @@ RCS_ID("$Id$")
           NSAssert1(!oldValue, @"%@ already present", key);
         }
 
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"self=%p", self);
+
     }
 
   return self;
@@ -152,14 +152,14 @@ RCS_ID("$Id$")
       }
   }
 
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"self=%p", self);
+
 
   return self;
 }
 
 - (void)dealloc
 {
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"Deallocate EOMKKDInitliazer %p", self);
+
 
   if (_keyToIndex)
     NSFreeMapTable(_keyToIndex);
@@ -282,10 +282,10 @@ RCS_ID("$Id$")
 					destinationDescription: self
 					zone: [self zone]] autorelease];  
 
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceDescription=%@", sourceInitializer);
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationDescription=%@", self);
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceKeys=%@", sourceKeys);
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationKeys=%@", destinationKeys);
+
+
+
+
 
   if (keyCount>0)
       {
@@ -304,11 +304,11 @@ RCS_ID("$Id$")
             
             sourceKey = 
               GDL2_ObjectAtIndexWithImp(sourceKeys,sourceObjectAtIndexIMP,i);
-            EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceKey=%@", sourceKey);
+
             
             destinationKey = 
               GDL2_ObjectAtIndexWithImp(destinationKeys,destinationObjectAtIndexIMP,i);
-            EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationKey=%@", destinationKey);
+
             
             destinationIndex =  
               EOMKKDInitializer_indexForKeyWithImpPtr(self,
@@ -321,7 +321,7 @@ RCS_ID("$Id$")
               EOMKKDInitializer_indexForKeyWithImpPtr(sourceInitializer,
                                                       &sourceInitializerIndexForKeyIMP,
                                                       sourceKey);
-            EOFLOGObjectLevelArgs(@"EOMKKD", @"sourceIndex=%d", sourceIndex);
+
             
             NSAssert2(destinationIndex != NSNotFound,
                       @"Destination Key %@ not found in %@",
@@ -360,11 +360,11 @@ RCS_ID("$Id$")
           NSInteger index;
           
           key = _keys[i];
-          EOFLOGObjectLevelArgs(@"EOMKKD", @"key=%@", key);
+
           
           index = EOMKKDInitializer_indexForKeyWithImpPtr(sourceInitializer,
                                                           &indexForKeyIMP,key);
-          EOFLOGObjectLevelArgs(@"EOMKKD", @"index=%d", index);
+
           
           subsetMapping->_sourceOffsetForDestinationOffset[i]
             = (index == NSNotFound ? 0 : index + 1);
@@ -411,7 +411,7 @@ RCS_ID("$Id$")
 
 - (void) dealloc
 {
-//  EOFLOGObjectLevelArgs(@"EOMKKD",@"Deallocate EOMKKDEnumerator %p (target=%p)",self,_target);
+//
   DESTROY(_target);
   DESTROY(_extraEnumerator);
 
@@ -583,14 +583,14 @@ RCS_ID("$Id$")
   NSAssert(dict, @"No dictionary");
   NSAssert(subsetMapping, @"No subsetMapping");
 
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"dict=%@", dict);
+
   EOFLOGObjectLevelArgs(@"EOMKKD", @"subsetMapping->_sourceDescription=%@",
 			subsetMapping->_sourceDescription);
   EOFLOGObjectLevelArgs(@"EOMKKD", @"subsetMapping->_destinationDescription=%@",
 			subsetMapping->_destinationDescription);
 
   objectsCount = [subsetMapping->_destinationDescription count];
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"objectsCount=%d", objectsCount);
+
 
   if (objectsCount > 0)
     {
@@ -605,13 +605,13 @@ RCS_ID("$Id$")
 	    {
 	      NSUInteger index = subsetMapping->_sourceOffsetForDestinationOffset[i] - 1;
 
-	      EOFLOGObjectLevelArgs(@"EOMKKD", @"index=%d", index);
+	
 
 	      objects[i] = [subsetMapping->_sourceDescription
 					 objectForIndex: index
 					 dictionary: dict];
 
-	      EOFLOGObjectLevelArgs(@"EOMKKD", @"objects[i]=%@", objects[i]);
+	
 	      NSAssert2(objects[i], @"No object for index %d from row %@",
 			index,
 			dict);
@@ -626,7 +626,7 @@ RCS_ID("$Id$")
     newDict = [self newWithInitializer: subsetMapping->_destinationDescription
 		    zone: zone];
 
-  EOFLOGObjectLevel(@"EOMKKD", @"END");
+
 
   return newDict;
 }
@@ -698,25 +698,25 @@ RCS_ID("$Id$")
 
 - (id) initWithInitializer: (EOMKKDInitializer*)initializer
 {
-  EOFLOGObjectFnStart();
+
 
   if ((self = [self init]))
     {
       NSUInteger count;
 
       NSAssert(initializer, @"No Initializer");
-      EOFLOGObjectLevel(@"EOMKKD", @"suite");
+
 
       ASSIGN(_MKKDInitializer, initializer);
 
       count = [_MKKDInitializer count];
-      EOFLOGObjectLevelArgs(@"EOMKKD", @"count=%d", count);
+
 
       _values = NSZoneMalloc([self zone], count * sizeof(id));
       memset(_values, 0, count * sizeof(id));
     }
 
-  EOFLOGObjectFnStop();
+
 
   return self;
 }
@@ -724,7 +724,7 @@ RCS_ID("$Id$")
 - (id) initWithInitializer: (EOMKKDInitializer*)initializer
                    objects: (id*)objects
 {
-  EOFLOGObjectFnStart();
+
 
   if ((self = [self initWithInitializer: initializer]))
     {
@@ -736,7 +736,7 @@ RCS_ID("$Id$")
           NSUInteger i;
           NSUInteger count = [_MKKDInitializer count];
 
-          EOFLOGObjectLevelArgs(@"EOMKKD", @"count=%d", count);
+
 
           for (i = 0; i < count; i++)
             {
@@ -747,7 +747,7 @@ RCS_ID("$Id$")
         }
     }
 
-  EOFLOGObjectLevel(@"EOMKKD", @"END");
+
 
   return self;
 }
@@ -760,7 +760,7 @@ RCS_ID("$Id$")
   //OK
   EOMKKDInitializer *initializer = nil;
 
-  EOFLOGObjectFnStart();
+
 
   if (count > 0)
     {
@@ -771,7 +771,7 @@ RCS_ID("$Id$")
 						count: count] autorelease];
 
       NSAssert(initializer, @"No Initializer");
-      EOFLOGObjectLevel(@"EOMKKD", @"suite");
+
 
       ASSIGN(_MKKDInitializer, initializer);
 
@@ -797,7 +797,7 @@ RCS_ID("$Id$")
 
 - (void) dealloc
 {
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"Deallocate EOMKKDDictionary %p", self);
+
 
   if (_values)    
     {
@@ -916,7 +916,7 @@ RCS_ID("$Id$")
         }
     }
 
-  EOFLOGObjectLevelArgs(@"EOMKKD", @"result = %s", (result ? "YES" : "NO"));
+
 
   return result;
 }

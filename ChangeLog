@@ -1,3 +1,61 @@
+2010-05-30  David Wetzel  <dave@turbocat.de>
+    * EOAccess/EOModel.m
+    * EOAccess/EOAttribute.m
+    * EOAccess/EODatabase.m
+    * EOAccess/EOModelGroup.m
+    * EOAccess/EOAccessFault.m
+    * EOAccess/EOAdaptorOperation.m
+    * EOAccess/EOEntity.m
+    * EOAccess/EODatabaseOperation.m
+    * EOAccess/EOAdaptor.m
+    * EOAccess/EOSQLQualifier.m
+    * EOAccess/EODatabaseDataSource.m
+    * EOAccess/EOExpressionArray.m
+    * EOAccess/EOAdaptorContext.m
+    * EOAccess/EORelationship.m
+    * EOAccess/EODatabaseContext.m
+    * EOAccess/EOUtilities.m
+    * EOAccess/EOSchemaGeneration.m
+    * EOAccess/EOAdaptorChannel.m
+    * EOAccess/EODatabaseChannel.m
+    * EOControl/EOMutableKnownKeyDictionary.m
+    * EOControl/EOEditingContext.m
+    * EOControl/EODataSource.m
+    * EOControl/EOAndQualifier.m
+    * EOControl/EOKeyValueArchiver.m
+    * EOControl/EOFaultHandler.m
+    * EOControl/EOGenericRecord.m
+    * EOControl/EOKeyComparisonQualifier.m
+    * EOControl/EODetailDataSource.m
+    * EOControl/EOCheapArray.m
+    * EOControl/EOKeyValueQualifier.m
+    * EOControl/EOObjectStoreCoordinator.m
+    * EOControl/EOUndoManager.m
+    * EOControl/EOClassDescription.m
+    * EOControl/EOKeyValueCoding.m
+    * EOControl/EONull.m
+    * EOControl/EOGlobalID.m
+    * EOControl/EOSortOrdering.m
+    * EOControl/EOOrQualifier.m
+    
+    Remove lots of logging.
+
+
+2010-05-30  David Wetzel  <dave@turbocat.de>
+    * EOAccess/EOAttribute.m
+    added attributeWithParent: definition: convenience method
+    * EOAccess/EOAdaptorContext.m
+    _channelDidInit: setDelegate
+    * EOAccess/EODatabaseContext.m
+    availableChannel: call registerChannel
+    new method _fetchRawRowKeyPaths:fetchSpecification:entity:editingContext:
+    * EOAccess/EODatabaseChannel.m
+    raise NSInvalidArgumentException in init.
+    initWithDatabaseContext: more checks
+    * EOAdaptors/PostgreSQLAdaptor/PostgreSQLContext.m
+    beginTransaction: more checks, raise NSInternalInconsistencyException
+    
+    
 2010-05-26  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOEntity.m
     added support for stored procedures

@@ -373,11 +373,11 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
       fileNames = [defaultManager directoryContentsAtPath: searchPath];
       filesEnum = [fileNames objectEnumerator];
     
-      NSDebugMLLog(@"EOAdaptor", @"path = %@", searchPath);
+
     
       while ((fileName = [filesEnum nextObject]))
 	{
-	  NSDebugMLLog(@"EOAdaptor", @"fileName = %@", fileName);
+	
 	  if ([fileName hasSuffix: adaptorSuffix])
 	    {
 	      fileName = [fileName stringByDeletingSuffix: adaptorSuffix];
@@ -458,7 +458,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
   EOModel *model;
   NSMutableArray *attributes = nil;
 
-  EOFLOGObjectFnStart();
+
 
   bundle = [NSBundle bundleForClass: [self class]];
 
@@ -487,7 +487,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
       RELEASE(model);
     }
 
-  EOFLOGObjectFnStop();
+
 
   return attributes;
 }
@@ -599,7 +599,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
 {
   Class expressionClass = Nil;
 
-  EOFLOGObjectFnStart();
+
 /* retrieve EOAdaptorQuotesExternalNames from ? or from user default */
 
   expressionClass = _expressionClass;
@@ -607,7 +607,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
   if(!expressionClass)
     expressionClass = [self defaultExpressionClass];
 
-  EOFLOGObjectFnStop();
+
 
   return expressionClass;
 }
@@ -668,7 +668,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
   //Should be OK
   SEL valueFactoryMethod;
 
-  EOFLOGObjectFnStart();
+
   EOFLOGObjectLevelArgs(@"gsdb", @"value=%@", value);
   EOFLOGObjectLevelArgs(@"gsdb", @"attribute=%@", attribute);
 
@@ -703,7 +703,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
                        attribute: attribute];
 
   EOFLOGObjectLevelArgs(@"gsdb", @"value=%@", value);
-  EOFLOGObjectFnStop();
+
 
   return value;
 }
@@ -713,7 +713,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
 {
   NSString *resultValue = nil;
 
-  EOFLOGObjectFnStart();
+
   EOFLOGObjectLevelArgs(@"gsdb", @"value=%@", value);
   EOFLOGObjectLevelArgs(@"gsdb", @"attribute=%@", attribute);
     
@@ -745,7 +745,7 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
       resultValue = value;
     }
 
-  EOFLOGObjectFnStop();
+
 
   return resultValue;
 }

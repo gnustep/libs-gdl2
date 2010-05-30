@@ -243,7 +243,7 @@ RCS_ID("$Id$")
   EOQualifier *qualifier = nil;
   EOQualifier *schemaBasedQualifier = nil;
 
-  EOFLOGObjectFnStart();
+
 
   entityName = [fetchSpecification entityName];
   database = [_databaseContext database];
@@ -292,7 +292,7 @@ RCS_ID("$Id$")
   [self _selectWithFetchSpecification:fetchSpecification
         editingContext:context];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (id)fetchObject
@@ -301,7 +301,7 @@ RCS_ID("$Id$")
   EODatabase *database=nil;
   id object = nil;
 
-  EOFLOGObjectFnStart();
+
 
   database = [_databaseContext database];
 
@@ -482,7 +482,7 @@ RCS_ID("$Id$")
         }
     }
 
-  EOFLOGObjectFnStop();
+
 
   return object;
 };
@@ -494,7 +494,7 @@ RCS_ID("$Id$")
 
 - (void)cancelFetch
 {
-  EOFLOGObjectFnStart();
+
 
   [self _cancelInternalFetch];
 
@@ -503,7 +503,7 @@ RCS_ID("$Id$")
   [_fetchProperties removeAllObjects];
   [_fetchSpecifications removeAllObjects];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (EODatabaseContext *)databaseContext
@@ -564,13 +564,13 @@ RCS_ID("$Id$")
   //OK
   NSArray *attributesToFetch=nil;
 
-  EOFLOGObjectFnStart();
+
 
   attributesToFetch = [_currentEntity _attributesToFetch];
 
   NSAssert(_currentEntity, @"No current Entity");
 
-  EOFLOGObjectFnStop();
+
 
   return attributesToFetch;
 }
@@ -602,14 +602,14 @@ RCS_ID("$Id$")
 - (void) _cancelInternalFetch
 {
   //OK
-  EOFLOGObjectFnStart();
+
 
   if ([_adaptorChannel isFetchInProgress])
     {
       [_adaptorChannel cancelFetch];
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) _closeChannel
@@ -648,7 +648,7 @@ RCS_ID("$Id$")
   NSArray *subEntities = nil;
   NSDictionary *_hints = nil;
 
-  EOFLOGObjectFnStart();
+
 
   _hints = [fetch _hints];
 
@@ -825,7 +825,7 @@ RCS_ID("$Id$")
 	       databaseChannel:self];
 
 
-  EOFLOGObjectFnStop();
+
 }
 
 @end /* EODatabaseChannel */

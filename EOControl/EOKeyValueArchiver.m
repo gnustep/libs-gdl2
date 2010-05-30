@@ -193,8 +193,8 @@ RCS_ID("$Id$")
 /** Returns archived object/tree as propertList **/
 - (NSDictionary*) dictionary
 {
-  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
-  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+
+
   return _propertyList;
 }
 
@@ -202,43 +202,43 @@ RCS_ID("$Id$")
 - (void) encodeInt: (int)intValue
 	    forKey: (NSString*)key
 {
-  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
 
-  NSDebugMLLog(@"gsdb", @"key=%@ intValue=%d",key,intValue);
+
+
   NSAssert(key,@"No key");
 
   [_propertyList setObject: [NSNumber numberWithInt: intValue]
                  forKey: key];
 
-  NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
 
-  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+
+
 }
 
 /** Archives boolean 'yn' as 'key' **/
 - (void) encodeBool: (BOOL)yn
 	     forKey: (NSString*)key
 {  
-  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
 
-  NSDebugMLLog(@"gsdb", @"key=%@ yn=%s",key,(yn ? "YES" : "NO"));
+
+
   NSAssert(key,@"No key");
 
   [_propertyList setObject: [NSNumber numberWithBool: yn]
                  forKey: key];
 
-  NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
 
-  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+
+
 }
 
 /** Archives a dictionary for 'key' **/
 - (void) _encodeDictionary: (NSDictionary*)dictionary
 		    forKey: (NSString*)key
 {
-  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
 
-  NSDebugMLLog(@"gsdb", @"key=%@ dictionary=%@",key,dictionary);
+
+
   NSAssert(key,@"No key");
 
   if ([dictionary count]>0)
@@ -249,7 +249,7 @@ RCS_ID("$Id$")
 
       // Save current propertyList
       currentPropertyList=AUTORELEASE(_propertyList);
-      NSDebugMLLog(@"gsdb", @"currentPropertyList=%@",currentPropertyList);
+
 
       // Set new empty propertyList to encode each object
       _propertyList=[NSMutableDictionary new];
@@ -277,7 +277,7 @@ RCS_ID("$Id$")
                      forKey:key];
     };
 
-  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+
 }
 
 /** Archives an array objects for 'key' **/
@@ -286,9 +286,9 @@ RCS_ID("$Id$")
 {
   unsigned int count=0;
 
-  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
 
-  NSDebugMLLog(@"gsdb", @"key=%@ objects=%@",key,objects);
+
+
   NSAssert(key,@"No key");
 
   count=[objects count];
@@ -300,7 +300,7 @@ RCS_ID("$Id$")
 
       // Save current propertyList
       currentPropertyList=AUTORELEASE(_propertyList);
-      NSDebugMLLog(@"gsdb", @"currentPropertyList=%@",currentPropertyList);
+
 
       // Set new empty propertyList to encode each object
       _propertyList=[NSMutableDictionary new];
@@ -314,7 +314,7 @@ RCS_ID("$Id$")
                 forKey:@"voidKey"];
           
           encodedObject=[_propertyList objectForKey:@"voidKey"];          
-          NSDebugMLLog(@"gsdb", @"object=%@ encodedObject=%@",object,encodedObject);
+
           NSAssert1(encodedObject,@"No encodedObject for %@",object);
 
           [archiveArray addObject:encodedObject];
@@ -336,7 +336,7 @@ RCS_ID("$Id$")
                      forKey:key];
     };
 
-  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+
 }
 
 - (void) _encodeValue: (id)value
@@ -354,9 +354,9 @@ its delegate method -archiver:referenceToEncodeForObject:
 - (void) encodeReferenceToObject: (id)object
 			  forKey: (NSString*)key
 {
-  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
 
-  NSDebugMLLog(@"gsdb", @"key=%@ object=%@",key,object);
+
+
   NSAssert(key,@"No key");
 
   // object is nil ?
@@ -373,7 +373,7 @@ its delegate method -archiver:referenceToEncodeForObject:
                           referenceToEncodeForObject:object];
       
 
-      NSDebugMLLog(@"gsdb", @"key=%@ object (reference)=%@",key,object);
+
 
       //TODO
       // What should we do when delegate returns no reference ?
@@ -383,9 +383,9 @@ its delegate method -archiver:referenceToEncodeForObject:
             forKey:key];
     };
 
-  NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
 
-  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+
+
 }
 
 /** Archives the object 'object' as 'key'.
@@ -395,9 +395,9 @@ EOKeyValueArchiving protocol. Raise an exception otherwise.
 - (void) encodeObject: (id)object
 	       forKey: (NSString*)key
 {
-  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
 
-  NSDebugMLLog(@"gsdb", @"key=%@ object=%@",key,object);
+
+
   NSAssert(key,@"No key");
 
   // object is nil ?
@@ -436,7 +436,7 @@ EOKeyValueArchiving protocol. Raise an exception otherwise.
       // Save current propertyList
       NSMutableDictionary* currentPropertyList=nil;
       currentPropertyList=AUTORELEASE(_propertyList);
-      NSDebugMLLog(@"gsdb", @"currentPropertyList=%@",currentPropertyList);
+
 
       // Set new empty one as current one
       _propertyList=[NSMutableDictionary new];
@@ -448,7 +448,7 @@ EOKeyValueArchiving protocol. Raise an exception otherwise.
       // Encode object
       [object encodeWithKeyValueArchiver:self];
 
-      NSDebugMLLog(@"gsdb", @"object propertyList=%@",_propertyList);
+
 
       // add object propertyList into current propertyList 
       // for the key
@@ -466,9 +466,9 @@ EOKeyValueArchiving protocol. Raise an exception otherwise.
                     
     };
 
-  NSDebugMLLog(@"gsdb", @"_propertyList=%@",_propertyList);
 
-  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+
+
 }
 
 /** Returns receiver's delegate **/
@@ -480,11 +480,11 @@ EOKeyValueArchiving protocol. Raise an exception otherwise.
 /** Set receiver's delegate **/
 - (void) setDelegate: (id)delegate
 {
-  EOFLOGObjectFnStartOrCond(@"EOKeyValueArchiver");
+
 
   _delegate=delegate;
 
-  EOFLOGObjectFnStopOrCond(@"EOKeyValueArchiver");
+
 }
 
 @end
@@ -537,7 +537,7 @@ on all unarchived objects **/
       container = [_allUnarchivedObjects objectAtIndex: i];
       object = [container object];
 
-      NSDebugMLLog(@"gsdb", @"finishInitializationWithKeyValueUnarchiver index:%d", i);
+
 
       [object finishInitializationWithKeyValueUnarchiver: self];
     }
@@ -570,7 +570,7 @@ on all unarchived objects **/
       EOKeyValueArchivingContainer *container;
       id object;
 
-      NSDebugMLLog(@"gsdb", @"awakeObject index:%d", i);
+
 
       container = [_allUnarchivedObjects objectAtIndex: i];
       object = [container object];
@@ -587,7 +587,7 @@ on all unarchived objects **/
     {
       if (!NSHashInsertIfAbsent(_awakenedObjects, object))
         {
-          NSDebugMLLog(@"gsdb", @"ensureObjectAwake:%@", object);
+
 
           [object awakeFromKeyValueUnarchiver: self];
         }
@@ -600,7 +600,7 @@ on all unarchived objects **/
 {
   id object = nil;
 
-  NSDebugMLLog(@"gsdb", @"decodeIntForKey:%@", key);
+
 
   object = [_propertyList objectForKey: key];
 
@@ -613,7 +613,7 @@ NO if no object is found **/
 {
   id object=nil;
 
-  NSDebugMLLog(@"gsdb", @"decodeBoolForKey:%@", key);
+
 
   object = [_propertyList objectForKey: key];
 
@@ -628,7 +628,7 @@ its delegate method -unarchiver:objectForReference: **/
   id objectReference = nil;
   id object;
 
-  NSDebugMLLog(@"gsdb", @"decodeObjectReferenceForKey:%@", key);
+
 
   object = [self decodeObjectForKey: key];
 
@@ -649,17 +649,17 @@ class instances should implements -initWithKeyValueUnarchiver: **/
   id propListObject;
   id obj = nil;
 
-  NSDebugMLLog(@"gsdb", @"decodeObjectForKey:%@", key);
+
 
   propListObject = [_propertyList objectForKey: key];
-  NSDebugMLLog(@"gsdb", @"key: %@ propListObject:%@", key, propListObject);
+
 
   if (propListObject)
     {
       obj = [self _findTypeForPropertyListDecoding: propListObject];
     }
 
-  NSDebugMLLog(@"gsdb", @"key: %@ obj:%@", key, obj);
+
 
   return obj;
 }
@@ -674,7 +674,7 @@ class instances should implements -initWithKeyValueUnarchiver: **/
 {
   id retVal = nil;
 
-  NSDebugMLLog(@"gsdb", @"obj:%@", obj);
+
 
   if ([obj isKindOfClass: GDL2_NSDictionaryClass])
     {
@@ -688,7 +688,7 @@ class instances should implements -initWithKeyValueUnarchiver: **/
       if (!retVal)
         {
           //TODO
-          NSDebugMLLog(@"gsdb", @"ERROR: No retVal for Obj:%@", obj);
+
         }
     }
   else if ([obj isKindOfClass: GDL2_NSArrayClass])
@@ -696,7 +696,7 @@ class instances should implements -initWithKeyValueUnarchiver: **/
   else
     retVal=obj;
 
-  NSDebugMLLog(@"gsdb", @"retVal:%@", retVal);
+
 
   return retVal;
 }
@@ -712,17 +712,17 @@ class instances should implements -initWithKeyValueUnarchiver: **/
       id object;
       id retObject;
 
-      NSDebugMLLog(@"gsdb", @"key:%@", key);
+
 
       object = [propList objectForKey: key];
-      NSDebugMLLog(@"gsdb", @"Object:%@", object);
+
 
       retObject = [self _findTypeForPropertyListDecoding: object];
-      NSDebugMLLog(@"gsdb", @"retObject:%@", retObject);
+
 
       if (!retObject)
         {
-          NSDebugMLLog(@"gsdb", @"ERROR: No retObject for Object:%@", object);
+
           //TODO
         }
       else
@@ -740,7 +740,7 @@ class instances should implements -initWithKeyValueUnarchiver: **/
   NSEnumerator	 *propListEnum;
   id		  propListObject;
 
-  EOFLOGObjectFnStartOrCond(@"EOKeyValueUnarchiver");
+
 
   if (propList && (propListEnum = [propList objectEnumerator]))
     {
@@ -755,7 +755,7 @@ class instances should implements -initWithKeyValueUnarchiver: **/
 	}
     }
 
-  EOFLOGObjectFnStopOrCond(@"EOKeyValueUnarchiver");
+
 
   return newObjects;
 }
@@ -770,7 +770,7 @@ class instances should implements -initWithKeyValueUnarchiver: **/
 
   _propertyList = RETAIN(propList); //Because dealloc may try to release it
 
-  NSDebugMLLog(@"gsdb", @"propList:%@", propList);
+
 
   NS_DURING
     {
@@ -809,8 +809,8 @@ class instances should implements -initWithKeyValueUnarchiver: **/
 
   AUTORELEASE(propList);
 
-  NSDebugMLLog(@"gsdb", @"propList:%@", propList);
-  NSDebugMLLog(@"gsdb", @"object:%@", object);
+
+
 
   return object;
 }

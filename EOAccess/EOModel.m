@@ -200,7 +200,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 - (id)init
 {
-  EOFLOGObjectFnStart();
+
 
   if ((self = [super init]))
     {
@@ -236,7 +236,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       [EOClassDescription invalidateClassDescriptionCache];
     }
 
-  EOFLOGObjectFnStop();
+
 
   return self;
 }
@@ -432,7 +432,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   EOAttribute *attribute = nil;
   int i, count;
 
-  EOFLOGObjectFnStart();
+
   EOFLOGObjectLevelArgs(@"gsdb", @"attrName=%@", attributeName);
 
   entityName = [NSString stringWithFormat: @"EO%@Prototypes", _adaptorName];
@@ -475,7 +475,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
 
   EOFLOGObjectLevelArgs(@"gsdb", @"attribute=%@", attribute);
-  EOFLOGObjectFnStop();
+
 
   return attribute;
 }
@@ -1076,7 +1076,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   //TODO
   NSString *notificationName = nil;
 
-  EOFLOGObjectFnStart();
+
 
   notificationName = [notification name];
 
@@ -1158,7 +1158,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       //TODO
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void) _resetPrototypeCache
@@ -1195,7 +1195,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSString *className;
   EOEntity *entity;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert(aClass, @"No class");
   NSAssert(_entitiesByClass, @"No _entitiesByClass");
@@ -1224,7 +1224,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 			    NSStringFromMapTable(_entitiesByClass));
     }
 
-  EOFLOGObjectFnStop();
+
 
   return entity;
 }
@@ -1510,12 +1510,12 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 - (void) setModelGroup: (EOModelGroup *)group
 {
-  EOFLOGObjectFnStart();
+
 
 //call group _addSubEntitiesCache:
   _group = group;
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)loadAllModelObjects

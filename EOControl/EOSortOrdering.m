@@ -140,7 +140,7 @@ RCS_ID("$Id$")
 
 - (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver*)unarchiver
 {
-  EOFLOGObjectFnStartOrCond(@"EOSortOrdering");
+
 
   if ((self = [super init]))
     {
@@ -153,7 +153,7 @@ RCS_ID("$Id$")
 	_selector = NSSelectorFromString(selectorName);
     }
 
-  EOFLOGObjectFnStopOrCond(@"EOSortOrdering");
+
 
   return self;
 }

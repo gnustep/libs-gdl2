@@ -121,7 +121,7 @@ static unsigned short sequence = USHRT_MAX;
   unsigned int i;
   union { NSTimeInterval interval; unsigned long stamp; } time;
 
-  EOFLOGObjectFnStart();
+
 
   if (pid == 0)
     {
@@ -186,19 +186,19 @@ static unsigned short sequence = USHRT_MAX;
       sequence = USHRT_MAX;
     }
   
-  EOFLOGObjectFnStop();
+
 }
 
 - (id)init
 {
-  EOFLOGObjectFnStart();
+
 
   if ((self = [super init]))
     {
       [EOTemporaryGlobalID assignGloballyUniqueBytes:_bytes];
     }
 
-  EOFLOGObjectFnStop();
+
 
   return self;
 }

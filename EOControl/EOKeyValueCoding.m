@@ -353,7 +353,7 @@ initialize(void)
   NSRange   r;
   id        result;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
 
   if ([keyPath hasPrefix: @"@"] || (r = [keyPath rangeOfString: @"."]).location == NSNotFound)
     {
@@ -367,7 +367,7 @@ initialize(void)
       result = [[self valueForKey: key] valueForKeyPath: path];
     }
 
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 
   return result;
 }
@@ -426,7 +426,7 @@ initialize(void)
 
   INITIALIZE;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   mode = [[NSDecimalNumber defaultBehavior] roundingMode];
   count = [self count];
   
@@ -461,7 +461,7 @@ initialize(void)
   NSDecimalDivide(&result, &left, &right, mode);
         
   ret = [NSDecimalNumber decimalNumberWithDecimal: result];
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
   return ret;
 }
 
@@ -470,11 +470,11 @@ initialize(void)
   NSArray *array;
   id result;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   array = key ? [self valueForKeyPath: key] : self;
   result = [NSDecimalNumber numberWithUnsignedInt: [array count]];
 
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
   return result;
 }
 
@@ -486,7 +486,7 @@ initialize(void)
 
   INITIALIZE;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   count     = [self count];
 
   if (count > 0)
@@ -517,7 +517,7 @@ initialize(void)
 	}
     }
 
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
   return result;
 }
 
@@ -529,7 +529,7 @@ initialize(void)
 
   INITIALIZE;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   count     = [self count];
 
   if (count > 0)
@@ -559,7 +559,7 @@ initialize(void)
 	}
     }
 
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
   return result;
 }
 
@@ -598,7 +598,7 @@ initialize(void)
 {
   id value;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@",
   //                      key);
 
@@ -646,7 +646,7 @@ initialize(void)
 
   //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@ value: %p (class=%@)",
   //                      key, value, [value class]);
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 
   return value;
 }
@@ -664,7 +664,7 @@ initialize(void)
 {
   id value;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@",
   //                      key);
 
@@ -688,7 +688,7 @@ initialize(void)
 
   //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@ value: %p (class=%@)",
   //                      key, value, [value class]);
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 
   return value;
 }
@@ -705,7 +705,7 @@ initialize(void)
 
   INITIALIZE;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPath=\"%@\"",
   //                      keyPath);
 
@@ -716,16 +716,16 @@ initialize(void)
 					mutableCopy] autorelease];
       NSMutableString *key = [NSMutableString string];
 
-      //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
+      //
 
       while ([keyPathArray count] > 0)
         {
           id tmpKey;
 
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
+          //
 
           tmpKey = [keyPathArray objectAtIndex: 0];
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"tmpKey=%@", tmpKey);
+          //
 
           [keyPathArray removeObjectAtIndex: 0];
 
@@ -740,10 +740,10 @@ initialize(void)
           else
 	    [key appendString: tmpKey];
 
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@", key);
+          //
         }
 
-      //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@", key);
+      //
 
       value = [self valueForKey: key];
 
@@ -778,7 +778,7 @@ initialize(void)
 
   //EOFLOGObjectLevelArgs(@"EOKVC",@"keyPath=%@ value: %p (class=%@)",
   //             keyPath,value,[value class]);
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 
   return value;
 }
@@ -795,7 +795,7 @@ initialize(void)
 
   INITIALIZE;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   //EOFLOGObjectLevelArgs(@"EOKVC",@"keyPath=\"%@\"",
   //                      keyPath);
 
@@ -806,16 +806,16 @@ initialize(void)
 					mutableCopy] autorelease];
       NSMutableString *key = [NSMutableString string];
 
-      //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
+      //
 
       while ([keyPathArray count] > 0)
         {
           id tmpKey;
 
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
+          //
 
           tmpKey = [keyPathArray objectAtIndex: 0];
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"tmpKey=%@", tmpKey);
+          //
 
           [keyPathArray removeObjectAtIndex: 0];
 
@@ -830,10 +830,10 @@ initialize(void)
           else
 	    [key appendString: tmpKey];
 
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@", key);
+          //
         }
 
-      //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@", key);
+      //
 
       value = [self storedValueForKey: key];
 
@@ -868,7 +868,7 @@ initialize(void)
 
   //EOFLOGObjectLevelArgs(@"EOKVC",@"keyPath=%@ value: %p (class=%@)",
   //             keyPath,value,[value class]);
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 
   return value;
 }
@@ -938,7 +938,7 @@ initialize(void)
        forKeyPath: (NSString *)keyPath
           isSmart: (BOOL)smartFlag
 {
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPath=\"%@\"",
   //                      keyPath);
 
@@ -953,16 +953,16 @@ initialize(void)
 
       unsigned keyPathArrayCount = [keyPathArray count];
 
-      //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
+      //
 
       while (keyPathArrayCount > 0)
         {
           id tmpKey;
 
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
+          //
 
           tmpKey = RETAIN([keyPathArray objectAtIndex: 0]);
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"tmpKey=%@", tmpKey);
+          //
 
           [keyPathArray removeObjectAtIndex: 0];
           keyPathArrayCount--;
@@ -980,10 +980,10 @@ initialize(void)
 
           RELEASE(tmpKey);
 
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@", key);
+          //
         }
 
-      //EOFLOGObjectLevelArgs(@"EOKVC",@"key=%@",key);
+      //
       //EOFLOGObjectLevelArgs(@"EOKVC",@"left keyPathArray=\"%@\"",
       //             keyPathArray);
 
@@ -1028,7 +1028,7 @@ initialize(void)
 	}
      }
 
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 }
 
 /**
@@ -1041,7 +1041,7 @@ initialize(void)
 - (void)takeStoredValue: (id)value 
              forKeyPath: (NSString *)keyPath
 {
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   //EOFLOGObjectLevelArgs(@"EOKVC",@"keyPath=\"%@\"",
   //             keyPath);
 
@@ -1054,16 +1054,16 @@ initialize(void)
 
       int keyPathArrayCount=[keyPathArray count];
 
-      //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
+      //
 
       while (keyPathArrayCount > 0)
         {
           id tmpKey;
 
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"keyPathArray=%@", keyPathArray);
+          //
 
           tmpKey = [keyPathArray objectAtIndex: 0];
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"tmpKey=%@", tmpKey);
+          //
 
           [keyPathArray removeObjectAtIndex: 0];
           keyPathArrayCount--;
@@ -1080,10 +1080,10 @@ initialize(void)
           else
 	    [key appendString: tmpKey];
 
-          //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@", key);
+          //
         }
 
-      //EOFLOGObjectLevelArgs(@"EOKVC", @"key=%@", key);
+      //
       //EOFLOGObjectLevelArgs(@"EOKVC",@"left keyPathArray=\"%@\"",
       //             keyPathArray);
 
@@ -1121,7 +1121,7 @@ initialize(void)
         [self removeObjectForKey: keyPath];
     }
 
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 }
 
 @end
@@ -1146,7 +1146,7 @@ initialize(void)
 
   INITIALIZE;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
 
   n = [keyPaths count];
   newKeyPaths = AUTORELEASE([[NSMutableArray alloc] initWithCapacity: n]);
@@ -1183,7 +1183,7 @@ initialize(void)
   values = [NSDictionary dictionaryWithObjects: newVals
 			 forKeys: newKeyPaths];
 
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 
   return values;
 }
@@ -1202,7 +1202,7 @@ initialize(void)
   id obj = self;
   int i, count;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
 
   pathArray = [key componentsSeparatedByString:@"."];
   count = [pathArray count];
@@ -1216,7 +1216,7 @@ initialize(void)
   path = [pathArray lastObject];
   [obj takeStoredValue: value forKey: path];
 
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 }
 
 /**
@@ -1231,7 +1231,7 @@ initialize(void)
   NSString *path;
   id obj = self;
   int i, count;
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
   pathArray = [key componentsSeparatedByString:@"."];
   count = [pathArray count];
 
@@ -1243,7 +1243,7 @@ initialize(void)
 
   path = [pathArray lastObject];
   obj=[obj storedValueForKey:path];
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
   return obj;
 }
 
@@ -1264,7 +1264,7 @@ initialize(void)
 
   INITIALIZE;
 
-  EOFLOGObjectFnStartCond(@"EOKVC");
+
 
   n = [keyPaths count];
 
@@ -1299,7 +1299,7 @@ initialize(void)
   
   values = [NSDictionary dictionaryWithObjects: newVals
 			 forKeys: newKeyPaths];
-  EOFLOGObjectFnStopCond(@"EOKVC");
+
 
   return values;
 }

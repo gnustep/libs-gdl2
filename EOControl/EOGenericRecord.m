@@ -216,7 +216,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 {
   BOOL ok;
 
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
+
 /*  ok=[super _infoForInstanceVariableNamed:name
             retType:type
             retSize:size
@@ -256,7 +256,7 @@ static const char _c_id[2] = { _C_ID, 0 };
         }
     }
 
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
 
   return ok;
 }
@@ -270,7 +270,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 {
   id value = nil;
 
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
+
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			@"Super InstanceVar named %@: sel=%@ type=%s size=%u offset=%u",
 			aKey,NSStringFromSelector(sel),type,size,offset);
@@ -289,7 +289,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 			    value, [value class]);
     }
 
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
 
   return value;
 }
@@ -302,7 +302,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 		   size: (unsigned)size
 		 offset: (int)offset
 {
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
+
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			@"Super InstanceVar named %@: offset=%u",
 			aKey, offset);
@@ -317,7 +317,7 @@ static const char _c_id[2] = { _C_ID, 0 };
   else
     GSObjCSetVal(self, [aKey UTF8String], anObject, sel, type, size, offset);
 
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
 }
 
 //used to allow derived object implementation
@@ -335,24 +335,24 @@ static const char _c_id[2] = { _C_ID, 0 };
 - (void)takeStoredValue:(id)value
                  forKey:(NSString *)key
 {
-  EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
-  EOFLOGObjectLevelArgs(@"EOGenericRecord", @"key=%@", key);
+
+
   [super takeStoredValue: value
          forKey: key];
-  EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
+
 }
 
 - (void)takeValue:(id)value
            forKey:(NSString *)key
 {
-  EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
-  EOFLOGObjectLevelArgs(@"EOGenericRecord", @"key=%@", key);
+
+
 
   [self willChange];
 
   [super takeValue: value
          forKey: key];
-  EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
+
 //
 //  if(value == nil || value == GDL2_EONull)
 //    [dictionary removeObjectForKey:key];
@@ -372,30 +372,30 @@ static const char _c_id[2] = { _C_ID, 0 };
 //      [dictionary setObject:value forKey:key];
 //    }
 //
-//  EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
+//
 }
 
 - (id)storedValueForKey:(NSString *)key
 {
   id value=nil;
-  EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
-  EOFLOGObjectLevelArgs(@"EOGenericRecord",@"key=%@",key);
+
+
   value=[super storedValueForKey: key];
-  EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
+
   return value;
 }
 
 - (id)valueForKey:(NSString *)key
 {
   id value=nil;
-  EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
-  EOFLOGObjectLevelArgs(@"EOGenericRecord", @"key=%@", key);
+
+
   value=[super valueForKey: key];
-  EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
+
   return value;
 //  id value=nil;
-//  EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
-//  EOFLOGObjectLevelArgs(@"EOGenericRecord", @"key=%@", key);
+//
+//
 //  NSArray *attrKeys, *toManyKeys, *toOneKeys;
 //
 //  attrKeys = [classDescription attributeKeys];
@@ -408,7 +408,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 //    return nil;
 //
 //  value=[dictionary objectForKey:key];
-//  EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
+//
 //  return value;
 }
 */
@@ -433,8 +433,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   id value = nil;
   Class 	selfClass=[self class];
 
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@", aKey);
+
+
 
   if ([selfClass useStoredAccessor] == NO)
     {
@@ -571,8 +571,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
         };
     }
 
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value=%@", value);
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
+
 
   return value;
 }
@@ -586,13 +586,13 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   int		off = 0;
   Class 	selfClass=[self class];
 
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"anObject=%@", anObject);
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@", aKey);
+
+
+
 
   if ([selfClass useStoredAccessor] == NO)
     {
-      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@", aKey);
+
 
       [self takeValue: anObject
 	    forKey: aKey];
@@ -714,7 +714,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
         }
     };
 
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
 }
 //#endif /* !FOUNDATION_HAS_KVC */
 
@@ -724,7 +724,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 {
   BOOL	isToMany = NO;
 
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
+
 
   isToMany=[[classDescription toManyRelationshipKeys]
              containsObject: aKey];
@@ -758,7 +758,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
     [self takeValue: anObject
           forKey: aKey];
 
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
 }
 
 //MG#if !FOUNDATION_HAS_KVC
@@ -769,9 +769,9 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   unsigned	size;
   int		off=0;
 
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"anObject=%@", anObject);
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@", aKey);
+
+
+
 
   size = [aKey length];
   if (size < 1)
@@ -889,7 +889,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
             offset: off];
     };
 
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
 }
 
 - (id) valueForKey: (NSString*)aKey
@@ -900,8 +900,8 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   int		off = 0;
   id value = nil;
 
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"aKey=%@", aKey);
+
+
 
   size = [aKey length];
   if (size < 1)
@@ -1023,7 +1023,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
     };
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value: %p (class=%@)",
 			value, [value class]);
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
 
   return value;
 }
@@ -1034,7 +1034,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 {
   id value;
 
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
+
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			@"Unbound key named %@",
 			key);
@@ -1046,14 +1046,14 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value %p (class=%@)",
 			value, [value class]);
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
 
   return value;
 }
 
 - (void) handleTakeValue: (id)value forUnboundKey: (NSString *)key
 {
-  EOFLOGObjectFnStartCond(@"EOGenericRecordKVC");
+
   EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			@"Unbound key named %@",
 			key);
@@ -1071,7 +1071,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 //                       forKey: key];
     [dictionary removeObjectForKey: key];
 
-  EOFLOGObjectFnStopCond(@"EOGenericRecordKVC");
+
 }
 */
 //MG#endif /* FOUNDATION_HAS_KVC */
@@ -1239,7 +1239,7 @@ You can override this to exclude properties manually handled by derived object *
   NSHashEnumerator hashEnum;
   NSAutoreleasePool *arp;
 
-  EOFLOGClassFnStart();
+
   //NSDebugMLog(@"CALCULATE START");
 
   [allGenericRecordsLock lock];
@@ -1280,7 +1280,7 @@ You can override this to exclude properties manually handled by derived object *
   [allGenericRecordsLock unlock];
 
   //NSDebugMLog(@"CALCULATE STOP");
-  EOFLOGClassFnStop();
+
 }
 
 - (unsigned int)eoCalculateSizeWith: (NSMutableDictionary *)dict
@@ -1288,7 +1288,7 @@ You can override this to exclude properties manually handled by derived object *
   NSMutableDictionary *processed;
   NSValue *selfP;
 
-  EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
+
   //NSDebugMLog(@"CALCULATE OBJ START %p", self);
 
   processed = [dict objectForKey: @"processed"];
@@ -1411,7 +1411,7 @@ You can override this to exclude properties manually handled by derived object *
     }
 
   //NSDebugMLog(@"CALCULATE OBJ STOP %p", self);
-  EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
+
 
   return 0;
 }
@@ -1422,7 +1422,7 @@ You can override this to exclude properties manually handled by derived object *
   NSMutableDictionary *processed;
   NSValue *selfP;
 
-  EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
+
   //NSDebugMLog(@"CALCULATE ARRAY START %p", self);
 
   processed = [dict objectForKey: @"processed"];
@@ -1457,7 +1457,7 @@ You can override this to exclude properties manually handled by derived object *
     }
 
   //NSDebugMLog(@"CALCULATE ARRAY START %p", self);
-  EOFLOGClassFnStop();
+
 
   return [array eoGetSize]; //return the base size
 }
@@ -1473,7 +1473,7 @@ You can override this to exclude properties manually handled by derived object *
   unsigned totalNb = 0;
   NSEnumerator *enumK;
 
-  EOFLOGClassFnStart();
+
 
   processed = [dict objectForKey: @"processed"];
   summaryNb = [dict objectForKey: @"summaryNb"];
@@ -1505,7 +1505,7 @@ You can override this to exclude properties manually handled by derived object *
         (int)(totalNb!=0 ? (totalSize / totalNb) : 0),
         (int)(totalNb!=0 ? (totalSize / totalNb / 1024) : 0)];
 
-  EOFLOGClassFnStop();
+
 
   return dscr;
 }
@@ -1567,12 +1567,12 @@ You can override this to exclude properties manually handled by derived object *
 
 - (unsigned int)eoCalculateSizeWith: (NSMutableDictionary *)dict
 {
-  //EOFLOGObjectFnStartOrCond(@"EOGenericRecord");
+  //
 
   return [EOGenericRecord eoCalculateSizeWith: dict
 			  forArray: [self allValues]];
 
-  //EOFLOGObjectFnStopOrCond(@"EOGenericRecord");
+  //
 }
 
 @end
@@ -1586,7 +1586,7 @@ You can override this to exclude properties manually handled by derived object *
   unsigned int baseSize = 0;
   NSValue *objectP;
 
-  EOFLOGClassFnStart();
+
   //NSDebugFLog(@"CALCULATE FAULT START %p",object);
 
   processed = [dict objectForKey: @"processed"];
@@ -1664,7 +1664,7 @@ You can override this to exclude properties manually handled by derived object *
     }
 
   //NSDebugMLog(@"CALCULATE FAULT STOP %p", object);
-  EOFLOGClassFnStop();
+
 
   return baseSize;
 }

@@ -355,7 +355,7 @@ RCS_ID("$Id$")
 {
   EOQualifier* qualifier=nil;
 
-  EOFLOGObjectLevelArgs(@"EOQualifier", @"bindings=%@", bindings);
+
 
   if ([_value isKindOfClass:[EOQualifierVariable class]])
     {
@@ -406,7 +406,7 @@ RCS_ID("$Id$")
 
 - (id) initWithKeyValueUnarchiver: (EOKeyValueUnarchiver*)unarchiver
 {
-  EOFLOGObjectFnStartOrCond(@"EOQualifier");
+
 
   if ((self = [self init]))
     {
@@ -419,7 +419,7 @@ RCS_ID("$Id$")
       ASSIGN(_value, [unarchiver decodeObjectForKey: @"value"]);
     }
   
-  EOFLOGObjectFnStopOrCond(@"EOQualifier");
+
 
   return self;
 }

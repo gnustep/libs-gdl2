@@ -105,29 +105,29 @@ RCS_ID("$Id$")
 
 - (NSDictionary *)dbSnapshot
 {
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"dbOpe %@ snapshot %p=%@", self, _dbSnapshot, _dbSnapshot);
 
-  EOFLOGObjectFnStop();
+
+
+
 
   return _dbSnapshot;
 }
 
 - (void)setDBSnapshot: (NSDictionary *)dbSnapshot
 {
-  EOFLOGObjectFnStart();
+
 
   ASSIGN(_dbSnapshot, dbSnapshot);
 
-  NSDebugMLLog(@"gsdb", @"dbOpe %@ snapshot %p=%@", self, _dbSnapshot, _dbSnapshot);
+
 
   if (dbSnapshot)
     [_newRow addEntriesFromDictionary: dbSnapshot];
 
-  NSDebugMLLog(@"gsdb", @"dbOpe %@", self);
 
-  EOFLOGObjectFnStop();
+
+
 }
 
 - (NSMutableDictionary *)newRow
@@ -193,9 +193,9 @@ RCS_ID("$Id$")
   NSEnumerator *newRowEnum = nil;
   NSString *key = nil;
 
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"self %p=%@", self, self);
+
+
 
   newRowEnum= [_newRow keyEnumerator];
 
@@ -216,9 +216,9 @@ RCS_ID("$Id$")
         }
     }
 
-  NSDebugMLLog(@"gsdb", @"diff row %p=%@", row, row);
 
-  EOFLOGObjectFnStop();
+
+
 
   return row;
 }
@@ -230,9 +230,9 @@ RCS_ID("$Id$")
   EOAttribute *attr = nil;
   NSEnumerator *attrsEnum = nil;
 
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"self %p=%@", self, self);
+
+
 
   attrsEnum = [attributes objectEnumerator];
   while ((attr = [attrsEnum nextObject]))
@@ -251,9 +251,9 @@ RCS_ID("$Id$")
         }
     }
 
-  NSDebugMLLog(@"gsdb", @"diff row %p=%@", row, row);
 
-  EOFLOGObjectFnStop();
+
+
 
   return row;
 }
@@ -324,7 +324,7 @@ RCS_ID("$Id$")
   NSString *operatorString = nil;
   NSString *desc = nil;
 
-  EOFLOGObjectFnStart();
+
 
   switch (_databaseOperator)
     {
@@ -362,7 +362,7 @@ RCS_ID("$Id$")
 		   _dbSnapshot,
 		   _dbSnapshot];
 
-  EOFLOGObjectFnStop();
+
 
   return desc;
 }

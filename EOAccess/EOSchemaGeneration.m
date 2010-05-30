@@ -205,14 +205,14 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   EOJoin *join;
   unsigned num;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   array = [NSMutableArray arrayWithCapacity: 1];
 
   if ([[relationship entity] model]
       != [[relationship destinationEntity] model])
     {
-      EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
       return array;
     }
@@ -221,7 +221,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
       || ([relationship inverseRelationship] != nil
 	  && [[relationship inverseRelationship] isToMany] == NO))
     {
-      EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
       return array;
     }
@@ -247,7 +247,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 
   [array addObject: sqlExpression];
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return array;
 }
@@ -260,7 +260,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   EOEntity       *parentEntity;
   unsigned       i,j,n,m;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   sqlExps = [NSMutableArray array];
 
@@ -282,7 +282,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 	}
     }
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return sqlExps;
 }
@@ -293,7 +293,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSEnumerator   *groupsEnum;
   NSArray        *group;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   array = [NSMutableArray arrayWithCapacity: [entityGroups count]];
 
@@ -306,7 +306,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
       [array addObjectsFromArray: stmts];
     }
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return array;
 }
@@ -324,7 +324,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSString *tableName;
   NSString *stmt;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   if ([[entityGroup objectAtIndex:0] isAbstractEntity])
     return [NSArray array];
@@ -349,7 +349,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 		   [sqlExp listString]];
   [sqlExp setStatement: stmt];
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return [NSArray arrayWithObject: sqlExp];
 }
@@ -362,7 +362,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSString *stmt;
   EOSQLExpression *sqlExp;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   entity = [entityGroup objectAtIndex: 0];
 
@@ -377,7 +377,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   [sqlExp setStatement: stmt];
   newArray = [NSArray arrayWithObject: sqlExp];
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return newArray;
 }
@@ -393,7 +393,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSString        *stmt;
   BOOL             first = YES;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   entity = [entityGroup objectAtIndex: 0];
   listString = [NSMutableString stringWithCapacity: 30];
@@ -415,7 +415,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 
   if (first == YES)
     {
-      EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
       return [NSArray array];
     }
@@ -428,7 +428,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 		   tableName, listString];
   [sqlExp setStatement: stmt];
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return [NSArray arrayWithObject: sqlExp];
 }
@@ -442,7 +442,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSString *stmt;
   EOSQLExpression *sqlExp;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   entity = [entityGroup objectAtIndex: 0];
   
@@ -459,7 +459,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   [sqlExp setStatement: stmt];
   newArray = [NSArray arrayWithObject: sqlExp];
                                       
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return newArray;
 }
@@ -473,7 +473,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSString *stmt;
   EOSQLExpression *sqlExp;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   entity = [entityGroup objectAtIndex: 0];
 
@@ -490,7 +490,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   [sqlExp setStatement: stmt];
   newArray = [NSArray arrayWithObject: sqlExp];
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return newArray;
 }
@@ -501,7 +501,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSEnumerator   *groupsEnum;
   NSArray        *group;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   array = [NSMutableArray arrayWithCapacity: [entityGroups count]];
 
@@ -512,7 +512,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 	       [self createTableStatementsForEntityGroup: group]];
     }
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return array;
 }
@@ -523,7 +523,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSEnumerator   *groupsEnum;
   NSArray        *group;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   array = [NSMutableArray arrayWithCapacity: [entityGroups count]];
 
@@ -534,7 +534,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 	       [self dropTableStatementsForEntityGroup: group]];
     }
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return array;
 }
@@ -545,7 +545,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSEnumerator   *groupsEnum;
   NSArray        *group;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   array = [NSMutableArray arrayWithCapacity: [entityGroups count]];
 
@@ -556,7 +556,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 	       [self primaryKeyConstraintStatementsForEntityGroup: group]];
     }
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return array;
 }
@@ -567,7 +567,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSEnumerator   *groupsEnum;
   NSArray        *group;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   array = [NSMutableArray arrayWithCapacity: [entityGroups count]];
 
@@ -578,7 +578,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 	       [self primaryKeySupportStatementsForEntityGroup: group]];
     }
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return array;
 }
@@ -589,7 +589,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSEnumerator   *groupsEnum;
   NSArray        *group;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   array = [NSMutableArray arrayWithCapacity: [entityGroups count]];
 
@@ -600,7 +600,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 	       [self dropPrimaryKeySupportStatementsForEntityGroup: group]];
     }
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return array;
 }
@@ -608,11 +608,11 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
 + (void)appendExpression: (EOSQLExpression *)expression
 		toScript: (NSMutableString *)script
 {
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
   
   [script appendFormat:@"%@;\n", [expression statement]];
   
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 }
 
 
@@ -623,7 +623,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   NSEnumerator    *arrayEnum;
   EOSQLExpression *sqlExp;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   arrayEnum = [[self schemaCreationStatementsForEntities: entities
 		     options: options] objectEnumerator];
@@ -631,7 +631,7 @@ NSString *EODropDatabaseKey = @"EODropDatabaseKey";
   while ((sqlExp = [arrayEnum nextObject]))
     [self appendExpression: sqlExp toScript: script];
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return script;
 }
@@ -672,7 +672,7 @@ struct _schema
     {nil, nil},
   }; // Order is important!
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   count = [entities count];
 
@@ -711,7 +711,7 @@ struct _schema
 	}
     }
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 
   return array;
 }
@@ -721,23 +721,23 @@ struct _schema
   NSString *extType = [attribute externalType];
   int precision = [attribute precision];
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   if (precision)
     {
-      EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
       return [NSString stringWithFormat:@"%@(%d, %d)", extType, precision,
 		       [attribute scale]];
     }
   else if ([attribute width])
     {
-      EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
       return [NSString stringWithFormat: @"%@(%d)", 
 		       extType, [attribute width]];
     }
   else
     {
-      EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
       return [NSString stringWithFormat: @"%@", extType];
     }
 }
@@ -756,7 +756,7 @@ struct _schema
   NSString *allowsNull;
   NSString *str;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   columnType = [self columnTypeStringForAttribute: attribute];
   allowsNull = [self allowsNullClauseForConstraint: [attribute allowsNull]];
@@ -770,7 +770,7 @@ struct _schema
 
   [self appendItem:str toListString: /*_listString*/[self listString]]; // Else no chance to get inited (lazy)
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 }
 
 - (void)prepareConstraintStatementForRelationship: (EORelationship *)relationship
@@ -783,7 +783,7 @@ struct _schema
   NSString        *name, *str, *tableName, *relTableName;
   BOOL             first = YES;
 
-  EOFLOGClassFnStartOrCond(@"EOSQLExpression");
+
 
   name = [NSString stringWithFormat: @"%@_%@_FK", [_entity externalName],
 		   [relationship name]];
@@ -839,7 +839,7 @@ struct _schema
 
   ASSIGN(_statement, str);
 
-  EOFLOGClassFnStopOrCond(@"EOSQLExpression");
+
 }
 
 // Assembles an adaptor specific constraint statement for relationship.

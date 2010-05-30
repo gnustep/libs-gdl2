@@ -193,12 +193,12 @@ static NSRecursiveLock *local_lock = nil;
 {
   EOClassDescription* classDescription;
 
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"entityName=%@", entityName);
+
+
 
   classDescription = NSMapGet(classDescriptionForEntity, entityName);
-  NSDebugMLLog(@"gsdb", @"classDescription=%@", classDescription);
+
 
   if (!classDescription)
     {
@@ -207,7 +207,7 @@ static NSRecursiveLock *local_lock = nil;
 	object: entityName];
 
       classDescription = NSMapGet(classDescriptionForEntity, entityName);
-      NSDebugMLLog(@"gsdb", @"classDescription=%@", classDescription);
+
 
       if (!classDescription)
         {
@@ -216,7 +216,7 @@ static NSRecursiveLock *local_lock = nil;
         }
     }
 
-  EOFLOGObjectFnStop();
+
 
   return classDescription;
 }
@@ -232,34 +232,34 @@ static NSRecursiveLock *local_lock = nil;
 {
   NSString *entityName;
 
-  EOFLOGObjectFnStart();
+
 
   NSAssert(description, @"No class description");
   NSAssert(aClass, @"No class");
-  NSDebugMLLog(@"gsdb", @"description=%@", description);
+
 
   entityName = [description entityName];
   //NSAssert(entityName,@"No Entity Name");
-  NSDebugMLLog(@"gsdb", @"entityName=%@", entityName);
+
 
   NSMapInsert(classDescriptionForClass, aClass, description);
   if (entityName)
     {
       NSMapInsert(classDescriptionForEntity, entityName, description);
     }
-  NSDebugMLLog(@"gsdb", @"end");
 
-  EOFLOGObjectFnStop();
+
+
 }
 
 + (void)setClassDelegate:(id)delegate
 {
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb",@"delegate %p=%@", delegate, delegate);
+
+
   classDelegate = delegate;
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSArray *)attributeKeys
@@ -277,7 +277,7 @@ static NSRecursiveLock *local_lock = nil;
   NSMutableArray* classPropertyNames=nil;
   NSMutableDictionary* dictionary=nil;
 
-  EOFLOGObjectFnStart();
+
 
   // Get class properties (attributes + relationships)
   classPropertyNames = [[NSMutableArray alloc]
@@ -295,7 +295,7 @@ static NSRecursiveLock *local_lock = nil;
                    [[EOMKKDInitializer newWithKeyArray: classPropertyNames] autorelease]];
   [classPropertyNames release];
 
-  EOFLOGObjectFnStop();
+
 
   return dictionary;
 }
@@ -315,7 +315,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
   NSArray *toManyRelationshipKeys = nil;
   int toManyCount = 0;
 
-  EOFLOGObjectFnStart();
+
 
   toManyRelationshipKeys = [self toManyRelationshipKeys];
   toManyCount = [toManyRelationshipKeys count];
@@ -331,7 +331,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
         {
           id key = GDL2_ObjectAtIndexWithImpPtr(toManyRelationshipKeys,&oaiIMP,i);
           id value = GDL2_StoredValueForKeyWithImpPtr(object,&objectSVFK,key);
-          NSDebugMLLog(@"gsdb", @"key=%@ value=%@",key,value);
+
 
           if (value)
             {
@@ -345,7 +345,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
             }
         }
     }
-  EOFLOGObjectFnStop();
+
 }
 
 - (EOClassDescription *)classDescriptionForDestinationKey: (NSString *)detailKey
@@ -357,8 +357,8 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                               globalID: (EOGlobalID *)globalID
                                   zone: (NSZone *)zone
 {
-  EOFLOGObjectFnStart();
-  EOFLOGObjectFnStop();
+
+
 
   return nil;
 }
@@ -376,8 +376,8 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
 - (EODeleteRule)deleteRuleForRelationshipKey: (NSString *)relationshipKey
 {
   //OK
-  EOFLOGObjectFnStart();
-  EOFLOGObjectFnStop();
+
+
 
   return EODeleteRuleNullify;
 }
@@ -444,9 +444,9 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
   id destination = nil;
   id classDelegate;
 
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb",@"object %p=%@", object, object);
+
+
 
   if (object==GDL2_EONull)
     {
@@ -471,7 +471,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
         {
           BOOL shouldPropagate = YES;
           
-          NSDebugMLLog(@"gsdb", @"ToOne key=%@", key);
+
           
           if (classDelegate)
 	    {
@@ -495,12 +495,12 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                   EODeleteRule deleteRule = [object deleteRuleForRelationshipKey:
                                                       key];
 
-                  NSDebugMLLog(@"gsdb", @"deleteRule=%d", (int)deleteRule);
+
 
                   switch (deleteRule)
                     {
                     case EODeleteRuleNullify:
-                      EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNullify");
+
                       
                         [(EOCustomObject*) object removeObject: destination
                             fromBothSidesOfRelationshipWithKey: key];
@@ -508,7 +508,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                         [object takeValue:nil
                         forKey:key];
                         inverseKey = [object inverseForRelationshipKey:key];
-                        NSDebugMLLog(@"gsdb",@"inverseKey=%@",inverseKey);
+
                         
                         if (inverseKey)
                         // p.ex. : the statement  [employee inverseForRelationshipKey:@"department"] --> returns "employees"
@@ -519,7 +519,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                       
                     case EODeleteRuleCascade:
                       //OK
-                      EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleCascade");
+
                       [object removeObject: destination
                               fromBothSidesOfRelationshipWithKey: key];
                       [editingContext deleteObject: destination];
@@ -527,7 +527,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                       break;
                       
                     case EODeleteRuleDeny:
-                      EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleDeny");
+
                       // TODO don't know how to do yet, if raise an exception
                       // or something else.
                       NSEmitTODO();  
@@ -535,7 +535,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                       break;
                       
                     case EODeleteRuleNoAction:
-                      EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNoAction");
+
                       break;
                     }
                 }
@@ -550,7 +550,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
         {
           BOOL shouldPropagate = YES;
 
-          NSDebugMLLog(@"gsdb", @"ToMany key=%@", key);
+
 
           if (classDelegate)
 	    {
@@ -569,15 +569,15 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
               EODeleteRule deleteRule;
 
               toManyArray = GDL2_ValueForKeyWithImpPtr(object,&objectVFK,key);
-              NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray, toManyArray);
+
 
               deleteRule = [object deleteRuleForRelationshipKey: key];
-              NSDebugMLLog(@"gsdb", @"deleteRule=%d", (int)deleteRule);
+
 
               switch (deleteRule)
                 {
                 case EODeleteRuleNullify:
-                  EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNullify");
+
                   NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray,
                                toManyArray);
 
@@ -590,7 +590,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                               fromBothSidesOfRelationshipWithKey: key];
                       /*
                         inverseKey = [self inverseForRelationshipKey:key];
-                        NSDebugMLLog(@"gsdb",@"inverseKey=%@",inverseKey);
+
 
                         if (inverseKey)
                         [destination removeObject:object
@@ -603,7 +603,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
 
                 case EODeleteRuleCascade:
                   //OK
-                  EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleCascade");
+
                   NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
                                toManyArray, toManyArray);
 
@@ -622,7 +622,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                   break;
 
                 case EODeleteRuleDeny:
-                  EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleDeny");
+
                   NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
                                toManyArray, toManyArray);
                   if ([toManyArray count] > 0)
@@ -635,14 +635,14 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                   break;
 
                 case EODeleteRuleNoAction:
-                  EOFLOGObjectLevel(@"gsdb", @"EODeleteRuleNoAction");
+
                   break;
                 }
             }
         }
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSArray *)toManyRelationshipKeys
@@ -714,13 +714,13 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
 
 + (void)setDelegate: (id)delegate
 {
-  EOFLOGObjectFnStart();
 
-  NSDebugMLLog(@"gsdb", @"delegate %p=%@", delegate, delegate);
+
+
 
   [EOClassDescription setClassDelegate: delegate];
 
-  EOFLOGObjectFnStop();
+
 }
 
 + (id)delegate

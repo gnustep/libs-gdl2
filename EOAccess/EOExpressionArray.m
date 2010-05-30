@@ -101,11 +101,11 @@ static SEL eqSel;
 
 - (id) init
 {
-  EOFLOGObjectFnStart();
+
 
   self = [self initWithCapacity:0];
 
-  EOFLOGObjectFnStop();
+
 
   return self;
 }
@@ -142,7 +142,7 @@ static SEL eqSel;
                infix: (NSString *)infix
               suffix: (NSString *)suffix
 {
-  EOFLOGObjectFnStart();
+
 
   if ((self = [self init]))
     {
@@ -151,7 +151,7 @@ static SEL eqSel;
       ASSIGN(_suffix, suffix);
     }
 
-  EOFLOGObjectFnStop();
+
 
   return self;
 }
@@ -253,9 +253,9 @@ static SEL eqSel;
   const char *s = NULL;
   const char *start=NULL;
   id objectToken=nil;
-  EOFLOGObjectFnStart();
-  NSDebugMLLog(@"gsdb",@"expression=%@",expression);
-  NSDebugMLLog(@"gsdb",@"entity=%@",entity);
+
+
+
 
   array = [[EOExpressionArray new] autorelease];
   s = [expression cString];
@@ -321,13 +321,13 @@ static SEL eqSel;
     {
       //IN eoentity persedescr
     }
-  NSDebugMLLog(@"gsdb",@"_prefix=%@",array->_prefix);
-  NSDebugMLLog(@"gsdb",@"_infix=%@",array->_infix);
-  NSDebugMLLog(@"gsdb",@"_suffix=%@",array->_suffix);
-//  NSDebugMLLog(@"gsdb",@"_definition=%@",array->_definition);
-  NSDebugMLLog(@"gsdb",@"_realAttribute=%@",array->_realAttribute);
 
-  EOFLOGObjectFnStop();
+
+
+//
+
+
+
   return array;
 }
 */

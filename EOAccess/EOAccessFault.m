@@ -169,13 +169,13 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 {
   if ((self = [self init]))
     {
-      EOFLOGObjectFnStartOrCond(@"EOAccesFaultHandler");
+
 
       ASSIGNCOPY(gid, globalID);
       ASSIGN(databaseContext, dbcontext);
       ASSIGN(editingContext, ec);
 
-      EOFLOGObjectFnStopOrCond(@"EOAccesFaultHandler");
+
     }
 
   return self;
@@ -198,11 +198,6 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
 - (EOKeyGlobalID *)globalID
 {
-#ifdef DEBUG
-  EOFLOGObjectFnStartOrCond(@"EOAccesFaultHandler");
-  EOFLOGObjectFnStopOrCond(@"EOAccesFaultHandler");
-#endif
-
   return gid;
 }
 
@@ -218,7 +213,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
 - (void)completeInitializationOfObject:(id)anObject
 {
-  EOFLOGObjectFnStart();
+
 
   // We want to be sure that we will not be autoreleased 
   // in an autorelease pool of another thread!
@@ -240,7 +235,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
       [self unableToFaultObject: anObject
             databaseContext: databaseContext];
     }
-  EOFLOGObjectFnStop();
+
 }
 
 - (BOOL)shouldPerformInvocation: (NSInvocation *)invocation
@@ -265,7 +260,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
   if ([handler respondsToSelector: @selector(globalID)])
     globalID = [(EOAccessFaultHandler *)handler globalID];
 
-  NSDebugMLLog(@"gsdb", @"Fault Handler=%@ (%@)", handler, [handler class]);
+
 
   [NSException raise: EOAccessFaultObjectNotAvailableException
                format: @"%@ -- %@ 0x%x: cannot fault to-one for object %@ of class %@ databaseContext %@ handler %@ (globalID=%@)",
@@ -357,7 +352,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
 - (void)completeInitializationOfObject: (id)anObject
 {
-  EOFLOGObjectFnStart();
+
 
   // We want to be sure that we will not be autoreleased 
   // in an autorelease pool of another thread!
@@ -366,8 +361,8 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
   [databaseContext _fireArrayFault: anObject];
   [(EOCheapCopyMutableArray *)anObject _setCopy: NO];
 
-  NSDebugMLLog(@"gsdb", @"anObject %p=%@", anObject, anObject);
-  EOFLOGObjectFnStop();
+
+
 
 /*MIRKO replaced
   [databaseContext _batchToMany:anObject

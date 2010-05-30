@@ -180,7 +180,7 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 	if ([store ownsGlobalID: globalID] == YES)
 	  return store;
 
-      NSDebugMLLog(@"gsdb", @"num=%d", num);
+
 
       if(--num)
         [self requestStoreForGlobalID: globalID
@@ -205,7 +205,7 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 	if ([store ownsObject: object] == YES)
 	  return store;
 
-      NSDebugMLLog(@"gsdb", @"num=%d", num);
+
 
       if(--num)
 	[[NSNotificationCenter defaultCenter]
@@ -232,7 +232,7 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 	if ([store handlesFetchSpecification: fetchSpecification] == YES)
 	  return store;
 
-      NSDebugMLLog(@"gsdb", @"num=%d", num);
+
 
       if(--num)
 	[[NSNotificationCenter defaultCenter]
@@ -341,7 +341,7 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
   NSException *exception = nil;
   int i, count;
 
-  EOFLOGObjectFnStart();
+
 
   insertedObjects = [context insertedObjects];
   count = [insertedObjects count];
@@ -447,7 +447,7 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
   if (exception)
     [exception raise];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetch
@@ -483,7 +483,7 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
  */
 - (void) _objectsChangedInSubStore: (NSNotification*)notification
 {
-  EOFLOGObjectFnStart();
+
 
   if ([notification object] != self)
     {
@@ -493,7 +493,7 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
         userInfo: [notification userInfo]];
     }
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)invalidateAllObjects
@@ -501,14 +501,14 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
   EOCooperatingObjectStore *store;
   NSEnumerator *storeEnum;
 
-  EOFLOGObjectFnStart();
+
 
   storeEnum = [_stores objectEnumerator];
 
   while ((store = [storeEnum nextObject]))
     [store invalidateAllObjects];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)invalidateObjectsWithGlobalIDs: (NSArray *)globalIDs
@@ -520,7 +520,7 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
   NSMutableArray *array;
   unsigned i,n;
 
-  EOFLOGObjectFnStart();
+
 
   gidsByStore = NSCreateMapTable(NSNonOwnedPointerMapKeyCallBacks,
 				 NSNonOwnedPointerMapValueCallBacks,
@@ -551,7 +551,7 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
   NSEndMapTableEnumeration(&gbsEnum);
   NSFreeMapTable(gidsByStore);
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)lockObjectWithGlobalID: (EOGlobalID *)gid

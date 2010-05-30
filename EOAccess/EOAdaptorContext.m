@@ -201,7 +201,7 @@ NSString *EOAdaptorContextRollbackTransactionNotification = @"EOAdaptorContextRo
 
 - (void)transactionDidCommit
 {
-  EOFLOGObjectFnStart();
+
   // Decrement the transaction scope
   _transactionNestingLevel--;//OK
 
@@ -210,7 +210,7 @@ NSString *EOAdaptorContextRollbackTransactionNotification = @"EOAdaptorContextRo
     postNotificationName: EOAdaptorContextCommitTransactionNotification
     object: self];
 
-  EOFLOGObjectFnStop();
+
 }
 
 - (void)transactionDidRollback
