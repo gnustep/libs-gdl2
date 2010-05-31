@@ -1,0 +1,63 @@
+{
+    ApplicationDescription = "GDL2 EOModel editor";
+    ApplicationIcon = EOModelEditor;
+    ApplicationName = EOModelEditor;
+    ApplicationRelease = "1.0.0 (Alpha)";
+    ApplicationURL = "http://mediawiki.gnustep.org/index.php/EOModelEditor";
+    Authors = ("David Wetzel");
+    Copyright = "Copyright \U00A9 2005, 2006 Free Software Foundation";
+    CopyrightDescription = "Released under the GNU GPL. See COPYING for details.";
+    
+    CFBundleGetInfoString = "1.0.0 \U00A9 Free Software Foundation";
+    CFBundleShortVersionString = "1.0.0";
+
+    GSMainMarkupFile = "";
+    NSExecutable = EOModelEditor;
+    NSIcon = EOModelEditor.tiff;
+    CFBundleIconFile = "EOModelEditor";
+    CFBundleIdentifier = "org.gnustep.eomodeleditor";
+
+    NSRole = "Editor";
+    CFBundleDocumentTypes = (
+  /*  {
+	    CFBundleTypeName = "EOModel Format";
+	    NSHumanReadableName = "EOModel Format";
+ 	    CFBundleTypeRole = Editor;
+	    CFBundleTypeExtensions = ("eomodel", "eomodeld");
+	    CFBundleTypeIconFile = "EOModel";
+	    CFBundleTypeOSTypes = ("EOMO");
+        XXLSItemContentTypes = ("org.gnustep.eomodeleditor.document");
+	    XXXNSExportableAs = ("NSTIFFPboardType"); 
+	    NSDocumentClass = "EOMEDocument";
+	},*/
+	{
+		CFBundleTypeIconFile = "EOModel";
+	    CFBundleTypeName = "EOModel Format";
+	    CFBundleTypeExtensions = ("eomodeld");
+ 	    CFBundleTypeRole = Editor;
+	    CFBundleTypeOSTypes = ("EOMO");
+	    LSItemContentTypes = ("org.gnustep.eomodeleditor.document");
+ 	    LSIsAppleDefaultForType = "true";
+ 	    LSTypeIsPackage = "true";
+	    NSDocumentClass = "EOMEDocument";
+	}
+	);
+
+    UTExportedTypeDeclarations = (
+	{
+        UTTypeIdentifier = "org.gnustep.eomodeleditor.document";
+        UTTypeDescription = "EOModel Format";
+        UTTypeIconFile = "EOModel.icns";
+        UTTypeConformsTo = ("com.apple.package");
+        
+        UTTypeTagSpecification = {
+            "com.apple.ostype" = "EOMO";
+            "public.filename-extension" = "eomodeld";
+            "public.mime-type" = "document/eomodel";
+            };
+	}
+    );
+
+    NSMainNibFile = "";
+    NSPrincipalClass = EOModelEditorApp;
+}

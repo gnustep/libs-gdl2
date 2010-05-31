@@ -1,0 +1,32 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <box title="Names" topPadding="10" leftPadding="4" rightPadding="4" width="260">
+          <grid>
+            <gridRow>
+              <label halign="right" selectable="no">Name:</label>
+              <textField id="nameField" delegate="#NSOwner"></textField>
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">External Name:</label>
+              <textField id="externalNameField" delegate="#NSOwner"></textField>
+            </gridRow>
+          </grid>
+        </box>
+        <hbox height="290"/>        
+      </vbox>
+      
+      
+    </window>
+    
+  </objects>
+  
+  <connectors>
+    <outlet source="#NSOwner" target="#window" key="window"/>
+    <outlet source="#NSOwner" target="#nameField" key="nameField"/>
+    <outlet source="#NSOwner" target="#externalNameField" key="externalNameField"/>
+  </connectors>
+</gsmarkup>

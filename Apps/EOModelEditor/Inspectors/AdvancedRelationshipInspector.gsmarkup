@@ -1,0 +1,56 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <box title="Batch Faulting" topPadding="10" leftPadding="4" rightPadding="4" width="260">
+          <grid>
+            <gridRow>
+              <label halign="right" selectable="no">Batch Size:</label>
+              <textField id="batchSizeField" delegate="#NSOwner"></textField>
+            </gridRow>
+          </grid>
+        </box>
+        <box title="Optionality" topPadding="10" leftPadding="4" rightPadding="4" width="260">
+          <matrix type="radio" autoenabledItems="no" target="#NSOwner" action="optionalityClicked:" 
+            id="optionalityMatrix">
+            <matrixRow><matrixCell tag="0" title="Optional" /></matrixRow>
+            <matrixRow><matrixCell tag="1" title="Mandatory" /></matrixRow>
+          </matrix>
+        </box> 
+        <box title="Delete Rule" topPadding="10" leftPadding="4" rightPadding="4" width="260">
+          <matrix type="radio" autoenabledItems="no" target="#NSOwner" action="deleteRuleClicked:" 
+            id="deleteRuleMatrix">
+            <matrixRow><matrixCell tag="0" title="Nullify" /></matrixRow>
+            <matrixRow><matrixCell tag="1" title="Cascade" /></matrixRow>
+            <matrixRow><matrixCell tag="2" title="Deny" /></matrixRow>
+            <matrixRow><matrixCell tag="3" title="No Action" /></matrixRow>
+          </matrix>
+        </box> 
+        <box topPadding="10" leftPadding="4" rightPadding="4" width="260">
+          <vbox>
+            <button title="Owns Destination" type="switch" halign="wexpand"
+            action="ownsDestinationClicked:" target="#NSOwner" id="ownsDestinationSwitch" />
+            <button title="Propagade Primary Key" type="switch" halign="wexpand"
+            action="propagadePrimaryKeyClicked:" target="#NSOwner" id="propagadePrimaryKeySwitch"/>
+          </vbox>
+          
+        </box> 
+        
+      </vbox>
+      
+      
+    </window>
+    
+  </objects>
+  
+  <connectors>
+    <outlet source="#NSOwner" target="#window" key="window"/>
+    <outlet source="#NSOwner" target="#batchSizeField" key="batchSizeField"/>
+    <outlet source="#NSOwner" target="#optionalityMatrix" key="optionalityMatrix"/>
+    <outlet source="#NSOwner" target="#deleteRuleMatrix" key="deleteRuleMatrix"/>
+    <outlet source="#NSOwner" target="#ownsDestinationSwitch" key="ownsDestinationSwitch"/>
+    <outlet source="#NSOwner" target="#propagadePrimaryKeySwitch" key="propagadePrimaryKeySwitch"/>
+  </connectors>
+</gsmarkup>

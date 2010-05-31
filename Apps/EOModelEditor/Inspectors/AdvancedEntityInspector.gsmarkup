@@ -1,0 +1,73 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <box topPadding="0" bottomPadding="3" leftPadding="4" rightPadding="4" width="260">
+          <grid>
+            <gridRow>
+              <label halign="right" selectable="no">Batch Faulting Size:</label>
+              <textField id="batchFaultingSizeText" delegate="#NSOwner"></textField>
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">External Query:</label>
+              <textField id="externalQueryText" delegate="#NSOwner"
+              toolTip="Any valid SQL statement that you want to be executed when unqualified fetches are performed on the entity."></textField>
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">Qualifier:</label>
+              <textField id="qualifierText" delegate="#NSOwner"></textField>
+            </gridRow>
+          </grid>
+        </box>
+        <box title="Parent" topPadding="0" bottomPadding="0" leftPadding="4" rightPadding="4">
+          <vbox>
+            <scrollView hasHorizontalScroller="no" height="115">
+              <tableView id="parentTableView" usesAlternatingRowBackgroundColors="yes" drawsGrid="yes" 
+                allowsEmptySelection="no" allowsColumnSelection="no" target="#NSOwner" action="tableViewClicked:">
+                <tableColumn editable="no" identifier="selected" title="" minWidth="16" maxWidth="16" width="16"/>
+                <tableColumn editable="no" identifier="name" title="Entity Name" minWidth="85"/>
+                <tableColumn editable="no" identifier="className" title="Class" minWidth="85"/>
+              </tableView>
+            </scrollView>
+            <button id="parentButton" type="toggle" halign="right" title="Set Parent" 
+            alternateTitle="Unset Parent" 
+            target="#NSOwner" action="parentButtonClicked:" />
+          </vbox>
+        </box> 
+        <box title="Options" topPadding="0" leftPadding="4" rightPadding="4" width="260">
+          <grid>
+            <gridRow>
+              <button halign="left" title="Read Only" type="switch"
+              action="readOnlyClicked:" target="#NSOwner" id="readOnlySwitch" />
+            </gridRow>
+            <gridRow>
+              <button halign="left" title="Cache in Memory" type="switch"
+              action="cacheClicked:" target="#NSOwner" id="cacheSwitch" />
+            </gridRow>
+            <gridRow>
+              <button halign="left" title="Abstract" type="switch"
+              action="abstractClicked:" target="#NSOwner" id="abstactSwitch" />
+            </gridRow>
+          </grid>
+        </box>
+      </vbox>
+      
+      
+    </window>
+    
+  </objects>
+  
+  <connectors>
+    <outlet source="#NSOwner" target="#window" key="window"/>
+    <outlet source="#NSOwner" target="#batchFaultingSizeText" key="batchFaultingSizeText"/>
+    <outlet source="#NSOwner" target="#externalQueryText" key="externalQueryText"/>
+    <outlet source="#NSOwner" target="#qualifierText" key="qualifierText"/>
+    <outlet source="#NSOwner" target="#parentTableView" key="parentTableView"/>
+    <outlet source="#NSOwner" target="#parentButton" key="parentButton"/>
+    <outlet source="#NSOwner" target="#readOnlySwitch" key="readOnlySwitch"/>
+    <outlet source="#NSOwner" target="#cacheSwitch" key="cacheSwitch"/>
+    <outlet source="#NSOwner" target="#abstactSwitch" key="abstactSwitch"/>
+  </connectors>
+</gsmarkup>

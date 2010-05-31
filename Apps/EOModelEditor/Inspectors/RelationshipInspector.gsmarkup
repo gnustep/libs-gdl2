@@ -1,0 +1,80 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <grid>
+          <gridRow>
+            <hbox leftPadding="4" rightPadding="4" topPadding="4">
+              <label halign="right" selectable="no">Name:</label> <textField id="name_textField" delegate="#NSOwner"></textField>
+            </hbox>
+          </gridRow>
+        </grid>
+        <box title="Destination" topPadding="10" leftPadding="4" rightPadding="4" width="260" id="xxx">
+          <grid>
+            <gridRow>
+              <label halign="right" selectable="no">Model:</label>
+              <popUpButton autoenabledItems="no" target="#NSOwner" id="model_popup" action="connectionChanged:" halign="right">
+                <popUpButtonItem tag="0" title="FOOBAR" />
+              </popUpButton>
+            </gridRow>
+            <gridRow>
+              <vbox halign="right">
+                <label halign="right" selectable="no">Entity:</label>
+                <matrix type="radio" autoenabledItems="no" target="#NSOwner" action="cardinalityChanged:" id="joinCardinality_matrix">
+                  <matrixRow><matrixCell tag="0" title="To One" /></matrixRow>
+                  <matrixRow><matrixCell tag="1" title="To Many" /></matrixRow>
+                </matrix>
+                <popUpButton autoenabledItems="no" target="#NSOwner" id="joinSemantic_popup" action="joinChanged:" halign="right">
+                  <popUpButtonItem tag="0" title="Inner" />
+                  <popUpButtonItem tag="1" title="Full Outer" />
+                  <popUpButtonItem tag="2" title="Left Outer" />
+                  <popUpButtonItem tag="3" title="Right Outer" />
+                </popUpButton>
+              </vbox>
+              <vbox halign="left">
+                <browser id="destinationEntityBrowser" delegate="#NSOwner" maxVisibleColumns="1" 
+                allowsEmptySelection="no" target="#NSOwner" action="destinationEntityBrowserClicked:">
+                </browser>
+              </vbox>
+              
+            </gridRow>
+          </grid>
+          
+        </box>
+        <box title="Joins" topPadding="10" leftPadding="4" rightPadding="4" width="260">
+          <grid width="244">
+            <gridRow><label selectable="no">Source</label> <label selectable="no">Destination</label></gridRow>
+            <gridRow>
+              <browser width="110" height="70" id="sourceBrowser" action="sourceBrowserClicked:" delegate="#NSOwner" 
+              target="#NSOwner" maxVisibleColumns="1" allowsEmptySelection="no"/>
+              <browser width="110" height="70" id="destBrowser" action="destBrowserClicked:" delegate="#NSOwner" 
+              target="#NSOwner" maxVisibleColumns="1" allowsEmptySelection="no"/>
+              </gridRow>
+            <gridRow>
+                <gridEmptyCell /><button id="connectButton" type="toggle" halign="right" title="Connect" 
+                alternateTitle="Disconnect" 
+                target="#NSOwner" action="connectButtonClicked:" />
+            </gridRow>
+          </grid>
+        </box> 
+      </vbox>
+      
+      
+    </window>
+    
+  </objects>
+  
+  <connectors>
+    <outlet source="#NSOwner" target="#window" key="window"/>
+    <outlet source="#NSOwner" target="#model_popup" key="model_popup"/>
+    <outlet source="#NSOwner" target="#name_textField" key="name_textField"/>
+    <outlet source="#NSOwner" target="#joinCardinality_matrix" key="joinCardinality_matrix"/>
+    <outlet source="#NSOwner" target="#joinSemantic_popup" key="joinSemantic_popup"/>
+    <outlet source="#NSOwner" target="#destinationEntityBrowser" key="destinationEntityBrowser"/>
+    <outlet source="#NSOwner" target="#sourceBrowser" key="sourceBrowser"/>
+    <outlet source="#NSOwner" target="#destBrowser" key="destBrowser"/>
+    <outlet source="#NSOwner" target="#connectButton" key="connectButton"/>
+  </connectors>
+</gsmarkup>

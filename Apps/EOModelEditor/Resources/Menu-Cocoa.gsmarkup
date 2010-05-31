@@ -1,0 +1,100 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<menu type="main" autoenablesItems="yes">
+			<menu title="Info" type="apple" autoenablesItems="yes">
+				<menuItem title="About EOModelEditor"
+        action="orderFrontStandardAboutPanel:" />
+				<menuSeparator/>
+				<menuItem title="Preferences..." keyEquivalent=","
+        action="openPrefs:" />
+				<menuSeparator/>
+				<menu title="Services" type="services"/>
+				<menuSeparator/>
+				<menuItem title="Hide EOModelEditor" keyEquivalent="h"
+        action="hide:" />
+				<menuItem title="Hide Others"
+        action="hideOtherApplications:" />
+				<menuItem title="Show All"
+        action="unhideAllApplications:" />
+				<menuSeparator/>
+				<menuItem title="Quit EOModelEditor" keyEquivalent="q"
+        action="terminate:" />
+			</menu>
+      
+			<menu title="Model" autoenablesItems="yes">
+				<menuItem title="New..." keyEquivalent="n"
+        action="new:" />
+				<menuItem title="New From Database..."
+        action="newFromDatabase:" />
+        <menuItem title="Open" keyEquivalent="o" action="openDocument:"/>
+        <!-- This does not seem to work. we get 2 menus then
+        <menu title="Open Recent">
+          <menuItem title="Clear Menu" action="clearRecentDocuments:"/>
+        </menu>
+        -->
+				<menuSeparator/>
+				<menuItem title="Save" keyEquivalent="s"
+        action="saveDocument:" />
+				<menuItem title="Save As..." keyEquivalent="S"
+        action="saveDocumentAs:" />
+				<menuItem title="Revert to Saved" keyEquivalent="u"
+        action="revert:" />
+				<menuSeparator/>
+				<menuItem title="Set Adaptor Info..." keyEquivalent="I"
+        action="setAdaptor:" />
+				<menuItem title="Switch Adaptor..."
+        action="switchAdaptor:" />
+				<menuItem title="Check Consistency..."
+        action="checkConsistency:" />
+			</menu>
+      
+			<menu title="Edit" autoenablesItems="yes">
+        <menuItem title="Undo" keyEquivalent="z" action="undo:" />
+        <menuItem title="Redo" keyEquivalent="Z" action="redo:" />
+        <menuSeparator/>
+				<menuItem title="Cut" keyEquivalent="x"
+        action="cut:" />
+				<menuItem title="Copy" keyEquivalent="c"
+        action="copy:" />
+				<menuItem title="Paste" keyEquivalent="v"
+        action="paste:" />
+				<menuItem title="SelectAll" keyEquivalent="a"
+        action="selectAll:" />
+			</menu>
+      
+			<menu title="Property" autoenablesItems="yes">
+				<menuItem title="Add Entity" keyEquivalent="E"
+        action="addEntity:" />
+				<menuItem title="Add Attribute" keyEquivalent="A"
+        action="addAttribute:" />
+				<menuItem title="Add Relationship" keyEquivalent="R"
+        action="addRelationship:" />
+				<menuItem title="Add Procedure" keyEquivalent="P" action="addProcedure:" />
+				<menuItem title="Delete" action="delete:" />
+			</menu>
+      
+			<menu title="Tools">
+				<menuItem title="Inspector" keyEquivalent="i"
+        action="showInspector:" />
+				<menuItem title="Generate SQL" action="generateSQL:" />
+        <menuItem title="Generate ObjC Files.." action="createTemplates:" />
+				<menuItem title="DataBrowser" action="dataBrowser:" />
+				<menuItem title="Diagram Editor" action="showEditor:" />
+			</menu>
+      
+			<menu title="Windows" type="windows">
+				<menuItem title="Close Window" action="performClose:"
+        keyEquivalent="w"/>
+				<menuItem title="Zoom Window" action="zoom:" />
+				<menuItem title="Miniaturize Window" action="performMiniaturize:"
+        keyEquivalent="m"/>
+				<menuSeparator/>
+				<menuItem title="Bring All to Front" action="arrangeInFront:"/>
+			</menu>
+      
+		</menu>
+    
+	</objects>
+</gsmarkup>

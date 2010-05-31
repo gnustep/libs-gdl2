@@ -1,0 +1,52 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <box topPadding="4" bottomPadding="200" leftPadding="4" rightPadding="4" width="260">
+          <grid>
+            <gridRow>
+              <label halign="right" selectable="no">Insert:</label>
+              <textField id="insertField" delegate="#NSOwner" 
+              toolTip="Name of procedure to insert a record."></textField>
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">Delete:</label>
+              <textField id="deleteField" delegate="#NSOwner" 
+              toolTip="Name of procedure to delete a record."></textField>
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">Fetch All:</label>
+              <textField id="fetchAllField" delegate="#NSOwner"
+              toolTip="Name of procedure to fetch all records."></textField>
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">Fetch w/PK:</label>
+              <textField id="fetchWithPKField" delegate="#NSOwner"
+              toolTip="Name of procedure to fetch by primary key."></textField>
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">Get PK:</label>
+              <textField id="pkGetField" delegate="#NSOwner"
+              toolTip="Name of procedure to generate a new primary key."></textField>
+            </gridRow>
+          </grid>
+        </box>
+        
+      </vbox>
+      
+      
+    </window>
+    
+  </objects>
+  
+  <connectors>
+    <outlet source="#NSOwner" target="#window" key="window"/>
+    <outlet source="#NSOwner" target="#insertField" key="insertField"/>
+    <outlet source="#NSOwner" target="#deleteField" key="deleteField"/>
+    <outlet source="#NSOwner" target="#fetchAllField" key="fetchAllField"/>
+    <outlet source="#NSOwner" target="#fetchWithPKField" key="fetchWithPKField"/>
+    <outlet source="#NSOwner" target="#pkGetField" key="pkGetField"/>
+  </connectors>
+</gsmarkup>

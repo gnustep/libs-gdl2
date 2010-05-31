@@ -1,0 +1,83 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<menu type="main" autoenablesItems="yes">
+			<menu title="Info" autoenablesItems="yes">
+				<menuItem title="About EOModelEditor"
+        action="orderFrontStandardAboutPanel:" />
+				<menuItem title="Preferences..." action="openPrefs:"/>
+				<menuItem title="Help..." action="orderFrontHelpPanel:"/>
+			</menu>
+      
+			<menu title="Model">
+				<menuItem title="New..." keyEquivalent="n"
+        action="new:" />
+				<menuItem title="New From Database..."
+        action="newFromDatabase:" />
+        <menuItem title="Open" keyEquivalent="o" action="openDocument:"/>
+				<menuSeparator/>
+				<menuItem title="Save" keyEquivalent="s"
+        action="saveDocument:" />
+				<menuItem title="Save As..." keyEquivalent="S"
+        action="saveDocumentAs:" />
+				<menuItem title="Revert to Saved" keyEquivalent="u"
+        action="revert:" />
+				<menuSeparator/>
+				<menuItem title="Set Adaptor Info..." keyEquivalent="I"
+        action="setAdaptor:" />
+				<menuItem title="Switch Adaptor..."
+        action="switchAdaptor:" />
+				<menuItem title="Check Consistency..."
+        action="checkConsistency:" />
+			</menu>
+      
+			<menu title="Edit" autoenablesItems="yes">
+        <menuItem title="Undo" keyEquivalent="z" action="undo:" />
+        <menuItem title="Redo" keyEquivalent="Z" action="redo:" />
+        <menuSeparator/>
+				<menuItem title="Cut" keyEquivalent="x"
+        action="cut:" />
+				<menuItem title="Copy" keyEquivalent="c"
+        action="copy:" />
+				<menuItem title="Paste" keyEquivalent="v"
+        action="paste:" />
+				<menuItem title="SelectAll" keyEquivalent="a"
+        action="selectAll:" />
+			</menu>
+      
+			<menu title="Property" autoenablesItems="yes">
+				<menuItem title="Add Entity" keyEquivalent="E"
+        action="addEntity:" />
+				<menuItem title="Add Attribute" keyEquivalent="A"
+        action="addAttribute:" />
+				<menuItem title="Add Relationship" keyEquivalent="R"
+        action="addRelationship:" />
+				<menuItem title="Add Procedure" keyEquivalent="P" action="addProcedure:" />
+				<menuItem title="Delete" action="delete:" />
+			</menu>
+      
+			<menu title="Tools">
+				<menuItem title="Inspector" keyEquivalent="i"
+        action="showInspector:" />
+				<menuItem title="Generate SQL" action="generateSQL:" />
+        <menuItem title="Generate ObjC Files.." action="createTemplates:" />
+				<menuItem title="DataBrowser" action="dataBrowser:" />
+				<menuItem title="Diagram Editor" action="showEditor:" />
+			</menu>
+      
+			<menu title="Services" type="services"/>
+      
+			<menu title="Windows" type="windows">
+				<menuItem title="Arrange" action="arrangeInFront:"/>
+				<menuItem title="Miniaturize" action="performMiniaturize:" keyEquivalent="m"/>
+				<menuItem title="Close" action="performClose:" keyEquivalent="w"/>
+			</menu>
+      
+			<menuItem title="Hide" action="hide:" keyEquivalent="h"/>
+			<menuItem title="Quit" action="terminate:" keyEquivalent="q"/>
+      
+		</menu>
+    
+	</objects>
+</gsmarkup>

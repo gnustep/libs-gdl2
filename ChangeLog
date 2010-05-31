@@ -1,4 +1,10 @@
 2010-05-30  David Wetzel  <dave@turbocat.de>
+    * Apps/EOModelEditor
+    * Apps/EOModeler
+    Initial Version of EOModelEditor.
+    Does not save Plists on OSX. Use at your own risk!
+    
+2010-05-30  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOModel.m
     * EOAccess/EOAttribute.m
     * EOAccess/EODatabase.m

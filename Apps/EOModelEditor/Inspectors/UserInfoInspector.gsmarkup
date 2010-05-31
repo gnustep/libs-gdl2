@@ -1,0 +1,42 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <splitView vertical="no" autosaveName="verticalsplit">
+          <vbox>
+            
+            <scrollView height="220" hasHorizontalScroller="no">
+              <tableView id="tableView" usesAlternatingRowBackgroundColors="yes" drawsGrid="yes" 
+                allowsEmptySelection="no" allowsColumnSelection="no">
+                <tableColumn identifier="key" title="Key" minWidth="100"/>
+                <tableColumn editable="yes" identifier="value" title="Value" minWidth="100"/>
+              </tableView>
+            </scrollView>
+          </vbox>
+          <vbox>
+            <scrollView  height="100" hasHorizontalScroller="no">
+              <textView id="textView">
+              </textView>
+            </scrollView>
+            
+          </vbox>
+        </splitView>
+        <grid>
+          <gridRow>
+            <button title="Add" target="#NSOwner" action="add:"/>
+            <button title="Remove" target="#NSOwner" action="remove:"/>
+          </gridRow>
+        </grid>
+      </vbox>
+    </window>
+    
+  </objects>
+  
+  <connectors>
+    <outlet source="#NSOwner" target="#window" key="window"/>
+    <outlet source="#NSOwner" target="#tableView" key="tableView"/>
+    <outlet source="#NSOwner" target="#textView" key="textView"/>
+  </connectors>
+</gsmarkup>

@@ -1,0 +1,35 @@
+{
+    ApplicationDescription = "GDL2 EOModel editor";
+    ApplicationIcon = EOModelEditor;
+    ApplicationName = EOModelEditor;
+    ApplicationRelease = "0.0.0 (Alpha)";
+    ApplicationURL = "http://mediawiki.gnustep.org/index.php/EOModelEditor";
+    Authors = (
+        "David Wetzel"
+    );
+    Copyright = "Copyright \U00A9 2005, 2006 Free Software Foundation";
+    CopyrightDescription = "Released under the GNU GPL. See COPYING for details.";
+    FullVersionID = 0.0.0;
+    GSMainMarkupFile = "";
+    NSPrincipalClass = EOModelEditorApp;
+    NSExecutable = EOModelEditor;
+    NSIcon = EOModelEditor.tiff;
+    NSRole = "Editor";
+    NSTypes = (
+      {
+        NSUnixExtensions = ( "eomodeld", "eomodel" );
+        NSIcon = "EOModel.tiff";
+        CFBundleTypeIconFile = "EOModel.icns";
+        NSHumanReadableName = "EO Model";
+        NSRole = Editor;
+                        NSDocumentClass = "EOModelerDocument";
+                NSName = "EOModel";
+                NSDOSExtensions = ( "eomodel", "eomodeld");
+                NSDOSExtensions = ( "eomodel", "eomodeld");
+                NSRole = Editor;
+                
+
+      }
+    );
+
+}

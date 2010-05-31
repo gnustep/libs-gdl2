@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+
+<gsmarkup>
+  <objects>
+    <window id="foobar" visible="no">
+      <hbox>
+        <popUpButton target="#NSOwner" pullsDown="yes" bordered="yes" action="visibleColumnsChanged:" id="topVisibleColumnsPopUp">
+          <!-- this is just a dummy for autolayout -->
+          <popUpButtonItem tag="100" title="" />
+        </popUpButton>
+        <popUpButton target="#NSOwner" pullsDown="yes" bordered="yes" action="visibleColumnsChanged:" id="bottomVisibleColumnsPopUp">
+          <!-- this is just a dummy for autolayout -->
+          <popUpButtonItem tag="100" title="" />
+        </popUpButton>
+        <popUpButton target="#NSOwner" pullsDown="yes" bordered="yes" action="visibleColumnsChanged:" id="storedProcVisibleColumnsPopUp">
+          <!-- this is just a dummy for autolayout -->
+          <popUpButtonItem tag="100" title="" />
+        </popUpButton>        
+        <popUpButton pullsDown="no" bordered="no" id="storedProcDirectionUp">
+          <popUpButtonItem tag="0" title="Void" />
+          <popUpButtonItem tag="1" title="In" />
+          <popUpButtonItem tag="2" title="Out" />
+          <popUpButtonItem tag="3" title="In/Out" />
+        </popUpButton>        
+        
+      </hbox>
+    </window>
+    
+    <window id="window" minWidth="200" minHeight="300" autosaveName="EOMEDocument" visible="no">
+      
+      <vbox>
+        
+        <splitView vertical="yes" autosaveName="verticalsplit">
+          <vbox>
+            
+            <scrollView width="170" hasHorizontalScroller="no">
+              <outlineView id="outlineView" dataSource="#NSOwner" XXautosaveName="Outline" outlineColumn="0" usesAlternatingRowBackgroundColors="yes">
+                <tableColumn identifier="name" title="Class Name" editable="no" minWidth="120"/>
+              </outlineView>
+              
+            </scrollView>
+            
+            
+          </vbox>
+          
+          <vbox>
+            
+            <tabView id="tabView" viewType="noTabsNoBorder">
+              <tabViewItem label="EOEntity">
+                
+                <splitView vertical="no" autosaveName="horizontalsplit">
+                  <vbox>
+                    
+                    <scrollView width="350" height="expand">
+                      <tableView id="topTableView" usesAlternatingRowBackgroundColors="yes" drawsGrid="yes" 
+                        allowsEmptySelection="yes" allowsColumnSelection="no" target="#NSOwner" action="tableViewClicked:"
+                        autosaveName="TopTableView">
+                        <tableColumn hidden="yes" identifier="isPrimaryKey" title="Primary key" minWidth="16" width="16"/>
+                        <tableColumn hidden="yes" identifier="isClassProperty" title="Class property" minWidth="16" width="16"/>
+                        <tableColumn hidden="yes" identifier="allowNull" title="Allows null" minWidth="16" width="16"/>
+                        <tableColumn hidden="yes" identifier="isUsedForLocking" title="Locking" minWidth="16" width="16"/>
+                        <tableColumn identifier="name" title="Name" minWidth="100"/>
+                        <tableColumn hidden="yes" identifier="columnName" title="Column name" minWidth="100"/>
+                        <tableColumn hidden="yes" identifier="valueClassName" title="Value class name" minWidth="100"/>
+                        <tableColumn hidden="yes" identifier="externalType" title="External Type" minWidth="100"/>
+                        <tableColumn hidden="yes" identifier="width" title="Width" minWidth="30"/>
+                        <tableColumn hidden="yes" identifier="definition" title="Definition" minWidth="50"/>
+                        <tableColumn hidden="yes" identifier="precision" title="Precision" minWidth="30"/>
+                        <tableColumn hidden="yes" identifier="readFormat" title="Read format" minWidth="50"/>
+                        <tableColumn hidden="yes" identifier="scale" title="Scale" minWidth="30"/>
+                        <tableColumn hidden="yes" identifier="valueType" title="Value type" minWidth="30"/>
+                        <tableColumn hidden="yes" identifier="writeFormat" title="Write format" minWidth="50"/>
+                      </tableView>
+                    </scrollView>
+                    
+                    
+                  </vbox>
+                  <vbox>
+                    
+                    <scrollView width="350" height="expand">
+                      <tableView id="bottomTableView" usesAlternatingRowBackgroundColors="yes" drawsGrid="yes" 
+                        allowsEmptySelection="yes" allowsColumnSelection="no" target="#NSOwner" action="tableViewClicked:"
+                        autosaveName="BottomTableView">
+                        <tableColumn hidden="no" editable="no" identifier="isToMany" title="Cardinality" minWidth="16" width="16"/>
+                        <tableColumn hidden="yes" identifier="isClassProperty" title="Class property" minWidth="16" width="16"/>
+                        <tableColumn hidden="no" identifier="name" title="Name" minWidth="100"/>
+                        <tableColumn hidden="no" editable="no" identifier="destinationEntity.name" title="Destination" minWidth="100"/>
+                        <tableColumn hidden="no" editable="no" identifier="humanReadableSourceAttributes" title="Source Attributes" minWidth="100"/>
+                        <tableColumn hidden="no" editable="no" identifier="humanReadableDestinationAttributes" title="Destination Attributes" minWidth="100"/>
+                        <tableColumn hidden="yes" identifier="definition" title="Definition" minWidth="50"/>
+                      </tableView>
+                    </scrollView>
+                    
+                  </vbox>
+                  
+                </splitView>
+            	</tabViewItem>
+              <tabViewItem label="Second">
+                <vbox>
+                  
+                  <scrollView width="350" height="expand">
+                    <tableView id="storedProcedureTableView" usesAlternatingRowBackgroundColors="yes" drawsGrid="yes" 
+                      allowsEmptySelection="yes" allowsColumnSelection="no" target="#NSOwner" action="tableViewClicked:"
+                      autosaveName="StoredProcedureView">
+                      <tableColumn identifier="name" title="Name" minWidth="100"/>
+                      <tableColumn identifier="parameterDirection" title="Direction" minWidth="50"/>
+                      <tableColumn hidden="no" identifier="columnName" title="Column name" minWidth="100"/>
+                      <tableColumn hidden="yes" identifier="valueClassName" title="Value class name" minWidth="100"/>
+                      <tableColumn hidden="yes" identifier="externalType" title="External type" minWidth="100"/>
+                      <tableColumn hidden="yes" identifier="width" title="Width" minWidth="30"/>
+                      <tableColumn hidden="yes" identifier="precision" title="Precision" minWidth="30"/>
+                      <tableColumn hidden="yes" identifier="scale" title="Scale" minWidth="30"/>
+                      <tableColumn hidden="yes" identifier="valueType" title="Value type" minWidth="30"/>
+                    </tableView>
+                  </scrollView>
+                  
+                  
+                </vbox>
+              </tabViewItem>
+            </tabView>
+            
+          </vbox>
+          
+          
+          
+          
+        </splitView>
+        
+      </vbox>
+      
+    </window>
+  </objects>
+  
+  <!-- outlets -->
+  <connectors>
+    <!-- This outlet is compulsory in Document-based applications -->
+    <outlet source="#NSOwner" target="#window" key="window"/>
+    
+    <!-- These outlets are our own custom outlets -->
+    <outlet source="#NSOwner" target="#topTableView" key="topTableView"/> 
+    <outlet source="#NSOwner" target="#bottomTableView" key="bottomTableView"/> 
+    <outlet source="#NSOwner" target="#outlineView" key="outlineView"/>
+    <outlet source="#NSOwner" target="#topVisibleColumnsPopUp" key="topVisibleColumnsPopUp"/>
+    <outlet source="#NSOwner" target="#bottomVisibleColumnsPopUp" key="bottomVisibleColumnsPopUp"/>
+    <outlet source="#NSOwner" target="#tabView" key="tabView"/>
+    <outlet source="#NSOwner" target="#storedProcedureTableView" key="storedProcedureTableView"/>
+    <outlet source="#NSOwner" target="#storedProcVisibleColumnsPopUp" key="storedProcVisibleColumnsPopUp"/>
+    <outlet source="#NSOwner" target="#storedProcDirectionUp" key="storedProcDirectionUp"/>
+  </connectors>
+</gsmarkup>

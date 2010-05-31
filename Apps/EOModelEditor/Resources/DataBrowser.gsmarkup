@@ -1,0 +1,44 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+    
+		<window title="Data Browser" id="window" delegate="#NSOwner" releasedWhenClosed="yes"
+    resizable="yes">
+      <vbox>
+        <box topPadding="2" bottomPadding="2" leftPadding="4" rightPadding="4">
+          <grid>
+            <gridRow>
+              <label halign="right" selectable="no">Entity:</label>
+              <label id="entityNameField" halign="left" selectable="no">XXXXXXXXXXXX</label>
+              <gridEmptyCell />
+              <label halign="right" selectable="no">Fetch Limit:</label>
+              <textField id="fetchLimitText" width="50" delegate="#NSOwner">10</textField>
+              <gridEmptyCell />
+              <label halign="right" selectable="no">Qualifier:</label>
+              <textField id="qualifierText" width="350" delegate="#NSOwner"></textField>
+              <gridEmptyCell />
+              <button title="Fetch" target="#NSOwner" action="fetch:"/>
+            </gridRow>
+          </grid>
+        </box>
+        
+        <scrollView hasHorizontalScroller="yes" height="200">
+          <tableView id="tableView" usesAlternatingRowBackgroundColors="yes" drawsGrid="yes" 
+            allowsEmptySelection="yes" allowsColumnSelection="yes">
+            <tableColumn editable="no" identifier="_#number" title="Row #" minWidth="30" width="30" maxWidth="80"/>
+          </tableView>
+        </scrollView>
+      </vbox>
+		</window>
+    
+	</objects>
+  
+	<connectors>
+		<outlet source="#NSOwner" target="#window" key="window"/>
+    <outlet source="#NSOwner" target="#entityNameField" key="entityNameField"/>
+    <outlet source="#NSOwner" target="#fetchLimitText" key="fetchLimitText"/>
+    <outlet source="#NSOwner" target="#qualifierText" key="qualifierText"/>
+    <outlet source="#NSOwner" target="#tableView" key="tableView"/>
+	</connectors>
+</gsmarkup>

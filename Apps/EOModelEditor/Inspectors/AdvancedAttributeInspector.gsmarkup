@@ -1,0 +1,44 @@
+<?xml version="1.0"?> 
+<!DOCTYPE gsmarkup> 
+<gsmarkup> 
+	<objects>
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox>
+        <box title="Options" topPadding="10" leftPadding="4" rightPadding="4" width="260">
+          <grid>
+            <gridRow>
+              <button title="Read Only" type="switch"
+            action="readOnlyClicked:" target="#NSOwner" id="readOnlySwitch" />
+              <button title="Allow Null Value" type="switch"
+            action="allowNullClicked:" target="#NSOwner" id="allowNullSwitch" />
+            </gridRow>
+          </grid>
+        </box>
+        <box title="Custom Formatting" topPadding="10" leftPadding="4" rightPadding="4">
+          <grid>
+            <gridRow>
+              <label halign="right" selectable="no">Read:</label>
+              <textField id="readField" delegate="#NSOwner"></textField>
+            </gridRow>
+            <gridRow>
+              <label halign="right" selectable="no">Write:</label>
+              <textField id="writeField" delegate="#NSOwner"></textField>
+            </gridRow>
+          </grid>
+        </box> 
+        <hbox height="220" />
+      </vbox>
+      
+      
+    </window>
+    
+  </objects>
+  
+  <connectors>
+    <outlet source="#NSOwner" target="#window" key="window"/>
+    <outlet source="#NSOwner" target="#readOnlySwitch" key="readOnlySwitch"/>
+    <outlet source="#NSOwner" target="#allowNullSwitch" key="allowNullSwitch"/>
+    <outlet source="#NSOwner" target="#readField" key="readField"/>
+    <outlet source="#NSOwner" target="#writeField" key="writeField"/>
+  </connectors>
+</gsmarkup>

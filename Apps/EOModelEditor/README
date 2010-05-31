@@ -1,0 +1,20 @@
+This is the new (non EOInterface based) Model application.
+It will work on GNUstep and OS X
+It is based on previous work especially David Ayers (Frameworks) and Matt Rice (old version).
+
+Please be careful when testing this software, make backups before you modify any files!
+
+David Wetzel
+
+------------
+
+ConnectionDictionary and UserInfo Images:
+License: GPL
+
+Name: Silvestre Herrera
+
+Nickname: ertz
+
+Location: La Plata, Buenos Aires. ARGENTINA.
+
+E-mail: silvestre.herrera(at)gmail.com

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsmarkup>
+<gsmarkup>
+
+  <objects>
+    <panel id="resultsPanel" title="Consistency Results">
+      <vbox>
+        <scrollView width="500" height="200">
+          <textView id="resultsTextView"></textView>
+        </scrollView>
+        <hbox halign="right">
+          <button id="cancelBut" title="Cancel"
+              target="#NSOwner" action="cancel:" />
+          <button id="okBut" title="Ok" target="#NSOwner" action="ok:" />
+        </hbox>
+      </vbox>
+    </panel>
+  </objects>
+
+  <connectors>
+    <outlet source="#NSOwner" target="#resultsPanel" key="panel" />
+    <outlet source="#NSOwner" target="#okBut" key="okButton" />
+    <outlet source="#NSOwner" target="#cancelBut" key="cancelButton" />
+    <outlet source="#NSOwner" target="#resultsTextView" key="results" />
+  </connectors>
+
+</gsmarkup>
