@@ -34,7 +34,10 @@
 
 #define TableViewDataHasChangedNotification @"TableViewDataHasChangedNotification"
 
-@interface TableViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate>
+@interface TableViewController : NSViewController 
+#ifndef GNUSTEP
+<NSTableViewDataSource, NSTableViewDelegate>
+#endif
 {
   NSMutableSet         *_boolColumnNames;
   NSTableView          *_tableView; // not retained

@@ -28,7 +28,7 @@
 #ifndef __EOMEDocument_h
 #define __EOMEDocument_h
 
-#include <AppKit/NSDocument.h>
+#include <AppKit/AppKit.h>
 #include <Renaissance/Renaissance.h>
 #include <EOAccess/EOModel.h>
 #include <EOModeler/EODefines.h>

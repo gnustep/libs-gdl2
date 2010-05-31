@@ -39,7 +39,7 @@ endif
 
 ADDITIONAL_INCLUDE_DIRS+=-I../
 ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess ../EOControl ../EOInterface ../EOModeler
-ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOInterface EOModeler Renaissance
+ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOModeler Renaissance
 
 $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/ModelDrag.tiff		\
