@@ -212,11 +212,9 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
         keyEquivalent:@""];
   
   [item setTag:1000];
-  [item setImage:[NSImage imageNamed:@"NSAddTemplate"]]; // @"gear"
+  [item setImage:[NSImage imageNamed:@"PlusCorner"]]; 
   [menu addItem:item];
   [item release];
-
- // [[[NSImage imageNamed:@"NSAddTemplate"] TIFFRepresentation] writeToFile:@"/tmp/NSAddTemplate.tiff" atomically:NO];
   
   while ((currentKey = [enumer nextObject])) {
     currentDict = [columnDict objectForKey:currentKey];

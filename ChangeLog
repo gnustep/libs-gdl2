@@ -1,4 +1,7 @@
 2010-06-01  David Wetzel  <dave@turbocat.de>
+    * Apps/EOModelEditor/Resources/PlusCorner.tiff added
+    
+2010-06-01  David Wetzel  <dave@turbocat.de>
     * Apps/EOModelEditor/Inspectors/*.gsmarkup
     tried to fix on X11
     * Apps/EOModelEditor/EOModelEditorApp.m

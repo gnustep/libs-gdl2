@@ -74,7 +74,8 @@ $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/Menu-GNUstep.gsmarkup \
 	Resources/Credits.rtf \
 	Resources/ConsistencyResults.gsmarkup \
-  Resources/DataBrowser.gsmarkup
+  Resources/DataBrowser.gsmarkup \
+  Resources/PlusCorner.tiff
 
 $(APP_NAME)_OBJC_FILES =		\
 	main.m				\
