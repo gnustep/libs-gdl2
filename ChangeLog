@@ -1,3 +1,7 @@
+2010-05-31  David Wetzel  <dave@turbocat.de>
+    * Apps/EOModeler/EOMInspectorController.m
+    int -> NSUInteger, call sizeToCells
+
 2010-05-30  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOAttribute.m: reformat
     * EOAccess/EOAdaptor.m

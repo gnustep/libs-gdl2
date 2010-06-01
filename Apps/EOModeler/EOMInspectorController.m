@@ -131,13 +131,14 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
     /* inspectors is ordered in the lowest -displayOrder first. */
     id selection = [swvop objectAtIndex:0];
     NSArray *inspectors;
-    int i, c;
+    NSUInteger i, c;
     
     inspectors = [EOMInspector allInspectorsThatCanInspectObject: selection];
     c = [inspectors count];
     [_iconBar renewRows:1 columns:c];
+    [_iconBar sizeToCells];
     [_iconBar setNeedsDisplay:YES];
-    
+
     if (c)
     {
       for (i = 0; i < c; i++)
