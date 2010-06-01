@@ -1208,6 +1208,7 @@ return nexexp
   return value;
 }
 
+
 /** 
  * Returns a NSString or a custom-class value object
  * from the supplied set of bytes using  encoding. 
@@ -1221,94 +1222,96 @@ return nexexp
 {
   NSString* value = nil;
   Class valueClass = [self _valueClass];
-
+  
   if (valueClass != Nil && valueClass != GDL2_NSStringClass)
+  {
+    switch (_argumentType)
     {
-      switch (_argumentType)
-        {
-	case EOFactoryMethodArgumentIsNSString:
-	  {
-            NSString *string = nil;
-
-            string = [(GDL2_alloc(NSString)) initWithBytes: bytes
-					     length: length
-                                             encoding: encoding];
-
-            // If we have a value factiry method, call it to get the final value
-            if(_valueFactoryMethod != NULL)
-              {                
-                value = [((id)valueClass) performSelector: _valueFactoryMethod
-                                          withObject: string];
-                if ( value != string)
-                  {
-                    //For efficiency reasons, the returned value is NOT autoreleased !
-                    RETAIN(value);
-                    RELEASE(string);
-                  };
-              }
-            else
-              {
-                //For efficiency reasons, the returned value is NOT autoreleased !
-                value = string;
-              };
-	    break;
-	  }
-
-	case EOFactoryMethodArgumentIsBytes:
-	  {
-            NSMethodSignature *aSignature = nil;
-            NSInvocation *anInvocation = nil;
-            
-            // TODO: verify with WO
-            NSAssert2(_valueFactoryMethod,
-                      @"No _valueFactoryMethod (valueFactoryMethodName=%@) in attribute %@",
-                      _valueFactoryMethodName,self);
-
-            // First find signature for method            
-	    aSignature 
-	      = [valueClass methodSignatureForSelector: _valueFactoryMethod];
-            
-            // Create the invocation object
-	    anInvocation 
-	      = [NSInvocation invocationWithMethodSignature: aSignature];
-            
-            // Put the selector
-	    [anInvocation setSelector: _valueFactoryMethod];
-
-            // The target is the custom value class
-            [anInvocation setTarget: valueClass];
-
-            // arguments are buffer pointer, length and encoding
-	    [anInvocation setArgument: &bytes atIndex: 2];
-	    [anInvocation setArgument: &length atIndex: 3];
-	    [anInvocation setArgument: &encoding atIndex: 4];
-
-            // Let's invoke the method
-            [anInvocation invoke];
-            
-            // Get the returned value
-            [anInvocation getReturnValue: &value];
-            
+      case EOFactoryMethodArgumentIsNSString:
+      {
+        NSString *string = nil;
+        
+        string = [(GDL2_alloc(NSString)) initWithBytes: bytes
+                                                length: length
+                                              encoding: encoding];
+        
+        // If we have a value factiry method, call it to get the final value
+        if(_valueFactoryMethod != NULL)
+        {                
+          value = [((id)valueClass) performSelector: _valueFactoryMethod
+                                         withObject: string];
+          if ( value != string)
+          {
             //For efficiency reasons, the returned value is NOT autoreleased !
-            // valueFactoryMethod returns an autoreleased value
             RETAIN(value);
-
-            break;
-	  }
-
-	case EOFactoryMethodArgumentIsNSData:
-          // TODO: verify with WO
-	  break;
+            RELEASE(string);
+          };
         }
+        else
+        {
+          //For efficiency reasons, the returned value is NOT autoreleased !
+          value = string;
+        };
+        return value;
+        //break;
+      }
+        
+      case EOFactoryMethodArgumentIsBytes:
+      {
+        NSMethodSignature *aSignature = nil;
+        NSInvocation *anInvocation = nil;
+        
+        // TODO: verify with WO
+        NSAssert2(_valueFactoryMethod,
+                  @"No _valueFactoryMethod (valueFactoryMethodName=%@) in attribute %@",
+                  _valueFactoryMethodName,self);
+        
+        // First find signature for method            
+        aSignature 
+	      = [valueClass methodSignatureForSelector: _valueFactoryMethod];
+        
+        // Create the invocation object
+        anInvocation 
+	      = [NSInvocation invocationWithMethodSignature: aSignature];
+        
+        // Put the selector
+        [anInvocation setSelector: _valueFactoryMethod];
+        
+        // The target is the custom value class
+        [anInvocation setTarget: valueClass];
+        
+        // arguments are buffer pointer, length and encoding
+        [anInvocation setArgument: &bytes atIndex: 2];
+        [anInvocation setArgument: &length atIndex: 3];
+        [anInvocation setArgument: &encoding atIndex: 4];
+        
+        // Let's invoke the method
+        [anInvocation invoke];
+        
+        // Get the returned value
+        [anInvocation getReturnValue: &value];
+        
+        //For efficiency reasons, the returned value is NOT autoreleased !
+        // valueFactoryMethod returns an autoreleased value
+        RETAIN(value);
+        
+        return value;
+        //break;
+      }
+        
+      case EOFactoryMethodArgumentIsNSData:
+        // TODO: verify with WO
+        break;
     }
-    
+  }
+  
   if(!value)
-    {
-      //For efficiency reasons, the returned value is NOT autoreleased !
-      value = [(GDL2_alloc(NSString)) initWithBytes: bytes
-				      length: length
-				      encoding: encoding];
-    }
+  {
+    //For efficiency reasons, the returned value is NOT autoreleased !
+    value = [(GDL2_alloc(NSString)) initWithBytes: bytes
+                                           length: length
+                                         encoding: encoding];
+  }
   
   return value;
 }

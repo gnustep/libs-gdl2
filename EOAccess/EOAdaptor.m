@@ -9,6 +9,9 @@
    Author: Mirko Viviani <mirko.viviani@gmail.com>
    Date: February 2000
 
+   Author: David Wetzel <dave@turbocat.de>
+   Date: 2010
+ 
    $Revision$
    $Date$
 
@@ -59,6 +62,7 @@ RCS_ID("$Id$")
 #include <Foundation/NSData.h>
 #include <Foundation/NSSet.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/GSMime.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -66,6 +70,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/GSMime.h>
 #endif
 
 #include <GNUstepBase/Unicode.h>
@@ -94,49 +99,6 @@ NSString *EOModelKey = @"EOModelKey";
 NSString *EOConnectionDictionaryKey = @"EOConnectionDictionaryKey";
 NSString *EOAdministrativeConnectionDictionaryKey 
   = @"EOAdministrativeConnectionDictionaryKey";
-
-/* This mapping should be kept in sync with NSStringEncoding in NSString.h.  */
-static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
-  { @"NSASCIIStringEncoding",         NSASCIIStringEncoding },
-  { @"NSNEXTSTEPStringEncoding",      NSNEXTSTEPStringEncoding },
-  { @"NSJapaneseEUCStringEncoding",   NSJapaneseEUCStringEncoding },
-  { @"NSUTF8StringEncoding",          NSUTF8StringEncoding },
-  { @"NSISOLatin1StringEncoding",     NSISOLatin1StringEncoding },
-  { @"NSSymbolStringEncoding",        NSSymbolStringEncoding },
-  { @"NSNonLossyASCIIStringEncoding", NSNonLossyASCIIStringEncoding },
-  { @"NSShiftJISStringEncoding",      NSShiftJISStringEncoding },
-  { @"NSISOLatin2StringEncoding",     NSISOLatin2StringEncoding },
-  { @"NSUnicodeStringEncoding",       NSUnicodeStringEncoding },
-  { @"NSWindowsCP1251StringEncoding", NSWindowsCP1251StringEncoding },
-  { @"NSWindowsCP1252StringEncoding", NSWindowsCP1252StringEncoding },
-  { @"NSWindowsCP1253StringEncoding", NSWindowsCP1253StringEncoding },
-  { @"NSWindowsCP1254StringEncoding", NSWindowsCP1254StringEncoding },
-  { @"NSWindowsCP1250StringEncoding", NSWindowsCP1250StringEncoding },
-  { @"NSISO2022JPStringEncoding",     NSISO2022JPStringEncoding },
-  { @"NSMacOSRomanStringEncoding",    NSMacOSRomanStringEncoding },
-#if defined(GNUSTEP_BASE_LIBRARY) || OS_API_VERSION(GS_API_NONE,MAC_OS_X_VERSION_10_5)
-  { @"NSProprietaryStringEncoding",   NSProprietaryStringEncoding },
-#endif
-  { @"NSKOI8RStringEncoding",         NSKOI8RStringEncoding }, 
-  { @"NSISOLatin3StringEncoding",     NSISOLatin3StringEncoding },
-  { @"NSISOLatin4StringEncoding",     NSISOLatin4StringEncoding },
-  { @"NSISOCyrillicStringEncoding",   NSISOCyrillicStringEncoding },
-  { @"NSISOArabicStringEncoding",     NSISOArabicStringEncoding },
-  { @"NSISOGreekStringEncoding",      NSISOGreekStringEncoding },
-  { @"NSISOHebrewStringEncoding",     NSISOHebrewStringEncoding },
-  { @"NSISOLatin5StringEncoding",     NSISOLatin5StringEncoding },
-  { @"NSISOLatin6StringEncoding",     NSISOLatin6StringEncoding },
-  { @"NSISOThaiStringEncoding",       NSISOThaiStringEncoding },
-  { @"NSISOLatin7StringEncoding",     NSISOLatin7StringEncoding },
-  { @"NSISOLatin8StringEncoding",     NSISOLatin8StringEncoding },
-  { @"NSISOLatin9StringEncoding",     NSISOLatin9StringEncoding },
-  { @"NSGB2312StringEncoding",        NSGB2312StringEncoding },
-  { @"NSUTF7StringEncoding",          NSUTF7StringEncoding },
-  { @"NSGSM0338StringEncoding",       NSGSM0338StringEncoding },
-  { @"NSBIG5StringEncoding",          NSBIG5StringEncoding },
-  { @"NSKoreanEUCStringEncoding",     NSKoreanEUCStringEncoding },
-  { nil, 0 }
-};
 
 @implementation EOAdaptor
 
@@ -625,40 +587,24 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
 
 - (NSStringEncoding)databaseEncoding
 {
-  static NSMutableDictionary *encodingDictionary = nil;
-  NSDictionary *connectionDictionary;
-  NSString *encodingName;
-  NSString *encodingValue;
-  NSStringEncoding stringEncoding;
+  NSString         *encodingValue;
+  NSStringEncoding  stringEncoding;
   
-  EOFLOGObjectFnStartOrCond2(@"AdaptorLevel",@"EOAdaptor");
-
-  if (encodingDictionary == nil)
-    {
-      unsigned int i;
-      encodingDictionary = [[NSMutableDictionary alloc] initWithCapacity: 64];
-      for (i = 0; encodingMap[i].name != nil; i++)
-	{
-	  NSNumber *val = [NSNumber numberWithInt: encodingMap[i].encoding];
-	  [encodingDictionary setObject: val forKey: encodingMap[i].name];
-	}      
-    }
+  encodingValue = [[self connectionDictionary] objectForKey: @"databaseEncoding"];
   
-  connectionDictionary = [self connectionDictionary];
-  encodingName = [connectionDictionary objectForKey: @"databaseEncoding"];
-  encodingValue = [encodingDictionary objectForKey: encodingName];
-
   if (encodingValue == nil)
-    {
-      stringEncoding = [NSString defaultCStringEncoding];
+  {
+    stringEncoding = [NSString defaultCStringEncoding];
+  } else {
+    // + GSMimeDocument encodingFromCharset should be in NSString Additions,
+    // but better there than in GSWeb and GDL -- dw
+    stringEncoding = [GSMimeDocument encodingFromCharset:encodingValue];
+    
+    if ((stringEncoding == 0)) {
+      return [NSString defaultCStringEncoding];
     }
-  else
-    {
-      stringEncoding = [encodingValue intValue];
-    }
-
-  EOFLOGObjectFnStopOrCond2(@"AdaptorLevel", @"EOAdaptor");
-
+  }
+  
   return stringEncoding;
 }
 
@@ -667,10 +613,6 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
 {
   //Should be OK
   SEL valueFactoryMethod;
-
-
-  EOFLOGObjectLevelArgs(@"gsdb", @"value=%@", value);
-  EOFLOGObjectLevelArgs(@"gsdb", @"attribute=%@", attribute);
 
   valueFactoryMethod = [attribute valueFactoryMethod];
 
@@ -693,16 +635,12 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
       else if ([value isKindOfClass: [NSData class]])
         value = [self fetchedValueForDataValue: value
                       attribute: attribute];
-
-      EOFLOGObjectLevelArgs(@"gsdb",@"value=%@",value);
     }
 
   if(_delegateRespondsTo.processValue)
     value = [_delegate adaptor: self
                        fetchedValueForValue: value
                        attribute: attribute];
-
-  EOFLOGObjectLevelArgs(@"gsdb", @"value=%@", value);
 
 
   return value;
@@ -712,10 +650,6 @@ static struct { NSString *name; NSStringEncoding encoding; } encodingMap[] = {
                                attribute: (EOAttribute *)attribute
 {
   NSString *resultValue = nil;
-
-
-  EOFLOGObjectLevelArgs(@"gsdb", @"value=%@", value);
-  EOFLOGObjectLevelArgs(@"gsdb", @"attribute=%@", attribute);
     
   if([value length]>0)
     {

@@ -50,20 +50,20 @@
 
 @interface PostgreSQLChannel : EOAdaptorChannel
 {
-  PostgreSQLContext *_adaptorContext;
-  PGconn *_pgConn;
-  PGresult *_pgResult;
-  NSArray *_attributes;
-  NSArray *_origAttributes;
-  EOSQLExpression *_sqlExpression;
-  int _currentResultRow;
+  PostgreSQLContext   *_adaptorContext;
+  PGconn              *_pgConn;
+  PGresult            *_pgResult;
+  NSArray             *_attributes;
+  NSArray             *_origAttributes;
+  EOSQLExpression     *_sqlExpression;
+  int                  _currentResultRow;
   NSMutableDictionary *_oidToTypeName;
-  BOOL _isFetchInProgress;
-  BOOL _evaluateExprInProgress;
-  BOOL _fetchBlobsOid;
-  NSArray *_pkAttributeArray;
-  int _pgVersion;
-  NSStringEncoding encoding;
+  BOOL                 _isFetchInProgress;
+  BOOL                 _evaluateExprInProgress;
+  BOOL                 _fetchBlobsOid;
+  NSArray             *_pkAttributeArray;
+  int                  _pgVersion;
+  NSStringEncoding     _encoding;
 
   struct {
     unsigned int postgresInsertedRowOid:1;

@@ -31,11 +31,11 @@
    </license>
 **/
 
-#if !HAVE_DECL_PQFREEMEM
+#if 0 //!HAVE_DECL_PQFREEMEM
 #define PQfreemem free
 #endif
 
-#if !HAVE_DECL_PQUNESCAPEBYTEA
+#if 0 //!HAVE_DECL_PQUNESCAPEBYTEA
 #include <stdlib.h>
 #include <string.h>
 

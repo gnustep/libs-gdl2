@@ -37,9 +37,13 @@ else
 EOModelEditor_APPLICATION_ICON = EOModelEditor.tiff
 endif
 
+ifneq ($(FOUNDATION_LIB),gnu)
+ADDITIONAL_OBJC_LIBS += -lgnustep-baseadd
+endif
+
 ADDITIONAL_INCLUDE_DIRS+=-I../
 ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess ../EOControl ../EOInterface ../EOModeler
-ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOModeler Renaissance
+ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOModeler Renaissance 
 
 $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/ModelDrag.tiff		\

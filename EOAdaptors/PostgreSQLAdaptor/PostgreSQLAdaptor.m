@@ -274,11 +274,7 @@ static NSString *typeNames[][2] = {
 {
   Class expressionClass;
 
-  EOFLOGObjectFnStart();
-
   expressionClass = [PostgreSQLExpression class];
-
-  EOFLOGObjectFnStop();
 
   return expressionClass;
 }
@@ -378,8 +374,6 @@ static NSString *typeNames[][2] = {
   PGconn *pgConn = NULL;
   PGresult *pgResult = NULL;
   NSString *str = nil;
-
-  EOFLOGObjectFnStart();
     
   //OK
   str = [_connectionDictionary objectForKey: @"databaseServer"]; 
@@ -440,8 +434,6 @@ static NSString *typeNames[][2] = {
           pgConnCurrentAllocated++;
         }
     }
-
-  EOFLOGObjectFnStop();
 
   return pgConn;
 }

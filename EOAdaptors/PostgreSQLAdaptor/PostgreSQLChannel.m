@@ -59,7 +59,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSTimeZone.h>
 #else
 #include <Foundation/Foundation.h>
-#include <GNUstepBase/GSCategories.h>
 #endif
 
 #ifndef GNUSTEP
@@ -330,9 +329,13 @@ newValueForCharactersTypeLengthAttribute (const void *bytes,
 					  EOAttribute *attribute,
 					  NSStringEncoding encoding)
 {
-  return [attribute newValueForBytes: bytes
-		    length: length
-		    encoding: encoding];
+  id newValue = nil;
+  
+  newValue = [attribute newValueForBytes: bytes
+                                  length: length
+                                encoding: encoding];
+  
+  return newValue;
 }
 
 static id
@@ -526,8 +529,7 @@ newValueForBytesLengthAttribute (const void *bytes,
 
       ASSIGN(_pkAttributeArray, [NSArray arrayWithObject: attr]);
       RELEASE(attr);
-      //TODO: set encoding via connection dictionary and use throught adaptor.
-      encoding = [NSString defaultCStringEncoding];
+      _encoding = [[adaptorContext adaptor] databaseEncoding];
     }
 
   return self;
@@ -600,20 +602,15 @@ newValueForBytesLengthAttribute (const void *bytes,
 {
   EOAdaptorContext *adaptorContext = nil;
 
-  EOFLOGObjectFnStart();
-
   adaptorContext = [self adaptorContext];
   [self cleanupFetch];
 
 //NO ??  [self _cancelResults];//Done in cleanup fetch
 //  [_adaptorContext autoCommitTransaction];//Done in cleanup fetch
-  EOFLOGObjectFnStop();
 }
 
 - (void)_cancelResults
 {
-  EOFLOGObjectFnStart();
-
   _fetchBlobsOid = NO;
 
   DESTROY(_attributes);
@@ -628,7 +625,6 @@ newValueForBytesLengthAttribute (const void *bytes,
 
   _isFetchInProgress = NO;
 
-  EOFLOGObjectFnStop();
 }
 
 - (BOOL)advanceRow
@@ -636,8 +632,6 @@ newValueForBytesLengthAttribute (const void *bytes,
   BOOL advanceRow = NO;
 
   // fetch results where read then freed
-  EOFLOGObjectFnStart();
-
   if (_pgResult)
     {    
       // next row
@@ -652,7 +646,6 @@ newValueForBytesLengthAttribute (const void *bytes,
         advanceRow = YES;
     }
 
-  EOFLOGObjectFnStop();
 
   return advanceRow;	
 }
@@ -671,7 +664,7 @@ newValueForBytesLengthAttribute (const void *bytes,
       unsigned length = szName ? strlen(szName) : 0;
       NSString *name = [(PSQLA_alloc(NSString)) initWithBytes: szName
 						length: length
-						encoding: encoding];
+						encoding: _encoding];
       PSQLA_AddObjectWithImpPtr(names,&namesAO,name);
       RELEASE(name);
     }
@@ -681,41 +674,18 @@ newValueForBytesLengthAttribute (const void *bytes,
 
 - (NSMutableDictionary *)fetchRowWithZone: (NSZone *)zone
 {
-  //TODO
-  /*
-   //self cleanupFetch quand plus de row !!
-   valueClassName...externaltype on each attr
-   self adaptorContext
-   context adaptor
-   adaptor databaseEncoding//2
-   
-   
-   self dictionaryWithObjects:??? 
-   forAttributes:_attributes
-   zone:zone
-   //end
-   */
   NSMutableDictionary *dict = nil;
-  
-  EOFLOGObjectFnStart();
-  
+    
   if (_delegateRespondsTo.willFetchRow)
     [_delegate adaptorChannelWillFetchRow: self];
-  
-  NSDebugMLLog(@"gsdb",@"[self isFetchInProgress]: %s",
-               ([self isFetchInProgress] ? "YES" : "NO"));
-  
-  if ([self isFetchInProgress])
-  {
-    NSDebugMLLog(@"gsdb", @"ATTRIBUTES=%@", _attributes);
     
+  if ([self isFetchInProgress])
+  {    
     if (!_attributes)
       [self _describeResults];
     
     if ([self advanceRow] == NO)
-    {
-      NSDebugMLLog(@"gsdb", @"No Advance Row", "");
-      
+    {      
       // Return nil to indicate that the fetch operation was finished      
       if (_delegateRespondsTo.didFinishFetching)
         [_delegate adaptorChannelDidFinishFetching: self];
@@ -734,8 +704,8 @@ newValueForBytesLengthAttribute (const void *bytes,
       {
         [NSException raise: PostgreSQLException
                     format: @"attempt to read %d attributes "
-         @"when the result set has only %d columns",
-         count, PQnfields(_pgResult)];
+                            @"when the result set has only %d columns",
+                            count, PQnfields(_pgResult)];
       }
       
       if (count > 100)
@@ -769,7 +739,7 @@ newValueForBytesLengthAttribute (const void *bytes,
               string = [self _readBinaryDataRow: (Oid)atol(string)
                                          length:&length zone: zone];
               
-              values[i] = newValueForBytesLengthAttribute(string,length,attr,encoding);
+              values[i] = newValueForBytesLengthAttribute(string,length,attr,_encoding);
             }
             else
             {
@@ -787,7 +757,7 @@ newValueForBytesLengthAttribute (const void *bytes,
           else
           {
             //For efficiency reasons, the returned value is NOT autoreleased !
-            values[i] = newValueForBytesLengthAttribute(string,length,attr,encoding);
+            values[i] = newValueForBytesLengthAttribute(string,length,attr,_encoding);
           }
         }
                 
@@ -951,7 +921,9 @@ newValueForBytesLengthAttribute (const void *bytes,
   //call PostgreSQLChannel numberOfAffectedRows
   /* Send the expression to the SQL server */
   
-  _pgResult = PQexec(_pgConn, (char *)[[[expression statement] stringByAppendingString:@";"] cStringUsingEncoding: encoding]);
+  _pgResult = PQexec(_pgConn, (char *)[[[expression statement] stringByAppendingString:@";"] 
+                                       cStringUsingEncoding: _encoding]);
+
   affectedRows = strtoul(PQcmdTuples(_pgResult), NULL, 10);
   
   if (_pgResult == NULL)
@@ -987,8 +959,6 @@ newValueForBytesLengthAttribute (const void *bytes,
 - (void)evaluateExpression: (EOSQLExpression *)expression // OK quasi
 {
   PostgreSQLContext *adaptorContext = nil;
-
-  EOFLOGObjectFnStart();
 
 //_evaluationIsDirectCalled=1
   adaptorContext = (PostgreSQLContext *)[self adaptorContext];
@@ -1037,7 +1007,6 @@ newValueForBytesLengthAttribute (const void *bytes,
         [_delegate adaptorChannel: self didEvaluateExpression: expression];
     }
 
-  EOFLOGObjectFnStop();
 }
 
 - (void)insertRow: (NSDictionary *)row
@@ -1052,8 +1021,6 @@ newValueForBytesLengthAttribute (const void *bytes,
   IMP rowOFK=NULL; // objectForKey:
   IMP nrowSOFK=NULL; // setObject:forKey:
   IMP nrowOFK=NULL; // objectForKey:
-
-  EOFLOGObjectFnStart();
 
   NSDebugMLLog(@"gsdb", @"row=%@", row);
 
@@ -1113,33 +1080,28 @@ each key
       NSDebugMLLog(@"gsdb", @"value=%@", value);
 
       externalType = [attribute externalType];
-      NSDebugMLLog(@"gsdb", @"externalType=%@", externalType);
-
+            
       /* Insert the binary value into the binaryDataRow dictionary */
       if ([externalType isEqual: @"inversion"])
-        {
-	  id binValue = PSQLA_ObjectForKeyWithImpPtr(nrow,&nrowOFK,attrName);
-	  Oid binOid = [self _insertBinaryData: binValue 
-			     forAttribute: attribute];
-	  value = [NSNumber numberWithLong: binOid];
-        }
-      else if ([externalType isEqual: @"NSString"]) //??
-        {
-          //TODO: database encoding
-          // [[adaptorContext adaptor] databaseEncoding]
-        }
+      {
+        id binValue = PSQLA_ObjectForKeyWithImpPtr(nrow,&nrowOFK,attrName);
+        Oid binOid = [self _insertBinaryData: binValue 
+                                forAttribute: attribute];
+        value = [NSNumber numberWithLong: binOid];
+
+      } else if ([externalType isEqual: @"NSString"]) {
+        
+        value = [value dataUsingEncoding:_encoding];
+      }
 
       PSQLA_SetObjectForKeyWithImpPtr(nrow,&nrowSOFK,value,attrName);
     }
   
-  NSDebugMLLog(@"gsdb", @"nrow=%@", nrow);
-
   if ([nrow count] > 0)
     {
       sqlexpr = [[[_adaptorContext adaptor] expressionClass]
 		  insertStatementForRow: nrow
 		  entity: entity];
-      NSDebugMLLog(@"gsdb", @"sqlexpr=%@", sqlexpr);
 
       if ([self _evaluateExpression: sqlexpr withAttributes: nil] == NO) //call evaluateExpression:
 	[NSException raise: EOGeneralAdaptorException
@@ -1152,7 +1114,6 @@ each key
 
   [_adaptorContext autoCommitTransaction];
 
-  EOFLOGObjectFnStop();
 }
 
 - (unsigned)deleteRowsDescribedByQualifier: (EOQualifier *)qualifier
@@ -1161,8 +1122,6 @@ each key
   EOSQLExpression *sqlexpr = nil;
   unsigned long rows = 0;
   PostgreSQLContext *adaptorContext;
-
-  EOFLOGObjectFnStart();
 
   if (![self isOpen])
     [NSException raise: NSInternalInconsistencyException
@@ -1199,7 +1158,6 @@ each key
   
   [adaptorContext autoCommitTransaction];
 
-  EOFLOGObjectFnStop();
   return rows;
 }
 
@@ -1222,8 +1180,6 @@ each key
 //adaptorContext
 //a con autoBeginTransaction
 //end
-
-  EOFLOGObjectFnStart();
 
   NSDebugMLLog(@"gsdb",@"%@ -- %@ 0x%x: isFetchInProgress=%s",
 	       NSStringFromSelector(_cmd),
@@ -1253,19 +1209,7 @@ each key
 		    entity: entity])
       return;
 
-  NSDebugMLLog(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
-	       NSStringFromSelector(_cmd),
-	       NSStringFromClass([self class]),
-	       self,
-	       ([self isFetchInProgress] ? "YES" : "NO"));
-
   [self _cancelResults];
-
-  NSDebugMLLog(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
-	       NSStringFromSelector(_cmd),
-	       NSStringFromClass([self class]),
-	       self,
-	       ([self isFetchInProgress] ? "YES" : "NO"));
 
   [_adaptorContext autoBeginTransaction: NO];
 
@@ -1281,16 +1225,10 @@ each key
 	      fetchSpecification: fetchSpecification
 	      entity: entity];
 
-  NSDebugMLLog(@"gsdb", @"sqlExpr=%@", sqlExpr);
-//  NSDebugMLLog(@"gsdb",@"AA attributes=%@",_attributes);
-
   [self _evaluateExpression: sqlExpr
         withAttributes: attributes];
 
-  NSDebugMLLog(@"gsdb", @"After _evaluate", "");
-//  NSDebugMLLog(@"gsdb",@"BB attributes=%@",_attributes);
   [_adaptorContext autoCommitTransaction];
-  NSDebugMLLog(@"gsdb", @"After autoCommitTransaction", "");
 
   if (_delegateRespondsTo.didSelectAttributes)
     [_delegate adaptorChannel: self
@@ -1298,9 +1236,7 @@ each key
 	       fetchSpecification: fetchSpecification
 	       lock: flag
 	       entity: entity];
-//  NSDebugMLLog(@"gsdb",@"CC attributes=%@",_attributes);
 
-  EOFLOGObjectFnStop();
 }
 
 - (unsigned int)updateValues: (NSDictionary *)values
@@ -1329,8 +1265,6 @@ each key
   PostgreSQLContext *adaptorContext = nil;
   unsigned long rows = 0;
   IMP valuesOFK=NULL; // objectForKey:
-
-  EOFLOGObjectFnStart();
   
   if (![self isOpen])
     [NSException raise: NSInternalInconsistencyException
@@ -1451,7 +1385,6 @@ each key
       [adaptorContext autoCommitTransaction];
     }
 
-  EOFLOGObjectFnStop();
   
   return rows;
 }
@@ -2252,8 +2185,6 @@ each key
   NSString *sequenceName;
   EOSQLExpression *expr;
 
-  EOFLOGObjectFnStart();
-
   primaryKeySequenceNameFormat 
     = [(PostgreSQLContext*)[self adaptorContext] primaryKeySequenceNameFormat];
   NSAssert(primaryKeySequenceNameFormat, @"No primary sequence name format");
@@ -2285,7 +2216,7 @@ each key
       length = PQgetlength(_pgResult, _currentResultRow, 0);
       
       attr = [_pkAttributeArray objectAtIndex: 0];
-      pkValue = AUTORELEASE(newValueForBytesLengthAttribute(string,length,attr,encoding));
+      pkValue = AUTORELEASE(newValueForBytesLengthAttribute(string,length,attr,_encoding));
 
       NSAssert(pkValue, @"no pk value");
       key = [[entity primaryKeyAttributeNames] objectAtIndex: 0];
@@ -2298,7 +2229,6 @@ each key
 			 forKey: key];
     }
 
-  EOFLOGObjectFnStop();
 
   return pk;
 }
@@ -2306,8 +2236,6 @@ each key
 - (void)cleanupFetch
 {
   PostgreSQLContext *adaptorContext;
-
-  EOFLOGObjectFnStart();
 
   adaptorContext = (PostgreSQLContext *)[self adaptorContext];
 
@@ -2326,8 +2254,6 @@ each key
       //_isTransactionstarted to 0
       //_evaluationIsDirectCalled=0
     }
-
-  EOFLOGObjectFnStop();
 }
 
 @end /* PostgreSQLChannel */

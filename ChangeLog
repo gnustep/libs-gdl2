@@ -1,4 +1,27 @@
 2010-05-30  David Wetzel  <dave@turbocat.de>
+    * EOAccess/EOAttribute.m: reformat
+    * EOAccess/EOAdaptor.m
+    in databaseEncoding: use +[GSMimeDocument encodingFromCharset:]
+    less logging
+    * EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.h: reformat
+    encoding -> _encoding
+    * EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m
+    Use _encoding now for reading and writing Strings.
+    less logging
+    * EOAdaptors/PostgreSQLAdaptor/PostgreSQLCompatibility.h
+    if 0 for now (please check if that code is still needed!)
+    * EOAdaptors/PostgreSQLAdaptor/PostgreSQLPrivate.m
+    fix header
+    * EOAdaptors/PostgreSQLAdaptor/PostgreSQLAdaptor.m
+    less logging
+    * Apps/EOModelEditor
+    * Apps/EOModelEditor/Inspectors
+    propset  svn:ignore
+    * Apps/EOModelEditor/GNUmakefile
+    add -lgnustep-baseadd on non-GNUstep
+    
+
+2010-05-30  David Wetzel  <dave@turbocat.de>
     * Apps/EOModelEditor
     * Apps/EOModeler
     Initial Version of EOModelEditor.

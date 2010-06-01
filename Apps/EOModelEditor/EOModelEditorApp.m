@@ -41,7 +41,6 @@
 
  // [dc retain];
   [EOMEEOAccessAdditions class];
-
   [super finishLaunching];
 }
 
