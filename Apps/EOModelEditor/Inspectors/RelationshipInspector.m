@@ -241,6 +241,10 @@
     
     if (!destinationEntity) {
       NSString * name = [[destinationEntityBrowser selectedCell] title];
+      
+      if (!name) {
+        return 0;
+      }
       activeModel = [[NSApp activeDocument] eomodel];
 
       destinationEntity = [activeModel entityNamed:name];

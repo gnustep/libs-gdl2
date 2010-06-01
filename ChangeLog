@@ -1,3 +1,15 @@
+2010-06-01  David Wetzel  <dave@turbocat.de>
+    * Apps/EOModelEditor/Inspectors/*.gsmarkup
+    tried to fix on X11
+    * Apps/EOModelEditor/EOModelEditorApp.m
+    new: to create new models manually
+    * Apps/EOModelEditor/Inspectors/EntityInspector.m
+    check for empty strings before filling fields
+    * Apps/EOModelEditor/Inspectors/RelationshipInspector.m
+    check for empty name
+    * Apps/EOModelEditor/EOMEDocument.m
+    addEntity, addRelationship, validateUserInterfaceItem
+    
 2010-05-31  David Wetzel  <dave@turbocat.de>
     * Apps/EOModeler/EOMInspectorController.m
     int -> NSUInteger, call sizeToCells

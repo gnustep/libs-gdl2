@@ -499,7 +499,6 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 
 - (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError 
 {  
-  NSString * newUSLStr = nil;
   ASSIGN(_eomodel, [EOModel modelWithContentsOfFile: [absoluteURL path]]);
   ASSIGN(_entityNames,[_eomodel entityNames]);
   
@@ -851,6 +850,46 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   [_outlineView reloadData];
 }
 
+- (IBAction)addEntity:(id)sender
+{
+  EOEntity          * newEntity;
+  NSUInteger          count;
+  
+  count = [[_eomodel entityNames] count];
+  newEntity = [[EOEntity alloc] init]; 
+  [newEntity setName:[NSString stringWithFormat:@"Entity%d", count]];
+  [newEntity setClassName:@"EOGenericRecord"];
+  
+  [_eomodel addEntity:newEntity];
+  RELEASE(newEntity);
+  
+  [_outlineView reloadData];
+}
+
+- (IBAction)addRelationship:(id)sender
+{
+  EORelationship    * newRel;
+  EOEntity          * selectedEntity;
+  NSUInteger          count = 0;
+
+  selectedEntity = (EOEntity*) _outlineSelection;
+  
+  if ([selectedEntity relationships]) {
+    count = [[selectedEntity relationships] count];
+  }
+
+  newRel = [[EORelationship alloc] init];
+  
+  [newRel setName:[NSString stringWithFormat:@"Relationship%d", count]];
+  
+  [selectedEntity addRelationship:newRel];
+  
+  RELEASE(newRel);
+  
+  [_bottomTableViewController setRepresentedObject:[selectedEntity relationships]];
+  [_bottomTableView reloadData];
+}
+
 - (IBAction)dataBrowser:(id)sender
 {
   EOEntity * entity = [self outlineSelection];
@@ -862,6 +901,10 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 
   }
   
+}
+
+- (IBAction)delete:(id)sender
+{
 }
 
 #pragma mark -
@@ -894,6 +937,36 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
                                                       object:self];  
 
  // NSLog(@"%s: %@, %@, %@", __PRETTY_FUNCTION__, keyPath, object, change);
+}
+
+- (BOOL)validateUserInterfaceItem:(id < NSValidatedUserInterfaceItem >)anItem
+{
+  
+  SEL action = [anItem action];
+  //NSLog(@"%s: %@", __PRETTY_FUNCTION__, anItem);
+
+
+  if ((action == @selector(addAttribute:))) {    
+      if ((!_outlineSelection) || 
+          (([_outlineSelection class] != [EOEntity class]) && ([_outlineSelection class] != [EOStoredProcedure class]))) {
+        return NO;
+      }
+  }
+
+  if ((action == @selector(addRelationship:))) {    
+    if ((!_outlineSelection) || 
+        ([_outlineSelection class] != [EOEntity class])) {
+      return NO;
+    }
+  }
+
+  if ((action == @selector(delete:))) {    
+    if (!_outlineSelection) {
+      return NO;
+    }
+  }
+  
+  return [super validateUserInterfaceItem:anItem];
 }
 
 @end

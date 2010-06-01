@@ -117,6 +117,16 @@
   }
 }
 
+- (void) new:(id)sender
+{
+  EOModel           *newModel = [[EOModel alloc] init];
+  
+//  [newModel setName: @"test"];
+  [self newDocumentWithModel:newModel];
+  RELEASE(newModel);
+  
+}
+
 - (EOMEDocument *) activeDocument
 {
   return (EOMEDocument *) [[NSDocumentController sharedDocumentController] currentDocument];

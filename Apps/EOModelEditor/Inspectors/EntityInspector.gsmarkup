@@ -2,7 +2,7 @@
 <!DOCTYPE gsmarkup> 
 <gsmarkup> 
 	<objects>
-		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+		<window id="window" title="Inspector" width="268.0" height="405" resizable="no" autosaveName="Inspector" visible="no">
       <vbox>
         <box title="Names" topPadding="10" leftPadding="4" rightPadding="4" width="260">
           <grid>

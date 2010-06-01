@@ -88,14 +88,17 @@
 
 - (void) refresh
 {
-  EOModel *activeModel = [[NSApp activeDocument] eomodel];
+  NSString * stringValue = nil;
+  EOModel  * activeModel = [[NSApp activeDocument] eomodel];
   
   ASSIGN(_currentEntity, (EOEntity *) [self selectedObject]);
   
- 
-  [nameField setStringValue:[_currentEntity name]];
-  [tableNameField setStringValue:[_currentEntity externalName]];
-  [classNameField setStringValue:[_currentEntity className]];
+  stringValue = [_currentEntity name];
+  [nameField setStringValue:(stringValue) ? stringValue : @""];
+  stringValue = [_currentEntity externalName];
+  [tableNameField setStringValue:(stringValue) ? stringValue : @""];
+  stringValue = [_currentEntity className];
+  [classNameField setStringValue:(stringValue) ? stringValue : @""];
 }
 
 
