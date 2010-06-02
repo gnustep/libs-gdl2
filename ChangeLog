@@ -1,3 +1,30 @@
+2010-06-02  David Wetzel  <dave@turbocat.de>
+    * EOAccess/EOModel.m/h
+    new (still empty) _loadFetchSpecificationDictionaryForEntityNamed:
+    added _removePropertiesReferencingProperty:
+    added _removePropertiesReferencingEntity:
+    loadAllModelObjects: load storedProcedures, call _loadEntity    
+    fixed referencesToProperty:
+    added referencesProperty:
+    
+    * EOAccess/EOAttribute.m
+    fixed valueForSQLExpression:
+    changed return type of _definitionArray to EOExpressionArray *
+
+    * EOAccess/EOEntity.m
+    fixed attributesUsedForLocking
+    fixed removeAttribute:
+    fixed removeRelationship:
+    fixed _fetchSpecificationDictionary
+    fixed _loadEntity
+    
+    * EOAccess/EORelationship.m
+    verified valueForSQLExpression, removed logs
+    fixed referencesProperty:
+    
+    * Apps/EOModelEditor/EOMEDocument.m
+    make deleting of attributes work.
+    
 2010-06-01  David Wetzel  <dave@turbocat.de>
     * Apps/EOModelEditor/Resources/PlusCorner.tiff added
     

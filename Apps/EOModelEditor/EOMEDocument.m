@@ -903,6 +903,30 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 
 - (IBAction)delete:(id)sender
 {
+  if ((_selectedObjects) && ([_selectedObjects count])) {
+    NSEnumerator * objEnumer = [[NSArray arrayWithArray:_selectedObjects] objectEnumerator];
+    id currentObj = nil;
+    BOOL topTableViewNeedsRefresh = NO;
+
+    [self setSelectedObjects:nil];
+
+    
+    while ((currentObj = [objEnumer nextObject])) {
+      
+      if (([currentObj class] == [EOAttribute class])) {
+        EOEntity * entity = [currentObj entity];
+        
+        [_eomodel _removePropertiesReferencingProperty:currentObj];
+        [entity removeAttribute:currentObj];
+        topTableViewNeedsRefresh = YES;
+      }
+    }
+    
+    if (topTableViewNeedsRefresh) {
+      [_topTableViewController setRepresentedObject:[_outlineSelection attributes]];
+      [_topTableView reloadData];
+    }
+  }  
 }
 
 #pragma mark -
@@ -959,7 +983,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   }
 
   if ((action == @selector(delete:))) {    
-    if (!_outlineSelection) {
+    if ((!_outlineSelection) || (!_selectedObjects)) {
       return NO;
     }
   }

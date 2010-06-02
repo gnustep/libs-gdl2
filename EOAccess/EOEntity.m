@@ -1252,52 +1252,38 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 
 - (NSArray *)attributesUsedForLocking
 {
-  //OK
   if (_flags.attributesUsedForLockingIsLazy)
+  {
+    int count = [_attributesUsedForLocking count];
+        
+    if (count > 0)
     {
-      int count = [_attributesUsedForLocking count];
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _attributesUsedForLocking=%@",
-			    _attributesUsedForLocking);
-
-      if (count > 0)
+      int i = 0;
+      NSArray *attributesUsedForLocking = _attributesUsedForLocking;
+      
+      _attributesUsedForLocking = [NSMutableArray new];
+      _flags.attributesUsedForLockingIsLazy = NO;
+      
+      for (i = 0; i < count; i++)
+      {
+        NSString *attributeName = [attributesUsedForLocking
+                                   objectAtIndex: i];
+        EOAttribute *attribute = [self attributeNamed: attributeName];
+        
+        if (attribute)
         {
-          int i = 0;
-          NSArray *attributesUsedForLocking = _attributesUsedForLocking;
-
-          _attributesUsedForLocking = [NSMutableArray new];
-          _flags.attributesUsedForLockingIsLazy = NO;
-
-          for (i = 0; i < count; i++)
-            {
-              NSString *attributeName = [attributesUsedForLocking
-					  objectAtIndex: i];
-              EOAttribute *attribute = [self attributeNamed: attributeName];
-
-              NSAssert1(attribute,
-                        @"No attribute named %@ to use for locking",
-                        attribute);
-
-              if ([self isValidAttributeUsedForLocking: attribute])
-                [_attributesUsedForLocking addObject: attribute];
-              else
-                {
-		  NSEmitTODO(); //TODO
-                  [self notImplemented: _cmd]; //TODO
-                }
-            }
-
-          EOFLOGObjectLevelArgs(@"EOEntity", @"_attributesUsedForLocking class=%@",
-				[_attributesUsedForLocking class]);          
-
-          DESTROY(attributesUsedForLocking);
-
-          [self _setIsEdited]; //To Clean Buffers
+          [_attributesUsedForLocking addObject: attribute];
         }
-      else
-        _flags.attributesUsedForLockingIsLazy = NO;
+      }
+      
+      DESTROY(attributesUsedForLocking);
+      
+      [self _setIsEdited]; //To Clean Buffers
     }
-
+    else
+      _flags.attributesUsedForLockingIsLazy = NO;
+  }
+  
   return _attributesUsedForLocking;
 }
 
@@ -1695,12 +1681,19 @@ createInstanceWithEditingContext:globalID:zone:
   if (attribute)
     {
       [self willChange];
-      [attribute setParent: nil];
-      NSEmitTODO();  //TODO
+      // make sure everything is initialized 
+      [self attributes];
+      [self classProperties];
+      [self attributesUsedForLocking];
+      [self primaryKeyAttributes];
 
-      [_attributes removeObject: attribute];
-      [_classProperties removeObject:attribute]; 
+      [_attributesByName removeObjectForKey:[attribute name]];
+      [_classProperties removeObject: attribute];
+      [_attributesUsedForLocking removeObject: attribute];
       [_primaryKeyAttributes removeObject:attribute];
+
+      [attribute setParent: nil];
+      [_attributes removeObject: attribute];
 
       [self _setIsEdited];//To clean caches
     }
@@ -1749,21 +1742,22 @@ createInstanceWithEditingContext:globalID:zone:
 - (void)removeRelationship: (EORelationship *)relationship
 {
   if (relationship)
-    {
-      [self willChange]; 
-
-      if(_relationshipsByName != nil)
-	[_relationshipsByName removeObjectForKey:[relationship name]];
-
-      [_relationships removeObject: relationship];
-      [_classProperties removeObject: relationship];
-
-      /* We call this after adjusting the arrays so that setEntity: has
-	 the opportunity to check the relationships before calling
-	 removeRelationshipt which would lead to an infinite loop.  */
-      [relationship setEntity:nil];
-      [self _setIsEdited];//To clean caches
-    }
+  {
+    [self willChange];
+    [self relationships];
+    [self classProperties];
+    
+    [_relationshipsByName removeObjectForKey:[relationship name]];
+    
+    [_classProperties removeObject: relationship];
+    [_relationships removeObject: relationship];
+    
+    /* We call this after adjusting the arrays so that setEntity: has
+     the opportunity to check the relationships before calling
+     removeRelationshipt which would lead to an infinite loop.  */
+    [relationship setEntity:nil];
+    [self _setIsEdited];//To clean caches
+  }
 }
 
 - (void)addFetchSpecification: (EOFetchSpecification *)fetchSpec
@@ -2575,14 +2569,19 @@ createInstanceWithEditingContext:globalID:zone:
 
 - (NSDictionary*) _fetchSpecificationDictionary
 {
-  //OK
+  if ((!_fetchSpecificationDictionary) && (_model))
+  {
+    ASSIGN(_fetchSpecificationDictionary, 
+           [_model _loadFetchSpecificationDictionaryForEntityNamed:_name]);
+  }
   return _fetchSpecificationDictionary;
 }
 
 - (void) _loadEntity
 {
-  //TODO
-  [self notImplemented: _cmd];
+  [self attributes];
+  [self relationships];
+  [self _fetchSpecificationDictionary];
 }
 
 - (id) parentRelationship

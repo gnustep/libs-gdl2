@@ -137,6 +137,7 @@
 
 - (void)_resetPrototypeCache;
 - (BOOL)isPrototypesEntity: (id)param0;
+- (NSMutableDictionary *) _loadFetchSpecificationDictionaryForEntityNamed:(NSString *) entName;
 - (void)_classDescriptionNeeded: (NSNotification *)notification;
 - (id)_instantiatedEntities;
 - (void)_setPath: (NSString *)path;
@@ -145,6 +146,14 @@
 - (void)_registerChild: (id)param0
              forParent: (id)param1;
 - (void)_setInheritanceLinks: (id)param0;
+
+/**
+ * Before removing attributes we need to remove all references
+ */
+
+- (void) _removePropertiesReferencingProperty:(id) property;
+
+- (void) _removePropertiesReferencingEntity:(EOEntity*) entity;
 - (void)_removeEntity: (EOEntity *)entity;
 - (EOEntity *)_addEntityWithPropertyList: (NSDictionary *)propertyList;
 - (void)_addFakeEntityWithPropertyList: (NSDictionary *)propertyList;

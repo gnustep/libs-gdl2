@@ -777,41 +777,33 @@ to know what to-many mean :-)  **/
 /** Returns the value to use in an EOSQLExpression. **/
 - (NSString*) valueForSQLExpression: (EOSQLExpression*)sqlExpression
 {
-  EOFLOGObjectLevelArgs(@"EORelationship", @"EORelationship %p", self);
-
-  NSEmitTODO();  //TODO
-//  return [self notImplemented:_cmd]; //TODO
-//return name ??
-
   return [self name];
 }
 
 - (BOOL)referencesProperty: (id)property
 {
-  BOOL referencesProperty = NO;
-  NSArray *srcAttribs;
-  NSArray *destAttribs;
-  NSArray *compRels;
-
   if (property == nil)
     return NO;  
-
-  destAttribs = [self destinationAttributes];
-  srcAttribs = [self sourceAttributes];
-  compRels = [self componentRelationships];
-
-  EOFLOGObjectLevelArgs(@"EORelationship", @"in referencesProperty:%@",
-			property);
-  referencesProperty =
-	  	((srcAttribs
-		  && [srcAttribs indexOfObject: property] != NSNotFound)
-		|| (destAttribs
-		   && [destAttribs indexOfObject: property] != NSNotFound)
-		|| (compRels
-		    && [compRels indexOfObject: property] != NSNotFound)
-		|| (_destination == property));
-
-  return referencesProperty;
+  
+  if ([self isFlattened])
+  {
+    return [_definitionArray referencesObject:property];
+  }
+  
+  if (_joins) {
+    NSEnumerator  *joinEnumer = [_joins objectEnumerator];
+    EOJoin        *join;
+    
+    while ((join = [joinEnumer nextObject])) {
+      if (([join sourceAttribute] == property) || ([join destinationAttribute] == property))
+      {
+        return YES;
+      }
+      
+    }    
+  }
+  
+  return NO;
 }
 
 - (EODeleteRule)deleteRule
@@ -2226,7 +2218,6 @@ dst entity primaryKeyAttributeNames
 
 - (EOExpressionArray*) _definitionArray
 {
-  //VERIFY
   return _definitionArray;
 }
 

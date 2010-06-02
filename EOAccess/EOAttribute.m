@@ -450,13 +450,7 @@ RCS_ID("$Id$")
 {
   NSString *definition = nil;
 
-//
-//  EOFLOGObjectLevel(@"gsdb",@"_definitionArray:%@",_definitionArray);
-
   definition = [_definitionArray valueForSQLExpression: nil];
-
-//  EOFLOGObjectLevel(@"gsdb",@"definition:%@",definition);
-//
 
   return definition;
 }
@@ -709,15 +703,17 @@ RCS_ID("$Id$")
 - (NSString *) valueForSQLExpression: (EOSQLExpression *)sqlExpression
 {
   NSString *value=nil;
-
-//  EOFLOGObjectLevel(@"gsdb",@"EOAttribute %p",self);
-  NSEmitTODO();  //TODO
-
+  
+  if (sqlExpression != nil)
+  {
+    return [sqlExpression sqlStringForAttribute:self];
+  }
+  
   if (_definitionArray)
     value = [_definitionArray valueForSQLExpression: sqlExpression];
   else
     value = [self name];
-
+  
   return value;
 }
 
@@ -1867,6 +1863,21 @@ More details:
 
 @implementation EOAttribute (EOAttributePrivate)
 
+/**
+ * Returns YES if the attribute references aProperty, NO otherwise.
+ */
+
+- (BOOL)referencesProperty:(id)aProperty
+{
+  if (!_definitionArray)
+  {
+    return NO;
+  } else {
+    // _definitionArray is an EOExpressionArray
+    return [_definitionArray referencesObject:aProperty];
+  }
+}
+
 - (void)setParent: (id)parent
 {
   //OK
@@ -1881,7 +1892,7 @@ More details:
   return _realAttribute;
 }
 
-- (NSMutableArray *)_definitionArray
+- (EOExpressionArray *)_definitionArray
 {
   return _definitionArray;
 }

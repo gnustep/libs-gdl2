@@ -1071,6 +1071,13 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 @implementation EOModel (EOModelHidden)
 
+- (NSMutableDictionary *) _loadFetchSpecificationDictionaryForEntityNamed:(NSString *) entName
+{
+  NSEmitTODO();
+  
+  return nil;
+}
+
 -(void) _classDescriptionNeeded: (NSNotification *)notification
 {
   //TODO
@@ -1247,6 +1254,76 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   // TODO
   [self notImplemented: _cmd];
   return;
+}
+
+/**
+ * Before removing attributes we need to remove all references
+ */
+
+- (void) _removePropertiesReferencingProperty:(id) property
+{
+  NSUInteger refCount, refIdx = 0;
+  NSArray * references = nil;
+
+  references = [self referencesToProperty:property];
+    
+  refCount = [references count];
+  
+  for (; refIdx < refCount; refIdx++) {
+    id refObj = [references objectAtIndex:refIdx];
+    
+    if ([refObj class] == [EOAttribute class])
+    {
+      [[(EOAttribute*) refObj entity] removeAttribute:refObj];
+    } else {
+      [[(EORelationship*) refObj entity] removeRelationship:refObj];
+    }
+  }
+    
+}
+
+/**
+ * Before removing entities we need to remove all references
+ */
+
+- (void) _removePropertiesReferencingEntity:(EOEntity*) entity
+{
+  int i;
+  
+  for (i = 0; i < 2; i++) 
+  {
+    NSArray        * attrsOrRels;
+    NSArray        * names = nil;
+    NSUInteger index = 0;
+    NSUInteger count = 0;
+    
+    if ((i == 0))
+    {
+      attrsOrRels = [entity attributes];
+    } else {
+      attrsOrRels = [entity relationships];
+    }
+    // get name from the array
+    names = [attrsOrRels resultsOfPerformingSelector:@selector(name:)];
+    
+    for (count = [names count]; index < count; index++) 
+    {
+      id attrOrRel = nil;
+      
+      if (i == 0) {
+        attrOrRel = [entity attributeNamed:[names objectAtIndex:index]];
+      } else {
+        attrOrRel = [entity relationshipNamed:[names objectAtIndex:index]];
+      }
+      
+      if (attrOrRel) {
+        [self _removePropertiesReferencingProperty:attrOrRel];
+      }
+      
+    }
+    
+  }
+  
 }
 
 - (void) _removeEntity: (EOEntity *)entity
@@ -1521,15 +1598,21 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 - (void)loadAllModelObjects
 {
   NSArray *entityNames = [_entitiesByName allKeys];
-  unsigned i,n = [entityNames count];
-
+  NSUInteger i,n = [entityNames count];
+  
+  [self storedProcedures];
+  
   for (i=0; i<n; i++)
-    {
-      NSString *name = [entityNames objectAtIndex: i];
-      id entity = [_entitiesByName objectForKey: name];
-      [self _verifyBuiltEntityObject: entity
-	    named: name];
-    }
+  {
+    NSString *name = [entityNames objectAtIndex: i];
+    id entity = [_entitiesByName objectForKey: name];
+    
+    // the reference imp does not do verify here.
+    [self _verifyBuiltEntityObject: entity
+                             named: name];
+    
+    [entity _loadEntity];
+  }
 }
 
 /**
@@ -1545,30 +1628,42 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSMutableArray *refProps = [NSMutableArray array];
   
   while ((ent = GDL2_NextObjectWithImpPtr(entityEnumerator,&enumNO)))
+  {
+    NSEnumerator *propEnumerator = [[ent attributes] objectEnumerator];
+    EOAttribute *attr;
+    EORelationship *rel;
+    IMP propEnumNO=NULL;
+    
+    while ((attr = GDL2_NextObjectWithImpPtr(propEnumerator,&propEnumNO)))
     {
-      NSEnumerator *propEnumerator = [[ent attributes] objectEnumerator];
-      EOAttribute *attr;
-      EORelationship *rel;
-      IMP propEnumNO=NULL;
-      
-      while ((attr = GDL2_NextObjectWithImpPtr(propEnumerator,&propEnumNO)))
-	{
-          if ([attr isFlattened] && [[attr realAttribute] isEqual: property])
+      if ([attr referencesProperty:property])
 	    {
+        NSArray * newArray;
 	      [refProps addObject:attr];
+        
+        newArray = [self referencesToProperty:attr];
+        if ([newArray count] > 0) {
+          [refProps addObjectsFromArray:newArray];
+        }
 	    }
-	}
-      
-      propEnumerator = [[ent relationships] objectEnumerator];
-      propEnumNO = NULL;
-      while ((rel = GDL2_NextObjectWithImpPtr(propEnumerator, &propEnumNO)))
-	{
-	  if ([rel referencesProperty:property])
+    }
+    
+    propEnumerator = [[ent relationships] objectEnumerator];
+    propEnumNO = NULL;
+    while ((rel = GDL2_NextObjectWithImpPtr(propEnumerator, &propEnumNO)))
+    {
+      if ([rel referencesProperty:property])
 	    {
+        NSArray * newArray;
 	      [refProps addObject:rel];
+        
+        newArray = [self referencesToProperty:rel];
+        if ([newArray count] > 0) {
+          [refProps addObjectsFromArray:newArray];
+        }
 	    }
-	}
-    }	
+    }
+  }	
   
   return [refProps count] ? [NSArray arrayWithArray:refProps] : nil;
 }
