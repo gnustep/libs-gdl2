@@ -3,8 +3,8 @@
 <gsmarkup> 
 	<objects>
 		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
-      <vbox>
-        <box title="Batch Faulting" topPadding="10" leftPadding="4" rightPadding="4" width="260">
+      <vbox height="387">
+        <box title="Batch Faulting" topPadding="0" leftPadding="4" rightPadding="4" width="260">
           <grid>
             <gridRow>
               <label halign="right" selectable="no">Batch Size:</label>

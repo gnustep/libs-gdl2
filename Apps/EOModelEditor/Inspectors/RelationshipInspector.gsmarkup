@@ -3,10 +3,10 @@
 <gsmarkup> 
 	<objects>
 		<window id="window" title="Inspector" width="268.0" height="405" resizable="no" autosaveName="Inspector" visible="no">
-      <vbox>
+      <vbox height="387">
         <grid>
           <gridRow>
-            <hbox leftPadding="4" rightPadding="4" topPadding="4">
+            <hbox leftPadding="4" rightPadding="4" topPadding="0">
               <label halign="right" selectable="no">Name:</label> <textField id="name_textField" delegate="#NSOwner"></textField>
             </hbox>
           </gridRow>

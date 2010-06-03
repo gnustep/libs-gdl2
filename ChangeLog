@@ -1,11 +1,9 @@
 2010-06-03  David Wetzel  <dave@turbocat.de>
-    * EOControl/EOEditingContext.m
-    * EOControl/EOMultiReaderLock.m
-    * EOControl/EODetailDataSource.m
-    fix warnings
-    * EOControl/EOCustomObject.m
-    validateValue:forKey:error: -- add reason in NSLocalizedDescriptionKey
-    fix warnings
+    * Apps/EOModelEditor/Inspectors/*.gsmarkup
+    trying to fix offsets on X11
+    * Apps/EOModeler/EOModelExtensions.m
+    remove config.h include as suggested by David Ayers
+    
 
 2010-06-03  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOModel.m

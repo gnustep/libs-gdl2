@@ -3,7 +3,7 @@
 <gsmarkup> 
 	<objects>
 		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
-      <vbox>
+      <vbox height="387">
         <box title="Options" topPadding="10" leftPadding="4" rightPadding="4" width="260">
           <grid>
             <gridRow>

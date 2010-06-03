@@ -168,7 +168,7 @@
   
   if (sender == batchFaultingSizeText) {
     int iValue = [sender intValue];
-    [_currentEntity setMaxNumberOfInstancesToBatchFetch:(iValue > 0) ? iValue:1];
+    [_currentEntity setMaxNumberOfInstancesToBatchFetch:(iValue >= 0) ? iValue:0];
     return;
   }
   if (sender == externalQueryText) {

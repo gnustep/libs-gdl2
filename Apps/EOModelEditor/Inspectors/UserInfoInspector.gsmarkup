@@ -2,8 +2,8 @@
 <!DOCTYPE gsmarkup> 
 <gsmarkup> 
 	<objects>
-		<window id="window" title="Inspector" width="268.0" height="405" resizable="no" autosaveName="Inspector" visible="no">
-      <vbox>
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox height="387">
         <splitView vertical="no" autosaveName="verticalsplit">
           <vbox>
             
