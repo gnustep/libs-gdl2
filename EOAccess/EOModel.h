@@ -173,6 +173,11 @@
 - (void)setUserInfo: (NSDictionary *)userInfo;
 
 - (void)addEntity: (EOEntity *)entity;
+
+/**
+ * Removes the entity without performing any referential integrity checking.
+ */
+
 - (void)removeEntity: (EOEntity *)entity;
 - (void)removeEntityAndReferences: (EOEntity *)entity;
 

@@ -68,6 +68,9 @@ GDL2MODELER_EXPORT NSString *EOMConsistencyModelObjectKey;
 
 - (void) setAdaptor:(id)sender;
 
+- (void) startObserving;
+- (void) stopObserving;
+
 @end
 
 

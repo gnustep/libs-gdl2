@@ -55,12 +55,10 @@ RCS_ID("$Id$")
 #include <Foundation/NSValue.h>
 #else
 #include <Foundation/Foundation.h>
-#endif
-
-#ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
 
 #include <EOControl/EONull.h>
@@ -424,7 +422,14 @@ RCS_ID("$Id$")
   [self notImplemented: _cmd];
   return nil;
 }
+
+/**
+ 4.5 Docs say:
+ Returns the entity that owns the attribute, or nil if this attribute is acting as an argument for a
+ stored procedure.
  
+ 5.x returns the parent
+ */
 - (EOEntity *)entity
 {
   if (_flags.isParentAnEOEntity)

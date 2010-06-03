@@ -1,3 +1,20 @@
+2010-06-03  David Wetzel  <dave@turbocat.de>
+    * EOAccess/EOModel.m
+    include GNUstepBase/NSObject+GNUstepBase.h
+    _removePropertiesReferencingEntity: fix selector name
+    removeEntity: add comment, call _removeEntity:
+    implemented removeEntityAndReferences:
+    * EOAccess/EOAttribute.m
+    include GNUstepBase/NSObject+GNUstepBase.h
+    add comment
+    * EOAccess/EOModel.h
+    add comment
+    * Apps/EOModelEditor/EOMEDocument.m
+    deleting of attributes, arguments (stored procedures) and entities works now
+    * Apps/EOModelEditor/EOMEDocument.h
+    add methods to avoid warnings
+
+
 2010-06-02  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOModel.m/h
     new (still empty) _loadFetchSpecificationDictionaryForEntityNamed:

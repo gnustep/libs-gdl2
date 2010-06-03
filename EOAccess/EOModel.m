@@ -48,12 +48,11 @@ RCS_ID("$Id$")
 #include <Foundation/NSDebug.h>
 #else
 #include <Foundation/Foundation.h>
-#endif
-
-#ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
+
 
 #include <GNUstepBase/GSObjCRuntime.h>
 
@@ -1304,7 +1303,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       attrsOrRels = [entity relationships];
     }
     // get name from the array
-    names = [attrsOrRels resultsOfPerformingSelector:@selector(name:)];
+    names = [attrsOrRels resultsOfPerformingSelector:@selector(name)];
     
     for (count = [names count]; index < count; index++) 
     {
@@ -1538,29 +1537,31 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   [entity _setModel: self];
 }
 
+/**
+ * Removes the entity without performing any referential integrity checking.
+ */
 - (void) removeEntity: (EOEntity *)entity
 {
-  NSString *className = nil;
-
-  /* as a special case this method can call _setModel: with nil */
-  [entity _setModel: nil];
-  [_entitiesByName removeObjectForKey: [entity name]];
-
-  NSAssert(_entitiesByClass, @"No _entitiesByClass");
-
-  className = [entity className];
-  NSAssert1(className, @"No className in %@", entity);
-  [self willChange];
-  NSMapRemove(_entitiesByClass, className);
-
-  /* Do not access _entities until cache is triggered */
-  [(NSMutableArray *)[self entities] removeObject: entity];
+  // TODO: find out why removeEntity: and _removeEntity: exists
+  [self _removeEntity:entity];
 }
 
 - (void) removeEntityAndReferences: (EOEntity *)entity
 {
+  NSArray      * subEntities;
+  NSEnumerator * subEnumer;
+  EOEntity     * subEntity;
+  
+  [self _removePropertiesReferencingEntity:entity];
+  subEntities = [NSArray arrayWithArray:[entity subEntities]];
+  subEnumer = [subEntities objectEnumerator];
+                 
+                 
+  while ((subEntity = [subEnumer nextObject])) {
+    [entity removeSubEntity:subEntity];
+  }
+    
   [self removeEntity: entity];
-  // TODO;
 }
 
 - (void)addStoredProcedure: (EOStoredProcedure *)storedProcedure

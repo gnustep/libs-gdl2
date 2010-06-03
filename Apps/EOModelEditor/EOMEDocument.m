@@ -907,24 +907,50 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
     NSEnumerator * objEnumer = [[NSArray arrayWithArray:_selectedObjects] objectEnumerator];
     id currentObj = nil;
     BOOL topTableViewNeedsRefresh = NO;
+    BOOL storedProcTableViewNeedsRefresh = NO;
+    BOOL outlineViewNeedsRefresh = NO;
 
     [self setSelectedObjects:nil];
-
     
     while ((currentObj = [objEnumer nextObject])) {
       
       if (([currentObj class] == [EOAttribute class])) {
-        EOEntity * entity = [currentObj entity];
+        EOEntity * entity = [(EOAttribute*)currentObj parent];
         
         [_eomodel _removePropertiesReferencingProperty:currentObj];
-        [entity removeAttribute:currentObj];
-        topTableViewNeedsRefresh = YES;
+
+        if ([entity class] == [EOEntity class]) {
+          [entity removeAttribute:currentObj];
+          topTableViewNeedsRefresh = YES;
+        } else {
+          // EOStoredProcedure
+          EOStoredProcedure* sProc = (EOStoredProcedure*) entity;
+          NSMutableArray * arguments = [NSMutableArray arrayWithArray:[sProc arguments]];
+          [arguments removeObject: currentObj];
+          [sProc setArguments: arguments];
+          storedProcTableViewNeedsRefresh = YES;
+        }
       }
-    }
+
+      if (([currentObj class] == [EOEntity class])) {
+        [_eomodel removeEntityAndReferences:(EOEntity*) currentObj];
+        outlineViewNeedsRefresh = YES;
+      }
+      
+    } // while
     
     if (topTableViewNeedsRefresh) {
       [_topTableViewController setRepresentedObject:[_outlineSelection attributes]];
       [_topTableView reloadData];
+    }
+    
+    if (storedProcTableViewNeedsRefresh) {
+      [_procTableViewController setRepresentedObject:[(EOStoredProcedure*)_outlineSelection arguments]];
+      [_storedProcedureTableView reloadData];
+    }
+    
+    if (outlineViewNeedsRefresh) {
+      [_outlineView reloadData];
     }
   }  
 }
