@@ -68,6 +68,7 @@ RCS_ID("$Id$")
 @interface NSObject(EOEntityWarningSupression)
 - (NSString *) name;
 - (EOGlobalID *) globalIDForRow:(NSDictionary *)row;
++ (void) objectDeallocated: (id) object;
 @end
 @interface EOEntityClassDescription : EOClassDescription
 - (NSObject *) entity;

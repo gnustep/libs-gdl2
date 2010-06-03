@@ -55,7 +55,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOKeyValueArchiver.h>
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EODebug.h>
-
+#include <EOControl/EOCustomObject.h>
 
 @implementation EODetailDataSource
 

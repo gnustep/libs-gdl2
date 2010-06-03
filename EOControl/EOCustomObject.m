@@ -256,17 +256,13 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
   
   if (ex) {
     NSDictionary * uInfo;
-    NSString     * errorString = @"unknown reason";
     
     uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
              (*value ? *value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
              key, @"EOValidatedPropertyUserInfoKey",
+             [ex reason], NSLocalizedDescriptionKey,
              nil];
     
-
-    NSDictionary *userInfoDict =
-    [NSDictionary dictionaryWithObject:[ex reason]
-                                forKey:NSLocalizedDescriptionKey];
     NSError *error = [[[NSError alloc] initWithDomain:NSCocoaErrorDomain
                                                  code:NSKeyValueValidationError
                                              userInfo:uInfo] autorelease];

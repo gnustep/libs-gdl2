@@ -1,4 +1,13 @@
 2010-06-03  David Wetzel  <dave@turbocat.de>
+    * EOControl/EOEditingContext.m
+    * EOControl/EOMultiReaderLock.m
+    * EOControl/EODetailDataSource.m
+    fix warnings
+    * EOControl/EOCustomObject.m
+    validateValue:forKey:error: -- add reason in NSLocalizedDescriptionKey
+    fix warnings
+
+2010-06-03  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOModel.m
     include GNUstepBase/NSObject+GNUstepBase.h
     _removePropertiesReferencingEntity: fix selector name
