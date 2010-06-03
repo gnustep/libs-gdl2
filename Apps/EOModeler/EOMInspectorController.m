@@ -60,7 +60,7 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
                                hasHorizontalScroller:YES
                                  hasVerticalScroller:NO
                                           borderType:NSNoBorder];
-  
+    
   window = [[NSPanel alloc] initWithContentRect:NSMakeRect(220, 536, 272, 388+scrollSize.height)
                                       styleMask:NSTitledWindowMask | NSClosableWindowMask
                                         backing:NSBackingStoreBuffered
@@ -167,12 +167,27 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
 	      [inspector prepareForDisplay];
         
 	      if ([lastInspector view] && lastInspector != inspector)
-          [[lastInspector view] removeFromSuperview];
+          [[lastInspector view] removeFromSuperviewWithoutNeedingDisplay];
         
-	      if ([inspector view] && lastInspector != inspector)
-	        [[window contentView] addSubview:[inspector view]];
-        
-	      [window setTitle:[inspector displayName]];
+	      if ([inspector view] && lastInspector != inspector) {
+          NSRect bounds = [[inspector view] bounds];
+          
+          [[window contentView] addSubview:[inspector view]
+                                positioned:NSWindowBelow
+                                relativeTo:scrollView];
+          [[inspector view] setFrameOrigin:NSMakePoint(0,0)];
+          [[inspector view] setNeedsDisplay:YES];
+          [[window contentView] setNeedsDisplay:YES];
+
+          NSLog(@"%@ view size: %f x %f origin:  %f x %f", NSStringFromClass([inspector class]),
+                bounds.size.width, bounds.size.height,
+                bounds.origin.x, bounds.origin.y);
+
+//          NSLog(@"inspectorViewOrigin origin:  %f x %f", 
+//                inspectorViewOrigin.x, inspectorViewOrigin.y);
+          
+          [window setTitle:[inspector displayName]];
+        }
 	    }
       
       [[inspector view] setNeedsDisplay:YES];
@@ -201,11 +216,23 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
   [inspector prepareForDisplay];
   
   if ([lastInspector view] && lastInspector != inspector)
-    [[lastInspector view] removeFromSuperview];
+    [[lastInspector view] removeFromSuperviewWithoutNeedingDisplay];
   
   if ([inspector view] && lastInspector != inspector) {
-    [[window contentView] addSubview:[inspector view]];
+    NSRect bounds = [[inspector view] bounds];
+
+    [[window contentView] addSubview:[inspector view]
+                          positioned:NSWindowBelow
+                          relativeTo:scrollView];
+    [[inspector view] setFrameOrigin:NSMakePoint(0,0)];
+    [[inspector view] setNeedsDisplay:YES];
+    [[window contentView] setNeedsDisplay:YES];
+
     [window setTitle:[inspector displayName]];
+
+    NSLog(@"%@ view size: %f x %f origin:  %f x %f", NSStringFromClass([inspector class]),
+          bounds.size.width, bounds.size.height,
+          bounds.origin.x, bounds.origin.y);
   }
   
   [[inspector view] setNeedsDisplay:YES];

@@ -76,7 +76,7 @@ AC_ARG_ENABLE(gui-projects,
 	[  --disable-gui-projects to disable building GUI projects], ,
 	enable_gui_projects=yes)
 if test "$enable_gui_projects" = "yes"; then
-  GUI_SUBPROJECTS="$GUI_SUBPROJECTS EOInterface EOModeler DBModeler"
+  GUI_SUBPROJECTS="$GUI_SUBPROJECTS EOInterface Apps/EOModeler Apps/EOModelEditor"
 fi
 
 AC_ARG_ENABLE(gorm-palette,

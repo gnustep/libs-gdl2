@@ -9,7 +9,7 @@
 		</window>
     
 		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
-      <vbox>
+      <vbox height="387">
         <grid rowType="proportional" columnType="proportional">
           <gridRow>
             <label halign="right" selectable="no">Name:</label> <textField id="nameField" delegate="#NSOwner"></textField>

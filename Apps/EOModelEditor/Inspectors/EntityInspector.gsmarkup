@@ -2,9 +2,9 @@
 <!DOCTYPE gsmarkup> 
 <gsmarkup> 
 	<objects>
-		<window id="window" title="Inspector" width="268.0" xheight="405" resizable="no" autosaveName="Inspector" visible="no">
-      <vbox>
-        <box title="Names" topPadding="58" leftPadding="4" rightPadding="4" width="260">
+		<window id="window" title="Inspector" width="268.0" resizable="no" autosaveName="Inspector" visible="no">
+      <vbox height="387">
+        <box title="Names" topPadding="0" leftPadding="4" rightPadding="4" width="260">
           <grid>
             <gridRow>
               <label halign="right" selectable="no">Name:</label>
@@ -20,8 +20,8 @@
             </gridRow>
           </grid>
         </box>
-        <box title="Properties" leftPadding="4" rightPadding="4" height="250" width="260">
-        <label font="small" halign="center" selectable="no">Not in this version</label>
+        <box title="Properties" leftPadding="4" rightPadding="4" height="200" width="260">
+          <label font="small" halign="center" selectable="no">Not in this version</label>
         </box> 
         
       </vbox>

@@ -1,4 +1,17 @@
 2010-06-03  David Wetzel  <dave@turbocat.de>
+    * configure.ac
+    replaced DBModeler with Apps/EOModeler Apps/EOModelEditor 
+    * configure: regenerated
+    * Apps/EOModelEditor/Inspectors/AttributeInspector.gsmarkup
+    * Apps/EOModelEditor/Inspectors/EntityStoredProcedureInspector.gsmarkup
+    * Apps/EOModelEditor/Inspectors/AdvancedAttributeInspector.gsmarkup
+    * Apps/EOModelEditor/Inspectors/EntityInspector.gsmarkup
+    Changed box sizes.
+    * Apps/EOModeler/EOMInspectorController.m
+    add inspector view in background.
+    add NSLogs to help debugging (still broken on X11)
+    
+2010-06-03  David Wetzel  <dave@turbocat.de>
     * Apps/EOModelEditor/Inspectors/*.gsmarkup
     trying to fix offsets on X11
     * Apps/EOModeler/EOModelExtensions.m

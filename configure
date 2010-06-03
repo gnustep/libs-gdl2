@@ -3102,7 +3102,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f conftest*
+rm -f -r conftest*
 
 fi
 
@@ -3123,7 +3123,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f conftest*
+rm -f -r conftest*
 
 fi
 
@@ -4071,7 +4071,7 @@ else
 fi
 
 if test "$enable_gui_projects" = "yes"; then
-  GUI_SUBPROJECTS="$GUI_SUBPROJECTS EOInterface EOModeler DBModeler"
+  GUI_SUBPROJECTS="$GUI_SUBPROJECTS EOInterface Apps/EOModeler Apps/EOModelEditor"
 fi
 
 # Check whether --enable-gorm-palette was given.
