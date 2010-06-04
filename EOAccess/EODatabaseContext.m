@@ -84,6 +84,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EORelationship.h>
 #include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOAttributePriv.h>
 #include <EOAccess/EOStoredProcedure.h>
 #include <EOAccess/EOJoin.h>
 
@@ -93,6 +94,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EODatabaseOperation.h>
 #include <EOAccess/EOAccessFault.h>
 #include <EOAccess/EOExpressionArray.h>
+#include <EOAccess/EOSQLExpression.h>
 
 #include "EOPrivate.h"
 #include "EOEntityPriv.h"
@@ -694,18 +696,18 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 /** return entity corresponding to 'globalID' **/
 - (id) entityForGlobalID: (EOGlobalID *)globalID
 {
-  //OK
   NSString *entityName;
-  EOEntity *entity;
 
-  DESTROY(_lastEntity);
+  entityName = [(EOKeyGlobalID *)globalID entityName];
 
-  entityName = [globalID entityName];
-  entity = [_database entityNamed: entityName];
+  if ((_lastEntity) && (entityName == [_lastEntity name]))
+  {
+    return _lastEntity;
+  }
+  
+  ASSIGN(_lastEntity, [_database entityNamed: entityName]);
 
-  ASSIGN(_lastEntity, entity);
-
-  return entity;
+  return _lastEntity;
 }
 
 /** Make object a fault **/
@@ -1340,13 +1342,15 @@ userInfo = {
   NSUInteger         keyCount       = [rawRowKeyPaths count];
   id                 messageHandler = nil;   // used to prompt the user after the fetch limit is reached.
   NSString         * hintKey = nil;
-  BOOL               continueFetch = NO;
+  BOOL               continueFetch  = NO;
   NSUInteger         k;
+  EOSQLExpression  * expression     = nil;
     
-  NSArray * attributesToFetch;
+  NSMutableArray * attributesToFetch;
   if (keyCount == 0)
   {
-    attributesToFetch = [entity attributesToFetch];
+    // this is an NSMutableArray
+    attributesToFetch = (NSMutableArray *) [entity attributesToFetch];
   } else {
     // Populate an array with the attributes we need
     attributesToFetch =  [NSMutableArray arrayWithCapacity:keyCount];
@@ -1404,7 +1408,7 @@ userInfo = {
   {
     if ([hintKey isKindOfClass:[NSString class]])
     {
-      hintKey = [[[_adaptorContext adaptor] expressionClass] expressionForString:hintKey];
+      expression = [[[_adaptorContext adaptor] expressionClass] expressionForString:hintKey];
     } else {
       NSLog(@"%s - %@ is not an NSString but a %@",__PRETTY_FUNCTION__, hintKey, NSStringFromClass([hintKey class]));
     }
@@ -1420,9 +1424,9 @@ userInfo = {
   {
     [adaptorChannel openChannel];
   }
-  if (hintKey)
+  if (expression)
   {
-    [adaptorChannel evaluateExpression:hintKey];
+    [adaptorChannel evaluateExpression:expression];
     [adaptorChannel setAttributesToFetch:attributesToFetch];
   } else {
     [adaptorChannel selectAttributes:attributesToFetch
@@ -2267,7 +2271,7 @@ userInfo = {
 
   [_database invalidateResultCache];
 
-  snapshots = [_database snapshot];
+  snapshots = [_database snapshots];
   gids = [snapshots allKeys];
   [self invalidateObjectsWithGlobalIDs: gids];
 
@@ -2308,7 +2312,7 @@ userInfo = {
 - (BOOL)ownsGlobalID: (EOGlobalID *)globalID
 {
   if ([globalID isKindOfClass: [EOKeyGlobalID class]] &&
-      [_database entityNamed: [globalID entityName]])
+      [_database entityNamed: [(EOKeyGlobalID*) globalID entityName]])
     return YES;
 
   return NO;
@@ -5648,51 +5652,47 @@ Raises an exception is the adaptor is unable to perform the operations.
   //Near OK
   EOAdaptor *adaptor = [_database adaptor];//OK
   EOEntity *entity = [dbOpe entity];//OK
-  NSDictionary *newRow = nil;
+  NSMutableDictionary *newRow = nil;
   NSDictionary *dbSnapshot = nil;
   NSEnumerator *attrNameEnum = nil;
   id attrName = nil;
   IMP enumNO=NULL; // nextObject
-
-
-
-
-
+  
   newRow = [dbOpe newRow]; //OK{a3code = Q77; code = Q7; numcode = 007; } //ALLOK
-
-
+  
   dbSnapshot = [dbOpe dbSnapshot];
-  NSDebugMLLog(@"EODatabaseContext", @"dbSnapshot %p=%@",
-	       dbSnapshot, dbSnapshot);
-
+  
   attrNameEnum = [newRow keyEnumerator];
   enumNO=NULL;
   while ((attrName = GDL2_NextObjectWithImpPtr(attrNameEnum,&enumNO)))
+  {
+    EOAttribute *attribute = [entity attributeNamed: attrName];
+    id newRowValue = nil;
+    id dbSnapshotValue = nil;
+    
+    newRowValue = [newRow objectForKey:attrName];
+    
+    
+    dbSnapshotValue = [dbSnapshot objectForKey: attrName];
+    
+    if (dbSnapshotValue && (![newRowValue isEqual: dbSnapshotValue]))
     {
-      EOAttribute *attribute = [entity attributeNamed: attrName];
-      id newRowValue = nil;
-      id dbSnapshotValue = nil;
-
-
-
-      newRowValue = [newRow objectForKey:attrName];
-
-
-      dbSnapshotValue = [dbSnapshot objectForKey: attrName];
-      NSDebugMLLog(@"EODatabaseContext", @"dbSnapshotValue=%@",
-		   dbSnapshotValue);
-
-      if (dbSnapshotValue && ![newRowValue isEqual: dbSnapshotValue])
+      id adaptorValue = [adaptor fetchedValueForValue: newRowValue
+                                            attribute: attribute];
+      
+      if ((!adaptorValue) || ((adaptorValue != dbSnapshotValue) && (![adaptorValue isEqual:dbSnapshotValue])))
+      {
+        if (!adaptorValue)
         {
-          id adaptorValue = [adaptor fetchedValueForValue: newRowValue
-				     attribute: attribute]; //this call is OK
-
-
-          //TODO-NOW SO WHAT ?? may be replacing newRow diff values by adaptorValue if different ????
+          adaptorValue = GDL2_EONull;
         }
+        [newRow setObject:adaptorValue
+                   forKey:attrName];
+      }
     }
-
-
+  }
+  
+  
 }
 
 

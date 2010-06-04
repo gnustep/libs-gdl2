@@ -168,6 +168,14 @@ typedef enum {
 
 - (BOOL)isKeyDefinedByPrototype: (NSString *)key;
 
+/**
+ * Returns YES if the attribute references aProperty, NO otherwise.
+ */
+
+- (BOOL)referencesProperty:(id)aProperty;
+
+- (void)setParent: (id)parent;
+
 @end
 
 

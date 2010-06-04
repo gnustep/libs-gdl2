@@ -71,6 +71,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOStoredProcedure.h>
 #include <EOAccess/EORelationship.h>
 #include <EOAccess/EOExpressionArray.h>
+#include <EOAccess/EOSQLExpression.h>
 
 #include <string.h>
 
@@ -697,6 +698,30 @@ RCS_ID("$Id$")
     return [[_definitionArray realAttribute] valueType];
   else
     return [_prototype valueType];
+}
+
+- (void)setParent: (id)parent
+{
+  //OK
+  [self willChange];
+  _parent = parent;
+  
+  _flags.isParentAnEOEntity = [_parent isKindOfClass: [EOEntity class]];//??
+}
+
+/**
+ * Returns YES if the attribute references aProperty, NO otherwise.
+ */
+
+- (BOOL)referencesProperty:(id)aProperty
+{
+  if (!_definitionArray)
+  {
+    return NO;
+  } else {
+    // _definitionArray is an EOExpressionArray
+    return [_definitionArray referencesObject:aProperty];
+  }
 }
 
 @end
@@ -1867,30 +1892,6 @@ More details:
 
 
 @implementation EOAttribute (EOAttributePrivate)
-
-/**
- * Returns YES if the attribute references aProperty, NO otherwise.
- */
-
-- (BOOL)referencesProperty:(id)aProperty
-{
-  if (!_definitionArray)
-  {
-    return NO;
-  } else {
-    // _definitionArray is an EOExpressionArray
-    return [_definitionArray referencesObject:aProperty];
-  }
-}
-
-- (void)setParent: (id)parent
-{
-  //OK
-  [self willChange];
-  _parent = parent;
-
-  _flags.isParentAnEOEntity = [_parent isKindOfClass: [EOEntity class]];//??
-}
 
 - (EOAttribute *)realAttribute
 {

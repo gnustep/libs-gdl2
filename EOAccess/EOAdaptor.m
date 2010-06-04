@@ -62,7 +62,6 @@ RCS_ID("$Id$")
 #include <Foundation/NSData.h>
 #include <Foundation/NSSet.h>
 #include <Foundation/NSDebug.h>
-#include <Foundation/GSMime.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -70,11 +69,10 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
-#include <GNUstepBase/GSMime.h>
 #endif
 
+#include <GNUstepBase/GSMime.h>
 #include <GNUstepBase/Unicode.h>
-
 
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>

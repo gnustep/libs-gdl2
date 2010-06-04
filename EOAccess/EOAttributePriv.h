@@ -28,9 +28,8 @@
 #define __EOAttributePriv_h__
 
 @interface EOAttribute (EOAttributePrivate)
-- (NSMutableArray *)_definitionArray;
+- (EOExpressionArray *)_definitionArray;
 
-- (void)setParent: (id)parent;
 - (EOAttribute *)realAttribute;
 
 - (Class)_valueClass;

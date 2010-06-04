@@ -75,6 +75,7 @@ RCS_ID("$Id$")
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EOCheapArray.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOFetchSpecification.h>
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOModelGroup.h>

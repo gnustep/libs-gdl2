@@ -224,7 +224,13 @@ RCS_ID("$Id$")
 {
   if (_externalName != name) {
     [self willChange];
-    ASSIGNCOPY(_externalName, ([name length] > 0) ? name : nil);
+
+    if ((!name) || ([name length] < 1)) {
+      ASSIGN(_externalName, nil);
+    } else {
+      ASSIGNCOPY(_externalName, name);
+    }
+    
   }
 }
 

@@ -1,4 +1,22 @@
 2010-06-03  David Wetzel  <dave@turbocat.de>
+    * EOAccess/EOAttribute.m
+    include EOSQLExpression.h
+    move methods around to fix warnings
+    * EOAccess/EOEntity.m
+    include EOFetchSpecification.h to fix warning
+    * EOAccess/EOAdaptor.m
+    fix Mime include
+    * EOAccess/EOStoredProcedure.m
+    fix warning in setExternalName:
+    * EOAccess/EODatabaseContext.m
+    include EOAttributePriv.h and EOSQLExpression.h to fix warning
+    entityForGlobalID: cast to EOKeyGlobalID to avoid warning.
+    use caching.
+    _fetchRawRowKeyPaths: fix warnings by using proper types.
+    processSnapshotForDatabaseOperation: set EONull value when needed.
+    avoid warnings. 
+    
+2010-06-03  David Wetzel  <dave@turbocat.de>
     * configure.ac
     replaced DBModeler with Apps/EOModeler Apps/EOModelEditor 
     * configure: regenerated
