@@ -39,7 +39,7 @@ static EOMInspectorController *_sharedInspectorController;
 static NSMatrix *_iconBar;
 
 @interface EOMInspectorController(Private)
-- (void) _selectionChanged:(NSNotification *)notif;
+- (void) selectionChanged:(NSNotification *)notif;
 @end
 
 NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
@@ -77,7 +77,7 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
   [_iconBar setAutosizesCells:NO];
   [_iconBar setCellSize:NSMakeSize(64,64)];
   [_iconBar setTarget:self];
-  [_iconBar setAction:@selector(_selectInspector:)];
+  [_iconBar setAction:@selector(selectInspector:)];
   iconCell = [[NSButtonCell alloc] initTextCell:@""];
 //  [iconCell setButtonType:NSMomentaryPushInButton]; 
   [iconCell setButtonType:NSOnOffButton]; 
@@ -91,7 +91,7 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
   
   [[NSNotificationCenter defaultCenter]
    addObserver:_sharedInspectorController
-   selector:@selector(_selectionChanged:)
+   selector:@selector(selectionChanged:)
    name:EOMSelectionChangedNotification
    object:nil];
   
@@ -101,7 +101,7 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
 - (void) _showInspector
 {
   [window makeKeyAndOrderFront:self];
-  [self _selectionChanged:nil];
+  [self selectionChanged:nil];
 }
 
 + (void) showInspector
@@ -117,7 +117,38 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
   return _sharedInspectorController;
 }
 
-- (void) _selectionChanged:(NSNotification *)notif
+- (void) _selectInspector:(EOMInspector*)inspector
+{  
+  [inspector prepareForDisplay];
+  
+  if ([lastInspector view] && lastInspector != inspector)
+    [[lastInspector view] removeFromSuperviewWithoutNeedingDisplay];
+  
+  if ([inspector view] && lastInspector != inspector) {
+    //    NSRect bounds = [[inspector view] bounds];
+    
+    [[window contentView] addSubview:[inspector view]
+                          positioned:NSWindowBelow
+                          relativeTo:scrollView];
+    [[inspector view] setFrameOrigin:NSMakePoint(0,0)];
+    [[inspector view] setNeedsDisplay:YES];
+    [[window contentView] setNeedsDisplay:YES];
+    
+    [window setTitle:[inspector displayName]];
+    
+    //    NSLog(@"%@ view size: %f x %f origin:  %f x %f", NSStringFromClass([inspector class]),
+    //          bounds.size.width, bounds.size.height,
+    //          bounds.origin.x, bounds.origin.y);
+  }
+  
+  [[inspector view] setNeedsDisplay:YES];
+  [inspector refresh];
+  
+  lastInspector = inspector;
+}
+
+
+- (void) selectionChanged:(NSNotification *)notif
 {
   
   id currentDocument = [[NSDocumentController sharedDocumentController] currentDocument];
@@ -159,46 +190,19 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
       if ([inspectors containsObject:lastInspector])
 	    {
 	      inspector = lastInspector;
-	      [inspector prepareForDisplay];
 	    }
       else
 	    {
         inspector = [inspectors objectAtIndex:0];
-	      [inspector prepareForDisplay];
-        
-	      if ([lastInspector view] && lastInspector != inspector)
-          [[lastInspector view] removeFromSuperviewWithoutNeedingDisplay];
-        
-	      if ([inspector view] && lastInspector != inspector) {
-          NSRect bounds = [[inspector view] bounds];
-          
-          [[window contentView] addSubview:[inspector view]
-                                positioned:NSWindowBelow
-                                relativeTo:scrollView];
-          [[inspector view] setFrameOrigin:NSMakePoint(0,0)];
-          [[inspector view] setNeedsDisplay:YES];
-          [[window contentView] setNeedsDisplay:YES];
-
-          NSLog(@"%@ view size: %f x %f origin:  %f x %f", NSStringFromClass([inspector class]),
-                bounds.size.width, bounds.size.height,
-                bounds.origin.x, bounds.origin.y);
-
-//          NSLog(@"inspectorViewOrigin origin:  %f x %f", 
-//                inspectorViewOrigin.x, inspectorViewOrigin.y);
-          
-          [window setTitle:[inspector displayName]];
-        }
 	    }
       
-      [[inspector view] setNeedsDisplay:YES];
-      [inspector refresh];
-      lastInspector = inspector;
+      [self _selectInspector:inspector];
     }
     else
     {
       [[lastInspector view] removeFromSuperview];
       lastInspector = nil;
-      NSLog(@"no inspector");
+      NSLog(@"no inspector for selection.");
     }
   }
   else
@@ -209,36 +213,12 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
   }
 }
 
-- (void) _selectInspector:(id)sender
+- (void) selectInspector:(id)sender
 {
   EOMInspector *inspector = [[sender selectedCell] representedObject];
   
-  [inspector prepareForDisplay];
+  [self _selectInspector:inspector];
   
-  if ([lastInspector view] && lastInspector != inspector)
-    [[lastInspector view] removeFromSuperviewWithoutNeedingDisplay];
-  
-  if ([inspector view] && lastInspector != inspector) {
-    NSRect bounds = [[inspector view] bounds];
-
-    [[window contentView] addSubview:[inspector view]
-                          positioned:NSWindowBelow
-                          relativeTo:scrollView];
-    [[inspector view] setFrameOrigin:NSMakePoint(0,0)];
-    [[inspector view] setNeedsDisplay:YES];
-    [[window contentView] setNeedsDisplay:YES];
-
-    [window setTitle:[inspector displayName]];
-
-    NSLog(@"%@ view size: %f x %f origin:  %f x %f", NSStringFromClass([inspector class]),
-          bounds.size.width, bounds.size.height,
-          bounds.origin.x, bounds.origin.y);
-  }
-  
-  [[inspector view] setNeedsDisplay:YES];
-  [inspector refresh];
-  
-  lastInspector = inspector;
 }
 
 @end
