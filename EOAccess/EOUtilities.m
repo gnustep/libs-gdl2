@@ -627,8 +627,9 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
 {
   EODatabaseContext *databaseContext;
   EODatabaseChannel *databaseChannel;
-  EOAdaptorChannel *adaptorChannel;
-  NSMutableArray *results = nil;
+  EOAdaptorChannel  *adaptorChannel;
+  NSMutableArray    *results = nil;
+  NSArray           *attributes = nil;
   NSDictionary *row;
   
   databaseContext = [self databaseContextForModelNamed: name];
@@ -645,7 +646,9 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
         
       [adaptorChannel evaluateExpression:
 			[EOSQLExpression expressionForString: sqlString]];
-      [adaptorChannel setAttributesToFetch:[adaptorChannel describeResults]];
+      attributes = [adaptorChannel describeResults];
+
+      [adaptorChannel setAttributesToFetch:attributes];
 
       results = [NSMutableArray array];
 

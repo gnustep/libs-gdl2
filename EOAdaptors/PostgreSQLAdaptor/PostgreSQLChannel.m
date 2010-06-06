@@ -64,6 +64,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
 
 #include <EOControl/EONull.h>
@@ -678,11 +679,15 @@ newValueForBytesLengthAttribute (const void *bytes,
     
   if (_delegateRespondsTo.willFetchRow)
     [_delegate adaptorChannelWillFetchRow: self];
-    
-  if ([self isFetchInProgress])
+  
+  if (_isFetchInProgress)
   {    
-    if (!_attributes)
-      [self _describeResults];
+    // Check if it's the first row, and in this case
+    // verify that the attribute set is here
+    if(!_attributes)
+    {
+      [self setAttributesToFetch:[self describeResults]];
+    }
     
     if ([self advanceRow] == NO)
     {      
@@ -795,39 +800,76 @@ newValueForBytesLengthAttribute (const void *bytes,
   return dict; //an EOMutableKnownKeyDictionary
 }
 
+
+/*+
+ 
+ PQcmdStatus gives only a string like "UPDATE 1" back
+ 
+ +*/
+
+- (NSUInteger)numberOfAffectedRows
+{
+  NSString	*tmpstr = [NSString stringWithCString:PQcmdStatus(_pgResult)
+                                         encoding:NSASCIIStringEncoding];
+  NSUInteger	num = 0;
+  
+  if ([tmpstr isEqualToString:@"SELECT"]) {
+    num=PQntuples(_pgResult);
+    
+    return num;
+  } else {
+    NSRange spaceRange = [tmpstr rangeOfString:@" "];
+    if (spaceRange.location != NSNotFound) {
+      NSString * numStr = [tmpstr substringFromIndex:spaceRange.location];
+      num = [numStr integerValue];
+    }
+  }
+    
+  return num;
+}
+
+
 - (BOOL)_evaluateCommandsUntilAFetch
 {
-  BOOL ret = NO;
+  BOOL           ret = NO;
   ExecStatusType status;
-
   // Check results
   status = PQresultStatus(_pgResult);
-
+  
   switch (status)
     {
+        // The string sent to the server was empty.
     case PGRES_EMPTY_QUERY:
       _isFetchInProgress = NO;
       ret = YES;
       break;
+        // Successful completion of a command returning no data.
+        // is for commands that can never return rows (INSERT, UPDATE, etc.)
     case PGRES_COMMAND_OK:
       _isFetchInProgress = NO;
       ret = YES;
       break;
+        // Successful completion of a command returning data (such as a SELECT or SHOW).
     case PGRES_TUPLES_OK:
       _isFetchInProgress = YES;
       _currentResultRow = -1;
       ret = YES;
       break;
+        // Copy Out (from server) data transfer started.
     case PGRES_COPY_OUT:
       _isFetchInProgress = NO;
       ret = YES;
       break;
+        // Copy In (to server) data transfer started.
     case PGRES_COPY_IN:
       _isFetchInProgress = NO;
       ret = YES;
       break;
+        // The server's response was not understood.
     case PGRES_BAD_RESPONSE:
+        // A nonfatal error (a notice or warning) occurred.
     case PGRES_NONFATAL_ERROR:
+        // A fatal error occurred.
     case PGRES_FATAL_ERROR: 
       {
         NSString* errorString=[NSString stringWithCString:PQerrorMessage(_pgConn)];
@@ -891,7 +933,8 @@ newValueForBytesLengthAttribute (const void *bytes,
     }
   
   if (_isFetchInProgress) {
-    [self _describeResults];
+    // TODO: check
+    //[self describeResults];
   } else {
     // make sure we free the memory! -- dw
     PQclear(_pgResult);
@@ -918,14 +961,11 @@ newValueForBytesLengthAttribute (const void *bytes,
   if ([self isDebugEnabled] == YES)
     NSLog(@"PostgreSQLAdaptor: execute command:\n%@\n",
           [expression statement]);
-  //call PostgreSQLChannel numberOfAffectedRows
   /* Send the expression to the SQL server */
   
   _pgResult = PQexec(_pgConn, (char *)[[[expression statement] stringByAppendingString:@";"] 
                                        cStringUsingEncoding: _encoding]);
-
-  affectedRows = strtoul(PQcmdTuples(_pgResult), NULL, 10);
-  
+// LEAK on UPDATING  
   if (_pgResult == NULL)
   {
     if ([self isDebugEnabled])
@@ -937,13 +977,11 @@ newValueForBytesLengthAttribute (const void *bytes,
   }
   else
   {
+    affectedRows = [self numberOfAffectedRows];
+
     NS_DURING {
       /* Check command results */
-      if ([self _evaluateCommandsUntilAFetch] != NO) 
-      {
-        //result = YES;
-
-      }
+      [self _evaluateCommandsUntilAFetch];
     } NS_HANDLER {
       // make sure we call PQclear *ALWAYS*
       if (_pgResult != NULL) {
@@ -959,54 +997,52 @@ newValueForBytesLengthAttribute (const void *bytes,
 - (void)evaluateExpression: (EOSQLExpression *)expression // OK quasi
 {
   PostgreSQLContext *adaptorContext = nil;
-
-//_evaluationIsDirectCalled=1
+  
+  //_evaluationIsDirectCalled=1
   adaptorContext = (PostgreSQLContext *)[self adaptorContext];
-//call expression statement
-//call adaptorContext adaptor
-//call adaptor databaseEncoding
-//call self setErrorMessage
-//call expre statement
-
-  NSDebugMLLog(@"gsdb", @"expression=%@", expression);
-
+  //call expression statement
+  //call adaptorContext adaptor
+  //call adaptor databaseEncoding
+  //call self setErrorMessage
+  //call expre statement
+    
   if (_delegateRespondsTo.shouldEvaluateExpression)
-    {
-      BOOL response
-	= [_delegate adaptorChannel: self
-		     shouldEvaluateExpression: expression];
-
-      if (response == NO)
-	return;
-    }
-
+  {
+    BOOL response
+    = [_delegate adaptorChannel: self
+       shouldEvaluateExpression: expression];
+    
+    if (response == NO)
+      return;
+  }
+  
   if ([self isOpen] == NO)
     [NSException raise: PostgreSQLException
-		 format: @"cannot execute SQL expression. Channel is not opened."];
-
+                format: @"cannot execute SQL expression. Channel is not opened."];
+  
   [self _cancelResults];
   [adaptorContext autoBeginTransaction: NO/*YES*/]; //TODO: shouldbe yes ??
-
+  
   _evaluateExprInProgress = YES;
-  if (![self _evaluateExpression: expression
-	     withAttributes: nil])
-    {
-      NSDebugMLLog(@"gsdb", @"_evaluateExpression:withAttributes: return NO", "");
-      [self _cancelResults];
-    }
+  if (([self _evaluateExpression: expression
+                 withAttributes: nil] == 0))
+  {
+    NSDebugMLLog(@"gsdb", @"_evaluateExpression:withAttributes: return NO", "");
+    [self _cancelResults];
+  }
   else
-    {
-      NSDebugMLLog(@"gsdb", @"expression=%@ [self isFetchInProgress]=%d",
-                   expression,
-                   [self isFetchInProgress]);
-      if (![self isFetchInProgress])//If a fetch is in progress, we don't want to commit because 
-        //it will cancel fetch. I'm not sure it the 'good' way to do
-        [adaptorContext autoCommitTransaction];
-
-      if (_delegateRespondsTo.didEvaluateExpression)
-        [_delegate adaptorChannel: self didEvaluateExpression: expression];
-    }
-
+  {
+    NSDebugMLLog(@"gsdb", @"expression=%@ [self isFetchInProgress]=%d",
+                 expression,
+                 [self isFetchInProgress]);
+    if (![self isFetchInProgress])//If a fetch is in progress, we don't want to commit because 
+      //it will cancel fetch. I'm not sure it the 'good' way to do
+      [adaptorContext autoCommitTransaction];
+    
+    if (_delegateRespondsTo.didEvaluateExpression)
+      [_delegate adaptorChannel: self didEvaluateExpression: expression];
+  }
+  
 }
 
 - (void)insertRow: (NSDictionary *)row
@@ -1103,7 +1139,7 @@ each key
 		  insertStatementForRow: nrow
 		  entity: entity];
 
-      if ([self _evaluateExpression: sqlexpr withAttributes: nil] == NO) //call evaluateExpression:
+      if ([self _evaluateExpression: sqlexpr withAttributes: nil] == 0) //call evaluateExpression:
 	[NSException raise: EOGeneralAdaptorException
                      format: @"%@ -- %@ 0x%x: cannot insert row for entity '%@'",
                      NSStringFromSelector(_cmd),
@@ -1116,11 +1152,11 @@ each key
 
 }
 
-- (unsigned)deleteRowsDescribedByQualifier: (EOQualifier *)qualifier
-                                    entity: (EOEntity *)entity
+- (NSUInteger) deleteRowsDescribedByQualifier: (EOQualifier *)qualifier
+                                       entity: (EOEntity *)entity
 {
   EOSQLExpression *sqlexpr = nil;
-  unsigned long rows = 0;
+  NSUInteger rows = 0;
   PostgreSQLContext *adaptorContext;
 
   if (![self isOpen])
@@ -1239,9 +1275,9 @@ each key
 
 }
 
-- (unsigned int)updateValues: (NSDictionary *)values
-  inRowsDescribedByQualifier: (EOQualifier *)qualifier
-                      entity: (EOEntity *)entity
+- (NSUInteger) updateValues: (NSDictionary *)values
+ inRowsDescribedByQualifier: (EOQualifier *)qualifier
+                     entity: (EOEntity *)entity
 {
 //autoBeginTransaction
 //entity attributes
@@ -1263,7 +1299,7 @@ each key
   NSString *externalType = nil;
   EOAttribute *attr = nil;
   PostgreSQLContext *adaptorContext = nil;
-  unsigned long rows = 0;
+  NSUInteger rows = 0;
   IMP valuesOFK=NULL; // objectForKey:
   
   if (![self isOpen])
@@ -1380,6 +1416,13 @@ each key
                    entity: entity];
         
         rows = [self _evaluateExpression: sqlExpr withAttributes: nil];
+        
+        // i guess this is always true here?
+        if (!_isFetchInProgress) {
+          if (_pgResult != NULL) {
+            PQclear(_pgResult); _pgResult = NULL;
+          }
+        }
       }
 
       [adaptorContext autoCommitTransaction];
@@ -1583,128 +1626,110 @@ each key
   ASSIGN(_attributes, attributes);
 }
 
+// Only invoke this method if a fetch is in progress as determined by isFetchInProgress
+
 - (NSArray *)describeResults
 {
-  NSArray *desc;
-
+  NSMutableArray *attributes  = [NSMutableArray array];
+  
   // if we just check isFetchInProgress here we fail on raw sql fetches. -- dw
   
-  if ((!_isFetchInProgress) && (!_evaluateExprInProgress))
+  if ((!_isFetchInProgress) && (!_evaluateExprInProgress)) {
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempt to describe results with no fetch in progress",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self];
+                format: @"%s -- %@ 0x%x: attempt to describe results with no fetch in progress",
+     __PRETTY_FUNCTION__,
+     NSStringFromClass([self class]),
+     self];
+    
+  } else {
+    int colsNumber;
+    
+    colsNumber=_pgResult ? PQnfields(_pgResult): 0;
+    int i;
 
-  desc = [self attributesToFetch];
+    for (i = 0; i < colsNumber; i++)
+    {
+      EOAttribute *attribute 
+      = AUTORELEASE([PSQLA_alloc(EOAttribute) init]);
+      NSString *externalType;
+      NSString *valueClass = @"NSString";
+      NSString *valueType = nil;
+      
+      if (_origAttributes)
+      {
+        EOAttribute *origAttr = (EOAttribute *) [_origAttributes objectAtIndex:i];
+        
+        [attribute setName: [origAttr name]];
+        [attribute setColumnName: [origAttr columnName]];
+        [attribute setExternalType: [origAttr externalType]];
+        [attribute setValueType: [origAttr valueType]];
+        [attribute setValueClassName: [origAttr valueClassName]];
+      }
+      else
+      {
+        NSNumber *externalTypeNumber;
+        externalTypeNumber = [NSNumber numberWithLong: PQftype(_pgResult, i)];
+        externalType = [_oidToTypeName objectForKey:externalTypeNumber];
+        
+        if (!externalType)
+          [NSException raise: PostgreSQLException
+                      format: @"cannot find type for Oid = %d",
+           PQftype(_pgResult, i)];
+        
+        [attribute setName: [NSString stringWithCString:PQfname(_pgResult,i)
+                                               encoding:NSASCIIStringEncoding]];
 
-  return desc;
+        [attribute setColumnName: @"unknown"];
+        [attribute setExternalType: externalType];
+        
+        //TODO: Optimize ?
+        if      ([externalType isEqual: @"bool"])
+          valueClass = @"NSNumber", valueType = @"c";
+        else if ([externalType isEqual: @"char"])
+          valueClass = @"NSNumber", valueType = @"c";
+        else if ([externalType isEqual: @"dt"])
+          valueClass = @"NSCalendarDate", valueType = nil;
+        else if ([externalType isEqual: @"date"])
+          valueClass = @"NSCalendarDate", valueType = nil;
+        else if ([externalType isEqual: @"time"])
+          valueClass = @"NSCalendarDate", valueType = nil;
+        else if ([externalType isEqual: @"float4"])
+          valueClass = @"NSNumber", valueType = @"f";
+        else if ([externalType isEqual: @"float8"])
+          valueClass = @"NSNumber", valueType = @"d";
+        else if ([externalType isEqual: @"int2"])
+          valueClass = @"NSNumber", valueType = @"s";
+        else if ([externalType isEqual: @"int4"])
+          valueClass = @"NSNumber", valueType = @"i";
+        else if ([externalType isEqual: @"int8"] || [externalType isEqual: @"bigint"])
+          valueClass = @"NSNumber", valueType = @"u";
+        else if ([externalType isEqual: @"oid"])
+          valueClass = @"NSNumber", valueType = @"l";
+        else if ([externalType isEqual: @"varchar"])
+          valueClass = @"NSString", valueType = nil;
+        else if ([externalType isEqual: @"bpchar"])
+          valueClass = @"NSString", valueType = nil;
+        else if ([externalType isEqual: @"text"])
+          valueClass = @"NSString", valueType = nil;
+        /*      else if ([externalType isEqual:@"cid"])
+         valueClass = @"NSNumber", valueType = @"";
+         else if ([externalType isEqual:@"tid"])
+         valueClass = @"NSNumber", valueType = @"";
+         else if ([externalType isEqual:@"xid"])
+         valueClass = @"NSNumber", valueType = @"";*/
+        
+        [attribute setValueType: valueType];
+        [attribute setValueClassName: valueClass];
+      }
+      
+      [attributes addObject:attribute];
+    }
+    
+  }
+
+  return attributes;
 }
 
-- (void)_describeResults
-{
-  int colsNumber;
-
-  colsNumber=_pgResult ? PQnfields(_pgResult): 0;
-  NSDebugMLLog(@"gsdb", @"colsNumber=%d", colsNumber);
-
-  if (colsNumber == 0)
-    {
-      [self setAttributesToFetch: PSQLA_NSArray];
-    }
-  else if (!_attributes) //??
-    {
-      int i;
-      id *attributes = NULL;      
-      IMP origAttributesOAI=NULL;
-      IMP oidToTypeNameOFK=NULL;
-
-      attributes = alloca(colsNumber * sizeof(id));
-
-      for (i = 0; i < colsNumber; i++)
-        {
-	  EOAttribute *attribute 
-	    = AUTORELEASE([PSQLA_alloc(EOAttribute) init]);
-          NSString *externalType;
-          NSString *valueClass = @"NSString";
-          NSString *valueType = nil;
-
-          if (_origAttributes)
-            {
-              EOAttribute *origAttr = (EOAttribute *)
-                PSQLA_ObjectAtIndexWithImpPtr(_origAttributes,&origAttributesOAI,i);
-
-              [attribute setName: [origAttr name]];
-              [attribute setColumnName: [origAttr columnName]];
-              [attribute setExternalType: [origAttr externalType]];
-              [attribute setValueType: [origAttr valueType]];
-              [attribute setValueClassName: [origAttr valueClassName]];
-            }
-          else
-            {
-              NSNumber *externalTypeNumber;
-	      externalTypeNumber 
-		= [NSNumber numberWithLong: PQftype(_pgResult, i)];
-              externalType = PSQLA_ObjectForKeyWithImpPtr(_oidToTypeName,
-                                                        &oidToTypeNameOFK,externalTypeNumber);
-              
-              if (!externalType)
-                [NSException raise: PostgreSQLException
-                             format: @"cannot find type for Oid = %d",
-                             PQftype(_pgResult, i)];
-
-              [attribute setName: [NSString stringWithFormat: @"attribute%d", i]];
-              [attribute setColumnName: @"unknown"];
-              [attribute setExternalType: externalType];
-
-              //TODO: Optimize ?
-              if      ([externalType isEqual: @"bool"])
-                valueClass = @"NSNumber", valueType = @"c";
-              else if ([externalType isEqual: @"char"])
-                valueClass = @"NSNumber", valueType = @"c";
-              else if ([externalType isEqual: @"dt"])
-                valueClass = @"NSCalendarDate", valueType = nil;
-              else if ([externalType isEqual: @"date"])
-                valueClass = @"NSCalendarDate", valueType = nil;
-              else if ([externalType isEqual: @"time"])
-                valueClass = @"NSCalendarDate", valueType = nil;
-              else if ([externalType isEqual: @"float4"])
-                valueClass = @"NSNumber", valueType = @"f";
-              else if ([externalType isEqual: @"float8"])
-                valueClass = @"NSNumber", valueType = @"d";
-              else if ([externalType isEqual: @"int2"])
-                valueClass = @"NSNumber", valueType = @"s";
-              else if ([externalType isEqual: @"int4"])
-                valueClass = @"NSNumber", valueType = @"i";
-              else if ([externalType isEqual: @"int8"] || [externalType isEqual: @"bigint"])
-                valueClass = @"NSNumber", valueType = @"u";
-              else if ([externalType isEqual: @"oid"])
-                valueClass = @"NSNumber", valueType = @"l";
-              else if ([externalType isEqual: @"varchar"])
-                valueClass = @"NSString", valueType = nil;
-              else if ([externalType isEqual: @"bpchar"])
-                valueClass = @"NSString", valueType = nil;
-              else if ([externalType isEqual: @"text"])
-                valueClass = @"NSString", valueType = nil;
-              /*      else if ([externalType isEqual:@"cid"])
-                      valueClass = @"NSNumber", valueType = @"";
-                      else if ([externalType isEqual:@"tid"])
-                      valueClass = @"NSNumber", valueType = @"";
-                      else if ([externalType isEqual:@"xid"])
-                      valueClass = @"NSNumber", valueType = @"";*/
-
-              [attribute setValueType: valueType];
-              [attribute setValueClassName: valueClass];
-            }
-
-          attributes[i] = attribute;
-        }
-
-      [self setAttributesToFetch: AUTORELEASE([[NSArray alloc]
-				     initWithObjects: attributes
-				     count: colsNumber])];
-    }
-}
 
 /* The methods used to generate an model from the meta-information kept by
    the database. */

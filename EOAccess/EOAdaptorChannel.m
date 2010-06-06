@@ -122,7 +122,7 @@ NSString *EOAdaptorOptimisticLockingFailure = @"EOAdaptorOptimisticLockingFailur
 inRowDescribedByQualifier: (EOQualifier *)qualifier
 	      entity: (EOEntity *)entity
 {
-  int rows;
+  NSUInteger rows;
 
   rows = [self updateValues: values
 	       inRowsDescribedByQualifier: qualifier
@@ -137,9 +137,9 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
                  rows];
 }
 
-- (unsigned)updateValues: (NSDictionary *)values
-inRowsDescribedByQualifier: (EOQualifier *)qualifier
-                  entity: (EOEntity *)entity
+- (NSUInteger) updateValues: (NSDictionary *)values
+ inRowsDescribedByQualifier: (EOQualifier *)qualifier
+                     entity: (EOEntity *)entity
 {
   [self subclassResponsibility: _cmd];
   return 0;
@@ -162,8 +162,8 @@ inRowsDescribedByQualifier: (EOQualifier *)qualifier
                  rows];
 }
 
-- (unsigned)deleteRowsDescribedByQualifier: (EOQualifier *)qualifier
-				    entity: (EOEntity *)entity
+- (NSUInteger) deleteRowsDescribedByQualifier: (EOQualifier *)qualifier
+                                      entity: (EOEntity *)entity
 {
   [self subclassResponsibility: _cmd];
   return 0;

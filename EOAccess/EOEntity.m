@@ -3388,6 +3388,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 - (NSDictionary *)_keyMapForRelationshipPath: (NSString *)path
 {
   //Ayers: Review
+  // what if relationshipPathIsMultiHop (foo.bar.joe)?
   //NearOK
   NSMutableArray *sourceKeys = [NSMutableArray array];
   NSMutableArray *destinationKeys = [NSMutableArray array];

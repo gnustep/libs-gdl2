@@ -77,7 +77,6 @@
 - (void)cleanupFetch;
 
 - (void)_cancelResults;
-- (void)_describeResults;
 - (void)_readServerVersion;
 
 /* Extensions for login panel */

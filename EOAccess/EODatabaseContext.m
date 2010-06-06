@@ -57,6 +57,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
 
 #include <GNUstepBase/GSObjCRuntime.h>
@@ -5662,7 +5663,8 @@ Raises an exception is the adaptor is unable to perform the operations.
   
   dbSnapshot = [dbOpe dbSnapshot];
   
-  attrNameEnum = [newRow keyEnumerator];
+  // we need to make sure that we do not change an array while enumering it.
+  attrNameEnum = [[NSArray arrayWithArray:[newRow allKeys]] objectEnumerator];
   enumNO=NULL;
   while ((attrName = GDL2_NextObjectWithImpPtr(attrNameEnum,&enumNO)))
   {

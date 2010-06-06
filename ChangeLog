@@ -1,3 +1,22 @@
+2010-06-06  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EOEntity.m
+	Added comment. Please check this! 
+	* EOAccess/EODatabaseContext.m
+	include NSObject+GNUstepBase.h
+	avoid Enumerator exception.
+	* EOAccess/EOUtilities.m
+	split line into two
+	* EOAccess/EOAdaptorChannel.h/m
+	unsigned -> NSUInteger
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.h
+	removed _describeResults
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m
+	include NSObject+GNUstepBase.h
+	added numberOfAffectedRows
+	attribute naming in raw rows fixed
+	updating fixed
+	unsigned -> NSUInteger
+	
 2010-06-04  David Wetzel  <dave@turbocat.de>
 	* Apps/EOModelEditor/Inspectors/AdvancedEntityInspector.gsmarkup
 	changed scrollView sizing

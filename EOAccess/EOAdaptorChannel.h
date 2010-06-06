@@ -106,13 +106,16 @@
 - (void)updateValues: (NSDictionary *)values
 inRowDescribedByQualifier: (EOQualifier *)qualifier
 	      entity: (EOEntity *)entity;
-- (unsigned)updateValues: (NSDictionary *)values
-  inRowsDescribedByQualifier: (EOQualifier *)qualifier
-		  entity: (EOEntity *)entity;
+
+- (NSUInteger) updateValues: (NSDictionary *)values
+ inRowsDescribedByQualifier: (EOQualifier *)qualifier
+                     entity: (EOEntity *)entity;
+
 - (void)deleteRowDescribedByQualifier: (EOQualifier *)qualifier
-			       entity: (EOEntity *)entity;
-- (unsigned)deleteRowsDescribedByQualifier: (EOQualifier *)qualifier
-				    entity: (EOEntity *)entity;
+                               entity: (EOEntity *)entity;
+
+- (NSUInteger) deleteRowsDescribedByQualifier: (EOQualifier *)qualifier
+                                       entity: (EOEntity *)entity;
 
 /* Fetching rows */
 - (void)selectAttributes: (NSArray *)attributes
