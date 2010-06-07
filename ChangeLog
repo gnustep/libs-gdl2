@@ -1,3 +1,8 @@
+2010-06-07  Fred Kiefer  <FredKiefer@gmx.de>
+
+	* EOMultiReaderLock.m (-tryLockForWriting, -unlockForReading):
+	Replace int with NSInteger.
+
 2010-06-06  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOEntity.m
 	Added comment. Please check this! 

@@ -121,8 +121,7 @@
 - (void)lockForReading
 {
   NSThread *ct = [NSThread currentThread];
-
-  int cnt = (int)NSMapGet(_readerThreads,ct);
+  NSInteger cnt = (NSInteger)NSMapGet(_readerThreads,ct);
 
   if (ct == _writerLockThread)
     {
@@ -163,7 +162,8 @@
 - (void)unlockForReading
 {
   NSThread *ct = [NSThread currentThread];
-  int cnt = (int)NSMapGet(_readerThreads,ct);
+  NSInteger cnt = (NSInteger)NSMapGet(_readerThreads,ct);
+
   if (--cnt)
     {
       NSMapInsert(_readerThreads,ct,(void *)(cnt));
