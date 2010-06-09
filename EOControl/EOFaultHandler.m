@@ -46,11 +46,9 @@ RCS_ID("$Id$")
 #include <Foundation/NSInvocation.h>
 #else
 #include <Foundation/Foundation.h>
-#endif
-
-#ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOFault.h>

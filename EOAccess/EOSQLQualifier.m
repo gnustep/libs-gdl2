@@ -46,11 +46,10 @@ RCS_ID("$Id$")
 #include <Foundation/NSDebug.h>
 #else
 #include <Foundation/Foundation.h>
-#endif
-
-#ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 #endif
 
 #include <EOAccess/EOSQLQualifier.h>

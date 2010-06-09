@@ -69,6 +69,8 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 #endif
 
 #include <GNUstepBase/GSMime.h>
@@ -728,11 +730,17 @@ NSString *EOAdministrativeConnectionDictionaryKey
     }
 }
 
+/**
+ * Returns YES if the exception is one that the adaptor can attempt to recover from by reconnecting.
+ * NO otherwise.
+ * The default implementation returns NO.
+ *
+ * Subclasses that support database reconnection should override this
+ * to allow for automatic database reconnection.
+ */
+
 - (BOOL)isDroppedConnectionException: (NSException *)exception
 {
-  EOFLOGObjectFnStartOrCond2(@"AdaptorLevel", @"EOAdaptor");
-  EOFLOGObjectFnStopOrCond2(@"AdaptorLevel", @"EOAdaptor");
-
   return NO;
 }
  

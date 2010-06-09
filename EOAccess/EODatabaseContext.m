@@ -637,6 +637,8 @@ May raise an exception if transaction has began or if you want pessimistic lock 
     [delegate respondsToSelector: @selector(databaseContext:shouldFetchObjectsWithFetchSpecification:editingContext:)];
   _delegateRespondsTo.shouldFetchArrayFault = 
     [delegate respondsToSelector: @selector(databaseContext:shouldFetchArrayFault:)];
+  _delegateRespondsTo.shouldHandleDatabaseException = 
+  [delegate respondsToSelector: @selector(databaseContext:shouldHandleDatabaseException:)];
 
   while ((channel = GDL2_NextObjectWithImpPtr(channelsEnum,&enumNO)))
     [channel setDelegate: delegate];
@@ -645,8 +647,6 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 - (void)handleDroppedConnection
 {
   NSUInteger i;
-
-  EOFLOGObjectFnStartOrCond2(@"DatabaseLevel", @"EODatabaseContext");
 
   DESTROY(_adaptorContext);
   
@@ -661,7 +661,6 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   _adaptorContext = RETAIN([[[self database] adaptor] createAdaptorContext]);
   _registeredChannels = [NSMutableArray new];
 
-  EOFLOGObjectFnStopOrCond2(@"DatabaseLevel", @"EODatabaseContext");
 }
 
 @end
@@ -2538,7 +2537,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
                                        object,dbOpe);
                           
                           newRow=[dbOpe newRow];
-
+                          [newRow addEntriesFromDictionary:objectPK];
                           
                           [self relayPrimaryKey: objectPK
                                 object: object
@@ -4662,127 +4661,104 @@ Raises an exception is the adaptor is unable to perform the operations.
 		 object: (id)object
 		 entity: (EOEntity*)entity
 {
-  //TODO finish
+  //TODO check
   NSArray *relationships = nil;
   NSArray *classPropertyNames = nil;
   EODatabaseOperation *dbOpe = nil;
   NSDictionary *dbSnapshot = nil;
-  int i, count;
-
-
-
-
-
-
-
+  int i, count=0;
+  
   relationships = [entity relationships]; //OK
   classPropertyNames = [entity classPropertyNames];
   dbOpe = [self databaseOperationForObject: object];
-
-
-
-  dbSnapshot = [dbOpe dbSnapshot]; //OK
-
-
-  count = [relationships count];
-
+  
+  if (!dbOpe) {
+    dbSnapshot = [NSDictionary dictionary];
+  } else {
+    dbSnapshot = [dbOpe dbSnapshot];
+  }
+  
+  if (relationships) {
+    count = [relationships count];
+  }
+  
   if (count>0)
+  {
+    IMP oaiIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
+    
+    for (i = 0; i < count; i++)
     {
-      IMP oaiIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
-
-      for (i = 0; i < count; i++)
+      EORelationship *relationship = GDL2_ObjectAtIndexWithImp(relationships,oaiIMP,i);
+      EORelationship *substRelationship = nil;
+      NSString       *relName;
+      id              storedValue;
+      id value = nil;
+      id snapshot = nil;
+      id comSnapshotValue = nil;
+      
+      substRelationship = [relationship _substitutionRelationshipForRow: dbSnapshot];
+      
+      if (!substRelationship) {
+        continue;
+      }
+      
+      relName = [substRelationship name];
+      
+      if ((![substRelationship propagatesPrimaryKey]) || 
+          (![classPropertyNames containsObject:relName]))
+      {
+        continue;
+      }
+      
+      storedValue = [object storedValueForKey:relName];
+      if (!storedValue)
+      {
+        continue;
+      }
+      
+      snapshot = [self _currentCommittedSnapshotForObject: object];                  
+      comSnapshotValue = [snapshot objectForKey:relName];
+      
+      // or use == ?
+      if ([storedValue isEqual:comSnapshotValue])
+      {
+        continue;
+      }
+      
+      if ([substRelationship isToMany])
+      {
+        // or use == ?
+        if ([comSnapshotValue isEqual: (NSArray*)storedValue] == NO)
         {
-          EORelationship *relationship = GDL2_ObjectAtIndexWithImp(relationships,oaiIMP,i);
-          EORelationship *substRelationship = nil;
-          BOOL propagatesPrimaryKey = NO;
+#warning check!!
+          NSArray * storedValueArray = (NSArray*)storedValue;
+          NSUInteger x;
+          for (x = [storedValueArray count]; x > 0; x--)
+          {            
+            [self relayPrimaryKey: pk
+                     sourceObject: object
+                       destObject: [storedValueArray objectAtIndex:x-1]
+                     relationship: substRelationship];
+            
+          }
           
-
-          
-          substRelationship 
-            = [relationship _substitutionRelationshipForRow: dbSnapshot];
-          propagatesPrimaryKey = [substRelationship propagatesPrimaryKey]; //substRelationship or relationship?
-          
-          NSDebugMLLog(@"EODatabaseContext",
-                       @"object=%p relationship name=%@ ==> "
-                       @"propagatesPrimaryKey=%s",
-                       object,
-                       [relationship name],
-                       (propagatesPrimaryKey ? "YES" : "NO"));
-          
-          if (propagatesPrimaryKey)
-            {
-              NSString *relName = [substRelationship name]; //this one ??
-              
-
-              
-              if ([classPropertyNames containsObject: relName])
-                {
-                  id value = nil;
-                  id snapshot = nil;
-                  id snapshotValue = nil;
-                  BOOL isToMany = NO;
-                  
-                  value = [object storedValueForKey: relName];
-
-                  
-                  snapshot = [self _currentCommittedSnapshotForObject: object];
-
-                  
-                  snapshotValue = [snapshot objectForKey:relName];//ret nil
-                  NSDebugMLLog(@"EODatabaseContext", @"snapshotValue=%@",
-                               snapshotValue);
-                  
-                  isToMany = [substRelationship isToMany]; //this one ??
-                  NSDebugMLLog(@"EODatabaseContext", @"isToMany=%s",
-                               (isToMany ? "YES" : "NO"));
-                  
-                  if (isToMany)
-                    {
-                      int valueValuesCount = 0;
-                      
-                      value = [((NSArray*)value) shallowCopy];
-                      valueValuesCount = [value count];
-                      if (valueValuesCount>0)
-                        {
-                          int iValueValue = 0;
-                          IMP vObjectAtIndexIMP=[value methodForSelector: @selector(objectAtIndex:)];
-
-                          for (iValueValue = 0;
-                               iValueValue < valueValuesCount;
-                               iValueValue++)
-                            {
-                              id valueValue = GDL2_ObjectAtIndexWithImp(value,vObjectAtIndexIMP,iValueValue);
-                              
-                              NSDebugMLLog(@"EODatabaseContext",
-                                           @"valueValue=%@", valueValue);
-                              
-                              [self relayPrimaryKey: pk
-                                    sourceObject: object
-                                    destObject: valueValue
-                                    relationship: substRelationship]; //this one ??
-                            }
-                        };
-                    }
-                  else
-                    {
-
-                      
-                      // 1:1 relationships may be optional so we may have no value here
-                      if (value)
-                        {
-                          [self relayPrimaryKey: pk
-                                sourceObject: object
-                                destObject: value
-                            relationship: substRelationship]; //this one ??
-                        };
-                    }
-                }
-            }
         }
+      }
+      else
+      {
+        
+        
+        // 1:1 relationships may be optional so we may have no value here
+        [self relayPrimaryKey: pk
+                 sourceObject: object
+                   destObject: value
+                 relationship: substRelationship]; //this one ??
+      }
     }
-
-
+    
+  }
 }
+
 
 - (void) createAdaptorOperationsForDatabaseOperation: (EODatabaseOperation*)dbOpe
                                           attributes: (NSArray*)attributes
@@ -7089,6 +7065,23 @@ Raises an exception is the adaptor is unable to perform the operations.
 
 }
 
+/**
+ * Convenience method to check if our delegate handles database exceptions 
+ * or if we have to do it ourself.
+ */
+
+- (BOOL) _delegateHandledDatabaseException:(NSException *) exception
+{
+  if (_delegateRespondsTo.shouldHandleDatabaseException)
+  {
+    
+    return ([_delegate databaseContext:self
+         shouldHandleDatabaseException:exception] == NO);
+    
+  } 
+  return NO;
+}
+
 - (void) _cleanUpAfterSave
 {
   // TODO -- dw
@@ -7160,263 +7153,168 @@ Raises an exception is the adaptor is unable to perform the operations.
 - (NSDictionary*)_primaryKeyForObject: (id)object
                        raiseException: (BOOL)raiseException
 {
-  //NEAR OK
-  //Ayers: Review
   NSDictionary *pk = nil;
   EOEntity *entity = nil;
   NSArray *pkNames = nil;
-  BOOL shouldGeneratePrimaryKey = NO;
-
-
-
-
-  NSAssert(!_isNilOrEONull(object), @"No object");
-
-  entity = [_database entityForObject: object];
-  shouldGeneratePrimaryKey = [self _shouldGeneratePrimaryKeyForEntityName:
-				     [entity name]];
-  NSDebugMLLog(@"EODatabaseContext",
-	       @"object=%p shouldGeneratePrimaryKey=%d",
-	       object, shouldGeneratePrimaryKey);
-
-/*
-  if (shouldGeneratePrimaryKey)
-*/
-    {
-
-      BOOL isPKValid = NO;
-      EOGlobalID *gid = EODatabaseContext_globalIDForObjectWithImpPtr(self,NULL,object);
-
-
-
-      pk = [entity primaryKeyForGlobalID: (EOKeyGlobalID*)gid]; //OK
-
-
-      {
-        NSDictionary *pk2 = nil;
-        pkNames = [entity primaryKeyAttributeNames];
-
-        pk2 = [self valuesForKeys: pkNames
-		    object: object];
-
-
-
-        if (pk)
-          {
-            //merge pk2 into pk
-            NSEnumerator *pk2Enum = [pk2 keyEnumerator];
-            IMP pk2EnumNO=NULL; // nextObject
-            NSMutableDictionary *realPK 
-	      = [NSMutableDictionary dictionaryWithDictionary: pk];//revoir
-            id key = nil;
-
-            while ((key = GDL2_NextObjectWithImpPtr(pk2Enum,&pk2EnumNO)))
-              {
-                [realPK setObject: [pk2 objectForKey: key]
-                        forKey: key];
-              }
-
-            pk = realPK;
-          }
-        else
-          pk=pk2;
-      }
-
-
-
-      isPKValid = [entity isPrimaryKeyValidInObject: pk];
-      NSDebugMLLog(@"EODatabaseContext",@"object=%p isPKValid=%d",
-		      object, isPKValid);
-      if (isPKValid == NO)
-        pk = nil;
-
-
-      NSDebugMLLog(@"EODatabaseContext",
-		   @"object=%p isPKValid=%d shouldGeneratePrimaryKey=%d",
-		   object, isPKValid, shouldGeneratePrimaryKey);
-
-      if (isPKValid == NO && shouldGeneratePrimaryKey)
-        {
-          pk = nil;
-
-          if (_delegateRespondsTo.newPrimaryKey == YES)
-            pk = [_delegate databaseContext: self
-                            newPrimaryKeyForObject: object
-                            entity: entity];
-
-          if (!pk)
-            {
-              NSArray *pkAttributes = nil;
-              EOAdaptorChannel *channel = nil;
-              EOStoredProcedure *nextPKProcedure = nil;
-
-              nextPKProcedure = [entity storedProcedureForOperation:
-					  EONextPrimaryKeyProcedureOperation];
-#if 0 // TODO execute storedProcedure and fetch results;
-
-              if (nextPKProcedure)
-                [[[self _obtainOpenChannel] adaptorChannel]
-                  executeStoredProcedure: nextPKProcedure
-                  withValues:];
-#endif                  
-
-              pkAttributes = [entity primaryKeyAttributes];
-
-              NSDebugMLLog(@"EODatabaseContext",
-			   @"object=%p pk=%@ [pkAttributes count]=%d",
-			   object, pk, [pkAttributes count]);
-              
-              if (pk == nil && [pkAttributes count] == 1)
-                {
-                  EOAttribute *pkAttr = [pkAttributes objectAtIndex: 0];
-                  //TODO attr: adaptorValueType //returned EOAdaptorNumberType
-                  //TODO [entity rootParent];//so what
-                  
-                  if (channel == nil)
-                    {
-                      channel = [[self _obtainOpenChannel] adaptorChannel];
-                      
-                      if ([[channel adaptorContext]
-                            transactionNestingLevel] == 0)
-                        [[channel adaptorContext] beginTransaction];
-                      
-                      if (_flags.beganTransaction == NO)
-                        {
-                          NSDebugMLLog(@"EODatabaseContext",
-				       @"BEGAN TRANSACTION FLAG==>NO");
-                          _flags.beganTransaction = YES;
-                        }
-                    }
-                  
-                  pk = [channel primaryKeyForNewRowWithEntity: entity];
-                  
-                 NSDebugMLLog(@"EODatabaseContext",
-			      @"** prepare pk %@", pk);
-                  
-                  
-                  if (pk == nil && [[pkAttr valueClassName]
-                                     isEqual:@"NSData"] == YES)
-                    {
-                      unsigned char data[EOUniqueBinaryKeyLength];
-                      
-                      [EOTemporaryGlobalID assignGloballyUniqueBytes: data];
-                      
-                      pk = [NSDictionary dictionaryWithObject:
-                                           [NSData dataWithBytes: data
-                                                   length:
-						     EOUniqueBinaryKeyLength]
-                                         forKey: [pkAttr name]];
-                    };
-                }
-            }
-          
-          if (!pk && raiseException)
-            [NSException raise: NSInvalidArgumentException
-                         format: @"%@ -- %@ 0x%x: cannot generate primary key for object '%@'",
-                         NSStringFromSelector(_cmd),
-                         NSStringFromClass([self class]),
-                         self, object];
-        }
-    }
-/*
-  else // !shouldGeneratePrimaryKey
-*/
-  if (!pk)
-    {
-      // MG
-      // Here we'll find if there is a "parent" objects which relay pk
-      // I'm not sure if we could do it here but it's handle this case:
-      //    object is a new child of a previous existing object.
-      //	if we don't generate it's pk here, the chld object 
-      //	will relay it's pk to parent which is not good
-      NSDictionary *objectSnapshot=nil;
-      NSArray *relationships=nil;
-      NSUInteger relationshipsCount=0;
-
-
-
-      // get object snapshot
-      objectSnapshot = [object snapshot];      
-      NSDebugMLLog(@"EODatabaseContext", @"objectSnapshot=%@",
-		      objectSnapshot);
-
-      // Get object relationships
-      relationships = [entity relationships];      
-
-      
-      relationshipsCount = [relationships count];
-      
-      if (relationshipsCount>0)
-        {
-          IMP oaiIMP=[relationships methodForSelector: @selector(objectAtIndex:)];
-          NSUInteger i = 0;
-
-          for (i = 0; i < relationshipsCount; i++)
-            {
-              EORelationship *inverseRelationship = nil;
-              
-              EORelationship *relationship = GDL2_ObjectAtIndexWithImp(relationships,oaiIMP,i);
-              NSDebugMLLog(@"EODatabaseContext", @"relationship=%@",
-                           relationship);
-              
-              inverseRelationship = [relationship inverseRelationship];
-              NSDebugMLLog(@"EODatabaseContext", @"inverseRelationship=%@",
-                           inverseRelationship);
-              
-              // if there's inverse relationship with propagates primary key
-              if ([inverseRelationship propagatesPrimaryKey])
-                {
-                  NSString *relationshipName= [relationship name];
-                  NSDictionary *relationshipValuePK = nil;
-                  
-                  // get object value for the relationship
-                  id relationshipValue
-                    = [objectSnapshot valueForKey:relationshipName];
-                  NSDebugMLLog(@"EODatabaseContext",
-                               @"entity name=%@ relationship name=%@ Value=%@",
-                               [entity name],
-                               relationshipName, relationshipValue);
-                  
-                  // get relationshipValue pk
-                  NSAssert2(!_isNilOrEONull(relationshipValue), 
-                            @"No relationshipValue for relationship %@ in objectSnapshot %@ ",
-                            relationshipName,
-                            objectSnapshot);
-                  
-                  relationshipValuePK 
-                    = [self _primaryKeyForObject: relationshipValue];
-                  NSDebugMLLog(@"EODatabaseContext",
-                               @"relationshipValuePK=%@",
-                               relationshipValuePK);
-                  
-                  // force object to relay pk now !
-                  [self relayPrimaryKey: relationshipValuePK
-                        object: relationshipValue
-                        entity: [_database entityForObject: relationshipValue]];
-                };
-            };
-        };
-      pk = [self valuesForKeys: pkNames
-                 object: object];
-
-      if (![entity isPrimaryKeyValidInObject: pk])
-        pk=nil;
-    };
-
-  if (pk)
-    {
-      EODatabaseOperation *dbOpe = [self databaseOperationForObject: object];
-      NSMutableDictionary *newRow = [dbOpe newRow]; 
-      
-      [newRow addEntriesFromDictionary: pk];// VERIFY Here we replace 
-                                            // previous key
-    }
+  NSDictionary *pk2 = nil;
   
-
-  NSDebugMLog(@"object %p=%@\npk=%@",object, object, pk);
-
-
-
+  NSAssert(!_isNilOrEONull(object), @"No object");
+  
+  entity = [_database entityForObject: object];
+  
+  EOGlobalID *gid = EODatabaseContext_globalIDForObjectWithImpPtr(self,NULL,object);
+  
+  pk = [entity primaryKeyForGlobalID: (EOKeyGlobalID*)gid]; //OK
+  
+  pkNames = [entity primaryKeyAttributeNames];
+  
+  pk2 = [self valuesForKeys: pkNames
+                     object: object];
+  
+  if ([pk2 count] > 0) 
+  {
+    if (pk)
+    {
+      //merge pk2 into pk
+      NSEnumerator *pk2Enum = [pk2 keyEnumerator];
+      IMP pk2EnumNO=NULL; // nextObject
+      NSMutableDictionary *realPK;
+      
+      realPK = [NSMutableDictionary dictionaryWithDictionary: pk];
+      id key = nil;
+      
+      while ((key = GDL2_NextObjectWithImpPtr(pk2Enum,&pk2EnumNO)))
+      {
+        id value = [pk2 objectForKey: key];
+        
+        if (((value) && (value != GDL2_EONull)) &&
+            (([value isKindOfClass:[NSNumber class]] == NO) || ([value intValue] != 0)))
+        {
+          [realPK setObject: value
+                     forKey: key];
+        }
+      }
+      
+      pk = realPK;
+    }
+    else
+      pk=pk2;
+  }
+  
+  if (([entity isPrimaryKeyValidInObject: pk] == NO)) {
+    pk = nil;
+  }    
+  
+  // no PK? Ask the delegate to make one for us.
+  if ((pk == nil))
+  {      
+    if (_delegateRespondsTo.newPrimaryKey == YES)
+      pk = [_delegate databaseContext: self
+               newPrimaryKeyForObject: object
+                               entity: entity];
+  }
+  
+  // still no PK?
+  if ((pk == nil))
+  {
+    EOAdaptorChannel *channel = nil;
+    EOStoredProcedure *nextPKProcedure = nil;
+    
+    nextPKProcedure = [entity storedProcedureForOperation:
+                       EONextPrimaryKeyProcedureOperation];
+    
+    if (nextPKProcedure) 
+    {      
+      NS_DURING {
+        
+        channel = [[self _obtainOpenChannel] adaptorChannel];
+        
+        [channel executeStoredProcedure:nextPKProcedure
+                             withValues:nil];
+        
+        pk = [channel returnValuesForLastStoredProcedureInvocation];
+        
+      } NS_HANDLER {
+        // if the delegate took care about the exception
+        // or we lost connection, try it again.
+        if (([self _delegateHandledDatabaseException:localException]) ||
+            ([[_database adaptor] isDroppedConnectionException:localException]))
+        {
+          channel = [[self _obtainOpenChannel] adaptorChannel];
+          
+          [channel executeStoredProcedure:nextPKProcedure
+                               withValues:nil];
+          
+          pk = [channel returnValuesForLastStoredProcedureInvocation];
+        } else {
+          [localException raise];
+        }
+      }
+    } NS_ENDHANDLER;
+  }
+  
+  if (pk)
+  {
+    pk = [entity primaryKeyForRow:pk];
+  }
+  
+  if (!pk) {
+    EOAttribute * pkAttr = nil;
+    NSArray     * pkAttributes = [entity primaryKeyAttributes];
+    
+    if ((pkAttributes) && ([pkAttributes count] == 1)) {
+      pkAttr = [pkAttributes objectAtIndex: 0];
+    }          
+    if ((pkAttr) && (([pkAttr adaptorValueType] == EOAdaptorBytesType) && 
+                     ([pkAttr width] == 24)))
+    {
+      unsigned char bytes[24];
+      id            byteValue = nil;
+      
+      bzero(&bytes, sizeof(bytes));
+      
+      [EOTemporaryGlobalID assignGloballyUniqueBytes:&bytes[0]];
+      
+      byteValue = [pkAttr newValueForBytes: &bytes
+                                    length:sizeof(bytes)];
+      pk = [NSDictionary dictionaryWithObject:byteValue
+                                       forKey:[pkAttr name]];
+    }          
+  }
+  
+  if (!pk) {
+    EOAdaptorChannel *channel = nil;
+    
+    NS_DURING {
+      channel = [[self _obtainOpenChannel] adaptorChannel];
+      
+      pk = [channel primaryKeyForNewRowWithEntity:entity];
+      
+    } NS_HANDLER {
+      // if the delegate took care about the exception
+      // or we lost connection, try it again.
+      if (([self _delegateHandledDatabaseException:localException]) ||
+          ([[_database adaptor] isDroppedConnectionException:localException]))
+      {
+        channel = [[self _obtainOpenChannel] adaptorChannel];
+        
+        pk = [channel primaryKeyForNewRowWithEntity:entity];
+        
+      } else {
+        [localException raise];
+      }
+    } NS_ENDHANDLER;
+  }
+  // TODO: The reference does not raise here I suppose -- dw.
+  //    if (!pk) {
+  //      [NSException raise: NSInvalidArgumentException
+  //                  format: @"%@ -- %@ 0x%x: cannot generate primary key for object '%@'",
+  //       NSStringFromSelector(_cmd),
+  //       NSStringFromClass([self class]),
+  //       self, object];
+  //    }
+  
+  
   return pk;
 }
 

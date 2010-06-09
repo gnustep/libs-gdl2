@@ -59,12 +59,10 @@ RCS_ID("$Id$")
 #include <Foundation/NSTimeZone.h>
 #else
 #include <Foundation/Foundation.h>
-#endif
-
-#ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
 #include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 #endif
 
 #include <EOControl/EONull.h>
@@ -94,6 +92,8 @@ static BOOL attrRespondsToValueTypeChar = NO;
 
 #define EOAdaptorDebugLog(format, args...) \
   do { if ([self isDebugEnabled]) { NSLog(format , ## args); } } while (0)
+
+#warning Check this. Is this unused code? -- dw
 
 static NSDictionary *
 pgResultDictionary(PGresult *pgResult)
@@ -812,13 +812,14 @@ newValueForBytesLengthAttribute (const void *bytes,
   NSString	*tmpstr = [NSString stringWithCString:PQcmdStatus(_pgResult)
                                          encoding:NSASCIIStringEncoding];
   NSUInteger	num = 0;
-  
+
   if ([tmpstr isEqualToString:@"SELECT"]) {
     num=PQntuples(_pgResult);
     
     return num;
   } else {
-    NSRange spaceRange = [tmpstr rangeOfString:@" "];
+    NSRange spaceRange = [tmpstr rangeOfString:@" "
+                                       options:NSBackwardsSearch];
     if (spaceRange.location != NSNotFound) {
       NSString * numStr = [tmpstr substringFromIndex:spaceRange.location];
       num = [numStr integerValue];
@@ -878,7 +879,7 @@ newValueForBytesLengthAttribute (const void *bytes,
                 [_sqlExpression statement], errorString);
 
         [NSException raise: PostgreSQLException
-		     format: @"unexpected result returned by PQresultStatus(): %@",errorString];
+		     format: @"SQL expression '%@' caused %@",[_sqlExpression statement], errorString];
 
         return NO;
       }
@@ -2192,69 +2193,66 @@ each key
 
 - (NSDictionary *)primaryKeyForNewRowWithEntity:(EOEntity *)entity
 {
-//entity primaryKeyAttributes
-//self adaptorContext
-//on each attr attr: adaptorValueType
-//entty externalName
-//context autoBeginTransaction
-//self cleanupFetch######
-//attr name
-//dictionary with...
   NSDictionary *pk = nil;
-  NSString *sqlString;
-  NSString *key = nil;
-  NSNumber *pkValue = nil;
-  const char *string = NULL;
+  NSArray 	   *primaryKeyAttributes = [entity primaryKeyAttributes];
+  EOAttribute  *primAttribute;
+  NSString     *sqlString;
+  NSNumber     *pkValue = nil;
+  const char   *string = NULL;
   int length = 0;
-  NSString *primaryKeySequenceNameFormat;
-  NSString *sequenceName;
-  EOSQLExpression *expr;
-
-  primaryKeySequenceNameFormat 
-    = [(PostgreSQLContext*)[self adaptorContext] primaryKeySequenceNameFormat];
-  NSAssert(primaryKeySequenceNameFormat, @"No primary sequence name format");
-
-  expr = AUTORELEASE([[[_adaptorContext adaptor] expressionClass] new]);
-  sequenceName = [NSString stringWithFormat: primaryKeySequenceNameFormat,
-			   [entity primaryKeyRootName]];
-  sequenceName = [expr sqlStringForSchemaObjectName: sequenceName];
-  sqlString = [NSString stringWithFormat: @"SELECT nextval('%@')",
-			sequenceName];
-  [expr setStatement: sqlString];
-
-  [self _cancelResults];
-  [_adaptorContext autoBeginTransaction: NO];
-
-  [self _evaluateExpression: expr
-	withAttributes: _pkAttributeArray];
-
-  if ([self isFetchInProgress] == NO
-      || [self advanceRow] == NO)
-    {
-      [self _cancelResults];
-      [_adaptorContext autoCommitTransaction];
-    }
-  else
-    {
-      EOAttribute *attr;
-      string = PQgetvalue(_pgResult, _currentResultRow, 0);
-      length = PQgetlength(_pgResult, _currentResultRow, 0);
-      
-      attr = [_pkAttributeArray objectAtIndex: 0];
-      pkValue = AUTORELEASE(newValueForBytesLengthAttribute(string,length,attr,_encoding));
-
-      NSAssert(pkValue, @"no pk value");
-      key = [[entity primaryKeyAttributeNames] objectAtIndex: 0];
-      NSAssert(key, @"pk key");
   
-      [self _cancelResults];
-      [_adaptorContext autoCommitTransaction];
-      
-      pk = [NSDictionary dictionaryWithObject: pkValue
-			 forKey: key];
-    }
-
-
+  if([primaryKeyAttributes count] != 1) 
+  {
+    return nil; // We support only simple primary keys
+  }
+  primAttribute = [primaryKeyAttributes objectAtIndex:0];
+  
+  if([primAttribute adaptorValueType] != EOAdaptorNumberType)
+  {
+    return nil; // We support only number keys
+  }
+  
+  sqlString = [NSString stringWithFormat: @"SELECT nextval('%@_SEQ')",
+               [entity primaryKeyRootName]];
+  
+  if ([self isDebugEnabled]) 
+  {
+    NSLog(@"PostgreSQLAdaptor: '%@'", sqlString);
+  }
+  
+  _pgResult = PQexec(_pgConn,[sqlString cStringUsingEncoding:NSASCIIStringEncoding]);
+  
+  if (PQresultStatus(_pgResult) != PGRES_TUPLES_OK) 
+  {
+    
+    NSString* errorString=[NSString stringWithCString:PQerrorMessage(_pgConn)
+                                             encoding:NSASCIIStringEncoding];
+    
+    [self _cancelResults];
+    
+    [NSException raise: PostgreSQLException
+                format: @"SQL expression '%@' caused %@", sqlString, errorString];
+  }    
+    
+  string = PQgetvalue(_pgResult, 0, 0);
+  length = PQgetlength(_pgResult, 0, 0);
+  
+  
+  pkValue = newValueForBytesLengthAttribute(string,
+                                            length,
+                                            primAttribute,
+                                            _encoding);
+  // frees the memory
+  [self _cancelResults];
+  
+  NSAssert(pkValue, @"no pk value");
+  
+  [_adaptorContext autoCommitTransaction];
+  
+  pk = [NSDictionary dictionaryWithObject: pkValue
+                                   forKey: [primAttribute name]];
+  RELEASE(pkValue);
+  
   return pk;
 }
 

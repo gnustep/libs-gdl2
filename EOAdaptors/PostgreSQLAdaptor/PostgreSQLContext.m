@@ -70,9 +70,9 @@ RCS_ID("$Id$")
 {
   if ((self = [super initWithAdaptor: adaptor]))
     {
-      if (adaptor)
-        [self setPrimaryKeySequenceNameFormat:
-		[(PostgreSQLAdaptor*)adaptor primaryKeySequenceNameFormat]];
+//      if (adaptor)
+//        [self setPrimaryKeySequenceNameFormat:
+//		[(PostgreSQLAdaptor*)adaptor primaryKeySequenceNameFormat]];
     }
 
   return self;
@@ -306,15 +306,15 @@ RCS_ID("$Id$")
 }
 
 /** format is something like @"%@_SEQ" or @"EOSEQ_%@", "%@" is replaced by external table name **/
-- (void)setPrimaryKeySequenceNameFormat: (NSString*)format
-{
-  ASSIGN(_primaryKeySequenceNameFormat, format);
-}
-
-- (NSString*)primaryKeySequenceNameFormat
-{
-  return _primaryKeySequenceNameFormat;
-}
+//- (void)setPrimaryKeySequenceNameFormat: (NSString*)format
+//{
+//  ASSIGN(_primaryKeySequenceNameFormat, format);
+//}
+//
+//- (NSString*)primaryKeySequenceNameFormat
+//{
+//  return _primaryKeySequenceNameFormat;
+//}
 
 @end /* PostgreSQLContext */
 /*

@@ -1,3 +1,60 @@
+2010-06-09  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EOSQLExpression.m
+	fix include for less warnings on mac
+	* EOAccess/EOEntity.m
+	fix include for less warnings on mac
+	isPrimaryKeyValidInObject: 0 is NOT a valid PK value
+	* EOAccess/EOAdaptor.m
+	fix include for less warnings on mac
+	isDroppedConnectionException
+	add comment and remove logs
+	* EOAccess/EOSQLQualifier.m
+	* EOAccess/EODatabaseDataSource.m
+	* EOAccess/EOAdaptorContext.m
+	* EOAccess/EORelationship.m
+	* EOAccess/EOUtilities.m
+	* EOAccess/EOSchemaGeneration.m
+	* EOAccess/EOAdaptorChannel.m
+	* EOAccess/EODatabaseChannel.m	
+	fix include for less warnings on mac
+	* EOAccess/EODatabaseContext.h
+	add support for shouldHandleDatabaseException (WO 4.5)
+	* EOAccess/EODatabaseContext.m
+	add support for shouldHandleDatabaseException
+	add [newRow addEntriesFromDictionary:objectPK] 
+	to merge PKValues into the values of the EO.
+	without that it is impossible to work.
+	relayPrimaryKey: object: entity:
+	Hopefully fixed. 
+	add _delegateHandledDatabaseException:
+	fixed _primaryKeyForObject: raiseException:
+	(we raise always for now)
+	* EOAccess/EOAdaptorChannel.h
+	add comment
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m
+	fix include for less warnings on mac
+	numberOfAffectedRows: search reverse to cover "INSERT 0 1" case.
+	The first zero is the OID number
+	refactored primaryKeyForNewRowWithEntity:
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLContext.h/m
+	disabled _primaryKeySequenceNameFormat
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLExpression.m
+	fixed formatValue: forAttribute:
+	* EOControl/EOEditingContext.m
+	* EOControl/EOFaultHandler.m
+	* EOControl/EOKeyValueQualifier.m
+	* EOControl/EOUndoManager.m
+	* EOControl/EOClassDescription.m
+	* EOControl/EOQualifier.m
+	* EOControl/EOOrQualifier.m
+	fix include for less warnings on mac
+	* EOControl/EOCustomObject.m
+	use getCString:maxLength:encoding instead of getCString
+	use setValue: forKey instead of takeValue: forKey:
+	change text in exceptions a bit
+	* EOControl/EOPrivate.h
+	use setValue: forKey instead of takeValue: forKey:	
+	
 2010-06-07  Fred Kiefer  <FredKiefer@gmx.de>
 
 	* EOMultiReaderLock.m (-tryLockForWriting, -unlockForReading):

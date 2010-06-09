@@ -142,6 +142,9 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 
 - (void)cancelFetch;
 
+/** 
+ * Database adaptors need to override this
+ */
 - (NSDictionary *)primaryKeyForNewRowWithEntity: (EOEntity *)entity;
 
 - (NSArray *)describeTableNames;

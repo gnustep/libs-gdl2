@@ -34,7 +34,7 @@
 
 @interface PostgreSQLContext : EOAdaptorContext
 {
-  NSString* _primaryKeySequenceNameFormat;
+ // NSString* _primaryKeySequenceNameFormat;
   struct
   {
     unsigned int didAutoBegin:1;
@@ -57,8 +57,8 @@
 - (BOOL)autoCommitTransaction;
 
 // format is something like @"%@_SEQ" or @"EOSEQ_%@", "%@" is replaced by external table name
-- (void)setPrimaryKeySequenceNameFormat: (NSString*)format;
-- (NSString*)primaryKeySequenceNameFormat;
+//- (void)setPrimaryKeySequenceNameFormat: (NSString*)format;
+//- (NSString*)primaryKeySequenceNameFormat;
 
 - (BOOL)autoBeginTransaction: (BOOL)force;
 - (BOOL)autoCommitTransaction;

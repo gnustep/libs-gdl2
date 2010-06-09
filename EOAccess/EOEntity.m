@@ -57,12 +57,9 @@ RCS_ID("$Id$")
 #include <Foundation/NSZone.h>
 #else
 #include <Foundation/Foundation.h>
-#endif
-
-#ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
@@ -1425,32 +1422,29 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   NSArray *primaryKeyAttributeNames = nil;
   NSString *key = nil;
   id value = nil;
-  int i, count;
+  NSUInteger i, count;
   BOOL isValid = YES;
   IMP pkanOAI=NULL;
   IMP objectVFK=NULL;
-
+  
   primaryKeyAttributeNames = [self primaryKeyAttributeNames];
   count = [primaryKeyAttributeNames count];
-
-  for (i = 0; isValid && i < count; i++)
-    {
-      key = GDL2_ObjectAtIndexWithImpPtr(primaryKeyAttributeNames,&pkanOAI,i);
-
-      NS_DURING
-	{
-          value = GDL2_ValueForKeyWithImpPtr(object,&objectVFK,key);
-          if (_isNilOrEONull(value))
-            isValid = NO;
-	}
-      NS_HANDLER
-	{
-	  isValid = NO;
-	}
-      NS_ENDHANDLER;
-    }
   
-  return isValid;
+  for (i = 0; i < count; i++)
+  {
+    key = GDL2_ObjectAtIndexWithImpPtr(primaryKeyAttributeNames,&pkanOAI,i);
+    
+      value = GDL2_ValueForKeyWithImpPtr(object,&objectVFK,key);
+      
+      
+      // a 0 is NOT a valid PK value! -- dw
+      if ((_isNilOrEONull(value)) || (([value isKindOfClass:[NSNumber class]]) && 
+                                      ([value intValue] == 0))) {
+        return NO;
+      }
+  }
+  
+  return YES;
 }
 
 - (BOOL)isValidClassProperty: (id)property

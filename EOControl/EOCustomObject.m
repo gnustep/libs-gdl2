@@ -47,6 +47,7 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
 #include <GNUstepBase/GSObjCRuntime.h>
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
 
 #include "EOCustomObject.h"
@@ -217,7 +218,7 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
     if (size < 1)
     {
       [NSException raise: NSInvalidArgumentException
-                  format: @"storedValueForKey: ... empty key"];
+                  format: @"%s: empty key", __PRETTY_FUNCTION__];
     }
     else
     {
@@ -226,7 +227,11 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
       char buf[length + 10];
       
       strcpy(buf, "validate");
-      [key getCString: &buf[8]];
+
+      [key getCString:&buf[8] 
+            maxLength:length
+             encoding:NSASCIIStringEncoding];
+
       buf[8] = toupper((int)buf[8]);
       buf[length + 8] = ':';
       buf[length + 9] = 0;
@@ -239,7 +244,6 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
 	    }
     }
   }
-  
   
   return exception;
 }
@@ -302,7 +306,7 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
     if (nval != oval && 
         ((nval == nil || oval == nil) || [nval isEqual: oval] == NO))
     {
-      [self takeValue:nval forKey: path];
+      [self setValue:nval forKey: path];
     }
   }
   else
@@ -429,7 +433,7 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
   if (size < 1)
   {
     [NSException raise: NSInvalidArgumentException
-                format: @"addObject:toPropertyWithKey: ... empty key"];
+                format: @"%s: empty key", __PRETTY_FUNCTION__];
   }
   else
   {
@@ -440,7 +444,11 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
     // Test addToKey:
     
     strcpy(buf, "addTo");
-    [key getCString: &buf[5]];
+    
+    [key getCString:&buf[5] 
+          maxLength:size
+           encoding:NSASCIIStringEncoding];
+    
     buf[5] = toupper(buf[5]);
     buf[size+5] = ':';
     buf[size+6] = '\0';
@@ -479,16 +487,16 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
             
             [relArray addObject: object];
             
-            [self takeValue: relArray
-                     forKey: key];
+            [self setValue: relArray
+                    forKey: key];
           }
         }
       }
       else
       {
         
-        [self takeValue: object
-                 forKey: key];
+        [self setValue: object
+                forKey: key];
       }
     }
   }
@@ -501,7 +509,7 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
   if (size < 1)
   {
     [NSException raise: NSInvalidArgumentException
-                format: @"removeObject:fromPropertyWithKey: ... empty key"];
+                format: @"%s: empty key", __PRETTY_FUNCTION__];
   }
   else
   {
@@ -512,7 +520,11 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
     // Test removeFromKey:
     
     strcpy(buf, "removeFrom");
-    [key getCString: &buf[10]];
+    
+    [key getCString:&buf[10] 
+          maxLength:size
+           encoding:NSASCIIStringEncoding];
+    
     buf[10] = toupper(buf[10]);
     buf[size+10] = ':';
     buf[size+11] = '\0';
@@ -546,15 +558,15 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
             relArray = AUTORELEASE([val mutableCopy]);
             
             [relArray removeObject: object];
-            [self takeValue: relArray
-                     forKey: key];
+            [self setValue: relArray
+                    forKey: key];
           }
         }
       }
       else
       {
-        [self takeValue: nil
-                 forKey: key];
+        [self setValue: nil
+                forKey: key];
       }
     }
   }
@@ -585,8 +597,8 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
       }
     }
     
-    [self takeValue: object
-             forKey: key];
+    [self setValue: object
+            forKey: key];
   }
 }
 
@@ -640,8 +652,8 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
             }
             
             // Just set self into object relationship property
-            [object takeValue: self
-                       forKey: inverseKey];
+            [object setValue: self
+                      forKey: inverseKey];
           };
         }
       }

@@ -113,7 +113,8 @@ struct _EOTransactionScope;
     unsigned int didFetchObjects:1;
     unsigned int shouldFetchObjectFault:1;
     unsigned int shouldFetchArrayFault:1;
-    unsigned int _reserved:21;
+    unsigned int shouldHandleDatabaseException:1;
+    unsigned int _reserved:20;
   } _delegateRespondsTo;
 
   NSRecursiveLock *_lock; //TODO: not lock object !
@@ -426,6 +427,14 @@ shouldRaiseExceptionForLockFailure: (NSException *)exception;
 
 - (BOOL)databaseContext: (EODatabaseContext *)databaseContext
   shouldFetchArrayFault: (id)fault;
+
+/**
+ *  If the delegate returns NO, it is responsible for doing the right thing
+ *  This is new in WO 4.5
+ */
+
+- (BOOL)databaseContext: (EODatabaseContext *)databaseContext
+shouldHandleDatabaseException: (NSException *)exception;
 
 @end
 

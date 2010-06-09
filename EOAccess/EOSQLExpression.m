@@ -57,6 +57,7 @@ RCS_ID("$Id$")
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOFetchSpecification.h>

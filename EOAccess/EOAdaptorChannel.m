@@ -51,6 +51,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOMutableKnownKeyDictionary.h>
@@ -298,10 +299,8 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 
 - (NSDictionary *)primaryKeyForNewRowWithEntity: (EOEntity *)entity
 {
-
-
-
-  return nil;//no or subclass respo ?
+  [self subclassResponsibility: _cmd];
+  return nil;
 }
 
 - (NSArray *)describeTableNames

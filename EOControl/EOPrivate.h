@@ -264,8 +264,8 @@ static inline void GDL2_TakeValueForKeyWithImpPtr(id object,IMP* impPtr,id value
   if (object)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:@selector(takeValue:forKey:)];
-      (**impPtr)(object,@selector(takeValue:forKey:),value,key);
+        *impPtr=[object methodForSelector:@selector(setValue:forKey:)];
+      (**impPtr)(object,@selector(setValue:forKey:),value,key);
     };
 };
 

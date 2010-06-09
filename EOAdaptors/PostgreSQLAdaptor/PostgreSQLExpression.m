@@ -113,29 +113,13 @@ RCS_ID("$Id$")
 
   externalType = [attribute externalType];
 
-  if (!value)
-    {
-      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-			    @"NULL case - value=%@ class=%@",
-			    value, [value class]);      
-
-      formatted = @"NULL";
-    }
-  else if ([value isEqual: [EONull null]])
-    {
-      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-			    @"EONULL case - value=%@ class=%@",
-			    value, [value class]);      
-
-      formatted = [value sqlString];
-    }
+  if ((!value) || ((value==[EONull null])))
+  {
+    return @"NULL";
+  }
   else if ([externalType hasPrefix: @"int"]
            || [externalType hasPrefix: @"bigint"])
     {
-      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-			    @"int case - value=%@ class=%@",
-			    value, [value class]);      
-
       formatted = [NSString stringWithFormat: @"%@", value];
 
       // value was for example 0 length string
@@ -143,95 +127,74 @@ RCS_ID("$Id$")
         formatted = @"NULL";
     }
   else if ([externalType hasPrefix: @"float"])
+  {
+    /*
+     * 12345.67 has a precision of 7 and a scale of 2.
+     */
+    return [NSString stringWithFormat:@"%@",value];
+    /*
+    unsigned short precision=[attribute precision];
+    int scale=[attribute scale];
+    // As far as I understand, we need to try to do complex things if precision!=0 or scale!=0 
+    if (precision==0 && scale==0)
     {
-      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-			    @"float case - value=%@ class=%@",
-			    value, [value class]);
-
-      if (_isNilOrEONull(value))
-        formatted=@"NULL";
-      else 
-        {
-          unsigned short precision=[attribute precision];
-          short scale=[attribute scale];
-          EOFLOGObjectLevelArgs(@"EOSQLExpression",
-                                @"float case - value=%@ class=%@ precision=%d scale=%d",
-                                value, [value class],precision,scale);
-          // As far as I understand, we need to try to do complex things if precision!=0 or scale!=0 
-          if (precision==0 && scale==0)
-            {
-              // just convert it to string...
-              formatted = [NSString stringWithFormat: @"%@", value];
-            }
-          else
-            {
-              NSDecimalNumber* decimalValue=nil;
-              if ([value isKindOfClass: PSQLA_NSDecimalNumberClass] == NO)
-                {
-                  if ([value isKindOfClass: PSQLA_NSStringClass] == YES)
-                    {
-                      decimalValue
-			= AUTORELEASE([PSQLA_alloc(NSDecimalNumber) initWithString:value]);
-                      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-                                            @"float case - value [%@]=%@ ==> decimalValue=%@",
-                                            value,[value class],decimalValue);
-                    }
-                  else if ([value respondsToSelector: @selector(doubleValue)])
-                    {
-                      decimalValue
-			= AUTORELEASE([PSQLA_alloc(NSDecimalNumber) initWithDouble:[value doubleValue]]);
-                      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-                                            @"float case - value [%@]=%@ ==> decimalValue=%@",
-                                            value,[value class],decimalValue);
-                    }
-                  else if ([value respondsToSelector: @selector(floatValue)])
-                    {
-                      decimalValue
-			= AUTORELEASE([PSQLA_alloc(NSDecimalNumber) initWithFloat:[value floatValue]]);
-                      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-                                            @"float case - value [%@]=%@ ==> decimalValue=%@",
-                                            value,[value class],decimalValue);
-                    }
-                  else if ([value respondsToSelector: @selector(intValue)])
-                    {
-                      decimalValue
-			= AUTORELEASE([PSQLA_alloc(NSDecimalNumber) initWithInt:[value intValue]]);
-                      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-                                            @"float case - value [%@]=%@ ==> decimalValue=%@",
-                                            value,[value class],decimalValue);
-                    };
-                  if (decimalValue)
-                    {
-                      NSDecimal decimal;
-                      NSDecimalNumberHandler* handler=[NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundPlain // Is Plain OK ?
-                                                                              scale:scale
-                                                                              raiseOnExactness:YES
-                                                                              raiseOnOverflow:YES
-                                                                              raiseOnUnderflow:YES
-                                                                              raiseOnDivideByZero:YES];
-                      decimalValue=[decimalValue decimalNumberByRoundingAccordingToBehavior:handler];
-                      decimal=[decimalValue decimalValue];
-                      formatted=NSDecimalString(&decimal,nil);
-                    }
-                  else
-                    {
-                      // Not supported type: just convert it to string...
-                      formatted = [NSString stringWithFormat: @"%@", value];
-                    };
-                };
-            };
-        };
-
-      // value was for example 0 length string
-      if ([formatted length] == 0)
-        formatted=@"NULL";
+      // just convert it to string...
+      formatted = [NSString stringWithFormat: @"%@", value];
     }
+    else
+    {
+      NSDecimalNumber* decimalValue=nil;
+      if ([value isKindOfClass: PSQLA_NSDecimalNumberClass] == NO)
+      {
+        if ([value isKindOfClass: PSQLA_NSStringClass] == YES)
+        {
+          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber) 
+                                      initWithString:value]);
+        }
+        else if ([value respondsToSelector: @selector(doubleValue)])
+        {
+          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber) 
+                                      initWithDouble:[value doubleValue]]);
+        }
+        else if ([value respondsToSelector: @selector(floatValue)])
+        {
+          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber) 
+                                      initWithFloat:[value floatValue]]);
+        }
+        else if ([value respondsToSelector: @selector(intValue)])
+        {
+          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber)
+                                      initWithInt:[value intValue]]);
+        }
+        if (decimalValue)
+        {
+          NSDecimal decimal;
+          
+          NSDecimalNumberHandler* handler=[NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundPlain // Is Plain OK ?
+                                                                                                 scale:scale
+                                                                                      raiseOnExactness:YES
+                                                                                       raiseOnOverflow:YES
+                                                                                      raiseOnUnderflow:YES
+                                                                                   raiseOnDivideByZero:YES];
+          decimalValue=[decimalValue decimalNumberByRoundingAccordingToBehavior:handler];
+          decimal=[decimalValue decimalValue];
+          formatted=NSDecimalString(&decimal,nil);
+        }
+        else
+        {
+          // Not supported type: just convert it to string...
+          formatted = [NSString stringWithFormat: @"%@", value];
+        };
+      };
+    };
+    
+    // value was for example 0 length string
+    if ([formatted length] == 0)
+      formatted=@"NULL";
+    */
+  }
   else if ([externalType hasPrefix: @"bool"])
     {
-      EOFLOGObjectLevelArgs(@"EOSQLExpression",
-			    @"BOOL case - value=%@ class=%@",
-			    value, [value class]);          
-
       if ([value isKindOfClass: PSQLA_NSNumberClass] == YES)
         {
           BOOL boolValue = [value boolValue];
