@@ -9,6 +9,8 @@
    Author: Manuel Guesdon <mguesdon@orange-concept.com>
    Date: October 2000
 
+   Author: David Wetzel <dave@turbocat.de>
+ 
    $Revision$
    $Date$
 
@@ -143,9 +145,9 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
   // Ayers: Review
   // We use entity dictionaryForProperties to avoid creation 
   //of new EOMKKDInitializer
-  ASSIGN(dictionary,[classDescription dictionaryForInstanceProperties]);
+  ASSIGN(_dictionary,[classDescription dictionaryForInstanceProperties]);
   EOFLOGObjectLevelArgs(@"EOGenericRecord", @"Record %p: dictionary=%@",
-                        self, dictionary);
+                        self, _dictionary);
 };
 
 - (id) init
@@ -188,12 +190,12 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 {
   EOFLOGObjectLevelArgs(@"EOGenericRecord",
 			@"Deallocate EOGenericRecord %p (dict=%p)",
-			self, dictionary);
+			self, _dictionary);
 
   [[self class] removeDestroyedObject: self];
 
   DESTROY(classDescription);
-  DESTROY(dictionary);
+  DESTROY(_dictionary);
 
   [super dealloc];
 }
@@ -234,12 +236,12 @@ static const char _c_id[2] = { _C_ID, 0 };
 
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
 			    @"dictionary: %p eoMKKDInitializer: %p",
-			    dictionary,
-			    [dictionary eoMKKDInitializer]);
+			    _dictionary,
+			    [_dictionary eoMKKDInitializer]);
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"dictionary allkeys= %@",
-			    [dictionary allKeys]);
+			    [_dictionary allKeys]);
       
-      if (EOMKKD_hasKeyWithImpPtr(dictionary,NULL,name))
+      if (EOMKKD_hasKeyWithImpPtr(_dictionary,NULL,name))
         {
 	  if (type)
 	    *type = _c_id;
@@ -277,7 +279,7 @@ static const char _c_id[2] = { _C_ID, 0 };
 
   if (offset == INT_MAX)
     {
-      value = EOMKKD_objectForKeyWithImpPtr(dictionary,NULL,aKey);
+      value = EOMKKD_objectForKeyWithImpPtr(_dictionary,NULL,aKey);
 
       EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value %p (class=%@)",
 			    value, [value class]);
@@ -310,9 +312,9 @@ static const char _c_id[2] = { _C_ID, 0 };
   if (offset == INT_MAX)
     {
       if (anObject)
-        EOMKKD_setObjectForKeyWithImpPtr(dictionary,NULL,anObject,aKey);
+        EOMKKD_setObjectForKeyWithImpPtr(_dictionary,NULL,anObject,aKey);
       else
-        EOMKKD_removeObjectForKeyWithImpPtr(dictionary,NULL,aKey);
+        EOMKKD_removeObjectForKeyWithImpPtr(_dictionary,NULL,aKey);
     }
   else
     GSObjCSetVal(self, [aKey UTF8String], anObject, sel, type, size, offset);
@@ -761,320 +763,18 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 
 }
 
-//MG#if !FOUNDATION_HAS_KVC
-- (void) takeValue: (id)anObject forKey: (NSString*)aKey
+/* Invoked by valueForKey: when it finds no property corresponding to a given key.
+ */
+- (id)valueForUndefinedKey:(NSString *)key
 {
-  SEL		sel;
-  const char	*type;
-  unsigned	size;
-  int		off=0;
-
-
-
-
-
-  size = [aKey length];
-  if (size < 1)
-    {
-      [NSException raise: NSInvalidArgumentException
-		  format: @"takeValue:forKey: ... empty key"];
-    }
-  else
-    {
-      char		buf[size+6];
-      char		lo;
-      char		hi;
-      GDL2IMP_BOOL rtsIMP=NULL;
-      GDL2IMP_BOOL infoVarIMP=NULL;
-
-      // We'll call willChange if we modify ivar directly or call a _setMethod
-      // otherwise, the setMethod should do it
-      BOOL shouldCallWillChange=NO; //OXYMIUM
-
-      strcpy(buf, "_set");
-      [aKey getCString: &buf[4]];
-      lo = buf[4];
-      hi = toupper(lo);
-      buf[4] = hi;
-      buf[size+4] = ':';
-      buf[size+5] = '\0';
-
-      type = NULL;
-
-      //Try setKey:
-      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-			    @"A aKey=%@ Method [setKey:] name=%s",
-                            aKey, &buf[1]);
-      sel = GSSelectorFromName(&buf[1]);
-
-      if (sel == 0 || GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
-        {
-          // Try _setKey:
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-				@"B aKey=%@ Method [_setKey:] name=%s",
-                                aKey, buf);
-	  sel = GSSelectorFromName(buf);
-
-          if (sel != 0 &&
-	      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == YES)
-            {
-              shouldCallWillChange=YES;
-            }
-          else
-            {
-              sel = 0;
-
-              if ([[self class] accessInstanceVariablesDirectly] == YES)
-                {
-                  // test _key
-		  buf[size+4] = '\0';
-		  buf[3] = '_';
-		  buf[4] = lo;
-                  
-                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-					@"C aKey=%@ Instance [_key] name=%s",
-                                        aKey, &buf[3]);
-                  /*if ([self _infoForInstanceVariableNamed: &buf[3]
-                            stringName: nil
-                            retType: &type
-                            retSize: &size
-                            retOffset: &off]==NO)*/
-                  if (infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
-                                                        &buf[3], // name
-                                                        nil,     // stringName
-                                                        &type,   // retType
-                                                        &size,   // retSize
-                                                        &off)==YES) // retOffset
-                    {
-                      // We'll call willChange
-                      shouldCallWillChange=YES;
-                    }
-                  else
-                    {
-                      // Test key                      
-                      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-					    @"D aKey=%@ Instance [key] name=%s",
-                                            aKey, &buf[4]);
-                      /*[self _infoForInstanceVariableNamed: &buf[4]
-                            stringName: aKey
-                            retType: &type
-                            retSize: &size
-                            retOffset: &off];*/
-                      infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
-                                                        &buf[4], // name
-                                                        aKey,     // stringName
-                                                        &type,   // retType
-                                                        &size,   // retSize
-                                                        &off); // retOffset
-                      // We'll call willChange
-                      shouldCallWillChange=YES;
-                    }
-                }
-            }
-        }
-      
-      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-                            @"aKey=%@ sel=%@ offset=%u shouldCallWillChange=%d",
-                            aKey, NSStringFromSelector(sel), off,
-                            shouldCallWillChange);
-
-      if (shouldCallWillChange)
-        [self willChange];
-
-      [self _setValueForKey: aKey
-            object: anObject
-            selector: sel
-            type: type
-            size: size
-            offset: off];
-    };
-
-
+  return [_dictionary objectForKey:key];
 }
 
-- (id) valueForKey: (NSString*)aKey
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
-  SEL		sel = 0;
-  const char	*type = NULL;
-  unsigned	size;
-  int		off = 0;
-  id value = nil;
-
-
-
-
-  size = [aKey length];
-  if (size < 1)
-    {
-      [NSException raise: NSInvalidArgumentException
-		  format: @"valueForKey: ... empty key"];
-    }
-  else
-    {
-      char		buf[size+5];
-      char		lo;
-      char		hi;
-      GDL2IMP_BOOL rtsIMP=NULL;
-      GDL2IMP_BOOL infoVarIMP=NULL;
-
-      strcpy(buf, "_get");
-      [aKey getCString: &buf[4]];
-      lo = buf[4];
-      hi = toupper(lo);
-      buf[4] = hi;
-
-      // Test getKey
-      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"A aKey=%@ Method [getKey] name=%s",
-                            aKey, &buf[1]);
-      sel = GSSelectorFromName(&buf[1]);
-
-      if (sel == 0 || 
-	  GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
-        {
-          //Test key
-	  buf[4] = lo;
-
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-				@"B aKey=%@ Method [key] name=%s",
-                                aKey, &buf[4]);
-	  sel = GSSelectorFromName(&buf[4]);
-
-          if (sel == 0 ||
-	      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
-            {
-              //Test _getKey
-	      buf[4] = hi;
-
-              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-				    @"C aKey=%@ Method [_getKey] name=%s",
-                                    aKey, buf);
-	      sel = GSSelectorFromName(buf);
-              
-              if (sel == 0 ||
-		  GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
-                {
-                  // Test _key
-		  buf[3] = '_';
-		  buf[4] = lo;
-
-                  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-					@"C aKey=%@ Method [_key] name=%s",
-                                        aKey, &buf[3]);
-                  sel = GSSelectorFromName(&buf[3]);
-
-                  if (sel == 0 ||
-		      GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == NO)
-                    {
-                      sel = 0;
-                    }
-                }
-            }
-        }
-
-      if (sel == 0 && [[self class] accessInstanceVariablesDirectly] == YES)
-        {
-          // Test _key
-          buf[3] = '_';
-          buf[4] = lo;
-          
-          EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-				@"D aKey=%@ Instance [_key] name=%s",
-                                aKey, &buf[3]);
-          /*if ([self _infoForInstanceVariableNamed: &buf[3]
-                    stringName: nil
-                    retType: &type
-                    retSize: &size
-                    retOffset: &off]==NO)*/
-          if (infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
-                                                &buf[3], // name
-                                                nil,     // stringName
-                                                &type,   // retType
-                                                &size,   // retSize
-                                                &off)==NO) // retOffset
-            {
-              // Test key
-              
-              EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-				    @"E aKey=%@ Instance [key] name=%s",
-                                    aKey, &buf[4]);
-              /*[self _infoForInstanceVariableNamed:  &buf[4]
-                    stringName: aKey
-                    retType: &type
-                    retSize: &size
-                    retOffset: &off];*/
-              infoForInstanceVariableWithImpPtr(self,&infoVarIMP,
-                                                &buf[4], // name
-                                                aKey,     // stringName
-                                                &type,   // retType
-                                                &size,   // retSize
-                                                &off); // retOffset
-            }
-        }
-      
-      EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-                            @"aKey=%@ sel=%@ offset=%u",
-                            aKey, NSStringFromSelector(sel), off);
-      
-      value = [self _getValueForKey: aKey
-                    selector: sel
-                    type: type
-                    size: size
-                    offset: off];
-    };
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value: %p (class=%@)",
-			value, [value class]);
-
-
-  return value;
+  [_dictionary setObject:value
+                  forKey:key];
 }
-
-//MG#else /* FOUNDATION_HAS_KVC */
-/*
-- (id) handleQueryWithUnboundKey: (NSString *)key
-{
-  id value;
-
-
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-			@"Unbound key named %@",
-			key);
-
-  if (![dictionary hasKey: key])
-    return [super handleQueryWithUnboundKey: key];
-
-  value = [dictionary objectForKey: key];
-
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC", @"value %p (class=%@)",
-			value, [value class]);
-
-
-  return value;
-}
-
-- (void) handleTakeValue: (id)value forUnboundKey: (NSString *)key
-{
-
-  EOFLOGObjectLevelArgs(@"EOGenericRecordKVC",
-			@"Unbound key named %@",
-			key);
-
-  [self willChange];
-
-  if (![dictionary hasKey:key])
-    [super handleTakeValue:value forUnboundKey: key];
-
-  if (value)
-    [dictionary setObject: value
-		forKey: key];
-  else
-//        [dictionary setObject: GDL2_EONull
-//                       forKey: key];
-    [dictionary removeObjectForKey: key];
-
-
-}
-*/
-//MG#endif /* FOUNDATION_HAS_KVC */
 
 
 /** used in -decription for self toOne or toMany objects to avoid
@@ -1083,7 +783,7 @@ infinite loop in description **/
 {
   NSArray *toManyKeys = nil;
   NSArray *toOneKeys = nil;
-  NSEnumerator *enumerator = [dictionary keyEnumerator];
+  NSEnumerator *enumerator = [_dictionary keyEnumerator];
   NSMutableDictionary *dict;
   NSString *key = nil;
   id obj = nil;
@@ -1093,11 +793,11 @@ infinite loop in description **/
 
   toManyKeys = [classDescription toManyRelationshipKeys];
   toOneKeys = [classDescription toOneRelationshipKeys];
-  dict = [NSMutableDictionary dictionaryWithCapacity: [dictionary count]];
+  dict = [NSMutableDictionary dictionaryWithCapacity: [_dictionary count]];
 
   while ((key = GDL2_NextObjectWithImpPtr(enumerator,&enumNO)))
     {
-      obj = EOMKKD_objectForKeyWithImpPtr(dictionary,&ofkIMP,key);
+      obj = EOMKKD_objectForKeyWithImpPtr(_dictionary,&ofkIMP,key);
       if (!obj)
         GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
       else
@@ -1122,7 +822,7 @@ infinite loop in description **/
 {
   NSArray *toManyKeys = nil;
   NSArray *toOneKeys = nil;
-  NSEnumerator *enumerator = [dictionary keyEnumerator];
+  NSEnumerator *enumerator = [_dictionary keyEnumerator];
   NSMutableDictionary *dict;
   NSString *key = nil;
   id obj = nil;
@@ -1133,11 +833,11 @@ infinite loop in description **/
   toManyKeys = [classDescription toManyRelationshipKeys];
   toOneKeys = [classDescription toOneRelationshipKeys];
 
-  dict = [NSMutableDictionary dictionaryWithCapacity: [dictionary count]];
+  dict = [NSMutableDictionary dictionaryWithCapacity: [_dictionary count]];
 
   while ((key = GDL2_NextObjectWithImpPtr(enumerator,&enumNO)))
     {
-      obj = EOMKKD_objectForKeyWithImpPtr(dictionary,&ofkIMP,key);
+      obj = EOMKKD_objectForKeyWithImpPtr(_dictionary,&ofkIMP,key);
 
       if (!obj)
         GDL2_SetObjectForKeyWithImpPtr(dict,&dictSOFK,@"(null)",key);
@@ -1211,7 +911,7 @@ infinite loop in description **/
 //debug only
 - (NSString *)debugDictionaryDescription
 {
-  return [dictionary debugDescription];
+  return [_dictionary debugDescription];
 }
 
 /** should returns an array of property names to exclude from entity 
@@ -1224,7 +924,7 @@ You can override this to exclude properties manually handled by derived object *
   return nil;
 };
 
-/*dictionary has following entries:
+/*_dictionary has following entries:
   - NSMutableDictionary* processed: processed entries (key=object address, value=size)
   - NSMutableDictionary* summaryNb: objects by class name (key=class name, value=number of objects)
   - NSMutableDictionary* summarySize: objects by class name (key=class name, value=size)
@@ -1327,7 +1027,7 @@ You can override this to exclude properties manually handled by derived object *
       [(NSMutableArray *)props addObjectsFromArray:
 			   [classDescription toManyRelationshipKeys]];
       size += [self eoGetSize];
-      size += [dictionary eoGetSize];
+      size += [_dictionary eoGetSize];
 
       //NSDebugMLog(@"props=%@",props);
 

@@ -48,7 +48,7 @@
 @interface EOGenericRecord : EOCustomObject
 {
   EOClassDescription *classDescription;
-  EOMutableKnownKeyDictionary *dictionary;
+  EOMutableKnownKeyDictionary *_dictionary;
 }
 
 /* Initializing new instances.  */

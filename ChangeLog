@@ -1,3 +1,9 @@
+2010-06-10  David Wetzel  <dave@turbocat.de>
+	* EOControl/EOGenericRecord.h
+	* EOControl/EOGenericRecord.m
+	rename dictionary to _dictionary
+	fixed KVC.
+
 2010-06-09  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOSQLExpression.m
 	fix include for less warnings on mac
