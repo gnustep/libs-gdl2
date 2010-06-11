@@ -772,6 +772,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
+  [self willChange];
   [_dictionary setObject:value
                   forKey:key];
 }

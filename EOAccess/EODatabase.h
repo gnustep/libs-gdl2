@@ -72,6 +72,10 @@ GDL2ACCESS_EXPORT NSTimeInterval EODistantPastTimeInterval;
 
 - (id)initWithModel: (EOModel *)model;
 
+- (void)incrementSnapshotCountForGlobalID:(EOGlobalID *)globalId;
+- (void)decrementSnapshotCountForGlobalID:(EOGlobalID *)globalId;
++ (void)disableSnapshotRefcounting;
+
 - (NSArray *)registeredContexts;
 
 - (void)registerContext: (EODatabaseContext *)context;

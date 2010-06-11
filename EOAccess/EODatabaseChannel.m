@@ -224,13 +224,14 @@ RCS_ID("$Id$")
 
 - (void)setCurrentEditingContext: (EOEditingContext*)context
 {
-  //OK
-  EOCooperatingObjectStore *cooperatingObjectStore = [self databaseContext];
-  EOObjectStore *objectStore = [context rootObjectStore];
-
-  [(EOObjectStoreCoordinator*)objectStore
-			      addCooperatingObjectStore: cooperatingObjectStore];
-
+  if (context) {
+    EOCooperatingObjectStore *cooperatingObjectStore = [self databaseContext];
+    EOObjectStore *objectStore = [context rootObjectStore];
+    
+    [(EOObjectStoreCoordinator*)objectStore
+     addCooperatingObjectStore: cooperatingObjectStore];
+  }
+  
   ASSIGN(_currentEditingContext, context);
 }
 
@@ -302,189 +303,189 @@ RCS_ID("$Id$")
   EODatabase *database=nil;
   id object = nil;
 
-
-
   database = [_databaseContext database];
-
+  
   if (![self isFetchInProgress])
-    {
-      NSLog(@"No Fetch in progress");
-      NSDebugMLog(@"No Fetch in progress", "");
-
-      [NSException raise: NSInvalidArgumentException
-                   format: @"%@ -- %@ 0x%x: no fetch in progress",
-                   NSStringFromSelector(_cmd),
-                   NSStringFromClass([self class]),
-                   self];      
-    }
+  {
+    NSLog(@"No Fetch in progress");
+    NSDebugMLog(@"No Fetch in progress", "");
+    
+    [NSException raise: NSInvalidArgumentException
+                format: @"%@ -- %@ 0x%x: no fetch in progress",
+     NSStringFromSelector(_cmd),
+     NSStringFromClass([self class]),
+     self];      
+  }
   else
+  {
+    NSArray *propertiesToFetch=nil;
+    NSDictionary *row =nil;
+    
+    NSAssert(_currentEditingContext, @"No current editing context");
+    NSAssert(_adaptorChannel,@"No adaptor channel");
+    
+    propertiesToFetch = [self _propertiesToFetch];
+    
+    EOFLOGObjectLevel(@"gsdb", @"Will fetchRow");
+    
+    row = [_adaptorChannel fetchRowWithZone: NULL];
+    
+    EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);
+    
+    if (!row)
     {
-      NSArray *propertiesToFetch=nil;
-      NSDictionary *row =nil;
-
-      NSAssert(_currentEditingContext, @"No current editing context");
-      NSAssert(_adaptorChannel,@"No adaptor channel");
-
-      propertiesToFetch = [self _propertiesToFetch];
-
-      EOFLOGObjectLevel(@"gsdb", @"Will fetchRow");
-
-      row = [_adaptorChannel fetchRowWithZone: NULL];
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);
-
-      if (!row)
-        {
-          //TODO
-          //VERIFY
-          /*
-            if no more obj:
-            if transactionNestingLevel
-            adaptorContext transactionDidCommit
-          */
-        }
-      else if([[_fetchSpecifications lastObject] fetchesRawRows])  // Testing against only one should be enough
-	{
-          object = [NSDictionary dictionaryWithDictionary:row];
-	}
-      else
-        {
-          BOOL isObjectNew = YES; //TODO used to avoid double fetch. We should see how to do when isRefreshingObjects == YES
-          EOGlobalID *gid;
-          NSDictionary *snapshot = nil;
-
-          NSAssert(_currentEntity, @"Not current Entity");
-
-          gid = [_currentEntity globalIDForRow: row
-				isFinal: YES];//OK
-
-          EOFLOGObjectLevelArgs(@"gsdb", @"gid=%@", gid);
-
-          object = [_currentEditingContext objectForGlobalID: gid]; //OK //nil
-
-          EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
-
-          if (object)
-            isObjectNew = NO;
-
-          NSAssert(_databaseContext,@"No database context");
-
-          snapshot = [_databaseContext snapshotForGlobalID: gid]; //OK
-
-          EOFLOGObjectLevelArgs(@"gsdb", @"snapshot=%@", snapshot);
-
-          if (snapshot)
-            {
-              EOFLOGObjectLevelArgs(@"gsdb", @"_delegateRespondsTo.shouldUpdateSnapshot=%d",
-                           (int)_delegateRespondsTo.shouldUpdateSnapshot);
-              EOFLOGObjectLevelArgs(@"gsdb", @"[self isLocking]=%d",
-                           (int)[self isLocking]);
-              EOFLOGObjectLevelArgs(@"gsdb", @"[self isRefreshingObjects]=%d",
-                           (int)[self isRefreshingObjects]);
-
-              //mirko:
-              if((_delegateRespondsTo.shouldUpdateSnapshot == NO
-                  && ([self isLocking] == YES
-                      || [self isRefreshingObjects] == YES))
-                 || (_delegateRespondsTo.shouldUpdateSnapshot == YES
-                     && (row = (id)[_delegate databaseContext: _databaseContext
-                                              shouldUpdateCurrentSnapshot: snapshot
-                                              newSnapshot: row
-                                              globalID: gid
-                                              databaseChannel: self])))
-                { // TODO delegate not correct !
-                  EOFLOGObjectLevelArgs(@"gsdb", @"Updating Snapshot=%@", snapshot);
-                  EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);                  
-
-                  [_databaseContext recordSnapshot: row
-                                    forGlobalID: gid];
-                  isObjectNew = YES; //TODO
-                }
-            }
-          else
-            {
-              EOFLOGObjectLevelArgs(@"gsdb", @"database class=%@", [database class]);
-
-              NSAssert(database, @"No database-context database");
-
-              [database recordSnapshot: row
-                        forGlobalID: gid];
-            }
-
-          EOFLOGObjectLevelArgs(@"gsdb", @"[self isRefreshingObjects]=%d",
-                       (int)[self isRefreshingObjects]);
-
-          //From mirko
-          if ([self isRefreshingObjects] == YES)
-            {
-              [[NSNotificationCenter defaultCenter]
-                postNotificationName: EOObjectsChangedInStoreNotification
-                object: _databaseContext
-                userInfo: [NSDictionary dictionaryWithObject:
-					  [NSArray arrayWithObject:gid]
-					forKey: EOUpdatedKey]]; //OK ?
-            }
-
-          if (!object)
-            {
-              EOClassDescription *entityClassDescripton = [_currentEntity classDescriptionForInstances];
-
-              object = [entityClassDescripton createInstanceWithEditingContext: _currentEditingContext
-					      globalID: gid
-					      zone: NULL];
-
-              EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
-              NSAssert1(object, @"No Object. entityClassDescripton=%@", entityClassDescripton);
-
-              EOEditingContext_recordObjectGlobalIDWithImpPtr(_currentEditingContext,
-							      NULL,object,gid);
-            }
-          else if (object && [EOFault isFault: object])
-            {
-              EOAccessFaultHandler *handler = (EOAccessFaultHandler *)
-		[EOFault handlerForFault: object];
-              EOKeyGlobalID *handlerGID = (EOKeyGlobalID *)[handler globalID];
-
-              isObjectNew = YES; //TODO
-
-              [handlerGID isFinal]; //YES //TODO
-              [EOFault clearFault: object];
-
-              /*mirko:
-                [_databaseContext _removeBatchForGlobalID:gid
-                fault:obj];
-            
-                [EOFault clearFault:obj];
-              */
-            }
-
-          if (isObjectNew) //TODO
-            {
-              [EOObserverCenter suppressObserverNotification];
-
-              NS_DURING
-                {
-                  EOFLOGObjectLevelArgs(@"gsdb", @"Initialize %p", object);
-
-                  [_currentEditingContext initializeObject: object
-                                          withGlobalID: gid
-                                          editingContext: _currentEditingContext];
-                }
-              NS_HANDLER
-                {
-                  [EOObserverCenter enableObserverNotification];
-                  [localException raise];
-                }
-              NS_ENDHANDLER;
-
-              [EOObserverCenter enableObserverNotification];
-              [object awakeFromFetchInEditingContext: _currentEditingContext];
-            }
-        }
+      //TODO
+      //VERIFY
+      /*
+       if no more obj:
+       if transactionNestingLevel
+       adaptorContext transactionDidCommit
+       */
+      
+      return nil;
     }
-
-
-
+    else if([[_fetchSpecifications lastObject] fetchesRawRows])  // Testing against only one should be enough
+    {
+      object = [NSDictionary dictionaryWithDictionary:row];
+    }
+    else
+    {
+      BOOL isObjectNew = YES; //TODO used to avoid double fetch. We should see how to do when isRefreshingObjects == YES
+      EOGlobalID *gid;
+      NSDictionary *snapshot = nil;
+      
+      NSAssert(_currentEntity, @"Not current Entity");
+      
+      gid = [_currentEntity globalIDForRow: row
+                                   isFinal: YES];//OK
+      
+      EOFLOGObjectLevelArgs(@"gsdb", @"gid=%@", gid);
+      
+      object = [_currentEditingContext objectForGlobalID: gid]; //OK //nil
+      
+      EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
+      
+      if (object)
+        isObjectNew = NO;
+      
+      NSAssert(_databaseContext,@"No database context");
+      
+      snapshot = [_databaseContext snapshotForGlobalID: gid]; //OK
+      
+      EOFLOGObjectLevelArgs(@"gsdb", @"snapshot=%@", snapshot);
+      
+      if (snapshot)
+      {
+        EOFLOGObjectLevelArgs(@"gsdb", @"_delegateRespondsTo.shouldUpdateSnapshot=%d",
+                              (int)_delegateRespondsTo.shouldUpdateSnapshot);
+        EOFLOGObjectLevelArgs(@"gsdb", @"[self isLocking]=%d",
+                              (int)[self isLocking]);
+        EOFLOGObjectLevelArgs(@"gsdb", @"[self isRefreshingObjects]=%d",
+                              (int)[self isRefreshingObjects]);
+        
+        //mirko:
+        if((_delegateRespondsTo.shouldUpdateSnapshot == NO
+            && ([self isLocking] == YES
+                || [self isRefreshingObjects] == YES))
+           || (_delegateRespondsTo.shouldUpdateSnapshot == YES
+               && (row = (id)[_delegate databaseContext: _databaseContext
+                            shouldUpdateCurrentSnapshot: snapshot
+                                            newSnapshot: row
+                                               globalID: gid
+                                        databaseChannel: self])))
+        { // TODO delegate not correct !
+          EOFLOGObjectLevelArgs(@"gsdb", @"Updating Snapshot=%@", snapshot);
+          EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);                  
+          
+          [_databaseContext recordSnapshot: row
+                               forGlobalID: gid];
+          isObjectNew = YES; //TODO
+        }
+      }
+      else
+      {
+        EOFLOGObjectLevelArgs(@"gsdb", @"database class=%@", [database class]);
+        
+        NSAssert(database, @"No database-context database");
+        
+        [database recordSnapshot: row
+                     forGlobalID: gid];
+      }
+      
+      EOFLOGObjectLevelArgs(@"gsdb", @"[self isRefreshingObjects]=%d",
+                            (int)[self isRefreshingObjects]);
+      
+      //From mirko
+      if ([self isRefreshingObjects] == YES)
+      {
+        [[NSNotificationCenter defaultCenter]
+         postNotificationName: EOObjectsChangedInStoreNotification
+         object: _databaseContext
+         userInfo: [NSDictionary dictionaryWithObject:
+                    [NSArray arrayWithObject:gid]
+                                               forKey: EOUpdatedKey]]; //OK ?
+      }
+      
+      if (!object)
+      {
+        EOClassDescription *entityClassDescripton = [_currentEntity classDescriptionForInstances];
+        
+        object = [entityClassDescripton createInstanceWithEditingContext: _currentEditingContext
+                                                                globalID: gid
+                                                                    zone: NULL];
+        
+        EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
+        NSAssert1(object, @"No Object. entityClassDescripton=%@", entityClassDescripton);
+        
+        EOEditingContext_recordObjectGlobalIDWithImpPtr(_currentEditingContext,
+                                                        NULL,object,gid);
+      }
+      else if (object && [EOFault isFault: object])
+      {
+        EOAccessFaultHandler *handler = (EOAccessFaultHandler *)
+        [EOFault handlerForFault: object];
+        EOKeyGlobalID *handlerGID = (EOKeyGlobalID *)[handler globalID];
+        
+        isObjectNew = YES; //TODO
+        
+        [handlerGID isFinal]; //YES //TODO
+        [EOFault clearFault: object];
+        
+        /*mirko:
+         [_databaseContext _removeBatchForGlobalID:gid
+         fault:obj];
+         
+         [EOFault clearFault:obj];
+         */
+      }
+      
+      if (isObjectNew) //TODO
+      {
+        [EOObserverCenter suppressObserverNotification];
+        
+        NS_DURING
+        {
+          EOFLOGObjectLevelArgs(@"gsdb", @"Initialize %p", object);
+          
+          [_currentEditingContext initializeObject: object
+                                      withGlobalID: gid
+                                    editingContext: _currentEditingContext];
+        }
+        NS_HANDLER
+        {
+          [EOObserverCenter enableObserverNotification];
+          [localException raise];
+        }
+        NS_ENDHANDLER;
+        
+        [EOObserverCenter enableObserverNotification];
+        [object awakeFromFetchInEditingContext: _currentEditingContext];
+      }
+    }
+  }
+  
+  
+  
   return object;
 };
 

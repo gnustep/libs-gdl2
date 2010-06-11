@@ -75,6 +75,7 @@ RCS_ID("$Id$")
 
 NSString *EOGeneralDatabaseException = @"EOGeneralDatabaseException";
 NSTimeInterval EODistantPastTimeInterval = -603979776.0;
+static BOOL _doesReleaseUnreferencedSnapshots = YES;
 
 @implementation EODatabase
 
@@ -171,6 +172,29 @@ static NSMutableArray *databaseInstances;
   DESTROY(_toManySnapshots);
 
   [super dealloc];
+}
+
+- (void)incrementSnapshotCountForGlobalID:(EOGlobalID *)globalId
+{
+  if (!_doesReleaseUnreferencedSnapshots)
+  {
+    return;
+  }
+  GSOnceFLog(@"TODO: %s", __PRETTY_FUNCTION__);
+}
+
+- (void)decrementSnapshotCountForGlobalID:(EOGlobalID *)globalId
+{
+  if (!_doesReleaseUnreferencedSnapshots)
+  {
+    return;
+  }
+  GSOnceFLog(@"TODO: %s", __PRETTY_FUNCTION__);  
+}
+
++ (void)disableSnapshotRefcounting
+{
+  _doesReleaseUnreferencedSnapshots = NO;
 }
 
 - (NSArray *)registeredContexts

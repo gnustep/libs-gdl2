@@ -425,8 +425,7 @@ static Class _contextClass = Nil;
 
       for (i = 0 ; !busy && i < count; i++)
         {
-          EODatabaseChannel *channel = [GDL2_ObjectAtIndexWithImp(_registeredChannels,oaiIMP,i)
-                                                                nonretainedObjectValue];
+          EODatabaseChannel *channel = GDL2_ObjectAtIndexWithImp(_registeredChannels,oaiIMP,i);
           
           busy = [channel isFetchInProgress];
         }
@@ -437,23 +436,13 @@ static Class _contextClass = Nil;
 
 - (NSArray *)registeredChannels
 {
-  NSMutableArray *array = nil;
-  NSUInteger i, count;
-
-  count = [_registeredChannels count];
-  array = [NSMutableArray arrayWithCapacity: count];
-
-  if (count>0)
-    {
-      IMP oaiIMP=[_registeredChannels methodForSelector: @selector(objectAtIndex:)];
-
-      for (i = 0; i < count; i++)
-        [array addObject: [GDL2_ObjectAtIndexWithImp(_registeredChannels,oaiIMP,i)
-                                                   nonretainedObjectValue]];
-    };
-
-  return array;
+  return _registeredChannels;
 }
+
+/*
+ Adds channel to the pool of available channels used to service database requests. 
+ Registered channels are retained by the receiver. 
+ */
 
 - (void)registerChannel: (EODatabaseChannel *)channel
 {
@@ -463,57 +452,34 @@ static Class _contextClass = Nil;
 	     [[channel adaptorChannel] isDebugEnabled],
 	     [_registeredChannels count] + 1);
 
-  [_registeredChannels addObject:
-			 [NSValue valueWithNonretainedObject: channel]];
+  [_registeredChannels addObject:channel];
   [channel setDelegate: nil];
 }
 
 - (void)unregisterChannel: (EODatabaseChannel *)channel
 {
-  NSUInteger i;
-  NSUInteger count= [_registeredChannels count];
-  if (count>0)
-    {
-      IMP oaiIMP=[_registeredChannels methodForSelector: @selector(objectAtIndex:)];
-
-      for (i = count - 1; i >= 0; i--)
-        {
-          if ([GDL2_ObjectAtIndexWithImp(_registeredChannels,oaiIMP,i)
-                                       nonretainedObjectValue] == channel)
-            {
-              [_registeredChannels removeObjectAtIndex: i];
-              break;
-            }
-        }
-    };
+  [_registeredChannels removeObjectIdenticalTo:channel];
 }
 
 /** returns a non busy channel if any, nil otherwise **/
 -(EODatabaseChannel *)_availableChannelFromRegisteredChannels
 {
   NSEnumerator *channelsEnum;
-  NSValue *channel = nil;
+  EODatabaseChannel *channel = nil;
   IMP enumNO=NULL; // nextObject
 
   channelsEnum = [_registeredChannels objectEnumerator];
 
-  NSDebugMLLog(@"EODatabaseContext",@"REGISTERED CHANNELS nb=%d",
-	       [_registeredChannels count]);
-
   while ((channel = GDL2_NextObjectWithImpPtr(channelsEnum,&enumNO)))
     {
-      if ([(EODatabaseChannel *)[channel nonretainedObjectValue]
-                               isFetchInProgress] == NO)
+      if ([channel isFetchInProgress] == NO)
         {
-          NSDebugMLLog(@"EODatabaseContext",@"CHANNEL %p is not busy",
-		       [channel nonretainedObjectValue]);
-
-          return [channel nonretainedObjectValue];
+          return channel;
         }
       else
         {
-          NSDebugMLLog(@"EODatabaseContext",@"CHANNEL %p is busy",
-		       [channel nonretainedObjectValue]);
+//          NSDebugMLLog(@"EODatabaseContext",@"CHANNEL %p is busy",
+//		       [channel nonretainedObjectValue]);
         }
     }
 
@@ -649,12 +615,6 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   NSUInteger i;
 
   DESTROY(_adaptorContext);
-  
-  for (i = [_registeredChannels count] - 1; i >= 0; i--)
-    {
-      RELEASE((EODatabaseChannel *)[[_registeredChannels objectAtIndex: i]
-			      nonretainedObjectValue]);
-    }
 
   DESTROY(_registeredChannels);
 
@@ -1438,7 +1398,8 @@ userInfo = {
   // 0 is no fetch limit
   fetchLimit = [fetchSpecification fetchLimit];
   // TODO: check if we need to check for protocol EOMessageHandlers
-  if (([fetchSpecification promptsAfterFetchLimit]) && ([context messageHandler]))
+  if ((fetchLimit > 0) && (([fetchSpecification promptsAfterFetchLimit]) &&
+                           ([context messageHandler])))
   {
     messageHandler = [context messageHandler];
   }  
@@ -1478,32 +1439,52 @@ userInfo = {
   return results;
 }
 
+- (void) _populateCacheForFetchSpecification:(EOFetchSpecification *) eofetchspecification
+                              editingContext:(EOEditingContext *)eoeditingcontext
+{
+  NSEmitTODO();
+}
+
+- (BOOL) _validateQualifierForEvaluationInMemory:(EOQualifier *) qualifier
+                                          entity:(EOEntity *)entity
+
+{
+  NSEmitTODO();
+  return NO;
+}
+
+// _objectsFromEntityCacheWithFetchSpecEditingContext
+- (NSArray*) _objectsFromEntityCacheWithFetchSpec:(EOFetchSpecification*) fetchSpecification
+                                   editingContext: (EOEditingContext *)context
+{
+  NSEmitTODO();
+  return nil;
+}
+
+- (void) _performPrefetchForFetchSpecification:(EOFetchSpecification*) fetchSpecification
+                                editingContext:(EOEditingContext *)context
+                                       results:(NSArray*) results
+                                      keyPaths:(NSArray*) prefetchingRelationshipKeyPaths
+{
+  NSEmitTODO();
+  return;
+}
+
+
 - (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
 			                      editingContext: (EOEditingContext *)context
-{ // TODO
+{ 
+  id                 messageHandler = nil;
   EODatabaseChannel *channel = nil;
   NSMutableArray *array = nil;
-  NSDictionary *snapshot = nil;
   NSString *entityName = nil;
   EOEntity *entity = nil;
-  NSString *relationshipKeyPath = nil;
-  NSEnumerator *relationshipKeyPathEnum = nil;
-  NSMutableArray *qualArray = nil;
-
-  /*NSEnumerator *subEntitiesEnum = nil;
-    EOEntity *subEntity = nil;
-    NSArray *subEntities = nil;*/
   NSArray* rawRowKeyPaths = nil;
-  BOOL usesDistinct = NO;
-  NSUInteger num = 0;
-  NSUInteger limit=0;
-  id obj = nil;
+  NSUInteger fetchLimit=0;
+  NSArray   * prefetchingRelationshipKeyPaths = nil;
+  NSUInteger         rowsFetched    = 0;
+  BOOL               continueFetch  = NO;
 
-
-
-
-
-#warning fix this method! -- dw
 	channel = [self _obtainOpenChannel];
   
   if (_flags.beganTransaction == NO)
@@ -1514,619 +1495,109 @@ userInfo = {
   }
   
   if (_delegateRespondsTo.shouldFetchObjects == YES)
-    {
-      array = (id)[_delegate databaseContext: self
-			     shouldFetchObjectsWithFetchSpecification: fetchSpecification
-			     editingContext: context];
+  {
+    array = (id)[_delegate databaseContext: self
+  shouldFetchObjectsWithFetchSpecification: fetchSpecification
+                            editingContext: context];
+    if (array) {
+      return array;
     }
-
-  if (!array)
-    {
-      IMP enumNO=NULL; // nextObject
-      array = [NSMutableArray arrayWithCapacity: 8];
-
-      entityName = [fetchSpecification entityName];//OK
-      entity = [_database entityNamed: entityName];//OK
-      NSAssert1(entity,@"No entity named %@",
-                entityName);
-
-      /* moved in EODatabaseChannel _selectWithFetchSpecification:(EOFetchSpecification *)fetchSpecification
-         editingContext:(EOEditingContext *)context
-
-         limit        = [fetchSpecification fetchLimit];
-         usesDistinct = [fetchSpecification usesDistinct];
-
-
-         subEntities = [entity subEntities];
-
-         if ([subEntities count] && [fetchSpecification isDeep] == YES)
-         {
-         subEntitiesEnum = [subEntities objectEnumerator];
-         while ((subEntity = [subEntitiesEnum nextObject]))
-         {
-         EOFetchSpecification *fetchSubEntity;
-
-         fetchSubEntity = AUTORELEASE([fetchSpecification copy]);
-         [fetchSubEntity setEntityName:[entity name]];
-
-         [array addObjectsFromArray:[context objectsWithFetchSpecification:
-         fetchSubEntity]];
-         }
-         }
-      */
-      rawRowKeyPaths = [fetchSpecification rawRowKeyPaths];//OK
-      if (rawRowKeyPaths)
-      {
-        NSArray * rawRows = [self _fetchRawRowKeyPaths:rawRowKeyPaths
-                                    fetchSpecification:fetchSpecification
-                                                entity:entity
-                                        editingContext:context];
-        return rawRows;
-      } else {
-        // (stephane@sente.ch) Adapted implementation of non raw rows
-        
-        //cachesObject
-        //fetchspe isDeep ret 1
-        
-        if (!channel)
-        {
-          channel = [self _obtainOpenChannel];
-        }
-        else
-        {
-          NSDebugMLLog(@"EODatabaseContext", 
-                       @"channel class %@ [channel isFetchInProgress]=%s",
-                       [channel class],
-                       ([channel isFetchInProgress] ? "YES" : "NO"));
-          
-          //mirko:
-          //#if 0
-          //	    if (_flags.beganTransaction == NO
-          //		&& _updateStrategy == EOUpdateWithPessimisticLocking)
-          //              {
-          //		[_adaptorContext beginTransaction];
-          //
-          //		NSDebugMLLog(@"EODatabaseContext",
-          //			     @"BEGAN TRANSACTION FLAG==>YES");
-          //		_flags.beganTransaction = YES;
-          //              }
-          //#endif
-          
-          if ([entity isAbstractEntity] == NO) //Mirko ???
-            // (stephane@sente) Should we test deepInheritanceFetch?
-          {
-            int autoreleaseSteps = 20;
-            int autoreleaseStep = autoreleaseSteps;
-            BOOL promptsAfterFetchLimit = NO;
-            NSAutoreleasePool *arp = nil;//To avoid too much memory use when fetching a lot of objects
-            int limit = 0;
-            
-            [channel selectObjectsWithFetchSpecification: fetchSpecification
-                                          editingContext: context];//OK
-            
-            NSDebugMLLog(@"EODatabaseContext",
-                         @"[channel isFetchInProgress]=%s",
-                         ([channel isFetchInProgress] ? "YES" : "NO"));
-            
-            limit = [fetchSpecification fetchLimit];//OK
-            promptsAfterFetchLimit = [fetchSpecification promptsAfterFetchLimit];
-            
-
-            
-            NS_DURING
-            {
-              IMP channelFetchObjectIMP=
-              [channel methodForSelector:@selector(fetchObject)];
-              
-              IMP arrayAddObjectIMP=
-              [array methodForSelector:@selector(addObject:)];
-              
-              GDL2IMP_UINT arrayIndexOfObjectIdenticalToIMP=
-              (GDL2IMP_UINT)[array methodForSelector:@selector(indexOfObjectIdenticalTo:)];
-              
-              arp = GDL2_NSAutoreleasePool_new();
-              NSDebugMLLog(@"EODatabaseContext",
-                           @"[channel isFetchInProgress]=%s",
-                           ([channel isFetchInProgress] ? "YES" : "NO"));
-              
-              while ((obj = (*channelFetchObjectIMP)(channel,@selector(fetchObject))))
-              {
-                NSDebugMLLog(@"EODatabaseContext",
-                             @"fetched an object");
-                NSDebugMLLog(@"EODatabaseContext",
-                             @"FETCH OBJECT object=%@\n", obj);
-                NSDebugMLLog(@"EODatabaseContext",
-                             @"%d usesDistinct: %s", num,
-                             (usesDistinct ? "YES" : "NO"));
-                NSDebugMLLog(@"EODatabaseContext",
-                             @"object=%@\n\n", obj);
-                
-                if (usesDistinct == YES
-                    && num > 0
-                    && GDL2_IndexOfObjectIdenticalToWithImp(array,arrayIndexOfObjectIdenticalToIMP,obj)!=NSNotFound)
-                  // (stephane@sente) I thought that DISTINCT was done on server-side?!?
-                {
-                  obj = nil;
-                }
-                else
-                {
-
-                  GDL2_AddObjectWithImp(array,arrayAddObjectIMP,obj);
-                  NSDebugMLLog(@"EODatabaseContext", @"array count=%d",
-                               [array count]);
-                  num++;
-                  
-                  if (limit > 0 && num >= limit)
-                  {
-                    if ([[context messageHandler]
-                         editingContext: context
-                         shouldContinueFetchingWithCurrentObjectCount: num
-                         originalLimit: limit
-                         objectStore: self] == YES)
-                      limit = 0;//??
-                    else
-                    {
-                      DESTROY(arp);
-                      break;
-                    };
-                  };
-                };
-                if (autoreleaseStep <= 0)
-                {
-                  DESTROY(arp);
-                  autoreleaseStep = autoreleaseSteps;
-                  arp = GDL2_NSAutoreleasePool_new();
-                }
-                else
-                  autoreleaseStep--;
-                
-                NSDebugMLLog(@"EODatabaseContext",
-                             @"WILL FETCH NEXT OBJECT");
-                NSDebugMLLog(@"EODatabaseContext",
-                             @"[channel isFetchInProgress]=%s",
-                             ([channel isFetchInProgress] 
-                              ? "YES" : "NO"));
-              }
-              
-              NSDebugMLLog(@"EODatabaseContext",
-                           @"finished fetch");
-              NSDebugMLLog(@"EODatabaseContext",
-                           @"array=%@", array);
-              NSDebugMLLog(@"EODatabaseContext",
-                           @"step 0 channel is busy=%d",
-                           (int)[channel isFetchInProgress]);
-              
-              [channel cancelFetch]; //OK
-              
-              NSDebugMLLog(@"EODatabaseContext",
-                           @"step 1 channel is busy=%d",
-                           (int)[channel isFetchInProgress]);
-
-              
-              //TODO
-              /*
-               handle exceptio in fetchObject
-               channel fetchObject
-               
-               if eception:
-               if ([editcontext handleError:localException])
-               {
-               //TODO
-               }
-               else
-               {
-               //TODO
-               };
-               */
-              DESTROY(arp);
-            }
-            NS_HANDLER
-            {
-              NSDebugMLLog(@"EODatabaseContext", @"AN EXCEPTION: %@",
-                           localException);
-              
-              RETAIN(localException);
-              DESTROY(arp);
-              AUTORELEASE(localException);
-              [localException raise];
-            }
-            NS_ENDHANDLER;
-          }
-        }
-      } 
-      
-      if ([entity cachesObjects] == YES)//OK
-      {
-          ///TODO MG!!!
-          NSMutableArray *cache;
-          EOQualifier *qualifier;
-          EOGlobalID *gid;
-          BOOL isFault;
-
-          qualifier = [fetchSpecification qualifier];
-
-          cache = (id)[_database resultCacheForEntityNamed: entityName];
-          if (cache == nil)
-            {
-              NSMutableDictionary *row = nil;
-              EOAdaptorChannel *adaptorChannel = nil;
-
-              IMP channelFetchRowWithZoneIMP=NULL;
-              IMP entityGlobalIDForRowIMP=[entity methodForSelector:@selector(globalIDForRow:)];
-              IMP databaseRecordSnapshotForGlobalID=[_database methodForSelector:@selector(recordSnapshot:forGlobalID:)];
-              IMP cacheAddObjectIMP=NULL;
-                            
-              channel = [self availableChannel];
-              adaptorChannel = [channel adaptorChannel];
-
-              channelFetchRowWithZoneIMP=
-                [adaptorChannel methodForSelector:@selector(fetchRowWithZone:)];
-
-              if (_flags.beganTransaction == NO && _updateStrategy == EOUpdateWithPessimisticLocking)
-                {
-                  [_adaptorContext beginTransaction];
-
-                  NSDebugMLLog(@"EODatabaseContext",
-			       @"BEGAN TRANSACTION FLAG==>YES");
-
-                  _flags.beganTransaction = YES;
-                }
-
-              [adaptorChannel selectAttributes: [entity attributesToFetch]
-                              fetchSpecification:
-                                [EOFetchSpecification
-                                  fetchSpecificationWithEntityName: entityName
-                                  qualifier: nil
-                                  sortOrderings: nil]
-                              lock: NO
-                              entity: entity];
-
-              cache = [NSMutableArray arrayWithCapacity: 16];
-              cacheAddObjectIMP=[cache methodForSelector:@selector(addObject:)];
-
-              while ((row = (*channelFetchRowWithZoneIMP)
-                      (adaptorChannel,@selector(fetchRowWithZone:),NULL)))
-                {
-
-
-                  gid = (*entityGlobalIDForRowIMP)(entity,@selector(globalIDForRow:),row);
-
-
-                  (*databaseRecordSnapshotForGlobalID)
-                    (_database,@selector(recordSnapshot:forGlobalID:),row,gid);
-                  GDL2_AddObjectWithImp(cache,cacheAddObjectIMP,gid);
-                }
-
-
-              [channel cancelFetch];
-
-
-              [_database setResultCache: cache
-                         forEntityNamed: entityName];
-            }
-
-          if ([cache count]>0)
-            {
-              IMP arrayAddObjectIMP=
-                [array methodForSelector:@selector(addObject:)];
-              
-              GDL2IMP_UINT arrayIndexOfObjectIdenticalToIMP=
-                (GDL2IMP_UINT)[array methodForSelector:@selector(indexOfObjectIdenticalTo:)];
-              
-              NSEnumerator *cacheEnum = [cache objectEnumerator];
-
-              IMP cacheEnumNextObjectIMP=[cacheEnum methodForSelector:@selector(nextObject)];
-          
-              EOClassDescription* classDescriptionForInstances=
-                [entity classDescriptionForInstances];
-
-              GDL2IMP_BOOL qualifierEvaluateWithObjectIMP=
-                (GDL2IMP_BOOL)[qualifier methodForSelector:@selector(evaluateWithObject:)];
-
-              IMP ecObjectForGlobalIDIMP=NULL;
-              IMP ecRecordObjectGlobalIDIMP=NULL;
-
-              while ((gid = GDL2_NextObjectWithImp(cacheEnum,cacheEnumNextObjectIMP)))
-                {
-
-                  
-                  snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid);
-                  if (snapshot)
-                    {
-                      if (!qualifier
-                          || (*qualifierEvaluateWithObjectIMP)(qualifier,@selector(evaluateWithObject:),snapshot) == YES)
-                        {
-                          obj = EOEditingContext_objectForGlobalIDWithImpPtr(context,&ecObjectForGlobalIDIMP,gid);
-                          
-                          isFault = _isFault(obj);
-                          
-                          if (obj == nil || isFault == YES)
-                            {
-                              if (isFault == NO)
-                                {
-                                  obj = [classDescriptionForInstances
-                                          createInstanceWithEditingContext: context
-                                          globalID: gid
-                                          zone: NULL];
-                                  
-                                  NSAssert1(obj, @"No Object. [entity classDescriptionForInstances]=%@", [entity classDescriptionForInstances]);
-                                  EOEditingContext_recordObjectGlobalIDWithImpPtr(context,&ecRecordObjectGlobalIDIMP,obj,gid);
-                                }
-                              else
-                                {
-                                  [self _removeBatchForGlobalID:
-                                          (EOKeyGlobalID *)gid
-                                        fault: obj];
-                                  
-                                  [EOFault clearFault: obj];
-                                }
-
-                              [context initializeObject: obj
-                                       withGlobalID: gid
-                                       editingContext: context];
-                              
-                              [obj awakeFromFetchInEditingContext: context];
-                            }
-                
-                          if (usesDistinct == YES
-                              && num > 0 
-                              && GDL2_IndexOfObjectIdenticalToWithImp(array,arrayIndexOfObjectIdenticalToIMP,obj)!=NSNotFound)
-                            {
-                              obj = nil;
-                            }
-                          else
-                            {
-                              GDL2_AddObjectWithImp(array,arrayAddObjectIMP,obj);
-                              num++;
-                              
-                              if (limit && num >= limit)
-                                {
-                                  if ([[context messageHandler]
-                                        editingContext: context
-                                        shouldContinueFetchingWithCurrentObjectCount: num
-                                        originalLimit: limit
-                                        objectStore: self] == YES)
-                                    limit = 0;
-                                  else
-                                    break;
-                                }
-                            };
-                        };
-                    }
-                }
-            }
-
-
-
-          if ([fetchSpecification sortOrderings])
-            array = (id)[array sortedArrayUsingKeyOrderArray:
-				 [fetchSpecification	sortOrderings]];
-        }
-      else
-        {
-//cachesObject
-//fetchspe isDeep ret 1
-          channel = [self _obtainOpenChannel];
-
-          if (!channel)
-            {
-              NSEmitTODO();
-              [self notImplemented: _cmd];//TODO
-            }
-          else
-            {
-              NSDebugMLLog(@"EODatabaseContext", 
-			   @"channel class %@ [channel isFetchInProgress]=%s",
-			   [channel class],
-			   ([channel isFetchInProgress] ? "YES" : "NO"));
-
-              //mirko:
-              if (_flags.beganTransaction == NO
-                  && _updateStrategy == EOUpdateWithPessimisticLocking)
-                {
-                  [_adaptorContext beginTransaction];
-
-                  NSDebugMLLog(@"EODatabaseContext",
-			       @"BEGAN TRANSACTION FLAG==>YES");
-                  _flags.beganTransaction = YES;
-                }
-
-              if ([entity isAbstractEntity] == NO) //Mirko ???
-                {
-                  NSUInteger autoreleaseSteps = 20;
-                  NSUInteger autoreleaseStep = autoreleaseSteps;
-                  BOOL promptsAfterFetchLimit = NO;
-                  NSAutoreleasePool *arp = nil;//To avoid too much memory use when fetching a lot of objects
-                  NSUInteger limit = 0;
-
-                  [channel selectObjectsWithFetchSpecification: fetchSpecification
-                           editingContext: context];//OK
-
-                  NSDebugMLLog(@"EODatabaseContext",
-			       @"[channel isFetchInProgress]=%s",
-			       ([channel isFetchInProgress] 
-				? "YES" : "NO"));
-
-                  limit = [fetchSpecification fetchLimit];//OK
-                  promptsAfterFetchLimit = [fetchSpecification promptsAfterFetchLimit];
-
-
-
-                  NS_DURING
-                    {                  
-                      IMP channelFetchObjectIMP=
-                        [channel methodForSelector:@selector(fetchObject)];
-                      
-                      IMP arrayAddObjectIMP=
-                        [array methodForSelector:@selector(addObject:)];
-                      
-                      GDL2IMP_UINT arrayIndexOfObjectIdenticalToIMP=
-                        (GDL2IMP_UINT)[array methodForSelector:@selector(indexOfObjectIdenticalTo:)];
-                      
-                      arp = GDL2_NSAutoreleasePool_new();
-                      
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"[channel isFetchInProgress]=%s",
-				   ([channel isFetchInProgress] 
-				    ? "YES" : "NO"));
-
-                      while ((obj = (*channelFetchObjectIMP)(channel,@selector(fetchObject))))
-                        {
-                          NSDebugMLLog(@"EODatabaseContext",
-				       @"fetched an object");
-                          NSDebugMLLog(@"EODatabaseContext",
-				       @"FETCH OBJECT object=%@\n", obj);
-                          NSDebugMLLog(@"EODatabaseContext",
-				       @"%d usesDistinct: %s",
-				       num,
-				       (usesDistinct ? "YES" : "NO"));
-                          NSDebugMLLog(@"EODatabaseContext",
-				       @"object=%@\n\n", obj);
-
-                          if (usesDistinct == YES
-                              && num > 0
-                              && GDL2_IndexOfObjectIdenticalToWithImp(array,arrayIndexOfObjectIdenticalToIMP,obj)!=NSNotFound)
-                            {
-                              NSDebugMLLog(@"EODatabaseContext",
-                                           @"Already fetched object=%@\n\n", obj);
-                              obj = nil;
-                            }
-                          else
-                            {
-
-                              NSAssert(obj,@"No object");
-                              GDL2_AddObjectWithImp(array,arrayAddObjectIMP,obj);
-                              NSDebugMLLog(@"EODatabaseContext", @"array count=%d",
-                                           [array count]);
-                              num++;
-                              
-                              if (limit > 0 && num >= limit)
-                                {
-                                  if ([[context messageHandler]
-                                        editingContext: context
-                                        shouldContinueFetchingWithCurrentObjectCount: num
-                                        originalLimit: limit
-                                        objectStore: self] == YES)
-                                    limit = 0;//??
-                                  else
-                                    break;
-                                }
-                            };
-                          if (autoreleaseStep <= 0)
-                            {
-                              DESTROY(arp);
-                              autoreleaseStep = autoreleaseSteps;
-                              arp = GDL2_NSAutoreleasePool_new();
-                            }
-                          else 
-                            autoreleaseStep--;
-
-                          NSDebugMLLog(@"EODatabaseContext",
-				       @"WILL FETCH NEXT OBJECT");
-                          NSDebugMLLog(@"EODatabaseContext",
-				       @"[channel isFetchInProgress]=%s",
-				       ([channel isFetchInProgress] 
-					? "YES" : "NO"));
-                        }
-              
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"finished fetch");
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"array=%@", array);
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"step 0 channel is busy=%d",
-				   (int)[channel isFetchInProgress]);
-
-                      [channel cancelFetch]; //OK
-
-                      NSDebugMLLog(@"EODatabaseContext",
-				   @"step 1 channel is busy=%d",
-				   (int)[channel isFetchInProgress]);
-
-
-                      //TODO
-                      /*
-                        handle exceptio in fetchObject
-                        channel fetchObject
-                        
-                        if eception:
-                        if ([editcontext handleError:localException])
-                        {
-                        //TODO
-                        }
-                        else
-                        {
-                        //TODO
-                        };
-                      */
-
-                      DESTROY(arp);
-                    }
-                  NS_HANDLER
-                    {
-                      NSDebugMLLog(@"EODatabaseContext", @"AN EXCEPTION: %@",
-				   localException);
-
-                      RETAIN(localException);
-                      DESTROY(arp);
-                      AUTORELEASE(localException);
-                      [localException raise];
-                    }
-                  NS_ENDHANDLER;
-                }
-            }
-          NSDebugMLLog(@"EODatabaseContext",
-		       @"step 2 channel is busy=%d",
-		       (int)[channel isFetchInProgress]);
-        }
-
-      //VERIFY
-      NSDebugMLLog(@"EODatabaseContext",
-		   @"array before prefetchingRelationshipKeyPaths: %@", array);
-
-      if ([fetchSpecification prefetchingRelationshipKeyPaths]) //OK
-        qualArray = [NSMutableArray arrayWithCapacity: 5];
-
-      relationshipKeyPathEnum = [[fetchSpecification prefetchingRelationshipKeyPaths]
-                                  objectEnumerator];
-      enumNO=NULL;
-      while ((relationshipKeyPath = GDL2_NextObjectWithImpPtr(relationshipKeyPathEnum,&enumNO)))
-        {
-          IMP rkeyEnumNO=NULL; // nextObject
-          NSArray *relationshipKeyArray = [relationshipKeyPath
-                                            componentsSeparatedByString: @"."];
-          NSEnumerator *relationshipKeyEnum;
-          EORelationship *relationship;
-          EOEntity *currentEntity = entity;
-          NSString *relationshipKey;
-
-          relationshipKeyEnum = [relationshipKeyArray objectEnumerator];
-          while ((relationshipKey = GDL2_NextObjectWithImpPtr(relationshipKeyEnum,&rkeyEnumNO)))
-            {
-              relationship = [currentEntity relationshipNamed: relationshipKey];
-              currentEntity = [relationship destinationEntity];
-
-              // TODO rebuild object array for relationship path
-
-              [self _fetchRelationship: relationship
-                    withObjects: array
-                    editingContext: context];
-            }
-        }
-
-      if (_delegateRespondsTo.didFetchObjects == YES)
-        [_delegate databaseContext: self
-                   didFetchObjects: array
-                   fetchSpecification: fetchSpecification
-                   editingContext: context];
-
-      NSDebugMLLog(@"EODatabaseContext",@"step 1 channel is busy=%d",
-		   (int)[channel isFetchInProgress]);
+  }
+  
+  entityName = [fetchSpecification entityName];
+  entity = [_database entityNamed: entityName];
+  
+  if (!entity)
+  {
+    return [NSArray array];
+  }
+  
+  if ([entity isAbstractEntity] && (![fetchSpecification isDeep]))
+  {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"A FetchSpecification for an abstract entity must be 'deep'! Entity: ",
+     entityName];
+  }
+  
+  rawRowKeyPaths = [fetchSpecification rawRowKeyPaths];
+  if (rawRowKeyPaths)
+  {
+    NSArray * rawRows = [self _fetchRawRowKeyPaths:rawRowKeyPaths
+                                fetchSpecification:fetchSpecification
+                                            entity:entity
+                                    editingContext:context];
+    return rawRows;
+  } 
+  
+  if ((!_flags.ignoreEntityCaching) && [entity cachesObjects])
+  {
+    [self _populateCacheForFetchSpecification:fetchSpecification
+                               editingContext:context];
+  }
+  
+  if (((!_flags.ignoreEntityCaching) && [entity cachesObjects]) && 
+      ([fetchSpecification isDeep] && 
+       [self _validateQualifierForEvaluationInMemory:[fetchSpecification qualifier]
+                                              entity:entity]))
+  {
+    return [self _objectsFromEntityCacheWithFetchSpec:fetchSpecification
+                                       editingContext:context];
+  }
+  
+  array = [NSMutableArray arrayWithCapacity: 8];
+  
+  [channel selectObjectsWithFetchSpecification: fetchSpecification
+                                editingContext: context];
+  
+  // 0 is no fetch limit. if there is no limit, it makes no sense to ask
+  fetchLimit = [fetchSpecification fetchLimit];
+  if ((fetchLimit > 0) && (([fetchSpecification promptsAfterFetchLimit]) &&
+                           ([context messageHandler])))
+  {
+    messageHandler = [context messageHandler];
+  }  
+  
+  do {
+    do {
+      id freshObj = [channel fetchObject];
+      if (!freshObj) {
+        break;
+      }
+      [array addObject:freshObj];
+      rowsFetched++;
+    } while ((fetchLimit == 0) || (rowsFetched < fetchLimit));
+    
+    if (!messageHandler) {
+      break;
     }
-
-  //
-
-
+    
+    continueFetch = [messageHandler editingContext:context
+      shouldContinueFetchingWithCurrentObjectCount:rowsFetched
+                                     originalLimit:fetchLimit
+                                       objectStore:self];
+    
+  } while (continueFetch);
+  
+  [channel cancelFetch];
+  
+  prefetchingRelationshipKeyPaths = [fetchSpecification prefetchingRelationshipKeyPaths];
+  
+  if ((prefetchingRelationshipKeyPaths) && ([prefetchingRelationshipKeyPaths count] > 0))
+  {
+    [self _performPrefetchForFetchSpecification:fetchSpecification
+                                 editingContext:context
+                                        results:array
+                                       keyPaths:prefetchingRelationshipKeyPaths];
+  }
+  
+  if (_delegateRespondsTo.didFetchObjects == YES)
+    [_delegate databaseContext: self
+               didFetchObjects: array
+            fetchSpecification: fetchSpecification
+                editingContext: context];
+  
+  [channel setCurrentEditingContext:nil];
+  
   return array;
 }
 
@@ -3678,215 +3149,159 @@ Raises an exception is the adaptor is unable to perform the operations.
 
 }
 
-
-// TODO: change to SYNCRONIZED and free memorory properly -- dw
-- (void)commitChanges
+- (void) commitChanges
 {
-  BOOL doIt = NO;
+  NSMapEnumerator dbOpeEnum;
+  EOGlobalID *gid = nil;
+  EODatabaseOperation *dbOpe = nil;  
   NSMutableArray *deletedObjects = [NSMutableArray array];
   NSMutableArray *insertedObjects = [NSMutableArray array];
   NSMutableArray *updatedObjects = [NSMutableArray array];
   NSMutableDictionary *gidChangedUserInfo = nil;
-
-
+  NSMutableDictionary *gidChangedUserInfo2 = nil;
+  NSEnumerator * dbOperationsEnumer = nil;
+  
   [self _assertValidStateWithSelector: @selector(commitChanges)];
-
-  //REVOIR: don't do it if no adaptor ope
-  {
-    NSMapEnumerator dbOpeEnum;
-    EOGlobalID *gid = nil;
-    EODatabaseOperation *dbOpe = nil;
-    dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
-    
-    while (!doIt && NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid,
-                                            (void **)&dbOpe))
-    {
-      doIt = ([dbOpe adaptorOperations] != nil);
+  
+  // before we send new changes to the database,
+  // make sure we have commited everything
+  
+  NS_DURING {
+    if ([_adaptorContext hasOpenTransaction]) {
+      [_adaptorContext commitTransaction];
+      _flags.beganTransaction = NO;
     }
-    // avoid leaks! -- dw
+  } NS_HANDLER {
+    [self rollbackChanges];
+    [localException raise];
+    
+  } NS_ENDHANDLER;
+  // useToManyCaching ?
+  
+  [EOObserverCenter suppressObserverNotification];
+  dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
+  
+  NS_DURING {
+    while (NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid,
+                                   (void **)&dbOpe))
+    {
+      EODatabaseOperator databaseOperator = EODatabaseNothingOperator;
+      EOGlobalID *dbOpeGID = nil;
+      EOGlobalID *newGID = nil;
+      EOEntity *entity = nil;
+      NSDictionary *newRowValues = nil;
+      NSMutableDictionary *newRow = [dbOpe newRow];
+
+      databaseOperator = [dbOpe databaseOperator];
+      entity = [dbOpe entity];
+      
+      
+      if ([gid isTemporary] || ([[dbOpe primaryKeyDiffs] count] > 0))
+      {
+        newGID = [entity globalIDForRow: newRow
+                                isFinal: YES];
+        if (!gidChangedUserInfo)
+        {
+          gidChangedUserInfo = [NSMutableDictionary dictionary];
+        }
+        [gidChangedUserInfo setObject: newGID
+                               forKey: gid];
+      }
+      
+      switch (databaseOperator)
+      {
+        case EODatabaseInsertOperator:
+          
+          newRowValues = [newRow valuesForKeys:[entity classPropertyAttributeNames]];
+          break;
+          
+        case EODatabaseUpdateOperator:
+          newRowValues = [dbOpe rowDiffsForAttributes: [entity _classPropertyAttributes]];
+          break;
+        default: 
+          NSLog(@"%s databaseOperator %d unknown", __PRETTY_FUNCTION__, databaseOperator);
+          break;
+      }
+      id object = [dbOpe object];
+      if (object)
+      {
+        if ((newRowValues) && ([newRowValues count] > 0))
+        {
+          [object takeStoredValuesFromDictionary:newRowValues];
+        }
+        if ((databaseOperator == EODatabaseInsertOperator))
+        {
+          [_database incrementSnapshotCountForGlobalID:dbOpeGID];
+        }
+      }
+    } // while
+  } NS_HANDLER {
+    [EOObserverCenter enableObserverNotification];
     NSEndMapTableEnumeration(&dbOpeEnum);
+    [localException raise];
+  } NS_ENDHANDLER;
+  
+  [EOObserverCenter enableObserverNotification];
+  NSEndMapTableEnumeration(&dbOpeEnum);
+
+  if (gidChangedUserInfo)
+  {    
+    [[NSNotificationCenter defaultCenter] postNotificationName: EOGlobalIDChangedNotification
+                                                        object: self
+                                                      userInfo: gidChangedUserInfo];
   }
 
-  /* If a transaction is open, it could be holding locks
-     which we want to release.  */
-  if (doIt || _flags.beganTransaction)
+  dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
+  gidChangedUserInfo2 = [NSMutableDictionary dictionary];
+  
+  while (NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid,
+                                 (void **)&dbOpe)) {
+    EOGlobalID *dbOpeGID = nil;
+    
+    dbOpeGID = [dbOpe globalID]; 
+    
+    switch ([dbOpe databaseOperator])
     {
-      if (_flags.beganTransaction == NO)//it is not set here in WO
-        {
-          NSEmitTODO();
-          [self notImplemented: _cmd]; //TODO
+      case EODatabaseInsertOperator:
+      {
+        id newObj = nil;
+        if (gidChangedUserInfo) {
+          newObj = [gidChangedUserInfo objectForKey:dbOpeGID];
         }
-      else if ([_adaptorContext transactionNestingLevel] == 0)
-        {
-          NSEmitTODO();
-          [self notImplemented: _cmd]; //TODO
-        }
-      else 
-        {
-          NSMapEnumerator dbOpeEnum;
-          EOGlobalID *gid = nil;
-          EODatabaseOperation *dbOpe = nil;
-
-          NSDebugMLLog(@"EODatabaseContext",
-		       @"BEGAN TRANSACTION FLAG==>NO");
-
-          _flags.beganTransaction = NO;
-          [_adaptorContext commitTransaction]; //adaptorcontext transactionDidCommit
-
-          dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
-          while (NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid,
-					 (void **)&dbOpe))
-            {
-              EODatabaseOperator databaseOperator = EODatabaseNothingOperator;
-              EOGlobalID *dbOpeGID = nil;
-              EOGlobalID *newGID = nil;
-              EOEntity *entity = nil;
-
-
-
-              [EOObserverCenter suppressObserverNotification];
-
-              NS_DURING
-                {
-                  databaseOperator = [dbOpe databaseOperator];
-                  entity = [dbOpe entity];
-
-                  if (databaseOperator == EODatabaseInsertOperator
-                     || databaseOperator == EODatabaseUpdateOperator)//OK for update
-                    {
-                      id object = nil;
-                      NSDictionary *newRowValues = nil;
-                      //gid isTemporary
-                      NSDictionary *primaryKeyDiffs = [dbOpe primaryKeyDiffs];//OK for update
-
-                      if (primaryKeyDiffs)
-                        {
-                          NSEmitTODO();
-                          NSAssert3(NO,@"primaryKeyDiffs=%@ dbOpe=%@ object=%@",
-                                    primaryKeyDiffs,dbOpe,[dbOpe object]); //TODO: if primaryKeyDiffs
-                        }
-
-                      if (databaseOperator == EODatabaseInsertOperator)
-                        {
-                          NSArray *classPropertyAttributeNames =
-			    [entity classPropertyAttributeNames];
-                          NSDictionary *newRow = [dbOpe newRow];
-
-                          newRowValues = [newRow valuesForKeys:
-						   classPropertyAttributeNames];
-
-                          //TODO REVOIR !!
-                          newGID = [entity globalIDForRow: newRow
-					   isFinal: YES];
-                        }
-                      else
-                        {
-                          NSArray *classPropertyAttributes = [entity _classPropertyAttributes];//OK for update
-
-                          newRowValues = [dbOpe rowDiffsForAttributes: classPropertyAttributes];//OK for update
-                        }
-
-                      object = [dbOpe object];//OK for update 
-                      [object takeStoredValuesFromDictionary: newRowValues];//OK for update 
-
-                      /*mirko instead:
-                        [object takeStoredValuesFromDictionary:
-                        [op rowDiffsForAttributes:attributes]];
-                    
-
-
-                        [_database recordSnapshot:[op newRow]
-                        forGlobalID:gid];
-                
-                        toManySnapshots = [op toManySnapshots];
-                        toManyEnum = [toManySnapshots keyEnumerator];
-                        while ((key = [toManyEnum nextObject]))
-                        [_database recordSnapshot:[toManySnapshots objectForKey:key]
-                        forSourceGlobalID:gid
-                        relationshipName:key];
-                      */
-                    }
-                }
-              NS_HANDLER
-                {
-                  [EOObserverCenter enableObserverNotification];
-
-                  NSDebugMLLog(@"EODatabaseContext", @"EXCEPTION %@",
-			       localException);
-
-                  [localException raise];
-                }
-              NS_ENDHANDLER;
-
-              [EOObserverCenter enableObserverNotification];
-
-
-              dbOpeGID = [dbOpe globalID]; //OK for update 
-
-
-              switch (databaseOperator)
-                {
-                case EODatabaseInsertOperator:
-                  [insertedObjects addObject: dbOpeGID];
-
-                  if (!gidChangedUserInfo)
-                    gidChangedUserInfo = (NSMutableDictionary *)
-		      [NSMutableDictionary dictionary];
-
-                  [gidChangedUserInfo setObject: newGID
-                                      forKey: dbOpeGID]; //[_editingContext globalIDForObject:object]];
-                  break;
-
-                case EODatabaseDeleteOperator:
-                  [deletedObjects addObject: dbOpeGID];
-                  [_database forgetSnapshotForGlobalID: dbOpeGID]; //Mirko/??
-                  break;
-
-                case EODatabaseUpdateOperator:
-                  [updatedObjects addObject: dbOpeGID];
-                  break;
-
-                case EODatabaseNothingOperator:
-                  break;
-                }
-            }
-          // avoid leaks! -- dw
-          NSEndMapTableEnumeration(&dbOpeEnum);
-        }
+        
+        [insertedObjects addObject: (newObj == nil ? dbOpeGID : newObj)];
+      } 
+        break;
+        
+      case EODatabaseDeleteOperator:
+        [deletedObjects addObject: dbOpeGID];
+        break;
+        
+      case EODatabaseUpdateOperator: /* 2 */
+        [updatedObjects addObject: dbOpeGID];
+        break;
+        
+      case EODatabaseNothingOperator:
+        break;
     }
+  } 
+  NSEndMapTableEnumeration(&dbOpeEnum);
 
-
-
-  [self _cleanUpAfterSave];//OK for update
-
-  if (doIt)
-    {
-      //from mirko. seems ok
-      if (gidChangedUserInfo)
-        {
-          NSDebugMLLog(@"EODatabaseContext",
-		       @"post EOGlobalIDChangedNotification");
-
-          [[NSNotificationCenter defaultCenter]
-            postNotificationName: EOGlobalIDChangedNotification
-            object: nil
-            userInfo: gidChangedUserInfo];
-        }
-
-      NSDebugMLLog(@"EODatabaseContext",
-		   @"post EOObjectsChangedInStoreNotification");
-
-      [[NSNotificationCenter defaultCenter]
-	postNotificationName: @"EOObjectsChangedInStoreNotification"
-	object: _database
-	userInfo: [NSDictionary dictionaryWithObjectsAndKeys:
-				  deletedObjects, EODeletedKey,
-				insertedObjects, EOInsertedKey,
-				updatedObjects, EOUpdatedKey,
-				nil, nil]]; //call self _snapshotsChangedInDatabase:
-    }
-
-
+  [gidChangedUserInfo2 setObject:deletedObjects
+                          forKey:EODeletedKey];
+  
+  [gidChangedUserInfo2 setObject:insertedObjects
+                          forKey:EOInsertedKey];
+  
+  [gidChangedUserInfo2 setObject:updatedObjects
+                          forKey:EOUpdatedKey];
+  
+  [self _cleanUpAfterSave];
+  
+  [[NSNotificationCenter defaultCenter]
+   postNotificationName: @"EOObjectsChangedInStoreNotification"
+   object: _database
+   userInfo: gidChangedUserInfo2];
 }
 
 - (void)rollbackChanges

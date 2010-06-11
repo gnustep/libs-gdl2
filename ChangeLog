@@ -1,3 +1,28 @@
+2010-06-11  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EODatabase.m
+	* EOAccess/EODatabase.h
+	add _doesReleaseUnreferencedSnapshots
+	add dummy for incrementSnapshotCountForGlobalID
+	add dummy for decrementSnapshotCountForGlobalID
+	add disableSnapshotRefcounting
+	* EOAccess/EODatabaseContext.m
+	retain EOAdaptorChannel created by adaptor
+	This is documented in WO 4.5.
+	Otherwise it gets closed after the request's
+	autorelease pool is drained.
+	I tested this on OSX with the BookStore example.
+	added some dummies for future implementation
+	refactor objectsWithFetchSpecification: editingContext:
+	refactor commitChanges
+	* EOAccess/EODatabaseChannel.m
+	reformat
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLExpression.m
+	add include
+	* EOControl/EOGenericRecord.m
+	add [self willChange] in setValue:forUndefinedKey:
+	this will make saving changes possible for EOGenericRecord
+	otherwise it was just showing them in memory
+
 2010-06-10  David Wetzel  <dave@turbocat.de>
 	* EOControl/EOGenericRecord.h
 	* EOControl/EOGenericRecord.m
