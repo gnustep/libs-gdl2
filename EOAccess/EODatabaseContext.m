@@ -2848,32 +2848,25 @@ but not owned by this context to the coordinator.
 - (void)recordUpdateForObject: (id)object
                       changes: (NSDictionary *)changes
 {
-  //OK
   EODatabaseOperation *dbOpe = nil;
-
-
+  
   NSAssert(object, @"No object");
-
-
-
-
+  
   [self _assertValidStateWithSelector:
-	  @selector(recordUpdateForObject:changes:)];
-
+   @selector(recordUpdateForObject:changes:)];
+  
   dbOpe = [self databaseOperationForObject: object];
-
-
-  [dbOpe setDatabaseOperator:EODatabaseUpdateOperator];
-
-
-  if ([changes count])
+  
+  if (dbOpe) {
+    [dbOpe setDatabaseOperator:EODatabaseUpdateOperator];
+    if ((changes) && ([changes count]))
     {
       [[dbOpe newRow] addEntriesFromDictionary: changes];
-
-
     }
-
-
+  } else {
+    [[self coordinator] forwardUpdateForObject:object
+                                       changes:changes];
+  }
 }
 
 -(void)recordInsertForObject: (id)object
@@ -2881,20 +2874,18 @@ but not owned by this context to the coordinator.
   NSDictionary *snapshot = nil;
   EODatabaseOperation *dbOpe = nil;
 
-
-
   dbOpe = [self databaseOperationForObject: object];
-
-
   [dbOpe setDatabaseOperator: EODatabaseInsertOperator];
 
+  snapshot = [dbOpe dbSnapshot];
 
-  snapshot = [dbOpe dbSnapshot]; //TODO: sowhat
-  NSDebugMLLog(@"EODatabaseContext", @"object=%p snapshot=%@", 
-	       object, snapshot);
-
-//call snapshot count
-
+  if ([snapshot count] != 0)
+  {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"%s found a snapshot for EO with Global ID: %@ that has been inserted into %@."
+     @"Cannot insert an object that is already in the database",
+     __PRETTY_FUNCTION__, [dbOpe globalID], _editingContext];
+  }
 
 }
 
@@ -2902,16 +2893,20 @@ but not owned by this context to the coordinator.
 {
   NSDictionary *snapshot = nil;
   EODatabaseOperation *dbOpe = nil;
-
-
-
+  
   dbOpe = [self databaseOperationForObject: object];
-
-
+  
   [dbOpe setDatabaseOperator: EODatabaseDeleteOperator];
-  snapshot = [dbOpe dbSnapshot]; //TODO: sowhat
-
-
+  
+  snapshot = [dbOpe dbSnapshot];
+  
+  if (([snapshot count] == 0))
+  {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"%s failed to find a snapshot for EO with Global ID: %@ that has been deleted from %@."
+     @"Cannot delete an object that has not been fetched from the database",
+     __PRETTY_FUNCTION__, [dbOpe globalID], _editingContext];
+  }
 }
 
 /** Constructs EOAdaptorOperations for all EODatabaseOperations constructed in
@@ -3219,7 +3214,6 @@ Raises an exception is the adaptor is unable to perform the operations.
           newRowValues = [dbOpe rowDiffsForAttributes: [entity _classPropertyAttributes]];
           break;
         default: 
-          NSLog(@"%s databaseOperator %d unknown", __PRETTY_FUNCTION__, databaseOperator);
           break;
       }
       id object = [dbOpe object];

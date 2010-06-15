@@ -1,3 +1,15 @@
+2010-06-14  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EODatabaseContext.m
+	recordUpdateForObject: changes:
+	more checks, call coordinator's 
+	forwardUpdateForObject:changes:
+	recordInsertForObject:
+	raise exception on inconsistency
+	recordDeleteForObject:
+	raise exception on inconsistency
+	commitChanges:
+	remove NSLog 
+
 2010-06-11  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabase.m
 	* EOAccess/EODatabase.h
