@@ -135,3 +135,13 @@ How can you help?
 
      Happy hacking!
 
+Additional Notes
+================
+
+if you installed PostgreSQL in /usr/local/pgsql (which is the default
+if you install from source) you need to do that:
+
+./configure --with-pgsql-include=/usr/local/pgsql/include --with-pgsql-library=/usr/local/pgsql/lib
+
+before building
+

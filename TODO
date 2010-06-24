@@ -1,3 +1,5 @@
+GDL2Palette is currently broken, please send patches 
+
 EOControl:
 	Implement & Test: EOControl/EOMultiReaderLocks
 	Implement & Test: EOControl/EOEvent(Center)
@@ -10,11 +12,6 @@ EOAccess:
 	Test: EOAccess/EOGenericRecord category
 
 	Implement & Test: to-one PK to Foreign Key support (Not implemented by WO but it's really cool)
-
-DBModeler:
-	when removing something, make sure there is no references to it,
-	if there are pop up a dialog allowing the user to cancel, or remove the
-	references.
 
 Adaptors:
 

@@ -1,3 +1,17 @@
+2010-06-24  David Wetzel  <dave@turbocat.de>
+	* README
+	add Additional Notes
+	* Apps/EOModelEditor/Inspectors/GNUmakefile
+	* Apps/EOModelEditor/GNUmakefile
+	* Apps/EOModeler/Makefile.preamble
+	add parent directories to search path as suggested by Sergey Golovin
+	* TODO
+	updated
+	* GDL2Palette/GNUmakefile
+	add ../Apps/EOModeler to ADDITIONAL_NATIVE_LIB_DIRS
+	(as suggested by Sergey Golovin)
+	It does not build on OS X, I need patches guys :-)
+	
 2010-06-23  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOModel.m
 	add -_writePlist:toFile:

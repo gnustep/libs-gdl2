@@ -32,7 +32,7 @@ GDL2_NEEDS_GUI = yes
 GDL2_PRINCIPAL_CLASS = GDL2Palette
 
 ADDITIONAL_INCLUDE_DIRS+=-I../
-ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess/ ../EOControl/ ../EOInterface ../EOModeler
+ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess/ ../EOControl/ ../EOInterface ../Apps/EOModeler
 ADDITIONAL_NATIVE_LIBS+=EOAccess EOControl EOInterface EOModeler 
 
 GDL2_RESOURCE_FILES=		\

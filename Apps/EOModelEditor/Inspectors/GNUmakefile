@@ -27,7 +27,7 @@ include ../../../common.make
 include $(GNUSTEP_MAKEFILES)/common.make
 SUBPROJECT_NAME=Inspectors
 
-ADDITIONAL_INCLUDE_DIRS+=-I../../
+ADDITIONAL_INCLUDE_DIRS+=-I../../../ -I../..
 
 Inspectors_NEEDS_GUI=yes
 Inspectors_HAS_RESOURCE_BUNDLE=yes
