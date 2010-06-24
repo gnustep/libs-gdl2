@@ -1,4 +1,8 @@
 2010-06-24  David Wetzel  <dave@turbocat.de>
+	* Apps/EOModelEditor/CodeGenerator.m
+	-updateNeededForFileAtPath:content:canOverwrite:
+	do not overwrite files if canOverwrite = NO
+2010-06-24  David Wetzel  <dave@turbocat.de>
 	* README
 	add Additional Notes
 	* Apps/EOModelEditor/Inspectors/GNUmakefile

@@ -196,6 +196,10 @@
   NSFileManager * fileManager = [NSFileManager defaultManager]; 
   
   if ([fileManager fileExistsAtPath:aPath]) {
+    if (!overwrite) {
+      return NO;
+    }
+    
     NSString * myStr = [NSString stringWithContentsOfFile:aPath
                                                  encoding:NSUTF8StringEncoding
                                                     error:NULL];
