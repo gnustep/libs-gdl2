@@ -539,6 +539,36 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return self;
 }
 
+- (BOOL) _writePlist:(NSDictionary*)plist toFile:(NSString*) path
+{
+  NSData   * fileData;
+  NSString * errorDescription = nil;
+  NSError  * error = nil;
+  BOOL       ok = NO;
+  
+  // we should use 
+  // NSPropertyListSerialization dataWithPropertyList:format:options:error:
+  // but that is not hacked to work on apple in Additions
+  fileData = [NSPropertyListSerialization dataFromPropertyList:plist
+                                                        format:NSPropertyListOpenStepFormat 
+                                              errorDescription:&errorDescription];
+
+
+  if (!fileData) {
+    NSLog(@"%s: Cannot convert plist to data.", __PRETTY_FUNCTION__);
+    return NO;
+  }
+  
+  ok = [fileData writeToFile:path
+                     options:NSAtomicWrite
+                       error:&error];
+  
+  if (!ok) {
+    NSLog(@"%s:%@", __PRETTY_FUNCTION__, error);
+  }
+  return ok;
+}
+
 /**
  * <p>Writes the receivers plist representation into an
  * .eomodeld file wrapper located at path.  </p>
@@ -634,7 +664,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       fileName = [path stringByAppendingPathComponent:
 			 [NSString stringWithFormat: @"%@.plist",
 				   [entityPList objectForKey: @"name"]]];
-      if ([entityPList writeToFile: fileName atomically: YES] == NO)
+      
+      if ([self _writePlist:entityPList toFile:fileName] == NO)
 	{
 	  NSString *fmt;
 	  fmt = [NSString stringWithFormat: @"Could not create file: %@",
@@ -653,7 +684,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       fileName = [stProcPList objectForKey: @"name"];
       fileName = [fileName stringByAppendingPathExtension: @"storedProcedure"];
       fileName = [path stringByAppendingPathComponent: fileName];
-      if ([stProcPList writeToFile: fileName atomically: YES] == NO)
+      if ([self _writePlist:stProcPList toFile:fileName] == NO)
 	{
 	  NSString *fmt;
 	  fmt = [NSString stringWithFormat: @"Could not create file: %@",
@@ -674,7 +705,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       fileName = path;
     }
 
-  if ([pList writeToFile: fileName atomically: YES] == NO)
+  if ([self _writePlist:pList toFile:fileName] == NO)
     {
       NSString *fmt;
       fmt = [NSString stringWithFormat: @"Could not create file: %@",

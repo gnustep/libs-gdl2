@@ -1,3 +1,9 @@
+2010-06-23  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EOModel.m
+	add -_writePlist:toFile:
+	use it in -writeToFile:
+	this makes writing OPENSTEP plists work on OSX!
+	
 2010-06-14  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseContext.m
 	recordUpdateForObject: changes:
