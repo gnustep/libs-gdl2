@@ -27,6 +27,9 @@
 #ifndef __EOControl_h__
 #define __EOControl_h__
 
+#ifndef GNUSTEP
+#include <GNUstepBase/GNUstep.h>
+#endif
 
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOFetchSpecification.h>

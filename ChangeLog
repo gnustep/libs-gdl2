@@ -1,4 +1,7 @@
 2010-06-24  David Wetzel  <dave@turbocat.de>
+	* EOControl/EOControl.h
+	include GNUstepBase/GNUstep.h on non-GNUSTEP platforms
+2010-06-24  David Wetzel  <dave@turbocat.de>
 	* Apps/EOModelEditor/CodeGenerator.m
 	-updateNeededForFileAtPath:content:canOverwrite:
 	do not overwrite files if canOverwrite = NO
