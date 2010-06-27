@@ -115,7 +115,7 @@
                   <popUpButtonItem tag="0" title="int" />
                   <popUpButtonItem tag="1" title="double" />
                   <popUpButtonItem tag="2" title="float" />
-                  <popUpButtonItem tag="3" title="char" />
+                  <popUpButtonItem tag="3" title="BOOL" />
                   <popUpButtonItem tag="4" title="short" />
                   <popUpButtonItem tag="5" title="unsigned int" />
                   <popUpButtonItem tag="6" title="unsigned char" />

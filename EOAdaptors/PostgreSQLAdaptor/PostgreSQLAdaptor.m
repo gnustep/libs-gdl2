@@ -285,17 +285,10 @@ static NSString *typeNames[][2] = {
   int i,c;
   
   for (i = 0, c = sizeof(typeNames) / sizeof(typeNames[0]); i < c; i++)
-    {
-      //TODO REMOVE
-      NSDebugMLog(@"externalTypeNames[i]=%@", typeNames[i][0]);
-
-      if ([typeNames[i][0] isEqualToString: typeName])
-        return YES;
-    }
-  //TODO REMOVE
-
-  NSDebugMLog(@"typeName=%@", typeName);
-
+  {
+    if ([typeNames[i][0] isEqualToString: typeName])
+      return YES;
+  }
   return NO;
 }
 

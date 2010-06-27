@@ -1,3 +1,18 @@
+2010-06-27  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EODatabaseContext.m
+	-isValidQualifierTypeForAttribute:
+	reformat, remove useless code
+	-qualifierForLockingAttributes:primaryKeyAttributes:entity:snapshot:
+	reformat
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLAdaptor.m
+	-isValidQualifierType:model:
+	remove logs, format
+	* Apps/EOModelEditor/Inspectors/AttributeInspector.gsmarkup
+	* Apps/EOModeler/EOModelExtensions.m
+	Rename the char into BOOL
+	You can use BOOL to create code that has BOOL values.
+	Apple seems to do this in newer code 
+
 2010-06-26  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOAccessFault.m
 	-unableToFaultObject:databaseContext:

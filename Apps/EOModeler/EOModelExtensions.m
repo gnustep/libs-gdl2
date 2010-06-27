@@ -214,6 +214,30 @@
 
 - (BOOL)isScalar
 {
+  NSString * vClassName = [self valueClassName];
+  
+  if ([vClassName isEqual:@"NSNumber"] == NO) {
+    return NO;
+  } else {
+    NSString * vType = [self valueType];
+    unichar  myChar;
+    
+    if ([vType length] < 1) {
+      return NO;
+    }
+    myChar = [vType characterAtIndex:0];
+    switch (myChar) {
+      case 'c':   /* this is what newer WO versions do */
+        return YES;
+        break;
+      case 'i': 
+        return NO; /* we want NSNumbers */
+        break;
+      default:
+        break;
+    }
+  }
+  
   return NO;
 }
 
@@ -229,7 +253,7 @@
   myChar = [vType characterAtIndex:0];
   
   switch (myChar) {
-    case 'c': return @"char";
+    case 'c': return @"BOOL";   /* this is what newer WO versions do */
       break;
     case 'C': return @"unsigned char";
       break;
