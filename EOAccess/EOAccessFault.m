@@ -252,7 +252,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 @implementation NSObject (EOAccessFaultUnableToFaultToOne)
 
 - (void)unableToFaultObject: (id)object
-	    databaseContext: (EODatabaseContext *)context
+            databaseContext: (EODatabaseContext *)context
 {
   EOFaultHandler *handler = [EOFault handlerForFault:object];
   EOGlobalID *globalID = nil;
@@ -261,12 +261,12 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
     globalID = [(EOAccessFaultHandler *)handler globalID];
 
 
-
+  // we should avoid putting self here as this will fire a fault again...
+  
   [NSException raise: EOAccessFaultObjectNotAvailableException
-               format: @"%@ -- %@ 0x%x: cannot fault to-one for object %@ of class %@ databaseContext %@ handler %@ (globalID=%@)",
+               format: @"%@ -- %@ 0x%x: cannot fault to-one for object of class %@ databaseContext %@ handler %@ (globalID=%@)",
                NSStringFromSelector(_cmd),
                NSStringFromClass([self class]),
-               self,
                object,
                [EOFault targetClassForFault: object],
                context,
