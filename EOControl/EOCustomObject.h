@@ -39,7 +39,7 @@
 @class EOEditingContext;
 
 
-@interface EOCustomObject : NSObject
+@interface EOCustomObject : NSObject <NSCoding>
 {
 
 }
@@ -118,6 +118,9 @@
 
 - (NSString *)eoShallowDescription;
 - (NSString *)eoDescription;
+
+- (void)encodeWithCoder:(NSCoder *)aCoder;
+- (id)initWithCoder:(NSCoder *)aDecoder;
 
 @end
 

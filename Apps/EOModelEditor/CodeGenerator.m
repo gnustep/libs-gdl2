@@ -330,7 +330,7 @@ void addToUsedClasses(NSMutableArray * mutArray,NSSet * knownNames, NSArray * ot
   
   [cs appendString:[self classDummysForEntity:entity]];
   
-  [cs appendFormat:@"@interface _%@ : EOCustomObject <NSCoding>\n{\n", className];
+  [cs appendFormat:@"@interface _%@ : EOCustomObject\n{\n", className];
   
   while ((eoAttr = [enumer nextObject])) {
     [cs appendFormat:@"  %@ _%@;\n", [eoAttr cScalarTypeString], [eoAttr name]];

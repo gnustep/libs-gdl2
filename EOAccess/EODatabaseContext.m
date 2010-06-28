@@ -820,45 +820,64 @@ classPropertyNames = [entity classPropertyNames];
 }
 
 - (void)initializeObject: (id)object
-	    withGlobalID: (EOGlobalID *)globalID
+            withGlobalID: (EOGlobalID *)globalID
           editingContext: (EOEditingContext *)context
 {
-//near OK
-  EOEntity *entity = nil;
+  NSDictionary * snapDict = nil;
+  EOEntity     * entity = nil;
 
-
-
+  /*
+   TODO use this stuff -- dw
+  if (globalID == _currentGlobalID)
+  {
+    snapDict = _currentSnapshot;
+    entity = _lastEntity;
+  } else ...
+  */  
+  
   if ([globalID isTemporary])
+  {
+    return;
+  }
+  
+  snapDict = [self snapshotForGlobalID:globalID];
+  
+  if ([(EOKeyGlobalID *)globalID isFinal])
+  {
+    entity = [self entityForGlobalID:globalID];
+  } else {
+    object = [context objectForGlobalID:globalID];
+    if (!object)
     {
-      NSEmitTODO();
-      [self notImplemented: _cmd]; //TODO
+      [NSException raise: NSInternalInconsistencyException
+                  format: @"%s No object for gid %@ in %@", __PRETTY_FUNCTION__, globalID, context];      
     }
+    entity = [_database entityForObject:object];
+  }
 
-  if (![(EOKeyGlobalID *)globalID isFinal])
-    {
-      NSEmitTODO();
-      [self notImplemented: _cmd]; //TODO
+  if (!snapDict)
+  {
+    [NSException raise: NSInternalInconsistencyException
+                format: @"%s No snapshot for gid %@", __PRETTY_FUNCTION__, globalID];      
+  } else {
+    if ((!object) || ([object isKindOfClass:[EOCustomObject class]] == NO)) {
+      [NSException raise: NSInternalInconsistencyException
+                  format: @"%s:%d cannot initialize nil/non EOCustomObject object!", __FILE__, __LINE__];      
     }
-
-  //mirko:
-  if (_updateStrategy == EOUpdateWithPessimisticLocking)
-    [self registerLockedObjectWithGlobalID: globalID];
-
-  entity = [self entityForGlobalID: globalID];
-
-/*Mirko:
-  if ([object respondsToSelector:@selector(entity)])
-    entity = [object entity];
-  else
-    entity = [_database entityNamed:[globalID entityName]];
-*/
-
-  [self initializeObject: object
-        row: EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,globalID) //shound be _currentSnapshot
-        entity: entity
-        editingContext: context];
-
-
+    
+    [self initializeObject: object
+                       row: snapDict
+                    entity: entity
+            editingContext: context];
+    
+    if ((!object) || ([object isKindOfClass:[EOCustomObject class]] == NO)) {
+      [NSException raise: NSInternalInconsistencyException
+                  format: @"%s:%d Something went wrong!", __FILE__, __LINE__];      
+    }
+    
+    [_database incrementSnapshotCountForGlobalID:globalID];
+  }
+  
 }
 
 - (void) _objectsChanged: (NSNotification*)notification
@@ -6124,14 +6143,8 @@ Raises an exception is the adaptor is unable to perform the operations.
   IMP objectTakeStoredValueForKeyIMP=NULL;
   IMP rowObjectForKeyIMP=NULL;
 
-
-
-
-
   classPropertyAttributeNames = [entity classPropertyAttributeNames];
   count = [classPropertyAttributeNames count];
-
-
 
   //row is usuallly a EOMutableKnownKeyDictionary so will use EOMKKD_objectForKeyWithImpPtr
 

@@ -302,14 +302,11 @@ RCS_ID("$Id$")
   //seems OK
   EODatabase *database=nil;
   id object = nil;
-
+  
   database = [_databaseContext database];
   
   if (![self isFetchInProgress])
-  {
-    NSLog(@"No Fetch in progress");
-    NSDebugMLog(@"No Fetch in progress", "");
-    
+  {    
     [NSException raise: NSInvalidArgumentException
                 format: @"%@ -- %@ 0x%x: no fetch in progress",
      NSStringFromSelector(_cmd),
@@ -326,11 +323,7 @@ RCS_ID("$Id$")
     
     propertiesToFetch = [self _propertiesToFetch];
     
-    EOFLOGObjectLevel(@"gsdb", @"Will fetchRow");
-    
     row = [_adaptorChannel fetchRowWithZone: NULL];
-    
-    EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);
     
     if (!row)
     {
@@ -359,11 +352,7 @@ RCS_ID("$Id$")
       gid = [_currentEntity globalIDForRow: row
                                    isFinal: YES];//OK
       
-      EOFLOGObjectLevelArgs(@"gsdb", @"gid=%@", gid);
-      
       object = [_currentEditingContext objectForGlobalID: gid]; //OK //nil
-      
-      EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
       
       if (object)
         isObjectNew = NO;
@@ -372,17 +361,8 @@ RCS_ID("$Id$")
       
       snapshot = [_databaseContext snapshotForGlobalID: gid]; //OK
       
-      EOFLOGObjectLevelArgs(@"gsdb", @"snapshot=%@", snapshot);
-      
       if (snapshot)
-      {
-        EOFLOGObjectLevelArgs(@"gsdb", @"_delegateRespondsTo.shouldUpdateSnapshot=%d",
-                              (int)_delegateRespondsTo.shouldUpdateSnapshot);
-        EOFLOGObjectLevelArgs(@"gsdb", @"[self isLocking]=%d",
-                              (int)[self isLocking]);
-        EOFLOGObjectLevelArgs(@"gsdb", @"[self isRefreshingObjects]=%d",
-                              (int)[self isRefreshingObjects]);
-        
+      {        
         //mirko:
         if((_delegateRespondsTo.shouldUpdateSnapshot == NO
             && ([self isLocking] == YES
@@ -394,8 +374,6 @@ RCS_ID("$Id$")
                                                globalID: gid
                                         databaseChannel: self])))
         { // TODO delegate not correct !
-          EOFLOGObjectLevelArgs(@"gsdb", @"Updating Snapshot=%@", snapshot);
-          EOFLOGObjectLevelArgs(@"gsdb", @"row=%@", row);                  
           
           [_databaseContext recordSnapshot: row
                                forGlobalID: gid];
@@ -404,16 +382,11 @@ RCS_ID("$Id$")
       }
       else
       {
-        EOFLOGObjectLevelArgs(@"gsdb", @"database class=%@", [database class]);
-        
         NSAssert(database, @"No database-context database");
         
         [database recordSnapshot: row
                      forGlobalID: gid];
       }
-      
-      EOFLOGObjectLevelArgs(@"gsdb", @"[self isRefreshingObjects]=%d",
-                            (int)[self isRefreshingObjects]);
       
       //From mirko
       if ([self isRefreshingObjects] == YES)
@@ -434,7 +407,6 @@ RCS_ID("$Id$")
                                                                 globalID: gid
                                                                     zone: NULL];
         
-        EOFLOGObjectLevelArgs(@"gsdb", @"object=%@", object);
         NSAssert1(object, @"No Object. entityClassDescripton=%@", entityClassDescripton);
         
         EOEditingContext_recordObjectGlobalIDWithImpPtr(_currentEditingContext,
@@ -447,7 +419,6 @@ RCS_ID("$Id$")
         EOKeyGlobalID *handlerGID = (EOKeyGlobalID *)[handler globalID];
         
         isObjectNew = YES; //TODO
-        
         [handlerGID isFinal]; //YES //TODO
         [EOFault clearFault: object];
         
@@ -461,11 +432,14 @@ RCS_ID("$Id$")
       
       if (isObjectNew) //TODO
       {
+        if ((!object) || ([object isKindOfClass:[EOCustomObject class]] == NO)) {
+          [NSException raise: NSInternalInconsistencyException
+                      format: @"%s:%d cannot initialize nil/non EOCustomObject object!", __FILE__, __LINE__];      
+        }
         [EOObserverCenter suppressObserverNotification];
         
         NS_DURING
         {
-          EOFLOGObjectLevelArgs(@"gsdb", @"Initialize %p", object);
           
           [_currentEditingContext initializeObject: object
                                       withGlobalID: gid
@@ -479,15 +453,19 @@ RCS_ID("$Id$")
         NS_ENDHANDLER;
         
         [EOObserverCenter enableObserverNotification];
+        
+        if ((!object) || ([object isKindOfClass:[EOCustomObject class]] == NO)) {
+          [NSException raise: NSInternalInconsistencyException
+                      format: @"%s:%d cannot initialize nil/non EOCustomObject object!", __FILE__, __LINE__];      
+        }
+        
         [object awakeFromFetchInEditingContext: _currentEditingContext];
       }
     }
   }
   
-  
-  
   return object;
-};
+}
 
 - (BOOL)isFetchInProgress
 {

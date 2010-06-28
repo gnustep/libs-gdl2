@@ -4206,29 +4206,22 @@ fromInsertionInEditingContext: (EOEditingContext *)context
 {
   id obj = nil;
   Class objectClass;
-
-
-
+  
   NSAssert1(_entity, @"No _entity in %@", self);
-
+  
   objectClass = [_entity classForObjectWithGlobalID: (EOKeyGlobalID*)globalID];
-  EOFLOGObjectLevelArgs(@"EOEntity", @"objectClass=%p", objectClass);
-
+  
   NSAssert2(objectClass, @"No objectClass for globalID=%@. EntityName=%@",
-	    globalID, [_entity name]);
-
+            globalID, [_entity name]);
+  
   if (objectClass)
-    {
-      EOFLOGObjectLevelArgs(@"EOEntity", @"objectClass=%@", objectClass);
-
-      obj = AUTORELEASE([[objectClass allocWithZone:zone]
-			  initWithEditingContext: editingContext
-			  classDescription: self
-			  globalID: globalID]);
-    }
-
-
-
+  {
+    obj = AUTORELEASE([[objectClass allocWithZone:zone]
+                       initWithEditingContext: editingContext
+                       classDescription: self
+                       globalID: globalID]);
+  }
+  
   return obj;
 }
 

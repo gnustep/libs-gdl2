@@ -1057,7 +1057,17 @@ RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
   return ret; //TODO
 }
 
-// -----------------------------------------------
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+  [EOEditingContext encodeObject:self
+                       withCoder:aCoder];
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+  return [EOEditingContext initObject:self
+                            withCoder:aDecoder];
+}
 
 
 @end

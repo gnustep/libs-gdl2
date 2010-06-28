@@ -87,7 +87,8 @@ postgresClientVersion()
   static int version = 0;
   if (version == 0)
     {
-      NSString *versionString = [NSString stringWithCString: PG_VERSION];
+      NSString *versionString = [NSString stringWithCString:PG_VERSION
+                                                   encoding:NSASCIIStringEncoding];
       version = [versionString parsedFirstVersionSubstring];
     }
   return version;

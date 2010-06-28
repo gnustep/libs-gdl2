@@ -1,3 +1,23 @@
+2010-06-28  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EOEntity.m
+	- createInstanceWithEditingContext:globalID:zone:
+	reformat, remove logs
+	* EOAccess/EODatabaseContext.m
+	-initializeObject:withGlobalID:editingContext:
+	rewritten, add exceptions
+	* EOAccess/EODatabaseChannel.m
+	-fetchObject
+	remove logs, add exceptions
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLAdaptor.m
+	postgresClientVersion()
+	use stringWithCString:encoding: not stringWithCString:
+	* Apps/EOModelEditor/CodeGenerator.m
+	don't add <NSCoding> to generated code
+	* EOControl/EOCustomObject.h
+	* EOControl/EOCustomObject.m
+	add -encodeWithCoder:
+	add -initWithCoder:
+
 2010-06-27  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseContext.m
 	-isValidQualifierTypeForAttribute:
