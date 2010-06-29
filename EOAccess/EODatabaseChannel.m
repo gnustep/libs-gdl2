@@ -439,8 +439,7 @@ RCS_ID("$Id$")
         [EOObserverCenter suppressObserverNotification];
         
         NS_DURING
-        {
-          
+        {          
           [_currentEditingContext initializeObject: object
                                       withGlobalID: gid
                                     editingContext: _currentEditingContext];
@@ -460,6 +459,7 @@ RCS_ID("$Id$")
         }
         
         [object awakeFromFetchInEditingContext: _currentEditingContext];
+
       }
     }
   }

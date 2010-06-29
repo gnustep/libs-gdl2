@@ -860,21 +860,12 @@ classPropertyNames = [entity classPropertyNames];
     [NSException raise: NSInternalInconsistencyException
                 format: @"%s No snapshot for gid %@", __PRETTY_FUNCTION__, globalID];      
   } else {
-    if ((!object) || ([object isKindOfClass:[EOCustomObject class]] == NO)) {
-      [NSException raise: NSInternalInconsistencyException
-                  format: @"%s:%d cannot initialize nil/non EOCustomObject object!", __FILE__, __LINE__];      
-    }
     
     [self initializeObject: object
                        row: snapDict
                     entity: entity
             editingContext: context];
-    
-    if ((!object) || ([object isKindOfClass:[EOCustomObject class]] == NO)) {
-      [NSException raise: NSInternalInconsistencyException
-                  format: @"%s:%d Something went wrong!", __FILE__, __LINE__];      
-    }
-    
+        
     [_database incrementSnapshotCountForGlobalID:globalID];
   }
   
@@ -6140,183 +6131,169 @@ Raises an exception is the adaptor is unable to perform the operations.
   NSArray *relationships = nil;
   NSArray *classPropertyAttributeNames = nil;
   NSUInteger count = 0;
-  IMP objectTakeStoredValueForKeyIMP=NULL;
   IMP rowObjectForKeyIMP=NULL;
-
+  
   classPropertyAttributeNames = [entity classPropertyAttributeNames];
   count = [classPropertyAttributeNames count];
-
+  
   //row is usuallly a EOMutableKnownKeyDictionary so will use EOMKKD_objectForKeyWithImpPtr
-
+  
   if (count>0)
+  {
+    NSUInteger i=0;
+    IMP oaiIMP=[classPropertyAttributeNames methodForSelector:@selector(objectAtIndex:)];
+    
+    NSAssert(!_isFault(object),
+             @"Object is a fault. call -methodForSelector: on it is a bad idea");
+    
+    for (i = 0; i < count; i++)
     {
-      NSUInteger i=0;
-      IMP oaiIMP=[classPropertyAttributeNames methodForSelector:@selector(objectAtIndex:)];
-
-      NSAssert(!_isFault(object),
-               @"Object is a fault. call -methodForSelector: on it is a bad idea");
-
-      objectTakeStoredValueForKeyIMP=[object methodForSelector:@selector(takeStoredValue:forKey:)];
-
-      for (i = 0; i < count; i++)
-        {
-          id key = GDL2_ObjectAtIndexWithImp(classPropertyAttributeNames,oaiIMP,i);
-          id value = nil;
-          
-
-          value = EOMKKD_objectForKeyWithImpPtr(row,&rowObjectForKeyIMP,key);
-
-          if (value == GDL2_EONull)
-            value = nil;
-          
-          NSDebugMLLog(@"EODatabaseContext", @"value (%p)", 
-                       value);
-          NSDebugMLLog(@"EODatabaseContext", @"value (%p)=%@ (class: %@)", 
-                       value, value, [value class]);
-          
-          GDL2_TakeStoredValueForKeyWithImp(object,objectTakeStoredValueForKeyIMP,
-                                           value,key);
-        }
-    };
-
+      id key = GDL2_ObjectAtIndexWithImp(classPropertyAttributeNames,oaiIMP,i);
+      id value = nil;
+      
+      
+      value = EOMKKD_objectForKeyWithImpPtr(row,&rowObjectForKeyIMP,key);
+      
+      if (value == GDL2_EONull)
+        value = nil;
+            
+      [object takeStoredValue:value
+                       forKey:key];
+    }
+  };
+  
   relationships = [entity _relationshipsToFaultForRow: row];
-
-
-
+  
+  
+  
   count = [relationships count];
-
+  
   if (count>0)
+  {
+    NSUInteger i=0;
+    IMP oaiIMP=[relationships methodForSelector:@selector(objectAtIndex:)];
+    
+    NSAssert(!_isFault(object),
+             @"Object is a fault. call -methodForSelector: on it is a bad idea");
+    
+    
+    for (i = 0; i < count; i++)
     {
-      NSUInteger i=0;
-      IMP oaiIMP=[relationships methodForSelector:@selector(objectAtIndex:)];
-
-      if (!objectTakeStoredValueForKeyIMP)
+      id relObject = nil;
+      EORelationship *relationship = GDL2_ObjectAtIndexWithImp(relationships,oaiIMP,i);
+      NSString *relName = [relationship name];
+      
+      
+      if ([relationship isToMany])
+      {
+        EOGlobalID *gid = [entity globalIDForRow: row];
+        
+        relObject = [self arrayFaultWithSourceGlobalID: gid
+                                      relationshipName: relName
+                                        editingContext: context];
+      }
+      else if ([relationship isFlattened])
+      {
+        // to one flattened relationship like aRelationship.anotherRelationship...
+        
+        // I don't know how to handle this case.... May be we shouldn't treat this as real property ??
+        NSEmitTODO();
+        relObject = nil;          
+      }
+      else
+      {          
+        EOMutableKnownKeyDictionary *foreignKeyForSourceRow = nil;
+        
+        NSDebugMLLog(@"EODatabaseContext",
+                     @"relationship=%@ foreignKeyInDestination:%d",
+                     relName,
+                     [relationship foreignKeyInDestination]);
+        
+        foreignKeyForSourceRow = [relationship _foreignKeyForSourceRow: row];
+        
+        NSDebugMLLog(@"EODatabaseContext",
+                     @"row=%@\nforeignKeyForSourceRow:%@",
+                     row, foreignKeyForSourceRow);
+        
+        if (![foreignKeyForSourceRow
+              containsObjectsNotIdenticalTo: GDL2_EONull])
         {
-          NSAssert(!_isFault(object),
-                   @"Object is a fault. call -methodForSelector: on it is a bad idea");
-
-          objectTakeStoredValueForKeyIMP=[object methodForSelector:@selector(takeStoredValue:forKey:)];
-        };
-
-      for (i = 0; i < count; i++)
-        {
-          id relObject = nil;
-          EORelationship *relationship = GDL2_ObjectAtIndexWithImp(relationships,oaiIMP,i);
-          NSString *relName = [relationship name];
-          
-
-          if ([relationship isToMany])
-            {
-              EOGlobalID *gid = [entity globalIDForRow: row];
-              
-              relObject = [self arrayFaultWithSourceGlobalID: gid
-                                relationshipName: relName
-                                editingContext: context];
-            }
-          else if ([relationship isFlattened])
-            {
-              // to one flattened relationship like aRelationship.anotherRelationship...
-              
-              // I don't know how to handle this case.... May be we shouldn't treat this as real property ??
-              NSEmitTODO();
-              relObject = nil;          
-            }
-          else
-            {          
-              EOMutableKnownKeyDictionary *foreignKeyForSourceRow = nil;
-              
-              NSDebugMLLog(@"EODatabaseContext",
-                           @"relationship=%@ foreignKeyInDestination:%d",
-                           relName,
-                           [relationship foreignKeyInDestination]);
-              
-              foreignKeyForSourceRow = [relationship _foreignKeyForSourceRow: row];
-              
-              NSDebugMLLog(@"EODatabaseContext",
-                           @"row=%@\nforeignKeyForSourceRow:%@",
-                           row, foreignKeyForSourceRow);
-              
-              if (![foreignKeyForSourceRow
-                     containsObjectsNotIdenticalTo: GDL2_EONull])
-                {
-                  NSLog(@"foreignKeyForSourceRow=%@",[foreignKeyForSourceRow debugDescription]);
-                  NSEmitTODO();//TODO: what to do if rel is mandatory ?
-                  relObject = nil;
-                }
-              else
-                {
-                  EOEntity *destinationEntity = [relationship destinationEntity];
-                  EOGlobalID *relRowGid = [destinationEntity
-                                            globalIDForRow: foreignKeyForSourceRow];
-                  
-
-                  
-                  if ([(EOKeyGlobalID*)relRowGid areKeysAllNulls])
-                NSWarnLog(@"All key of relRowGid %p (%@) are nulls",
-                          relRowGid,
-                          relRowGid);
-
-              relObject = [context faultForGlobalID: relRowGid
-				   editingContext: context];
-
-              NSDebugMLLog(@"EODatabaseContext", @"relObject=%p (%@)",
-			   relObject, [relObject class]);
-//end
-/*
-	      NSArray *joins = [(EORelationship *)prop joins];
-	      EOJoin *join;
-	      NSMutableDictionary *row;
-	      EOGlobalID *faultGID;
-	      int h, count;
-	      id value, realValue = nil;
-
-	      row = [NSMutableDictionary dictionaryWithCapacity:4];
-
-	      count = [joins count];
-	      for (h=0; h<count; h++)
-		{
-		  join = [joins objectAtIndex:h];
-
-		  value = [snapshot objectForKey:[[join sourceAttribute]
-						   name]];
-		  if (value == null)
-		    realValue = nil;
-		  else
-		    realValue = value;
-
-		  [[prop validateValue:&realValue] raise];
-
-		  [row setObject:value
-		       forKey:[[join destinationAttribute]
-				name]];
-		}
-
-	      if (realValue || [prop isMandatory] == YES)
-		{
-		  faultGID = [[(EORelationship *)prop destinationEntity]
-			       globalIDForRow:row];
-
-		  fault = [context objectForGlobalID:faultGID];
-
-		  if (fault == nil)
-		    fault = [context faultForGlobalID:faultGID
-				     editingContext:context];
-		}
-	      else
-		fault = nil;
-
-*/
-                }
-            }
-          
-
-          
-          GDL2_TakeStoredValueForKeyWithImp(object,objectTakeStoredValueForKeyIMP,
-                                           relObject,relName);
+          NSLog(@"foreignKeyForSourceRow=%@",[foreignKeyForSourceRow debugDescription]);
+          NSEmitTODO();//TODO: what to do if rel is mandatory ?
+          relObject = nil;
         }
-    };
-
-
+        else
+        {
+          EOEntity *destinationEntity = [relationship destinationEntity];
+          EOGlobalID *relRowGid = [destinationEntity
+                                   globalIDForRow: foreignKeyForSourceRow];
+          
+          
+          
+          if ([(EOKeyGlobalID*)relRowGid areKeysAllNulls])
+            NSWarnLog(@"All key of relRowGid %p (%@) are nulls",
+                      relRowGid,
+                      relRowGid);
+          
+          relObject = [context faultForGlobalID: relRowGid
+                                 editingContext: context];
+          
+          NSDebugMLLog(@"EODatabaseContext", @"relObject=%p (%@)",
+                       relObject, [relObject class]);
+          //end
+          /*
+           NSArray *joins = [(EORelationship *)prop joins];
+           EOJoin *join;
+           NSMutableDictionary *row;
+           EOGlobalID *faultGID;
+           int h, count;
+           id value, realValue = nil;
+           
+           row = [NSMutableDictionary dictionaryWithCapacity:4];
+           
+           count = [joins count];
+           for (h=0; h<count; h++)
+           {
+           join = [joins objectAtIndex:h];
+           
+           value = [snapshot objectForKey:[[join sourceAttribute]
+           name]];
+           if (value == null)
+           realValue = nil;
+           else
+           realValue = value;
+           
+           [[prop validateValue:&realValue] raise];
+           
+           [row setObject:value
+		       forKey:[[join destinationAttribute]
+           name]];
+           }
+           
+           if (realValue || [prop isMandatory] == YES)
+           {
+           faultGID = [[(EORelationship *)prop destinationEntity]
+           globalIDForRow:row];
+           
+           fault = [context objectForGlobalID:faultGID];
+           
+           if (fault == nil)
+           fault = [context faultForGlobalID:faultGID
+           editingContext:context];
+           }
+           else
+           fault = nil;
+           
+           */
+        }
+      }
+      
+      [object takeStoredValue:relObject
+                       forKey:relName];
+    }
+  };
+  
+  
 }
 
 - (void)forgetAllLocks

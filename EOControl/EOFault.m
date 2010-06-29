@@ -114,7 +114,7 @@ static Class EOFaultClass = NULL;
   return self;
 }
 
-+ (unsigned)retainCount
++ (NSUInteger)retainCount
 {
   return UINT_MAX;
 }
@@ -198,49 +198,37 @@ static Class EOFaultClass = NULL;
 
 + (void)clearFault: (id)fault
 {
-  EOFaultHandler *handler;
-  EOFault *aFault = (EOFault *)fault;
-  int refs = 0;
-
-  NSDebugFLLog(@"gsdb", @"START fault=%p", fault);
-
+  EOFaultHandler * handler;
+  EOFault        * aFault = (EOFault *)fault;
+  NSUInteger       refs = 0;
+    
   if ([EOFaultClass isFault:fault] == NO)
-    {
-//REVOIR!!!
-/*
-      [NSException raise:NSInvalidArgumentException
-                   format:@"%@ -- %@ 0x%x: object %@ of class %@ is not a fault object", 
-                   NSStringFromSelector(_cmd), 
-                   NSStringFromClass([self class]),
-                   self,
-                   fault,
-                   [fault class]];
-*/
+  {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s -- object %@ of class %@ is not a fault object", 
+     __PRETTY_FUNCTION__, 
+     fault,
+     [fault class]];
+  } else {
+    handler = aFault->_handler;
+    
+    [handler faultWillFire: fault];
+    
+    // this will transfer our fault instance into an EO
+    aFault->isa = [handler targetClass];
+    aFault->_handler = [handler extraData];
+    
+    // get the extra references to add them later to the EO
+    refs = [handler extraRefCount];
+    
+    [handler autorelease];
+    
+    // add up extra references to the EO
+    while (refs-- > 0) {        
+      [aFault retain];
     }
-  else
-    {
-      handler = aFault->_handler;
-      
-      [handler faultWillFire: fault];
-      
-      refs = [handler extraRefCount];
-
-      aFault->isa = [handler targetClass];
-      aFault->_handler = [handler extraData];
-
-      [handler autorelease];
-
-      refs -= [fault retainCount];
-
-      if (refs > 0)
-        while (refs-- > 0)
-          [aFault retain];
-      else
-        while (refs++ < 0)
-          [aFault release];
-    }
-
-  NSDebugFLLog(@"gsdb", @"STOP fault=%p", fault);
+  }
+  
 }
 
 + (EOFaultHandler *)handlerForFault:(id)fault
@@ -403,18 +391,9 @@ static Class EOFaultClass = NULL;
 
 - (void)dealloc
 {
-#ifdef DEBUG
-  NSDebugFLog(@"Dealloc EOFault %p. %@",
-              (void*)self,GSCurrentThread());
-#endif
   [EOFaultClass clearFault: self];
-  NSDebugMLog(@"EOFault dealloc self=%p",self);
   if (![EOFaultClass isFault:self]) // otherwise, this loop. 
     [self dealloc];
-#ifdef DEBUG
-  NSDebugFLog(@"Stop Dealloc EOFault %p. %@",
-              (void*)self,GSCurrentThread());
-#endif
 }
 
 - (NSZone *)zone

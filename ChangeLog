@@ -1,4 +1,23 @@
 2010-06-28  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EODatabaseContext.m
+	-initializeObject:withGlobalID:editingContext:
+	remove exessive checking
+	-initializeObject:row:entity:editingContext:
+	reformat, less IMPs, less logs
+	* EOControl/EOFault.h
+	+ retainCount
+	unsigned -> NSUInteger
+	* EOControl/EOFault.m
+	+ retainCount
+	unsigned -> NSUInteger
+	+ clearFault:
+	raise if argument is no fault
+	rewrote retain behaviour
+	it makes no sense to free objects here and use the pointers
+	this would mess up the whole memory and crash.
+
+
+2010-06-28  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOEntity.m
 	- createInstanceWithEditingContext:globalID:zone:
 	reformat, remove logs

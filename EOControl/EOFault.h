@@ -65,7 +65,7 @@
 + (id)retain;
 + (void)release;
 + (id)autorelease;
-+ (unsigned)retainCount;
++ (NSUInteger)retainCount;
 
 + (BOOL)isKindOfClass: (Class)aClass;
 + (void)doesNotRecognizeSelector: (SEL)selector;
