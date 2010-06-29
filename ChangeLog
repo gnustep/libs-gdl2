@@ -1,4 +1,9 @@
 2010-06-29  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EOModel.m
+	-addEntity:
+	change error checks to be in sync with reference 
+	
+2010-06-29  David Wetzel  <dave@turbocat.de>
 	* EOControl/EOFault.h
 	* EOControl/EOFaultHandler.m
 	unsigned -> NSUInteger

@@ -1534,37 +1534,52 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 - (void) addEntity: (EOEntity *)entity
 {
   NSString *entityName = [entity name];
-//  void *entitiesClass;
-//  int count;
+  //  void *entitiesClass;
+  //  int count;
   NSString *className = nil;
-
-  NSAssert1([self entityNamed: [entity name]] == nil,
-	    @"Entity '%@' is already registered with this model",
-	    entityName);
-
-  NSAssert2([entity model]==nil,
-	    @"Entity '%@' is already owned by model '%@'.",
-	    [entity name], [[entity model] name]);
-
+  
+  if (!entity)
+  {
+    [NSException raise: NSInvalidArgumentException
+                format: @"%s entity is nil.", __PRETTY_FUNCTION__];
+  }
+  
+  if (([entity model] != nil) && ([entity model] != self)) 
+  {
+    [NSException raise: NSInvalidArgumentException
+                format: @"%s %@ already registered with model named '%@'", 
+     __PRETTY_FUNCTION__,
+     entityName, [[entity model] name]];
+    
+  }
+  
+  if ([_entitiesByName objectForKey:[entity name]]) 
+  {
+    [NSException raise: NSInvalidArgumentException
+                format: @"%s Cannot register two entities with the same name", 
+     __PRETTY_FUNCTION__];
+    
+  }
+  
   [self willChange];
   
   /* _entities is sorted. we want a new one! */
   if (_entities) {
     DESTROY(_entities);
   }
-
+  
   NSAssert(_entitiesByClass, @"No _entitiesByClass");
-
+  
   className = [entity className];
   NSAssert1(className, @"No className in %@", entity);
-
+  
   if (NSMapGet(_entitiesByClass, className))
     NSMapRemove(_entitiesByClass, className);
-
+  
   NSMapInsertIfAbsent(_entitiesByClass, className, entity);
-
+  
   [_entitiesByName setObject: entity 
-                   forKey: entityName];
+                      forKey: entityName];
   [entity _setModel: self];
 }
 
