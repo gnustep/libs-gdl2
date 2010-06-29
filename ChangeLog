@@ -1,3 +1,14 @@
+2010-06-29  David Wetzel  <dave@turbocat.de>
+	* EOControl/EOFault.h
+	* EOControl/EOFaultHandler.m
+	unsigned -> NSUInteger
+	* EOControl/EOFault.m
+	unsigned -> NSUInteger
+	-release
+	fix as suggested by David Ayers
+	-dealloc
+	add NSAssert
+	
 2010-06-28  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseContext.m
 	-initializeObject:withGlobalID:editingContext:

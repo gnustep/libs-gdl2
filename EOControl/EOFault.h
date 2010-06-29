@@ -98,10 +98,10 @@
 - (NSUInteger)retainCount;
 
 - (NSString *)description;
-- (NSString *)descriptionWithIndent: (unsigned)level;
+- (NSString *)descriptionWithIndent: (NSUInteger)level;
 - (NSString *)descriptionWithLocale: (NSDictionary *)locale;
 - (NSString *)descriptionWithLocale: (NSDictionary *)locale
-			     indent: (unsigned)level;
+			     indent: (NSUInteger)level;
 - (NSString *)eoDescription;
 - (NSString *)eoShallowDescription;
 
@@ -126,7 +126,7 @@
   void *_extraData;   /* Cached memory contents of original object
 			 overwritten by fault handler reference.  */
 
-  unsigned _extraRefCount;
+  NSUInteger _extraRefCount;
 }
 
 - (void)setTargetClass: (Class)target extraData: (void *)data;
@@ -135,7 +135,7 @@
 
 - (void)incrementExtraRefCount;
 - (BOOL)decrementExtraRefCountIsZero;
-- (unsigned)extraRefCount;
+- (NSUInteger)extraRefCount;
 
 - (NSString *)descriptionForObject: (id)object;
 

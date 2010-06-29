@@ -169,7 +169,7 @@ static Class EOFaultClass = NULL;
   if (object)
     {
       EOFault *fault = object;
-      unsigned int refs;
+      NSUInteger refs;
 
       NSAssert(handler, @"No Handler");
 
@@ -318,10 +318,10 @@ static Class EOFaultClass = NULL;
 
 - (void)release
 {
-  if ([_handler extraRefCount] <= 0)
+  if ([_handler decrementExtraRefCountIsZero]) 
+  {
     [self dealloc];
-  else
-    [_handler decrementExtraRefCountIsZero];
+  }
 }
 
 - autorelease
@@ -341,7 +341,7 @@ static Class EOFaultClass = NULL;
   return [_handler descriptionForObject: self];
 }
 
-- (NSString *)descriptionWithIndent: (unsigned)level
+- (NSString *)descriptionWithIndent: (NSUInteger)level
 {
   return [self description];
 }
@@ -353,7 +353,7 @@ static Class EOFaultClass = NULL;
 }
 
 - (NSString *)descriptionWithLocale: (NSDictionary *)locale
-			     indent: (unsigned)level
+                             indent: (NSUInteger)level
 {
   return [self description];
 }
@@ -392,8 +392,9 @@ static Class EOFaultClass = NULL;
 - (void)dealloc
 {
   [EOFaultClass clearFault: self];
-  if (![EOFaultClass isFault:self]) // otherwise, this loop. 
-    [self dealloc];
+  
+  NSAssert([EOFaultClass isFault:self]==NO, @"Object is a Fault not an EO");
+  [self dealloc];
 }
 
 - (NSZone *)zone
@@ -435,9 +436,9 @@ static Class EOFaultClass = NULL;
   [invocation invoke];
 }
 
-- (unsigned int)hash
+- (NSUInteger)hash
 {
-  unsigned int hash;
+  NSUInteger hash;
   EOFaultHandler *handler;
   Class fault;
 

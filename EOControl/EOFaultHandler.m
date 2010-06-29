@@ -101,7 +101,7 @@ RCS_ID("$Id$")
   return NO;
 }
 
-- (unsigned)extraRefCount
+- (NSUInteger)extraRefCount
 {
   return _extraRefCount;
 }
