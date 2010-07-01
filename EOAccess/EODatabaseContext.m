@@ -612,8 +612,6 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 
 - (void)handleDroppedConnection
 {
-  NSUInteger i;
-
   DESTROY(_adaptorContext);
 
   DESTROY(_registeredChannels);
@@ -2866,7 +2864,7 @@ but not owned by this context to the coordinator.
    @selector(recordUpdateForObject:changes:)];
   
   dbOpe = [self databaseOperationForObject: object];
-  
+    
   if (dbOpe) {
     [dbOpe setDatabaseOperator:EODatabaseUpdateOperator];
     if ((changes) && ([changes count]))
@@ -3164,7 +3162,6 @@ Raises an exception is the adaptor is unable to perform the operations.
   NSMutableArray *updatedObjects = [NSMutableArray array];
   NSMutableDictionary *gidChangedUserInfo = nil;
   NSMutableDictionary *gidChangedUserInfo2 = nil;
-  NSEnumerator * dbOperationsEnumer = nil;
   
   [self _assertValidStateWithSelector: @selector(commitChanges)];
   
@@ -4178,327 +4175,176 @@ Raises an exception is the adaptor is unable to perform the operations.
   }
 }
 
-
 - (void) createAdaptorOperationsForDatabaseOperation: (EODatabaseOperation*)dbOpe
                                           attributes: (NSArray*)attributes
 {
-  //NEAR OK
-  BOOL isSomethingTodo = YES;
-  EOEntity *entity = nil;
-  EODatabaseOperator dbOperator = EODatabaseNothingOperator;
-  NSDictionary *changedValues = nil;
-
-
-
-
+  EOEntity           * entity = nil;
+  EODatabaseOperator   dbOperator = EODatabaseNothingOperator;
+  NSDictionary       * changedValues = nil;
+  
   NSAssert(dbOpe, @"No operation");
-
-  entity = [dbOpe entity]; //OK
+  
+  entity     = [dbOpe entity]; //OK
   dbOperator = [dbOpe databaseOperator]; //OK
+  EOAdaptorOperation * lockOperation = nil;
+  NSDictionary       * dbSnapshot = nil;
 
-
-
-
+  EOQualifier *lockingQualifier = nil;
+    
   switch (dbOperator)
-    {
-    case EODatabaseUpdateOperator:
-      {
-        changedValues = [dbOpe rowDiffsForAttributes:attributes];
-
-        NSDebugMLLog(@"EODatabaseContext", @"changedValues %p=%@",
-		     changedValues, changedValues);
-
-        if ([changedValues count] == 0)        
-          isSomethingTodo = NO;
-        else
-          {
-          }
-      }
-      break;
-
-    case EODatabaseInsertOperator:
-      {
-        changedValues = [dbOpe newRow]; //OK
-
-        NSDebugMLLog(@"EODatabaseContext", @"changedValues %p=%@",
-		     changedValues, changedValues);
-      }
-      break;
-
-    case EODatabaseDeleteOperator:
-      {
-        isSomethingTodo = YES;
-      }
-      break;
-
+  {
     case EODatabaseNothingOperator:
-      {
-        //Nothing!
-      }
       break;
+    case EODatabaseInsertOperator:
+    {
+      EOAdaptorOperation * insertOp = nil;
+      EOStoredProcedure  * insertProc = nil;
+      NSDictionary       * writeAttrValues = nil;
 
-    default:
+      changedValues = [dbOpe newRow];
+      writeAttrValues = [self valuesToWriteForAttributes:attributes
+                                                  entity:entity
+                                           changedValues:changedValues];
+      if ([writeAttrValues count] < 1)
       {
-        NSEmitTODO();
-        //      [self notImplemented:_cmd]; //TODO
+        break;
       }
+      
+      insertOp = [EOAdaptorOperation adaptorOperationWithEntity:entity];
+      insertProc = [entity storedProcedureForOperation:EOInsertProcedureOperation];
+      
+      if (insertProc)
+      {
+        [insertOp setAdaptorOperator:EOAdaptorStoredProcedureOperator];
+        [insertOp setStoredProcedure:insertProc];
+      } else
+      {
+        [insertOp setAdaptorOperator:EOAdaptorInsertOperator];
+      }
+      [insertOp setChangedValues:writeAttrValues];
+      [dbOpe addAdaptorOperation:insertOp];
+      
       break;
     }
-
-  if (isSomethingTodo)
+    case EODatabaseUpdateOperator:
     {
-      EOAdaptorOperation *adaptorOpe = nil;
-      NSString *procedureOpeName = nil;
-      EOAdaptorOperator adaptorOperator = EOAdaptorUndefinedOperator;
-      EOStoredProcedure *storedProcedure = nil;
-
-      NSDictionary *valuesToWrite = nil;
-      EOQualifier *lockingQualifier = nil;
-
-      switch (dbOperator)
-        {
-        case EODatabaseUpdateOperator:
-        case EODatabaseDeleteOperator:
-          {
-            NSArray *pkAttributes;
-            NSArray *lockingAttributes;
-            NSDictionary *dbSnapshot;
-
-            pkAttributes = [self primaryKeyAttributesForAttributes: attributes
-				 entity: entity];
-            lockingAttributes = [self lockingAttributesForAttributes:
-					attributes
-				      entity: entity];
-
-            dbSnapshot = [dbOpe dbSnapshot];
-
-            lockingQualifier = [self qualifierForLockingAttributes:
-				       lockingAttributes
-				     primaryKeyAttributes: pkAttributes
-				     entity: entity
-				     snapshot: dbSnapshot];
-
-            NSEmitTODO();
-
-            //TODO=self lockingNonQualifiableAttributes:#####  ret nil
-            NSDebugMLLog(@"EODatabaseContext", @"lockingQualifier=%@",
-			 lockingQualifier);
-
-            /*MIRKO for UPDATE:
-              //TODO-NOW
-              {
-              if ([self isObjectLockedWithGlobalID:gid] == NO)
-              {
-              EOAdaptorOperation *lockOperation;
-              EOQualifier *qualifier;
-              EOAttribute *attribute;
-              NSEnumerator *attrsEnum;
-              NSArray *attrsUsedForLocking, *primaryKeyAttributes;
-              NSMutableDictionary *qualifierSnapshot, *lockSnapshot;
-              NSMutableArray *lockAttributes;
-              
-              lockOperation = [EOAdaptorOperation adaptorOperationWithEntity:
-	      entity];
-              
-              attrsUsedForLocking = [entity attributesUsedForLocking];
-              primaryKeyAttributes = [entity primaryKeyAttributes];
-              
-              qualifierSnapshot = [NSMutableDictionary
-              dictionaryWithCapacity:16];
-              lockSnapshot = [NSMutableDictionary dictionaryWithCapacity:8];
-              lockAttributes = [NSMutableArray arrayWithCapacity:8];
-
-              attrsEnum = [primaryKeyAttributes objectEnumerator];
-              while ((attribute = [attrsEnum nextObject]))
-              {
-              NSString *name = [attribute name];
-
-              [lockSnapshot setObject:[snapshot objectForKey:name]
-              forKey:name];
-              }
-
-              
-
-              attrsEnum = [attrsUsedForLocking objectEnumerator];
-              while ((attribute = [attrsEnum nextObject]))
-              {
-              NSString *name = [attribute name];
-              
-              if ([primaryKeyAttributes containsObject:attribute] == NO)
-                  {
-                    if ([attribute adaptorValueType] == EOAdaptorBytesType)
-                      {
-                        [lockAttributes addObject:attribute];
-                        [lockSnapshot setObject:[snapshot
-                                                  objectForKey:name]
-                                      forKey:name];
-                      }
-                    else
-                      [qualifierSnapshot setObject:[snapshot
-                                                     objectForKey:name]
-                                         forKey:name];
-                  }
-              }
-
-            
-            qualifier = AUTORELEASE([[EOAndQualifier alloc]
-                           initWithQualifiers:
-                             [entity qualifierForPrimaryKey:
-                                       [entity primaryKeyForGlobalID:
-                                                 (EOKeyGlobalID *)gid]],
-                           [EOQualifier qualifierToMatchAllValues:
-                                          qualifierSnapshot],
-                           nil]);
-
-                          if ([lockAttributes count] == 0)
-                          lockAttributes = nil;
-                          if ([lockSnapshot count] == 0)
-                          lockSnapshot = nil;
-                          
-                          [lockOperation setAdaptorOperator:EOAdaptorLockOperator];
-                          [lockOperation setQualifier:qualifier];
-                          [lockOperation setAttributes:lockAttributes];
-                          [lockOperation setChangedValues:lockSnapshot];
-                          
-
-                          [op addAdaptorOperation:lockOperation];
-                          }
-            */
-          }
-          break;
-
-	case EODatabaseInsertOperator:
-	  break;
-
-	case EODatabaseNothingOperator:
-	  break;
-        }
-
-      adaptorOpe = [EOAdaptorOperation adaptorOperationWithEntity: entity];
-
-
-
-      switch (dbOperator)
-        {
-        case EODatabaseInsertOperator:
-          procedureOpeName = @"EOInsertProcedure";
-          adaptorOperator = EOAdaptorInsertOperator;
-
-          NSDebugMLLog(@"EODatabaseContext", @"changedValues %p=%@",
-		       changedValues, changedValues);
-
-          valuesToWrite = [self valuesToWriteForAttributes: attributes
-				entity: entity
-				changedValues: changedValues];
-          break;
-
-        case EODatabaseUpdateOperator:
-          procedureOpeName = @"EOUpdateProcedure";
-          adaptorOperator = EOAdaptorUpdateOperator;
-          valuesToWrite = [self valuesToWriteForAttributes: attributes
-				entity: entity
-				changedValues: changedValues];
-          break;
-
-        case EODatabaseDeleteOperator:
-          procedureOpeName = @"EODeleteProcedure";
-          adaptorOperator = EOAdaptorDeleteOperator;
-          /*
-            MIRKO
-            NSMutableArray *newKeys = AUTORELEASE([[NSMutableArray alloc]
-            initWithCapacity:count]);
-            NSMutableArray *newVals = AUTORELEASE([[NSMutableArray alloc]
-            initWithCapacity:count]);
-            
-            if ([entity isReadOnly] == YES)
-            {
-            [NSException raise:NSInvalidArgumentException format:@"%@ -- %@ 0x%x: cannot delete object for readonly entity %@", NSStringFromSelector(_cmd), NSStringFromClass([self class]), self, [entity name]];
-            }
-            
-            [aOp setAdaptorOperator:EOAdaptorDeleteOperator];
-            
-            count = [primaryKeys count];
-            for (i = 0; i < count; i++)
-            {
-            EOAttribute *attribute = [primaryKeys objectAtIndex:i];
-            NSString *key = [attribute name];
-            id val;
-            if ([attribute isFlattened] == NO)
-            {
-     	// Turbocat
- 		    //val = [object storedValueForKey:key];
- 			if (currentSnapshot) {
- 				val = [currentSnapshot objectForKey:key];
- 			}
- 
- 			if (!val) {
- 		[NSException raise:NSInvalidArgumentException format:@"%@ -- %@ 0x%x: cannot delete object (snapshot) '%@' for unkown primarykey value '%@'", NSStringFromSelector(_cmd), NSStringFromClass([self class]), self, currentSnapshot, key];
- 			}       
-            
-            if (val == nil)
-            val = GDL2_EONull;
-            
-            [newKeys addObject:key];
-            [newVals addObject:val];
-            }
-            }
-            
-            row = [NSDictionary dictionaryWithObjects:newVals
-            forKeys:newKeys];
-            
-            [aOp setQualifier:[entity qualifierForPrimaryKey:[op newRow]]];
+      NSArray            * lockNonQualAttrs = nil;
+      NSArray            * pkAttributes = nil;
+      NSArray            * lockingAttributes = nil;
+      NSUInteger           changeCount, lockNonQualCount, lockAttrCount;
       
-            ==>NO? in _commitTransaction      [self forgetSnapshotForGlobalID:[op globalID]];
-          */
-        break;
-
-      case EODatabaseNothingOperator:
-        NSDebugMLLog(@"EODatabaseContext",
-		     @"Db Ope %@ for Nothing !!!", dbOpe);
-        //Nothing?
-        break;
-
-      default:
-        NSEmitTODO();
-        [self notImplemented: _cmd]; //TODO
-        break;
+      changedValues = [dbOpe rowDiffsForAttributes:attributes];
+      lockNonQualAttrs = [self lockingNonQualifiableAttributes:attributes];
+      lockingAttributes = [self lockingAttributesForAttributes:attributes
+                                                        entity:entity];
+      
+      changeCount = [changedValues count];
+      lockNonQualCount = [lockNonQualAttrs count];
+      lockAttrCount = [lockingAttributes count];
+      
+      // test if we have anything to do
+      
+      if (((changeCount == 0)) && ((lockNonQualCount == 0)) && ((lockAttrCount == 0))) {
+        return;
       }
+      
+      pkAttributes = [self primaryKeyAttributesForAttributes:attributes
+                                                      entity:entity];
+      
+      dbSnapshot = [dbOpe dbSnapshot];
 
-
-
-    // only for insert ??
-    storedProcedure = [entity storedProcedureForOperation: procedureOpeName];
-    if (storedProcedure)
+      lockingQualifier = [self qualifierForLockingAttributes:lockingAttributes
+                                        primaryKeyAttributes:pkAttributes
+                                                      entity:entity
+                                                    snapshot:dbSnapshot];
+      
+      if (((changeCount == 0)) || (lockNonQualCount > 0))
       {
-        adaptorOperator = EOAdaptorStoredProcedureOperator;
-        NSEmitTODO();
-        [self notImplemented: _cmd]; //TODO
+        lockOperation = [EOAdaptorOperation adaptorOperationWithEntity:entity];
+        [lockOperation setAdaptorOperator:EOAdaptorLockOperator];
+        [lockOperation setQualifier:lockingQualifier];
+        [lockOperation setChangedValues:dbSnapshot];
+        
+        if (lockNonQualCount > 0)
+        {
+          [lockOperation setAttributes:lockNonQualAttrs];
+        } else {
+          [lockOperation setAttributes:pkAttributes];
+        }
+        [dbOpe addAdaptorOperation:lockOperation];
       }
-
-    NSDebugMLLog(@"EODatabaseContext", @"adaptorOperator=%d",
-		    adaptorOperator);
-
-
-    if (adaptorOpe)
+      if (changeCount > 0)
       {
-        [adaptorOpe setAdaptorOperator: adaptorOperator];
-
-
-        if (valuesToWrite)
-          [adaptorOpe setChangedValues: valuesToWrite];
-
-        NSDebugMLLog(@"EODatabaseContext", @"lockingQualifier=%@",
-		     lockingQualifier);
-
-        if (lockingQualifier)
-          [adaptorOpe setQualifier: lockingQualifier];
-
-        [dbOpe addAdaptorOperation: adaptorOpe];
+        NSDictionary * writeAttrValues = nil;
+        
+        writeAttrValues = [self valuesToWriteForAttributes:attributes
+                                                    entity:entity
+                                             changedValues:changedValues];
+        if ([writeAttrValues count] > 0)
+        {
+          EOAdaptorOperation * updateOperation = nil;
+          
+          updateOperation = [EOAdaptorOperation adaptorOperationWithEntity:entity];
+          [updateOperation setAdaptorOperator:EOAdaptorUpdateOperator];
+          [updateOperation setChangedValues:writeAttrValues];
+          [updateOperation setQualifier:lockingQualifier];
+          [dbOpe addAdaptorOperation:updateOperation];
+        }
       }
-
+      
+    }
+      break;
+    case EODatabaseDeleteOperator: 
+    {
+      NSArray            * pkAttributes = nil;
+      NSArray            * lockingAttributes = nil;
+      NSArray            * lockNonQualAttrs = nil;
+      EOAdaptorOperation * deleteOp = nil;
+      EOStoredProcedure  * deleteProc = nil;
+      
+      pkAttributes = [self primaryKeyAttributesForAttributes:attributes
+                                                      entity:entity];
+      
+      lockingAttributes = [self lockingAttributesForAttributes:attributes
+                                                        entity:entity];
+      
+      dbSnapshot = [dbOpe dbSnapshot];
+      
+      lockingQualifier = [self qualifierForLockingAttributes:lockingAttributes
+                                        primaryKeyAttributes:pkAttributes
+                                                      entity:entity
+                                                    snapshot:dbSnapshot];
+      
+      lockNonQualAttrs = [self lockingNonQualifiableAttributes:attributes];
+      
+      if ([lockNonQualAttrs count] > 0)
+      {
+        lockOperation = [EOAdaptorOperation adaptorOperationWithEntity:entity];
+        [lockOperation setAdaptorOperator:EOAdaptorLockOperator]; /* 0  in EOF */
+        [lockOperation setQualifier:lockingQualifier];
+        [lockOperation setAttributes:lockNonQualAttrs];
+        [lockOperation setChangedValues:dbSnapshot];
+        [dbOpe addAdaptorOperation:lockOperation];
+      }
+      
+      deleteOp = [EOAdaptorOperation adaptorOperationWithEntity:entity];
+      deleteProc = [entity storedProcedureForOperation:EODeleteProcedureOperation];
+      
+      if (deleteProc)
+      {
+        [deleteOp setAdaptorOperator:EOAdaptorStoredProcedureOperator]; /* 4 */
+        [deleteOp setStoredProcedure:deleteProc];
+        [deleteOp setChangedValues:dbSnapshot];
+      } else {
+        [deleteOp setAdaptorOperator:EOAdaptorDeleteOperator]; /* 3 */
+        [deleteOp setQualifier:lockingQualifier];
+      }
+      [dbOpe addAdaptorOperation:deleteOp];
+      
+    }
+      break;
   }
-
-
+  
 }
 
 - (void) createAdaptorOperationsForDatabaseOperation: (EODatabaseOperation*)dbOpe
@@ -4817,46 +4663,41 @@ Raises an exception is the adaptor is unable to perform the operations.
   return isValid;
 }
 
-- (id) lockingNonQualifiableAttributes: (NSArray*)attributes
+- (NSArray*) lockingNonQualifiableAttributes: (NSArray*)attributes
 {
-  //TODO finish
-  EOEntity *entity = nil;
-  NSArray *attributesUsedForLocking = nil;
-  int count = 0;
-
-  count = [attributes count];
-
-  if (count>0)
+  NSMutableArray * lockingAttrs = nil;
+  NSArray        * attributesUsedForLocking = nil;
+  NSUInteger       i = [attributes count];
+  
+  for (; i > 0; i--)
+  {
+    EOAttribute * attr = [attributes objectAtIndex:i-1];
+    
+    if (!attributesUsedForLocking)
     {
-      IMP oaiIMP=[attributes methodForSelector: @selector(objectAtIndex:)];
-      int i=0;
-
-      for (i = 0; i < count; i++)
-        {
-          id attribute = GDL2_ObjectAtIndexWithImp(attributes,oaiIMP,i);
-          
-          if (!entity)
-            {
-              entity = [attribute entity];
-              attributesUsedForLocking = [entity attributesUsedForLocking];
-            }
-          
-          if (![self isValidQualifierTypeForAttribute: attribute])
-            {
-              NSEmitTODO();
-              //              [self notImplemented:_cmd]; //TODO
-            }
-          else
-            { 
-              NSEmitTODO();
-              //Nothing ??
-              //              [self notImplemented:_cmd]; //TODO ??
-            }
-        }
-    };
-
- return nil;//??
+      attributesUsedForLocking = [[attr entity] attributesUsedForLocking];
+    }
+    
+    if ([self isValidQualifierTypeForAttribute:attr] || 
+        (![attributesUsedForLocking containsObject:attr]))
+    {
+      continue;
+    }
+    
+    if (!lockingAttrs)
+    {
+      lockingAttrs = [NSMutableArray array];
+    }
+    [lockingAttrs addObject:attr];
+  }
+  
+  if (!lockingAttrs) {
+    lockingAttrs = [NSArray array];
+  }
+  
+  return lockingAttrs;
 }
+
 
 - (NSArray*) lockingAttributesForAttributes: (NSArray*)attributes
                                      entity: (EOEntity*)entity
@@ -5088,12 +4929,6 @@ Raises an exception is the adaptor is unable to perform the operations.
   //NEAR OK
   NSMutableDictionary *valuesToWrite = [NSMutableDictionary dictionary];
   BOOL isReadOnlyEntity = NO;
-
-
-
-
-
-
 
   isReadOnlyEntity = [entity isReadOnly];
 

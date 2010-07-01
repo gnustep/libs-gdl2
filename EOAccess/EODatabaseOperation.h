@@ -46,10 +46,14 @@
 @class EOQualifier;
 @class EOGlobalID;
 
+/*
+ * EOF does not have EOAdaptorUndefinedOperator
+ * so be careful with counting.
+ */
 
 typedef enum {
-  EOAdaptorUndefinedOperator = 0,
-  EOAdaptorLockOperator,
+  EOAdaptorUndefinedOperator = 0,  
+  EOAdaptorLockOperator,           
   EOAdaptorInsertOperator,
   EOAdaptorUpdateOperator,
   EOAdaptorDeleteOperator,

@@ -266,7 +266,7 @@ It's invoked after prepareForSaveWithCoordinator:editingContext: and before owns
 - (NSArray *)entityNameOrderingArrayForEntities: (NSArray *)entities;
 
 - (BOOL)isValidQualifierTypeForAttribute: (EOAttribute *)attribute;
-- (id)lockingNonQualifiableAttributes: (NSArray *)attributes;
+- (NSArray *)lockingNonQualifiableAttributes: (NSArray *)attributes;
 - (NSArray *)lockingAttributesForAttributes: (NSArray *)attributes
                                      entity: (EOEntity *)entity;
 - (NSArray *)primaryKeyAttributesForAttributes: (NSArray *)attributes
