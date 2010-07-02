@@ -1,4 +1,16 @@
 2010-07-01  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EODatabaseOperation.m
+	fix typo in string
+	* EOAccess/EODatabaseContext.m
+	add compareUsingEntityNames()
+	-orderAdaptorOperations
+	refactor
+	-entityNameOrderingArrayForEntities:
+	implemented
+	* EOControl/EOMutableKnownKeyDictionary.m
+	remove log
+	
+2010-07-01  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseOperation.h
 	add comment
 	* EOAccess/EODatabaseContext.h

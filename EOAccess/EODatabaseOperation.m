@@ -345,7 +345,7 @@ RCS_ID("$Id$")
       break;
 
     default:
-      operatorString = @"Unknwon";
+      operatorString = @"Unknown";
       break;
     }
 

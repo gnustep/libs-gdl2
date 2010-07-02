@@ -465,9 +465,7 @@ RCS_ID("$Id$")
 							 extraBytes,
 							 zone);
 
-  NSLog(@"before [subsetMapping init] (%p)",subsetMapping);
   [subsetMapping init];
-  NSLog(@"after [subsetMapping init]");
 
   ASSIGN(subsetMapping-> _sourceDescription,source);
   ASSIGN(subsetMapping-> _destinationDescription,destination);

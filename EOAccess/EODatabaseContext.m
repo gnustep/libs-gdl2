@@ -4406,106 +4406,96 @@ Raises an exception is the adaptor is unable to perform the operations.
         attributes: attributes];
 }
 
+static NSComparisonResult 
+compareUsingEntityNames(id left, id right, void* vpSortOrders)
+{
+  NSArray            * sortOrders = (NSArray *)vpSortOrders;
+  EOAdaptorOperation * leftOp = (EOAdaptorOperation*) left;
+  EOAdaptorOperation * rightOp = (EOAdaptorOperation*) right;
+  NSString           * leftName = [[leftOp entity] name];
+  NSString           * rightName = [[rightOp entity] name];
+  NSUInteger           leftIndex;
+  NSUInteger           rightIndex;
+    
+  leftIndex = [sortOrders indexOfObject:leftName];
+  rightIndex = [sortOrders indexOfObject:rightName];
+  
+  if (leftIndex < rightIndex) {
+    return NSOrderedAscending;
+  }
+  if (leftIndex > rightIndex) {
+    return NSOrderedDescending;
+  } else {
+    EOAdaptorOperator leftOperator = [leftOp adaptorOperator];
+    EOAdaptorOperator rightOperator = [rightOp adaptorOperator];
+    
+    if (leftOperator < rightOperator) {
+      return NSOrderedAscending;
+    }
+    if (leftOperator > rightOperator) {
+      return NSOrderedDescending;
+    }      
+  }
+
+  return NSOrderedSame;
+}
+
 - (NSArray*) orderAdaptorOperations
 {
-  //seems OK
-  NSMutableArray *orderedAdaptorOpe = (NSMutableArray*)[NSMutableArray array];
-
-
-
-  //MIRKO
-  if (_delegateRespondsTo.willOrderAdaptorOperations == YES)
-    orderedAdaptorOpe = (NSMutableArray*)
-      [_delegate databaseContext: self
-		 willOrderAdaptorOperationsFromDatabaseOperations:
-		   NSAllMapTableValues(_dbOperationsByGlobalID)];
-  else
+  NSMutableArray      * orderedAdaptorOpe = nil;
+  
+  if (_delegateRespondsTo.willOrderAdaptorOperations == YES) {
+    orderedAdaptorOpe = (NSMutableArray*) [_delegate databaseContext: self
+                    willOrderAdaptorOperationsFromDatabaseOperations:
+                                           NSAllMapTableValues(_dbOperationsByGlobalID)];
+    
+  } else {
+    NSMutableArray      * entities = [NSMutableArray array];
+//    NSMutableArray      * adaptorOperations = [NSMutableArray array];
+    NSMapEnumerator       dbOpeEnum;
+    EOGlobalID          * gid = nil;
+    EODatabaseOperation * dbOpe = nil;
+    NSArray             * entityNameOrderingArray = nil;
+//    NSHashTable         * entitiesHashTable = NSCreateHashTable(NSNonOwnedPointerHashCallBacks,32);
+    
+    orderedAdaptorOpe = (NSMutableArray*)[NSMutableArray array];
+    
+    dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
+    
+    while (NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid,
+                                   (void **)&dbOpe))
     {
-      NSArray *entities = nil;
-      NSMutableArray *adaptorOperations = [NSMutableArray array];
-      NSMapEnumerator dbOpeEnum;
-      EOGlobalID *gid = nil;
-      EODatabaseOperation *dbOpe = nil;
-      NSHashTable *entitiesHashTable = NSCreateHashTable(NSNonOwnedPointerHashCallBacks,32);
-
-      dbOpeEnum = NSEnumerateMapTable(_dbOperationsByGlobalID);
-
-      while (NSNextMapEnumeratorPair(&dbOpeEnum, (void **)&gid,
-				     (void **)&dbOpe))
-        {
-          NSArray *dbOpeAdaptorOperations = [dbOpe adaptorOperations];
-          int count = [dbOpeAdaptorOperations count];
-
-
-
-
-          if (count>0)
-            {
-              IMP oaiIMP=[dbOpeAdaptorOperations methodForSelector: @selector(objectAtIndex:)];
-              int i=0;
-
-              for (i = 0; i < count; i++)
-                {
-                  EOAdaptorOperation *adaptorOpe = GDL2_ObjectAtIndexWithImp(dbOpeAdaptorOperations,oaiIMP,i);
-                  EOEntity *entity = nil;
-                  
-                  NSDebugMLLog(@"EODatabaseContext", @"adaptorOpe=%@",
-                               adaptorOpe);
-                  
-                  [adaptorOperations addObject: adaptorOpe];
-                  entity = [adaptorOpe entity];
-                  
-
-                  NSHashInsertIfAbsent(entitiesHashTable, entity);
-                }
-            };
-        }
-
-      entities = NSAllHashTableObjects(entitiesHashTable);
-      NSFreeHashTable(entitiesHashTable);
-
-      entitiesHashTable = NULL;
-
-
+      NSArray *dbOpeAdaptorOperations = [dbOpe adaptorOperations];
+      NSUInteger operCount = 0;
+      NSUInteger idx = 0;
+      
+      if (dbOpeAdaptorOperations)
       {
-        NSArray *entityNameOrderingArray = [self entityNameOrderingArrayForEntities:entities];
-        int iAdaptoOpe = 0;
-        int adaptorOpeCount = [adaptorOperations count];
-        int entitiesCount = [entityNameOrderingArray count];
-
-        if (entitiesCount>0)
-          {
-            IMP entityObjectAtIndexIMP=[entityNameOrderingArray methodForSelector: @selector(objectAtIndex:)];
-            IMP opeObjectAtIndexIMP=[adaptorOperations methodForSelector: @selector(objectAtIndex:)];
-            int iEntity=0;
-
-            for (iEntity = 0; iEntity < entitiesCount; iEntity++)
-              {
-                EOEntity *entity = GDL2_ObjectAtIndexWithImp(entityNameOrderingArray,entityObjectAtIndexIMP,iEntity);
-                
-
-                
-                for (iAdaptoOpe = 0; iAdaptoOpe < adaptorOpeCount; iAdaptoOpe++)
-                  {
-                    EOAdaptorOperation *adaptorOpe = GDL2_ObjectAtIndexWithImp(adaptorOperations,opeObjectAtIndexIMP,iAdaptoOpe);
-                    EOEntity *opeEntity = [adaptorOpe entity];
-                    
-                    if (opeEntity == entity)
-                      [orderedAdaptorOpe addObject: adaptorOpe];
-                  }
-              }
-          };
-
-        NSAssert2([orderedAdaptorOpe count] == adaptorOpeCount,
-		  @"Different ordered (%d) an unordered adaptor operations count (%d)",
-                  [orderedAdaptorOpe count],
-                  adaptorOpeCount);
+        [orderedAdaptorOpe addObjectsFromArray:dbOpeAdaptorOperations];
+        operCount = [dbOpeAdaptorOperations count];
+      }      
+      
+      
+      while (idx < operCount) 
+      {
+        EOEntity * entity = [[dbOpeAdaptorOperations objectAtIndex:idx] entity];
+        if (([entities indexOfObject:entity] == NSNotFound))
+        {
+          [entities addObject:entity];
+        }
+        idx++;
       }
+      
     }
-
-
-
-   return orderedAdaptorOpe;
+    NSEndMapTableEnumeration(&dbOpeEnum);
+    
+    entityNameOrderingArray = [self entityNameOrderingArrayForEntities:entities];
+    
+    [orderedAdaptorOpe sortUsingFunction:compareUsingEntityNames
+                                 context:entityNameOrderingArray];
+  }
+  
+  return orderedAdaptorOpe;
 }
 
 - (NSArray*) entitiesOnWhichThisEntityDepends: (EOEntity*)entity
@@ -4587,6 +4577,10 @@ Raises an exception is the adaptor is unable to perform the operations.
 
   return entities;
 }
+
+/* this is private. it seems other implementations are doing much more
+ * than this.
+ */
 
 - (NSArray*)entityNameOrderingArrayForEntities: (NSArray*)entities
 {
@@ -4864,13 +4858,33 @@ Raises an exception is the adaptor is unable to perform the operations.
     intoOrderingArray: (NSMutableArray*)orderingArray
      withDependencies: (NSDictionary*)dependencies
         processingSet: (NSMutableSet*)processingSet
-{  
-  //TODO: manage dependencies {CustomerCredit = (<EOEntity name: Customer>); } 
-  // and processingSet
-  [orderingArray addObject: entity];
-  [processingSet addObject: [entity name]];
+{
+  NSString * entityName = [entity name];
+  
+  if ((([orderingArray indexOfObject:entityName] == NSNotFound)) && 
+      (![processingSet containsObject:entityName]))
+  {
+    NSUInteger   depCount = 0;
+    NSUInteger   idx = 0;
+    NSArray    * dependenciesForEntity = [dependencies objectForKey:entityName];
+    
+    [processingSet addObject:entityName];
+    
+    if (dependenciesForEntity) {
+      depCount = [dependenciesForEntity count];
+    }
+    
+    for (; idx < depCount; idx++)
+    {
+      [self insertEntity:[dependenciesForEntity objectAtIndex:idx]
+       intoOrderingArray:orderingArray
+        withDependencies:dependencies
+           processingSet:processingSet];
+    }
+    
+    [orderingArray addObject:entityName];
+  }
 }
-
 
 - (void) processSnapshotForDatabaseOperation: (EODatabaseOperation*)dbOpe
 {
