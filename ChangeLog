@@ -1,4 +1,9 @@
 2010-07-04  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EODatabaseContext.m
+	use memset in place of bzero
+	(as suggested by Tim Kack)
+	
+2010-07-04  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOModelGroup.m
 	add include
 	* EOAccess/EOEntity.m

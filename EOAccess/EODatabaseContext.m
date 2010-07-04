@@ -6305,7 +6305,7 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
       unsigned char bytes[24];
       id            byteValue = nil;
       
-      bzero(&bytes, sizeof(bytes));
+      memset(&bytes, 0, sizeof(bytes));
       
       [EOTemporaryGlobalID assignGloballyUniqueBytes:&bytes[0]];
       
