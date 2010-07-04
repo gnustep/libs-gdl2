@@ -147,6 +147,15 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
  */
 - (NSDictionary *)primaryKeyForNewRowWithEntity: (EOEntity *)entity;
 
+/**
+ * The default implementation just calls
+ * primaryKeyForNewRowWithEntity count times.
+ * you might override this in subclasses for optimized results.
+ */
+
+- (NSArray *)primaryKeysForNewRowsWithEntity:(EOEntity *)entity 
+                                       count:(NSUInteger)count;
+
 - (NSArray *)describeTableNames;
 
 - (NSArray *)describeStoredProcedureNames;

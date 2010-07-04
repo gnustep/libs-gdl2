@@ -52,7 +52,6 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
@@ -241,7 +240,7 @@ GDL2_Activate(Class sup, Class cls)
                     @"%@: No result for object %@ resultOfPerformingSelector:\"%s\"",
                     self,
                     object,
-                    sel_get_name(sel));
+                    sel_getName(sel));
 
           [results addObject: result]; //TODO What to do if nil ??
         }
@@ -299,7 +298,7 @@ GDL2_Activate(Class sup, Class cls)
                     @"%@: No result for object %@ resultOfPerformingSelector:\"%s\"",
                     self,
                     object,
-                    sel_get_name(sel));
+                    sel_getName(sel));
 
           [results addObject: result]; //TODO What to do if nil ??
         }
@@ -358,7 +357,7 @@ GDL2_Activate(Class sup, Class cls)
                     @"%@: No result for object %@ resultOfPerformingSelector:\"%s\"",
                     self,
                     object,
-                    sel_get_name(sel));
+                    sel_getName(sel));
 
           [results addObject: result]; //TODO What to do if nil ??
         }
@@ -393,12 +392,12 @@ GDL2_Activate(Class sup, Class cls)
         result = self;
       else
         {
-          int i;
+          NSUInteger i;
 
           for (i = 0; i < selfCount; i++)
             {
               id object = [self objectAtIndex: i];
-              int index = [array indexOfObjectIdenticalTo: object];
+              NSUInteger index = [array indexOfObjectIdenticalTo: object];
 
               if (index == NSNotFound)
                 {
@@ -671,7 +670,7 @@ GDL2_Activate(Class sup, Class cls)
   if (!msg)
     {
       [NSException raise: NSGenericException
-                  format: @"invalid selector passed to %s", sel_get_name(_cmd)];
+                  format: @"invalid selector passed to %s", sel_getName(_cmd)];
       return nil;
     }
 
@@ -679,3 +678,128 @@ GDL2_Activate(Class sup, Class cls)
 }
 
 @end
+
+@implementation NSMutableDictionary (EOAdditions)
+
+/**
+ * Creates an autoreleased mutable dictionary based on otherDictionary
+ * but only with keys from the keys array.
+ */
+
++ (NSMutableDictionary *) dictionaryWithDictionary:(NSDictionary *)otherDictionary
+                                              keys:(NSArray*)keys
+{
+  if (!keys)
+  {
+    return [NSMutableDictionary dictionary];
+  } else {
+    NSUInteger            keyCount = [keys count];
+    NSUInteger            i = 0;
+    NSMutableDictionary * mDict = [NSMutableDictionary dictionaryWithCapacity:keyCount];
+    
+    for (; i < keyCount; i++) {
+      NSString * key = [keys objectAtIndex:i];
+      id         value = [otherDictionary valueForKey:key];
+      
+      if (!value) {
+        value = GDL2_EONull;
+      }
+      [mDict setObject:value
+                forKey:key];
+    }
+    
+    return mDict;
+  }
+}
+
+// 	"translateFromKeys:toKeys:",
+
+- (void) translateFromKeys:(NSArray *) currentKeys
+                    toKeys:(NSArray *) newKeys
+{
+  NSUInteger       count = [currentKeys count];
+  NSString       * nullPlaceholder = @"__EOAdditionsDummy__";
+  NSMutableArray * buffer;
+  NSUInteger       i;
+
+  if(count != [newKeys count])
+  {
+    [NSException raise: NSInvalidArgumentException
+                format: @"%s key arrays must contain equal number of keys", __PRETTY_FUNCTION__];
+  }
+  
+  buffer = [NSMutableArray arrayWithCapacity:count];
+  
+  for (i = 0; i < count; i++)
+  {
+    id key = [currentKeys objectAtIndex:i];
+    id value = [self objectForKey:key];
+        
+    if (!value)
+    {
+      value = nullPlaceholder;
+      [buffer addObject:value];
+    } else {
+      [buffer addObject:value];
+      [self removeObjectForKey:key];
+    }
+  }
+  
+  [self removeAllObjects];
+  
+  for (i = 0; i < count; i++)
+  {
+    id value = [buffer objectAtIndex:i];
+    if(value != nullPlaceholder)
+    {
+      [self setObject:value 
+               forKey:[newKeys objectAtIndex:i]];
+    }
+  }
+  
+}
+
+@end
+
+@implementation NSDictionary (EOAdditions)
+
+- (BOOL) containsAnyNullObject
+{
+  NSArray    * values = [self allValues];
+  NSUInteger   count = [values count];
+  NSUInteger   i = 0;
+
+  for (; i < count; i++)
+  {
+    if (([values objectAtIndex:i] == GDL2_EONull))
+    {
+      return YES;
+    }
+  }
+  
+  return NO;
+}
+
++ (NSDictionary*) dictionaryWithNullValuesForKeys:(NSArray*) keys
+{
+  NSMutableDictionary * dict = nil;
+  NSUInteger count = [keys count];
+
+  if (count > 0)
+  {
+    dict = [NSMutableDictionary dictionaryWithCapacity:count];
+    NSUInteger i;
+
+    for (i = 0; i < count; i++)
+    {
+      NSString * key = [keys objectAtIndex:i];
+      [dict setObject:GDL2_EONull
+               forKey: key];
+    }
+    
+  }
+  return dict;
+}
+
+@end
+

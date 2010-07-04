@@ -32,7 +32,7 @@
 @class EOAccessArrayFaultHandler;
 @class EOKeyGlobalID;
 @class EOFault;
-
+@class EOCustomObject;
 
 @interface EODatabaseContext (EODatabaseContextPrivate)
 
@@ -69,6 +69,7 @@
 - (void)_cleanUpAfterSave;
 - (void)_assertValidStateWithSelector: (SEL)sel;
 - (BOOL)_shouldGeneratePrimaryKeyForEntityName: (NSString *)entityName;
+- (EOEntity*) _entityForObject:(EOCustomObject*) eo;
 - (void)_buildPrimaryKeyGeneratorListForEditingContext: (EOEditingContext *)context;
 
 @end

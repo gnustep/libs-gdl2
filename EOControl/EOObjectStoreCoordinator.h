@@ -81,6 +81,12 @@ GDL2CONTROL_EXPORT NSString *EOCooperatingObjectStoreNeeded;
 
 
 @interface EOCooperatingObjectStore : EOObjectStore
+{
+  EOObjectStoreCoordinator *_coordinator;	/* unretained */
+}
+
+- (EOObjectStoreCoordinator *)coordinator;
+- (void) setCoordinator:(EOObjectStoreCoordinator *) newCoordinator;
 
 - (BOOL)ownsGlobalID: (EOGlobalID *)globalID;
 

@@ -1,3 +1,70 @@
+2010-07-04  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EOModelGroup.m
+	add include
+	* EOAccess/EOEntity.m
+	- classProperties
+	small cleanup 
+	* EOAccess/EODatabaseOperation.m
+	-rowDiffsForAttributes:
+	add checks
+	* EOAccess/EODatabaseContext.h
+	add _missingObjectGIDs, _checkPropagatedPKs
+	add databaseContextFailedToFetchObject
+	+ _setUseToManyCaching:
+	added
+	removed -coordinator
+	add -missingObjectGlobalIDs
+	* EOAccess/EODatabaseContextPriv.h
+	add -_entityForObject:
+	* EOAccess/EODatabaseContext.m
+	add _useToManyCaching
+	add + _setUseToManyCaching:
+	add - _delegateHandledDatabaseException:
+	add -setCoordinator:
+	removed -coordinator
+	add databaseContextFailedToFetchObject
+	add -missingObjectGlobalIDs
+	cleanup _objectsChanged
+	-_snapshotsChangedInDatabase
+	renamed vars
+	- _batchNewPrimaryKeysWithEntity:count:
+	add
+	- prepareForSaveWithCoordinator:editingContext:
+	add checks
+	cleanup code
+	- _patchUpPK:
+	add
+	- recordChangesInEditingContext
+	rewritten
+	- _primaryKeyForIntermediateRowFromSourceObject:relationship:destinationObject:
+	add
+	- _databaseOperationForIntermediateRowFromSourceObject:relationship:destinationObject:
+	add
+	- _recordDeleteForIntermediateRowFromSourceObject:relationship:destinationObject:
+	add
+	- nullifyAttributesInRelationship:sourceObject:destinationObjects:
+	fixed, rewritten
+	- _entityForObject:
+	add
+	* EOAccess/EOAdaptorChannel.h
+	* EOAccess/EOAdaptorChannel.m
+	add primaryKeysForNewRowsWithEntity:count:
+	* Apps/EOModelEditor/DataBrowser.m
+	fix typo in import
+	* EOControl/EONSAddOns.h
+	* EOControl/EONSAddOns.m
+	add +dictionaryWithDictionary:keys:
+	add -translateFromKeys:toKeys:
+	add -containsAnyNullObject
+	* EOControl/EOSharedEditingContext.m
+	fix include
+	* EOControl/EOObjectStoreCoordinator.h
+	* EOControl/EOObjectStoreCoordinator.m
+	remove observers now
+	add setCoordinator and use it.
+	-coordinator
+	moved up from EODatabaseContext.
+	
 2010-07-01  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseOperation.m
 	fix typo in string

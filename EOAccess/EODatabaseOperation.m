@@ -225,36 +225,35 @@ RCS_ID("$Id$")
 
 - (NSDictionary*)rowDiffsForAttributes: (NSArray*)attributes
 {
-  //OK
   NSMutableDictionary *row = nil;
   EOAttribute *attr = nil;
   NSEnumerator *attrsEnum = nil;
-
-
-
-
-
+  
   attrsEnum = [attributes objectEnumerator];
   while ((attr = [attrsEnum nextObject]))
+  {
+    NSString *name = [attr name];
+    NSString *snapname = [_entity snapshotKeyForAttributeName: name];
+    id value = [_newRow objectForKey: snapname];
+    id snapValue = [_dbSnapshot objectForKey: snapname];
+    
+    if ((!value) || (!snapValue))
     {
-      NSString *name = [attr name];
-      NSString *snapname = [_entity snapshotKeyForAttributeName: name];
-      id value = [_newRow objectForKey: name];
-
-      if (value && [value isEqual: [_dbSnapshot objectForKey: snapname]] == NO)
-        {
-          if (!row)
-            row = (NSMutableDictionary*)[NSMutableDictionary dictionary];
-
-          [row setObject: value
-               forKey: name];
-        }
+      [NSException raise: NSInternalInconsistencyException
+                  format: @"%s does not contain value for attribute named '%@' with snapshot key '%@'",
+       __PRETTY_FUNCTION__, name, snapname];         
     }
-
-
-
-
-
+    
+    if (([value isEqual: snapValue] == NO))
+    {
+      if (!row)
+        row = (NSMutableDictionary*)[NSMutableDictionary dictionary];
+      
+      [row setObject: value
+              forKey: snapname];
+    }
+  }
+  
   return row;
 }
 

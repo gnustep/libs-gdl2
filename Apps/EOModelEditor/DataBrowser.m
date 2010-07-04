@@ -28,7 +28,7 @@
 #import "DataBrowser.h"
 #import <Renaissance/Renaissance.h>
 #import "TableViewController.h"
-#import <EOContol/EOContol.h>
+#import <EOControl/EOControl.h>
 
 static DataBrowser *sharedDataBrowser = nil;
 

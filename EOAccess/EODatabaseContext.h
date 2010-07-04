@@ -67,17 +67,19 @@ struct _EOTransactionScope;
 @interface EODatabaseContext : EOCooperatingObjectStore
 {
   EODatabase *_database;
-  EOAdaptorContext *_adaptorContext;
-  EOUpdateStrategy _updateStrategy;
-  NSMutableArray *_uniqueStack; /* simple snapshots */
-  NSMutableArray *_deleteStack; 
+  EOAdaptorContext * _adaptorContext;
+  EOUpdateStrategy   _updateStrategy;
+  NSMutableArray   * _uniqueStack; /* simple snapshots */
+  NSMutableArray   * _deleteStack; 
 
-  NSMutableArray *_registeredChannels;
-  NSMapTable *_dbOperationsByGlobalID;
-  EOObjectStoreCoordinator *_coordinator;	/* unretained */
-  EOEditingContext *_editingContext;		/* unretained */
-  NSHashTable *_lockedObjects;//void*
-/*TO ADD    unsigned int _currentGeneration;
+  NSMutableArray   * _registeredChannels;
+  NSMapTable       * _dbOperationsByGlobalID;
+  EOEditingContext * _editingContext;		/* unretained */
+  NSHashTable      * _lockedObjects;//void*
+  NSMutableSet     * _missingObjectGIDs;
+  NSMutableArray   * _checkPropagatedPKs;
+  
+  /*TO ADD    unsigned int _currentGeneration;
     unsigned int _concurentFetches;
 */
 
@@ -114,7 +116,8 @@ struct _EOTransactionScope;
     unsigned int shouldFetchObjectFault:1;
     unsigned int shouldFetchArrayFault:1;
     unsigned int shouldHandleDatabaseException:1;
-    unsigned int _reserved:20;
+    unsigned int databaseContextFailedToFetchObject:1;
+    unsigned int _reserved:19;
   } _delegateRespondsTo;
 
   NSRecursiveLock *_lock; //TODO: not lock object !
@@ -126,6 +129,9 @@ struct _EOTransactionScope;
 
 + (EODatabaseContext *)registeredDatabaseContextForModel: (EOModel *)model
                                           editingContext: (EOEditingContext *)editingContext;
+
+// PRIVATE, since at least EOF 2.2
++ (void) _setUseToManyCaching:(BOOL) yn;
 
 + (Class)contextClassToRegister;
 + (void)setContextClassToRegister: (Class)contextClass;
@@ -142,8 +148,6 @@ struct _EOTransactionScope;
 
 - (EODatabase *)database;
 
-- (EOObjectStoreCoordinator *)coordinator;
-
 - (EOAdaptorContext *)adaptorContext;
 
 - (void)setUpdateStrategy: (EOUpdateStrategy)strategy;
@@ -152,6 +156,20 @@ struct _EOTransactionScope;
 - (id)delegate;
 - (void)setDelegate: (id)delegate;
 - (void)handleDroppedConnection;
+
+/*
+ Returns the globalIDs of any 'missing' enterprise objects, 
+ or an empty array if no missing objects are known. 
+ An object is 'missing' when a fault fires and the 
+ row for the fault isn't found in the database.
+ 
+ To be notified when a missing object is found,
+ implement the delegate method
+ 
+ databaseContext:failedToFetchObject:globalID: 
+ */
+
+- (NSArray *) missingObjectGlobalIDs;
 @end /* EODatabaseContext */
 
 

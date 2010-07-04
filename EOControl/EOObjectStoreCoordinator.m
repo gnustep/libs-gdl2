@@ -49,11 +49,13 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOObjectStoreCoordinator.h>
 #include <EOControl/EOEditingContext.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOGlobalID.h>
 
 
 @implementation EOObjectStoreCoordinator
@@ -100,7 +102,14 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 {
   if ([_stores containsObject:store] == NO)
     {
+      if ([store coordinator])
+      {
+        [NSException raise: NSInternalInconsistencyException
+                    format: @"%s Cannot add %@ to this EOObjectStoreCoordinator because it already has another.",
+         __PRETTY_FUNCTION__, store];
+      }
       [_stores addObject:store];
+      [store setCoordinator:self];
 
       [[NSNotificationCenter defaultCenter]
 	postNotificationName: EOCooperatingObjectStoreWasAdded
@@ -122,12 +131,25 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 {
   if ([_stores containsObject:store] == YES)
     {
+      NSNotificationCenter * nCenter = [NSNotificationCenter defaultCenter];
+      
       [_stores removeObject: store];
+      [store setCoordinator: nil];
 
-      [[NSNotificationCenter defaultCenter]
-	postNotificationName: EOCooperatingObjectStoreWasRemoved
-	object: store];
-      //ODO remove aboservers
+      [nCenter postNotificationName:EOCooperatingObjectStoreWasRemoved
+                             object:store];
+
+      [nCenter removeObserver:self
+                         name:EOObjectsChangedInStoreNotification
+                       object:store];
+      
+      [nCenter removeObserver:self
+                         name:EOInvalidatedAllObjectsInStoreNotification
+                       object:store];
+      
+      [nCenter removeObserver:self
+                         name:EOGlobalIDChangedNotification
+                       object:store];
     }
 }
 
@@ -572,6 +594,16 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
 
 
 @implementation EOCooperatingObjectStore
+
+- (void) setCoordinator:(EOObjectStoreCoordinator *) newCoordinator
+{
+  _coordinator = newCoordinator;
+}
+
+- (EOObjectStoreCoordinator *)coordinator
+{
+  return _coordinator;
+}
 
 - (BOOL)ownsGlobalID: (EOGlobalID *)globalID
 {

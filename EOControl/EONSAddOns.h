@@ -127,4 +127,40 @@ GDL2_Activate(Class sup, Class cls);
            withObject: (id)object3;
 
 @end
+@interface NSMutableDictionary (EOAdditions)
+
+/**
+ * Creates an autoreleased mutable dictionary based on otherDictionary
+ * but only with keys from the keys array.
+ */
+
++ (NSMutableDictionary*) dictionaryWithDictionary:(NSDictionary *)otherDictionary
+                                             keys:(NSArray*)keys;
+
+/**
+ * replaces the current keys with the new ones without changing the contents
+ * only keys from currentKeys are left in the receiver.
+ */
+
+- (void) translateFromKeys:(NSArray *) currentKeys
+                    toKeys:(NSArray *) newKeys;
+
+@end
+@interface NSDictionary (EOAdditions)
+
+/**
+ * return YES if any EONull is into receiver.
+ * otherwise return NO.
+ */
+
+- (BOOL) containsAnyNullObject;
+
+/**
+ * creates an new dictionary with EONull for the keys
+ */
+
++ (NSDictionary*) dictionaryWithNullValuesForKeys:(NSArray*) keys;
+
+@end
+
 #endif /* __EONSAddOns_h__ */

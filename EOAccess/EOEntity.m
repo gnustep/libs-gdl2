@@ -1068,68 +1068,62 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 
 - (NSArray *)classProperties
 {
-  //OK
-
-
   if (_flags.classPropertiesIsLazy)
+  {
+    int count = [_classProperties count];
+    
+    if (count > 0)
     {
-      int count = [_classProperties count];
-
-      EOFLOGObjectLevelArgs(@"EOEntity", @"Lazy _classProperties=%@",
-			    _classProperties);
-
-      if (count > 0)
-        {
-          NSArray *classPropertiesList = _classProperties;
-          int i;
-
-          _classProperties = [NSMutableArray new];
-          _flags.classPropertiesIsLazy = NO;
-
-          for (i = 0; i < count; i++)
-            {
+      NSArray *classPropertiesList = _classProperties;
+      int i;
+      
+      _classProperties = [NSMutableArray new];
+      _flags.classPropertiesIsLazy = NO;
+      
+      for (i = 0; i < count; i++)
+      {
 #if 0
-              NSString *classPropertyName = [classPropertiesList
-					      objectAtIndex: i];
+        NSString *classPropertyName = [classPropertiesList
+                                       objectAtIndex: i];
 #else
-              id classPropertyName = (
-       [[classPropertiesList objectAtIndex:i] isKindOfClass:[NSString class]] ?
-        [classPropertiesList objectAtIndex:i] :
-        [(EOEntity *)[classPropertiesList objectAtIndex: i] name]);
+        id classPropertyName = (
+                                [[classPropertiesList objectAtIndex:i] isKindOfClass:[NSString class]] ?
+                                [classPropertiesList objectAtIndex:i] :
+                                [(EOEntity *)[classPropertiesList objectAtIndex: i] name]);
 #endif
-              id classProperty = [self attributeNamed: classPropertyName];
-
-              if (!classProperty)
-                  classProperty = [self relationshipNamed: classPropertyName];
-
-              NSAssert4(classProperty,
-                        @"No attribute or relationship named '%@' (property at index %d) to use as classProperty in entity name '%@' : %@",
-                        classPropertyName,
-                        i+1,
-                        [self name],
-                        self);
-
-              if ([self isValidClassProperty: classProperty])
-                [_classProperties addObject: classProperty];
-              else
-                {
-                  //TODO
-                  NSAssert2(NO, @"not valid class prop %@ in %@",
-			    classProperty, [self name]);
-                }
-            }
-
-          DESTROY(classPropertiesList);
-
-          [_classProperties sortUsingSelector: @selector(eoCompareOnName:)]; //Very important to have always the same order.
-          [self _setIsEdited]; //To Clean Buffers
+        id classProperty = [self attributeNamed: classPropertyName];
+        
+        if (!classProperty)
+          classProperty = [self relationshipNamed: classPropertyName];
+        
+        NSAssert4(classProperty,
+                  @"No attribute or relationship named '%@' (property at index %d) to use as classProperty in entity name '%@' : %@",
+                  classPropertyName,
+                  i+1,
+                  [self name],
+                  self);
+        
+        if ([self isValidClassProperty: classProperty])
+          [_classProperties addObject: classProperty];
+        else
+        {
+          //TODO
+          NSAssert2(NO, @"not valid class prop %@ in %@",
+                    classProperty, [self name]);
         }
-      else
-        _flags.classPropertiesIsLazy = NO;
+      }
+      
+      DESTROY(classPropertiesList);
+      
+      [_classProperties sortUsingSelector: @selector(eoCompareOnName:)]; //Very important to have always the same order.
+      [self _setIsEdited]; //To Clean Buffers
     }
-
-
-
+    else
+      _flags.classPropertiesIsLazy = NO;
+  }
+  
+  
+  
   return _classProperties;
 }
 

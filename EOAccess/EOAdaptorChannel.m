@@ -303,6 +303,21 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
   return nil;
 }
 
+- (NSArray *)primaryKeysForNewRowsWithEntity:(EOEntity *)entity count:(NSUInteger)count
+{
+  NSMutableArray * array = [NSMutableArray array];
+  NSUInteger       i;
+  
+  for (i = 0; i < count; i++) {
+    NSDictionary * newDict = [self primaryKeyForNewRowWithEntity:entity];
+    if (newDict) {
+      [array addObject: newDict];
+    }
+  }
+  
+  return array;
+}
+
 - (NSArray *)describeTableNames
 {
   return nil;
