@@ -1,3 +1,9 @@
+2010-07-05  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EODatabaseContext.m
+	valuesForKeys: -> dictionaryWithValuesForKeys:
+	(The old valuesForKeys: causes a log message on OSX)
+	some reformats and DebugLog removals
+	
 2010-07-04  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOModel.m
 	-writeToFile:

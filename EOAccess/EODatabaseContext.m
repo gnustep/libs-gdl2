@@ -2840,16 +2840,11 @@ Raises an exception is the adaptor is unable to perform the operations.
               newRow = [dbOpe newRow];
 
 
-              values = [newRow valuesForKeys: dbSnapshotKeys];
-              NSDebugMLLog(@"EODatabaseContext",
-			   @"RECORDSNAPSHOT values=%@", values);
+              values = [newRow dictionaryWithValuesForKeys: dbSnapshotKeys];
               //if update: forgetSnapshotForGlobalID:
 
               [self recordSnapshot: values
                     forGlobalID: gid];
-              NSDebugMLLog(@"EODatabaseContext",
-			   @"self=%p _uniqueStack %p=%@",
-			   self, _uniqueStack, _uniqueStack);
 
               if (databaseOperator == EODatabaseUpdateOperator) //OK for update //Do it forInsert too //TODO
                 {
@@ -2934,7 +2929,7 @@ Raises an exception is the adaptor is unable to perform the operations.
       {
         case EODatabaseInsertOperator:
           
-          newRowValues = [newRow valuesForKeys:[entity classPropertyAttributeNames]];
+          newRowValues = [newRow dictionaryWithValuesForKeys:[entity classPropertyAttributeNames]];
           break;
           
         case EODatabaseUpdateOperator:
@@ -3059,49 +3054,27 @@ Raises an exception is the adaptor is unable to perform the operations.
 - (NSDictionary *)valuesForKeys: (NSArray *)keys
                          object: (id)object
 {
-  //OK
   EOEntity *entity;
   EODatabaseOperation *dbOpe;
   NSDictionary *newRow;
   NSDictionary *values = nil;
-
-
-
-
-  NSDebugMLLog(@"EODatabaseContext", @"object=%p (class=%@)",
-	       object, [object class]);
-
-  //NSAssert(object, @"No object");
-
+  
   if (!_isNilOrEONull(object))
-    {
-      entity = [_database entityForObject: object];
-
-      NSAssert1(entity, @"No entity for object %@", object);
-
-
-      dbOpe = [self databaseOperationForObject: object];
-
-
-
-
-      newRow = [dbOpe newRow];
-
-
-
-
-      values = [newRow valuesForKeys: keys];
-    }
+  {
+    entity = [_database entityForObject: object];
+    
+    NSAssert1(entity, @"No entity for object %@", object);
+    
+    
+    dbOpe = [self databaseOperationForObject: object];
+    newRow = [dbOpe newRow];
+    values = [newRow dictionaryWithValuesForKeys: keys];
+  }
   else
-    {
-
-      values = [NSDictionary dictionary];
-    }
-
-//
-
-
-
+  {
+    values = [NSDictionary dictionary];
+  }
+  
   return values;
 }
 
@@ -3415,7 +3388,7 @@ Raises an exception is the adaptor is unable to perform the operations.
           IMP srcObjectAIndexIMP=[sourceKeys methodForSelector: @selector(objectAtIndex:)];
           IMP dstObjectAIndexIMP=[destinationKeys methodForSelector: @selector(objectAtIndex:)];
 
-          relayedValues = AUTORELEASE([[sourceNewRow valuesForKeys: sourceKeys]
+          relayedValues = AUTORELEASE([[sourceNewRow dictionaryWithValuesForKeys: sourceKeys]
 			     mutableCopy]);// {code = 0; }
           NSDebugMLLog(@"EODatabaseContext", @"relayedValues=%@",
 		       relayedValues);
@@ -3456,17 +3429,9 @@ Raises an exception is the adaptor is unable to perform the operations.
           IMP srcObjectAIndexIMP=[sourceKeys methodForSelector: @selector(objectAtIndex:)];
           IMP dstObjectAIndexIMP=[destinationKeys methodForSelector: @selector(objectAtIndex:)];
 
-          NSDebugMLLog(@"EODatabaseContext",
-		       @"Call valuesForKeys destinationObject (%p-<%@>)",
-		       destinationObject, [destinationObject class]);
-          NSDebugMLLog(@"EODatabaseContext", @"destinationKeys=%@",
-		       destinationKeys);
-
-
-
           //Now take destinationKeys values
           destinationValues = [self valuesForKeys: destinationKeys
-				    object: destinationObject];
+                                           object: destinationObject];
 
           NSDebugMLLog(@"EODatabaseContext", @"destinationValues=%@",
 		       destinationValues);
