@@ -1,4 +1,12 @@
 2010-07-05  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EOModel.m
+	add - _deleteTrashAtPath:
+	avoid keeping unused files in the wrapper directory.
+	basically, .svn/.cvs/.git
+	as this does not change that often I am not moving this to an 
+	external plist at the moment.
+
+2010-07-05  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseContext.m
 	valuesForKeys: -> dictionaryWithValuesForKeys:
 	(The old valuesForKeys: causes a log message on OSX)

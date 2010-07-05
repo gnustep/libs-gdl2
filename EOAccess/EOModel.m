@@ -570,6 +570,36 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 }
 
 /**
+ * Deletes any non-known files/paths at path.
+ * private.
+ */
+
+- (void) _deleteTrashAtPath:(NSString*) path
+{
+  NSFileManager         * manager = [NSFileManager defaultManager];
+  NSDirectoryEnumerator * dirEnumer = [manager enumeratorAtPath:path];
+
+  NSArray               * knownTrashPaths = [NSArray arrayWithObjects:@".svn",
+                                             @".cvs", @".git",
+                                             nil];
+  NSString              * fileName = nil;
+  
+  while ((fileName = [dirEnumer nextObject])) {
+    NSString * prefix = [[fileName pathComponents] objectAtIndex:0];
+    if (([knownTrashPaths containsObject:prefix] == NO)) {
+      NSString * fullPath = nil;
+
+      fullPath = [path stringByAppendingPathComponent:fileName];
+      if ([manager removeFileAtPath: fullPath handler: nil] == NO)
+	    {
+	      [NSException raise: NSInvalidArgumentException
+                    format: @"Could not remove %@", fullPath];
+	    }
+    }
+  }
+}
+
+/**
  * <p>Writes the receivers plist representation into an
  * .eomodeld file wrapper located at path.  </p>
  * <p>Depending on the the path extension .eomodeld or .eomodel
@@ -664,6 +694,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
   }
 
+  [self _deleteTrashAtPath:path];
+  
   entityEnum = [[pList objectForKey: @"entities"] objectEnumerator];
   while (writeSingleFile == NO
 	 && (entityPList = [entityEnum nextObject]))
