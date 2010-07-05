@@ -720,10 +720,15 @@ void addToUsedClasses(NSMutableArray * mutArray,NSSet * knownNames, NSArray * ot
     entityEnumer = [[_model entities] objectEnumerator];
     
     while ((currentEntity = [entityEnumer nextObject])) {
-      [self generateSuperInterfaceFileForEntity:currentEntity];
-      [self generateSuperclassFileForEntity:currentEntity];
-      [self generateSubInterfaceFileForEntity:currentEntity];
-      [self generateSubclassFileForEntity:currentEntity];
+      NSString * className = [currentEntity className];
+      
+      if ((![className isEqual:@"EOGenericRecord"]) && 
+          (![className isEqual:@"EOCustomObject"]))  {
+        [self generateSuperInterfaceFileForEntity:currentEntity];
+        [self generateSuperclassFileForEntity:currentEntity];
+        [self generateSubInterfaceFileForEntity:currentEntity];
+        [self generateSubclassFileForEntity:currentEntity];
+      }
     }
   }
 }

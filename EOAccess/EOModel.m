@@ -612,48 +612,57 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   
   writeSingleFile = [extension isEqualToString: @"eomodel"] ? YES : NO;
 
+  /*
+   * Don't copy directories. EOModelEditor and NSDocument do all the magic for us.
+   */
+  /*
   if ([mgr fileExistsAtPath: path])
+  {
+    NSString *backupPath;
+    backupPath = [path stringByAppendingString: @"~"];
+    
+    if ([mgr fileExistsAtPath: backupPath])
     {
-      NSString *backupPath;
-      backupPath = [path stringByAppendingString: @"~"];
-
-      if ([mgr fileExistsAtPath: backupPath])
-	{
-	  if ([mgr removeFileAtPath: backupPath handler: nil] == NO)
+      if ([mgr removeFileAtPath: backupPath handler: nil] == NO)
 	    {
 	      NSString *fmt;
 	      fmt = [NSString stringWithFormat: @"Could not remove %@",
-			      backupPath];
+               backupPath];
 	      [NSException raise: NSInvalidArgumentException
-			   format: fmt];
+                    format: fmt];
 	    }
-	}
-
-      if ([mgr movePath: path toPath: backupPath handler: nil] == NO)
-	{
-	  NSString *fmt;
-	  fmt = [NSString stringWithFormat: @"Could not move %@ to %@",
-			  path, backupPath];
-	  [NSException raise: NSInvalidArgumentException
-		       format: fmt];
-	}
     }
-
+    
+    if ([mgr movePath: path toPath: backupPath handler: nil] == NO)
+    {
+      NSString *fmt;
+      fmt = [NSString stringWithFormat: @"Could not move %@ to %@",
+             path, backupPath];
+      [NSException raise: NSInvalidArgumentException
+                  format: fmt];
+    }
+  }
+*/
   [self _setPath: path];
 
   pList = [NSMutableDictionary dictionaryWithCapacity: 10];
 
   [self encodeIntoPropertyList: pList];
 
-  if (writeSingleFile == NO
-      && [mgr createDirectoryAtPath: path attributes: nil] == NO)
+  // create an dir only if we have none.
+  if (![mgr fileExistsAtPath: path])
+  {
+    
+    if (writeSingleFile == NO
+        && [mgr createDirectoryAtPath: path attributes: nil] == NO)
     {
       NSString *fmt;
       fmt = [NSString stringWithFormat: @"Could not create directory: %@",
-		      path];
+             path];
       [NSException raise: NSInvalidArgumentException
-		   format: fmt];
+                  format: fmt];
     }
+  }
 
   entityEnum = [[pList objectForKey: @"entities"] objectEnumerator];
   while (writeSingleFile == NO

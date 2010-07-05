@@ -1,4 +1,22 @@
 2010-07-04  David Wetzel  <dave@turbocat.de>
+	* EOAccess/EOModel.m
+	-writeToFile:
+	Don't copy or move directories
+	create an dir only if we have none
+	* Apps/EOModelEditor/EOMEDocument.m
+	copy old wrapper dir to new tmp path/URL
+	The model overwrites our own files then.
+	Trash like .svn stays intact this way :-)
+	Only OSX at the moment.
+	see
+	http://savannah.gnu.org/bugs/index.php?30348
+	(#ifdef'd)
+	-keepBackupFile
+	return YES
+	* Apps/EOModelEditor/CodeGenerator.m
+	don't write code for EOGenericRecord or EOCustomObject
+
+2010-07-04  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseContext.m
 	use memset in place of bzero
 	(as suggested by Tim Kack)

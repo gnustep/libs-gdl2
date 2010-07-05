@@ -446,6 +446,17 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   NSLog(@"%s:%@", __PRETTY_FUNCTION__, typeName);
 
   NS_DURING {
+    
+#ifdef GNUSTEP
+
+#warning "see http://savannah.gnu.org/bugs/index.php?30348"
+#else    
+    NSFileManager * manager = [NSFileManager defaultManager];
+    
+    [manager copyItemAtURL:[self fileURL] 
+                     toURL:absoluteURL error:outError];
+    
+#endif
   
   [_eomodel writeToFile: [absoluteURL path]];
   
@@ -459,7 +470,8 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
                                 userInfo:userInfo];
     return NO;
   } NS_ENDHANDLER;
-  
+  // 'file://localhost/Users/dave/dev/PBXBilling/trunk/PBX.eomodeld/'
+  // NSLog(@"fileURL '%@'", [self fileURL]);
   return YES;
 }
 
@@ -494,6 +506,11 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 //    return YES;
 //}
 
+
+- (BOOL)keepBackupFile
+{
+  return YES;
+}
 
 - (BOOL)readFromURL:(NSURL *)absoluteURL ofType:(NSString *)typeName error:(NSError **)outError 
 {  
