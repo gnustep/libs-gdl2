@@ -30,6 +30,7 @@
 #ifdef GNUSTEP
 #include <Foundation/NSArray.h>
 #include <Foundation/NSString.h>
+#include <Foundation/NSDictionary.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
