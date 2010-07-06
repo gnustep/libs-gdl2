@@ -580,7 +580,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSDirectoryEnumerator * dirEnumer = [manager enumeratorAtPath:path];
 
   NSArray               * knownTrashPaths = [NSArray arrayWithObjects:@".svn",
-                                             @".cvs", @".git",
+                                             @".CVS", @".git",
                                              nil];
   NSString              * fileName = nil;
   
