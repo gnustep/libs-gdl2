@@ -1,3 +1,7 @@
+2010-08-09  German Arias <german@xelalug.org>
+	* Apps/EOModelEditor/Resources/EOModelEditor.tiff
+	Changed size of the icon.
+
 2010-07-06  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOModel.m
 	-_deleteTrashAtPath:
