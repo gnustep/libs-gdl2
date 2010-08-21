@@ -1665,131 +1665,58 @@ classPropertyNames = [entity classPropertyNames];
 }
 
 - (void)lockObjectWithGlobalID: (EOGlobalID *)globalID
-		editingContext: (EOEditingContext *)context
-{ // TODO
+                editingContext: (EOEditingContext *)context
+{
   EOKeyGlobalID *gid = (EOKeyGlobalID *)globalID;
-  EODatabaseChannel *channel;
-  EOEntity *entity;
-  NSArray *attrsUsedForLocking, *primaryKeyAttributes;
+  EOEntity *entity = nil;
   NSDictionary *snapshot;
-  NSMutableDictionary *qualifierSnapshot, *lockSnapshot;
-  NSMutableArray *lockAttributes;
-  NSEnumerator *attrsEnum;
   EOQualifier *qualifier = nil;
-  EOAttribute *attribute;
+  EOFetchSpecification * fetchspec = nil;
 
-  if ([self isObjectLockedWithGlobalID: gid] == NO)
-    {
-      IMP enumNO=NULL; // nextObject
-      snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid);
-
-      if (_delegateRespondsTo.shouldLockObject == YES &&
-	 [_delegate databaseContext: self
-		    shouldLockObjectWithGlobalID: gid
-		    snapshot: snapshot] == NO)
+  snapshot = [self snapshotForGlobalID:gid];
+  
+  if (!snapshot) {
+    return;
+  }
+  
+  // test if we should continue
+  
+  if (((_delegateRespondsTo.shouldLockObject == YES)) &&
+      (([_delegate databaseContext:self
+      shouldLockObjectWithGlobalID:gid
+                          snapshot:snapshot] == NO))) {
 	  return;
+  }
+  
+  NS_DURING {
+    NSArray * array = nil;
+    
+    entity = [_database entityNamed: [gid entityName]];
+    qualifier = [entity qualifierForPrimaryKey:snapshot];
+    
+    fetchspec = [EOFetchSpecification fetchSpecificationWithEntityName:[entity name]
+                                                             qualifier:qualifier
+                                                         sortOrderings:nil];
+    
+    [fetchspec setLocksObjects:YES];
 
-      /* If we do not have a snapshot yet, the the object
-	 is probably faulted.  The reference implementation seems
-	 to ignore the lock in this case.  We will try to do better
-	 and if we can't, we'll acually raise as documented.  */
-      if (snapshot == nil)
-	{
-         id obj = [context objectForGlobalID: gid];
-         if ([EOFault isFault: obj]) [obj self];
-         snapshot = [self snapshotForGlobalID: gid];
-	}
-      NSAssert1(snapshot,@"Could not obtain snapshot for %@", gid);
-
-      channel = [self availableChannel];
-      entity = [_database entityNamed: [gid entityName]];
-
-      NSAssert1(entity, @"No entity named %@",
-               [gid entityName]);
-
-      attrsUsedForLocking = [entity attributesUsedForLocking];
-      primaryKeyAttributes = [entity primaryKeyAttributes];
-
-      qualifierSnapshot = [NSMutableDictionary dictionaryWithCapacity: 16];
-      lockSnapshot = [NSMutableDictionary dictionaryWithCapacity: 8];
-      lockAttributes = [NSMutableArray arrayWithCapacity: 8];
-
-      attrsEnum = [primaryKeyAttributes objectEnumerator];
-      enumNO=NULL;
-      while ((attribute = GDL2_NextObjectWithImpPtr(attrsEnum,&enumNO)))
-	{
-	  NSString *name = [attribute name];
-
-	  [lockSnapshot setObject: [snapshot objectForKey:name]
-			forKey: name];
-	}
-
-      attrsEnum = [attrsUsedForLocking objectEnumerator];
-      enumNO=NULL;
-      while ((attribute = GDL2_NextObjectWithImpPtr(attrsEnum,&enumNO)))
-	{
-	  NSString *name = [attribute name];
-
-	  if ([primaryKeyAttributes containsObject:attribute] == NO)
-	    {
-	      if ([attribute adaptorValueType] == EOAdaptorBytesType)
-		{
-		  [lockAttributes addObject: attribute];
-		  [lockSnapshot setObject: [snapshot objectForKey:name]
-				forKey: name];
-		}
-	      else
-		[qualifierSnapshot setObject: [snapshot objectForKey:name]
-				   forKey: name];
-	    }
-	}
-
-      // Turbocat
-      if ([[qualifierSnapshot allKeys] count] > 0)
-        qualifier = [EOAndQualifier
-		      qualifierWithQualifiers:
-			[entity qualifierForPrimaryKey:
-				  [entity primaryKeyForGlobalID: gid]],
-		      [EOQualifier qualifierToMatchAllValues:
-				     qualifierSnapshot],
-		      nil];
-
-      if ([lockAttributes count] == 0)
-	lockAttributes = nil;
-      if ([lockSnapshot count] == 0)
-	lockSnapshot = nil;
-
-      if (_flags.beganTransaction == NO)
-	{
-	  [[[channel adaptorChannel] adaptorContext] beginTransaction];
-
-          NSDebugMLLog(@"EODatabaseContext",
-		       @"BEGAN TRANSACTION FLAG==>YES");
-
-	  _flags.beganTransaction = YES;
-	}
-
-      NS_DURING
-	[[channel adaptorChannel] lockRowComparingAttributes: lockAttributes
-				  entity: entity
-				  qualifier: qualifier
-				  snapshot: lockSnapshot];
-      NS_HANDLER
-	{
-	  if (_delegateRespondsTo.shouldRaiseForLockFailure == YES)
-	    {
-	      if ([_delegate databaseContext: self
-			     shouldRaiseExceptionForLockFailure:localException]
-		 == YES)
-		[localException raise];
-	    }
-	  else
-	    [localException raise];
-	}
-      NS_ENDHANDLER;
-
-      [self registerLockedObjectWithGlobalID: gid];
+    array = [self objectsWithFetchSpecification:fetchspec
+                                 editingContext:context];
+    
+    if ([array count] != 1) {
+      [NSException raise:NSInternalInconsistencyException 
+                  format:@"Failed to lock object with gid %@", gid];
     }
+
+
+  } NS_HANDLER {
+    if ((!_delegateRespondsTo.shouldRaiseForLockFailure) ||
+        ([_delegate databaseContext:self shouldRaiseExceptionForLockFailure:localException])) {
+      
+      [localException raise];
+    }
+  } NS_ENDHANDLER;
+
 }
 
 - (void)invalidateAllObjects
