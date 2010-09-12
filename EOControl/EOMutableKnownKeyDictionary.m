@@ -50,6 +50,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #include <EOControl/EOMutableKnownKeyDictionary.h>

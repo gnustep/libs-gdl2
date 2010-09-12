@@ -1,7 +1,27 @@
+2010-09-12  Fred Kiefer  <FredKiefer@gmx.de>
+
+	* EOControl/EOCheapArray.m,
+	* EOControl/EOMutableKnownKeyDictionary.m,
+	* EOControl/EODetailDataSource.m:
+	include of <GNUstepBase/GSCategories.h> replaced by
+	<GNUstepBase/NSDebug+GNUstepBase.h> and
+	<GNUstepBase/NSThread+GNUstepBase.h>
+	* EOAccess/EODatabaseContext
+	([EODatabaseContext(EOCooperatingObjectStoreSupport)
+	-recordChangesInEditingContext]): for isToMany relationships, call
+	-relayAttributesInRelationship:sourceObject:destinationObjects:
+	(with 's' !).
+	* EOAccess/EODatabaseContext ([EODatabaseContext -_fireArrayFault:]):
+	test if object is still a fault before calling -clearFault:
+	* EOAccess/EODatabaseContext ([EODatabaseContext
+	-objectsWithFetchSpecification:editingContext:]): call
+	beginTransaction only for pessimistic locking.
+	Patch by Georg Fleischmann <Georg.Fleischmann@vhf.de>
+
 2010-08-21  David Wetzel <dave@turbocat.de>
 	* EOAccess/EODatabaseContext.m
 	fix lockObjectWithGlobalID:editingContext:
-	
+
 2010-08-09  German Arias <german@xelalug.org>
 	* Apps/EOModelEditor/Resources/EOModelEditor.tiff
 	Changed size of the icon.
@@ -10,13 +30,13 @@
 	* EOAccess/EOModel.m
 	-_deleteTrashAtPath:
 	.cvs -> .CVS
-	
+
 2010-07-05  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOModel.m
 	add - _deleteTrashAtPath:
 	avoid keeping unused files in the wrapper directory.
 	basically, .svn/.cvs/.git
-	as this does not change that often I am not moving this to an 
+	as this does not change that often I am not moving this to an
 	external plist at the moment.
 
 2010-07-05  David Wetzel  <dave@turbocat.de>
@@ -24,7 +44,7 @@
 	valuesForKeys: -> dictionaryWithValuesForKeys:
 	(The old valuesForKeys: causes a log message on OSX)
 	some reformats and DebugLog removals
-	
+
 2010-07-04  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOModel.m
 	-writeToFile:
@@ -47,13 +67,13 @@
 	* EOAccess/EODatabaseContext.m
 	use memset in place of bzero
 	(as suggested by Tim Kack)
-	
+
 2010-07-04  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOModelGroup.m
 	add include
 	* EOAccess/EOEntity.m
 	- classProperties
-	small cleanup 
+	small cleanup
 	* EOAccess/EODatabaseOperation.m
 	-rowDiffsForAttributes:
 	add checks
@@ -114,7 +134,7 @@
 	add setCoordinator and use it.
 	-coordinator
 	moved up from EODatabaseContext.
-	
+
 2010-07-01  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseOperation.m
 	fix typo in string
@@ -126,7 +146,7 @@
 	implemented
 	* EOControl/EOMutableKnownKeyDictionary.m
 	remove log
-	
+
 2010-07-01  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseOperation.h
 	add comment
@@ -142,12 +162,11 @@
 	fix
 	return NSArray, not id
 
-	
 2010-06-29  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOModel.m
 	-addEntity:
-	change error checks to be in sync with reference 
-	
+	change error checks to be in sync with reference
+
 2010-06-29  David Wetzel  <dave@turbocat.de>
 	* EOControl/EOFault.h
 	* EOControl/EOFaultHandler.m
@@ -158,7 +177,7 @@
 	fix as suggested by David Ayers
 	-dealloc
 	add NSAssert
-	
+
 2010-06-28  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseContext.m
 	-initializeObject:withGlobalID:editingContext:
@@ -218,7 +237,7 @@
 	-unableToFaultObject:databaseContext:
 	remove self from exception format printing
 	otherwise we create a loop...
-	
+
 2010-06-24  David Wetzel  <dave@turbocat.de>
 	* EOControl/EOControl.h
 	include GNUstepBase/GNUstep.h on non-GNUSTEP platforms
@@ -239,13 +258,13 @@
 	add ../Apps/EOModeler to ADDITIONAL_NATIVE_LIB_DIRS
 	(as suggested by Sergey Golovin)
 	It does not build on OS X, I need patches guys :-)
-	
+
 2010-06-23  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EOModel.m
 	add -_writePlist:toFile:
 	use it in -writeToFile:
 	this makes writing OPENSTEP plists work on OSX!
-	
+
 2010-06-14  David Wetzel  <dave@turbocat.de>
 	* EOAccess/EODatabaseContext.m
 	recordUpdateForObject: changes:
@@ -344,8 +363,8 @@
 	use setValue: forKey instead of takeValue: forKey:
 	change text in exceptions a bit
 	* EOControl/EOPrivate.h
-	use setValue: forKey instead of takeValue: forKey:	
-	
+	use setValue: forKey instead of takeValue: forKey:
+
 2010-06-07  Fred Kiefer  <FredKiefer@gmx.de>
 
 	* EOMultiReaderLock.m (-tryLockForWriting, -unlockForReading):
@@ -369,7 +388,7 @@
 	attribute naming in raw rows fixed
 	updating fixed
 	unsigned -> NSUInteger
-	
+
 2010-06-04  David Wetzel  <dave@turbocat.de>
 	* Apps/EOModelEditor/Inspectors/AdvancedEntityInspector.gsmarkup
 	changed scrollView sizing
@@ -377,7 +396,7 @@
 	refactored view switching into a single method
 	disabled bounds logging
 	Be sure to get the lastest gui if you try this!
-	
+
 2010-06-03  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOAttribute.m
     include EOSQLExpression.h
@@ -395,7 +414,7 @@
     _fetchRawRowKeyPaths: fix warnings by using proper types.
     processSnapshotForDatabaseOperation: set EONull value when needed.
     avoid warnings. 
-    
+
 2010-06-03  David Wetzel  <dave@turbocat.de>
     * configure.ac
     replaced DBModeler with Apps/EOModeler Apps/EOModelEditor 
@@ -408,13 +427,12 @@
     * Apps/EOModeler/EOMInspectorController.m
     add inspector view in background.
     add NSLogs to help debugging (still broken on X11)
-    
+
 2010-06-03  David Wetzel  <dave@turbocat.de>
     * Apps/EOModelEditor/Inspectors/*.gsmarkup
     trying to fix offsets on X11
     * Apps/EOModeler/EOModelExtensions.m
     remove config.h include as suggested by David Ayers
-    
 
 2010-06-03  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOModel.m
@@ -432,7 +450,6 @@
     * Apps/EOModelEditor/EOMEDocument.h
     add methods to avoid warnings
 
-
 2010-06-02  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOModel.m/h
     new (still empty) _loadFetchSpecificationDictionaryForEntityNamed:
@@ -441,7 +458,7 @@
     loadAllModelObjects: load storedProcedures, call _loadEntity    
     fixed referencesToProperty:
     added referencesProperty:
-    
+
     * EOAccess/EOAttribute.m
     fixed valueForSQLExpression:
     changed return type of _definitionArray to EOExpressionArray *
@@ -452,17 +469,17 @@
     fixed removeRelationship:
     fixed _fetchSpecificationDictionary
     fixed _loadEntity
-    
+
     * EOAccess/EORelationship.m
     verified valueForSQLExpression, removed logs
     fixed referencesProperty:
-    
+
     * Apps/EOModelEditor/EOMEDocument.m
     make deleting of attributes work.
-    
+
 2010-06-01  David Wetzel  <dave@turbocat.de>
     * Apps/EOModelEditor/Resources/PlusCorner.tiff added
-    
+
 2010-06-01  David Wetzel  <dave@turbocat.de>
     * Apps/EOModelEditor/Inspectors/*.gsmarkup
     tried to fix on X11
@@ -474,7 +491,7 @@
     check for empty name
     * Apps/EOModelEditor/EOMEDocument.m
     addEntity, addRelationship, validateUserInterfaceItem
-    
+
 2010-05-31  David Wetzel  <dave@turbocat.de>
     * Apps/EOModeler/EOMInspectorController.m
     int -> NSUInteger, call sizeToCells
@@ -500,14 +517,13 @@
     propset  svn:ignore
     * Apps/EOModelEditor/GNUmakefile
     add -lgnustep-baseadd on non-GNUstep
-    
 
 2010-05-30  David Wetzel  <dave@turbocat.de>
     * Apps/EOModelEditor
     * Apps/EOModeler
     Initial Version of EOModelEditor.
     Does not save Plists on OSX. Use at your own risk!
-    
+
 2010-05-30  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOModel.m
     * EOAccess/EOAttribute.m
@@ -547,9 +563,7 @@
     * EOControl/EOGlobalID.m
     * EOControl/EOSortOrdering.m
     * EOControl/EOOrQualifier.m
-    
     Remove lots of logging.
-
 
 2010-05-30  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOAttribute.m
@@ -564,12 +578,11 @@
     initWithDatabaseContext: more checks
     * EOAdaptors/PostgreSQLAdaptor/PostgreSQLContext.m
     beginTransaction: more checks, raise NSInternalInconsistencyException
-    
-    
+
 2010-05-26  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOEntity.m
     added support for stored procedures
-    
+
 2010-05-19  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOStoredProcedure.m
     setName: added loadAllModelObjects and checks
@@ -577,7 +590,7 @@
     * EOAccess/EORelationship.m
     encodeIntoPropertyList:
     added code for ownsDestination and propagatesPrimaryKey from Sergey Golovin.
-    
+
 2010-05-16  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOModel.m:
     entities: make sure we use a mutable array. Destroy _entities cache when adding a new one.
@@ -586,7 +599,7 @@
     make setName: work
     * EOAccess/EORelationship.m
     add support for KVObserving.
-    
+
 2010-05-03  David Wetzel  <dave@turbocat.de>
     * EOAccess/EOAttribute.m: Add comment
     * EOControl/EOEditingContext.m: Do not raise on inserting bad objects for now
@@ -675,7 +688,7 @@
 
 	* EOAccess/EOEntity.m: (-globalIDForRow:isFinal:)
 	Create EOKeyGlobalID outside loop.
-      
+
 2010-04-19  Fred Kiefer  <FredKiefer@gmx.de>
 
 	* EOAccess/EOEntity.m: Use '||' instead of '|'. 

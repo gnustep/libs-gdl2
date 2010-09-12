@@ -1542,9 +1542,10 @@ classPropertyNames = [entity classPropertyNames];
   NSUInteger         rowsFetched    = 0;
   BOOL               continueFetch  = NO;
 
-	channel = [self _obtainOpenChannel];
+  channel = [self _obtainOpenChannel];
   
-  if (_flags.beganTransaction == NO)
+  if (_flags.beganTransaction == NO
+      && _updateStrategy == EOUpdateWithPessimisticLocking)
   {
     [_adaptorContext beginTransaction];
     
@@ -2468,7 +2469,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
         }
         [self relayAttributesInRelationship:substitutionRel
                                sourceObject:updatedEO
-                          destinationObject:snaps];
+                         destinationObjects:snaps];
         continue;
       }
       if (updatedSnapValue != currentSnapValue)
@@ -4884,7 +4885,8 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
 			 relationshipName: relationshipName
 			 editingContext: context];
 
-      [EOFault clearFault: object]; //??
+      if (_isFault(object))
+        [EOFault clearFault: object]; //??
       /* in clearFault 
          [handler faultWillFire:object];
          targetClass=[handler targetClass];
