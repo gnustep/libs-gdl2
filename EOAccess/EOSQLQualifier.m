@@ -524,7 +524,7 @@ RCS_ID("$Id$")
 
 - (NSString *)sqlStringForSQLExpression: (EOSQLExpression *)sqlExpression
 {
-  return [sqlExpression sqlStringForNegatedQualifier: self];
+  return [sqlExpression sqlStringForNegatedQualifier: _qualifier];
 }
 
 - (EOQualifier *)schemaBasedQualifierWithRootEntity: (EOEntity *)entity

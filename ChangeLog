@@ -1,3 +1,9 @@
+2010-09-20  Fred Kiefer  <FredKiefer@gmx.de>
+
+	* EOAccess/EOSQLQualifier.m [EONotQualifier
+	-sqlStringForSQLExpression:]: Pass on _qualifier not self.
+	Patch by Georg Fleischmann <Georg.Fleischmann@vhf.de>
+
 2010-09-12  Fred Kiefer  <FredKiefer@gmx.de>
 
 	* EOControl/EOCheapArray.m,
