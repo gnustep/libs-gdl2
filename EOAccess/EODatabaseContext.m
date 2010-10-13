@@ -2960,9 +2960,8 @@ Raises an exception is the adaptor is unable to perform the operations.
     {
       [_adaptorContext rollbackTransaction];
 
-
-
       _flags.beganTransaction = NO;
+      _flags.preparingForSave = NO;
 
       if (_lockedObjects)
 	{

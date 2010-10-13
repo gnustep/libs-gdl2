@@ -1,3 +1,11 @@
+2010-10-13  Fred Kiefer  <FredKiefer@gmx.de>
+
+	* EOAccess/EODatabaseContext.m
+	([EODatabaseContext(EOCooperatingObjectStoreSupport
+	-rollbackChanges]): Reset _flags.preparingForSave for better
+	recovery from an exception.
+	Patch by Georg Fleischmann <Georg.Fleischmann@vhf.de>
+
 2010-09-20  Fred Kiefer  <FredKiefer@gmx.de>
 
 	* EOAccess/EOSQLQualifier.m [EONotQualifier
@@ -12,14 +20,14 @@
 	include of <GNUstepBase/GSCategories.h> replaced by
 	<GNUstepBase/NSDebug+GNUstepBase.h> and
 	<GNUstepBase/NSThread+GNUstepBase.h>
-	* EOAccess/EODatabaseContext
+	* EOAccess/EODatabaseContext.m
 	([EODatabaseContext(EOCooperatingObjectStoreSupport)
 	-recordChangesInEditingContext]): for isToMany relationships, call
 	-relayAttributesInRelationship:sourceObject:destinationObjects:
 	(with 's' !).
-	* EOAccess/EODatabaseContext ([EODatabaseContext -_fireArrayFault:]):
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext -_fireArrayFault:]):
 	test if object is still a fault before calling -clearFault:
-	* EOAccess/EODatabaseContext ([EODatabaseContext
+	* EOAccess/EODatabaseContext.m ([EODatabaseContext
 	-objectsWithFetchSpecification:editingContext:]): call
 	beginTransaction only for pessimistic locking.
 	Patch by Georg Fleischmann <Georg.Fleischmann@vhf.de>
