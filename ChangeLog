@@ -1,3 +1,8 @@
+2011-04-06  Fred Kiefer  <FredKiefer@gmx.de>
+
+	* EOControl/EODebug.m: replace GNU runtime specific functions and
+	data structrues with the modern ones.
+
 2010-10-13  Fred Kiefer  <FredKiefer@gmx.de>
 
 	* EOAccess/EODatabaseContext.m

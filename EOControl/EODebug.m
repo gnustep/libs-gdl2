@@ -44,9 +44,10 @@ RCS_ID("$Id$")
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSObjCRuntime.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
+
+#import <Foundation/NSObjCRuntime.h>
 
 #include <unistd.h>
 
@@ -319,43 +320,35 @@ TypeToNSString(const char* _type)
 }
 
 static void 
-DumpIVar(id object, GSIVar ivar, int deep)
+DumpIVar(id object, Ivar ivar, int deep)
 {
-#ifndef GNUSTEP
-#warning DumpIVar() is not ported to your platform
-#else
   if (ivar && object && deep >= 0)
   {
-    void *pValue = ((void*)object) + ivar->ivar_offset;
-    NSString *pType = TypeToNSString(ivar->ivar_type);
-    NSString *pIVar = IVarInString(ivar->ivar_type,pValue);
+    void *pValue = ((void*)object) + ivar_getOffset(ivar);
+    char *type = ivar_getTypeEncoding(ivar);
+    NSString *pType = TypeToNSString(type);
+    NSString *pIVar = IVarInString(type, pValue);
     
     NSDebugFLog(@"IVar %s type:%@ value:%@\n",
-                ivar->ivar_name,
+                ivar_getName(ivar),
                 pType,
                 pIVar);
     
-    if (deep > 0 && ivar->ivar_type && *ivar->ivar_type == _C_ID && pValue)
+    if (deep > 0 && type && *type == _C_ID && pValue)
     {
       EOFLogDumpObject_(NULL, 0, *((id*)pValue), deep);
     }
   }
-#endif
 }
 
 //Dump object 
 void 
 EOFLogDumpObject_(const char *file, int line, id object, int deep)
 {
-#ifndef GNUSTEP
-#warning EOFLogDumpObject_() is not ported to your platform
-#else
-  
   USTART
   
   if (object && deep > 0)
   {
-    struct objc_ivar_list *ivars = NULL;
     Class class = [object class];
     
     if (class)
@@ -369,25 +362,27 @@ EOFLogDumpObject_(const char *file, int line, id object, int deep)
                   class_getName(class),
                   objectDescription(object));
       while (class)
-	    {
-	      ivars = class->ivars;
-	      class = class_getSuperclass(class);
-        
-	      if (ivars)
         {
-          int   i;
+          unsigned int ivarCount;
+          Ivar *ivars = class_copyIvarList(class, &ivarCount);
+
+          class = class_getSuperclass(class);
           
-          for (i = 0; i < ivars->ivar_count; i++)
-          {
-            DumpIVar(object,&ivars->ivar_list[i],deep-1);
-          }
+          if (ivars)
+            {
+              int   i;
+              
+              for (i = 0; i < ivarCount; i++)
+                {
+                  DumpIVar(object, ivars[i], deep-1);
+                }
+            }
+          free(ivars);
         }
-	    }
     }
   }
   
   USTOP
-#endif
 }
 
 void 
@@ -398,14 +393,14 @@ EOFLogAssertGood_(const char *file, int line, id object)
 #else
   if (object)
     {
-      if (object->class_pointer == ((Class)0xdeadface))
+      if (object_getClass(object) == ((Class)0xdeadface))
 	{
 	  NSLog(@"DEAD FACE: object %p isa=%p in %s at %d\n",
 		(void*)object,
-		(void*)object->class_pointer,
+		(void*)object_getClass(object),
 		file,
 		line);
-	  NSCParameterAssert(object->class_pointer == (Class)0xdeadface);
+	  NSCParameterAssert(object_getClass(object) == (Class)0xdeadface);
 	}
     }
   else
@@ -417,7 +412,6 @@ EOFLogAssertGood_(const char *file, int line, id object)
       NSCParameterAssert(object);
     }
 #endif
-
 }
 
 #endif
