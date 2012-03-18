@@ -55,7 +55,38 @@
 
 - (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender
 {
-  return NO;
+  if (NSInterfaceStyleForKey(@"NSMenuInterfaceStyle", nil) ==
+      NSWindows95InterfaceStyle)
+    {
+      return YES;
+    }
+  else
+    {
+      return NO;
+    }
+}
+
+- (BOOL) applicationShouldTerminateAfterLastWindowClosed: (id)sender
+{
+  if (NSInterfaceStyleForKey(@"NSMenuInterfaceStyle", nil) ==
+      NSWindows95InterfaceStyle)
+    {
+      NSDocumentController *docController;
+      docController = [NSDocumentController sharedDocumentController];
+      
+      if ([[docController documents] count] > 0)
+        {
+          return NO;
+        }
+      else
+        {
+          return YES;
+        }
+    }
+  else
+    {
+      return NO;
+    }
 }
 
 - (void) newDocumentWithModel:(EOModel *)newModel

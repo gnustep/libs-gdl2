@@ -1,3 +1,8 @@
+2012-03-18  German A. Arias  <german@xelalug.org>
+
+	* Apps/EOModelEditor/EOModelEditorApp.m: Added delegate methods
+	for use with in-window menu.
+
 2011-04-06  Fred Kiefer  <FredKiefer@gmx.de>
 
 	* EOControl/EODebug.m: replace GNU runtime specific functions and
