@@ -1,5 +1,11 @@
 2012-03-18  German A. Arias  <german@xelalug.org>
 
+	* Apps/EOModelEditor/EOModelEditorApp.h:
+	* Apps/EOModelEditor/EOModelEditorApp.m: Fix a problem with last
+	commit.
+
+2012-03-18  German A. Arias  <german@xelalug.org>
+
 	* Apps/EOModelEditor/EOModelEditorApp.m: Added delegate methods
 	for use with in-window menu.
 

@@ -58,12 +58,10 @@
   if (NSInterfaceStyleForKey(@"NSMenuInterfaceStyle", nil) ==
       NSWindows95InterfaceStyle)
     {
-      return YES;
+      [self new: self];
     }
-  else
-    {
-      return NO;
-    }
+  
+  return NO;
 }
 
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed: (id)sender

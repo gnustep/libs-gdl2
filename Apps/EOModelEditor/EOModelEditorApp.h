@@ -33,6 +33,7 @@
 
 }
 
+- (void) new:(id)sender;
 - (EOMEDocument *) activeDocument;
 
 @end
