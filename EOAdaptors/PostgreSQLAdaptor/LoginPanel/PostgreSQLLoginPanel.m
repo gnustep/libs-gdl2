@@ -333,7 +333,7 @@ vfmaxf (int n, float aFloat, ...)
       tempRect.origin.x = (screenSize.width/2) - (tempRect.size.width/2);
       tempRect.origin.y = (screenSize.height/2) - (tempRect.size.height/2);
       
-      _win = [[NSWindow alloc] initWithContentRect: tempRect 
+      _win = [[NSPanel alloc] initWithContentRect: tempRect 
 			       styleMask: NSTitledWindowMask
 			       backing: NSBackingStoreBuffered
 			       defer: YES];

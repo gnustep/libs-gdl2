@@ -1,3 +1,17 @@
+2012-03-19  German A. Arias  <german@xelalug.org>
+
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.h:
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.m:
+	* Apps/EOModelEditor/AdaptorsPanel.h:
+	* Apps/EOModelEditor/AdaptorsPanel.m: Use a panel instead a window.
+	So the menu isn't displayed when the user use NSWindows95InterfaceStyle.
+	* Apps/EOModelEditor/EOWindow.h:
+	* Apps/EOModelEditor/EOWindow.m:
+	* Apps/EOModelEditor/GNUmakefile: New class for auxiliary windows.
+	* Apps/EOModelEditor/Resources/SQLGenerator.gsmarkup:
+	* Apps/EOModelEditor/Resources/DataBrowser.gsmarkup: Instances of
+	class EOWindow, this avoid display the menu.
+
 2012-03-18  German A. Arias  <german@xelalug.org>
 
 	* Apps/EOModelEditor/EOModelEditorApp.h:

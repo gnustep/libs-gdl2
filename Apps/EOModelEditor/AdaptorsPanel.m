@@ -52,11 +52,11 @@ static NSArray *_adaptorNames;
       NSRect fr1, fr2;
       _adaptorNames = RETAIN([EOAdaptor availableAdaptorNames]);
       /* redo all these numbers so buttons and labels are on the right? */
-      _window = [[NSWindow alloc]
-                initWithContentRect: NSMakeRect(200,200,200,300)
-                          styleMask: NSBorderlessWindowMask | NSTitledWindowMask
-                            backing: NSBackingStoreBuffered
-                              defer: YES];
+      _window = [[NSPanel alloc]
+		  initWithContentRect: NSMakeRect(200,200,200,300)
+			    styleMask: NSBorderlessWindowMask | NSTitledWindowMask
+			      backing: NSBackingStoreBuffered
+				defer: YES];
       [_window setTitle: @"Select adaptor"];
       [_window setReleasedWhenClosed:NO];
       

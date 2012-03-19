@@ -3,7 +3,7 @@
 <gsmarkup> 
 	<objects>
     
-		<window title="Data Browser" id="window" delegate="#NSOwner" releasedWhenClosed="yes"
+		<window instanceOf="EOWindow" title="Data Browser" id="window" delegate="#NSOwner" releasedWhenClosed="yes"
     resizable="yes">
       <vbox>
         <box topPadding="2" bottomPadding="2" leftPadding="4" rightPadding="4">

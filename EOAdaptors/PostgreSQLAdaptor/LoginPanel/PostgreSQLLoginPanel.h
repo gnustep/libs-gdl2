@@ -32,13 +32,13 @@
 @class NSButton;
 @class NSImageView;
 @class NSComboBox;
-@class NSWindow;
+@class NSPanel;
 @class NSSecureTextField;
 
 @interface PostgreSQLLoginPanel : EOLoginPanel
 {
   /* gui stuff */ 
-  NSWindow *_win;
+  NSPanel *_win;
   NSComboBox *databasesCombo;
   NSImageView *logo;
 

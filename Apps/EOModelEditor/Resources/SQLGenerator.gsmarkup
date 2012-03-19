@@ -3,7 +3,7 @@
 <gsmarkup> 
 	<objects>
     
-		<window title="SQL Generation" id="sqlgenWindow" delegate="#NSOwner" resizable="yes">
+		<window instanceOf="EOWindow" title="SQL Generation" id="sqlgenWindow" delegate="#NSOwner" resizable="yes">
 			<vbox leftPadding="10" padding="10">
 				<box title="SQL Generation Options" topPadding="10"
 					leftPadding="15" rightPadding="15" width="425">

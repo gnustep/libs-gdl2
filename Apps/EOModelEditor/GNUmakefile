@@ -90,6 +90,7 @@ $(APP_NAME)_OBJC_FILES =		\
 	Preferences.m			\
 	ConsistencyChecker.m		\
   CodeGenerator.m \
-  DataBrowser.m
+  DataBrowser.m \
+  EOWindow.m
 
 include $(GNUSTEP_MAKEFILES)/application.make

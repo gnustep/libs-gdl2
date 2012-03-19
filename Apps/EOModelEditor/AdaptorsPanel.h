@@ -31,7 +31,7 @@
 
 @interface AdaptorsPanel : NSObject
 {
-  NSWindow  *_window;
+  NSPanel   *_window;
   NSBrowser *brws_adaptors;
   NSButton  *btn_ok;
   NSButton  *btn_cancel;
