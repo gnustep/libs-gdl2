@@ -1,5 +1,12 @@
 2012-03-19  German A. Arias  <german@xelalug.org>
 
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/sqlitelogo.tif:
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/GNUmakefile:
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m: Added
+	SQLite logo in login panel.
+
+2012-03-19  German A. Arias  <german@xelalug.org>
+
 	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.h:
 	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.m:
 	* Apps/EOModelEditor/AdaptorsPanel.h:

@@ -53,12 +53,25 @@ static BOOL insideModalLoop = YES;
     {
       NSRect fr1, fr2;
       float w;
+      NSImage *imageLogo;
+      NSImageView *logo;
       /* TODO make the interface pretty */
-      _win = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, 256, 128)
+      _win = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, 256, 148)
       		styleMask: NSTitledWindowMask
 		backing:NSBackingStoreBuffered
 		defer:YES];
       [_win center];
+
+      imageLogo = [[NSImage alloc] initWithContentsOfFile:
+				[[NSBundle bundleForClass: [self class]]
+				  pathForImageResource:@"sqlitelogo"]];
+      logo = [[NSImageView alloc] initWithFrame:NSMakeRect(5, 48, 214, 96)];
+      [logo setImage: imageLogo];
+      [logo setEditable:NO];
+      [[_win contentView] addSubview: logo];
+      [imageLogo release];
+      [logo release];
+
       _ok = [[NSButton alloc] init];
       _cancel = [[NSButton alloc] init];
       [_ok setTitle:@"Ok"];

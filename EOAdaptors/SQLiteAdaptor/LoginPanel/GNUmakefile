@@ -34,6 +34,7 @@ endif
 endif
 
 LoginPanel_NEEDS_GUI=yes
+LoginPanel_RESOURCE_FILES = sqlitelogo.tif
 LoginPanel_OBJC_FILES=SQLite3LoginPanel.m
 LoginPanel_PRINCIPAL_CLASS=SQLite3LoginPanel
 
