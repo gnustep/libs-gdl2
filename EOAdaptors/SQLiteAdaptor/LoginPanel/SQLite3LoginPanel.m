@@ -105,9 +105,13 @@ static BOOL insideModalLoop = YES;
       [_browse setAction:@selector(browse:)];
 
       [[_win contentView] addSubview:_ok];
+      [_ok release];
       [[_win contentView] addSubview:_cancel];
+      [_cancel release];
       [[_win contentView] addSubview:_browse];
+      [_browse release];
       [[_win contentView] addSubview:_path];
+      [_path release];
     }
   
   return self;

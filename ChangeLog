@@ -1,5 +1,10 @@
 2012-03-19  German A. Arias  <german@xelalug.org>
 
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m (-init):
+	Fix memory leak.
+
+2012-03-19  German A. Arias  <german@xelalug.org>
+
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/sqlitelogo.tif:
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/GNUmakefile:
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m: Added
