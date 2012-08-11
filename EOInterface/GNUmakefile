@@ -31,6 +31,9 @@ include ../Version
 NATIVE_LIBRARY_NAME=EOInterface
 
 EOInterface_NEEDS_GUI = yes
+
+EOInterface_LIBRARIES_DEPEND_UPON = -lEOControl $(OBJC_LIBS)
+
 # The C source files to be compiled
 EOInterface_C_FILES = 
 

@@ -34,6 +34,8 @@ NATIVE_LIBRARY_NAME=EOAccess
 
 EOAccess_NEEDS_GUI = no
 
+EOAccess_LIBRARIES_DEPEND_UPON = -lEOControl $(OBJC_LIBS)
+
 # The C source files to be compiled
 EOAccess_C_FILES = 
 

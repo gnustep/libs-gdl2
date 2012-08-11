@@ -27,7 +27,8 @@
 ADDITIONAL_INCLUDE_DIRS += @POSTGRES_INCLUDES@
 
 # Libraries linked to the framework
-LIBRARIES_DEPEND_UPON += @POSTGRES_LIBS@
+LIBRARIES_DEPEND_UPON += @POSTGRES_LIBS@ -lEOControl -lEOAccess $(FND_LIBS) \
+		           $(OBJC_LIBS)
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS += @POSTGRES_LIB_DIRS@

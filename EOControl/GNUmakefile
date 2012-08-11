@@ -32,6 +32,8 @@ NATIVE_LIBRARY_NAME=EOControl
 
 EOControl_NEEDS_GUI = no
 
+EOControl_LIBRARIES_DEPEND_UPON = $(OBJC_LIBS)
+
 # The C source files to be compiled
 EOControl_C_FILES = 
 
