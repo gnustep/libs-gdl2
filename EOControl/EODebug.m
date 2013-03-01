@@ -238,7 +238,7 @@ IVarInString(const char* _type, void* _value)
 	}
     }
   else
-    return [NSString stringWithString: @"NULL type or NULL pValue"];
+    return @"NULL type or NULL pValue";
 }
 
 static NSString *
@@ -316,7 +316,7 @@ TypeToNSString(const char* _type)
 	}
     }
   else
-    return [NSString stringWithString: @"NULL type"];
+    return @"NULL type";
 }
 
 static void 

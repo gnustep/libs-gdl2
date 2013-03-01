@@ -1,3 +1,7 @@
+2013-03-01: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* EOControl/EODebug.m
+	  do not use redundant stringWithString
+
 2012-08-10  German A. Arias  <german@xelalug.org>
 
 	* EOInterface/GNUmakefile:
