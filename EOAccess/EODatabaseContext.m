@@ -176,7 +176,7 @@ static Class _contextClass = Nil;
     model = [[[EOModelGroup defaultGroup] entityNamed:entityName] model];
 
   if (model == nil)
-    NSLog(@"%@ -- %@ 0x%x: No model for entity named %@",
+    NSLog(@"%@ -- %@ %@: No model for entity named %@",
 	  NSStringFromSelector(_cmd), 
 	  NSStringFromClass([self class]),
 	  self,
@@ -474,7 +474,7 @@ static Class _contextClass = Nil;
 {
 //call channel databaseContext
 //test if not exists  _registeredChannels indexOfObjectIdenticalTo:channel
-  NSDebugLog(@"** REGISTER channel ** debug:%d ** total registered:%d",
+  NSDebugLog(@"** REGISTER channel ** debug:%d ** total registered:%"PRIuPTR,
 	     [[channel adaptorChannel] isDebugEnabled],
 	     [_registeredChannels count] + 1);
 
@@ -5385,7 +5385,7 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
   else
     {
       NSEmitTODO();
-      NSWarnLog(@"_uniqueStack is empty. May be there's no runing transaction !", "");
+      NSWarnLog(@"_uniqueStack is empty. May be there's no runing transaction !");
 
       [self notImplemented: _cmd]; //TODO
     }

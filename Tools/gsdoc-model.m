@@ -125,7 +125,7 @@ main(int argc, char **argv, char **env)
 {
   NSProcessInfo		*proc;
   NSArray		*args;
-  unsigned		i;
+  NSUInteger		i;
   NSUserDefaults	*defs;
   NSMutableArray *files = nil;		// Files to parse
   NSString *templateFileName = nil;		// makeIndex template file name
@@ -388,7 +388,7 @@ main(int argc, char **argv, char **env)
 
           if (verbose >= 1)
             {
-              NSLog(@"File %d/%d - Processing %@",
+              NSLog(@"File %"PRIuPTR"/%"PRIuPTR" - Processing %@",
                     (i+1),
                     [files count],
                     file);
@@ -415,7 +415,7 @@ main(int argc, char **argv, char **env)
 
                   if (gsdocModelContent == nil)
                     {
-                      NSLog(@"File %d/%d - Error generating doc for %@",
+                      NSLog(@"File %"PRIuPTR"/%"PRIuPTR" - Error generating doc for %@",
                             (i+1),
                             [files count],
                             file);
@@ -497,7 +497,7 @@ main(int argc, char **argv, char **env)
 
                       if (verbose >= 1)
                         {
-                          NSLog(@"File %d/%d - Generating %@ - OK",
+                          NSLog(@"File %"PRIuPTR"/%"PRIuPTR" - Generating %@ - OK",
                                 (i+1),
                                 [files count],
                                 file);
@@ -506,7 +506,7 @@ main(int argc, char **argv, char **env)
                 }
               else
                 {
-                  NSLog(@"File %d/%d - Error parsing '%@'",
+                  NSLog(@"File %"PRIuPTR"/%"PRIuPTR" - Error parsing '%@'",
                         (i+1),
                         [files count],
                         file);
@@ -515,7 +515,7 @@ main(int argc, char **argv, char **env)
             }
           NS_HANDLER
             {
-              NSLog(@"File %d/%d - Parsing '%@' - %@",
+              NSLog(@"File %"PRIuPTR"/%"PRIuPTR" - Parsing '%@' - %@",
                     (i+1),
                     [files count],
                     file,

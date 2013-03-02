@@ -69,56 +69,56 @@ GDL2CONTROL_EXPORT void EOFLogAssertGood_(const char* file,int line,
   do { if (GSDebugSet(@"EOFFn") == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGObjectFnStartCond(cond)  \
   do { if ((GSDebugSet(@"EOFFn") == YES)  && GSDebugSet(cond) == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGClassFnStartOrCond(cond)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond) == YES)) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGClassFnStartOrCond2(cond1,cond2)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond1) == YES) || (GSDebugSet(cond2) == YES)) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGClassFnStop()  \
   do { if (GSDebugSet(@"EOFFn") == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,__FILE__, __LINE__,@"FNSTOP"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGObjectFnStopCond(cond)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) && GSDebugSet(cond) == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGClassFnStopOrCond(cond)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond) == YES)) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,__FILE__, __LINE__,@"FNSTOP"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGClassFnStopOrCond2(cond1,cond2)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond1) == YES) || (GSDebugSet(cond2) == YES)) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,__FILE__, __LINE__,@"FNSTOP"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGClassLevel(level,format) \
   do { if (GSDebugSet(level) == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugFunctionMsg( \
         __PRETTY_FUNCTION__, __FILE__, __LINE__, format); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGClassLevelArgs(level, format, args...) \
   do { if (GSDebugSet(level) == YES) { \
@@ -131,7 +131,7 @@ GDL2CONTROL_EXPORT void EOFLogAssertGood_(const char* file,int line,
   do { if (GSDebugSet(@"EOFdflt") == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 
 
@@ -141,56 +141,56 @@ GDL2CONTROL_EXPORT void EOFLogAssertGood_(const char* file,int line,
   do { if (GSDebugSet(@"EOFFn") == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGObjectFnStartOrCond(cond)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond) == YES)) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGObjectFnStartOrCond2(cond1,cond2)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond1) == YES) || (GSDebugSet(cond2) == YES)) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGObjectFnStop()  \
   do { if (GSDebugSet(@"EOFFn") == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGObjectFnStopOrCond(cond)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond) == YES)) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGObjectFnStopOrCond2(cond1,cond2)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond1) == YES) || (GSDebugSet(cond2) == YES)) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGObjectFnStopPlain(fmt)  \
   do { if (GSDebugSet(@"EOFFn") == YES) { \
-    NSLog(fmt); }} while (0)
+    NSLog(@"%@", fmt); }} while (0)
 
 #define EOFLOGObjectFnStopOrCondPlain(cond,fmt)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond) == YES)) { \
-    NSLog(fmt); }} while (0)
+    NSLog(@"%@", fmt); }} while (0)
 
 #define EOFLOGObjectFnStopOrCond2Plain(cond1,cond2,fmt)  \
   do { if ((GSDebugSet(@"EOFFn") == YES) || (GSDebugSet(cond1) == YES) || (GSDebugSet(cond2) == YES)) { \
-    NSLog(fmt); }} while (0)
+    NSLog(@"%@", fmt); }} while (0)
 
 #define EOFLOGObjectLevel(level,format) \
   do { if (GSDebugSet(level) == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg( \
         self, _cmd, __FILE__, __LINE__, format); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 #define EOFLOGObjectLevelArgs(level, format, args...) \
   do { if (GSDebugSet(level) == YES) { \
@@ -204,7 +204,7 @@ GDL2CONTROL_EXPORT void EOFLogAssertGood_(const char* file,int line,
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg( \
         self, _cmd, __FILE__, __LINE__, format); \
-    NSLog(fmt); [tmpPool release]; } while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; } while (0)
 
 #define EOFLOGObjectArgs(format, args...) \
   do { \
@@ -217,7 +217,7 @@ GDL2CONTROL_EXPORT void EOFLogAssertGood_(const char* file,int line,
   do { if (GSDebugSet(@"EOFdflt") == YES) { \
     NSAutoreleasePool *tmpPool = [NSAutoreleasePool new]; \
     NSString *fmt = GSDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
-    NSLog(fmt); [tmpPool release]; }} while (0)
+    NSLog(@"%@", fmt); [tmpPool release]; }} while (0)
 
 
 

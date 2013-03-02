@@ -22,7 +22,13 @@
 	* EOControl/EOKeyValueCoding.m
 	* EOControl/EOFault.h
 	  mark EOFault and GDL2KVCNSObject classes as root classes
-	
+	* Apps/EOModelEditor/EOMEDocument.m
+	* EOAccess/EODatabaseContext.m
+	* EOControl/EODebug.h
+	* EOControl/EOQualifier.m
+	* Tools/gsdoc-model.m
+	  fix warnings related to format strings
+
 2013-03-01: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EODebug.m
 	  do not use redundant stringWithString

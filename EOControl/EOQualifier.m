@@ -182,8 +182,7 @@ static NSString *getOperator(const unichar **cFormat, const unichar **s)
 	     && !spaceCIM(spaceSet, cimSEL, **s)
 	     && **s != '%' && **s != '\'')
         {
-	  NSDebugLog(@"avoid gcc 3.1.1 bug which optimizes to segfault",
-		     @"avoid gcc 3.1.1 bug which optimizes to segfault");
+	  NSDebugLog(@"avoid gcc 3.1.1 bug which optimizes to segfault");
 	  (*s)++;
         }
 

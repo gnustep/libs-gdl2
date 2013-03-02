@@ -759,7 +759,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 - (IBAction) directionChanged:(id) sender
 {
   NSMenuItem    * item = [_storedProcDirectionUp selectedItem];
-  NSLog(@"%s:%d", __PRETTY_FUNCTION__, [item tag]);
+  NSLog(@"%s:%"PRIiPTR, __PRETTY_FUNCTION__, [item tag]);
 }
 
 #pragma mark -
