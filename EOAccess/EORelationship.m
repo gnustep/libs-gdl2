@@ -279,7 +279,7 @@ RCS_ID("$Id$")
 				[(EOEntity*)owner name],
 				relationshipName,
 				(int)deleteRule);
-          NSAssert2(deleteRule >= 0 && deleteRule < 4,
+          NSAssert2(deleteRule >= 0 && deleteRule <= 3,
 		    @"Bad deleteRule numeric value: %@ (%d)",
 		    deleteRuleString,
 		    deleteRule);
@@ -1685,7 +1685,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 - (void)setDeleteRule: (EODeleteRule)deleteRule
 {
-  NSAssert1(deleteRule >= 0 && deleteRule < 4,
+  NSAssert1(deleteRule >= 0 && deleteRule <= 3,
 	    @"Bad deleteRule numeric value: %d",
             deleteRule);
 

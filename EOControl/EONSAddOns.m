@@ -413,13 +413,13 @@ GDL2_Activate(Class sup, Class cls)
   return result;
 }
 
-- (NSArray *)arrayExcludingObject: (id)object
+- (NSArray *)arrayExcludingObject: (id)_object
 {
   //Verify: mutable/non mutable,..
   NSArray *result = nil;
-  unsigned int selfCount = [self count];
+  NSUInteger selfCount = [self count];
 
-  if (selfCount > 0 && object) //else return nil
+  if (selfCount > 0 && _object) //else return nil
     {
       int i;
 
@@ -427,7 +427,7 @@ GDL2_Activate(Class sup, Class cls)
         {
           id object = [self objectAtIndex: i];
 
-          if (object != object)
+          if (object != _object)
             {
               if (result)
                 [(NSMutableArray *)result addObject: object];

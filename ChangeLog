@@ -43,6 +43,10 @@
 	* GDL2Palette/ConnectionInspector.m
 	* GDL2Palette/DisplayGroupInspector.m
 	  Fix warnings about conflicting return types or paramters
+	* EOAccess/EOAdaptor.m
+	* EOAccess/EORelationship.m
+	* EOControl/EONSAddOns.m
+	  get rid of some warnings about tautological compares
 
 2013-03-01: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EODebug.m

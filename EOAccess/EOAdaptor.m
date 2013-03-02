@@ -706,9 +706,9 @@ NSString *EOAdministrativeConnectionDictionaryKey
 - (void)handleDroppedConnection
 {
   NSDictionary *newConnectionDictionary = nil;
-  unsigned i;
+  NSUInteger i;
   
-  for (i = [_contexts count] - 1; i >= 0; i--)
+  for (i = 0; i < [_contexts count]; i++)
     {
       EOAdaptorContext *ctx = [[_contexts objectAtIndex:i]
 				nonretainedObjectValue];
@@ -969,13 +969,14 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
 - (void) _unregisterAdaptorContext: (EOAdaptorContext*)adaptorContext
 {
-  unsigned i = 0;    
+  NSUInteger i = 0;    
 
-  for (i = [_contexts count] - 1; i >= 0; i--)
+  for (i = 0; i < [_contexts count]; i++)
     {
       if ([[_contexts objectAtIndex: i] nonretainedObjectValue]
 	  == adaptorContext)
         {
+	  // this works, since it breaks out on first find
 	  [_contexts removeObjectAtIndex: i];
 	  break;
         }
