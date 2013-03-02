@@ -92,7 +92,11 @@ initialize(void)
    of efficiency, we don't use the do {} while (0) pattern.  */
 #define INITIALIZE if (!initialized) initialize();
 
-
+#ifdef __has_attribute
+#if __has_attribute(objc_root_class)
+__attribute__((objc_root_class))
+#endif
+#endif
 @interface	GDL2KVCNSObject
 @end
 @interface	GDL2KVCNSObject (NSKeyValueCoding) <NSObject>

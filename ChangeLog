@@ -19,6 +19,9 @@
 	* GDL2Palette/DisplayGroupInspector.m
 	  some NS(U)Integer transitions to fix warnings about
 	  comparisons against NSNotFound
+	* EOControl/EOKeyValueCoding.m
+	* EOControl/EOFault.h
+	  mark EOFault and GDL2KVCNSObject classes as root classes
 	
 2013-03-01: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EODebug.m
