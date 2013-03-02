@@ -14,6 +14,12 @@
 	* shutup all clang warnings of type:
 	  equality comparison with extraneous parentheses
 	  all harmless, but in EOEntity.m it actually was wrong
+	* EOAccess/EORelationship.m
+	* EOInterface/EODisplayGroup.m
+	* GDL2Palette/DisplayGroupInspector.m
+	  some NS(U)Integer transitions to fix warnings about
+	  comparisons against NSNotFound
+	
 2013-03-01: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EODebug.m
 	  do not use redundant stringWithString

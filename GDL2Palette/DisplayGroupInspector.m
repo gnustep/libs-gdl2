@@ -84,7 +84,7 @@
 
 - (void) removeKey:(id)sender
 {
-  int selRow = [_localKeysTable selectedRow];
+  NSInteger selRow = [_localKeysTable selectedRow];
   if (selRow != NSNotFound && selRow > 0 && selRow < [_localKeys count])
     {
       [_localKeys removeObjectAtIndex:[_localKeysTable selectedRow]];

@@ -91,7 +91,7 @@ NSString *EODisplayGroupWillFetchNotification = @"EODisplayGroupWillFetch";
 @implementation NSArray (private)
 - (NSArray *)indexesForObjectsIdenticalTo: (NSArray *)array
 {
-  unsigned idx, i, c = [array count];
+  NSUInteger idx, i, c = [array count];
   NSMutableArray *indices = (id)[NSMutableArray arrayWithCapacity: c];
   id object;
   NSNumber *number;
@@ -103,7 +103,7 @@ NSString *EODisplayGroupWillFetchNotification = @"EODisplayGroupWillFetch";
       if (idx != NSNotFound)
 	{
 	  /* We should cache all these numbers.  */
-	  number = [NSNumber numberWithUnsignedInt: idx];
+	  number = [NSNumber numberWithUnsignedInteger: idx];
 	  [indices addObject: number];
 	}
     }

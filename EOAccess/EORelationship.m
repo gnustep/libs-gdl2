@@ -2001,8 +2001,8 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 {
   NSArray *destAttributes = nil;
   NSArray *primaryKeyAttributes = nil;
-  int destAttributesCount = 0;
-  int primaryKeyAttributesCount = 0;
+  NSUInteger destAttributesCount = 0;
+  NSUInteger primaryKeyAttributesCount = 0;
   BOOL foreignKeyInDestination = NO;
 
 
@@ -2020,14 +2020,14 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
   if (destAttributesCount > 0 && primaryKeyAttributesCount > 0)
     {
-      int i;
+      NSUInteger i;
 
       for (i = 0;
 	   !foreignKeyInDestination && i < destAttributesCount;
 	   i++)
 	{
 	  EOAttribute *attribute = [destAttributes objectAtIndex: i];
-	  int pkAttrIndex = [primaryKeyAttributes
+	  NSUInteger pkAttrIndex = [primaryKeyAttributes
 			      indexOfObjectIdenticalTo: attribute];
 
 	  foreignKeyInDestination = (pkAttrIndex == NSNotFound);
