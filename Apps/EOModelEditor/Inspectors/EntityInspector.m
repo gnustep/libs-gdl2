@@ -63,7 +63,7 @@
   return nil;
 //  NSInteger row = [destinationEntityBrowser selectedRow];
   
-  if ((row == -1))
+  if (row == -1)
     return nil;
   
   return [[[[NSApp activeDocument] eomodel] entities] objectAtIndex:row];

@@ -530,11 +530,11 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
     return 2;
   }
   
-  if ((item == entitiesItem)) {
+  if (item == entitiesItem) {
     return [[_eomodel entityNames] count];
   }
   
-  if ((item == storedProceduresItem)) {
+  if (item == storedProceduresItem) {
     return [[_eomodel storedProcedureNames] count];
   }
   
@@ -556,19 +556,19 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
 {
   if (!item) {
-    if ((index == 0)) {
+    if (index == 0) {
       return entitiesItem;
     }
-    if ((index == 1)) {
+    if (index == 1) {
       return storedProceduresItem;
     }
   }
   
-  if ((item == entitiesItem)) {
+  if (item == entitiesItem) {
     return [[_eomodel entityNames] objectAtIndex:index];
   }
   
-  if ((item == storedProceduresItem)) {
+  if (item == storedProceduresItem) {
     return [[_eomodel storedProcedureNames] objectAtIndex:index];
   }
   
@@ -584,11 +584,11 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 //    return @"EOModel";
     return nil;  
   }
-  if ((item == entitiesItem)) {
+  if (item == entitiesItem) {
     return entitiesItem;
   }
   
-  if ((item == storedProceduresItem)) {
+  if (item == storedProceduresItem) {
     return storedProceduresItem;
   }
 //  
@@ -1011,21 +1011,21 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   //NSLog(@"%s: %@", __PRETTY_FUNCTION__, anItem);
 
 
-  if ((action == @selector(addAttribute:))) {    
+  if (action == @selector(addAttribute:)) {    
       if ((!_outlineSelection) || 
           (([_outlineSelection class] != [EOEntity class]) && ([_outlineSelection class] != [EOStoredProcedure class]))) {
         return NO;
       }
   }
 
-  if ((action == @selector(addRelationship:))) {    
+  if (action == @selector(addRelationship:)) {    
     if ((!_outlineSelection) || 
         ([_outlineSelection class] != [EOEntity class])) {
       return NO;
     }
   }
 
-  if ((action == @selector(delete:))) {    
+  if (action == @selector(delete:)) {
     if ((!_outlineSelection) || (!_selectedObjects)) {
       return NO;
     }

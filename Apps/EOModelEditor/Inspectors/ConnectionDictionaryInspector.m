@@ -152,7 +152,7 @@
   id obj = [notif object];
   
   if (_selectedDict) {
-    if ((obj == _textView)) {
+    if (obj == _textView) {
       // I dont know why that stringWithString is needed here,
       // but it seems to fix an OSX bug that messes up values -- dw
       [_selectedDict setObject:[NSString stringWithString:[_textView string]]

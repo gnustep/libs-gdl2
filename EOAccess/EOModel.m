@@ -1368,7 +1368,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     NSUInteger index = 0;
     NSUInteger count = 0;
     
-    if ((i == 0))
+    if (i == 0)
     {
       attrsOrRels = [entity attributes];
     } else {

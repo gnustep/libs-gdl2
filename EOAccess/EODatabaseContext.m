@@ -2284,14 +2284,14 @@ forDatabaseOperation:(EODatabaseOperation *)op
       
       updatedSnapValue = [updatedEOSnap objectForKey:[substRelationship name]];
 
-      if ((updatedSnapValue == GDL2_EONull)) 
+      if (updatedSnapValue == GDL2_EONull) 
       {
         updatedSnapValue = nil;
       }
       
       currentSnapValue = [currentCSnapDict objectForKey:[substRelationship name]];
 
-      if ((currentSnapValue == GDL2_EONull)) 
+      if (currentSnapValue == GDL2_EONull) 
       {
         currentSnapValue = nil;
       }
@@ -2413,14 +2413,14 @@ forDatabaseOperation:(EODatabaseOperation *)op
       
       updatedSnapValue = [updateSnapDict objectForKey:[substitutionRel name]];
 
-      if ((updatedSnapValue == GDL2_EONull))
+      if (updatedSnapValue == GDL2_EONull)
       {
         updatedSnapValue = nil;
       }
       
       currentSnapValue = [comSnapUpdatedEO objectForKey:[substitutionRel name]];
 
-      if ((currentSnapValue == GDL2_EONull))
+      if (currentSnapValue == GDL2_EONull)
       {
         currentSnapValue = nil;
       }
@@ -2431,8 +2431,8 @@ forDatabaseOperation:(EODatabaseOperation *)op
         NSArray        * currentSnapValues = (NSArray*) currentSnapValue;
         NSMutableArray * snaps = nil;
 
-        if (((updatedSnapValues == currentSnapValues)) || 
-            ([currentSnapValues isEqualToArray:updatedSnapValues]))
+        if ((updatedSnapValues == currentSnapValues) || 
+            [currentSnapValues isEqualToArray:updatedSnapValues])
         {
           continue;
         }
@@ -2875,7 +2875,7 @@ Raises an exception is the adaptor is unable to perform the operations.
         {
           [object takeStoredValuesFromDictionary:newRowValues];
         }
-        if ((databaseOperator == EODatabaseInsertOperator))
+        if (databaseOperator == EODatabaseInsertOperator)
         {
           [_database incrementSnapshotCountForGlobalID:dbOpeGID];
         }
@@ -6133,7 +6133,7 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
   }    
   
   // no PK? Ask the delegate to make one for us.
-  if ((pk == nil))
+  if (pk == nil)
   {      
     if (_delegateRespondsTo.newPrimaryKey == YES)
       pk = [_delegate databaseContext: self
@@ -6142,7 +6142,7 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
   }
   
   // still no PK?
-  if ((pk == nil))
+  if (pk == nil)
   {
     EOAdaptorChannel *channel = nil;
     EOStoredProcedure *nextPKProcedure = nil;

@@ -257,7 +257,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
               _flags.relationshipsIsLazy = YES;
             }
 
-          if ((aDict == [propertyList objectForKey: @"storedProcedureNames"]))
+          if ((aDict = [propertyList objectForKey: @"storedProcedureNames"]) != nil)
           {
             NSEnumerator * keyEnumerator = [aDict keyEnumerator];
             NSString     * curentKey;

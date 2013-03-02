@@ -222,19 +222,19 @@
   NSInteger intVal = 0;
   EOModel *activeModel = nil;
 
-  if ((sender == destinationEntityBrowser)) {
+  if (sender == destinationEntityBrowser) {
     activeModel = [[NSApp activeDocument] eomodel];
     return [[activeModel entityNames] count];
   } 
 
-  if ((sender == sourceBrowser)) {
+  if (sender == sourceBrowser) {
     EOEntity  * selectedEntity = [_currentRelation entity];
     NSArray   * attributes = [selectedEntity attributes];
 
     return [attributes count];
   } 
 
-  if ((sender == destBrowser)) {
+  if (sender == destBrowser) {
     EOEntity  * destinationEntity = [_currentRelation destinationEntity];
     NSArray   * dstAttributes = nil;
     
@@ -265,7 +265,7 @@
   EOEntity    * selectedEntity = nil;
   EOEntity    * destinationEntity = nil;
   
-  if ((sender == destinationEntityBrowser)) {
+  if (sender == destinationEntityBrowser) {
     activeModel = [[NSApp activeDocument] eomodel];
 
     [cell setLeaf:YES];
@@ -278,7 +278,7 @@
   
   selectedEntity = [_currentRelation entity];
   
-  if (((sender == sourceBrowser)) && (selectedEntity)) {
+  if ((sender == sourceBrowser) && (selectedEntity)) {
     NSArray  * attributes = [selectedEntity attributes];
     NSString * name = [[attributes objectAtIndex:row] name];
     NSUInteger idx;

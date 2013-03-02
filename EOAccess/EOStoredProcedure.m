@@ -207,7 +207,7 @@ RCS_ID("$Id$")
 
 - (void)setName: (NSString *)name
 {
-  if ((_name == name)) {
+  if (_name == name) {
     return;
   }
   

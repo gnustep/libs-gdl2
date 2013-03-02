@@ -832,14 +832,14 @@ RCS_ID("$Id$")
   
   index = EOMKKDInitializer_indexForKeyWithImpPtr(_MKKDInitializer,NULL,key);
     
-  if ((index == NSNotFound))
+  if (index == NSNotFound)
   {
     if (_extraData)
       object = [_extraData objectForKey: key];
   }
   else
   {
-    NSAssert2(index < [_MKKDInitializer count], @"bad index %d (count=%u)",
+    NSAssert2(index < [_MKKDInitializer count], @"bad index %u (count=%u)",
               index, [_MKKDInitializer count]);
           object = _values[index];
   }

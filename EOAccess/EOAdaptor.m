@@ -600,7 +600,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
     // but better there than in GSWeb and GDL -- dw
     stringEncoding = [GSMimeDocument encodingFromCharset:encodingValue];
     
-    if ((stringEncoding == 0)) {
+    if (stringEncoding == 0) {
       return [NSString defaultCStringEncoding];
     }
   }

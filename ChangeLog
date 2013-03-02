@@ -1,3 +1,19 @@
+2013-03-02: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* Apps/EOModelEditor/EOMEDocument.m
+	* Apps/EOModelEditor/Inspectors/AdvancedRelationshipInspector.m
+	* Apps/EOModelEditor/Inspectors/ConnectionDictionaryInspector.m
+	* Apps/EOModelEditor/Inspectors/EntityInspector.m
+	* Apps/EOModelEditor/Inspectors/RelationshipInspector.m
+	* EOAccess/EOAdaptor.m
+	* EOAccess/EODatabaseContext.m
+	* EOAccess/EOEntity.m
+	* EOAccess/EOModel.m
+	* EOAccess/EOStoredProcedure.m
+	* EOControl/EOMutableKnownKeyDictionary.m
+	* EOControl/EOObserver.m
+	* shutup all clang warnings of type:
+	  equality comparison with extraneous parentheses
+	  all harmless, but in EOEntity.m it actually was wrong
 2013-03-01: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EODebug.m
 	  do not use redundant stringWithString

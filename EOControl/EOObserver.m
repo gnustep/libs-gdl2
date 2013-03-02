@@ -450,7 +450,7 @@ static EODelayedObserverQueue *observerQueue;
  */
 - init
 {
-  if ((self == [super init]))
+  if (self == [super init])
     {
       ASSIGN(_modes, [NSArray arrayWithObject: NSDefaultRunLoopMode]);
     }
