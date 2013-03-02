@@ -523,9 +523,9 @@ static SEL eqSel;
   return self; 
 }
 
-- (id) initWithObjects:(id *)objects count:(NSUInteger)count
+- (id) initWithObjects:(const id[])objects count:(NSUInteger)count
 {
-  int i;
+  NSUInteger i;
   self = [self initWithCapacity:count];
   for (i = 0; i < count; i++)
     GSIArrayAddItem(_contents, (GSIArrayItem)objects[i]);

@@ -81,7 +81,7 @@ RCS_ID("$Id$")
   return self;
 }
 
-- (id) initWithObjects: (id*)objects
+- (id) initWithObjects: (const id[])objects
                  count: (NSUInteger)count
 {
 #ifdef DEBUG
@@ -153,7 +153,7 @@ RCS_ID("$Id$")
   return [super autorelease];
 }
 
-- (void) release
+- (oneway void) release
 {
 #ifdef DEBUG
   NSDebugFLog(@"Release EOCheapCopyArray %p. %@ [super retainCount]=%d",
@@ -217,7 +217,7 @@ RCS_ID("$Id$")
   return self;
 }
 
-- (id) initWithObjects: (id*)objects
+- (id) initWithObjects: (const id[])objects
                  count: (NSUInteger)count
 {
   self = [self initWithCapacity: count];

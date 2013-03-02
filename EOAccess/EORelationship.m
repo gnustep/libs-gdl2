@@ -190,7 +190,7 @@ RCS_ID("$Id$")
   [super dealloc];
 }
 
-- (unsigned)hash
+- (NSUInteger)hash
 {
   return [_name hash];
 }

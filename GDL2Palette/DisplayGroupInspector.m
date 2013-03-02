@@ -92,13 +92,14 @@
     }
 }
 
-- (int) numberOfRowsInTableView:(NSTableView *)tv
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)tv
 {
   return [_localKeys count];
 }
 
-- (id) tableView:(NSTableView *)tv objectValueForTableColumn:(NSTableColumn *)tc
-row:(int)row
+- (id) tableView:(NSTableView *)tv 
+objectValueForTableColumn:(NSTableColumn *)tc
+		      row:(NSInteger)row
 {
   return [_localKeys objectAtIndex:row];
 }

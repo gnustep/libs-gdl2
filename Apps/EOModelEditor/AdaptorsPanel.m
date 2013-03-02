@@ -153,15 +153,15 @@ static NSArray *_adaptorNames;
 
 /* NSBrowser delegate stuff */
 
-- (int) browser:(id)sender numberOfRowsInColumn:(int)column
+- (NSInteger) browser:(id)sender numberOfRowsInColumn:(NSInteger)column
 {
   return [_adaptorNames count];
 }
 
 - (void)browser:(NSBrowser*)sender
         willDisplayCell:(NSBrowserCell*)cell
-                  atRow:(int)row
-                 column:(int)column
+                  atRow:(NSInteger)row
+                 column:(NSInteger)column
 {
   [cell setLeaf:YES];
   [cell setTitle: [_adaptorNames objectAtIndex:row]];

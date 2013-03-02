@@ -188,11 +188,11 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
   [self evaluateExpression:expr];
 }
 
-- (unsigned)deleteRowsDescribedByQualifier: (EOQualifier *)qualifier
+- (NSUInteger)deleteRowsDescribedByQualifier: (EOQualifier *)qualifier
                                     entity: (EOEntity *)entity
 {
   EOSQLExpression *sqlexpr = nil;
-  unsigned rows = 0;
+  NSUInteger rows = 0;
   SQLite3Context *adaptorContext;
 
   NSAssert([self isOpen], @"channel is not open");
@@ -207,7 +207,7 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
 
   [self evaluateExpression: sqlexpr];
 	  
-  rows = (unsigned)sqlite3_changes(_sqlite3Conn);
+  rows = (NSUInteger)sqlite3_changes(_sqlite3Conn);
   return rows;
 }
 
@@ -449,7 +449,7 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
   return AUTORELEASE([ret copy]);
 }
 
-- (unsigned int) updateValues:(NSDictionary *)values
+- (NSUInteger) updateValues:(NSDictionary *)values
 inRowsDescribedByQualifier:(EOQualifier *)qualifier
 entity:(EOEntity *)ent
 {
@@ -466,7 +466,7 @@ entity:(EOEntity *)ent
 	  			qualifier:qualifier
 				   entity:ent];
   [self evaluateExpression:expr];
-  return sqlite3_changes(_sqlite3Conn);
+  return (NSUInteger)sqlite3_changes(_sqlite3Conn);
 }
 
 - (NSArray *) describeTableNames

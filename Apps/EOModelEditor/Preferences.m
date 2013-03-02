@@ -183,13 +183,15 @@ static NSString *_switches[][2] =
 }
 
 
-- (int) numberOfRowsInTableView:(NSTableView *)tv
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)tv
 {
-  int num = [_bundles count];
+  NSInteger num = [_bundles count];
   return num;
 }
 
-- (id) tableView:(NSTableView *)tv objectValueForTableColumn:(NSTableColumn *)tc row:(int)rowIndex
+- (id) tableView:(NSTableView *)tv 
+objectValueForTableColumn:(NSTableColumn *)tc 
+		      row:(NSInteger)rowIndex
 {
   id ov = [_bundles objectAtIndex:rowIndex];
   return ov;
@@ -198,7 +200,7 @@ static NSString *_switches[][2] =
 - (void) tableView:(NSTableView *)tv
 setObjectValue:(id)newVal
 forTableColumn:(NSTableColumn *)tc
-           row:(int)rowIndex
+           row:(NSInteger)rowIndex
 {
   [_bundles replaceObjectAtIndex:rowIndex withObject:newVal];
   [ud setObject:_bundles forKey:BundlesToLoad];

@@ -600,8 +600,8 @@
   [NSApp displayConnectionBetween:object and:[_currentConnector destination]];
 }
 
-- (int) browser:(NSBrowser *)browser
-numberOfRowsInColumn:(int)column
+- (NSInteger) browser:(NSBrowser *)browser
+ numberOfRowsInColumn:(NSInteger)column
 {
   id repObj = [[popUp selectedItem] representedObject];
   if (browser == oaBrowser)
@@ -656,7 +656,7 @@ numberOfRowsInColumn:(int)column
 }
 
 - (void) browser:(NSBrowser *)sender
-willDisplayCell:(id)cell atRow:(int)row column:(int)column
+willDisplayCell:(id)cell atRow:(NSInteger)row column:(NSInteger)column
 {
   id repObj = [[popUp selectedItem] representedObject];
   // FIXME -objectKeysTaken

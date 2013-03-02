@@ -28,6 +28,21 @@
 	* EOControl/EOQualifier.m
 	* Tools/gsdoc-model.m
 	  fix warnings related to format strings
+	* Apps/EOModelEditor/AdaptorsPanel.m
+	* Apps/EOModelEditor/Preferences.m
+	* EOAccess/EOAttribute.m
+	* EOAccess/EOExpressionArray.m
+	* EOAccess/EORelationship.m
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.m
+	* EOAdaptors/SQLiteAdaptor/SQLite3Channel.m
+	* EOControl/EOCheapArray.m
+	* EOControl/EOMutableKnownKeyDictionary.m
+	* EOControl/EOPrivate.h
+	* EOControl/EOPrivate.m
+	* EOControl/Makefile.preamble
+	* GDL2Palette/ConnectionInspector.m
+	* GDL2Palette/DisplayGroupInspector.m
+	  Fix warnings about conflicting return types or paramters
 
 2013-03-01: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EODebug.m

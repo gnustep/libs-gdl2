@@ -111,7 +111,7 @@ static SEL eqSel;
 }
 
 /* designated initializer */
-- (id) initWithCapacity:(unsigned)capacity
+- (id) initWithCapacity:(NSUInteger)capacity
 {
   self = [super init];
   _contents = NSZoneMalloc([self zone], sizeof(GSIArray_t));
@@ -119,9 +119,9 @@ static SEL eqSel;
   return self;
 }
 
-- (id) initWithObjects:(id *)objects count:(unsigned)count
+- (id) initWithObjects:(const id[])objects count:(NSUInteger)count
 {
-  int i;
+  NSUInteger i;
   self = [self initWithCapacity:count];
   for (i = 0; i < count; i++)
     GSIArrayAddItem(_contents, (GSIArrayItem)objects[i]);
@@ -385,12 +385,12 @@ if it's a string return NO
 }
 
 /* These are *this* subclasses responsibility */
-- (unsigned) count
+- (NSUInteger) count
 {
   return GSIArrayCount(_contents);
 }
 
-- (id) objectAtIndex:(unsigned) index
+- (id) objectAtIndex:(NSUInteger) index
 {
   if (index >= GSIArrayCount(_contents))
     [self _raiseRangeExceptionWithIndex:index from:_cmd];
@@ -410,7 +410,7 @@ if it's a string return NO
   GSIArrayAddItem(_contents, (GSIArrayItem)object);
 }
 
-- (void) replaceObjectAtIndex:(unsigned)index withObject:(id)object
+- (void) replaceObjectAtIndex:(NSUInteger)index withObject:(id)object
 {
   if (object == nil)
     {
@@ -427,7 +427,7 @@ if it's a string return NO
   GSIArraySetItemAtIndex(_contents, (GSIArrayItem)object, index);
 }
 
-- (void) insertObject:(id)object atIndex:(unsigned)index
+- (void) insertObject:(id)object atIndex:(NSUInteger)index
 {
   if (object == nil)
     {
@@ -443,7 +443,7 @@ if it's a string return NO
   GSIArrayInsertItem(_contents, (GSIArrayItem)object, index);
 }
 
-- (void) removeObjectAtIndex:(unsigned)index
+- (void) removeObjectAtIndex:(NSUInteger)index
 {
   if (index >= GSIArrayCount(_contents))
     {

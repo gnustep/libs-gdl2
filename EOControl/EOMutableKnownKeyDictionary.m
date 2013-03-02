@@ -91,7 +91,7 @@ RCS_ID("$Id$")
            initWithKeys: keys];
 }
 
-- (id)initWithKeys: (id*)keys
+- (id)initWithKeys: (const id[])keys
 	     count: (NSUInteger)count
 {
   if ((self = [self init]))
@@ -752,8 +752,8 @@ RCS_ID("$Id$")
 }
 
 // This is the designated initializer
-- (id) initWithObjects: (id*)objects
-               forKeys: (id*)keys
+- (id) initWithObjects: (const id[])objects
+               forKeys: (const id[])keys
                  count: (NSUInteger)count
 {
   //OK

@@ -646,13 +646,13 @@ vfmaxf (int n, float aFloat, ...)
 
 /* databases table stuff */
 
--(int)numberOfItemsInComboBox:(NSComboBox*)cbox
+-(NSInteger)numberOfItemsInComboBox:(NSComboBox*)cbox
 {
    return [_databases count];
 }
 
 - (id)comboBox:(NSComboBox*) cbox 
-      objectValueForItemAtIndex:(int)row
+      objectValueForItemAtIndex:(NSInteger)row
 {
   return [_databases objectAtIndex:row];
 }
