@@ -104,7 +104,10 @@ objectValueForTableColumn:(NSTableColumn *)tc
   return [_localKeys objectAtIndex:row];
 }
 
-- (void) tableView:(NSTableView *)tv setObjectValue:(id)newValue forTableColumn:(NSTableColumn *)tc row:(int) row;
+- (void) tableView:(NSTableView *)tv 
+setObjectValue:(id)newValue
+forTableColumn:(NSTableColumn *)tc
+	   row:(NSInteger) row;
 {
   [_localKeys replaceObjectAtIndex:row withObject:newValue];
   [object setLocalKeys:_localKeys];

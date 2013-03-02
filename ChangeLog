@@ -47,6 +47,8 @@
 	* EOAccess/EORelationship.m
 	* EOControl/EONSAddOns.m
 	  get rid of some warnings about tautological compares
+	* GDL2Palette/DisplayGroupInspector.m
+	  missed int -> NSInteger transition before
 
 2013-03-01: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EODebug.m
