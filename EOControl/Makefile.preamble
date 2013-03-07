@@ -37,7 +37,7 @@
 #
 
 # Additional flags to pass to the preprocessor
-ADDITIONAL_CPPFLAGS = $(FND_DEFINE) $(RUNTIME_DEFINE) -g
+ADDITIONAL_CPPFLAGS = $(FND_DEFINE) $(RUNTIME_DEFINE) -std=gnu89
 
 # Additional flags to pass to the Objective-C compiler
 ADDITIONAL_OBJCFLAGS = $(TEST_CFLAGS) 
