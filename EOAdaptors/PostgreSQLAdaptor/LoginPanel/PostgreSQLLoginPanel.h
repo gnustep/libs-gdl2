@@ -35,7 +35,7 @@
 @class NSPanel;
 @class NSSecureTextField;
 
-@interface PostgreSQLLoginPanel : EOLoginPanel
+@interface PostgreSQLLoginPanel : EOLoginPanel <NSTextFieldDelegate>
 {
   /* gui stuff */ 
   NSPanel *_win;
