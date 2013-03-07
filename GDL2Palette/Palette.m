@@ -28,7 +28,6 @@
 #include <Foundation/NSUserDefaults.h>
 #include <Foundation/NSBundle.h>
 
-static NSConstantString *GDL2PaletteBundles = @"GDL2PaletteBundles";
 @implementation GDL2Palette
 
 +(void) initialize

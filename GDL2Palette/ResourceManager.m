@@ -36,6 +36,7 @@
 #include <EOAccess/EODatabaseDataSource.h>
 
 #include <EOControl/EODetailDataSource.h>
+#include <EOControl/EOEditingContext.h>
 
 #include <AppKit/NSPasteboard.h>
 

@@ -9,7 +9,11 @@
 	  class conforms to NSTextFieldDelegate  
 	* EOAdaptors/SQLiteAdaptor/SQLite3Adaptor.m
 	  get rid of stray ; to make the loop work
-
+	* GDL2Palette/ResourceManager.m
+	  include missing header
+	* GDL2Palette/Palette.[h|m]
+	  use NSString instead of NSConstantString
+	
 2013-03-02: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.m
 	* Apps/EOModelEditor/Inspectors/AdvancedRelationshipInspector.m

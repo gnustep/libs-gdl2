@@ -24,7 +24,7 @@
     </license>
 **/
 #include <InterfaceBuilder/IBPalette.h>
-static NSConstantString *GDL2PaletteBundles;
+static NSString *GDL2PaletteBundles = @"GDL2PaletteBundles";
 
 @interface GDL2Palette : IBPalette
 {
