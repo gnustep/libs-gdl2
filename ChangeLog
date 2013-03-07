@@ -1,6 +1,8 @@
 2013-03-07: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/Makefile.preamble
 	  add -std=gnu89 to allow compile with clang and -O0
+	* EOControl/EOPrivate.h
+	  do not access the isa directly, use object_getClass
 
 2013-03-02: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.m

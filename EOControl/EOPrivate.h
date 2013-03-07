@@ -116,7 +116,7 @@ _isNilOrEONull(id obj)
 
 //See also EOControl/EOFault.m
 #define _isFault(v)	\
-	(((v)==nil) ? NO : ((((EOFault*)(v))->isa == GDL2_EOFaultClass) ? YES : NO))
+	(((v)==nil) ? NO : ((object_getClass((EOFault*)(v)) == GDL2_EOFaultClass) ? YES : NO))
 
 // ---- +alloc/+allocWithZone: ----
 #define GDL2_alloc(CLASS_NAME) \
