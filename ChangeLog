@@ -3,6 +3,8 @@
 	  add -std=gnu89 to allow compile with clang and -O0
 	* EOControl/EOPrivate.h
 	  do not access the isa directly, use object_getClass
+	* EOControl/EODebug.m 
+	  ivar_getTypeEncoding returns const char *
 
 2013-03-02: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.m

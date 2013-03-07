@@ -325,7 +325,7 @@ DumpIVar(id object, Ivar ivar, int deep)
   if (ivar && object && deep >= 0)
   {
     void *pValue = ((void*)object) + ivar_getOffset(ivar);
-    char *type = ivar_getTypeEncoding(ivar);
+    const char *type = ivar_getTypeEncoding(ivar);
     NSString *pType = TypeToNSString(type);
     NSString *pIVar = IVarInString(type, pValue);
     
