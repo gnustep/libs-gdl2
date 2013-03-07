@@ -63,7 +63,7 @@ static NSString *types[][2] =
         NSString *external[sizeof(types)/sizeof(types[0])];
         NSString *internal[sizeof(types)/sizeof(types[0])];
 	
-	for (i = 0; i < sizeof(types)/sizeof(types[0]); i++);
+	for (i = 0; i < sizeof(types)/sizeof(types[0]); i++)
 	   {
 	     external[i] = types[i][0];
 	     internal[i] = types[i][1];

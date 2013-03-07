@@ -7,6 +7,8 @@
 	  ivar_getTypeEncoding returns const char *
 	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.h
 	  class conforms to NSTextFieldDelegate  
+	* EOAdaptors/SQLiteAdaptor/SQLite3Adaptor.m
+	  get rid of stray ; to make the loop work
 
 2013-03-02: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.m
