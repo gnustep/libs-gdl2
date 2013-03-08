@@ -61,7 +61,7 @@ GDL2MODELER_EXPORT NSString *EOMConsistencyModelObjectKey;
   NSArray                          * _selectedObjects;
 }
 
-- (id) selectedObject;
+- (NSArray *) selectedObjects;
 - (id) outlineSelection;
 - (EOModel*) eomodel;
 - (void) setEomodel:(EOModel*) model;

@@ -1,3 +1,8 @@
+2013-03-08: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* Apps/EOModelEditor/EOMEDocument.h
+	  make the header match the implementation, fixing
+	  warning about incomplete implementation of class
+
 2013-03-07: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/Makefile.preamble
 	  add -std=gnu89 to allow compile with clang and -O0
