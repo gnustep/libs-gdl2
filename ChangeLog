@@ -1,6 +1,8 @@
 2013-03-10: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/Inspectors/EntityInspector.m
 	  add warning about method not implemented
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m
+	  use NSOpenPanel when opening a file
 
 2013-03-08: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.h

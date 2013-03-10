@@ -278,8 +278,8 @@ static BOOL insideModalLoop = YES;
 
 - (void)browse:(id)sender
 {
- int code;
- id panel = [NSSavePanel savePanel];
+ NSInteger code;
+ NSOpenPanel *panel = [NSOpenPanel openPanel];
  NSString *file;
  
  [panel setAllowedFileTypes:nil];
