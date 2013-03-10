@@ -70,7 +70,7 @@
 //  if ((row == -1))
 //    return nil;
 //  
-//  return [[[[NSApp activeDocument] eomodel] entities] objectAtIndex:row];
+//  return [[[[EOMApp activeDocument] eomodel] entities] objectAtIndex:row];
 //}
 //
 
@@ -97,12 +97,11 @@
 
 - (void) refresh
 {
-  EOModel *activeModel = [[NSApp activeDocument] eomodel];
+  EOModel *activeModel = [[EOMApp activeDocument] eomodel];
 //  EORelationship * relation = (EORelationship *) [self selectedObject];
   EOEntity *destEntity;
   EOAttribute *srcAttrib, *destAttrib;
   NSArray *joins;
-  NSInteger row = 0;
   
   if (_attributes) {
     DESTROY(_attributes);
@@ -153,7 +152,7 @@
 
   if ([sender state] == NSOnState)
     {
-      EOModel     *activeModel   = [[NSApp activeDocument] eomodel];
+      EOModel     *activeModel   = [[EOMApp activeDocument] eomodel];
       NSString    *dstName       = [[destBrowser selectedCell] title];
       NSString    *dstEntityName = [[destinationEntityBrowser selectedCell] title];
       EOAttribute *srcAttrib     = [[_currentRelation entity] attributeNamed:srcName];
@@ -219,11 +218,10 @@
 
 - (NSInteger)browser:(NSBrowser *)sender numberOfRowsInColumn:(NSInteger)column
 {
-  NSInteger intVal = 0;
   EOModel *activeModel = nil;
 
   if (sender == destinationEntityBrowser) {
-    activeModel = [[NSApp activeDocument] eomodel];
+    activeModel = [[EOMApp activeDocument] eomodel];
     return [[activeModel entityNames] count];
   } 
 
@@ -245,7 +243,7 @@
       if (!name) {
         return 0;
       }
-      activeModel = [[NSApp activeDocument] eomodel];
+      activeModel = [[EOMApp activeDocument] eomodel];
 
       destinationEntity = [activeModel entityNamed:name];
     }
@@ -266,7 +264,7 @@
   EOEntity    * destinationEntity = nil;
   
   if (sender == destinationEntityBrowser) {
-    activeModel = [[NSApp activeDocument] eomodel];
+    activeModel = [[EOMApp activeDocument] eomodel];
 
     [cell setLeaf:YES];
     //entityNames is better
@@ -301,7 +299,7 @@
 
   if (!destinationEntity) {
     NSString * name = [[destinationEntityBrowser selectedCell] title];
-    activeModel = [[NSApp activeDocument] eomodel];
+    activeModel = [[EOMApp activeDocument] eomodel];
     
     destinationEntity = [activeModel entityNamed:name];
   }

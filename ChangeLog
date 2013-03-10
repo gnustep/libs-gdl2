@@ -14,6 +14,16 @@
 	  include missing header
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLEOAdaptorInfo.plist
 	  renamed from Info.plist, and fix NSExecutable in it
+	* Apps/EOModelEditor/Inspectors/AdvancedAttributeInspector.m
+	* Apps/EOModelEditor/Inspectors/AdvancedEntityInspector.m
+	* Apps/EOModelEditor/Inspectors/AdvancedRelationshipInspector.m
+	* Apps/EOModelEditor/Inspectors/EntityInspector.m
+	* Apps/EOModelEditor/Inspectors/EntityStoredProcedureInspector.m
+	* Apps/EOModelEditor/Inspectors/RelationshipInspector.m
+	* Apps/EOModelEditor/Inspectors/StoredProcedureInspector.m
+	* EOAccess/EOAdaptor.m
+	  Fix some headers, remove unused variables, and use EOMApp
+	  instead of NSApp
 
 2013-03-08: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.h

@@ -75,7 +75,7 @@
   
   // avoid the AdvancedAttributeInspector on Stored Procedures.
   if (weCan) {
-    id outlineSel = [[NSApp activeDocument] outlineSelection];
+    id outlineSel = [[EOMApp activeDocument] outlineSelection];
     if ((outlineSel) && ([outlineSel class] == [EOEntity class])) {
       return YES;
     }

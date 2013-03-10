@@ -70,7 +70,6 @@
 
 - (void) refresh
 {
-  EOModel *activeModel = [[NSApp activeDocument] eomodel];
   NSString *tmpStr;
   
   ASSIGN(_currentProcedure, (EOStoredProcedure *) [self selectedObject]);

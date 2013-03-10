@@ -23,6 +23,7 @@
 
 #include "AdvancedEntityInspector.h"
 #include <EOModeler/EOMInspector.h>
+#include "EOModeler/EOModelerApp.h"
 #import <EOAccess/EOAccess.h>
 
 #include <AppKit/AppKit.h>
@@ -33,6 +34,7 @@
 
 #import "../TableViewController.h"
 
+EOModelerApp *EOMApp;
 
 @implementation AdvancedEntityInspector
 
@@ -54,7 +56,7 @@
 - (void) buildAllEntities
 {
   NSMutableArray * entArray = [NSMutableArray array];
-  NSEnumerator   * enumer   = [[[[NSApp activeDocument] eomodel] entities] objectEnumerator];
+  NSEnumerator   * enumer   = [[[[EOMApp activeDocument] eomodel] entities] objectEnumerator];
   EOEntity       * entity;
   
   while ((entity = [enumer nextObject])) {
@@ -189,7 +191,6 @@
 - (void) refresh
 {
   NSString * tmpStr;
-  EOModel *activeModel = [[NSApp activeDocument] eomodel];
 
   ASSIGN(_currentEntity, (EOEntity *) [self selectedObject]);
 

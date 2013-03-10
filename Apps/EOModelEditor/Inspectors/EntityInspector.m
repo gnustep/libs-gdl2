@@ -68,7 +68,7 @@ NSLog(@"EntityInspector selectedEntity not implemented");
   if (row == -1)
     return nil;
   
-  return [[[[NSApp activeDocument] eomodel] entities] objectAtIndex:row];
+  return [[[[EOMApp activeDocument] eomodel] entities] objectAtIndex:row];
 }
 
 
@@ -91,7 +91,6 @@ NSLog(@"EntityInspector selectedEntity not implemented");
 - (void) refresh
 {
   NSString * stringValue = nil;
-  EOModel  * activeModel = [[NSApp activeDocument] eomodel];
   
   ASSIGN(_currentEntity, (EOEntity *) [self selectedObject]);
   

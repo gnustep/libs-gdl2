@@ -49,22 +49,7 @@ RCS_ID("$Id$")
 #endif /* !__WIN32__ */
 #endif
 
-#ifdef GNUSTEP
-#include <Foundation/NSArray.h>
-#include <Foundation/NSString.h>
-#include <Foundation/NSPathUtilities.h>
-#include <Foundation/NSBundle.h>
-#include <Foundation/NSObjCRuntime.h>
-#include <Foundation/NSValue.h>
-#include <Foundation/NSProcessInfo.h>
-#include <Foundation/NSException.h>
-#include <Foundation/NSFileManager.h>
-#include <Foundation/NSData.h>
-#include <Foundation/NSSet.h>
-#include <Foundation/NSDebug.h>
-#else
 #include <Foundation/Foundation.h>
-#endif
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>

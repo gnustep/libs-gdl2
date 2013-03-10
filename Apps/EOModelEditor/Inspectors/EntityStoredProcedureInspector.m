@@ -77,7 +77,6 @@
  
 - (void) refresh
 {
-  EOModel *activeModel = [[NSApp activeDocument] eomodel];
   NSString *tmpStr;
   
   ASSIGN(_currentEntity, (EOEntity *) [self selectedObject]);

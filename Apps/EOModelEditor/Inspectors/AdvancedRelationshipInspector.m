@@ -61,12 +61,14 @@
 {
   NSInteger row;
   return nil;
+NSLog(@"selectedEntity not implemented");
+#warning selectedEntity is not implemented
 //  NSInteger row = [destinationEntityBrowser selectedRow];
   
   if (row == -1)
     return nil;
   
-  return [[[[NSApp activeDocument] eomodel] entities] objectAtIndex:row];
+  return [[[[EOMApp activeDocument] eomodel] entities] objectAtIndex:row];
 }
 
 
@@ -88,9 +90,6 @@
 
 - (void) refresh
 {
-  EOModel *activeModel = [[NSApp activeDocument] eomodel];
-  
-
   ASSIGN(_currentRelation, (EORelationship *) [self selectedObject]);
   
   [batchSizeField setIntValue:[_currentRelation numberOfToManyFaultsToBatchFetch]];
