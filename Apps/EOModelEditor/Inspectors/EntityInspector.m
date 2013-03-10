@@ -60,6 +60,8 @@
 - (EOEntity *)selectedEntity
 {
   NSInteger row;
+NSLog(@"EntityInspector selectedEntity not implemented");
+#warning implement selectedEntity
   return nil;
 //  NSInteger row = [destinationEntityBrowser selectedRow];
   

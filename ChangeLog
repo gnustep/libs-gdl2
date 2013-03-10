@@ -1,3 +1,7 @@
+2013-03-10: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* Apps/EOModelEditor/Inspectors/EntityInspector.m
+	  add warning about method not implemented
+
 2013-03-08: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.h
 	  make the header match the implementation, fixing
