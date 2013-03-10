@@ -3,6 +3,10 @@
 	  add warning about method not implemented
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m
 	  use NSOpenPanel when opening a file
+	* EOInterface/EOColumnAssociation.m
+	* EOInterface/EOPopUpAssociation.m
+	* EOInterface/EORadioMatrixAssociation.m
+	  NSArray doesn't know about initWithObject:
 
 2013-03-08: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.h

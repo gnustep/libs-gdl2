@@ -100,7 +100,7 @@
   static NSArray *_keys = nil;
   if (_keys == nil)
     {
-      _keys = [[NSArray alloc] initWithObject: @"target"];
+      _keys = [[NSArray alloc] initWithObjects: @"target", nil];
     }
   return _keys;
 }
