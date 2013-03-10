@@ -24,6 +24,8 @@
 	* EOAccess/EOAdaptor.m
 	  Fix some headers, remove unused variables, and use EOMApp
 	  instead of NSApp
+	* Apps/EOModelEditor/Resources/EOMEDocument.gsmarkup
+	  give the window a better name than just "Window"
 
 2013-03-08: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.h

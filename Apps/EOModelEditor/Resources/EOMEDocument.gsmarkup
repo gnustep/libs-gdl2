@@ -27,7 +27,7 @@
       </hbox>
     </window>
     
-    <window id="window" minWidth="200" minHeight="300" autosaveName="EOMEDocument" visible="no">
+    <window  title="Enterprise Object Model Editor" id="window" minWidth="200" minHeight="300" autosaveName="EOMEDocument" visible="no">
       
       <vbox>
         
