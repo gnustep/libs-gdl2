@@ -39,6 +39,8 @@
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 
+#include <Renaissance/Renaissance.h>
+
 static NSMapTable *_inspectorsByClass;
 
 

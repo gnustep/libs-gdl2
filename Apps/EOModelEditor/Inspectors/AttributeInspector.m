@@ -34,6 +34,8 @@
 #include <GNUstepBase/GNUstep.h>
 #endif
 
+#include <Foundation/NSNotification.h>
+
 #define NO_ZEROS(x, i) i ? [x setIntValue:i] : [x setStringValue:@""];
 
 @implementation AttributeInspector
