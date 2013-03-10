@@ -1,5 +1,0 @@
-{
-    EOAdaptorClassName = PostgreSQLAdaptor;
-    NSPrincipalClass = PostgreSQLAdaptor;
-    NSExecutable = PostgreSQL;
-}

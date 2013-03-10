@@ -12,6 +12,8 @@
 	* Apps/EOModeler/EOMInspector.m
 	* Apps/EOModelEditor/Inspectors/AttributeInspector.m
 	  include missing header
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLEOAdaptorInfo.plist
+	  renamed from Info.plist, and fix NSExecutable in it
 
 2013-03-08: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/EOMEDocument.h
