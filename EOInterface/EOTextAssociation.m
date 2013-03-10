@@ -23,17 +23,8 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA. 
 */
 
-#ifdef GNUSTEP
-#include <Foundation/NSString.h>
-#include <Foundation/NSArray.h>
-
-#include <AppKit/NSControl.h>
-#include <AppKit/NSText.h>
-#include <AppKit/NSTextView.h>
-#else
 #include <Foundation/Foundation.h>
 #include <AppKit/AppKit.h>
-#endif
 
 #include <GNUstepBase/GNUstep.h>
 #include "EODisplayGroup.h"
