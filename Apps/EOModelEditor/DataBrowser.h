@@ -37,8 +37,8 @@
 {
   IBOutlet NSWindow         * _window;
   IBOutlet NSTextField      * _entityNameField;
-  IBOutlet NSTextField      * _fetchLimitText;
-  IBOutlet NSTextField      * _qualifierText;
+  IBOutlet NSTextField      * fetchLimitText;
+  IBOutlet NSTextField      * qualifierText;
   IBOutlet NSTableView      * _tableView;
   EOEntity                  * _currentEntity;
   TableViewController       *_tableViewController;

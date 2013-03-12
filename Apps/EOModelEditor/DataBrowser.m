@@ -156,12 +156,15 @@ static DataBrowser *sharedDataBrowser = nil;
       [_editingContext invalidateAllObjects];
     }
     
-    
+    if ([[qualifierText stringValue] length] > 0)
+      qual = [EOQualifier qualifierWithQualifierFormat:[qualifierText stringValue]];
     
     fetchSpec = [EOFetchSpecification fetchSpecificationWithEntityName:[_currentEntity name]
                                                              qualifier:qual
                                                          sortOrderings:nil];
     
+    [fetchSpec setFetchLimit:[fetchLimitText intValue]];
+
     [fetchSpec setRawRowKeyPaths:keyPaths];
     
     results = [_editingContext objectsWithFetchSpecification:fetchSpec];
