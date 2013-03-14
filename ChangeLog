@@ -1,3 +1,7 @@
+2013-03-14: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m
+	  make the login panel remember the last used directory
+
 2013-03-13: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/DataBrowser.[h|m]
 	  * make the fetch limit and qualifier fields work

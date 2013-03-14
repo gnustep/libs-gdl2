@@ -125,7 +125,6 @@ static BOOL insideModalLoop = YES;
   int modalCode;
   volatile BOOL keepLooping = YES;
   NSDictionary *connDict;
-  NSString *reason; 
   
   while (keepLooping)
     {
@@ -145,12 +144,13 @@ static BOOL insideModalLoop = YES;
 
 	  if (flag)
 	    {
+	      NSString *reason; 
 	      NS_DURING
 		[self _assertConnectionDictionaryIsValidForAdaptor:adaptor
 				requiresAdministration:adminFlag];
 	      NS_HANDLER
 	      	reason = [localException reason];
-		NSRunAlertPanel(@"Invalid connection dictionary",
+		NSRunAlertPanel(@"Invalid SQLite3 connection dictionary",
 				reason, nil, nil, nil);
 	      NS_ENDHANDLER
 	        
@@ -278,19 +278,28 @@ static BOOL insideModalLoop = YES;
 
 - (void)browse:(id)sender
 {
- NSInteger code;
- NSOpenPanel *panel = [NSOpenPanel openPanel];
- NSString *file;
+  NSInteger code;
+  NSOpenPanel *panel = [NSOpenPanel openPanel];
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSString *lastPath;
+  NSString *file;
  
- [panel setAllowedFileTypes:nil];
- code = [panel runModalForDirectory:NSHomeDirectory() file:nil];
- file = [panel filename];
+  lastPath = [defaults stringForKey: @"SQLiteLoginPanelOpenDirectory"];
+  if (lastPath == nil)
+    lastPath = NSHomeDirectory();
+  [panel setAllowedFileTypes:nil];
+  code = [panel runModalForDirectory:lastPath file:nil];
+  file = [panel filename];
 
+  
+  [defaults setObject:[file stringByDeletingLastPathComponent] 
+	       forKey:@"SQLiteLoginPanelOpenDirectory"];
+  [defaults synchronize];
 
- if (code == NSOKButton && file)
-   {
-     [_path setStringValue:file];
-   }
+  if (code == NSOKButton && file)
+    {
+      [_path setStringValue:file];
+    }
 }
 @end
 
