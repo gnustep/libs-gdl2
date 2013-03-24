@@ -2,6 +2,9 @@
 	* EOAccess/EOAdaptorChannel.m
 	  the subclasses are responsible for describeModelWithTableNames
 	  and describeTableNames
+	* EOAdaptors/SQLiteAdaptor/SQLite3Channel.m
+	  implement describeModelWithTableNames:, inspired from the
+	  PostgreSQLChannel.m 
 
 2013-03-14: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m

@@ -29,9 +29,7 @@
 #include "SQLite3Context.h"
 #include "SQLite3Expression.h"
 
-#include <Foundation/NSDecimalNumber.h>
-#include <Foundation/NSDictionary.h>
-#include <Foundation/NSException.h>
+#include <Foundation/Foundation.h>
 
 #include <EOControl/EONull.h>
 
@@ -39,9 +37,16 @@
 
 #include <GNUstepBase/GNUstep.h>
 
+#define EOAdaptorDebugLog(format, args...) \
+  do { if ([self isDebugEnabled]) { NSLog(format , ## args); } } while (0)
+
 @interface SQLite3Channel (Private)
 -(void) _raise;
 - (void) _raiseWith:(id)statement;
+- (void)_describeBasicEntityWithName:(NSString *)tableName
+                            forModel:(EOModel *)model;
+- (void)_describeForeignKeysForEntity:(EOEntity *) entity
+                             forModel:(EOModel *) model;
 @end
 
 @implementation SQLite3Channel
@@ -289,6 +294,144 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
 	    userInfo:userInfo] raise];
 }
 
+- (void)_describeBasicEntityWithName:(NSString *)tableName
+                            forModel:(EOModel *)model
+{
+  EOEntity *entity;
+  NSString *stmt;
+  EOAttribute *attribute;
+  NSString *valueClass = @"NSString";
+  NSString *valueType = nil;
+  unsigned int col, row;
+  int count = 0;
+  int nRows, nCols;
+  char **results, *errMsg;
+  NSMutableArray *columnNames;
+  NSMutableArray *primaryKeyNames;
+  
+#warning may probably leak memory
+
+  entity = AUTORELEASE([[EOEntity alloc] init]);
+  [entity setName: tableName];
+  [entity setExternalName: tableName];
+  [entity setClassName: @"EOGenericRecord"];
+  [model addEntity: entity];
+  primaryKeyNames = AUTORELEASE([[NSMutableArray alloc] init]);
+
+  stmt = [NSString stringWithFormat: @"PRAGMA table_info([%@])", tableName];
+
+  EOAdaptorDebugLog(@"SQLite3Adaptor: execute command:\n%@", stmt);
+  sqlite3_get_table(_sqlite3Conn,
+		    [stmt cString],
+		    &results,
+		    &nRows,
+		    &nCols,
+		    &errMsg);
+
+  if (nRows == 0)
+    {   
+      [NSException raise: SQLite3AdaptorExceptionName
+                   format: @"Table %@ doesn't exist", tableName];
+    }
+
+  // get the column headers
+  columnNames = AUTORELEASE([[NSMutableArray alloc] initWithCapacity:nCols]);
+  for (col=0;col<nCols;col++)
+    {
+      [columnNames addObject:[NSString stringWithFormat:@"%s", results[col]]];
+    }
+
+  // enumerate each row describing a table, starting after the header
+  // nRows doesn't include the header row 
+  for (row=1;row<=nRows;row++)
+    {
+      NSString *columnName;
+      NSString *externalType;
+      for (col=0;col<nCols;col++)
+	{ 
+	  // count keeps track of the current field
+	  count = row * nCols + col;
+	  NSString *tmpHeader;
+	  tmpHeader = [columnNames objectAtIndex:col];
+	  attribute = [[EOAttribute alloc] init];
+	  if ([tmpHeader isEqual:@"name"])
+	    {
+	      columnName = [NSString stringWithFormat:@"%s", results[count]];
+	    }
+	  else if ([tmpHeader isEqual:@"type"])
+	    {
+	      externalType = [NSString stringWithFormat:@"%s", results[count]];
+	      if ([externalType hasPrefix:@"CHAR"] == YES)
+		{
+		  valueClass = @"NSNumber", valueType = @"c";
+		}
+	      else if ([externalType hasPrefix:@"BOOL"] == YES)
+		{
+		  valueClass = @"NSNumber", valueType = @"c";
+		}
+	      else if ([externalType hasPrefix:@"INTEGER"] == YES)
+		{
+		  valueClass = @"NSNumber", valueType = @"l";
+		}
+	      else if ([externalType hasPrefix:@"REAL"] == YES)
+		{
+		  valueClass = @"NSNumber", valueType = @"d";
+		}
+	      else if ([externalType hasPrefix:@"BLOB"] == YES)
+		{
+		  valueClass = @"NSData", valueType = @"x";
+		}	
+	    }
+	  else if ([tmpHeader isEqual:@"notnull"])
+	    {
+	      // do nothing yet
+	    }
+	  else if ([tmpHeader isEqual:@"dflt_value"])
+	    {
+	      // do nothing yet
+	    }
+	  else if ([tmpHeader isEqual:@"pk"])
+	    {
+		if ([[NSString stringWithFormat:@"%s", results[count]] isEqual:@"1"])
+		  {
+		    [primaryKeyNames addObject:columnName];
+		  }
+	    }
+	}
+      [attribute setName: columnName];
+      [attribute setColumnName: columnName];
+      [attribute setExternalType: externalType];
+      [attribute setValueType: valueType];
+      [attribute setValueClassName: valueClass];
+      [entity addAttribute: attribute];
+
+      //RELEASE(externalType);
+      RELEASE(attribute);
+      //RELEASE(columnName);
+    }
+
+  if ([primaryKeyNames count] > 0)
+    {
+      NSEnumerator *keyEnum = [primaryKeyNames objectEnumerator];
+      NSMutableArray *pkeys;
+      NSString *pkeyName;
+      pkeys = [[NSMutableArray alloc] init];
+      while (pkeyName = [keyEnum nextObject])
+        {
+          attribute = [entity attributeNamed: pkeyName];
+          [pkeys addObject: attribute];
+        }
+      [entity setPrimaryKeyAttributes: pkeys];
+      RELEASE(pkeys);
+    } 
+}
+
+- (void)_describeForeignKeysForEntity:(EOEntity *) entity
+                             forModel:(EOModel *) model
+{
+#warning implement me: _describeForeignKeysForEntity: forModel:
+}
+
 - (NSMutableDictionary *) fetchRowWithZone:(NSZone *)zone
 {
   if ([self isFetchInProgress])
@@ -467,6 +610,81 @@ entity:(EOEntity *)ent
 				   entity:ent];
   [self evaluateExpression:expr];
   return (NSUInteger)sqlite3_changes(_sqlite3Conn);
+}
+
+- (EOModel *)describeModelWithTableNames: (NSArray *)tableNames
+{
+  EOModel   *model=nil;
+  EOAdaptor *adaptor=nil;
+  EOEntity  *entity=nil;
+  NSArray   *entityNames=nil;
+  NSUInteger i=0;
+  NSUInteger tableNamesCount=[tableNames count];
+  NSUInteger entityNamesCount=0;
+
+  adaptor = [[self adaptorContext] adaptor];
+  model = AUTORELEASE([[EOModel alloc] init]);
+
+  [model setAdaptorName: [adaptor name]];
+  [model setConnectionDictionary: [adaptor connectionDictionary]];
+
+  for (i = 0; i < tableNamesCount; i++)
+    {
+      NSAutoreleasePool *pool = [NSAutoreleasePool new];
+      NSString *name;
+
+      NS_DURING
+        name = [tableNames objectAtIndex: i];
+        [self _describeBasicEntityWithName: name forModel: model];
+      NS_HANDLER
+        {
+          RETAIN(localException);
+          [pool release];
+          [AUTORELEASE(localException) raise];
+        }
+      NS_ENDHANDLER
+
+      [pool release];
+    }
+
+  /* <foreign key stuff> */
+  entityNames = [model entityNames];
+  entityNamesCount=[entityNames count];
+  for (i = 0; i < entityNamesCount; i++)
+    {
+      NSAutoreleasePool *pool = [NSAutoreleasePool new];
+      NSString *entityName;
+
+      NS_DURING
+        entityName = [entityNames objectAtIndex:i];
+        entity = [model entityNamed: entityName];
+        [self _describeForeignKeysForEntity: entity forModel: model];
+      NS_HANDLER
+        {
+          RETAIN(localException);
+          [pool release];
+          [AUTORELEASE(localException) raise];
+        }
+      NS_ENDHANDLER
+
+      [pool release];
+    }
+
+  for (i=0; i < entityNamesCount; i++)
+    {
+      NSAutoreleasePool *pool = [NSAutoreleasePool new];
+      NSMutableArray *classProperties;
+
+      entity = [model entityNamed:[entityNames objectAtIndex:i]];
+      classProperties = [NSMutableArray arrayWithArray:[entity attributes]];
+      [classProperties removeObjectsInArray: [entity primaryKeyAttributes]];
+      [entity setClassProperties: classProperties];
+
+      [pool release];
+    }
+
+  [model beautifyNames];
+  return model;
 }
 
 - (NSArray *) describeTableNames
