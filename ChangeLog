@@ -7,6 +7,9 @@
 	  PostgreSQLChannel.m 
 	* Apps/EOModelEditor/EOModelEditorApp.m set the model name 
 	  correctly for SQLite3 databases too, use the file name
+	* add EOAdaptors/SQLiteAdaptor/SQLite3EOAdaptorInfo.plist
+	  needed to make the EODataBrowser correctly detect that
+	  the SQLite3Adaptor is a subclass of EOAdaptor
 
 2013-03-14: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m

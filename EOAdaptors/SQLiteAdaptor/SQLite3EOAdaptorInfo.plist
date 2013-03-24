@@ -1,0 +1,5 @@
+{
+    NSPrincipalClass = SQLite3Adaptor;
+    NSExecutable = SQLite3EOAdaptor;
+    EOAdaptorClassName = SQLite3Adaptor;
+}

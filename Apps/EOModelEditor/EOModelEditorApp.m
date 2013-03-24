@@ -131,6 +131,7 @@
       [channel openChannel];
       newModel = [channel describeModelWithTableNames:[channel describeTableNames]];
       [newModel setConnectionDictionary:[adaptor connectionDictionary]];
+#warning better use and test against NSClassFromString(adaptorClassName), see EOAdaptor adaptorWithName:
       // PostgreSQL has a databaseName, SQLite3 has a databasePath in its connectionDictionary
       if ([[adaptor connectionDictionary] objectForKey:@"databaseName"] != nil)
         [newModel setName: [[adaptor connectionDictionary] objectForKey:@"databaseName"]];

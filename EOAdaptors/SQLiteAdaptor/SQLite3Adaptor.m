@@ -35,7 +35,7 @@
 
 NSString *SQLite3AdaptorExceptionName = @"SQLite3AdaptorException";
 
-@implementation SQLite3Adaptor : EOAdaptor
+@implementation SQLite3Adaptor
 - (id) init
 {
   return [self initWithName:@"SQLite3Adaptor"];
