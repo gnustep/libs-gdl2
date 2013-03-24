@@ -131,7 +131,11 @@
       [channel openChannel];
       newModel = [channel describeModelWithTableNames:[channel describeTableNames]];
       [newModel setConnectionDictionary:[adaptor connectionDictionary]];
-      [newModel setName: [[adaptor connectionDictionary] objectForKey:@"databaseName"]];
+      // PostgreSQL has a databaseName, SQLite3 has a databasePath in its connectionDictionary
+      if ([[adaptor connectionDictionary] objectForKey:@"databaseName"] != nil)
+        [newModel setName: [[adaptor connectionDictionary] objectForKey:@"databaseName"]];
+      else
+        [newModel setName: [[[adaptor connectionDictionary] objectForKey:@"databasePath"] lastPathComponent]];
       [channel closeChannel];
       [self newDocumentWithModel:newModel];
     }

@@ -5,6 +5,8 @@
 	* EOAdaptors/SQLiteAdaptor/SQLite3Channel.m
 	  implement describeModelWithTableNames:, inspired from the
 	  PostgreSQLChannel.m 
+	* Apps/EOModelEditor/EOModelEditorApp.m set the model name 
+	  correctly for SQLite3 databases too, use the file name
 
 2013-03-14: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m
