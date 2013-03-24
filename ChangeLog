@@ -1,3 +1,8 @@
+2013-03-24: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* EOAccess/EOAdaptorChannel.m
+	  the subclasses are responsible for describeModelWithTableNames
+	  and describeTableNames
+
 2013-03-14: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m
 	  make the login panel remember the last used directory

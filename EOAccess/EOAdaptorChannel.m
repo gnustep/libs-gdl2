@@ -320,6 +320,7 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 
 - (NSArray *)describeTableNames
 {
+  [self subclassResponsibility: _cmd];
   return nil;
 }
 
@@ -331,6 +332,7 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 
 - (EOModel *)describeModelWithTableNames: (NSArray *)tableNames
 {
+  [self subclassResponsibility: _cmd];
   return nil;
 }
 
