@@ -1,3 +1,8 @@
+2013-03-25: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* EOAdaptors/SQLiteAdaptor/SQLite3Channel.m
+	  CHAR is NSString, not NSNumber, makes the DataBrowser
+	  show strings
+
 2013-03-24: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOAccess/EOAdaptorChannel.m
 	  the subclasses are responsible for describeModelWithTableNames

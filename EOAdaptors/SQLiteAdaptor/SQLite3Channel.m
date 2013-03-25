@@ -363,7 +363,7 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
 	      externalType = [NSString stringWithFormat:@"%s", results[count]];
 	      if ([externalType hasPrefix:@"CHAR"] == YES)
 		{
-		  valueClass = @"NSNumber", valueType = @"c";
+		  valueClass = @"NSString", valueType = @"c";
 		}
 	      else if ([externalType hasPrefix:@"BOOL"] == YES)
 		{
