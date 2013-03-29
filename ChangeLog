@@ -1,6 +1,12 @@
 2013-03-30: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/SQLGenerator.m
 	  Add NSEmitTODO to showTables:
+	* EOAdaptors/SQLiteAdaptor/SQLite3Adaptor.m
+	  add some more potential table column types
+	* EOAdaptors/SQLiteAdaptor/SQLite3Channel.m
+	  use the table types from the SQLite3Adaptor to
+	  decide about the valueType, and set the NOT NULL
+	  correctly
 
 2013-03-25: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOAdaptors/SQLiteAdaptor/SQLite3Channel.m

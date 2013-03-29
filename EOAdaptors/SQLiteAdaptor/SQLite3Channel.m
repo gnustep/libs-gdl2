@@ -347,6 +347,7 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
     {
       NSString *columnName;
       NSString *externalType;
+      BOOL allowsNull;
       for (col=0;col<nCols;col++)
 	{ 
 	  // count keeps track of the current field
@@ -360,31 +361,29 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
 	    }
 	  else if ([tmpHeader isEqual:@"type"])
 	    {
-	      externalType = [NSString stringWithFormat:@"%s", results[count]];
-	      if ([externalType hasPrefix:@"CHAR"] == YES)
-		{
-		  valueClass = @"NSString", valueType = @"c";
-		}
-	      else if ([externalType hasPrefix:@"BOOL"] == YES)
-		{
-		  valueClass = @"NSNumber", valueType = @"c";
-		}
-	      else if ([externalType hasPrefix:@"INTEGER"] == YES)
-		{
-		  valueClass = @"NSNumber", valueType = @"l";
-		}
-	      else if ([externalType hasPrefix:@"REAL"] == YES)
-		{
-		  valueClass = @"NSNumber", valueType = @"d";
-		}
-	      else if ([externalType hasPrefix:@"BLOB"] == YES)
-		{
-		  valueClass = @"NSData", valueType = @"x";
-		}	
+               NSRange range;
+               range = [[NSString stringWithFormat:@"%s", results[count]] rangeOfString:@"("];
+               if (range.location != NSNotFound)
+                 {
+                   externalType = [[NSString stringWithFormat:@"%s", results[count]] substringToIndex:range.location];
+                 }
+               else
+                 {
+                   externalType = [NSString stringWithFormat:@"%s", results[count]];
+                 }
+               valueClass = [SQLite3Adaptor internalTypeForExternalType: externalType model:nil];
+               if (valueClass == nil)
+                 {
+                   valueClass = @"NSString";
+                   // TODO: should also set the valueType here???
+                 }
 	    }
 	  else if ([tmpHeader isEqual:@"notnull"])
 	    {
-	      // do nothing yet
+             if ([[NSString stringWithFormat:@"%s", results[count]] isEqual:@"1"])
+               allowsNull = NO;
+             else
+               allowsNull = YES;
 	    }
 	  else if ([tmpHeader isEqual:@"dflt_value"])
 	    {
@@ -400,6 +399,7 @@ static id newNumberValue(const char *data, EOAttribute *attrib)
 	}
       [attribute setName: columnName];
       [attribute setColumnName: columnName];
+      [attribute setAllowsNull: allowsNull];
       [attribute setExternalType: externalType];
       [attribute setValueType: valueType];
       [attribute setValueClassName: valueClass];
