@@ -55,6 +55,7 @@
 #include <EOAccess/EOModel.h>
 #include <EOModeler/EOModelerApp.h>
 #include <EOModeler/EOModelerDocument.h>
+#include <EOControl/EODebug.h>
 
 #include <GNUstepBase/GNUstep.h>
 
@@ -254,7 +255,7 @@ static NSString *_otherScript;
 
 - (IBAction) showTables:(id)sender
 {
-
+  NSEmitTODO();
 }
 
 - (IBAction) saveAs:(id)sender
