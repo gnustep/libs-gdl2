@@ -31,8 +31,7 @@ RCS_ID("$Id$")
 #include "EOEvent.h"
 
 #ifndef GNUSTEP
-#include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/Additions.h>
 #include <Foundation/Foundation.h>
 #else
 #include <Foundation/NSString.h>

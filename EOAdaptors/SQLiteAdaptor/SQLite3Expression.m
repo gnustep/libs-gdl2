@@ -26,8 +26,7 @@
 */
 
 #ifndef GNUSTEP
-#include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/Additions.h>
 #endif
 #include "SQLite3Expression.h"
 #include <EOAccess/EOEntity.h>

@@ -29,8 +29,7 @@
 #import <AppKit/AppKit.h>
 
 #ifndef GNUSTEP
-#include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/Additions.h>
 #endif
 
 static BOOL insideModalLoop = YES;

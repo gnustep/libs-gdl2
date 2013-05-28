@@ -29,8 +29,7 @@
 #ifndef GNUSTEP
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
-#include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/Additions.h>
 #else
 #include <Foundation/Foundation.h>
 #include <AppKit/AppKit.h>

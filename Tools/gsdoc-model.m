@@ -51,8 +51,7 @@ RCS_ID("$Id$")
 #endif
 
 #ifndef GNUSTEP
-#include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/Additions.h>
 #endif
 
 #include <EOAccess/EOAccess.h>

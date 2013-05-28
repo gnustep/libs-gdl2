@@ -1,3 +1,15 @@
+2013-05-28: Graham Lee <iamleeg@gmail.com>
+	* Tools/gsdoc-model.m
+	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m
+	* EOAdaptors/SQLiteAdaptor/SQLite3Expression.m
+	* EOAdaptors/PostgreSQLAdaptor/LoginPanel/PostgreSQLLoginPanel.m
+	* EOControl/EODataSource.m
+	* EOControl/EOEvent.m
+	* EOControl/EOPrivate.m
+	* EOControl/EOUndoManager.m
+	  Fix header inclusion for building on MAC OS X
+	  see bug #39086
+
 2013-03-30: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/SQLGenerator.m
 	  Add NSEmitTODO to showTables:
