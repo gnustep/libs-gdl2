@@ -91,20 +91,20 @@
 - (void)tableView: (NSTableView *)tableView
    setObjectValue: (id)object
    forTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row;
+	      row: (NSInteger)row;
 
 - (id)tableView: (NSTableView *)tableView
 objectValueForTableColumn: (NSTableColumn *)tableColumn
-	    row: (int)row;
+	    row: (NSInteger)row;
 
 - (BOOL)tableView: (NSTableView *)tableView
 shouldEditTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row;
+	      row: (NSInteger)row;
 
 - (void)tableView: (NSTableView *)tableView
   willDisplayCell: (id)cell
    forTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row;
+	      row: (NSInteger)row;
 
 /* EOColumnViewAssociation control delegate.  */
 - (BOOL)control: (NSControl *)control
@@ -169,21 +169,21 @@ textShouldBeginEditing: (NSText *)fieldEditor;
 - (void)tableView: (NSTableView *)tableView
    setObjectValue: (id)object
    forTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row;
+	      row: (NSInteger)row;
 
 - (id)tableView: (NSTableView *)tableView
 objectValueForTableColumn: (NSTableColumn *)tableColumn
-	    row: (int)row;
+	    row: (NSInteger)row;
 
 /* Delegate methods for table view.  */
 - (BOOL)tableView: (NSTableView *)tableView
 shouldEditTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row;
+	      row: (NSInteger)row;
 
 - (void)tableView: (NSTableView *)tableView
   willDisplayCell: (id)cell
    forTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row;
+	      row: (NSInteger)row;
 
 /* Notification methods for table view.  */
 - (void)tableViewSelectionDidChange: (NSNotification *)notification;

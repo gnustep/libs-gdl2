@@ -135,7 +135,7 @@
   if (subclassFlags & ValueAspectMask)
     {
       NSTableView *tv = [[self object] tableView];
-      int row = tv ? [tv editedRow] : -1;
+      NSInteger row = tv ? [tv editedRow] : -1;
       
       if (row != -1)
         {
@@ -161,21 +161,21 @@
 - (void)tableView: (NSTableView *)tableView
    setObjectValue: (id)object
    forTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row
+	      row: (NSInteger)row
 {
   [self setValue:object forAspect:@"value" atIndex:row];
 }
 
 - (id)tableView: (NSTableView *)tableView
 objectValueForTableColumn: (NSTableColumn *)tableColumn
-	    row: (int)row
+	    row: (NSInteger)row
 {
   return [self valueForAspect:@"value" atIndex:row];
 }
 
 - (BOOL)tableView: (NSTableView *)tableView
 shouldEditTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row
+	      row: (NSInteger)row
 {
   if (_enabledAspectBound)
     return [[self valueForAspect:@"enabled"] boolValue];
@@ -186,7 +186,7 @@ shouldEditTableColumn: (NSTableColumn *)tableColumn
 - (void)tableView: (NSTableView *)tableView
   willDisplayCell: (id)cell
    forTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row
+	      row: (NSInteger)row
 {
   if (_enabledAspectBound)
     [cell setEnabled:[[self valueForAspect:@"value" atIndex:row] boolValue]];

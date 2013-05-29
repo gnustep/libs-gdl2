@@ -1417,7 +1417,6 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   NSString *key = nil;
   id value = nil;
   NSUInteger i, count;
-  BOOL isValid = YES;
   IMP pkanOAI=NULL;
   IMP objectVFK=NULL;
   

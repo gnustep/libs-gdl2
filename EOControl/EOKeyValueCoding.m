@@ -151,7 +151,7 @@ __attribute__((objc_root_class))
 {
   SEL		sel = 0;
   const char	*type = 0;
-  int		off;
+  int		off = 0;
   unsigned	size = [aKey length];
   id		self_id = self;
 

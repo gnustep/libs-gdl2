@@ -3458,7 +3458,7 @@ modified state of the object.**/
       else
 	{
 	  objectCopy = [[EOClassDescription classDescriptionForEntityName:
-					      [globalID entityName]]
+					      [object entityName]]
 			 createInstanceWithEditingContext: context
 			 globalID: globalID
 			 zone: NULL];
@@ -3606,7 +3606,7 @@ modified state of the object.**/
               gid=EOEditingContext_globalIDForObjectWithImpPtr(context,&globalIDForObjectIMP,object);
               
               localObject = [[EOClassDescription classDescriptionForEntityName:
-                                                   [gid entityName]]
+                                                   [object entityName]]
                               createInstanceWithEditingContext: context
                               globalID: gid
                               zone: NULL];

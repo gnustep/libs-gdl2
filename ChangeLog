@@ -1,3 +1,13 @@
+2013-05-29: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* EOAccess/EOEntity.m
+	  remove unused variable
+	* EOControl/EOEditingContext.m
+	  use the object, instead of the EOGlobalID to get the entityName
+	* EOControl/EOGenericRecord.m
+	* EOInterface/EOColumnAssociation.[h|m]
+	* EOInterface/EOTableViewAssociation.m
+	  some NS(U)Integer conversions
+	  
 2013-05-28: Graham Lee <iamleeg@gmail.com>
 	* Tools/gsdoc-model.m
 	* EOAdaptors/SQLiteAdaptor/LoginPanel/SQLite3LoginPanel.m

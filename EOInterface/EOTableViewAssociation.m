@@ -149,13 +149,13 @@ static NSMapTable *tvAssociationMap;
       if (!_extras)
         {
           NSArray *selectionIndexes = RETAIN([dg selectionIndexes]);
-          unsigned int i, count;
+          NSUInteger i, count;
           count = [selectionIndexes count];
           if (count)
     	    {
               for (i = 0; i < count; i++)
                 {
-	          int rowIndex = [[selectionIndexes objectAtIndex:i] intValue];
+	          NSInteger rowIndex = [[selectionIndexes objectAtIndex:i] integerValue];
 		  
 		  /* don't extend the first selection */
 	          [[self object] selectRow: rowIndex
@@ -229,7 +229,7 @@ static NSMapTable *tvAssociationMap;
 
 - (EOColumnAssociation *)editingAssociation
 {
-  int editedColumn = [[self object] editedColumn];
+  NSInteger editedColumn = [[self object] editedColumn];
 
   if (editedColumn == -1)
     {
@@ -249,7 +249,7 @@ static NSMapTable *tvAssociationMap;
 - (void)tableView: (NSTableView *)tableView
    setObjectValue: (id)object
    forTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row
+	      row: (NSInteger)row
 {
   [(EOColumnAssociation *)[tableColumn identifier] 
   			    tableView: tableView
@@ -260,7 +260,7 @@ static NSMapTable *tvAssociationMap;
 
 - (id)tableView: (NSTableView *)tableView
 objectValueForTableColumn: (NSTableColumn *)tableColumn
-	    row: (int)row
+	    row: (NSInteger)row
 {
   id object;
   object = [[tableColumn identifier] tableView: tableView 
@@ -271,7 +271,7 @@ objectValueForTableColumn: (NSTableColumn *)tableColumn
 
 - (BOOL)tableView: (NSTableView *)tableView
 shouldEditTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row
+	      row: (NSInteger)row
 {
   if (_enabledAspectBound)
     if ([[self valueForAspect: @"enabled" atIndex:row] boolValue] == NO) 
@@ -283,7 +283,7 @@ shouldEditTableColumn: (NSTableColumn *)tableColumn
 - (void)tableView: (NSTableView *)tableView
   willDisplayCell: (id)cell
    forTableColumn: (NSTableColumn *)tableColumn
-	      row: (int)row
+	      row: (NSInteger)row
 {
   if (_enabledAspectBound)
     [cell setEnabled: [[self valueForAspect:@"enabled" atIndex: row] boolValue]];
