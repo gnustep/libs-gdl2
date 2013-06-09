@@ -121,7 +121,7 @@
 - (void)insertObject: (id)object
         withGlobalID: (EOGlobalID *)gid;
 
--(void)setLevelsOfUndo: (int)levels;
+-(void)setLevelsOfUndo: (NSUInteger)levels;
 
 - (void)deleteObject: (id)object;
 - (void)lockObject: (id)object;

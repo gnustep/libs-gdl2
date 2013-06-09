@@ -1,3 +1,7 @@
+2013-06-09: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* EOControl/EOEditingContext.[h|m]
+	  switch setLevelsOfUndo to NSUInteger
+
 2013-05-29: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOAccess/EOEntity.m
 	  remove unused variable

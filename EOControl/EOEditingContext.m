@@ -2357,7 +2357,7 @@ _mergeValueForKey(id obj, id value,
   _flags.registeredUndoTransactionID = NO;
 }
 
--(void)setLevelsOfUndo:(int)levels
+-(void)setLevelsOfUndo:(NSUInteger)levels
 {
   //TODO
   return;
