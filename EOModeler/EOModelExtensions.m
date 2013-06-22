@@ -28,7 +28,7 @@
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/Additions.h>
 #endif
 
 #ifdef NeXT_Foundation_LIBRARY

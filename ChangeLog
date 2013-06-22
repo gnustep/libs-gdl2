@@ -1,3 +1,11 @@
+2013-06-22: Graham Lee <iamleeg@gmail.com>
+	* EOModeler/EOModelExtensions.m
+	  include the right header on OS X
+	* EOModeler/GNUmakefile
+	* EOAccess/GNUmakefile
+	  remove variable
+	  
+
 2013-06-09: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EOEditingContext.[h|m]
 	  switch setLevelsOfUndo to NSUInteger

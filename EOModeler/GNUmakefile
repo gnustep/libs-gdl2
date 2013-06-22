@@ -32,9 +32,6 @@ NATIVE_LIBRARY_NAME=EOModeler
 
 EOModeler_NEEDS_GUI = yes
 
-EOModeler_LIBRARIES_DEPEND_UPON = -lEOControl -lEOAccess $(GUI_LIBS) \
-				    $(OBJC_LIBS)
-
 # The C source files to be compiled
 EOModeler_C_FILES = 
 
