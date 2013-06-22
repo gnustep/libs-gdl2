@@ -4,7 +4,10 @@
 	* EOModeler/GNUmakefile
 	* EOAccess/GNUmakefile
 	  remove variable
-	  
+	* EOAdaptors/PostgreSQLAdaptor/config.mak.in
+	  remove redundant libraries 
+	* EOAccess/EOAdaptor.m
+	  make error message more comprehensible
 
 2013-06-09: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EOEditingContext.[h|m]

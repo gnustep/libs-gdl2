@@ -225,10 +225,11 @@ NSString *EOAdministrativeConnectionDictionaryKey
   if(adaptorClass == Nil)
     {
       [NSException raise: NSInvalidArgumentException
-		   format: @"%@ -- %@ 0x%x: value of EOAdaptorClassName '%@' is not a valid class and bundle does not contain a principal class",
+		   format: @"%@ -- %@ 0x%x: value of EOAdaptorClassName '%@' for adaptor '%@' is not a valid class and bundle does not contain a principal class",
 		   NSStringFromSelector(_cmd),
 		   NSStringFromClass([self class]),
 		   self,
+		   adaptorClassName,
 		   name];
     }
       
