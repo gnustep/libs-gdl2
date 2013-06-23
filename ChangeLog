@@ -2,6 +2,9 @@
 	* Apps/EOModelEditor/EOMEDocument.m
 	  fix saving of new created models and make the Inspector
 	  work on OSX
+	* EOAccess/EOModel.m
+	  separate out the connection dictionary in a separate
+	  file, bump file version 
 
 2013-06-22: Graham Lee <iamleeg@gmail.com>
 	* EOModeler/EOModelExtensions.m

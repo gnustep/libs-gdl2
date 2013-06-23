@@ -78,7 +78,7 @@ RCS_ID("$Id$")
 #include "EOPrivate.h"
 #include "EOAttributePriv.h"
 
-#define DEFAULT_MODEL_VERSION 2
+#define DEFAULT_MODEL_VERSION 3
 
 NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
@@ -521,7 +521,21 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       propList = [fileContents propertyList];
       EOFLOGObjectLevelArgs(@"gsdb", @"propList=%@", propList);
       NSAssert1(propList!=nil, @"Model at path %@ is invalid", indexPath);
-
+      if([[indexPath pathExtension] isEqualToString: @"eomodeld"])
+	{
+	  NSString *connectionPath = [modelPath stringByAppendingPathComponent: @"connectionSettings.plist"];
+	  NSString *externalConnectionSettings = [NSString stringWithContentsOfFile: connectionPath];
+	  if (externalConnectionSettings!=nil)
+	    {
+	      id connectionProperties = [externalConnectionSettings propertyList];
+	      //copy the original settings and merge the connection settings in
+	      NSMutableDictionary *mutableProperties = [propList mutableCopy];
+	      [mutableProperties setObject: connectionProperties
+				    forKey: @"connectionDictionary"];
+	      propList = mutableProperties;
+	      [mutableProperties autorelease];
+	    }
+	}
       self = [self initWithTableOfContentsPropertyList: propList
                    path: modelPath];
       NSAssert2(self!=nil,@"Failed to initialize with path %@ and plist %@",
@@ -754,6 +768,18 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       [NSException raise: NSInvalidArgumentException
 		   format: fmt];
     }
+  if (writeSingleFile == NO)
+    {
+      NSString *connectionSettingsPath = [path stringByAppendingPathComponent: @"connectionSettings.plist"];
+      if ([self _writePlist: [self connectionDictionary] toFile: connectionSettingsPath] == NO)
+	{
+	  NSString *fmt;
+	  fmt = [NSString stringWithFormat: @"Could not create file: %@",
+			  fileName];
+	  [NSException raise: NSInvalidArgumentException
+		      format: fmt];
+	}
+    }
 }
 
 @end
@@ -892,10 +918,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   if (_adaptorName)
     [propertyList setObject: _adaptorName
 		  forKey: @"adaptorName"];
-
-  if (_connectionDictionary)
-    [propertyList setObject: _connectionDictionary
-		  forKey: @"connectionDictionary"];
 
   if (_userInfo)
     [propertyList setObject: _userInfo
