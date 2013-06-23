@@ -1,4 +1,9 @@
 2013-06-22: Graham Lee <iamleeg@gmail.com>
+	* Apps/EOModelEditor/EOMEDocument.m
+	  fix saving of new created models and make the Inspector
+	  work on OSX
+
+2013-06-22: Graham Lee <iamleeg@gmail.com>
 	* EOModeler/EOModelExtensions.m
 	  include the right header on OS X
 	* EOModeler/GNUmakefile

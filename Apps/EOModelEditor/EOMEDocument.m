@@ -69,6 +69,15 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 //  [storedProceduresItem retain];
 }
 
+- (id) init
+{
+  self = [super init];
+  if (self)
+    {
+      _eomodel = [EOModel new];
+    }
+  return self;
+}
 
 - (void) dealloc
 {
@@ -447,18 +456,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 
   NS_DURING {
     
-#ifdef GNUSTEP
-
-#warning "see http://savannah.gnu.org/bugs/index.php?30348"
-#else    
-    NSFileManager * manager = [NSFileManager defaultManager];
-    
-    [manager copyItemAtURL:[self fileURL] 
-                     toURL:absoluteURL error:outError];
-    
-#endif
-  
-  [_eomodel writeToFile: [absoluteURL path]];
+    [_eomodel writeToFile: [absoluteURL path]];
   
   } NS_HANDLER {
     
@@ -470,8 +468,6 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
                                 userInfo:userInfo];
     return NO;
   } NS_ENDHANDLER;
-  // 'file://localhost/Users/dave/dev/PBXBilling/trunk/PBX.eomodeld/'
-  // NSLog(@"fileURL '%@'", [self fileURL]);
   return YES;
 }
 
