@@ -1,3 +1,7 @@
+2013-08-12: Graham Lee <iamleeg@gmail.com>
+	* Apps/EOModelEditor/CodeGenerator.m
+	  EOModelEditor: generated ObjC files cause warnings with clang
+	  see bug 39328
 2013-06-22: Graham Lee <iamleeg@gmail.com>
 	* Apps/EOModelEditor/EOMEDocument.m
 	  fix saving of new created models and make the Inspector

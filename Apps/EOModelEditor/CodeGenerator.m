@@ -478,7 +478,7 @@ void addToUsedClasses(NSMutableArray * mutArray,NSSet * knownNames, NSArray * ot
   while ((eoAttr = [enumer nextObject])) {
     NSString * lowStr = [[eoAttr name] initialLowercaseString];
     
-    [cs appendFormat:@"- (void) set%@:(%@) aValue\n{\n  if ((_%@ == aValue)) {\n    return;\n  }\n\n", 
+    [cs appendFormat:@"- (void) set%@:(%@) aValue\n{\n  if (_%@ == aValue) {\n    return;\n  }\n\n", 
      [[eoAttr name] initialCapitalString],
      [eoAttr cScalarTypeString], lowStr];
 
@@ -493,7 +493,7 @@ void addToUsedClasses(NSMutableArray * mutArray,NSSet * knownNames, NSArray * ot
   while ((eoAttr = [enumer nextObject])) {
     NSString * lowStr = [[eoAttr name] initialLowercaseString];
 
-    [cs appendFormat:@"- (void) set%@:(%@ *) aValue\n{\n  if ((_%@ == aValue)) {\n    return;\n  }\n\n", 
+    [cs appendFormat:@"- (void) set%@:(%@ *) aValue\n{\n  if (_%@ == aValue) {\n    return;\n  }\n\n", 
      [[eoAttr name] initialCapitalString],
      [eoAttr valueClassName], lowStr];
 
@@ -512,7 +512,7 @@ void addToUsedClasses(NSMutableArray * mutArray,NSSet * knownNames, NSArray * ot
   while ((eoRel = [enumer nextObject])) {
     NSString * lowStr = [[eoRel name] initialLowercaseString];
 
-    [cs appendFormat:@"- (void) set%@:(%@ *) aValue\n{\n  if ((_%@ == aValue)) {\n    return;\n  }\n\n", 
+    [cs appendFormat:@"- (void) set%@:(%@ *) aValue\n{\n  if (_%@ == aValue) {\n    return;\n  }\n\n", 
      [[eoRel name] initialCapitalString],
      [[eoRel destinationEntity] className], lowStr];
     
