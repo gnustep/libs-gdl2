@@ -51,6 +51,8 @@ ADDITIONAL_INCLUDE_DIRS = -I../EOControl/$(GNUSTEP_TARGET_DIR) -I..
 # Additional LDFLAGS to pass to the linker
 ifneq ($(FOUNDATION_LIB),gnu)
 ADDITIONAL_TOOL_LIBS += -lgnustep-baseadd
+else
+ADDITIONAL_LDFLAGS +=-Wl,--allow-shlib-undefined
 endif
 
 ADDITIONAL_NATIVE_LIBS+=EOControl EOAccess

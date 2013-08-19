@@ -1,3 +1,8 @@
+2012-08-18  German A. Arias  <german@xelalug.org>
+
+	* Tools/Makefile.preamble: Add flag -Wl,--allow-shlib-undefined,
+	to get GDL2 to compile again.
+
 2013-08-12: Graham Lee <iamleeg@gmail.com>
 	* Apps/EOModelEditor/CodeGenerator.m
 	  EOModelEditor: generated ObjC files cause warnings with clang
