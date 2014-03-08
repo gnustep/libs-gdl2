@@ -470,7 +470,7 @@ void addToUsedClasses(NSMutableArray * mutArray,NSSet * knownNames, NSArray * ot
   
   EOAttribute     * eoAttr = nil;
   EORelationship  * eoRel = nil;
-  NSEnumerator    * enumer = [classScalarAttributes objectEnumerator];
+  NSEnumerator    * enumer;
   
   enumer = [classScalarAttributes objectEnumerator];
   

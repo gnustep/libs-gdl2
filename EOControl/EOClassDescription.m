@@ -671,14 +671,15 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
 
 - (NSString *)userPresentableDescriptionForObject:(id)object
 {
-  NSArray *attrArray = [self attributeKeys];
-  NSEnumerator *attrEnum = [attrArray objectEnumerator];
-  NSMutableString *values 
-    = [NSMutableString stringWithCapacity: 4 * [attrArray count]];
+  NSArray *attrArray;
+  NSEnumerator *attrEnum;
+  NSMutableString *values;
   NSString *key;
   BOOL init = YES;
 
+  attrArray = [self attributeKeys];
   attrEnum = [attrArray objectEnumerator];
+  values = [NSMutableString stringWithCapacity: 4 * [attrArray count]];
 
   while ((key = [attrEnum nextObject]))
     {

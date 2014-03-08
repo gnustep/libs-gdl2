@@ -1,3 +1,7 @@
+2014-03-08  Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* Apps/EOModelEditor/CodeGenerator.m
+	* EOControl/EOClassDescription.m
+
 2012-08-18  German A. Arias  <german@xelalug.org>
 
 	* Tools/Makefile.preamble: Add flag -Wl,--allow-shlib-undefined,
