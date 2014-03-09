@@ -322,7 +322,7 @@ RCS_ID("$Id$")
 	  default:
 	    methodArg = nil;
 	    [NSException raise: NSInternalInconsistencyException
-			 format: @"%@ -- %@ 0x%x: Invalid value for _argumentType:%d",
+			 format: @"%@ -- %@ 0x%p: Invalid value for _argumentType:%d",
 			 NSStringFromSelector(_cmd),
 			 NSStringFromClass([self class]),
 			 self, _argumentType];
@@ -779,7 +779,7 @@ RCS_ID("$Id$")
       
       if (exc)
         return [NSException exceptionWithName: NSInvalidArgumentException
-			reason: [NSString stringWithFormat:@"%@ -- %@ 0x%x: argument \"%@\" contains invalid char '%c'",
+			reason: [NSString stringWithFormat:@"%@ -- %@ 0x%p: argument \"%@\" contains invalid char '%c'",
 					  NSStringFromSelector(_cmd),
 					  NSStringFromClass([self class]),
 					  self,
@@ -817,7 +817,7 @@ RCS_ID("$Id$")
   if (exc)
     {
       return [NSException exceptionWithName: NSInvalidArgumentException
-                         reason: [NSString stringWithFormat: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+                         reason: [NSString stringWithFormat: @"%@ -- %@ 0x%p: \"%@\" already used in the model",
                                  NSStringFromSelector(_cmd),
                                  NSStringFromClass([self class]),
                                  self,
@@ -935,7 +935,7 @@ return nexexp
 {
   if(!yn && ([self isDerived] && ![self isFlattened]))
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: cannot set to NO while the attribute is derived but not flattened.",
+                 format: @"%@ -- %@ 0x%p: cannot set to NO while the attribute is derived but not flattened.",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];

@@ -15,6 +15,23 @@
 	* EOControl/EOPrivate.m
 	* EOControl/EOQualifier.m
 	* EOControl/EOSortOrdering.m
+	* Apps/EOModelEditor/CodeGenerator.m
+	* Apps/EOModelEditor/EOMEDocument.m
+	* Apps/EOModelEditor/Inspectors/ConnectionDictionaryInspector.m
+	* EOAccess/EOAccessFault.m
+	* EOAccess/EOAdaptorChannel.m
+	* EOAccess/EOAdaptor.m
+	* EOAccess/EOAttribute.m
+	* EOAccess/EODatabaseChannel.m
+	* EOAccess/EODatabaseContext.m
+	* EOAccess/EODatabaseDataSource.m
+	* EOAccess/EOEntity.m
+	* EOAccess/EOModelGroup.m
+	* EOAccess/EOModel.m
+	* EOAccess/EORelationship.m
+	* EOAccess/EOUtilities.m
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLContext.m
 	fix format string warnings and do not directly access isa
 
 2014-03-08  Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>

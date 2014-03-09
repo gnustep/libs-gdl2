@@ -84,7 +84,7 @@ RCS_ID("$Id$")
 
   if ([self transactionNestingLevel])
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempted to begin a transaction within a transaction",
+                 format: @"%@ -- %@ 0x%p: attempted to begin a transaction within a transaction",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -93,7 +93,7 @@ RCS_ID("$Id$")
     {
       if (![_delegate adaptorContextShouldBegin: self])
 	[NSException raise: PostgreSQLException
-                     format: @"%@ -- %@ 0x%x: delegate refuses",
+                     format: @"%@ -- %@ 0x%p: delegate refuses",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
                      self];
@@ -136,7 +136,7 @@ RCS_ID("$Id$")
 
   if ([self transactionNestingLevel] == 0)
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x:illegal attempt to commit a transaction when there are none in progress", 
+                 format: @"%@ -- %@ 0x%p: illegal attempt to commit a transaction when there are none in progress", 
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -145,7 +145,7 @@ RCS_ID("$Id$")
     {
       if (![_delegate adaptorContextShouldCommit: self])
 	[NSException raise: PostgreSQLException
-                     format: @"%@ -- %@ 0x%x: delegate refuses",
+                     format: @"%@ -- %@ 0x%p: delegate refuses",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
                      self];
@@ -183,7 +183,7 @@ RCS_ID("$Id$")
   if (![self transactionNestingLevel])
     {
       [NSException raise: NSInternalInconsistencyException
-                   format: @"%@ -- %@ 0x%x:illegal attempt to commit a transaction when there are none in progress",
+                   format: @"%@ -- %@ 0x%p: illegal attempt to commit a transaction when there are none in progress",
                    NSStringFromSelector(_cmd),
                    NSStringFromClass([self class]),
                    self];
@@ -193,7 +193,7 @@ RCS_ID("$Id$")
     {
       if (![_delegate adaptorContextShouldRollback: self])
 	[NSException raise: PostgreSQLException
-                     format: @"%@ -- %@ 0x%x: delegate refuses",
+                     format: @"%@ -- %@ 0x%p: delegate refuses",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
                      self];

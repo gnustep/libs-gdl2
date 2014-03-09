@@ -497,8 +497,7 @@ void addToUsedClasses(NSMutableArray * mutArray,NSSet * knownNames, NSArray * ot
      [[eoAttr name] initialCapitalString],
      [eoAttr valueClassName], lowStr];
 
-    [cs appendFormat:@"  [self willChange];\n  ASSIGN(_%@, aValue);\n}\n\n", 
-     lowStr, lowStr];
+    [cs appendFormat:@"  [self willChange];\n  ASSIGN(_%@, aValue);\n}\n\n", lowStr];
     [cs appendFormat:@"- (%@ *) %@\n{\n  return _%@;\n}\n\n", [eoAttr valueClassName], [eoAttr name], lowStr];
   }
   
@@ -516,8 +515,7 @@ void addToUsedClasses(NSMutableArray * mutArray,NSSet * knownNames, NSArray * ot
      [[eoRel name] initialCapitalString],
      [[eoRel destinationEntity] className], lowStr];
     
-    [cs appendFormat:@"  [self willChange];\n  ASSIGN(_%@, aValue);\n}\n\n", 
-     lowStr, lowStr];
+    [cs appendFormat:@"  [self willChange];\n  ASSIGN(_%@, aValue);\n}\n\n", lowStr];
     [cs appendFormat:@"- (%@ *)%@\n{\n  return _%@;\n}\n\n", [[eoRel destinationEntity] className], [eoRel name], lowStr];
   }
   

@@ -256,7 +256,7 @@ NSString *EOMoreThanOneException = @"EOMoreThanOneException";
     }
   NS_HANDLER
     {
-      NSDebugMLog(@"exception in EOEditingContext (EOUtilities) objectsMatchingValues:entityNamed:", "");
+      NSDebugMLog(@"exception in EOEditingContext (EOUtilities) objectsMatchingValues:entityNamed:");
       NSLog(@"exception in EOEditingContext (EOUtilities) objectsMatchingValues:entityNamed:");
       NSDebugMLog(@"exception=%@", localException);
       NSLog(@"exception=%@", localException);

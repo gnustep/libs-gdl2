@@ -500,7 +500,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       NSDictionary *propList = nil;
 
       path = [path stringByStandardizingPath];
-      modelPath = [isa _formatModelPath: path checkFileSystem: YES];
+      modelPath = [[self class] _formatModelPath: path checkFileSystem: YES];
       NSAssert1(modelPath!=nil, @"Model does not exist at path %@",
                 path );
       name = [[modelPath lastPathComponent] stringByDeletingPathExtension];
@@ -669,21 +669,15 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     {
       if ([mgr removeFileAtPath: backupPath handler: nil] == NO)
 	    {
-	      NSString *fmt;
-	      fmt = [NSString stringWithFormat: @"Could not remove %@",
-               backupPath];
 	      [NSException raise: NSInvalidArgumentException
-                    format: fmt];
+                    format: @"Could not remove %@", backupPath];
 	    }
     }
     
     if ([mgr movePath: path toPath: backupPath handler: nil] == NO)
     {
-      NSString *fmt;
-      fmt = [NSString stringWithFormat: @"Could not move %@ to %@",
-             path, backupPath];
       [NSException raise: NSInvalidArgumentException
-                  format: fmt];
+                  format: @"Could not move %@ to %@", path, backupPath];
     }
   }
 */
@@ -700,11 +694,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     if (writeSingleFile == NO
         && [mgr createDirectoryAtPath: path attributes: nil] == NO)
     {
-      NSString *fmt;
-      fmt = [NSString stringWithFormat: @"Could not create directory: %@",
-             path];
       [NSException raise: NSInvalidArgumentException
-                  format: fmt];
+                  format: @"Could not create directory: %@", path];
     }
   }
 
@@ -722,11 +713,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       
       if ([self _writePlist:entityPList toFile:fileName] == NO)
 	{
-	  NSString *fmt;
-	  fmt = [NSString stringWithFormat: @"Could not create file: %@",
-			  fileName];
 	  [NSException raise: NSInvalidArgumentException
-		       format: fmt];
+		       format: @"Could not create file: %@", fileName];
 	}
     }
 
@@ -741,11 +729,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
       fileName = [path stringByAppendingPathComponent: fileName];
       if ([self _writePlist:stProcPList toFile:fileName] == NO)
 	{
-	  NSString *fmt;
-	  fmt = [NSString stringWithFormat: @"Could not create file: %@",
-			  fileName];
 	  [NSException raise: NSInvalidArgumentException
-		       format: fmt];
+		       format: @"Could not create file: %@", fileName];
 	}
     }
 
@@ -762,22 +747,16 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
   if ([self _writePlist:pList toFile:fileName] == NO)
     {
-      NSString *fmt;
-      fmt = [NSString stringWithFormat: @"Could not create file: %@",
-		      fileName];
       [NSException raise: NSInvalidArgumentException
-		   format: fmt];
+		   format: @"Could not create file: %@", fileName];
     }
   if (writeSingleFile == NO)
     {
       NSString *connectionSettingsPath = [path stringByAppendingPathComponent: @"connectionSettings.plist"];
       if ([self _writePlist: [self connectionDictionary] toFile: connectionSettingsPath] == NO)
 	{
-	  NSString *fmt;
-	  fmt = [NSString stringWithFormat: @"Could not create file: %@",
-			  fileName];
 	  [NSException raise: NSInvalidArgumentException
-		      format: fmt];
+		      format: @"Could not create file: %@", fileName];
 	}
     }
 }
@@ -803,7 +782,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 				tableOfContents);
 
 	  /* The call to _setPath: also sets the name implicitly. */
-	  modelPath = [isa _formatModelPath: path checkFileSystem: YES];
+	  modelPath = [[self class] _formatModelPath: path checkFileSystem: YES];
 	  [self _setPath: modelPath];
           EOFLOGObjectLevelArgs(@"gsdb", @"name=%@ path=%@", _name, _path);
 
@@ -961,14 +940,14 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     {
       if (!propertyList)
         [NSException raise: NSInvalidArgumentException
-                     format: @"%@ -- %@ 0x%x: must not be the nil object",
+                     format: @"%@ -- %@ 0x%p: must not be the nil object",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
                      self];
 
       if (![propertyList isKindOfClass: [NSDictionary class]])
         [NSException raise: NSInvalidArgumentException
-	  format: @"%@ -- %@ 0x%x: must not be kind of NSDictionary class",
+	  format: @"%@ -- %@ 0x%p: must not be kind of NSDictionary class",
 	  NSStringFromSelector(_cmd),
 	  NSStringFromClass([self class]),
 	  self];
@@ -1040,7 +1019,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
               NS_HANDLER
                 {
                   [NSException raise: NSInvalidArgumentException
-                               format: @"%@ -- %@ 0x%x: exception in model '%@' during awakeWithPropertyList: of entity '%@': %@",
+                               format: @"%@ -- %@ 0x%p: exception in model '%@' during awakeWithPropertyList: of entity '%@': %@",
                                NSStringFromSelector(_cmd),
                                NSStringFromClass([self class]),
                                self,
@@ -1677,7 +1656,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 {
   if ([self storedProcedureNamed: [storedProcedure name]])
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: \"%@\" already registered as stored procedure name ",
+                 format: @"%@ -- %@ 0x%p: \"%@\" already registered as stored procedure name ",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self,

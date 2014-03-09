@@ -828,7 +828,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   count = [attributes count];
   
   attrb = [[EOAttribute alloc] init];   
-  [attrb setName: [NSString stringWithFormat: @"Attribute%d", count]]; 
+  [attrb setName: [NSString stringWithFormat: @"Attribute%"PRIuPTR, count]]; 
   [attrb setColumnName: [attrb name]]; 
   [attrb setValueClassName: @"NSString"]; 
   [attrb setExternalType: @""]; 
@@ -853,7 +853,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   NSUInteger          count;
   count = [[_eomodel storedProcedureNames] count];
   
-  sProc = [[EOStoredProcedure alloc] initWithName:[NSString stringWithFormat:@"Procedure%d", count]];
+  sProc = [[EOStoredProcedure alloc] initWithName:[NSString stringWithFormat:@"Procedure%"PRIuPTR, count]];
 
   [_eomodel addStoredProcedure:sProc];
   RELEASE(sProc);
@@ -868,7 +868,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   
   count = [[_eomodel entityNames] count];
   newEntity = [[EOEntity alloc] init]; 
-  [newEntity setName:[NSString stringWithFormat:@"Entity%d", count]];
+  [newEntity setName:[NSString stringWithFormat:@"Entity%"PRIuPTR, count]];
   [newEntity setClassName:@"EOGenericRecord"];
   
   [_eomodel addEntity:newEntity];
@@ -891,7 +891,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
 
   newRel = [[EORelationship alloc] init];
   
-  [newRel setName:[NSString stringWithFormat:@"Relationship%d", count]];
+  [newRel setName:[NSString stringWithFormat:@"Relationship%"PRIuPTR, count]];
   
   [selectedEntity addRelationship:newRel];
   

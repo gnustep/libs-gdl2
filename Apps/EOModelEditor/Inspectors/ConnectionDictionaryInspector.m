@@ -171,7 +171,7 @@
   
   mDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
            @"newValue", @"value",
-           [NSString stringWithFormat:@"newKey%d", aCount],@"key", nil];
+           [NSString stringWithFormat:@"newKey%"PRIuPTR, aCount],@"key", nil];
   
   [_dataArray addObject:mDict];
   [_tableView reloadData];

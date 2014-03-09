@@ -308,7 +308,7 @@ RCS_ID("$Id$")
   if (![self isFetchInProgress])
   {    
     [NSException raise: NSInvalidArgumentException
-                format: @"%@ -- %@ 0x%x: no fetch in progress",
+                format: @"%@ -- %@ 0x%p: no fetch in progress",
      NSStringFromSelector(_cmd),
      NSStringFromClass([self class]),
      self];      
@@ -760,7 +760,7 @@ RCS_ID("$Id$")
   if([_databaseContext updateStrategy] == EOUpdateWithPessimisticLocking
      && ![[_databaseContext adaptorContext] transactionNestingLevel])
     [NSException raise:NSInvalidArgumentException
-                 format:@"%@ -- %@ 0x%x: no transaction in progress",
+                 format:@"%@ -- %@ 0x%p: no transaction in progress",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -771,7 +771,7 @@ RCS_ID("$Id$")
 		     shouldSelectObjectsWithFetchSpecification:fetch
 		     databaseChannel:self])
         [NSException raise:EOGeneralDatabaseException
-                     format:@"%@ -- %@ 0x%x: delegate refuses to select objects",
+                     format:@"%@ -- %@ 0x%p: delegate refuses to select objects",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
                      self];

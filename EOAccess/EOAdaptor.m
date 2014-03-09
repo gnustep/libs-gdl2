@@ -106,7 +106,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
       if (!adaptorName)
         [NSException raise: NSInvalidArgumentException
-		     format: @"%@ -- %@ 0x%x: no adaptor name in model named %@",
+		     format: @"%@ -- %@ 0x%p: no adaptor name in model named %@",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
                      self,
@@ -145,7 +145,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   /* Check error */
   if ([name length] == 0)
     [NSException raise: NSInvalidArgumentException
-		 format: @"%@ -- %@ 0x%x: adaptor name can't be nil",
+		 format: @"%@ -- %@ 0x%p: adaptor name can't be nil",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -195,7 +195,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   /* Check bundle */
   if (!bundle)
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: the adaptor bundle '%@' does not exist",
+                 format: @"%@ -- %@ 0x%p: the adaptor bundle '%@' does not exist",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self,
@@ -225,7 +225,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   if(adaptorClass == Nil)
     {
       [NSException raise: NSInvalidArgumentException
-		   format: @"%@ -- %@ 0x%x: value of EOAdaptorClassName '%@' for adaptor '%@' is not a valid class and bundle does not contain a principal class",
+		   format: @"%@ -- %@ 0x%p: value of EOAdaptorClassName '%@' for adaptor '%@' is not a valid class and bundle does not contain a principal class",
 		   NSStringFromSelector(_cmd),
 		   NSStringFromClass([self class]),
 		   self,
@@ -236,7 +236,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   if ([adaptorClass isSubclassOfClass: [self class]] == NO)
     {
       [NSException raise: NSInvalidArgumentException
-		   format: @"%@ -- %@ 0x%x: principal class is not a subclass of EOAdaptor:%@",
+		   format: @"%@ -- %@ 0x%p: principal class is not a subclass of EOAdaptor:%@",
 		   NSStringFromSelector(_cmd),
 		   NSStringFromClass([self class]),
 		   self,
@@ -466,7 +466,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
   //OK
   if ([self hasOpenChannels])
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: cannot set the connection dictionary while the adaptor is connected!",
+                 format: @"%@ -- %@ 0x%p: cannot set the connection dictionary while the adaptor is connected!",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];

@@ -1693,7 +1693,7 @@ createInstanceWithEditingContext:globalID:zone:
 
   if ([[self attributesByName] objectForKey: relationshipName])
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: \"%@\" already used in the model as attribute",
+                 format: @"%@ -- %@ 0x%p: \"%@\" already used in the model as attribute",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self,
@@ -1701,7 +1701,7 @@ createInstanceWithEditingContext:globalID:zone:
 
   if ([[self relationshipsByName] objectForKey: relationshipName])
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+                 format: @"%@ -- %@ 0x%p: \"%@\" already used in the model",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self,
@@ -1891,7 +1891,7 @@ createInstanceWithEditingContext:globalID:zone:
       
       if (exc)
         return [NSException exceptionWithName: NSInvalidArgumentException
-			  reason: [NSString stringWithFormat:@"%@ -- %@ 0x%x: argument \"%@\" contains invalid char '%c'",
+			  reason: [NSString stringWithFormat:@"%@ -- %@ 0x%p: argument \"%@\" contains invalid char '%c'",
 					    NSStringFromSelector(_cmd),
 					    NSStringFromClass([self class]),
 					    self,
@@ -1928,7 +1928,7 @@ createInstanceWithEditingContext:globalID:zone:
   if (exc)
     {
       return [NSException exceptionWithName: NSInvalidArgumentException
-                  	 reason: [NSString stringWithFormat: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+                  	 reason: [NSString stringWithFormat: @"%@ -- %@ 0x%p: \"%@\" already used in the model",
 			 	 NSStringFromSelector(_cmd),
 				 NSStringFromClass([self class]),
 				 self,
@@ -3742,7 +3742,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 
                       if (!*s)
                         [NSException raise: NSInvalidArgumentException
-                                     format: @"%@ -- %@ 0x%x: unterminated character string",
+                                     format: @"%@ -- %@ 0x%p: unterminated character string",
                                      NSStringFromSelector(_cmd),
                                      NSStringFromClass([self class]),
                                      self];
@@ -3870,7 +3870,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 
           //EOF don't throw exception. But we do !
           [NSException raise: NSInvalidArgumentException
-                       format: @"%@ -- %@ 0x%x: entity name=%@: relationship \"%@\" used in \"%@\" doesn't exist in entity \"%@\"",
+                       format: @"%@ -- %@ 0x%p: entity name=%@: relationship \"%@\" used in \"%@\" doesn't exist in entity \"%@\"",
                        NSStringFromSelector(_cmd),
                        NSStringFromClass([self class]),
                        self,
@@ -3970,7 +3970,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
             {
               //EOF don't throw exception ? But we do !
               [NSException raise: NSInvalidArgumentException
-                           format: @"%@ -- %@ 0x%x: attribute \"%@\" used in \"%@\" doesn't exist in entity %@",
+                           format: @"%@ -- %@ 0x%p: attribute \"%@\" used in \"%@\" doesn't exist in entity %@",
                            NSStringFromSelector(_cmd),
                            NSStringFromClass([self class]),
                            self,

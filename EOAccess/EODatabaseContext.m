@@ -326,7 +326,7 @@ static Class _contextClass = Nil;
 
   if (_dbOperationsByGlobalID)
     {
-      NSDebugMLog(@"MEMORY: dbOperationsByGlobalID count=%u",
+      NSDebugMLog(@"MEMORY: dbOperationsByGlobalID count=%"PRIuPTR,
 		  NSCountMapTable(_dbOperationsByGlobalID));
       NSFreeMapTable(_dbOperationsByGlobalID);
       _dbOperationsByGlobalID = NULL;
@@ -349,7 +349,7 @@ static Class _contextClass = Nil;
 
   if (_nonPrimaryKeyGenerators)
     {
-      NSDebugMLog(@"MEMORY: nonPrimaryKeyGnerators count=%u",
+      NSDebugMLog(@"MEMORY: nonPrimaryKeyGnerators count=%"PRIuPTR,
 		  NSCountHashTable(_nonPrimaryKeyGenerators));
 
       NSFreeHashTable(_nonPrimaryKeyGenerators);
@@ -571,7 +571,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 {
   if (_flags.beganTransaction)
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: transaction in progress", 
+                 format: @"%@ -- %@ 0x%p: transaction in progress", 
                  NSStringFromSelector(_cmd), 
                  NSStringFromClass([self class]),
                  self];
@@ -580,7 +580,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   if (strategy == EOUpdateWithPessimisticLocking
       && [[_database snapshots] count])
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: can't set EOUpdateWithPessimisticLocking when receive's EODatabase already has snapshots",
+                 format: @"%@ -- %@ 0x%p: can't set EOUpdateWithPessimisticLocking when receive's EODatabase already has snapshots",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -1573,8 +1573,8 @@ classPropertyNames = [entity classPropertyNames];
   if ([entity isAbstractEntity] && (![fetchSpecification isDeep]))
   {
     [NSException raise:NSInternalInconsistencyException
-                format:@"A FetchSpecification for an abstract entity must be 'deep'! Entity: ",
-     entityName];
+                format:@"A FetchSpecification for an abstract entity must be 'deep'! Entity: %@",
+     				entityName];
   }
   
   rawRowKeyPaths = [fetchSpecification rawRowKeyPaths];
@@ -4893,12 +4893,12 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
          RELEASE(handler);
       */
       NSDebugMLLog(@"EODatabaseContext",
-		   @"NEAR FINISHED 1 object count=%d %p %@",
+		   @"NEAR FINISHED 1 object count=%"PRIuPTR" %p %@",
 		   [object count],
 		   object,
 		   object);
       NSDebugMLLog(@"EODatabaseContext",
-		   @"NEAR FINISHED 1 objects count=%d %p %@",
+		   @"NEAR FINISHED 1 objects count=%"PRIuPTR" %p %@",
 		   [objects count],
 		   objects,
 		   objects);
@@ -4907,7 +4907,7 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
         {
           //No, not needed      [object removeObjectsInArray:objects];//Because some objects may be here. We don't want duplicate. It's a hack because I don't see why there's objects in object !
           NSDebugMLLog(@"EODatabaseContext",
-		       @"NEAR FINISHED 1 object count=%d %p %@",
+		       @"NEAR FINISHED 1 object count=%"PRIuPTR" %p %@",
 		       [object count],
 		       object,
 		       object);
@@ -4915,7 +4915,7 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
           [object addObjectsFromArray: objects];
 
           NSDebugMLLog(@"EODatabaseContext",
-		       @"NEAR FINISHED 2 object count=%d %@",
+		       @"NEAR FINISHED 2 object count=%"PRIuPTR" %@",
 		       [object count],
 		       object);
         }
@@ -5537,7 +5537,7 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
 
 
   NSDebugMLLog(@"EODatabaseContext",
-	       @"self=%p database=%p [_uniqueStack count]=%d",
+	       @"self=%p database=%p [_uniqueStack count]=%"PRIuPTR,
 	       self, _database,[_uniqueStack count]);
 
   if ([_uniqueStack count] > 0)

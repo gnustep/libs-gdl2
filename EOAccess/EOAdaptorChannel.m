@@ -131,7 +131,7 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 
   if(rows != 1)
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: updated %d rows",
+                 format: @"%@ -- %@ 0x%p: updated %"PRIuPTR" rows",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self,
@@ -149,14 +149,14 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 - (void)deleteRowDescribedByQualifier: (EOQualifier *)qualifier
 			       entity: (EOEntity *)entity
 {
-  int rows = 0;
+  NSUInteger rows = 0;
 
   rows = [self deleteRowsDescribedByQualifier: qualifier
                entity: entity];
 
   if (rows != 1)
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: deleted %d rows",
+                 format: @"%@ -- %@ 0x%p: deleted %"PRIuPTR" rows",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]), 
                  self,
@@ -221,7 +221,7 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
   if(row == nil || [self fetchRowWithZone: NULL] != nil)
     {
       [NSException raise: EOGeneralAdaptorException
-                   format: @"%@ -- %@ 0x%x: cannot lock row for entity '%@' with qualifier: %@",
+                   format: @"%@ -- %@ 0x%p: cannot lock row for entity '%@' with qualifier: %@",
                    NSStringFromSelector(_cmd),
                    NSStringFromClass([self class]),
                    self,
@@ -247,7 +247,7 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
   if(isEqual == NO)
     {
       [NSException raise: EOGeneralAdaptorException
-                   format: @"%@ -- %@ 0x%x: cannot lock row for entity '%@' with qualifier: %@",
+                   format: @"%@ -- %@ 0x%p: cannot lock row for entity '%@' with qualifier: %@",
                    NSStringFromSelector(_cmd),
                    NSStringFromClass([self class]),
                    self,
@@ -574,7 +574,7 @@ prepareInsertExpressionWithRow:changedValues
 
       default:
         [NSException raise: NSInvalidArgumentException
-                     format: @"%@ -- %@ 0x%x: Operator %d is not defined",
+                     format: @"%@ -- %@ 0x%p: Operator %d is not defined",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
                      self,
@@ -630,7 +630,7 @@ prepareInsertExpressionWithRow:changedValues
 		      forKey: EOAdaptorFailureKey];
 
 	  exp = [NSException exceptionWithName: EOGeneralAdaptorException
-			     reason: [NSString stringWithFormat:@"%@ -- %@ 0x%x: failed with exception name:%@ reason:\"%@\"",
+			     reason: [NSString stringWithFormat:@"%@ -- %@ 0x%p: failed with exception name:%@ reason:\"%@\"",
                              NSStringFromSelector(_cmd),
                              NSStringFromClass([self class]),
                              self,

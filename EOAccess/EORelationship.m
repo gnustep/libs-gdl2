@@ -383,7 +383,7 @@ RCS_ID("$Id$")
                   NS_HANDLER
                     {
                       [NSException raise: NSInvalidArgumentException
-                                   format: @"%@ -- %@ 0x%x: cannot create join for relationship '%@': %@", 
+                                   format: @"%@ -- %@ 0x%p: cannot create join for relationship '%@': %@", 
                                    NSStringFromSelector(_cmd), 
                                    NSStringFromClass([self class]), 
                                    self, 
@@ -1219,7 +1219,7 @@ relationships. Nil if none" **/
   
     if (exc)
       return [NSException exceptionWithName: NSInvalidArgumentException
-                         reason: [NSString stringWithFormat: @"%@ -- %@ 0x%x: argument \"%@\" contains invalid char '%c'", 
+                         reason: [NSString stringWithFormat: @"%@ -- %@ 0x%p: argument \"%@\" contains invalid char '%c'", 
 					  NSStringFromSelector(_cmd),
 					  NSStringFromClass([self class]),
 					  self,
@@ -1259,7 +1259,7 @@ relationships. Nil if none" **/
   if (exc)
     {
       return [NSException exceptionWithName: NSInvalidArgumentException
-                         reason: [NSString stringWithFormat: @"%@ -- %@ 0x%x: \"%@\" already used in the model",
+                         reason: [NSString stringWithFormat: @"%@ -- %@ 0x%p: \"%@\" already used in the model",
                                  NSStringFromSelector(_cmd),
                                  NSStringFromClass([self class]),
                                  self,
@@ -1275,7 +1275,7 @@ relationships. Nil if none" **/
   //OK
   if ([self isFlattened])
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: receiver is a flattened relationship",
+                 format: @"%@ -- %@ 0x%p: receiver is a flattened relationship",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -1457,7 +1457,7 @@ relationships. Nil if none" **/
   
   if ([self isFlattened] == YES)
     [NSException raise: NSInvalidArgumentException
-                format: @"%@ -- %@ 0x%x: receiver is a flattened relationship",
+                format: @"%@ -- %@ 0x%p: receiver is a flattened relationship",
      NSStringFromSelector(_cmd),
      NSStringFromClass([self class]),
      self];
@@ -1493,7 +1493,7 @@ relationships. Nil if none" **/
     if ([sourceAttribute isFlattened] == YES
         || [destinationAttribute isFlattened] == YES)
       [NSException raise: NSInvalidArgumentException
-                  format: @"%@ -- %@ 0x%x: join's attributes are flattened",
+                  format: @"%@ -- %@ 0x%p: join's attributes are flattened",
        NSStringFromSelector(_cmd),
        NSStringFromClass([self class]),
        self];
@@ -1516,7 +1516,7 @@ relationships. Nil if none" **/
       if (sourceEntity
           && ![[joinSourceEntity name] isEqual: [sourceEntity name]])
         [NSException raise: NSInvalidArgumentException
-                    format: @"%@ -- %@ 0x%x (%@): join source entity (%@) is not equal to relationship entity (%@)",
+                    format: @"%@ -- %@ 0x%p (%@): join source entity (%@) is not equal to relationship entity (%@)",
          NSStringFromSelector(_cmd),
          NSStringFromClass([self class]),
          self,
@@ -1527,7 +1527,7 @@ relationships. Nil if none" **/
                && ![[joinDestinationEntity name]
                     isEqual: [destinationEntity name]])
         [NSException raise: NSInvalidArgumentException
-                    format: @"%@ -- %@ 0x%x (%@): join destination entity (%@) is not equal to relationship destination entity (%@)",
+                    format: @"%@ -- %@ 0x%p (%@): join destination entity (%@) is not equal to relationship destination entity (%@)",
          NSStringFromSelector(_cmd),
          NSStringFromClass([self class]),
          self,
@@ -1549,7 +1549,7 @@ relationships. Nil if none" **/
                    indexOfObject: destinationAttribute]
                   != NSNotFound))
             [NSException raise: NSInvalidArgumentException
-                        format: @"%@ -- %@ 0x%x: TODO",
+                        format: @"%@ -- %@ 0x%p: TODO",
              NSStringFromSelector(_cmd),
              NSStringFromClass([self class]),
              self];
@@ -1595,7 +1595,7 @@ relationships. Nil if none" **/
 
   if ([self isFlattened] == YES)
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: receiver is a flattened relationship",
+                 format: @"%@ -- %@ 0x%p: receiver is a flattened relationship",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -2239,7 +2239,7 @@ dst entity primaryKeyAttributeNames
       break;
     default:
       [NSException raise: NSInvalidArgumentException
-                   format: @"%@ -- %@ 0x%x: invalid deleteRule code for relationship '%@': %d", 
+                   format: @"%@ -- %@ 0x%p: invalid deleteRule code for relationship '%@': %d", 
                    NSStringFromSelector(_cmd), 
                    NSStringFromClass([self class]), 
                    self, 
@@ -2265,7 +2265,7 @@ dst entity primaryKeyAttributeNames
     deleteRule = EODeleteRuleNoAction;
   else 
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: invalid deleteRule string for relationship '%@': %@", 
+                 format: @"%@ -- %@ 0x%p: invalid deleteRule string for relationship '%@': %@", 
                  NSStringFromSelector(_cmd), 
                  NSStringFromClass([self class]), 
                  self, 

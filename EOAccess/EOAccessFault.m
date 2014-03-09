@@ -264,7 +264,7 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
   // we should avoid putting self here as this will fire a fault again...
   
   [NSException raise: EOAccessFaultObjectNotAvailableException
-               format: @"%@ -- %@ 0x%x: cannot fault to-one for object of class %@ databaseContext %@ handler %@ (globalID=%@)",
+               format: @"%@ -- %@ 0x%p: cannot fault to-one for object of class %@ databaseContext %@ handler %@ (globalID=%@)",
                NSStringFromSelector(_cmd),
                NSStringFromClass([self class]),
                object,

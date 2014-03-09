@@ -699,7 +699,7 @@ newValueForBytesLengthAttribute (const void *bytes,
     }
     else
     {    
-      int i;
+      NSUInteger i;
       NSUInteger count = [_attributes count];
       id valueBuffer[100];
       id *values = NULL;
@@ -708,7 +708,7 @@ newValueForBytesLengthAttribute (const void *bytes,
       if (count > PQnfields(_pgResult))
       {
         [NSException raise: PostgreSQLException
-                    format: @"attempt to read %d attributes "
+                    format: @"attempt to read %"PRIuPTR" attributes "
                             @"when the result set has only %d columns",
                             count, PQnfields(_pgResult)];
       }
@@ -1063,7 +1063,7 @@ newValueForBytesLengthAttribute (const void *bytes,
 
   if (![self isOpen])
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempt to insert rows with no open channel",
+                 format: @"%@ -- %@ 0x%p: attempt to insert rows with no open channel",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -1075,7 +1075,7 @@ newValueForBytesLengthAttribute (const void *bytes,
 
   if ([self isFetchInProgress])
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempt to insert rows with fetch in progress",
+                 format: @"%@ -- %@ 0x%p: attempt to insert rows with fetch in progress",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -1090,7 +1090,7 @@ newValueForBytesLengthAttribute (const void *bytes,
 
   [self _cancelResults]; //No done by WO
 
-  NSDebugMLLog(@"gsdb", @"autoBeginTransaction", "");
+  NSDebugMLLog(@"gsdb", @"autoBeginTransaction");
   [adaptorContext autoBeginTransaction: YES];
 /*:
  row allKeys
@@ -1142,7 +1142,7 @@ each key
 
       if ([self _evaluateExpression: sqlexpr withAttributes: nil] == 0) //call evaluateExpression:
 	[NSException raise: EOGeneralAdaptorException
-                     format: @"%@ -- %@ 0x%x: cannot insert row for entity '%@'",
+                     format: @"%@ -- %@ 0x%p: cannot insert row for entity '%@'",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]), 
                      self,
@@ -1162,14 +1162,14 @@ each key
 
   if (![self isOpen])
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempt to delete rows with no open channel",
+                 format: @"%@ -- %@ 0x%p: attempt to delete rows with no open channel",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
 
   if (!qualifier || !entity)
     [NSException raise: NSInvalidArgumentException
-		 format: @"%@ -- %@ 0x%x: qualifier and entity arguments "
+		 format: @"%@ -- %@ 0x%p: qualifier and entity arguments "
 		 @" must not be nil objects",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
@@ -1177,7 +1177,7 @@ each key
 
   if ([self isFetchInProgress])
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempt to delete rows with fetch in progress",
+                 format: @"%@ -- %@ 0x%p: attempt to delete rows with fetch in progress",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -1218,7 +1218,7 @@ each key
 //a con autoBeginTransaction
 //end
 
-  NSDebugMLLog(@"gsdb",@"%@ -- %@ 0x%x: isFetchInProgress=%s",
+  NSDebugMLLog(@"gsdb",@"%@ -- %@ 0x%p: isFetchInProgress=%s",
 	       NSStringFromSelector(_cmd),
 	       NSStringFromClass([self class]),
 	       self,
@@ -1226,14 +1226,14 @@ each key
 
   if (![self isOpen])
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempt to select attributes with no open channel",
+                 format: @"%@ -- %@ 0x%p: attempt to select attributes with no open channel",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
   
   if ([self isFetchInProgress])
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempt to select attributes with fetch in progress",
+                 format: @"%@ -- %@ 0x%p: attempt to select attributes with fetch in progress",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -1305,14 +1305,14 @@ each key
   
   if (![self isOpen])
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempt to update values with no open channel",
+                 format: @"%@ -- %@ 0x%p: attempt to update values with no open channel",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
 
   if ([self isFetchInProgress])
     [NSException raise: NSInternalInconsistencyException
-                 format: @"%@ -- %@ 0x%x: attempt to update values with fetch in progress",
+                 format: @"%@ -- %@ 0x%p: attempt to update values with fetch in progress",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -1407,7 +1407,7 @@ each key
 
       rows = 0;
 
-      NSDebugMLLog(@"gsdb", @"[mrow count]=%d", [mrow count]);
+      NSDebugMLLog(@"gsdb", @"[mrow count]=%"PRIuPTR, [mrow count]);
 
       if ([mrow count] > 0)
       {
@@ -1637,7 +1637,7 @@ each key
   
   if ((!_isFetchInProgress) && (!_evaluateExprInProgress)) {
     [NSException raise: NSInternalInconsistencyException
-                format: @"%s -- %@ 0x%x: attempt to describe results with no fetch in progress",
+                format: @"%s -- %@ 0x%p: attempt to describe results with no fetch in progress",
      __PRETTY_FUNCTION__,
      NSStringFromClass([self class]),
      self];

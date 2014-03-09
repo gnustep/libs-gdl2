@@ -241,8 +241,7 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
   if (!modelName) 
     {
       [NSException raise: NSInvalidArgumentException
-                   format: [NSString stringWithFormat:
-				       @"The model name is emtpy"]];
+                   format: @"The model name is emtpy"];
     }
 
   NSAssert1(modelName, @"No name for model %@", model);
@@ -250,8 +249,8 @@ of the mainBundle, and all bundles and frameworks loaded into the app.
   if ([_modelsByName objectForKey: modelName]) 
     {
       [NSException raise: NSInvalidArgumentException
-                   format: [NSString stringWithFormat: @"The modelname '%@' already exists in modelGroup",
-				     modelName]];
+                   format: @"The modelname '%@' already exists in modelGroup",
+				     modelName];
     }
 
   [_modelsByName setObject: model

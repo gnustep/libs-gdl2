@@ -136,7 +136,7 @@ RCS_ID("$Id$")
         {
           if ((entity = [[store database] entityNamed: entityName]) == nil)
             [NSException raise: NSInvalidArgumentException
-                         format: @"%@ -- %@ 0x%x: editingContext (%@) cannot handler entity named '%@'",
+                         format: @"%@ -- %@ 0x%p: editingContext (%@) cannot handler entity named '%@'",
                          NSStringFromSelector(_cmd),
                          NSStringFromClass([self class]),
                          self,
@@ -145,7 +145,7 @@ RCS_ID("$Id$")
         }
       else
         [NSException raise: NSInvalidArgumentException
-                     format: @"%@ -- %@ 0x%x: editingContext (%@) cannot handler entity named '%@'",
+                     format: @"%@ -- %@ 0x%p: editingContext (%@) cannot handler entity named '%@'",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
                      self,
