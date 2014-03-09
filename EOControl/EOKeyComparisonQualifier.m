@@ -238,7 +238,7 @@ RCS_ID("$Id$")
 - (NSString *) description
 {
   NSString *selectorString;
-  selectorString = [isa stringForOperatorSelector: _selector];
+  selectorString = [[self class] stringForOperatorSelector: _selector];
   if (selectorString == nil)
     {
       selectorString = NSStringFromSelector(_selector);
@@ -254,7 +254,7 @@ RCS_ID("$Id$")
 - (NSString *) debugDescription
 {
   NSString *selectorString;
-  selectorString = [isa stringForOperatorSelector: _selector];
+  selectorString = [[self class] stringForOperatorSelector: _selector];
   if (selectorString == nil)
     {
       selectorString = NSStringFromSelector(_selector);

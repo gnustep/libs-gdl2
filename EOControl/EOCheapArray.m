@@ -147,7 +147,7 @@ RCS_ID("$Id$")
 - (id) autorelease
 {
 #ifdef DEBUG
-  NSDebugFLog(@"autorelease EOCheapCopyArray %p. %@ [super retainCount]=%d",
+  NSDebugFLog(@"autorelease EOCheapCopyArray %p. %@ [super retainCount]=%"PRIuPTR,
               (void*)self,GSCurrentThread(),[super retainCount]);
 #endif
   return [super autorelease];
@@ -156,7 +156,7 @@ RCS_ID("$Id$")
 - (oneway void) release
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Release EOCheapCopyArray %p. %@ [super retainCount]=%d",
+  NSDebugFLog(@"Release EOCheapCopyArray %p. %@ [super retainCount]=%"PRIuPTR,
               (void*)self,GSCurrentThread(),[super retainCount]);
 #endif
   [super release];
@@ -175,7 +175,7 @@ RCS_ID("$Id$")
 - (id) retain
 {
 #ifdef DEBUG
-  NSDebugFLog(@"retain EOCheapCopyArray %p. %@, [super retainCount]=%d",
+  NSDebugFLog(@"retain EOCheapCopyArray %p. %@, [super retainCount]=%"PRIuPTR,
               (void*)self,GSCurrentThread(),[super retainCount]);
 #endif
   return [super retain];
@@ -255,7 +255,7 @@ RCS_ID("$Id$")
 - (void) dealloc
 {
 #ifdef DEBUG
-  NSDebugFLog(@"Deallocate EOCheapCopyMutableArray %p zone=%p _contents_array=%p _count=%d _capacity=%d", 
+  NSDebugFLog(@"Deallocate EOCheapCopyMutableArray %p zone=%p _contents_array=%p _count=%"PRIuPTR" _capacity=%"PRIuPTR,
               self, [self zone], _contents_array, _count, _capacity);
 #endif
   if (_contents_array)
@@ -383,7 +383,7 @@ RCS_ID("$Id$")
     {
       [NSException raise: NSRangeException
 		   format:
-		     @"in insertObject:atIndex:, index %d is out of range",
+		     @"in insertObject:atIndex:, index %"PRIuPTR" is out of range",
 		   index];
     }
 
@@ -443,7 +443,7 @@ RCS_ID("$Id$")
   if (index >= _count)
     {
       [NSException raise: NSRangeException
-                  format: @"in removeObjectAtIndex:, index %d is out of range",
+                  format: @"in removeObjectAtIndex:, index %"PRIuPTR" is out of range",
                         index];
     }
   obj = _contents_array[index];
@@ -467,7 +467,7 @@ RCS_ID("$Id$")
   if (index >= _count)
     {
       [NSException raise: NSRangeException format:
-            @"in replaceObjectAtIndex:withObject:, index %d is out of range",
+            @"in replaceObjectAtIndex:withObject:, index %"PRIuPTR" is out of range",
             index];
     }
 
@@ -495,7 +495,7 @@ RCS_ID("$Id$")
   if (index1 >= _count || index2>=_count)
     {      
       [NSException raise: NSRangeException format:
-            @"in exchangeObjectAtIndex:withObjectAtIndex:, index %d is out of range",
+            @"in exchangeObjectAtIndex:withObjectAtIndex:, index %"PRIuPTR" is out of range",
             (index1 >= _count ? index1 : index2)];
     }
 

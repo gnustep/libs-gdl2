@@ -1,3 +1,22 @@
+2014-03-09  Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* EOControl/EOCheapArray.m
+	* EOControl/EODebug.m
+	* EOControl/EODetailDataSource.m
+	* EOControl/EOEditingContext.m
+	* EOControl/EOFaultHandler.m
+	* EOControl/EOFault.m
+	* EOControl/EOGenericRecord.m
+	* EOControl/EOKeyComparisonQualifier.m
+	* EOControl/EOKeyValueArchiver.m
+	* EOControl/EOKeyValueCoding.m
+	* EOControl/EOKeyValueQualifier.m
+	* EOControl/EOMutableKnownKeyDictionary.m
+	* EOControl/EOObjectStoreCoordinator.m
+	* EOControl/EOPrivate.m
+	* EOControl/EOQualifier.m
+	* EOControl/EOSortOrdering.m
+	fix format string warnings and do not directly access isa
+
 2014-03-08  Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* Apps/EOModelEditor/CodeGenerator.m
 	* EOControl/EOClassDescription.m

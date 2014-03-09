@@ -119,9 +119,9 @@ IVarInString(const char* _type, void* _value)
 	  {
 	    id *pvalue = (id*)_value;
 	    return [NSString stringWithFormat:
-			       @"object:%ld Class:%s Description:%@",
-			     (long)(*pvalue),
-			     [*pvalue class],
+			       @"object:%p Class:%@ Description:%@",
+			     *pvalue,
+			     NSStringFromClass([*pvalue class]),
 			     objectDescription(*pvalue)];
 	  }
 	  break;

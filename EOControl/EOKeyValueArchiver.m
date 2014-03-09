@@ -791,7 +791,7 @@ class instances should implements -initWithKeyValueUnarchiver: **/
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"gsdb", @"EOKeyValueUnarchiver",@"EXCEPTION:%@ (%@) [%s %d]",
+      NSDebugMLLog(@"gsdb", @"EOKeyValueUnarchiver, EXCEPTION:%@ (%@) [%s %d]",
                    localException,
                    [localException reason],
                    __FILE__,

@@ -649,7 +649,7 @@ static SEL eqSel;
     [NSNumber numberWithUnsignedInteger: count], @"Count",
     self, @"Array", nil, nil];
 
-  reason = [NSString stringWithFormat: @"Index %d is out of range %d (in '%@')",    index, count, NSStringFromSelector(sel)];
+  reason = [NSString stringWithFormat: @"Index %"PRIuPTR" is out of range %"PRIuPTR" (in '%@')",    index, count, NSStringFromSelector(sel)];
 
   exception = [NSException exceptionWithName: NSRangeException
                                       reason: reason

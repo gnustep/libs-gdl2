@@ -132,7 +132,7 @@ __attribute__((objc_root_class))
 - (void) unableToSetNilForKey: (NSString *)key
 {
   [NSException raise: NSInvalidArgumentException
-	       format: @"%@ -- %@ 0x%x: Given nil value to set for key \"%@\"",
+	       format: @"%@ -- %@ 0x%p: Given nil value to set for key \"%@\"",
 	       NSStringFromSelector(_cmd), NSStringFromClass([self class]), 
 	       self, key];
 }

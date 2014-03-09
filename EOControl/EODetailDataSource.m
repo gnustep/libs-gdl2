@@ -246,13 +246,13 @@ RCS_ID("$Id$")
 
   if (!_masterObject)
     [NSException raise: NSInternalInconsistencyException
-		 format: @"%@ -- %@ 0x%x: no masterObject", 
+		 format: @"%@ -- %@ 0x%p: no masterObject", 
                  NSStringFromSelector(_cmd), NSStringFromClass([self class]),
 		 self];
 
   if (!_detailKey)
     [NSException raise: NSInternalInconsistencyException
-		 format: @"%@ -- %@ 0x%x: no detailKey", 
+		 format: @"%@ -- %@ 0x%p: no detailKey", 
                  NSStringFromSelector(_cmd), NSStringFromClass([self class]),
 		 self];
 
@@ -266,13 +266,13 @@ RCS_ID("$Id$")
 {
   if (!_masterObject)
     [NSException raise: NSInternalInconsistencyException
-		 format: @"%@ -- %@ 0x%x: no masterObject", 
+		 format: @"%@ -- %@ 0x%p: no masterObject", 
                  NSStringFromSelector(_cmd), NSStringFromClass([self class]),
 		 self];
 
   if (!_detailKey)
     [NSException raise: NSInternalInconsistencyException
-		 format: @"%@ -- %@ 0x%x: no detailKey", 
+		 format: @"%@ -- %@ 0x%p: no detailKey", 
                  NSStringFromSelector(_cmd), NSStringFromClass([self class]),
 		 self];
 

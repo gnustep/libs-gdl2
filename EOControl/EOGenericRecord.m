@@ -169,7 +169,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
       if (!classDesc)
         {
           [NSException raise: NSInternalInconsistencyException
-                       format: @"%@ -- %@ 0x%x: attempt to initialize object with nil classDescription",
+                       format: @"%@ -- %@ 0x%p: attempt to initialize object with nil classDescription",
                        NSStringFromSelector(_cmd),
                        NSStringFromClass([self class]),
                        self];
@@ -971,7 +971,7 @@ You can override this to exclude properties manually handled by derived object *
 
       [allGenericRecordsLock unlock];
 
-      NSDebugMLog(@"CALCULATE STOPEXC", "");
+      NSDebugMLog(@"CALCULATE STOPEXC");
       [localException raise];
     }
   NS_ENDHANDLER;

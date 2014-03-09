@@ -174,7 +174,7 @@ RCS_ID("$Id$")
 - (NSString *) description
 {
   return [NSString stringWithFormat:@"<%@ %p - %@ %@>",
-		   NSStringFromClass(isa),
+		   NSStringFromClass([self class]),
 		   (void*)self,
 		   _key,
 		   NSStringFromSelector(_selector)];

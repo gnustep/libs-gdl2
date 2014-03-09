@@ -183,7 +183,7 @@ RCS_ID("$Id$")
 
   for (i = 0; i < _count; i++)
     {
-      dscr = [dscr stringByAppendingFormat: @"%@ [%d] ",
+      dscr = [dscr stringByAppendingFormat: @"%@ [%"PRIuPTR"] ",
                    _keys[i],
                    i];
     }
@@ -490,7 +490,7 @@ RCS_ID("$Id$")
   NSString *dscr;
   NSMutableString *offsets = [NSMutableString string];
   NSUInteger i;
-  int count = [_destinationDescription count];
+  NSUInteger count = [_destinationDescription count];
 
   dscr = [NSString stringWithFormat: @"<%s %p - ",
 		   object_getClassName(self),
@@ -501,7 +501,7 @@ RCS_ID("$Id$")
 	       [_destinationDescription description]];
 
   for (i = 0; i < count; i++)
-    [offsets appendFormat: @" %d", _sourceOffsetForDestinationOffset[i]];
+    [offsets appendFormat: @" %"PRIuPTR, _sourceOffsetForDestinationOffset[i]];
 
   dscr = [dscr stringByAppendingFormat:
 		 @"\nsourceOffsetForDestinationOffset:%@>", offsets];

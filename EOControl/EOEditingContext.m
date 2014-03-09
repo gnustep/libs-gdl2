@@ -2473,7 +2473,7 @@ _mergeValueForKey(id obj, id value,
 
   if (gid == nil)
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: globalID for object 0x%x not found",
+                 format: @"%@ -- %@ 0x%p: globalID for object 0x%p not found",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self,
@@ -3935,7 +3935,7 @@ static BOOL usesContextRelativeEncoding = NO;
 
 
 
-  desc = [NSString stringWithFormat: @"<%p:\nunprocessedChanges [nb:%d]=%p %@\n\nunprocessedDeletes [nb:%d]=%p %@\n\nunprocessedInserts[nb:%d]=%p %@>\n",
+  desc = [NSString stringWithFormat: @"<%p:\nunprocessedChanges [nb:%"PRIuPTR"]=%p %@\n\nunprocessedDeletes [nb:%"PRIuPTR"]=%p %@\n\nunprocessedInserts[nb:%"PRIuPTR"]=%p %@>\n",
 		   self,
 		   NSCountHashTable(_unprocessedChanges),
 		   _unprocessedChanges,
@@ -3958,7 +3958,7 @@ static BOOL usesContextRelativeEncoding = NO;
 
 
 
-  desc = [NSString stringWithFormat: @"<%p:\nchangedObjects [nb:%d]=%p %@\n\ndeletedObjects [nb:%d]=%p %@\n\ninsertedObjects [nb:%d]=%p %@>\n",
+  desc = [NSString stringWithFormat: @"<%p:\nchangedObjects [nb:%"PRIuPTR"]=%p %@\n\ndeletedObjects [nb:%"PRIuPTR"]=%p %@\n\ninsertedObjects [nb:%"PRIuPTR"]=%p %@>\n",
 		   self,
 		   NSCountHashTable(_changedObjects),
 		   _changedObjects,

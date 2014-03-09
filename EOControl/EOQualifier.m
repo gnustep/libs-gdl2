@@ -514,10 +514,8 @@ getKey(const unichar **cFormat,
     {
       if (!GDL2_isLegalDBName(key))
 	{
-	  NSString *format 
-	    = [NSString stringWithFormat: @"illegal qualifier variable $%@",key];
-	  [NSException raise:NSInvalidArgumentException
-		       format:format];
+	  [NSException raise: NSInvalidArgumentException
+		       format: @"illegal qualifier variable $%@", key];
 	}
       key = (id)[[EOQualifierVariable alloc] initWithKey:key];
     }
@@ -675,7 +673,7 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, NSArray *array, va_list 
       if (!operatorSelector)
 	{
 	  [NSException raise: NSInvalidArgumentException
-		       format: @"%@ -- %@ 0x%x: no operator or unknown operator: '%@'",
+		       format: @"%@ -- %@ 0x%p: no operator or unknown operator: '%@'",
 		       NSStringFromClass([self class]),
 		       NSStringFromSelector(_cmd),
 		       self,
@@ -789,7 +787,7 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, NSArray *array, va_list 
     {
       if (qualifier == nil)
         [NSException raise: NSInvalidArgumentException
-		     format: @"%@ -- %@ 0x%x: missing qualifier",
+		     format: @"%@ -- %@ 0x%p: missing qualifier",
                      NSStringFromSelector(_cmd),
 		     NSStringFromClass([self class]), self];
 
@@ -883,7 +881,7 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, NSArray *array, va_list 
 {
   if (!key)
     [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%x: nil key",
+                 format: @"%@ -- %@ 0x%p: nil key",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -911,10 +909,11 @@ _qualifierWithArgs(id self, SEL _cmd, NSString *format, NSArray *array, va_list 
       if (stop)
         {
           [NSException raise: NSInternalInconsistencyException
-                       format: @"%@ -- %@ 0x%x: invalid key '%@'",
-                       NSStringFromSelector(_cmd),
-                       NSStringFromClass([self class]),
-                       key];
+                       	format: @"%@ -- %@ 0x%p: invalid key '%@'",
+                       	NSStringFromSelector(_cmd),
+                       	NSStringFromClass([self class]),
+			self,
+                       	key];
         } ;
     };
   //TODO

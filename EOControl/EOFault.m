@@ -130,7 +130,7 @@ static Class EOFaultClass = NULL;
 + (void)doesNotRecognizeSelector: (SEL)selector
 {
   [NSException raise: NSInvalidArgumentException
-	       format: @"%@ -- %@ 0x%x: selector \"%@\" not recognized",
+	       format: @"%@ -- %@ 0x%p: selector \"%@\" not recognized",
 	       NSStringFromSelector(_cmd),
 	       NSStringFromClass([self class]),
 	       self,
@@ -417,7 +417,7 @@ static Class EOFaultClass = NULL;
 - (void)doesNotRecognizeSelector: (SEL)selector
 {
   [NSException raise: NSInvalidArgumentException
-               format: @"%@ -- %@ 0x%x: selector \"%@\" not recognized",
+               format: @"%@ -- %@ 0x%p: selector \"%@\" not recognized",
                NSStringFromSelector(_cmd),
                NSStringFromClass([self class]),
                self,

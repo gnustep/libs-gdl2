@@ -108,7 +108,7 @@ RCS_ID("$Id$")
 
 - (NSString *)descriptionForObject: object
 {
-  return [NSString stringWithFormat: @"%@ (EOFault 0x%08x)",
+  return [NSString stringWithFormat: @"%@ (EOFault 0x%p)",
 		   NSStringFromClass(_targetClass), object];
 }
 
