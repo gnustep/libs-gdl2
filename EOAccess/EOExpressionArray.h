@@ -98,6 +98,8 @@
 
 - (NSString *)valueForSQLExpression: (EOSQLExpression *)sqlExpression;
 
+- (BOOL)_isPropertyPath;
+
 @end /* EOExpressionArray */
 
 

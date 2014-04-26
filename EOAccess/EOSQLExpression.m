@@ -2053,7 +2053,7 @@ else if([attribute isDerived] == YES)
               EOFLOGObjectLevelArgs(@"EOSQLExpression", @"[path objectAtIndex:%d]=%@",
                                     i, relationship);
 
-              NSAssert2([relationship isKindOfClass:[EORelationship class]],
+              NSAssert2([relationship isKindOfClass:GDL2_EORelationshipClass],
                         @"'%@' is not a relationship but a %@",
                         relationship,
                         [relationship class]);

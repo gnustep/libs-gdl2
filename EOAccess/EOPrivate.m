@@ -44,6 +44,7 @@ RCS_ID("$Id$")
 #include <EOControl/EOFault.h>
 #include <EOControl/EOMutableKnownKeyDictionary.h>
 #include <EOAccess/EOAttribute.h>
+#include <EOAccess/EOEntity.h>
 #include <EOAccess/EODatabaseContext.h>
 
 #include "EOPrivate.h"
@@ -51,6 +52,8 @@ RCS_ID("$Id$")
 // ==== Classes ====
 Class GDL2_EODatabaseContextClass=Nil;
 Class GDL2_EOAttributeClass=Nil;
+Class GDL2_EORelationshipClass=Nil;
+Class GDL2_EOEntityClass=Nil;
 
 // ==== IMPs ====
 IMP GDL2_EODatabaseContext_snapshotForGlobalIDIMP=NULL;
@@ -69,6 +72,8 @@ void GDL2_EOAccessPrivateInit()
       // ==== Classes ====
       GDL2_EODatabaseContextClass = [EODatabaseContext class];
       GDL2_EOAttributeClass = [EOAttribute class];
+      GDL2_EORelationshipClass = [EORelationship class];
+      GDL2_EOEntityClass = [EOEntity class];
 
       GDL2_EODatabaseContext_snapshotForGlobalIDIMP=[GDL2_EODatabaseContextClass instanceMethodForSelector:@selector(snapshotForGlobalID:)];
 

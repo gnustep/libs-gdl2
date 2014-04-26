@@ -1,3 +1,112 @@
+2014-04-26  Manuel Guesdon <mguesdon@orange-concept.com>
+	* EOAccess/EOAdaptorChannel.m
+	  call delegate -adaptorChannel:willPerformOperations:
+	* EOAccess/EODatabaseContext.m:
+	  propagate delegate to channel
+	  fix objectsForSourceGlobalID:relationshipName:editingContext: 
+	    isToManyToOne case
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m:
+	  call delegate methods
+	  adding assert to catch bad dates
+	  use adaptor -primaryKeySequenceNameFormat
+	* EOAccess/EOrelationship.m
+	  implement -isParentRelationship
+	  verify/clean -isReciprocalToRelationship:
+	  implement -qualifierWithSourceRow:
+	  small fix on -removeJoin:
+	  use batch faulting when -setNumberOfToManyFaultsToBatchFetch:
+	  improve -setIsMandatory
+	  fix exception message -validateValue:
+	  clean -_intermediateAttributes
+	  clean -isMultiHop
+	  implement -primaryKeyForTargetRowFromSourceDBSnapshot:
+	  implement -_setSourceToDestinationKeyMap:
+	  implement -qualifierForDBSnapshot:
+	  fix/implement -isToManyToOne
+	  fix -foreignKeyInDestination
+	  implement -isPropagatesPrimaryKeyPossible
+	  implement -qualifierOmittingAuxiliaryQualifierWithSourceRow
+	  implement -auxiliaryQualifier
+	  implement -setAuxiliaryQualifier:
+	  clean -_sourceRowToForeignKeyMapping
+	  add comment in -_sourceAttributeNames
+	  fix -joinForAttribute:
+	  fix -_flushCache
+	  fix -_stringFromDeleteRule:
+	  implement -_rightSideKeyMap
+	  implement -_leftSideKeyMap
+	  implement -_substitutionRelationshipForRow:
+	  fix -isFlattened
+	  remove _componentRelationships
+	* EOAccess/EORelationship.h
+	  remove _componentRelationships
+	* EOAccess/EOEntityPriv.[hm]
+	  fix _hiddenRelationships return type
+	* EOAccess/Entity.m:
+	  implement -_mapAttribute:toDestinationAttributeInLastComponentOfRelationshipPath:
+	  implement -_inverseRelationshipPathForPath:
+	  implement -_relationshipPathHasIdenticalKeys:
+	  rewrite & fix -_keyMapForRelationshipPath:
+	  rewrite & fix -_keyMapForIdenticalKeyRelationshipPath:
+	  implement -valueForSQLExpression:
+	  fix -validateObjectForDelete:
+	  implement -qualifierForDBSnapshot:
+	  fix -_addAttributesToFetchForRelationshipPath:atts:
+	  fix -_parsePropertyName:	
+	  implement -fetchSpecificationNamed:
+	  implement +externalNameForInternalName:separatorString:useAllCaps:
+	  implement +nameForExternalName:separatorString:initialCaps:
+	  implement -stringByMarkingUpcaseTransitionsWithDelimiter
+	  implement -snapshotKeyForAttributeName:
+	  implement -_flattenedAttNameToSnapshotKeyMapping
+	  fix -_attributesToFetch
+	  fix -_attributesToSave
+	* EOAccess/Entity.h:
+	  fix _inverseRelationshipPathForPath:
+	  fix -_relationshipPathHasIdenticalKey:
+	  add _flgas.isSingleTableEntity
+	* EOAccess/EntityPriv.h:
+	  fix -qualifierForDBSnapshot:
+	* EOAccess/EOPrivate.[hm]
+	  add GDL2_EORelationshipClass
+	  add GDL2_EOEntityClass
+	* EOAccess/EOModel.m:
+	  cache [EOEntity class]
+	  add -propertyListForEntity:name: to enable subclassing
+	* EOAccess/EOAttribute.m
+	  fix -isFlattened
+	  implement -targetAttribute
+	  implement -relationshipPath
+	  fix -_setDefinitionWithoutFlushingCaches:
+	  fix -_normalizeDefinition:path:
+	  fix -isReadOnly
+	  implement -_setOverrideForKeyEnum:
+	  implement -_hasAnyOverrides
+	  implement -_isKeyEnumOverriden:
+	  implement -_prototypeKeys
+	  fix -initWithPropertyList:owner:
+	  fix -readFormat
+	  fix -writeFormat
+	  fix -scale
+	  fix -precision
+	  fix -width
+	  fix -allowsNull
+	  fix -isReadOnly
+	  fix -valueClassName
+	  fix -externalType
+	  fix -valueType
+	  implement -_setValuesFromTargetAttribute
+	* EOAccess/EOAttribute.h
+	  declare -targetAttribute
+	  declare -relationshipPath
+	* EOAccess/EOAttributePriv.h
+	  declare EOAttributeProtoOverrideBits enum
+	  fix method arguments
+	  declare  _setValuesFromTargetAttribute()
+	* EOAccess/EOExpressionArray.h
+	  declare -_isPropertyPath
+	* EOAccess/EOExpressionArray.m
+	  implement -_isPropertyPath
 2014-03-09  Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* EOControl/EOCheapArray.m
 	* EOControl/EODebug.m

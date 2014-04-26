@@ -320,7 +320,6 @@ newValueForNumberTypeLengthAttribute(const void *bytes,
             };
         };
     };
-
   return value;
 }
 
@@ -397,11 +396,15 @@ newValueForDateTypeLengthAttribute (const void *bytes,
     {
       getDigits(&str[5],tmpString,2,&error);
       month = atoi(tmpString);
+      //Postgres can return bad dates sometimes (it accept bad date in insert/update)
+      NSCAssert2(month>0,@"Bad month in date %*s",length,bytes);
 
   if (length > 9)
     {
       getDigits(&str[8],tmpString,2,&error);
       day = atoi(tmpString);
+      //Postgres can return bad dates sometimes (it accept bad date in insert/update)
+      NSCAssert2(day>0,@"Bad day in date %*s",length,bytes);
 
   if (length > 12)
     {
@@ -1140,13 +1143,29 @@ each key
 		  insertStatementForRow: nrow
 		  entity: entity];
 
-      if ([self _evaluateExpression: sqlexpr withAttributes: nil] == 0) //call evaluateExpression:
-	[NSException raise: EOGeneralAdaptorException
-                     format: @"%@ -- %@ 0x%p: cannot insert row for entity '%@'",
-                     NSStringFromSelector(_cmd),
-                     NSStringFromClass([self class]), 
-                     self,
-                     [entity name]];
+      if (!_delegateRespondsTo.shouldEvaluateExpression
+	  || [_delegate adaptorChannel: self
+			shouldEvaluateExpression: sqlexpr])
+	{
+	  if ([self _evaluateExpression: sqlexpr
+		    withAttributes: nil] == 0) 
+	    {
+	      [NSException raise: EOGeneralAdaptorException
+			   format: @"%@ -- %@ 0x%p: cannot insert row for entity '%@'",
+			   NSStringFromSelector(_cmd),
+			   NSStringFromClass([self class]), 
+			   self,
+			   [entity name]];
+	    }
+	  else
+	    {
+	      if (_delegateRespondsTo.didEvaluateExpression)
+		{
+		  [_delegate adaptorChannel: self 
+			     didEvaluateExpression: sqlexpr];
+		}
+	    }
+	}
     }
 
   [_adaptorContext autoCommitTransaction];
@@ -1191,8 +1210,19 @@ each key
 	      deleteStatementWithQualifier: qualifier
 	      entity: entity];
 
-  rows = [self _evaluateExpression: sqlexpr withAttributes: nil];
-  
+  if (!_delegateRespondsTo.shouldEvaluateExpression
+      || [_delegate adaptorChannel: self
+		    shouldEvaluateExpression: sqlexpr])
+    {
+      rows = [self _evaluateExpression: sqlexpr
+		   withAttributes: nil];
+      if (_delegateRespondsTo.didEvaluateExpression)
+	{
+	  [_delegate adaptorChannel: self
+		     didEvaluateExpression: sqlexpr];
+	}
+    }
+
   [adaptorContext autoCommitTransaction];
 
   return rows;
@@ -1262,8 +1292,18 @@ each key
 	      fetchSpecification: fetchSpecification
 	      entity: entity];
 
-  [self _evaluateExpression: sqlExpr
-        withAttributes: attributes];
+  if (!_delegateRespondsTo.shouldEvaluateExpression
+      || [_delegate adaptorChannel: self
+		    shouldEvaluateExpression: sqlExpr])
+    {
+      [self _evaluateExpression: sqlExpr
+	    withAttributes: attributes];
+      if (_delegateRespondsTo.didEvaluateExpression)
+	{
+	  [_delegate adaptorChannel: self
+		     didEvaluateExpression: sqlExpr];
+	}
+    }
 
   [_adaptorContext autoCommitTransaction];
 
@@ -2198,6 +2238,7 @@ each key
   EOAttribute  *primAttribute;
   NSString     *sqlString;
   NSNumber     *pkValue = nil;
+  NSString     *sqlFormat = nil;
   const char   *string = NULL;
   int length = 0;
   
@@ -2211,9 +2252,12 @@ each key
   {
     return nil; // We support only number keys
   }
-  
-  sqlString = [NSString stringWithFormat: @"SELECT nextval('%@_SEQ')",
-               [entity primaryKeyRootName]];
+
+  sqlFormat=[NSString stringWithFormat: @"SELECT nextval('%@')",
+		      [[[self adaptorContext]adaptor] primaryKeySequenceNameFormat]];
+
+  sqlString = [NSString stringWithFormat: sqlFormat,
+			[entity primaryKeyRootName]];
   
   if ([self isDebugEnabled]) 
   {

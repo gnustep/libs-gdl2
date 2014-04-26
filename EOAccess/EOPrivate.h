@@ -38,6 +38,8 @@
 // ==== Classes ====
 GDL2ACCESS_EXPORT Class GDL2_EODatabaseContextClass;
 GDL2ACCESS_EXPORT Class GDL2_EOAttributeClass;
+GDL2ACCESS_EXPORT Class GDL2_EORelationshipClass;
+GDL2ACCESS_EXPORT Class GDL2_EOEntityClass;
 
 // ==== IMPs ====
 GDL2ACCESS_EXPORT IMP GDL2_EODatabaseContext_snapshotForGlobalIDIMP;

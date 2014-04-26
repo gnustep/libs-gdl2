@@ -68,7 +68,7 @@ typedef enum {
   EOInOutParameter
 } EOParameterDirection;
 
-
+#define EOATTRIBUTE_PROTO_OVERRIDE_BITS_COUNT 18
 @interface EOAttribute : NSObject <EOPropertyListEncoding>
 {
   NSString *_name;
@@ -94,7 +94,7 @@ typedef enum {
     unsigned int allowsNull:1;
     unsigned int isReadOnly:1;
     unsigned int isParentAnEOEntity:1;
-    unsigned int protoOverride:18;
+    unsigned int protoOverride:EOATTRIBUTE_PROTO_OVERRIDE_BITS_COUNT;
     unsigned int isAttributeValueInitialized:1;
     unsigned int unused : 10;
   } _flags;
@@ -107,6 +107,7 @@ typedef enum {
   NSString *_docComment;
   
   id _parent; /* unretained */
+  NSString *_prototypeName;
   EOAttribute *_prototype;
   EOExpressionArray *_definitionArray;
   EOAttribute *_realAttribute;		// if the attribute is flattened //Not in EOF !
@@ -166,8 +167,6 @@ typedef enum {
 
 - (NSString *)docComment;
 
-- (BOOL)isKeyDefinedByPrototype: (NSString *)key;
-
 /**
  * Returns YES if the attribute references aProperty, NO otherwise.
  */
@@ -175,6 +174,12 @@ typedef enum {
 - (BOOL)referencesProperty:(id)aProperty;
 
 - (void)setParent: (id)parent;
+
+- (void)setEntity:(EOEntity*)entity;
+
+- (NSString*)relationshipPath;
+
+- (EOAttribute*)targetAttribute;
 
 @end
 
@@ -219,8 +224,8 @@ typedef enum {
 
 - (void)setDocComment: (NSString *)docComment;
 
-- (id)_normalizeDefinition: (EOExpressionArray *)definition
-                      path: (id)path;
+- (id)_normalizeDefinition: (id)definition
+                      path: (NSArray *)path;
 
 @end
 

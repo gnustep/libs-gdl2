@@ -479,7 +479,9 @@ static Class _contextClass = Nil;
 	     [_registeredChannels count] + 1);
 
   [_registeredChannels addObject:channel];
-  [channel setDelegate: nil];
+
+  //Channels have same delegate as context
+  [channel setDelegate: _delegate];
 }
 
 - (void)unregisterChannel: (EODatabaseChannel *)channel
@@ -1070,7 +1072,6 @@ classPropertyNames = [entity classPropertyNames];
       EOEntity *entity;
       EORelationship *relationship;
       NSUInteger maxBatch = 0;
-      BOOL isToManyToOne = NO;
       EOEntity *destinationEntity = nil;
       EOModel *destinationEntityModel = nil;
       NSArray *models = nil;
@@ -1099,13 +1100,16 @@ classPropertyNames = [entity classPropertyNames];
       //Get the max number of fault to fetch
       maxBatch = [relationship numberOfToManyFaultsToBatchFetch];
 
-      isToManyToOne = [relationship isToManyToOne];//NO
-
-      if (isToManyToOne)
-        {
-          NSEmitTODO();
-          [self notImplemented: _cmd]; //TODO if isToManyToOne
-        }
+      if(maxBatch == 0)
+	{
+	  if ([relationship isToManyToOne])
+	    {
+	      maxBatch = [[relationship firstRelationship]numberOfToManyFaultsToBatchFetch];
+	      if(maxBatch == 0)
+		maxBatch=1;
+	    }
+	}
+      //TODO: use maxBatch
 
       //Get the fault entity (aka relationsip destination entity)
       destinationEntity = [relationship destinationEntity];

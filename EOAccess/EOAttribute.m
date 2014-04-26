@@ -64,6 +64,7 @@ RCS_ID("$Id$")
 #include <EOControl/EONull.h>
 #include <EOControl/EOObserver.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EONSAddOns.h>
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
@@ -79,6 +80,7 @@ RCS_ID("$Id$")
 #include "EOEntityPriv.h"
 #include "EOAttributePriv.h"
 
+static NSArray* staticPrototypeKeys=nil;
 
 @implementation EOAttribute
 
@@ -88,7 +90,21 @@ RCS_ID("$Id$")
   if (!initialized)
     {
       initialized=YES;
-
+      //Order is important (Cf overide ProtoOverrideBits)
+      ASSIGN(staticPrototypeKeys,
+	     ([NSArray arrayWithObjects:
+			 @"externalType", @"columnName", @"readOnly", 
+		       @"valueClassName", @"valueType", @"width", 
+		       @"precision", @"scale", @"writeFormat", 
+		       @"readFormat",@"userInfo", @"serverTimeZone", 
+		       @"valueFactoryMethodName", 
+		       @"adaptorValueConversionMethodName", 
+		       @"factoryMethodArgumentType", @"allowsNull", 
+		       @"parameterDirection", @"_internalInfo", nil]));
+      NSAssert(EOATTRIBUTE_PROTO_OVERRIDE_BITS_COUNT==EOAttributeProtoOverrideBits__count,
+	       @"Mismatch ProtoOverrideBits count");
+      NSAssert(EOATTRIBUTE_PROTO_OVERRIDE_BITS_COUNT==[staticPrototypeKeys count],
+	       @"Mismatch ProtoOverrideBits keys count");
       GDL2_EOAccessPrivateInit();
     }
 }
@@ -105,11 +121,12 @@ RCS_ID("$Id$")
 {
   EOAttribute * attr = [[[self alloc] init] autorelease];
   
-  if (attr) {
-    [attr setName: def];
-    [attr setParent: parent];
-    [attr setDefinition: def];
-  }
+  if (attr)
+    {
+      [attr setName: def];
+      [attr setParent: parent];
+      [attr setDefinition: def];
+    }
   
   return attr;
 }
@@ -124,13 +141,24 @@ RCS_ID("$Id$")
 
       // set this first so the name can validate against the parent.
       [self setParent: owner];
+
       [self setName: [propertyList objectForKey: @"name"]];
+
+      //Next set prototyName so prototype override can work
+      tmpString = [propertyList objectForKey: @"prototypeName"];
+      if (tmpString)
+	{
+	  EOAttribute *attr = [[_parent model] prototypeAttributeNamed: tmpString];
+
+	  if (attr)
+	    [self setPrototype: attr];
+	}
 
       [self setExternalType: [propertyList objectForKey: @"externalType"]];
 
       tmpString = [propertyList objectForKey: @"allowsNull"];
-      if (tmpString)
-        [self setAllowsNull: [tmpString boolValue]];
+      if (tmpString || _prototypeName==nil)
+        [self setAllowsNull: tmpString!=nil && [tmpString boolValue]];
 
       [self setValueType: [propertyList objectForKey: @"valueType"]];
       [self setValueClassName: [propertyList objectForKey: @"valueClassName"]];
@@ -251,33 +279,26 @@ RCS_ID("$Id$")
 
 - (void)awakeWithPropertyList: (NSDictionary *)propertyList
 {
-  //Seems OK
-  NSString *definition;
-  NSString *columnName;
-  NSString *tmpString;
-
-  definition = [propertyList objectForKey: @"definition"];
-
+  NSString *definition = [propertyList objectForKey: @"definition"];
   if (definition)
-    [self setDefinition: definition];
-
-  columnName = [propertyList objectForKey: @"columnName"];
-
-  if (columnName)
-    [self setColumnName: columnName];
-
-  tmpString = [propertyList objectForKey: @"prototypeName"];
-
-  if (tmpString)
     {
-      EOAttribute *attr = [[_parent model] prototypeAttributeNamed: tmpString];
-
-      if (attr)
-	[self setPrototype: attr];
+      [self _setDefinitionWithoutFlushingCaches: definition];
+      [_parent _setIsEdited];
     }
-
-  EOFLOGObjectLevelArgs(@"gsdb", @"Attribute %@ awakeWithPropertyList:%@",
-                        self, propertyList);
+  else
+    {
+      NSString *columnName=[propertyList objectForKey: @"columnName"];
+      if (columnName)
+	[self setColumnName: columnName];
+      else
+	{
+	  NSString *externalName=[propertyList objectForKey: @"externalName"];
+	  if ([externalName isKindOfClass:[NSString class]])
+	    [self setColumnName: externalName];
+	  else if ([externalName isKindOfClass:[NSDictionary class]])
+	    ASSIGN(_definitionArray,[self _objectForPList:(NSDictionary*)externalName]);
+	}
+    }
 }
 
 - (void)encodeIntoPropertyList: (NSMutableDictionary *)propertyList
@@ -303,7 +324,7 @@ RCS_ID("$Id$")
 
   if (_valueFactoryMethodName)
     {
-      NSString *methodArg;
+      NSString *methodArg = nil;
 
       [propertyList setObject: _valueFactoryMethodName
 		    forKey: @"valueFactoryMethodName"];
@@ -371,6 +392,7 @@ RCS_ID("$Id$")
 - (void)dealloc
 {
   DESTROY(_name);
+  DESTROY(_prototypeName);
   DESTROY(_prototype);
   DESTROY(_columnName);
   DESTROY(_externalType);
@@ -454,32 +476,27 @@ RCS_ID("$Id$")
 
 - (NSString *)definition
 {
-  NSString *definition = nil;
-
-  definition = [_definitionArray valueForSQLExpression: nil];
-
-  return definition;
+  return [_definitionArray valueForSQLExpression: nil];
 }
 
 - (NSString *)readFormat
 {
-  if (_readFormat)
-    return _readFormat;
-
-  return [_prototype readFormat];
+  return _readFormat;
 }
 
 - (NSString *)writeFormat
 {
-  if (_writeFormat)
-    return _writeFormat;
-
-  return [_prototype writeFormat];
+  return _writeFormat;
 }
 
 - (NSDictionary *)userInfo
 {
   return _userInfo;
+}
+
+- (NSDictionary *)internalInfo
+{
+  return _internalInfo;
 }
 
 - (NSString *)docComment
@@ -496,35 +513,17 @@ RCS_ID("$Id$")
  */
 - (int)scale
 {
-  if (_scale)
-    return _scale;
-
-  if (_prototype)
-    return [_prototype scale];
-
-  return 0;
+  return _scale;
 }
 
 - (unsigned)precision
 {
-  if (_precision)
-    return _precision;
-
-  if (_prototype)
-    return [_prototype precision];
-
-  return 0;
+  return _precision;
 }
 
 - (unsigned)width
 {
-  if (_width)
-    return _width;
-
-  if (_prototype)
-    return [_prototype width];
-
-  return 0;
+  return _width;
 }
 
 - (id)parent
@@ -549,18 +548,7 @@ RCS_ID("$Id$")
 
 - (BOOL)allowsNull
 {
-  if (_flags.allowsNull)
-    return _flags.allowsNull;
-
-  if (_prototype)
-    return [_prototype allowsNull];
-
-  return NO;
-}
-
-- (BOOL)isKeyDefinedByPrototype:(NSString *)key
-{
-  return NO; // TODO
+  return _flags.allowsNull;
 }
 
 - (EOStoredProcedure *)storedProcedure
@@ -573,14 +561,12 @@ RCS_ID("$Id$")
 
 - (BOOL)isReadOnly
 {
-//call isDerived
   if (_flags.isReadOnly)
-    return _flags.isReadOnly;
-
-  if (_prototype)
-    return [_prototype isReadOnly];
-
-  return NO;
+    return YES;
+  else if ([self isDerived] && ![self isFlattened])
+    return YES;
+  else
+    return NO;
 }
 
 /** 
@@ -592,11 +578,7 @@ RCS_ID("$Id$")
  **/
 - (BOOL)isDerived
 {
-  //Seems OK
-  if(_definitionArray)
-    return YES;
-
-  return NO;
+  return (_definitionArray==nil ? NO : YES);
 }
 
 
@@ -608,12 +590,28 @@ RCS_ID("$Id$")
  **/
 - (BOOL)isFlattened
 {
-  BOOL isFlattened = NO;
-  // Seems OK
-
-  if(_definitionArray)
-    isFlattened = [_definitionArray isFlattened];
-
+  //TODO cahe result ?
+  BOOL isFlattened=NO;
+  if (_definitionArray!=nil)
+    {
+      int definitionArrayCount=[_definitionArray count];
+      if (definitionArrayCount>=2)
+	{
+	  BOOL cont=YES;
+	  int i=0;
+	  for(i=0;i<definitionArrayCount-1;i++)
+	    {
+	      id d=[_definitionArray objectAtIndex:i];
+	      if (![d isKindOfClass:GDL2_EORelationshipClass])
+		{
+		  cont=NO;
+		  break;
+		}
+	    }
+	  if (cont)
+	    isFlattened=[[_definitionArray lastObject]isKindOfClass:GDL2_EOAttributeClass];
+	}
+    }
   return isFlattened;
 }
 
@@ -638,11 +636,10 @@ RCS_ID("$Id$")
 {
   if (_valueClassName)
     return _valueClassName;
-
-  if ([self isFlattened])
+  else if ([self isFlattened])
     return [[_definitionArray realAttribute] valueClassName];
-
-  return [_prototype valueClassName];
+  else
+    return nil;
 }
 
 /**
@@ -659,11 +656,10 @@ RCS_ID("$Id$")
 {
   if (_externalType)
     return _externalType;
-
-  if ([self isFlattened])
+  else if ([self isFlattened])
     return [[_definitionArray realAttribute] externalType];
-
-  return [_prototype externalType];
+  else 
+    return nil;
 }
 
 /**
@@ -697,16 +693,26 @@ RCS_ID("$Id$")
   else if([self isFlattened])
     return [[_definitionArray realAttribute] valueType];
   else
-    return [_prototype valueType];
+    return nil;
 }
 
 - (void)setParent: (id)parent
 {
-  //OK
   [self willChange];
   _parent = parent;
   
-  _flags.isParentAnEOEntity = [_parent isKindOfClass: [EOEntity class]];//??
+  _flags.isParentAnEOEntity = [_parent isKindOfClass: GDL2_EOEntityClass];//??
+}
+
+- (void)setEntity:(EOEntity*)entity
+{
+  if(_parent !=entity)
+    {
+      if(_parent != nil
+	 && self == [_parent attributeNamed:[self name]])
+	[_parent removeAttribute:self];
+      [self setParent:entity];
+    }
 }
 
 /**
@@ -715,13 +721,37 @@ RCS_ID("$Id$")
 
 - (BOOL)referencesProperty:(id)aProperty
 {
-  if (!_definitionArray)
-  {
+  if (_definitionArray==nil)
     return NO;
-  } else {
-    // _definitionArray is an EOExpressionArray
+  else
     return [_definitionArray referencesObject:aProperty];
-  }
+}
+
+- (NSString*)relationshipPath
+{
+  if([self isFlattened])
+    {
+      NSMutableString* s=[NSMutableString string];
+      int count = [_definitionArray count] - 1;
+      int i=0;
+      for(i = 0; i < count; i++)
+        {
+	  if (i>0)
+	    [s appendString:@"."];
+	  [s appendString:[[_definitionArray objectAtIndex:i] name]];
+        }
+      return [NSString stringWithString:s];
+    }
+  else
+    return nil;
+}
+
+- (EOAttribute*)targetAttribute
+{
+  if([self isFlattened])
+    return [_definitionArray lastObject];
+  else
+    return nil;
 }
 
 @end
@@ -735,11 +765,8 @@ RCS_ID("$Id$")
   NSString *value=nil;
   
   if (sqlExpression != nil)
-  {
-    return [sqlExpression sqlStringForAttribute:self];
-  }
-  
-  if (_definitionArray)
+    value=[sqlExpression sqlStringForAttribute:self];
+  else if (_definitionArray)
     value = [_definitionArray valueForSQLExpression: sqlExpression];
   else
     value = [self name];
@@ -756,8 +783,11 @@ RCS_ID("$Id$")
   const char *p, *s = [name cString];
   int exc = 0;
 
-  if ([_name isEqual:name]) return nil;
-  if (!name || ![name length]) exc++;
+  if ([_name isEqual:name])
+    return nil;
+
+  if (!name || ![name length])
+    exc++;
 
   if (!exc)
     {
@@ -832,83 +862,143 @@ RCS_ID("$Id$")
 {
   if ([_name isEqual: name]==NO)
     {
-      NSString *oldName = nil;
       [[self validateName: name] raise];
 
-      oldName = AUTORELEASE(RETAIN(_name));
+      AUTORELEASE(RETAIN(_name));
       [self willChange];
       ASSIGNCOPY(_name, name);
       if (_flags.isParentAnEOEntity)
-	{
-	  [_parent _setIsEdited];
-	}
+	[_parent _setIsEdited];
     }
-
 }
 
 - (void)setPrototype: (EOAttribute *)prototype 
 {
-  [self willChange];
-  ASSIGN(_prototype, prototype);
+  if(_prototype != prototype
+     && ![_prototypeName isEqualToString:[prototype name]])
+    {
+      [self willChange];
+      _flags.protoOverride = 0;
+      ASSIGN(_prototypeName, [prototype name]);
+      if (_prototypeName != nil)
+	{
+	  ASSIGN(_prototype,[[self _parentModel]prototypeAttributeNamed:_prototypeName]);
+	  if(_prototype == nil)
+	    ASSIGN(_prototype,prototype);
+	  [self _updateFromPrototype];
+	}
+      else
+	{
+	  DESTROY(_prototype);
+        };
+    };
 }
 
 - (void)setColumnName: (NSString *)columnName
 {
-  //seems OK
-  [self willChange];
+  if (columnName!=nil
+      || _columnName!=nil)
+    {
+      [self willChange];
 
-  ASSIGNCOPY(_columnName, columnName);
-  DESTROY(_definitionArray);
-
-  [_parent _setIsEdited];
-  [self _setOverrideForKeyEnum:1];
+      ASSIGNCOPY(_columnName, columnName);
+      DESTROY(_definitionArray);
+      
+      [_parent _setIsEdited];
+      [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_columnName];
+    }
 }
 
-- (void)_setDefinitionWithoutFlushingCaches: (NSString *)definition
+-(id)_normalizeDefinition: (id)definition
+                     path: (NSArray*)path
 {
-  EOExpressionArray *expressionArray=nil;
-
-  [self willChange];
-  expressionArray = [_parent _parseDescription: definition
-			     isFormat: NO
-			     arguments: NULL];
-
-  expressionArray = [self _normalizeDefinition: expressionArray
-			  path: nil];
-  /*
-  //TODO finish
-  l un est code 
-  
-  entity primaryKeyAttributes (code)
-  ??
-
-  [self _removeFromEntityArray:code selector:setPrimaryKeyAttributes:
-  */
-
-  ASSIGN(_definitionArray, expressionArray);
+  id result=nil;
+  if ([definition isKindOfClass:[NSString class]])
+    result=definition;
+  else if ([definition isKindOfClass:GDL2_EOAttributeClass])
+    {
+      EOAttribute* attribute = (EOAttribute*)definition;
+      if (attribute == self)
+	result=nil;
+      else
+	{
+	  if ([attribute isDerived])
+	    {
+	      result = [self _normalizeDefinition:[attribute _definitionArray]
+			     path:path];
+	    }
+	  else if ([path count] == 0)
+	    {
+	      result = attribute;
+	    }
+	  else
+	    {
+	      EOExpressionArray* exprArray = [EOExpressionArray expressionArray];
+	      [exprArray setInfix:@"."];
+	      if (path!=nil)
+		[exprArray addObjectsFromArray:path];
+	      [exprArray addObject:attribute];
+	      result = exprArray;
+	    }
+	}
+    }
+  else if ([(EOExpressionArray*)definition _isPropertyPath])
+    {
+      int count = [(EOExpressionArray*)definition count];
+      int i=0;
+      EOExpressionArray* exprArray = [EOExpressionArray expressionArray];
+      [exprArray setInfix:@"."];
+      if (path!=nil)
+	[exprArray addObjectsFromArray:path];
+      
+      for(i=0; i < count-1; i++)
+	[exprArray addObject:[(EOExpressionArray*)definition objectAtIndex:i]];
+      
+      EOAttribute* attribute = [(EOExpressionArray*)definition lastObject];
+      if ([attribute isDerived])
+	{
+	  result=[self _normalizeDefinition:[attribute _definitionArray]
+		       path:exprArray];
+	}
+      else
+	{
+	  [exprArray addObject:attribute];
+	  result = exprArray;
+	}
+    }
+  else
+    {
+      int count = [(EOExpressionArray*)definition count];
+      int i=0;
+      EOExpressionArray* exprArray = [EOExpressionArray expressionArray];
+      for(i = 0; i < count; i++)
+	{
+	  id aDef = [self _normalizeDefinition:[(EOExpressionArray*)definition objectAtIndex:i]
+			  path:path];
+	  if (aDef == nil)
+	    {
+	      result=nil;
+	      break;
+	    }
+	  else if ([aDef isKindOfClass:[EOExpressionArray class]]
+		   && ![(EOExpressionArray*)aDef _isPropertyPath])
+	    {
+	      int aDefCount = [(EOExpressionArray*)aDef count];
+	      int j=0;
+	      for(j=0;j<aDefCount;j++)
+		[exprArray addObject:[(EOExpressionArray*)aDef objectAtIndex:j]];	      
+	    } 
+	  else
+	    {
+	      [exprArray addObject:aDef];
+	    }
+	}
+      
+      result = exprArray;
+    }
+  return result;
 }
 
--(id)_normalizeDefinition: (EOExpressionArray*)definition
-                     path: (id)path
-{
-//TODO
-/*
-definition _isPropertyPath //NO
-count
-object atindex
-  self _normalizeDefinition:ret path:NSArray()
-adddobject
-
-
-if attribute
-if isderived //NO
-??
-ret attr 
-
-return nexexp
-*/
-  return definition;
-}
 
 /**
  * <p>Sets the definition of a derived attribute.</p>
@@ -922,52 +1012,62 @@ return nexexp
  */
 - (void)setDefinition:(NSString *)definition
 {
-  if(definition)
+  if (definition!=nil
+      || _definitionArray!=nil)
     {
       [self willChange];
       [self _setDefinitionWithoutFlushingCaches: definition];
-      DESTROY(_columnName);
       [_parent _setIsEdited];
     }
 }
 
 - (void)setReadOnly: (BOOL)yn
 {
-  if(!yn && ([self isDerived] && ![self isFlattened]))
-    [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%p: cannot set to NO while the attribute is derived but not flattened.",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self];
-
-  [self willChange];
-  _flags.isReadOnly = yn;
+  if (yn!=_flags.isReadOnly)
+    {
+      if(!yn && ([self isDerived] && ![self isFlattened]))
+	[NSException raise: NSInvalidArgumentException
+		     format: @"%@ -- %@ 0x%p: cannot set to NO while the attribute is derived but not flattened.",
+		     NSStringFromSelector(_cmd),
+		     NSStringFromClass([self class]),
+		     self];
+      
+      [self willChange];
+      _flags.isReadOnly = yn;
+      [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_readOnly];
+    }
 }
 
 - (void)setExternalType: (NSString *)type
 {
-  //OK
-  [self willChange];
+  if (_externalType==nil
+      || ![_externalType isEqualToString:type])
+    {
+      [self willChange];
 
-  ASSIGNCOPY(_externalType, type);
-
-  [_parent _setIsEdited];
-  [self _setOverrideForKeyEnum: 0];//TODO
+      ASSIGNCOPY(_externalType, type);
+      
+      [_parent _setIsEdited];
+      [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_externalType];
+    }
 }
 
 - (void)setValueType: (NSString *)type
 {
-  //OK
-  [self willChange];
+  if (_valueType==nil
+      || ![_valueType isEqualToString:type])
+    {
+      [self willChange];
 
-  ASSIGNCOPY(_valueType, type);
-
-  if ([_valueType length]==1)
-    _valueTypeCharacter = [_valueType characterAtIndex:0];
-  else
-    _valueTypeCharacter = '\0';
-
-  [self _setOverrideForKeyEnum: 4];//TODO
+      ASSIGNCOPY(_valueType, type);
+      
+      if ([_valueType length]==1)
+	_valueTypeCharacter = [_valueType characterAtIndex:0];
+      else
+	_valueTypeCharacter = '\0';
+      
+      [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_valueType];
+    }
 }
 
 - (void)setValueClassName: (NSString *)name
@@ -980,53 +1080,66 @@ return nexexp
 
   _flags.isAttributeValueInitialized = NO;
 
-  [self _setOverrideForKeyEnum: 3];//TODO
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_valueClassName];
 }
 
 - (void)setWidth: (unsigned)length
 {
   [self willChange];
   _width = length;
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_width];
 }
 
 - (void)setPrecision: (unsigned)precision
 {
   [self willChange];
   _precision = precision;
+
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_precision];
 }
 
 - (void)setScale: (int)scale
 {
   [self willChange];
   _scale = scale;
+
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_scale];
 }
 
 - (void)setAllowsNull: (BOOL)allowsNull
 {
-  //OK
-  [self willChange];
+  if (allowsNull!=_flags.allowsNull)
+    {
+      [self willChange];
 
-  _flags.allowsNull = allowsNull;
-
-  [self _setOverrideForKeyEnum: 15];//TODO
+      _flags.allowsNull = allowsNull;
+      
+      [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_allowsNull];
+    }
 }
 
 - (void)setWriteFormat: (NSString *)string
 {
   [self willChange];
   ASSIGNCOPY(_writeFormat, string);
+
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_writeFormat];
 }
 
 - (void)setReadFormat: (NSString *)string
 {
   [self willChange];
   ASSIGNCOPY(_readFormat, string);
+
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_readFormat];
 }
 
 - (void)setParameterDirection: (EOParameterDirection)parameterDirection
 {
   [self willChange];
   _parameterDirection = parameterDirection;
+
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_parameterDirection];
 }
 
 - (void)setUserInfo: (NSDictionary *)dictionary
@@ -1037,7 +1150,7 @@ return nexexp
   ASSIGN(_userInfo, dictionary);
 
   [_parent _setIsEdited];
-  [self _setOverrideForKeyEnum: 10];//TODO
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_userInfo];
 }
 
 - (void)setInternalInfo: (NSDictionary *)dictionary
@@ -1046,7 +1159,7 @@ return nexexp
   [self willChange];
   ASSIGN(_internalInfo, dictionary);
   [_parent _setIsEdited];
-  [self _setOverrideForKeyEnum: 10]; //TODO
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_internalInfo];
 }
 
 - (void)setDocComment: (NSString *)docComment
@@ -1128,6 +1241,8 @@ return nexexp
 {
   [self willChange];
   ASSIGN(_serverTimeZone, tz);
+
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_serverTimeZone];
 }
 
 @end
@@ -1152,7 +1267,8 @@ return nexexp
   NSData *value = nil;
   Class valueClass = [self _valueClass];
 
-  if (valueClass != Nil && valueClass != GDL2_NSDataClass)
+  if (valueClass != Nil
+      && valueClass != GDL2_NSDataClass)
     {
       switch (_argumentType)
         {
@@ -1161,7 +1277,7 @@ return nexexp
             //For efficiency reasons, the returned value is NOT autoreleased !
             value = [GDL2_alloc(NSData) initWithBytes: bytes length: length];
             
-            // If we have a value factiry method, call it to get the final value
+            // If we have a value factory method, call it to get the final value
             if(_valueFactoryMethod != NULL)
               {
                 NSData* tmp = value;
@@ -1261,7 +1377,7 @@ return nexexp
                                                 length: length
                                               encoding: encoding];
         
-        // If we have a value factiry method, call it to get the final value
+        // If we have a value factory method, call it to get the final value
         if(_valueFactoryMethod != NULL)
         {                
           value = [((id)valueClass) performSelector: _valueFactoryMethod
@@ -1593,6 +1709,8 @@ See also: -setFactoryMethodArgumentType:
   [self willChange];
   ASSIGNCOPY(_valueFactoryMethodName, factoryMethodName);
   _valueFactoryMethod = NSSelectorFromString(_valueFactoryMethodName);
+
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_valueFactoryMethodName];
 }
 
 /** 
@@ -1609,6 +1727,8 @@ See also: -setFactoryMethodArgumentType:
 
   _adaptorValueConversionMethod 
     = NSSelectorFromString(_adaptorValueConversionMethodName);
+
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_adaptorValueConversionMethodName];
 }
 
 /** Set the type of argument needed by the factoryMethod.
@@ -1631,6 +1751,8 @@ See also:   -setValueFactoryMethodName:, -factoryMethodArgumentType
 {
   [self willChange];
   _argumentType = argumentType;
+
+  [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_factoryMethodArgumentType];
 }
 
 @end
@@ -1935,42 +2057,228 @@ More details:
   return valueTypeCharacter;
 };
 
+- (void)_setDefinitionWithoutFlushingCaches: (NSString *)definition
+{
+  if (_parent != nil)
+    {
+      [self willChange];
+      DESTROY(_columnName);
+      if (definition==nil)
+	{
+	  DESTROY(_definitionArray);
+	}
+      else
+	{
+	  EOExpressionArray* exprArray = [_parent _parseDescription: definition
+						  isFormat: NO
+						  arguments: NULL];
+	  if (exprArray!=nil)
+	    {
+	      if (![exprArray isKindOfClass:[EOExpressionArray class]])
+		exprArray=[EOExpressionArray arrayWithObject:exprArray];
+	      exprArray = [self _normalizeDefinition: exprArray
+				path: nil];
+            }
+	  ASSIGN(_definitionArray,exprArray);
+	  [self _removeFromEntityArray:[_parent primaryKeyAttributes]
+		selector:@selector(setPrimaryKeyAttributes:)];
+	}
+    }
+}
+
+- (EOModel*)_parentModel
+{
+  return [_parent model];
+}
+
+- (void)_removeFromEntityArray:(NSArray*)entityArray
+		      selector:(SEL)setSelector
+{
+  if ([entityArray indexOfObject:self]!=NSNotFound)
+    {
+      NSMutableArray* a = AUTORELEASE([entityArray mutableCopy]);
+      [a removeObjectIdenticalTo:self];
+      [[self entity] performSelector:setSelector
+		     withObject:a];
+    }
+}
+
+-(EOExpressionArray*)_objectForPList:(NSDictionary*)pList
+{
+  EOExpressionArray* result=nil;
+  if ([pList isKindOfClass:[NSString class]])
+    result=(EOExpressionArray*)pList;
+  else if(![pList isKindOfClass:[NSDictionary class]])
+    result=nil;
+  else
+    {
+      NSDictionary* pListDict = (NSDictionary*)pList;
+      NSString* tmpString=nil;
+
+      tmpString=[pListDict objectForKey:@"name"];
+      if (tmpString!=nil)
+	result=[[self entity] _parsePropertyName:tmpString];
+      else
+	{
+	  tmpString=[pListDict objectForKey:@"path"];
+	  if (tmpString!=nil)
+	    result=[[self entity]_parsePropertyName:tmpString];
+	  else
+	    {
+	      NSArray* array=[pListDict objectForKey:@"array"];
+	      if (array==nil)
+		result=nil;
+	      else
+		{
+		  int count = [array count];
+		  EOExpressionArray* exprArray = [EOExpressionArray expressionArray];
+		  
+		  tmpString=[pListDict objectForKey:@"prefix"];
+		  if (tmpString!=nil)
+		    [exprArray setPrefix:tmpString];
+		  
+		  tmpString=[pListDict objectForKey:@"infix"];
+		  if (tmpString!=nil)
+		    [exprArray setInfix:tmpString];
+		  
+		  tmpString=[pListDict objectForKey:@"suffix"];
+		  if (tmpString!=nil)
+		    [exprArray setSuffix:tmpString];
+		  
+		  if (count>0)
+		    {
+		      int i=0;
+		      for(i=0;i<count;i++)
+			{
+			  EOExpressionArray* part = [self _objectForPList:[array objectAtIndex:i]];
+			  if (part!=nil)
+			    [exprArray addObject:part];
+			}
+		    }
+		  result=exprArray;
+		}
+	    }
+	}
+    }
+  return result;
+}
+
+- (void) _setValuesFromTargetAttribute
+{
+  if ([self isFlattened])
+    {
+      EOAttribute* attribute = [_definitionArray lastObject];
+      [self setExternalType:[attribute externalType]];
+      [self setValueClassName:[attribute valueClassName]];
+      [self setValueType:[attribute valueType]];
+      [self setWidth:[attribute width]];
+      [self setAllowsNull:[attribute allowsNull]];
+      [self setReadFormat:[attribute readFormat]];
+      [self setWriteFormat:[attribute writeFormat]];
+      [self setReadOnly:[attribute isReadOnly]];
+      [self setParameterDirection:[attribute parameterDirection]];
+      [self setUserInfo:[attribute userInfo]];
+      [self setInternalInfo:[attribute internalInfo]];
+      switch([attribute adaptorValueType])
+	{
+	case EOAdaptorNumberType:
+	  [self setPrecision:[attribute precision]];
+	  [self setScale:[attribute scale]];
+	  break;
+	case EOAdaptorCharactersType:
+	  break;
+	case EOAdaptorBytesType:
+	  [self setValueFactoryMethodName:[attribute valueFactoryMethodName]];
+	  [self setAdaptorValueConversionMethodName:[attribute adaptorValueConversionMethodName]];
+	  [self setFactoryMethodArgumentType:[attribute factoryMethodArgumentType]];
+	  break;
+	case EOAdaptorDateType:
+	  [self setServerTimeZone:[attribute serverTimeZone]];
+	  break;
+	}
+    }
+}  
+
+-(void)_setSourceToDestinationKeyMap:(NSDictionary*)map
+{
+  ASSIGN(_sourceToDestinationKeyMap,map);
+}
+
+-(NSDictionary*) _sourceToDestinationKeyMap
+{
+  if (_sourceToDestinationKeyMap == nil)
+    [self _setSourceToDestinationKeyMap:[[self entity]_keyMapForRelationshipPath:[self relationshipPath]]];
+  return _sourceToDestinationKeyMap;
+}
+
+
 @end
 
 @implementation EOAttribute (EOAttributePrivate2)
 
++ (NSArray*)_prototypeKeys
+{
+  return staticPrototypeKeys;
+}
+
++ (NSString*)_keyForEnum:(int)enumValue
+{
+  return [staticPrototypeKeys objectAtIndex:enumValue];
+}
+
 - (BOOL) _hasAnyOverrides
 {
-  [self notImplemented: _cmd]; //TODO
-  return NO;
+  return (_flags.protoOverride==0 ? NO : YES);
 }
 
 - (void) _resetPrototype
 {
-  [self notImplemented: _cmd]; //TODO
+  if (_prototypeName != nil)
+    {
+      DESTROY(_prototype);
+      [self prototype];
+    }
 }
 
 - (void) _updateFromPrototype
 {
-  [self notImplemented: _cmd]; //TODO
+  // backup protoOverride flags  
+  int protoOverride = _flags.protoOverride;
+
+  NSMutableArray* overridenProtoKeys=
+    [NSMutableArray arrayWithCapacity:EOATTRIBUTE_PROTO_OVERRIDE_BITS_COUNT];
+  int i=0;
+
+  // Get overriden prototype keys
+  for(i = 0; i < EOATTRIBUTE_PROTO_OVERRIDE_BITS_COUNT; i++)
+    {
+      if ((_flags.protoOverride & 1 << i) != 0)
+	[overridenProtoKeys addObject:[GDL2_EOAttributeClass _keyForEnum:i]];
+    }
+
+  // Remove overriden from all keys
+  NSArray* notOverridenProtoKeys=[[GDL2_EOAttributeClass _prototypeKeys] 
+				  arrayExcludingObjectsInArray:overridenProtoKeys];
+  NSDictionary* notOverridenKV=[_prototype valuesForKeys:notOverridenProtoKeys];
+  [self takeValuesFromDictionary:notOverridenKV];
+
+  // restore protoOverride flags
+  _flags.protoOverride = protoOverride;
 }
 
-- (void) _setOverrideForKeyEnum: (int)keyEnum
+- (void) _setOverrideForKeyEnum: (EOAttributeProtoOverrideBits)keyEnum
 {
-  //[self notImplemented:_cmd]; //TODO
+  _flags.protoOverride|= 1 << keyEnum;
 }
 
-- (BOOL) _isKeyEnumOverriden: (int)param0
+- (BOOL) _isKeyEnumOverriden: (EOAttributeProtoOverrideBits)keyEnum
 {
-  [self notImplemented: _cmd]; //TODO
-  return NO;
+  return ((_prototype != nil && (_flags.protoOverride & 1 << keyEnum) != 0) ? YES : NO);
 }
 
-- (BOOL) _isKeyEnumDefinedByPrototype: (int)param0
+- (BOOL) _isKeyEnumDefinedByPrototype: (EOAttributeProtoOverrideBits)keyEnum
 {
-  [self notImplemented: _cmd]; //TODO
-  return NO;
+  return ((_prototype != nil && (_flags.protoOverride & 1 << keyEnum) == 0) ? YES : NO);
 }
 
 @end
-

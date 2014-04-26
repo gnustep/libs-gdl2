@@ -85,6 +85,7 @@
   EOMKKDInitializer* _propertyDictionaryInitializer;
   EOMKKDInitializer* _instanceDictionaryInitializer;
   EOMKKDSubsetMapping* _snapshotToAdaptorRowSubsetMapping;
+  NSMutableDictionary* _flattenedAttNameToSnapshotKeyMapping;
 
   Class _classForInstances;
 
@@ -116,7 +117,7 @@
     unsigned int isAbstractEntity:1;
     unsigned int updating:1;
     unsigned int cachesObjects:1;
-    unsigned int unused:1;
+    unsigned int isSingleTableEntity:1;
 
     unsigned int extraRefCount:22;
   } _flags;

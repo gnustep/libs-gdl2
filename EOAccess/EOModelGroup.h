@@ -50,7 +50,7 @@
 {
   NSMutableDictionary *_modelsByName;
   id _delegate;
-
+@public //EORelationship need access to relationshipForRow
   struct {
     unsigned int entityNamed:1;
     unsigned int relationshipForRow:1;

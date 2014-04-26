@@ -599,6 +599,10 @@ prepareInsertExpressionWithRow:changedValues
   int i = 0;
   int count = 0;
 
+  if (_delegateRespondsTo.willPerformOperations)
+      adaptorOperations=[_delegate adaptorChannel: self 
+				   willPerformOperations: adaptorOperations];
+
   count=[adaptorOperations count];
 
   for(i = 0; i < count; i++)

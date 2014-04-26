@@ -91,8 +91,16 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 @end /* EOModel (EOModelPrivate) */
 
-
 @implementation EOModel
+
++ (void)initialize
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+    };
+};
 
 + (EOModel*) model
 {
@@ -199,8 +207,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 
 - (id)init
 {
-
-
   if ((self = [super init]))
     {
       // Turbocat
@@ -219,7 +225,6 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
         name: EOClassDescriptionNeededNotification
         object: nil];
 
-      //No ?
       [[NSNotificationCenter defaultCenter]
         addObserver: self
         selector: @selector(_classDescriptionNeeded:)
@@ -1344,7 +1349,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   for (; refIdx < refCount; refIdx++) {
     id refObj = [references objectAtIndex:refIdx];
     
-    if ([refObj class] == [EOAttribute class])
+    if ([refObj class] == GDL2_EOAttributeClass)
     {
       [[(EOAttribute*) refObj entity] removeAttribute:refObj];
     } else {
@@ -1404,7 +1409,7 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   NSString *entityName = nil;
   NSString *entityClassName = nil;
 
-  if ([entity isKindOfClass: [EOEntity class]])
+  if ([entity isKindOfClass:GDL2_EOEntityClass])
     {
       entityName = [entity name];
       entityClassName = [entity className];
@@ -1895,17 +1900,49 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
   return returnPath;
 }
 
+-(NSDictionary*)propertyListForEntity:(id)entity
+				 name:(NSString*)name
+{
+  NSDictionary* propList=nil;
+
+  NSString* plistPathName = [[[self path] stringByAppendingPathComponent: name]
+			      stringByAppendingPathExtension: @"plist"];
+
+  EOFLOGObjectLevelArgs(@"gsdb", @"entity plistPathName =%@",
+			plistPathName);
+  
+  propList = [NSDictionary dictionaryWithContentsOfFile: plistPathName];
+  EOFLOGObjectLevelArgs(@"gsdb", @"entity propList=%@", propList);
+
+  if (!propList)
+    {
+      if ([[NSFileManager defaultManager]
+	    fileExistsAtPath: plistPathName])
+	{
+	  NSAssert1(NO,
+		    @"%@ is not a dictionary or is not readable.",
+		    plistPathName);
+	}
+      else
+	{
+	  propList = entity;
+	  NSWarnLog(@"%@ doesn't exists. Using %@",
+		    plistPathName, propList);
+	}
+    }
+  return propList;  
+}
+
 - (EOEntity *) _verifyBuiltEntityObject: (id)entity
 				  named: (NSString*)name
 {
-  if ([entity isKindOfClass: [EOEntity class]] == NO)
+  if ([entity isKindOfClass:GDL2_EOEntityClass] == NO)
     {
       [EOObserverCenter suppressObserverNotification];
 
       NS_DURING
         {
           NSString *basePath = nil;
-          NSString *plistPathName = nil;
           NSDictionary *propList = nil;
 
           EOFLOGObjectLevelArgs(@"gsdb", @"name=%@", name);
@@ -1928,32 +1965,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 	    }
 	  else
 	    {
-	      plistPathName = [[basePath stringByAppendingPathComponent: name]
-				stringByAppendingPathExtension: @"plist"];
-
-	      EOFLOGObjectLevelArgs(@"gsdb", @"entity plistPathName =%@",
-				    plistPathName);
-
-	      propList 
-		= [NSDictionary dictionaryWithContentsOfFile: plistPathName];
-	      EOFLOGObjectLevelArgs(@"gsdb", @"entity propList=%@", propList);
-
-	      if (!propList)
-		{
-		  if ([[NSFileManager defaultManager]
-			fileExistsAtPath: plistPathName])
-		    {
-		      NSAssert1(NO,
-				@"%@ is not a dictionary or is not readable.",
-				plistPathName);
-		    }
-		  else
-		    {
-		      propList = entity;
-		      NSWarnLog(@"%@ doesn't exists. Using %@",
-				plistPathName, propList);
-		    }
-		}
+	      propList=[self propertyListForEntity:entity
+			     name:name];
 	    }
 
           [self _removeEntity: entity];

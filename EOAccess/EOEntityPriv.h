@@ -63,13 +63,13 @@
 - (NSArray *)relationshipsPlist;
 - (id)rootParent;
 - (void)_setParent: (id)param0;
-- (NSArray *)_hiddenRelationships;
+- (NSMutableArray *)_hiddenRelationships;
 - (NSArray *)_propertyNames;
-- (id)_flattenAttribute: (id)param0
-       relationshipPath: (id)param1
-      currentAttributes: (id)param2;
+- (EOAttribute*) _flattenAttribute: (EOAttribute*)attribute
+		  relationshipPath: (NSString*)relationshipPath
+		 currentAttributes: (NSDictionary*)currentAttributes;
 - (NSString *)snapshotKeyForAttributeName: (NSString *)attributeName;
-- (id)_flattenedAttNameToSnapshotKeyMapping;
+- (NSDictionary*)_flattenedAttNameToSnapshotKeyMapping;
 - (EOMKKDSubsetMapping *)_snapshotToAdaptorRowSubsetMapping;
 - (EOMutableKnownKeyDictionary *)_dictionaryForPrimaryKey;
 - (EOMutableKnownKeyDictionary *)_dictionaryForProperties;
@@ -93,19 +93,18 @@
 @end
 
 @interface EOEntity (EOEntityRelationshipPrivate)
-- (EORelationship *)_inverseRelationshipPathForPath: (NSString *)path;
+- (NSString *)_inverseRelationshipPathForPath: (NSString *)path;
 - (NSDictionary *)_keyMapForRelationshipPath: (NSString *)path;
 - (NSDictionary*)_keyMapForIdenticalKeyRelationshipPath: (NSString *)path;
 - (EOAttribute*)_mapAttribute: (EOAttribute*)attribute
 toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path;
 - (BOOL)_relationshipPathIsToMany: (NSString *)relPath;
-- (BOOL)_relationshipPathHasIdenticalKeys: (id)param0;
+- (BOOL)_relationshipPathHasIdenticalKeys: (NSString*)path;
 @end
 
 
 @interface EOEntity (EOEntitySQLExpression)
 - (NSString *)valueForSQLExpression: (EOSQLExpression *)sqlExpression;
-+ (NSString *)valueForSQLExpression: (EOSQLExpression *)sqlExpression;
 @end
 
 @interface EOEntity (EOEntityPrivateXX)
@@ -123,7 +122,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path;
 - (NSArray *)classPropertyAttributeNames;
 - (NSArray *)classPropertyToManyRelationshipNames;
 - (NSArray *)classPropertyToOneRelationshipNames;
-- (id)qualifierForDBSnapshot: (id)param0;
+- (EOQualifier*) qualifierForDBSnapshot:(NSDictionary*)dbSnapshot;
 - (void)_addAttributesToFetchForRelationshipPath: (NSString *)path
 					    atts: (NSMutableDictionary *)atts;
 - (NSArray *)dbSnapshotKeys;

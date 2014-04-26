@@ -56,6 +56,7 @@ RCS_ID("$Id$")
 #include <EOControl/EODebug.h>
 
 #include <EOAccess/EOModel.h>
+#include <EOAccess/EOModelGroup.h>
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOStoredProcedure.h>
@@ -201,24 +202,18 @@ RCS_ID("$Id$")
   //Near OK
   if ((self = [self init]))
     {
-      NSString *joinSemanticString = nil;
-      EOModel *model;
+      EOModel* model = [owner model];
+      NSString* relationshipName = [propertyList objectForKey: @"name"];
+      NSString* joinSemanticString = nil;
       NSString* destinationEntityName = nil;
       EOEntity* destinationEntity = nil;
       NSString* deleteRuleString = nil;
-      NSString* relationshipName;
-
-
-
-      model = [owner model];
-      relationshipName = [propertyList objectForKey: @"name"];
 
       /* so setName: can validate against the owner */
       [self setEntity: owner];
       [self setName: relationshipName]; 
 
       destinationEntityName = [propertyList objectForKey: @"destination"];
-
       if (destinationEntityName) //If not, this is because it's a definition
         {
           destinationEntity = [model entityNamed: destinationEntityName];
@@ -295,14 +290,7 @@ RCS_ID("$Id$")
 
 - (void)awakeWithPropertyList: (NSDictionary *)propertyList  //TODO
 {
-  //OK for definition
-  NSString *definition;
-
-
-
-  EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@", self);
-
-  definition = [propertyList objectForKey: @"definition"];
+  NSString *definition = [propertyList objectForKey: @"definition"];
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"definition=%@", definition);
 
@@ -334,22 +322,21 @@ RCS_ID("$Id$")
 
               for (i = 0; i < count; i++)
                 {
-                  NSDictionary *joinPList;
-                  NSString *joinSemantic;
-                  NSString *sourceAttributeName;
-                  EOAttribute *sourceAttribute;
-                  EOEntity *destinationEntity;
-                  NSString *destinationAttributeName = nil;
-                  EOAttribute *destinationAttribute = nil;
+                  NSDictionary *joinPList = 
+		    [joins objectAtIndex: i];
+                  /*NSString *joinSemantic = 
+		    [joinPList objectForKey: @"joinSemantic"];*/
+                  NSString *sourceAttributeName = 
+		    [joinPList objectForKey:@"sourceAttribute"];
+                  EOAttribute *sourceAttribute = 
+		    [_entity attributeNamed:sourceAttributeName];		    
+                  EOEntity *destinationEntity = 
+		    [self destinationEntity];
+                  NSString *destinationAttributeName = 
+		    [joinPList objectForKey:@"destinationAttribute"];
+                  EOAttribute *destinationAttribute = 
+		    [destinationEntity attributeNamed:destinationAttributeName];
                   EOJoin *join = nil;
-
-                  joinPList = [joins objectAtIndex: i];
-                  joinSemantic = [joinPList objectForKey: @"joinSemantic"];
-
-                  sourceAttributeName = [joinPList objectForKey:
-						     @"sourceAttribute"];
-                  sourceAttribute = [_entity attributeNamed:
-					       sourceAttributeName];
 
                   NSAssert4(sourceAttribute, @"No sourceAttribute named \"%@\" in entity \"%@\" in relationship %@\nEntity: %@",
                             sourceAttributeName,
@@ -357,17 +344,10 @@ RCS_ID("$Id$")
                             self,
                             _entity);
 
-                  destinationEntity = [self destinationEntity];
                   NSAssert3(destinationEntity,@"No destination entity for relationship named '%@' in entity named '%@': %@",
                             [self name],
                             [[self entity]name],
                             self);
-                  destinationAttributeName = [joinPList
-					       objectForKey:
-						 @"destinationAttribute"];
-                  destinationAttribute = [destinationEntity
-					   attributeNamed:
-					     destinationAttributeName];
 
                   NSAssert4(destinationAttribute, @"No destinationAttribute named \"%@\" in entity \"%@\" in relationship %@\nEntity: %@",
                             destinationAttributeName,
@@ -621,12 +601,20 @@ destination entity of the last relationship in definition. **/
 
 - (BOOL) isParentRelationship
 {
-  BOOL isParentRelationship = NO;
-  /*EOEntity *destinationEntity = [self destinationEntity];
-    EOEntity *parentEntity = [_entity parentEntity];*///nil
-
-  NSEmitTODO();  //TODO
-  // [self notImplemented:_cmd]; //TODO...
+  BOOL isParentRelationship=NO;
+  EOEntity *destinationEntity = [self destinationEntity];
+  if(destinationEntity != nil
+     && destinationEntity == [_entity parentEntity])
+    {
+      NSArray* attributes = [self sourceAttributes];
+      NSArray* pkAttributes = [_entity primaryKeyAttributes];
+      if([attributes containsIdenticalObjectsWithArray:pkAttributes])
+	{
+	  attributes = [self destinationAttributes];
+	  pkAttributes = [_destination primaryKeyAttributes];
+	  isParentRelationship=[attributes containsIdenticalObjectsWithArray:pkAttributes];
+	}
+    }
 
   return isParentRelationship;
 }
@@ -636,10 +624,7 @@ destination entity of the last relationship in definition. **/
 **/
 - (BOOL)isFlattened
 {
-  if (_definitionArray)
-    return [_definitionArray isFlattened];
-  else
-    return NO;
+  return (_definitionArray==nil ? NO : YES);
 }
 
 /** return YES if the relation if a to-many one, NO otherwise (please read books 
@@ -664,7 +649,6 @@ to know what to-many mean :-)  **/
 
 - (NSArray *)sourceAttributes
 {
-  //OK
   if (!_sourceAttributes)
     {
       int i, count = [_joins count];
@@ -684,7 +668,6 @@ to know what to-many mean :-)  **/
 
 - (NSArray *)destinationAttributes
 {
-  //OK
   if (!_destinationAttributes)
     {
       int i, count = [_joins count];
@@ -723,19 +706,7 @@ to know what to-many mean :-)  **/
  */
 - (NSArray *)componentRelationships
 {
-  /* FIXME:TODO: Have this method deterimne the components dynamically
-   without caching them in the ivar.  Possibly add some tracing code to
-   see if caching the values can actually improve performance.
-   (Unlikely that it's worth the trouble this may cause for entity
-   edititng). */
-  if (!_componentRelationships)
-    {
-      return _definitionArray; //OK ??????
-      NSEmitTODO();  //TODO
-      [self notImplemented: _cmd]; //TODO
-    }
-
-  return _componentRelationships;
+  return _definitionArray;
 }
 
 - (NSDictionary *)userInfo
@@ -829,16 +800,9 @@ to know what to-many mean :-)  **/
 
 - (BOOL)isReciprocalToRelationship: (EORelationship *)relationship
 {
-  //Should be OK
-  //Ayers: Review
   BOOL isReciprocal = NO;
-  EOEntity *entity;
-  EOEntity *relationshipDestinationEntity = nil;
-
-
-
-  entity = [self entity]; //OK
-  relationshipDestinationEntity = [relationship destinationEntity];
+  EOEntity *entity = [self entity];
+  EOEntity *relationshipDestinationEntity = [relationship destinationEntity];
 
   EOFLOGObjectLevelArgs(@"EORelationship", @"entity %p name=%@",
 			entity, [entity name]);
@@ -847,11 +811,11 @@ to know what to-many mean :-)  **/
 			relationshipDestinationEntity,
 			[relationshipDestinationEntity name]);
 
-  if (entity == relationshipDestinationEntity) //Test like that ?
+  if (entity == relationshipDestinationEntity)
     {
-      if ([self isFlattened]) //OK
+      if ([self isFlattened])
         {
-          if ([relationship isFlattened]) //OK
+          if ([relationship isFlattened])
             {
               //Now compare each components in reversed order 
               NSArray *selfComponentRelationships =
@@ -887,25 +851,10 @@ to know what to-many mean :-)  **/
                     isReciprocal = YES;
                 }
             }
-          else
-            {
-              //Just do nothing and try another relationship.
-              // Is it the good way ?
-              /*
-              NSEmitTODO(); //TODO
-              NSDebugMLog(@"entity %p name=%@ self name=%@ relationship name=%@ relationshipDestinationEntity %p name=%@",
-                          entity, [entity name],
-                          [self name],
-                          [relationship name],
-                          relationshipDestinationEntity,
-                          [relationshipDestinationEntity name]);
-              [self notImplemented: _cmd]; //TODO
-              */
-            }
         }
       else
         {
-          //WO doens't test inverses entity 
+          //WO doesn't test inverses entity; we does.
           EOEntity *relationshipEntity = [relationship entity];
           EOEntity *destinationEntity = [self destinationEntity];
 
@@ -984,8 +933,6 @@ to know what to-many mean :-)  **/
         }
     }
 
-
-
   return isReciprocal;
 }
 
@@ -993,21 +940,11 @@ to know what to-many mean :-)  **/
 relationships. Nil if none" **/
 - (EORelationship *)inverseRelationship
 {
-  //OK
-
-
   if (!_inverseRelationship)
     {
-      EOEntity *destinationEntity;
-      NSArray *destinationEntityRelationships;
-
-      destinationEntity = [self destinationEntity];
-      NSDebugLog(@"destinationEntity name=%@", [destinationEntity name]);
-
-      destinationEntityRelationships = [destinationEntity relationships];
-
-      NSDebugLog(@"destinationEntityRelationships=%@",
-		 destinationEntityRelationships);
+      EOEntity* destinationEntity = [self destinationEntity];
+      NSArray* destinationEntityRelationships = 
+	[destinationEntity relationships];
 
       if ([destinationEntityRelationships count] > 0)
         {
@@ -1018,19 +955,13 @@ relationships. Nil if none" **/
               EORelationship *testRelationship =
 		[destinationEntityRelationships objectAtIndex: i];
 
-              NSDebugLog(@"testRelationship=%@", testRelationship);
-
               if ([self isReciprocalToRelationship: testRelationship])
                 {
                   ASSIGN(_inverseRelationship, testRelationship);
                 }
             }
         }
-
-      NSDebugLog(@"_inverseRelationship=%@", _inverseRelationship);
     }
-
-
 
   return _inverseRelationship;
 }
@@ -1042,8 +973,6 @@ relationships. Nil if none" **/
   NSMutableString *invDefinition = nil;
   NSString *name = nil;
   int i, count;
-
-
 
   NSAssert([self isFlattened], @"Not Flatten Relationship");
   EOFLOGObjectLevel(@"EORelationship", @"add joins");
@@ -1084,20 +1013,15 @@ relationships. Nil if none" **/
 
   [inverseRelationship _setInverseRelationship: self];
 
-
-
   return inverseRelationship;
 }
 
 - (EORelationship*) _makeInverseRelationship
 {
-  //OK
   EORelationship *inverseRelationship;
   NSString *name;
   NSArray *joins = nil;
   unsigned int i, count;
-
-
 
   NSAssert(![self isFlattened], @"Flatten Relationship");
 
@@ -1137,15 +1061,11 @@ relationships. Nil if none" **/
   /* call this last to avoid calls to [_destination _setIsEdited] */
   [inverseRelationship setEntity: _destination];
 
-
   return inverseRelationship;
 }
 
 - (EORelationship*) hiddenInverseRelationship
 {
-  //OK
-
-
   if (!_hiddenInverseRelationship)
     {
       if ([self isFlattened]) 
@@ -1154,14 +1074,11 @@ relationships. Nil if none" **/
         _hiddenInverseRelationship = [self _makeInverseRelationship];
     }
 
-
-
   return _hiddenInverseRelationship;
 }
 
 - (EORelationship *)anyInverseRelationship
 {
-  //OK
   EORelationship *inverseRelationship = [self inverseRelationship];
 
   if (!inverseRelationship)
@@ -1182,8 +1099,19 @@ relationships. Nil if none" **/
 
 - (EOQualifier *)qualifierWithSourceRow: (NSDictionary *)sourceRow
 {
-  [self notImplemented: _cmd];//TODO
-  return nil;
+  EOQualifier* q = nil;
+  EOQualifier* q1 = [self qualifierOmittingAuxiliaryQualifierWithSourceRow:sourceRow];
+  EOQualifier* q2 = [self auxiliaryQualifier];
+  if (q1 != nil)
+    {
+      if (q2!=nil)
+	q=[EOAndQualifier qualifierWithQualifiers:q1,q2,nil];
+      else
+	q=q1;
+    }
+  else
+    q=q2;
+  return q;
 }
 
 @end /* EORelationship */
@@ -1193,12 +1121,13 @@ relationships. Nil if none" **/
 
 - (NSException *)validateName: (NSString *)name
 {
-  //Seems OK
   const char *p, *s = [name cString];
   int exc = 0;
   NSArray *storedProcedures = nil;
 
-  if ([_name isEqual:name]) return nil;
+  if ([_name isEqual:name])
+    return nil;
+
   if (!name || ![name length])
     exc++;
   if (!exc)
@@ -1272,7 +1201,6 @@ relationships. Nil if none" **/
 
 - (void)setToMany: (BOOL)flag
 {
-  //OK
   if ([self isFlattened])
     [NSException raise: NSInvalidArgumentException
                  format: @"%@ -- %@ 0x%p: receiver is a flattened relationship",
@@ -1290,7 +1218,6 @@ relationships. Nil if none" **/
 
 - (void)setName: (NSString *)name
 {
-  //OK
   [[self validateName: name] raise];
   [self willChange];
   [_entity _setIsEdited];
@@ -1300,9 +1227,6 @@ relationships. Nil if none" **/
 
 - (void)setDefinition: (NSString *)definition
 {
-  //Near OK
-
-
   EOFLOGObjectLevelArgs(@"EORelationship", @"definition=%@", definition);
 
   [self _flushCache];
@@ -1334,7 +1258,7 @@ relationships. Nil if none" **/
           {
             EORelationship *rel = [_definitionArray objectAtIndex: i];
 
-            if ([rel isKindOfClass: [EORelationship class]])
+            if ([rel isKindOfClass: GDL2_EORelationshipClass])
               {
                 if ([rel isToMany])
                   _flags.isToMany = YES;
@@ -1366,7 +1290,6 @@ relationships. Nil if none" **/
  */
 - (void)setEntity: (EOEntity *)entity
 {
-  //OK
   if (entity != _entity)
     {
       [self _flushCache];
@@ -1374,18 +1297,12 @@ relationships. Nil if none" **/
 
       if (_entity)
 	{
-	  NSString *relationshipName;
-	  EORelationship *relationship;
-
 	  /* Check if we are still in the entities arrays to
 	     avoid recursive loop when removeRelationship:
 	     calls this method.  */
-	  relationshipName = [self name];
-	  relationship = [_entity relationshipNamed: relationshipName];
-          if (self == relationship)
-	    {
-	      [_entity removeRelationship: self];
-	    }
+	  NSString *relationshipName = [self name];
+          if (self == [_entity relationshipNamed: relationshipName])
+	    [_entity removeRelationship: self];
 	}
       _entity = entity;
     }
@@ -1395,7 +1312,6 @@ relationships. Nil if none" **/
 
 - (void)setUserInfo: (NSDictionary *)dictionary
 {
-  //OK
   [self willChange];
   ASSIGN(_userInfo, dictionary);
   /* Ayers: Not sure what justifies this. */
@@ -1404,7 +1320,6 @@ relationships. Nil if none" **/
 
 - (void)setInternalInfo: (NSDictionary *)dictionary
 {
-  //OK
   [self willChange];
   ASSIGN(_internalInfo, dictionary);
   /* Ayers: Not sure what justifies this. */
@@ -1413,7 +1328,6 @@ relationships. Nil if none" **/
 
 - (void)setDocComment: (NSString *)docComment
 {
-  //OK
   [self willChange];
   ASSIGNCOPY(_docComment, docComment);
   /* Ayers: Not sure what justifies this. */
@@ -1422,7 +1336,6 @@ relationships. Nil if none" **/
 
 - (void)setPropagatesPrimaryKey: (BOOL)flag
 {
-  //OK
   if (_flags.propagatesPrimaryKey != flag)
     [self willChange];
 
@@ -1431,7 +1344,6 @@ relationships. Nil if none" **/
 
 - (void)setIsBidirectional: (BOOL)flag
 {
-  //OK
   if (_flags.isBidirectional != flag)
     [self willChange];
 
@@ -1447,187 +1359,171 @@ relationships. Nil if none" **/
 }
 
 - (void)addJoin: (EOJoin *)join
-{
-  EOAttribute *sourceAttribute = nil;
-  EOAttribute *destinationAttribute = nil;
-  
-
-  
+{    
   EOFLOGObjectLevelArgs(@"EORelationship", @"Add join: %@\nto %@", join, self);
   
   if ([self isFlattened] == YES)
-    [NSException raise: NSInvalidArgumentException
-                format: @"%@ -- %@ 0x%p: receiver is a flattened relationship",
-     NSStringFromSelector(_cmd),
-     NSStringFromClass([self class]),
-     self];
-  else
-  {
-    EOEntity *destinationEntity = [self destinationEntity];
-    EOEntity *sourceEntity = [self entity];
-    
-    EOFLOGObjectLevelArgs(@"EORelationship", @"destinationEntity=%@", destinationEntity);
-    
-    if (!destinationEntity)
     {
-#warning checkme: do we need this? -- dw
-      //NSEmitTODO(); //TODO
-      //EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@", self);
-      //TODO ??
-    };
-    
-    sourceAttribute = [join sourceAttribute];
-    
-    NSAssert3(sourceAttribute, @"No source attribute in join %@ in relationship %@ of entity %@",
-              join,
-              self,
-              sourceEntity);
-    
-    destinationAttribute = [join destinationAttribute];
-    
-    NSAssert3(destinationAttribute, @"No destination attribute in join %@ in relationship %@ of entity %@",                
-              join,
-              self,
-              sourceEntity);
-    
-    if ([sourceAttribute isFlattened] == YES
-        || [destinationAttribute isFlattened] == YES)
       [NSException raise: NSInvalidArgumentException
-                  format: @"%@ -- %@ 0x%p: join's attributes are flattened",
-       NSStringFromSelector(_cmd),
-       NSStringFromClass([self class]),
-       self];
-    else
-    {
-      EOEntity *joinDestinationEntity = [destinationAttribute entity];
-      EOEntity *joinSourceEntity = [sourceAttribute entity];
-      
-      /*          if (destinationEntity && ![[destinationEntity name] isEqual:[joinSourceEntity name]])
-       {
-       [NSException raise:NSInvalidArgumentException
-       format:@"%@ -- %@ 0x%x: join source entity (%@) is not equal to last join entity (%@)",
-       NSStringFromSelector(_cmd),
-       NSStringFromClass([self class]),
-       self,
-       [joinSourceEntity name],
-       [destinationEntity name]];
-       }*/
-      
-      if (sourceEntity
-          && ![[joinSourceEntity name] isEqual: [sourceEntity name]])
-        [NSException raise: NSInvalidArgumentException
-                    format: @"%@ -- %@ 0x%p (%@): join source entity (%@) is not equal to relationship entity (%@)",
-         NSStringFromSelector(_cmd),
-         NSStringFromClass([self class]),
-         self,
-         [self name],
-         [joinSourceEntity name],
-         [sourceEntity name]];
-      else if (destinationEntity
-               && ![[joinDestinationEntity name]
-                    isEqual: [destinationEntity name]])
-        [NSException raise: NSInvalidArgumentException
-                    format: @"%@ -- %@ 0x%p (%@): join destination entity (%@) is not equal to relationship destination entity (%@)",
-         NSStringFromSelector(_cmd),
-         NSStringFromClass([self class]),
-         self,
-         [self name],
-         [joinDestinationEntity name],
-         [destinationEntity name]];
-      else
-      {
-        if ([_sourceAttributes count])
-        {
-          EOAttribute *sourceAttribute = [join sourceAttribute];
-          EOAttribute *destinationAttribute;
-          
-          destinationAttribute = [join destinationAttribute];
-          
-          if (([_sourceAttributes indexOfObject: sourceAttribute]
-               != NSNotFound)
-              && ([_destinationAttributes
-                   indexOfObject: destinationAttribute]
-                  != NSNotFound))
-            [NSException raise: NSInvalidArgumentException
-                        format: @"%@ -- %@ 0x%p: TODO",
-             NSStringFromSelector(_cmd),
-             NSStringFromClass([self class]),
-             self];
-        }
-        
-        [self _flushCache];
-        // do we still need willChange when we are not putting EORelationships into ECs? -- dw
-        [self willChange];
-        // needed for KV bbserving
-        [self willChangeValueForKey:@"joins"];
-        
-        EOFLOGObjectLevel(@"EORelationship", @"really add");
-        EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-                              _joins, [_joins class]);
-        
-        if (!_joins)
-          _joins = [NSMutableArray new];
-        
-        [(NSMutableArray *)_joins addObject: join];      
-        
-        EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
-                              _joins, [_joins class]);
-        
-        EOFLOGObjectLevel(@"EORelationship", @"added");
-        
-        [self _joinsChanged];
-        [self didChangeValueForKey:@"joins"];
-
-        /* Ayers: Not sure what justifies this. */
-        [_entity _setIsEdited];
-      }
+		   format: @"%@ -- %@ 0x%p: receiver is a flattened relationship",
+		   NSStringFromSelector(_cmd),
+		   NSStringFromClass([self class]),
+		   self];
     }
-  }
-  
-
+  else
+    {
+      EOEntity *destinationEntity = [self destinationEntity];
+      EOEntity *sourceEntity = [self entity];
+      EOAttribute *sourceAttribute = [join sourceAttribute];
+      EOAttribute *destinationAttribute = [join destinationAttribute];
+      
+      EOFLOGObjectLevelArgs(@"EORelationship", @"destinationEntity=%@", destinationEntity);
+      
+      NSAssert3(sourceAttribute, @"No source attribute in join %@ in relationship %@ of entity %@",
+		join,
+		self,
+		sourceEntity);
+      
+      NSAssert3(destinationAttribute, @"No destination attribute in join %@ in relationship %@ of entity %@",                
+		join,
+		self,
+		sourceEntity);
+      
+      if ([sourceAttribute isFlattened] == YES
+	  || [destinationAttribute isFlattened] == YES)
+	{
+	  [NSException raise: NSInvalidArgumentException
+		       format: @"%@ -- %@ 0x%p: join's attributes are flattened",
+		       NSStringFromSelector(_cmd),
+		       NSStringFromClass([self class]),
+		       self];
+	}
+      else
+	{
+	  EOEntity *joinDestinationEntity = [destinationAttribute entity];
+	  EOEntity *joinSourceEntity = [sourceAttribute entity];
+	  
+	  /*          if (destinationEntity && ![[destinationEntity name] isEqual:[joinSourceEntity name]])
+		      {
+		      [NSException raise:NSInvalidArgumentException
+		      format:@"%@ -- %@ 0x%x: join source entity (%@) is not equal to last join entity (%@)",
+		      NSStringFromSelector(_cmd),
+		      NSStringFromClass([self class]),
+		      self,
+		      [joinSourceEntity name],
+		      [destinationEntity name]];
+		      }*/
+	  
+	  if (sourceEntity
+	      && ![[joinSourceEntity name] isEqual: [sourceEntity name]])
+	    {
+	      [NSException raise: NSInvalidArgumentException
+			   format: @"%@ -- %@ 0x%p (%@): join source entity (%@) is not equal to relationship entity (%@)",
+			   NSStringFromSelector(_cmd),
+			   NSStringFromClass([self class]),
+			   self,
+			   [self name],
+			   [joinSourceEntity name],
+			   [sourceEntity name]];
+	    }
+	  else if (destinationEntity
+		   && ![[joinDestinationEntity name]
+			 isEqual: [destinationEntity name]])
+	    {
+	      [NSException raise: NSInvalidArgumentException
+			   format: @"%@ -- %@ 0x%p (%@): join destination entity (%@) is not equal to relationship destination entity (%@)",
+			   NSStringFromSelector(_cmd),
+			   NSStringFromClass([self class]),
+			   self,
+			   [self name],
+			   [joinDestinationEntity name],
+			   [destinationEntity name]];
+	    }
+	  else
+	    {
+	      if ([_sourceAttributes count])
+		{
+		  EOAttribute *sourceAttribute = [join sourceAttribute];
+		  EOAttribute *destinationAttribute;
+		  
+		  destinationAttribute = [join destinationAttribute];
+		  
+		  if (([_sourceAttributes indexOfObject: sourceAttribute]
+		       != NSNotFound)
+		      && ([_destinationAttributes
+			    indexOfObject: destinationAttribute]
+			  != NSNotFound))
+		    {
+		      [NSException raise: NSInvalidArgumentException
+				   format: @"%@ -- %@ 0x%p: TODO",
+				   NSStringFromSelector(_cmd),
+				   NSStringFromClass([self class]),
+				   self];
+		    }
+		}
+        
+	      [self _flushCache];
+	      // do we still need willChange when we are not putting EORelationships into ECs? -- dw
+	      [self willChange];
+	      // needed for KV bbserving
+	      [self willChangeValueForKey:@"joins"];
+	      
+	      EOFLOGObjectLevel(@"EORelationship", @"really add");
+	      EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
+				    _joins, [_joins class]);
+	      
+	      if (!_joins)
+		_joins = [NSMutableArray new];
+	      
+	      [(NSMutableArray *)_joins addObject: join];      
+	      
+	      EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
+				    _joins, [_joins class]);
+	      
+	      EOFLOGObjectLevel(@"EORelationship", @"added");
+	      
+	      [self _joinsChanged];
+	      [self didChangeValueForKey:@"joins"];
+	      
+	      /* Ayers: Not sure what justifies this. MGuesdon: EOF seems to do it */
+	      [_entity _setIsEdited];
+	    }
+	}
+    }
 }
 
 - (void)removeJoin: (EOJoin *)join
 {
-
-
-  [self _flushCache];
-
   if ([self isFlattened] == YES)
-    [NSException raise: NSInvalidArgumentException
-                 format: @"%@ -- %@ 0x%p: receiver is a flattened relationship",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self];
+    {
+      [NSException raise: NSInvalidArgumentException
+		   format: @"%@ -- %@ 0x%p: receiver is a flattened relationship",
+		   NSStringFromSelector(_cmd),
+		   NSStringFromClass([self class]),
+		   self];
+    }
   else
     {
+      [self _flushCache];
+  
       [self willChangeValueForKey:@"joins"];
 
       [self willChange];
       [(NSMutableArray *)_joins removeObject: join];
-
-          /*NO: will be recomputed      [(NSMutableArray *)_sourceAttributes
-            removeObject:[join sourceAttribute]];
-            [(NSMutableArray *)_destinationAttributes
-            removeObject:[join destinationAttribute]];
-          */
 
       EOFLOGObjectLevelArgs(@"EORelationship", @"XXjoins %p class%@",
 		       _joins, [_joins class]);
 
       [self _joinsChanged];
 
-      /* Ayers: Not sure what justifies this. */
+      /* Ayers: Not sure what justifies this. MGuesdon: EOF seems to do it */
       [_entity _setIsEdited];
       [self didChangeValueForKey:@"joins"];
     }
-
-
 }
 
 - (void)setJoinSemantic: (EOJoinSemantic)joinSemantic
 {
-  //OK
   [self willChange];
   _joinSemantic = joinSemantic;
 }
@@ -1680,6 +1576,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 - (void)setNumberOfToManyFaultsToBatchFetch: (unsigned int)size
 {
   [self willChange];
+  _flags.useBatchFaulting=YES;
   _batchCount = size;
 }
 
@@ -1695,8 +1592,8 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 - (void)setIsMandatory: (BOOL)isMandatory
 {
-  //OK
-  [self willChange];
+  if (_flags.isMandatory!=isMandatory)
+    [self willChange];
   _flags.isMandatory = isMandatory;
 }
 
@@ -1715,10 +1612,7 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
  */
 - (NSException *)validateValue: (id*)valueP
 {
-  //OK
   NSException *exception = nil;
-
-
 
   NSAssert(valueP, @"No value pointer");
 
@@ -1726,21 +1620,35 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
     {
       BOOL isToMany = [self isToMany];
 
-      if ((isToMany == NO && _isNilOrEONull(*valueP))
-	  || (isToMany == YES && [*valueP count] == 0))
-        {
-          EOEntity *destinationEntity = [self destinationEntity];
-          EOEntity *entity = [self entity];
-
-          exception = [NSException validationExceptionWithFormat:
-				     @"The %@ property of %@ must have a %@ assigned",
-				   [self name],
-				   [entity name],
-				   [destinationEntity name]];
-        }
+      if (isToMany == NO)
+	{
+	  if (_isNilOrEONull(*valueP))
+	    {
+	      EOEntity *destinationEntity = [self destinationEntity];
+	      EOEntity *entity = [self entity];
+	      
+	      exception = [NSException validationExceptionWithFormat:
+					 @"The %@ property of %@ must have a %@ assigned",
+				       [self name],
+				       [entity name],
+				       [destinationEntity name]];
+	    }
+	}
+      else
+	{
+	  if ([*valueP count] == 0)
+	    {
+	      EOEntity *destinationEntity = [self destinationEntity];
+	      EOEntity *entity = [self entity];
+	      
+	      exception = [NSException validationExceptionWithFormat:
+					 @"The %@ property of %@ must have at least one %@",
+				       [self name],
+				       [entity name],
+				       [destinationEntity name]];
+	    }
+	}
     }
-
-
 
   return exception;
 }
@@ -1768,26 +1676,16 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 - (NSArray*) _intermediateAttributes
 {
-  //Verify !!
-  NSMutableArray *intermediateAttributes;
-  EORelationship *rel;
-  NSArray *joins;
+  NSMutableArray *intermediateAttributes=[NSMutableArray array];
+  NSArray* firstRelJoins=[[self firstRelationship] joins];
+  NSArray* lastRelJoins=[[self lastRelationship] joins];
 
-  //all this works on flattened and non flattened relationship.
-  intermediateAttributes = [NSMutableArray array];
-  rel = [self firstRelationship];
-  joins = [rel joins];
-  //??
   [intermediateAttributes addObjectsFromArray:
-			    [joins resultsOfPerformingSelector:
+			    [firstRelJoins resultsOfPerformingSelector:
 				     @selector(destinationAttribute)]];
 
-  rel = [self lastRelationship];
-  joins = [rel joins];
-  //  attribute = [joins sourceAttribute];
-  //??
   [intermediateAttributes addObjectsFromArray:
-			    [joins resultsOfPerformingSelector:
+			    [lastRelJoins resultsOfPerformingSelector:
 				     @selector(sourceAttribute)]];
 
   return [NSArray arrayWithArray: intermediateAttributes];
@@ -1833,7 +1731,6 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 - (EOEntity*) intermediateEntity
 {
-  //TODO verify
   id intermediateEntity = nil;
 
   if ([self isToManyToOne])
@@ -1854,40 +1751,98 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 - (BOOL) isMultiHop
 {
-  //TODO verify
-  BOOL isMultiHop = NO;
+  return [self isFlattened];
+}
 
-  if ([self isFlattened])
+- (void) _setSourceToDestinationKeyMap: (NSDictionary*)sourceToDestinationKeyMap
+{
+  ASSIGN(_sourceToDestinationKeyMap,sourceToDestinationKeyMap);
+}
+
+- (EOQualifier*) qualifierForDBSnapshot: (NSDictionary*)dbSnapshot
+{
+  EOQualifier* qualifier = nil;
+
+  EORelationship* relationship = self;
+  NSMutableArray* qualifiers = nil;
+  BOOL isFlattenedToMany = NO;
+  NSString*  relationshipPath = nil;
+
+  if([self isFlattened])
     {
-      isMultiHop = YES;
+      if ([self isToMany])
+	{
+	  relationshipPath = [[self anyInverseRelationship]relationshipPath];
+	  isFlattenedToMany = true;
+	  relationship = [self firstRelationship];
+	}
+      else
+	relationship = [self lastRelationship];
     }
 
-  return isMultiHop;
+  NSDictionary* sourceToDestinationKeyMap = [self _sourceToDestinationKeyMap];
+  NSArray* sourceKeys = [sourceToDestinationKeyMap objectForKey:@"sourceKeys"];
+  NSArray* destinationKeys = [sourceToDestinationKeyMap objectForKey:@"destinationKeys"];
+  NSArray* joins = [relationship joins];
+  int joinsCount=[joins count];
+  int i = 0;
+
+  for(i=0;i<joinsCount;i++)
+    {
+      EOJoin* join = [joins objectAtIndex:i];
+      NSString* attrName=nil;
+      NSString* qualifierKey=nil;
+      id qualifierValue=nil;
+      if (isFlattenedToMany)
+	{
+	  attrName = [[join sourceAttribute] name];
+	  qualifierKey = [[relationshipPath stringByAppendingString:@"."]stringByAppendingString:attrName];
+	}
+      else
+	{
+	  qualifierKey = [[join destinationAttribute] name];
+	  attrName = [sourceKeys objectAtIndex:[destinationKeys indexOfObject:qualifierKey]];
+	}
+      qualifierValue = [dbSnapshot objectForKey:attrName];
+      if(qualifierValue != nil)
+	{
+	  EOQualifier* q = [EOKeyValueQualifier qualifierWithKey:qualifierKey
+						operatorSelector:EOQualifierOperatorEqual
+						value:qualifierValue];
+	  if (qualifiers == nil)
+	    qualifiers = [NSMutableArray array];
+	  [qualifiers addObject:q];
+	}
+    }
+
+  if([qualifiers count]>0)
+    {
+      if ([qualifiers count] > 1)
+	qualifier = [EOAndQualifier qualifierWithQualifierArray:qualifiers];
+      else
+	qualifier = [qualifiers objectAtIndex:0];
+    }
+  return qualifier;
+
 }
 
-- (void) _setSourceToDestinationKeyMap: (id)param0
+- (NSDictionary*) primaryKeyForTargetRowFromSourceDBSnapshot:(NSDictionary*)dbSnapshot
 {
-  [self notImplemented: _cmd]; // TODO
-}
-
-- (id) qualifierForDBSnapshot: (id)param0
-{
-  return [self notImplemented: _cmd]; // TODO
-}
-
-- (id) primaryKeyForTargetRowFromSourceDBSnapshot: (id)param0
-{
-  return [self notImplemented:_cmd]; // TODO
+  NSDictionary* sourceToDestinationKeyMap = [self _sourceToDestinationKeyMap];
+  NSArray* sourceKeys = [sourceToDestinationKeyMap objectForKey:@"sourceKeys"];
+  NSArray* destinationKeys = [sourceToDestinationKeyMap objectForKey:@"destinationKeys"];
+  NSMutableDictionary* pk = [NSMutableDictionary dictionaryWithDictionary:dbSnapshot
+						 keys:sourceKeys];
+  [pk translateFromKeys:sourceKeys
+      toKeys:destinationKeys];
+  return pk;
 }
 
 /** Return relationship path (like toRel1.toRel2) if self is flattened, slef name otherwise.
 **/
 - (NSString*)relationshipPath
 {
-  //Seems OK
   NSString *relationshipPath = nil;
-
-
 
   if ([self isFlattened])
     {
@@ -1909,8 +1864,6 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
   else
     relationshipPath = [self name];
 
-
-
   return relationshipPath;
 }
 
@@ -1918,72 +1871,47 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 {
   BOOL isToManyToOne = NO;
 
-
-
   if ([self isFlattened])
     {
-      BOOL isToMany = YES;
+      int l=0;
       int count = [_definitionArray count];
-
-      if (count >= 2)
-        {
-          EORelationship *firstRelationship = [_definitionArray
-						objectAtIndex: 0];
-
-          isToMany = [firstRelationship isToMany];
-
-          if (!isToMany)
+      int i=0;
+      for(i=0;i<count;i++)
+	{
+          EORelationship* relationship = [_definitionArray objectAtIndex: i];
+	  switch(l)
             {
-              if ([firstRelationship isParentRelationship])
-                {
-                  NSEmitTODO();  //TODO
-                  EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@", self);
-                  EOFLOGObjectLevelArgs(@"EORelationship", @"firstRelationship=%@",
-			       firstRelationship);
-
-                  [self notImplemented: _cmd]; //TODO
-                }
-            }
-
-          if (isToMany)
-            {
-              EORelationship *secondRelationship = [_definitionArray
-						     objectAtIndex: 1];
-
-              if (![secondRelationship isToMany])
-                {
-                  EORelationship *invRel = [secondRelationship
-					     anyInverseRelationship];
-
-                  if (invRel)
-                    secondRelationship = invRel;
-
-                  isToManyToOne = YES;
-
-                  if ([secondRelationship isParentRelationship])
-                    {
-                      NSEmitTODO();  //TODO
-                      EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@", self);
-                      EOFLOGObjectLevelArgs(@"EORelationship", @"secondRelationship=%@",
-				   secondRelationship);
-
-                      [self notImplemented: _cmd]; //TODO
-                    }
-                }
-            }
-        }
-    }
-
-
+            case 0:
+	      if([relationship isToMany])
+		l = 1;
+	      else  if([relationship isParentRelationship])
+		return NO;
+	      break;
+            case 1:
+	      if([relationship isToMany]
+		 || [[relationship anyInverseRelationship]isParentRelationship])
+		return NO;
+	      else
+                l = 2;
+                break;
+            case 2:
+	      if([relationship isToMany]
+		 || ![[relationship anyInverseRelationship] isParentRelationship])
+		return NO;
+	      break;
+            default:
+                break;
+	    }
+	}
+      if (l==2)
+	isToManyToOne=YES;
+    }      
 
   return isToManyToOne;
 }
 
 -(NSDictionary*)_sourceToDestinationKeyMap
 {
-  //OK
-
-
   if (!_sourceToDestinationKeyMap)
     {
       NSString *relationshipPath = [self relationshipPath];
@@ -1992,52 +1920,33 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 	     [_entity _keyMapForRelationshipPath: relationshipPath]);
     }
 
-
-
   return _sourceToDestinationKeyMap;
 }
 
 - (BOOL)foreignKeyInDestination
 {
-  NSArray *destAttributes = nil;
-  NSArray *primaryKeyAttributes = nil;
-  NSUInteger destAttributesCount = 0;
-  NSUInteger primaryKeyAttributesCount = 0;
   BOOL foreignKeyInDestination = NO;
 
-
-
-  destAttributes = [self destinationAttributes];
-  primaryKeyAttributes = [[self destinationEntity] primaryKeyAttributes];
-
-  destAttributesCount = [destAttributes count];
-  primaryKeyAttributesCount = [primaryKeyAttributes count];
-
-  EOFLOGObjectLevelArgs(@"EORelationship", @"destAttributes=%@",
-			destAttributes);
-  EOFLOGObjectLevelArgs(@"EORelationship", @"primaryKeyAttributes=%@",
-			primaryKeyAttributes);
-
-  if (destAttributesCount > 0 && primaryKeyAttributesCount > 0)
+  if([self isToMany])
+    foreignKeyInDestination=YES;
+  else
     {
-      NSUInteger i;
-
-      for (i = 0;
-	   !foreignKeyInDestination && i < destAttributesCount;
-	   i++)
+      NSArray* sourceAttributes = [self sourceAttributes];
+      NSArray* pkAttributes = [_entity primaryKeyAttributes];
+      int sourceAttributesCount=[sourceAttributes count];
+      int pkAttributesCount=[pkAttributes count];
+      if (sourceAttributesCount==pkAttributesCount)
 	{
-	  EOAttribute *attribute = [destAttributes objectAtIndex: i];
-	  NSUInteger pkAttrIndex = [primaryKeyAttributes
-			      indexOfObjectIdenticalTo: attribute];
-
-	  foreignKeyInDestination = (pkAttrIndex == NSNotFound);
+	  foreignKeyInDestination=YES;
+	  int i=0;
+	  for(i=0;foreignKeyInDestination && i<sourceAttributesCount;i++)
+	    {
+	      EOAttribute* attribute = [sourceAttributes objectAtIndex:i];
+	      if ([pkAttributes indexOfObjectIdenticalTo:attribute] == NSNotFound)
+		foreignKeyInDestination=NO;
+	    }
 	}
     }
-
-
-
-  EOFLOGObjectLevelArgs(@"EORelationship", @"foreignKeyInDestination=%s",
-			(foreignKeyInDestination ? "YES" : "NO"));
 
   return foreignKeyInDestination;
 }
@@ -2048,154 +1957,120 @@ becomes "name", and "FIRST_NAME" becomes "firstName".*/
 
 - (BOOL) isPropagatesPrimaryKeyPossible
 {
-/*
-  NSArray* joins=[self joins];
-  NSArray* joinsSourceAttributes=[joins resultsOfPerformingSelector:@selector(sourceAttribute)];
-  NSArray* joinsDestinationAttributes=[joins resultsOfPerformingSelector:@selector(destinationAttribute)];
+  BOOL isPropagatesPrimaryKeyPossible=NO;
 
-joinsSourceAttributes names
-sortedArrayUsingSelector:compare:
+  NSArray* joins = [self joins];
 
-result count
+  NSArray* sourceAttributes = [joins resultsOfPerformingSelector:@selector(sourceAttribute)];
+  //MGuesdon: why ordering names ?
+  NSSet* sourceAttributeNames = [NSSet setWithArray:[[sourceAttributes resultsOfPerformingSelector:@selector(name)] 
+						      sortedArrayUsingSelector:@selector(compare:)]];
+  NSSet* sourcePKAttributeNames = [NSSet setWithArray:[_entity primaryKeyAttributeNames]];
 
-joinsDestinationAttributes names
-sortedArrayUsingSelector:compare:
-inverseRelationship
-inv entity [EOEntity]:
-inv ventity primaryKeyAttributeNames
-count
-dest entity
-dst entity primaryKeyAttributeNames 
+  if([sourceAttributeNames isSubsetOfSet:sourcePKAttributeNames])
+    {
+      NSArray* destinationAttributes = [joins resultsOfPerformingSelector:@selector(destinationAttribute)];
+      //MGuesdon: why ordering names ?
+      NSSet* destinationAttributeNames = [NSSet setWithArray:[[destinationAttributes resultsOfPerformingSelector:@selector(name)]
+							       sortedArrayUsingSelector:@selector(compare:)]];
+      NSSet* destinationPKAttributeNames = [NSSet setWithArray:[[self destinationEntity]primaryKeyAttributeNames]];
 
-*/
-
-
-  [self notImplemented: _cmd]; // TODO
-
-
-
-  return NO;
+      if ([destinationAttributeNames isSubsetOfSet:destinationPKAttributeNames])
+	{
+	  isPropagatesPrimaryKeyPossible=[[self inverseRelationship] propagatesPrimaryKey];
+	}
+    }
+  return isPropagatesPrimaryKeyPossible;
 };
 
-- (id) qualifierOmittingAuxiliaryQualifierWithSourceRow: (id)param0
+- (EOQualifier*) qualifierOmittingAuxiliaryQualifierWithSourceRow: (NSDictionary*)sourceRow
 {
-  return [self notImplemented: _cmd]; // TODO
+  return [self qualifierForDBSnapshot:sourceRow];
 }
 
-- (id) auxiliaryQualifier
+- (EOQualifier*) auxiliaryQualifier
 {
-  return nil; //[self notImplemented:_cmd]; // TODO
+  return _qualifier;
 }
 
-- (void) setAuxiliaryQualifier: (id)param0
+- (void) setAuxiliaryQualifier: (EOQualifier*)qualifier
 {
-  [self notImplemented:_cmd]; // TODO
+  DESTROY(_qualifier);
+  if (qualifier)
+    _qualifier=[qualifier copy];
 }
 
 /** Return dictionary of key/value for destination object of source row/object **/
 - (EOMutableKnownKeyDictionary *) _foreignKeyForSourceRow: (NSDictionary*)row
 {
-  EOMutableKnownKeyDictionary *foreignKey = nil;
-  EOMKKDSubsetMapping *sourceRowToForeignKeyMapping = nil;
-
-
-
-  sourceRowToForeignKeyMapping = [self _sourceRowToForeignKeyMapping];
-
-  EOFLOGObjectLevelArgs(@"EORelationship", @"self=%@",self);
-  EOFLOGObjectLevelArgs(@"EORelationship", @"sourceRowToForeignKeyMapping=%@",
-	       sourceRowToForeignKeyMapping);
-
-  foreignKey = [EOMutableKnownKeyDictionary dictionaryFromDictionary: row
-					    subsetMapping:
-					      sourceRowToForeignKeyMapping];
-
-  EOFLOGObjectLevelArgs(@"EORelationship", @"row=%@\nforeignKey=%@", row, foreignKey);
-
-
-
-  return foreignKey;
+  return [EOMutableKnownKeyDictionary dictionaryFromDictionary: row
+				      subsetMapping:[self _sourceRowToForeignKeyMapping]];
 }
 
 - (EOMKKDSubsetMapping*) _sourceRowToForeignKeyMapping
 {
-
-
   if (!_sourceRowToForeignKeyMapping)
     {
-      NSDictionary *sourceToDestinationKeyMap;
-      NSArray *sourceKeys;
-      NSArray *destinationKeys;
-      EOEntity *destinationEntity;
-      EOMKKDInitializer *destinationDictionaryInitializer = nil;
-      EOMKKDInitializer *adaptorDictionaryInitializer;
-      EOMKKDSubsetMapping *sourceRowToForeignKeyMapping;
+      NSDictionary *sourceToDestinationKeyMap = 
+	[self _sourceToDestinationKeyMap];
 
-      sourceToDestinationKeyMap = [self _sourceToDestinationKeyMap];
+      NSArray *sourceKeys = 
+	[sourceToDestinationKeyMap objectForKey: @"sourceKeys"];
 
-      EOFLOGObjectLevelArgs(@"EORelationship", @"rel=%@ sourceToDestinationKeyMap=%@",
-		   [self name], sourceToDestinationKeyMap);
+      NSArray *destinationKeys = 
+	[sourceToDestinationKeyMap objectForKey: @"destinationKeys"];
 
-      sourceKeys = [sourceToDestinationKeyMap objectForKey: @"sourceKeys"];
-      EOFLOGObjectLevelArgs(@"EORelationship", @"rel=%@ sourceKeys=%@",
-                            [self name], sourceKeys);
+      EOEntity *destinationEntity = 
+	[self destinationEntity];
 
-      destinationKeys = [sourceToDestinationKeyMap
-			  objectForKey: @"destinationKeys"];
-      EOFLOGObjectLevelArgs(@"EORelationship", @"rel=%@ destinationKeys=%@",
-                            [self name], destinationKeys);
+      EOMKKDInitializer *destinationDictionaryInitializer = 
+	[destinationEntity _adaptorDictionaryInitializer];
 
-      destinationEntity = [self destinationEntity];
+      EOMKKDInitializer *adaptorDictionaryInitializer = 
+	[_entity _adaptorDictionaryInitializer];
 
-      destinationDictionaryInitializer = [destinationEntity _adaptorDictionaryInitializer];
+      EOMKKDSubsetMapping *sourceRowToForeignKeyMapping = 
+	[destinationDictionaryInitializer subsetMappingForSourceDictionaryInitializer: adaptorDictionaryInitializer
+					  sourceKeys: sourceKeys
+					  destinationKeys: destinationKeys];
 
-      EOFLOGObjectLevelArgs(@"EORelationship", @"destinationEntity named %@  primaryKeyDictionaryInitializer=%@",
-		   [destinationEntity name],
-		   destinationDictionaryInitializer);
-
-      adaptorDictionaryInitializer = [_entity _adaptorDictionaryInitializer];
-      EOFLOGObjectLevelArgs(@"EORelationship",@"entity named %@ adaptorDictionaryInitializer=%@",
-                  [_entity name],
-                  adaptorDictionaryInitializer);
-
-      sourceRowToForeignKeyMapping = 
-      [destinationDictionaryInitializer subsetMappingForSourceDictionaryInitializer: adaptorDictionaryInitializer
-                                                                         sourceKeys: sourceKeys
-                                                                    destinationKeys: destinationKeys];
-      
+      NSAssert3(sourceRowToForeignKeyMapping!=nil,
+		@"Unable to map destination %@ for relationship %@ in entity %@. To one relationships must be joined on the primary key of the destination.",
+		[destinationEntity name],
+		[self name],
+		[_entity name]);
       ASSIGN(_sourceRowToForeignKeyMapping, sourceRowToForeignKeyMapping);
-
-      EOFLOGObjectLevelArgs(@"EORelationship",@"%@ to %@: _sourceRowToForeignKeyMapping=%@",
-		   [_entity name],
-		   [destinationEntity name],
-		   _sourceRowToForeignKeyMapping);
     }
-
-
 
   return _sourceRowToForeignKeyMapping;
 }
 
 - (NSArray*) _sourceAttributeNames
 {
-  //Seems OK
+  //MGuesdon: if flattened, EOF returns firstRelationship sourceAttribute names 
+  //which is incoherent with -sourceAttributes
+  //Here we return sourceAttribute names, flattened or not  
+
   return [[self sourceAttributes]
 	   resultsOfPerformingSelector: @selector(name)];
 }
 
 - (EOJoin*) joinForAttribute: (EOAttribute*)attribute
 {
-  //OK
   EOJoin *join = nil;
-  int i, count = [_joins count];
-
-  for (i = 0; !join && i < count; i++)
+  int count = [_joins count];
+  if (count>0)
     {
-      EOJoin *aJoin = [_joins objectAtIndex: i];
-      EOAttribute *sourceAttribute = [aJoin sourceAttribute];
-
-      if ([attribute isEqual: sourceAttribute])
-        join = aJoin;
+      int i=0;
+      for (i = 0; !join && i < count; i++)
+	{
+	  EOJoin *aJoin = [_joins objectAtIndex: i];
+	  if ([attribute isEqual: [aJoin sourceAttribute]]
+	      || [attribute isEqual: [aJoin destinationAttribute]])
+	    {
+	      join = aJoin;
+	    }
+	}
     }
 
   return join;
@@ -2203,15 +2078,22 @@ dst entity primaryKeyAttributeNames
 
 - (void) _flushCache
 {
-  //VERIFY
-  //[self notImplemented:_cmd]; // TODO
   DESTROY(_sourceAttributes);
   DESTROY(_destinationAttributes);
-  DESTROY(_inverseRelationship);
-  DESTROY(_hiddenInverseRelationship);
-  DESTROY(_componentRelationships);
-  _destination = nil;
 
+  EORelationship* inverseRelationship=AUTORELEASE(RETAIN(_inverseRelationship));
+  DESTROY(_inverseRelationship);
+  if (inverseRelationship!=nil)
+    [inverseRelationship _flushCache];
+
+  if (_hiddenInverseRelationship!=nil)
+    {
+      [[[self destinationEntity]_hiddenRelationships] removeObjectIdenticalTo:_hiddenInverseRelationship];
+      DESTROY(_hiddenInverseRelationship);
+    }
+
+  DESTROY(_sourceRowToForeignKeyMapping);
+  _destination = nil;
 }
 
 - (EOExpressionArray*) _definitionArray
@@ -2226,16 +2108,16 @@ dst entity primaryKeyAttributeNames
   switch(deleteRule)
     {
     case EODeleteRuleNullify:
-      deleteRuleString = @"";
+      deleteRuleString = @"EODeleteRuleNullify";
       break;
     case EODeleteRuleCascade:
-      deleteRuleString = @"";
+      deleteRuleString = @"EODeleteRuleCascade";
       break;
     case EODeleteRuleDeny:
-      deleteRuleString = @"";
+      deleteRuleString = @"EODeleteRuleDeny";
       break;
     case EODeleteRuleNoAction:
-      deleteRuleString = @"";
+      deleteRuleString = @"EODeleteRuleNoAction";
       break;
     default:
       [NSException raise: NSInvalidArgumentException
@@ -2279,29 +2161,38 @@ dst entity primaryKeyAttributeNames
 {
   NSDictionary *keyMap = nil;
 
-  NSEmitTODO();  //TODO
-
-  [self notImplemented: _cmd]; // TODO
-
   if ([self isToManyToOne])
-    {
-      int count = [_definitionArray count];
-
-      if (count >= 2) //??
+    { 
+      int definitionArrayCount=[_definitionArray count];
+      EOEntity* entity = nil;
+      NSMutableString* relationshipPath = nil;
+      int k = 0;
+      int i = 0;
+      for(i=0; i < definitionArrayCount; i++)
         {
-          EORelationship *rel0 = [_definitionArray objectAtIndex: 0];
-
-          if ([rel0 isToMany]) //??
+	  EORelationship* relationship = [_definitionArray objectAtIndex:i];
+	  switch(k)
             {
-              EOEntity *entity = [rel0 destinationEntity];
-              EORelationship *rel1 = [_definitionArray objectAtIndex: 1];
-
-              keyMap = [entity _keyMapForIdenticalKeyRelationshipPath:
-				 [rel1 name]];
+            case 0:
+	      if([relationship isToMany])
+                {
+		  k = 1;
+		  entity=[relationship destinationEntity];
+                }
+                break;
+            case 1:
+	      if (relationshipPath)
+		[relationshipPath appendString: @"."];
+	      else
+		relationshipPath = [NSMutableString string];
+	      [relationshipPath appendString: [relationship name]];
+	      break;
+            default:
+	      break;
             }
         }
+      keyMap=[entity _keyMapForIdenticalKeyRelationshipPath:relationshipPath];
     }
-
   return keyMap;
 }
 
@@ -2309,26 +2200,24 @@ dst entity primaryKeyAttributeNames
 {
   NSDictionary *keyMap = nil;
 
-  NSEmitTODO();  //TODO
-
-  [self notImplemented: _cmd]; // TODO
-
   if ([self isToManyToOne])
-    {
-      int count = [_definitionArray count];
-
-      if (count >= 2) //??
+    { 
+      int definitionArrayCount=[_definitionArray count];
+      NSMutableString* relationshipPath = nil;
+      int i = 0;
+      for(i=0; i < definitionArrayCount; i++)
         {
-          EORelationship *rel = [_definitionArray objectAtIndex: 0];
-
-          if ([rel isToMany]) //??
-            {
-              EOEntity *entity = [rel entity];
-
-              keyMap = [entity _keyMapForIdenticalKeyRelationshipPath:
-				 [rel name]];
-            }
+	  EORelationship* relationship = [_definitionArray objectAtIndex:i];
+	  if (relationshipPath)
+	    [relationshipPath appendString: @"."];
+	  else
+	    relationshipPath = [NSMutableString string];
+	  [relationshipPath appendString: [relationship name]];
+	  if ([relationship isToMany])
+	     break;
         }
+
+      keyMap=[[self entity]_keyMapForIdenticalKeyRelationshipPath:relationshipPath];
     }
 
   return keyMap;
@@ -2336,30 +2225,22 @@ dst entity primaryKeyAttributeNames
 
 - (EORelationship*)_substitutionRelationshipForRow: (NSDictionary*)row
 {
-  EOEntity *entity = [self entity];
-  EOModel *model = [entity model];
-  EOModelGroup *modelGroup = [model modelGroup];
-
-  if (modelGroup)
+  EOEntity* entity = [self entity];
+  EOModelGroup* modelGroup = [[entity model]modelGroup];
+  EORelationship* relationship = self;
+  if(modelGroup != nil
+     && modelGroup->_delegateRespondsTo.relationshipForRow)
     {
-      //??
-      //NSEmitTODO();  //TODO
+      relationship = [[modelGroup delegate] entity:entity
+					    relationshipForRow:row
+					    relationship:self];
     }
-
-  return self;
+  return relationship;
 }
 
 - (void) _joinsChanged
 {
-  //VERIFIED DA 
-  int count = [_joins count];
-
-
-
-
-  EOFLOGObjectLevelArgs(@"EORelationship", @"_joinsChanged:%@\nin %@", _joins, self);
-
-  if (count > 0)
+  if ([_joins count] > 0)
     {
       EOJoin *join = [_joins objectAtIndex: 0];
       EOAttribute *destinationAttribute = [join destinationAttribute];
@@ -2371,8 +2252,6 @@ dst entity primaryKeyAttributeNames
     {
       _destination = nil;
     }
-
-
 }
 
 @end

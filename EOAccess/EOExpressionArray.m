@@ -66,6 +66,7 @@ RCS_ID("$Id$")
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOExpressionArray.h>
 #include <EOAccess/EORelationship.h>
+#include "EOPrivate.h"
 
 
 static SEL eqSel;
@@ -164,7 +165,7 @@ static SEL eqSel;
 - (NSString *)expressionValueForContext: (id<EOExpressionContext>)ctx
 {
   if (ctx && [self count]
-      && [[self objectAtIndex: 0] isKindOfClass: [EORelationship class]])
+      && [[self objectAtIndex: 0] isKindOfClass: GDL2_EORelationshipClass])
     return [ctx expressionValueForAttributePath: self];
   else 
     {
@@ -334,17 +335,10 @@ static SEL eqSel;
 
 - (BOOL)_isPropertyPath
 {
-/*
-  int i=0;
-  int count=0;
-
-  count=[self count];
-objectAtIndex:i
-if it's a string return NO
-*/
-//TODO
-
-  return NO;
+  if ([self count]<=0)
+    return NO;
+  else
+    return [[self objectAtIndex:0] isKindOfClass:GDL2_EORelationshipClass];
 }
 
 - (NSString *)valueForSQLExpression: (EOSQLExpression*)sqlExpression

@@ -95,7 +95,6 @@ typedef enum {
   /* Computed values */
   NSArray *_sourceAttributes;
   NSArray *_destinationAttributes;
-  NSMutableArray *_componentRelationships;//Used ????
 }
 
 + (id)relationshipWithPropertyList: (NSDictionary *)propertyList
@@ -192,9 +191,9 @@ typedef enum {
 - (EORelationship *)firstRelationship;
 - (EOEntity*) intermediateEntity;
 - (BOOL)isMultiHop;
-- (void)_setSourceToDestinationKeyMap: (id)param0;
-- (id)qualifierForDBSnapshot: (id)param0;
-- (id)primaryKeyForTargetRowFromSourceDBSnapshot: (id)param0;
+- (void)_setSourceToDestinationKeyMap:(NSDictionary *)sourceToDestinationKeyMap;
+- (EOQualifier*)qualifierForDBSnapshot:(NSDictionary *)dbSnapshot;
+- (NSDictionary *)primaryKeyForTargetRowFromSourceDBSnapshot:(NSDictionary *)dbSnapshot;
 - (NSString *)relationshipPath;
 - (BOOL)isToManyToOne;
 - (NSDictionary *)_sourceToDestinationKeyMap;
@@ -203,9 +202,9 @@ typedef enum {
 
 @interface EORelationship (EORelationshipPrivate2)
 - (BOOL)isPropagatesPrimaryKeyPossible;
-- (id)qualifierOmittingAuxiliaryQualifierWithSourceRow: (id)param0;
-- (id)auxiliaryQualifier;
-- (void)setAuxiliaryQualifier: (id)param0;
+- (EOQualifier*)qualifierOmittingAuxiliaryQualifierWithSourceRow: (NSDictionary *)row;
+- (EOQualifier*)auxiliaryQualifier;
+- (void)setAuxiliaryQualifier: (EOQualifier*)qualifier;
 - (EOMutableKnownKeyDictionary *)_foreignKeyForSourceRow: (NSDictionary *)row;
 - (EOMKKDSubsetMapping *)_sourceRowToForeignKeyMapping;
 - (NSArray *)_sourceAttributeNames;
