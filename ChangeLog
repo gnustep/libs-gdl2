@@ -1,3 +1,6 @@
+2014-04-30  Manuel Guesdon <mguesdon@orange-concept.com>
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m:
+	  Handle Custom class in newValueForNumberTypeLengthAttribute()
 2014-04-26  Manuel Guesdon <mguesdon@orange-concept.com>
 	* EOAccess/EOAdaptorChannel.m
 	  call delegate -adaptorChannel:willPerformOperations:

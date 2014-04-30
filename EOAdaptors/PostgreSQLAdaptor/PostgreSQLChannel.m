@@ -263,6 +263,13 @@ newValueForNumberTypeLengthAttribute(const void *bytes,
 
           RELEASE(str);
         }
+      else if (valueClass && valueClass!=PSQLA_NSNumberClass)
+	{
+	  // The value class is not a NSNumber class 
+	  //  it's probably a non standard class
+	  value=[[valueClass alloc] initWithCString:bytes
+				    length:length];
+        }
       else
         {
           char valueTypeChar = '\0';
