@@ -803,3 +803,52 @@ GDL2_Activate(Class sup, Class cls)
 
 @end
 
+@implementation NSString (EORelationshipPath)
+
+- (NSString*) relationshipPathByDeletingFirstComponent
+{
+  NSRange r=[self rangeOfString:@"."];
+  if (r.length==0)
+    return nil;
+  else
+    return [self substringFromIndex:r.location+r.length];
+}
+
+- (NSString*) firstComponentFromRelationshipPath
+{
+  NSRange r=[self rangeOfString:@"."];
+  if (r.length==0)
+    return nil;
+  else
+    return [self substringToIndex:r.location];
+}
+
+- (NSString*) relationshipPathByDeletingLastComponent;
+{
+  NSRange r=[self rangeOfString:@"."
+		  options:NSBackwardsSearch];
+  if (r.length==0)
+    return nil;
+  else
+    return [self substringToIndex:r.location];
+}
+
+- (NSString*) lastComponentFromRelationshipPath
+{
+  NSRange r=[self rangeOfString:@"."
+		  options:NSBackwardsSearch];
+  if (r.length==0)
+    return nil;
+  else
+    return [self substringFromIndex:r.location+r.length];
+}
+
+- (BOOL) relationshipPathIsMultiHop
+{
+  NSRange r=[self rangeOfString:@"."];
+  return (r.length>0 ? YES : NO);
+}
+
+
+@end
+

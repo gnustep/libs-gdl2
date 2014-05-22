@@ -1,3 +1,39 @@
+2014-05-22  Manuel Guesdon <mguesdon@orange-concept.com>
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m:
+	  fix newValueForDateTypeLengthAttribute
+	* EOAccess/EOEntityPriv.h
+	  declare -_isSingleTableEntity
+	  declare -_assertNoPropagateKeyCycleWithEntities:relationships:
+	* EOAccess/EOEntity.m
+	  fix _flattenAttribute:relationshipPath:currentAttributes:
+	  use relationshipPathBy...Component
+	  make _addAttributesToFetchForRelationshipPath:atts: more understandable
+	  implement -_assertNoPropagateKeyCycleWithEntities:relationships:
+	  implement -_isSingleTableEntity
+	  fix validateValue:forKey: 
+	* EOAccess/EOExpressionArray.m
+	  implement -valueWithSQLExpressionElement:forSQLExpression:
+	  fix -valueForSQLExpression:
+	* EOAccess/EODatabaseContext.m
+	  reformat -batchNewPrimaryKeysWithEntity:count:
+	  reformat -prepareForSaveWithCoordinator:editingContext:
+	  reformat and fix -recordChangesInEditingContext:
+	  reformat -recordUpdateForObject:changes:
+	  fix -valuesForKeys:object:
+	  fix -nullifyAttributesInRelationship:sourceObject:destinationObject:
+	  add -_mutableValuesForKeys:object:
+	  add -_recordInsertForIntermediateRowFromSourceObject:...
+	  fix -relayAttributesInRelationship:sourceObject:destinationObject:
+	  fix -relayPrimaryKey:sourceObject:destObject:relationship:
+	  fix -relayPrimaryKey:object:entity:
+	  fix -createAdaptorOperationsForDatabaseOperation:
+	  fix -_buildPrimaryKeyGeneratorListForEditingContext:
+	* EOAccess/EODatabaseOperation.m
+	  clean code
+	* EOAccess/EODatabaseChannel.m
+	  fix -_propertiesToFetch
+	* EOControl/EONSAddOns.[hm]
+	  add NSString (EORelationshipPath)
 2014-04-30  Manuel Guesdon <mguesdon@orange-concept.com>
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m:
 	  Handle Custom class in newValueForNumberTypeLengthAttribute()

@@ -113,6 +113,8 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path;
 			       arguments: (char *)param2;
 - (EOExpressionArray *)_parseRelationshipPath: (NSString *)path;
 - (id)_parsePropertyName: (NSString *)propertyName;
++(void) _assertNoPropagateKeyCycleWithEntities:(NSMutableArray*)entities
+				 relationships:(NSMutableArray*)relationships;
 //- (id)_newStringWithBuffer: (unsigned short *)param0
 //                    length: (unsigned int *)param1;
 @end
@@ -127,6 +129,10 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path;
 					    atts: (NSMutableDictionary *)atts;
 - (NSArray *)dbSnapshotKeys;
 - (NSArray *)flattenedAttributes;
+@end
+
+@interface EOEntity (EOEntityPrivateSingleEntity)
+- (BOOL) _isSingleTableEntity;
 @end
 
 #endif

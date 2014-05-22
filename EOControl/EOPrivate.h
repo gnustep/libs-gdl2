@@ -160,7 +160,7 @@ static inline void GDL2_AddObjectWithImpPtr(id object,IMP* impPtr,id objectToAdd
 #define GDL2_ObjectAtIndexWithImp(array,methodIMP,index) \
 	(*(methodIMP))((array),@selector(objectAtIndex:),(index))
 
-static inline id GDL2_ObjectAtIndexWithImpPtr(id object,IMP* impPtr,int index)
+static inline id GDL2_ObjectAtIndexWithImpPtr(id object,IMP* impPtr,NSUInteger index)
 {
   if (object)
     {

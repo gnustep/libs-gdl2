@@ -543,14 +543,10 @@ RCS_ID("$Id$")
 {
   //OK
   NSArray *attributesToFetch=nil;
-
-
-
-  attributesToFetch = [_currentEntity _attributesToFetch];
-
-  NSAssert(_currentEntity, @"No current Entity");
-
-
+  if(_currentEntity == nil)
+    attributesToFetch= [_adaptorChannel describeResults];
+  else
+    attributesToFetch = [_currentEntity _attributesToFetch];
 
   return attributesToFetch;
 }

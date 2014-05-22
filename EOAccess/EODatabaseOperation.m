@@ -53,6 +53,7 @@ RCS_ID("$Id$")
 #endif
 
 #include <EOControl/EODebug.h>
+#include <EOControl/EOPrivate.h>
 
 #include <EOAccess/EODatabaseOperation.h>
 #include <EOAccess/EOAttribute.h>
@@ -105,29 +106,15 @@ RCS_ID("$Id$")
 
 - (NSDictionary *)dbSnapshot
 {
-
-
-
-
-
-
   return _dbSnapshot;
 }
 
 - (void)setDBSnapshot: (NSDictionary *)dbSnapshot
 {
-
-
   ASSIGN(_dbSnapshot, dbSnapshot);
-
-
 
   if (dbSnapshot)
     [_newRow addEntriesFromDictionary: dbSnapshot];
-
-
-
-
 }
 
 - (NSMutableDictionary *)newRow
@@ -188,16 +175,9 @@ RCS_ID("$Id$")
 
 - (NSDictionary *)rowDiffs
 {
-  //OK
   NSMutableDictionary *row = nil;
-  NSEnumerator *newRowEnum = nil;
   NSString *key = nil;
-
-
-
-
-
-  newRowEnum= [_newRow keyEnumerator];
+  NSEnumerator *newRowEnum = [_newRow keyEnumerator];
 
   while ((key = [newRowEnum nextObject]))
     {
@@ -216,10 +196,6 @@ RCS_ID("$Id$")
         }
     }
 
-
-
-
-
   return row;
 }
 
@@ -227,9 +203,7 @@ RCS_ID("$Id$")
 {
   NSMutableDictionary *row = nil;
   EOAttribute *attr = nil;
-  NSEnumerator *attrsEnum = nil;
-  
-  attrsEnum = [attributes objectEnumerator];
+  NSEnumerator *attrsEnum = [attributes objectEnumerator];
   while ((attr = [attrsEnum nextObject]))
   {
     NSString *name = [attr name];
@@ -279,16 +253,10 @@ RCS_ID("$Id$")
 
 - (void)addAdaptorOperation: (EOAdaptorOperation *)adaptorOperation
 {
-  //OK
   if (!_adaptorOps)
     _adaptorOps = [NSMutableArray new];
 
-  if (!adaptorOperation)
-    {
-      //TODO raise exception
-    }
-  else
-    [_adaptorOps addObject: adaptorOperation];
+  [_adaptorOps addObject: adaptorOperation];
 }
 
 - (void)removeAdaptorOperation: (EOAdaptorOperation *)adaptorOperation
@@ -299,16 +267,16 @@ RCS_ID("$Id$")
 - (void)recordToManySnapshot: (NSArray *)gids
 	    relationshipName: (NSString *)name
 {
-  //OK ??
+  if (gids == nil)
+    gids=(NSArray*)GDL2_EONull;
+
   if (_toManySnapshots)
     [_toManySnapshots setObject: gids
                       forKey: name];//TODO VERIFY
   else
     {
-      _toManySnapshots = [NSMutableDictionary dictionaryWithObject: gids
-					      forKey: name];
-
-      RETAIN(_toManySnapshots);
+      ASSIGN(_toManySnapshots,([NSMutableDictionary dictionaryWithObject: gids
+						    forKey: name]));
     }
 }
 
@@ -322,8 +290,6 @@ RCS_ID("$Id$")
   //TODO revoir
   NSString *operatorString = nil;
   NSString *desc = nil;
-
-
 
   switch (_databaseOperator)
     {
@@ -360,8 +326,6 @@ RCS_ID("$Id$")
 		   _object,
 		   _dbSnapshot,
 		   _dbSnapshot];
-
-
 
   return desc;
 }

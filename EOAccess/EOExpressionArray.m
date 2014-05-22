@@ -341,40 +341,65 @@ static SEL eqSel;
     return [[self objectAtIndex:0] isKindOfClass:GDL2_EORelationshipClass];
 }
 
+- (NSString *)valueWithSQLExpressionElement:(EOSQLExpression*)element
+			   forSQLExpression:(EOSQLExpression*)sqlExpression
+{
+  NSString* value=nil;
+  if ([element respondsToSelector:@selector(valueForSQLExpression:)])
+    value=[element valueForSQLExpression:sqlExpression];
+  else if ([element isKindOfClass:[NSNumber class]])
+    value=[element stringValue];
+  else if ([element isKindOfClass:[NSString class]])
+    value=(NSString*)element;
+  else if (element == GDL2_EONull)
+    value = @"NULL";
+  else
+    value=[element description];
+  return value;
+}
+
 - (NSString *)valueForSQLExpression: (EOSQLExpression*)sqlExpression
 {
-  //TODO verify
-  NSMutableString *value = [NSMutableString string];
-  volatile int i;
-  int count;
+  NSString* value = nil;
 
-  NS_DURING //Just for debugging
+  int count=[self count];
+  if (count>0)
     {
-      count = [self count];
-
-      for(i = 0; i < count; i++)
-        {
-          id obj = [self objectAtIndex: i];
-          NSString *relValue;
-
-          relValue = [obj valueForSQLExpression: sqlExpression];
-
-          if (i > 0 && _infix)
-            [value appendString: _infix];
-
-          [value appendString: relValue];
-        }
+      if (sqlExpression != nil
+	  && [[self firstObject] isKindOfClass:GDL2_EORelationshipClass])
+	{
+	  value = [sqlExpression sqlStringForAttributePath:self];
+	}
+      else
+	{
+	  NSMutableString* buffer = [NSMutableString string];
+	  if (_prefix!=nil)
+	    [buffer appendString: _prefix];
+	  BOOL isFirst=YES;
+	  int i=0;
+	  for(i=0; i < count; i++)
+	    {
+	      NSObject* component = [self objectAtIndex:i];
+	      NSString* aValue = [self valueWithSQLExpressionElement:component
+				       forSQLExpression:sqlExpression];
+	      if ([aValue length]>0)
+		{
+		  if (isFirst)
+		    isFirst=NO;
+		  else if (_infix != nil)
+                    [buffer appendString:_infix];
+		  [buffer appendString:aValue];
+		}
+	    }
+	  
+	  if (!isFirst)
+	    {
+	      if(_suffix != nil)
+		[buffer appendString:_suffix];
+	      value=[NSString stringWithString:buffer];
+	    }
+	}
     }
-  NS_HANDLER
-    {
-      NSLog(@"exception in EOExpressionArray valueForSQLExpression: self=%p class=%@ i=%d", self, [self class], i);
-      NSLog(@"exception in EOExpressionArray valueForSQLExpression: self=%@ class=%@ i=%d", self, [self class], i);
-      NSLog(@"exception=%@", localException);
-
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-
   return value;
 }
 

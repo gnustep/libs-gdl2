@@ -269,7 +269,6 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   [sqlExpression prepareSelectExpressionWithAttributes: attributes
 		 lock: flag
 		 fetchSpecification: fetchSpecification];
-
   return sqlExpression;
 }
 
@@ -582,183 +581,91 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 					 _whereClauseString : nil)]);
 }
 
-/*
-//TC:
-- (void)prepareSelectExpressionWithAttributes:(NSArray *)attributes
-                                         lock:(BOOL)flag
-                           fetchSpecification:(EOFetchSpecification *)fetchSpecification
-{
-  NSEnumerator *attrEnum, *sortEnum;
-  EOAttribute *attribute;
-  EOSortOrdering *sort;
-  NSString *tableList;
-  NSString *lockClause = nil;
-  NSArray *sortOrderings;
-
-  EOFLOGObjectFnStartCond(@"EOSQLExpression");
-
-  // Turbocat (RawRow Additions)
-  if ([fetchSpecification rawRowKeyPaths]) {
-
-	// fill _aliasesByRelationshipPath before calling addSelectListAttribute
-
-	NSEnumerator		*keyPathEnum = [[fetchSpecification rawRowKeyPaths] objectEnumerator];
-	NSString			*keyPath;
-	EOExpressionArray 	*expressionArray;
-
-    while (keyPath = [keyPathEnum nextObject]) {
-  		if([keyPath isNameOfARelationshipPath]) {
-
-			// get relationships
-			NSString	*newKeyPath = [keyPath stringByDeletingPathExtension];	// cut attributename
-
-			if (![_aliasesByRelationshipPath objectForKey:newKeyPath]) {
-            	//int    		count = [[_aliasesByRelationshipPath allKeys] count];
-            	NSString	*prefix = [NSString stringWithFormat:@"t%d",_alias++];
-
-				[_aliasesByRelationshipPath setObject:prefix forKey:newKeyPath];
-			}
-		}
-	}
-	//NSLog(@"_aliasesByRelationshipPath = %@", _aliasesByRelationshipPath);
-  } // Turbocat (RawRow Additions)
-
-  attrEnum = [attributes objectEnumerator];
-  while((attribute = [attrEnum nextObject]))
-    {
-      [self addSelectListAttribute:attribute];
-    }
-
-  ASSIGN(_whereClauseString, [(id)[fetchSpecification qualifier]
-				  sqlStringForSQLExpression:self]);
-
-  sortOrderings = [fetchSpecification sortOrderings];
-
-  sortEnum = [sortOrderings objectEnumerator];
-  while((sort = [sortEnum nextObject]))
-    [self addOrderByAttributeOrdering:sort];
-
-  [self joinExpression];
-  tableList = [self tableListWithRootEntity:_entity];
-  if(flag) lockClause = [self lockClause];
-
-  ASSIGN(_statement, [self assembleSelectStatementWithAttributes:attributes
-			   lock:flag
-			   qualifier:[fetchSpecification qualifier]
-			   fetchOrder:sortOrderings
-			   selectString:nil //TODO
-			   columnList:_listString
-			   tableList:tableList
-			   whereClause:([_whereClauseString length] ?
-					_whereClauseString : nil)
-			   joinClause:([_joinClauseString length] ?
-				       _joinClauseString : nil)
-			   orderByClause:([_orderByString length] ?
-					  _orderByString : nil)
-			   lockClause:lockClause]);
-
-  EOFLOGObjectFnStopCond(@"EOSQLExpression");
-}
-*/
-
 - (void)prepareSelectExpressionWithAttributes: (NSArray *)attributes
                                          lock: (BOOL)flag
                            fetchSpecification: (EOFetchSpecification *)fetchSpecification
 {
+  BOOL useAliases=NO;
+  int attributesCount=[attributes count];
   EOQualifier *fetchQualifier = nil;
-  EOQualifier *restrictingQualifier = nil;
-  NSString *whereClauseString = nil;
+  EOQualifier *finalQualifier = nil;
   NSArray *sortOrderings = nil;
+  int sortOrderingsCount = 0;
   EOEntity *rootEntity = nil;
   NSString *tableList = nil;
   NSString *lockClauseString = nil;
   BOOL usesDistinct = NO;
   NSString *statement = nil;
-  NSString *selectCommand = nil;
-  //Add Attributes to listString
-  int i, count = [attributes count];
+  NSString *selectString = nil;
+  int i=0;
 
-  EOFLOGObjectFnStartCond(@"EOSQLExpression");
-
-  //OK
-  for (i = 0; i < count; i++)
+  NSString* firstRelationshipPath=nil;
+  //Search if we should use aliases
+  for(i=0;i<attributesCount;i++)
     {
-      EOAttribute *attribute = [attributes objectAtIndex: i];
-
-      /* Add non-relationship definitions such as aggregates.  */
-      if ([attribute isFlattened])
+      EOAttribute* attribute = [attributes objectAtIndex:i];
+      if (![attribute isFlattened])
 	{
-	  NSMutableString *listString = [self listString];
-	  NSString *definition = [attribute definition];
-
-	  if (definition) 
-	    {
-	      NSRange range = [definition rangeOfString:@"."];
-
-	      if (range.length == 0)
-		{
-		  [self appendItem: definition
-			toListString: listString];
-		}
-	    }
-
-          EOFLOGObjectLevelArgs(@"EOSQLExpression", @"flattened attribute=%@",
-				attribute);
-        }
+	  useAliases = YES;
+	  break;
+	}
+      else if (firstRelationshipPath == nil)
+	{
+	  firstRelationshipPath = [attribute relationshipPath];
+	  // continue
+	}
+      else if ([firstRelationshipPath isEqualToString:[attribute relationshipPath]])
+	{
+	  // still same relationshipPath: continue
+	}
       else
-        [self addSelectListAttribute: attribute];
-
-      EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_listString=%@",
-			    _listString);
+	{
+	  useAliases = YES;
+	  break;
+        }
     }
+  [self setUseAliases:useAliases];
+
+  //Add attributes
+  for(i=0;i<attributesCount;i++)
+    [self addSelectListAttribute:[attributes objectAtIndex:i]];
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_listString=%@", _listString);
 
-  fetchQualifier = [fetchSpecification qualifier]; //OK
-  //call fetchSpecification -isDeep
-  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"fetchQualifier=%@",
-			fetchQualifier);
+  //Build Where Clause
+  fetchQualifier = [fetchSpecification qualifier];
+  if ([fetchSpecification isDeep]
+      && [_entity _isSingleTableEntity])
+    finalQualifier = [_entity _singleTableRestrictingQualifier];
+  else
+    finalQualifier = [_entity restrictingQualifier];
 
-  restrictingQualifier = [_entity restrictingQualifier]; 
-
-  if (fetchQualifier && restrictingQualifier)
+  if (finalQualifier != nil)
     {
-      fetchQualifier = [[EOAndQualifier alloc] initWithQualifiers:fetchQualifier, restrictingQualifier, nil];
-      AUTORELEASE(fetchQualifier);
+      if (fetchQualifier != nil)
+	finalQualifier=[EOAndQualifier qualifierWithQualifiers:finalQualifier, fetchQualifier, nil];
     }
   else
-    {
-      fetchQualifier = fetchQualifier ? fetchQualifier : restrictingQualifier;
-    }
+    finalQualifier = fetchQualifier;
 
-  //Build Where Clause
-  whereClauseString = [(id<EOQualifierSQLGeneration>)fetchQualifier sqlStringForSQLExpression: self];
-
-  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"whereClauseString=%@",
-			whereClauseString);
-  ASSIGN(_whereClauseString, whereClauseString);
+  ASSIGN(_whereClauseString,([(id<EOQualifierSQLGeneration>)finalQualifier sqlStringForSQLExpression: self]));
 
   //Build Ordering Clause
   sortOrderings = [fetchSpecification sortOrderings];
-  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sortOrderings=%@",
-			sortOrderings);
-
-  if ([sortOrderings count] > 0)
+  sortOrderingsCount = [sortOrderings count];
+  if (sortOrderingsCount>0)
     {
-      int i, count = [sortOrderings count];
-
-      for (i = 0; i < count; i++)
+      for (i = 0; i < sortOrderingsCount; i++)
         {
-          EOSortOrdering *order = [sortOrderings objectAtIndex: i];
+          EOSortOrdering *sortOrdering = [sortOrderings objectAtIndex: i];
 
-          EOFLOGObjectLevelArgs(@"EOSQLExpression", @"order=%@", order);
-          NSAssert3([order isKindOfClass: [EOSortOrdering class]],
+          NSAssert3([sortOrdering isKindOfClass: [EOSortOrdering class]],
                     @"order is not a EOSortOrdering but a %@: %p %@",
-                    [order class],
-                    order,
-                    order);
+                    [sortOrdering class],
+                    sortOrdering,
+                    sortOrdering);
 
-          [self addOrderByAttributeOrdering: order];
+          [self addOrderByAttributeOrdering: sortOrdering];
         }
     }
 
@@ -767,11 +674,11 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_joinClauseString=%@",
 			_joinClauseString);
 
+  //Build Table List
   rootEntity = [self _rootEntityForExpression];
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"rootEntity=%@",
 			[rootEntity name]);
 
-  //Build Table List
   tableList = [self tableListWithRootEntity: rootEntity];
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"tableList=%@", tableList);
 
@@ -786,16 +693,16 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"usesDistinct=%d", usesDistinct);
 
   if (usesDistinct)
-    selectCommand = @"SELECT distinct ";
+    selectString = @"SELECT distinct ";
   else
-    selectCommand = @"SELECT ";
+    selectString = @"SELECT ";
 
   //Now Build Statement
   statement = [self assembleSelectStatementWithAttributes: attributes
 		    lock: flag
-		    qualifier: fetchQualifier
+		    qualifier: finalQualifier
 		    fetchOrder: sortOrderings
-		    selectString: selectCommand
+		    selectString: selectString
 		    columnList: _listString
 		    tableList: tableList
 		    whereClause: ([_whereClauseString length] > 0
@@ -1088,7 +995,6 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 
 - (void)addSelectListAttribute: (EOAttribute *)attribute
 {
-  //OK
   NSMutableString *listString;
   NSString *string;
   NSString *sqlStringForAttribute = [self sqlStringForAttribute:attribute];
@@ -1883,7 +1789,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 - (NSString *)sqlStringForAttribute: (EOAttribute *)attribute
 {
   NSString *sqlString = nil;
-
+  EOExpressionArray* definition = nil;
   EOFLOGObjectFnStartCond(@"EOSQLExpression");
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attribute=%@",
@@ -1898,6 +1804,32 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_definitionArray count=%d",
 			[[attribute _definitionArray]count]);
 
+  definition = [attribute _definitionArray];
+  if ([definition count]>1)
+    {
+      sqlString = [definition valueForSQLExpression:self];
+    }
+  else
+    {
+      NSString* columnName = [attribute columnName];
+      if (columnName == nil)
+	{
+	  [NSException raise: @"NSIllegalStateException"
+		       format: @"sqlStringForAttribute: attempt to generate SQL for attribute '%@' on entity '%@' with undefined column name. You must define a column name for this attribute before attempting a database operation.",
+		       [attribute name],
+		       [[attribute entity] name]];
+	}
+      if (![self useAliases])
+	sqlString = columnName;
+      else
+	sqlString = [@"t0." stringByAppendingString:[self sqlStringForSchemaObjectName:columnName]];
+    }
+
+  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sqlString=%@", sqlString);
+  EOFLOGObjectFnStopCond(@"EOSQLExpression");
+
+  return sqlString;
+/*
   if ([attribute isFlattened])
     {
       sqlString = [self sqlStringForAttributePath:
@@ -1907,10 +1839,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 		attribute);
     }
 //mirko:
-/*
-else if([attribute isDerived] == YES)
-    return [attribute definition];
-*/
+// else if([attribute isDerived] == YES)
+//    return [attribute definition];
   else
     {
       if (![self useAliases])//OK
@@ -2017,6 +1947,7 @@ else if([attribute isDerived] == YES)
   EOFLOGObjectFnStopCond(@"EOSQLExpression");
 
   return sqlString;
+*/
 }
 
 - (NSString *)sqlStringForAttributePath: (NSArray *)path

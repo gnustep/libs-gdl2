@@ -164,4 +164,12 @@ GDL2_Activate(Class sup, Class cls);
 
 @end
 
+@interface NSString (EORelationshipPath)
+- (NSString*) relationshipPathByDeletingFirstComponent;
+- (NSString*) firstComponentFromRelationshipPath;
+- (NSString*) relationshipPathByDeletingLastComponent;
+- (NSString*) lastComponentFromRelationshipPath;
+- (BOOL) relationshipPathIsMultiHop;
+@end
+
 #endif /* __EONSAddOns_h__ */

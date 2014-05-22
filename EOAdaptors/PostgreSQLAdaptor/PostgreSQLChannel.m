@@ -370,6 +370,7 @@ newValueForBytesTypeLengthAttribute (const void *bytes,
   return data;
 }
 
+//If you make changes in this function, PLEASE make tests (see +initialize method below). mguesdon
 static id
 newValueForDateTypeLengthAttribute (const void *bytes,
 				    int length,
@@ -383,7 +384,7 @@ newValueForDateTypeLengthAttribute (const void *bytes,
   unsigned minute = 0;
   unsigned second = 0;
   unsigned millisecond = 0;
-  int tz = 0;
+  int tzIndex = 0;
   NSTimeZone *timezone = nil;
   NSCalendarDate *date = nil;
   const char *str = bytes;
@@ -399,54 +400,66 @@ newValueForDateTypeLengthAttribute (const void *bytes,
       getDigits(&str[0],tmpString,4,&error);
       year = atoi(tmpString);
 
-  if (length > 6)
-    {
-      getDigits(&str[5],tmpString,2,&error);
-      month = atoi(tmpString);
-      //Postgres can return bad dates sometimes (it accept bad date in insert/update)
-      NSCAssert2(month>0,@"Bad month in date %*s",length,bytes);
-
-  if (length > 9)
-    {
-      getDigits(&str[8],tmpString,2,&error);
-      day = atoi(tmpString);
-      //Postgres can return bad dates sometimes (it accept bad date in insert/update)
-      NSCAssert2(day>0,@"Bad day in date %*s",length,bytes);
-
-  if (length > 12)
-    {
-      getDigits(&str[11],tmpString,2,&error);
-      hour = atoi(tmpString);
-
-  if (length > 15)
-    {
-      getDigits(&str[14],tmpString,2,&error);
-      minute = atoi(tmpString);
-
-  if (length > 18)
-    {
-      getDigits(&str[17],tmpString,2,&error);
-      second = atoi(tmpString);
-
-  if (length > 19)
-    {
-      tz = getDigits(&str[17],tmpString,7,&error);
-      millisecond = atoi(tmpString);
+      if (length > 6)
+	{
+	  getDigits(&str[5],tmpString,2,&error);
+	  month = atoi(tmpString);
+	  //Postgres can return bad dates sometimes (it accept bad date in insert/update)
+	  NSCAssert2(month>0,@"Bad month in date %*s",length,bytes);
+	  
+	  if (length > 9)
+	    {
+	      getDigits(&str[8],tmpString,2,&error);
+	      day = atoi(tmpString);
+	      //Postgres can return bad dates sometimes (it accept bad date in insert/update)
+	      NSCAssert2(day>0,@"Bad day in date %*s",length,bytes);
+	      
+	      if (length > 12)
+		{
+		  getDigits(&str[11],tmpString,2,&error);
+		  hour = atoi(tmpString);
+		  
+		  if (length > 15)
+		    {
+		      getDigits(&str[14],tmpString,2,&error);
+		      minute = atoi(tmpString);
+		      
+		      if (length > 18)
+			{
+			  getDigits(&str[17],tmpString,2,&error);
+			  second = atoi(tmpString);
+			  
+			  if (length > 20)
+			    {
+			      if (str[19]=='.')
+				{
+				  tzIndex = 20+getDigits(&str[20],tmpString,7,&error);
+				  millisecond = atoi(tmpString);
+				}
+			      else
+				tzIndex=19;
+			    }
+			}
+		    }
+		}
+	    }
+	}
     }
-    }
-    }
-    }
-    }
-    }
-    }
-  if (tz)
+  if (tzIndex)
     {
-      int sign = (str[tz]) == '-' ? -1 : 1;
-      getDigits(&str[tz+1],tmpString,2,&error);
-      tz = atoi(tmpString);
-      if (tz < 100) tz *= 100;
-      tz = sign * ((tz / 100) * 60 + (tz % 100)) * 60;
-      timezone = [NSTimeZone timeZoneForSecondsFromGMT: tz];
+      while(isspace(str[tzIndex])
+	    && tzIndex<length)
+	tzIndex++;
+      if (tzIndex<length)
+	{
+	  int sign = (str[tzIndex]) == '-' ? -1 : 1;
+	  int charsCount=getDigits(&str[tzIndex+1],tmpString,4,&error);
+	  int tz = atoi(tmpString);
+	  if (charsCount<=2)
+	    tz *= 100;
+	  tz = sign * ((tz / 100) * 60 + (tz % 100)) * 60;
+	  timezone = [NSTimeZone timeZoneForSecondsFromGMT: tz];
+	}
     }
 
   date = [attribute newDateForYear: year
@@ -458,7 +471,6 @@ newValueForDateTypeLengthAttribute (const void *bytes,
 		    millisecond: millisecond
 		    timezone: timezone
 		    zone: 0];
-
   return date;
 }
 
@@ -501,6 +513,62 @@ newValueForBytesLengthAttribute (const void *bytes,
 	= [EOAttribute instancesRespondToSelector: @selector(_valueTypeCharacter)];
 
       initialized = YES;
+
+      /*
+      EOAttribute* anAttribute=AUTORELEASE([EOAttribute new]);
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21.2531419+01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21.2531419+01",
+						strlen("2006-12-31 00:45:21.2531419+01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21.2531419-01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21.2531419-01",
+						strlen("2006-12-31 00:45:21.2531419-01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21.25314+01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21.25314+01",
+						strlen("2006-12-31 00:45:21.25314+01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21.25314-01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21.25314-01",
+						strlen("2006-12-31 00:45:21.25314-01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21+01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21+01",
+						strlen("2006-12-31 00:45:21+01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21-01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21-01",
+						strlen("2006-12-31 00:45:21-01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21.25314 +01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21.25314 +01",
+						strlen("2006-12-31 00:45:21.25314 +01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21.25314 -01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21.25314 -01",
+						strlen("2006-12-31 00:45:21.25314 -01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21 +01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21 +01",
+						strlen("2006-12-31 00:45:21 +01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+      NSLog(@"TEST DATES: 2006-12-31 00:45:21 -01 => %@",
+	    newValueForDateTypeLengthAttribute ("2006-12-31 00:45:21 -01",
+						strlen("2006-12-31 00:45:21 -01"),
+						anAttribute,
+						NSUTF8StringEncoding));
+      */
     };
 };
 

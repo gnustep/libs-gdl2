@@ -2667,7 +2667,6 @@ _mergeValueForKey(id obj, id value,
 
       [_objectStore saveChangesInEditingContext: self];
 
-
       [self didSaveChanges];
 
 

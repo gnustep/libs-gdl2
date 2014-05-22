@@ -2791,7 +2791,10 @@ createInstanceWithEditingContext:globalID:zone:
       if ([currentAttributes objectForKey:aName]==nil)
 	break;
       else
-	[aName setString:@""];
+	{
+	  [aName setString:@""];
+	  i++;
+	}
     } while(1);
 
   //Now create temporary attribute
@@ -3196,6 +3199,7 @@ returns nil if there's no key in the instanceDictionaryInitializer
 	  ASSIGN(_attributesToFetch,[[attrsByName allValues]sortedArrayUsingSelector:@selector(eoCompareOnName:)]);
 	}
     }
+
   return _attributesToFetch;
 }
 
@@ -3772,43 +3776,47 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 	      EOAttribute* sourceAttribute =[[joins objectAtIndex:i] sourceAttribute];
 	      NSString* sourceAttributeName = [sourceAttribute name];
 	      if ([attributes objectForKey:sourceAttributeName]==nil)
-		[attributes setObject:sourceAttribute
-			    forKey:sourceAttributeName];
+		{
+		  [attributes setObject:sourceAttribute
+			      forKey:sourceAttributeName];
+		}
 	    }
 	}
     }
   else
     {
       EORelationship* relationship = [self relationshipForPath:relPath];
-      NSRange rLast=[relPath rangeOfString:@"."
-			     options:NSBackwardsSearch];
-      NSString* firstPathComponents = [relPath substringToIndex:rLast.location];
+      NSString* firstPathComponents = [relPath relationshipPathByDeletingLastComponent];
       NSArray* joins = [relationship joins];
       int joinsCount = [joins count];
       if (joinsCount>0)
 	{
-	  EOAttribute* attribute = nil;
 	  int i = 0;
 	  for(i=0;i<joinsCount;i++)
 	    {
 	      EOAttribute* sourceAttribute = [[joins objectAtIndex:i] sourceAttribute];
 	      NSEnumerator* attributesEnum = [attributes objectEnumerator];
+	      EOAttribute* attribute = nil;
+	      EOAttribute* foundAttribute = nil;
 	      while((attribute=[attributesEnum nextObject]))
 		{
 		  EOAttribute* targetAttribute = [attribute targetAttribute];
 		  if (targetAttribute == sourceAttribute
 		      && [[attribute relationshipPath] isEqual:firstPathComponents]
 		      && ![attribute isReadOnly])
-		    break;
+		    {
+		      foundAttribute = attribute;
+		      break;
+		    }
 		}
-	  
-	      if (attribute == nil)
+
+	      if (foundAttribute == nil)
 		{
-		  attribute = [self _flattenAttribute:sourceAttribute
-				    relationshipPath:firstPathComponents
-				    currentAttributes:attributes];
-		  [attributes setObject:attribute
-			      forKey: [attribute name]];
+		  EOAttribute* anAttribute = [self _flattenAttribute:sourceAttribute
+						   relationshipPath:firstPathComponents
+						   currentAttributes:attributes];
+		  [attributes setObject:anAttribute
+			      forKey: [anAttribute name]];
 		}
 	    }
 	}
@@ -4206,6 +4214,56 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
   return expressionArray;
 }
 
++(void) _assertNoPropagateKeyCycleWithEntities:(NSMutableArray*)entities
+				 relationships:(NSMutableArray*)relationships
+{
+  EOEntity* entity = [entities lastObject];
+  NSArray* entityRelationships = [entity relationships];
+  int i=0;
+  for(i = [entityRelationships count] - 1; i >= 0; i--)
+    {
+      EORelationship* relationship = [entityRelationships objectAtIndex:i];
+      if ([relationship propagatesPrimaryKey])
+	{
+	  EOEntity* dstEntity=[relationship destinationEntity];
+	  if ([entities containsObject:dstEntity])
+	    {
+	      NSMutableString* tmpString=[NSMutableString string];
+	      int j=0;
+	      int c=[relationships count];
+	      for(j = 0; j < c; j++)
+		{
+		  [tmpString appendFormat:@"\n\tEntity: %@ Relationship: %@ => ",
+			     [[entities objectAtIndex:j] name],
+			     [[relationships objectAtIndex:j] name]];
+		}
+	      
+	      [tmpString appendFormat:@"\n\tEntity: %@ Relationship: %@ => \n\tEntity: %@",
+			 [[entities lastObject] name],
+			 [relationship name],
+			 [dstEntity name]];
+	       [NSException raise: @"NSIllegalStateException"
+			    format:@"%@ EOEntity propagation cycle discovered in model group while attempting to save. Check your model group and break the following cycle: %@",
+			    NSStringFromSelector(_cmd),
+			    tmpString];
+	    }
+	  [relationships addObject:relationship];
+	  [entities addObject:dstEntity];
+	  [self _assertNoPropagateKeyCycleWithEntities:entities
+		relationships:relationships];
+	  [relationships removeLastObject];
+	  [entities removeLastObject];
+	}
+    }  
+}
+
+@end
+
+@implementation EOEntity (EOEntityPrivateSingleEntity)
+- (BOOL) _isSingleTableEntity
+{
+  return _flags.isSingleTableEntity;
+}
 @end
 
 @implementation EOEntity (Deprecated)
@@ -4487,29 +4545,18 @@ fromInsertionInEditingContext: (EOEditingContext *)context
                         forKey: (NSString *)key
 {
   NSException *exception = nil;
-  EOAttribute *attr;
-  EORelationship *relationship;
+  EOAttribute *attr = nil;
 
   NSAssert(valueP, @"No value pointer");
-
   attr = [_entity attributeNamed: key];
 
   if (attr)
-    {
-      exception = [attr validateValue: valueP];
-    }
+    exception = [attr validateValue: valueP];
   else
     {
-      relationship = [_entity relationshipNamed: key];
-
+      EORelationship* relationship = [_entity relationshipNamed: key];
       if (relationship)
-        {
-          exception = [relationship validateValue: valueP];
-        }
-      else
-        {
-          NSEmitTODO();  //TODO
-        }
+	exception = [relationship validateValue: valueP];
     }
 
   return exception;
