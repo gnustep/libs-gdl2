@@ -712,13 +712,7 @@ May raise an exception if transaction has began or if you want pessimistic lock 
        editingContext: (EOEditingContext *)context
            isComplete: (BOOL)isComplete
 {
-  //OK
   EOAccessFaultHandler *handler;
-
-
-
-
-
 
   NSAssert(globalID, @"No globalID");
   NSAssert1([globalID isKindOfClass: [EOKeyGlobalID class]],
@@ -747,7 +741,6 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 
   [self _addBatchForGlobalID: (EOKeyGlobalID*)globalID
         fault: object];
-
 
   //TODO: use isComplete
 }
@@ -5496,19 +5489,68 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
   return result;
 }
 
+-(id)_fetchSingleObjectForEntity:(EOEntity*)entity
+			globalID:(EOGlobalID*)gid
+		  editingContext:(EOEditingContext*)context
+{
+  id object=nil;
+  NSDictionary* pk = [entity primaryKeyForGlobalID:gid];
+  EOFetchSpecification* fetchSpec = [EOFetchSpecification fetchSpecificationWithEntityName:[entity name]
+							  qualifier: [entity qualifierForPrimaryKey:pk]
+							  sortOrderings: nil];
+  [fetchSpec setFetchLimit:1];
+  NSArray* objects = [self objectsWithFetchSpecification:fetchSpec
+			   editingContext: context];
+  if ([objects count]==0)
+    {
+      [NSException raise: @"NSIllegalStateException"
+		   format:@"The object with globalID %@ could not be found in the database. This could be result of a referential integrity problem with the database. An empty fault could not be created because the object's class could not be determined (e.g. the GID is temporary or it is for an abstract entity).",
+		   gid];
+    }
+  else
+    object=[objects objectAtIndex:0];
+
+  return object;
+}
+
+-(id)_objectFaultWithSnapshot:(NSDictionary*) snapshot
+		 relationship:(EORelationship*) relationship
+	       editingContext:(EOEditingContext*)context
+{
+  id objectFault=nil;
+  EOMutableKnownKeyDictionary *foreignKeyForSourceRow = 
+    [relationship _foreignKeyForSourceRow: snapshot];
+                
+  if ([foreignKeyForSourceRow containsObjectsNotIdenticalTo: GDL2_EONull])
+    {
+      EOEntity *destinationEntity = [relationship destinationEntity];
+      EOGlobalID *relRowGid = [destinationEntity
+				globalIDForRow: foreignKeyForSourceRow];
+          
+      if ([[destinationEntity subEntities]count] > 0)
+	{
+	  objectFault=[self _fetchSingleObjectForEntity:destinationEntity
+			globalID:relRowGid
+			    editingContext:context];
+	}
+      else
+	{
+	  objectFault=[context faultForGlobalID: relRowGid
+			       editingContext: context];
+	}
+    }
+  return objectFault;
+}
+
 - (void)initializeObject: (id)object
                      row: (NSDictionary*)row
                   entity: (EOEntity*)entity
           editingContext: (EOEditingContext*)context
 {
-  //really near ok
   NSArray *relationships = nil;
-  NSArray *classPropertyAttributeNames = nil;
-  NSUInteger count = 0;
+  NSArray *classPropertyAttributeNames = [entity classPropertyAttributeNames];
+  NSUInteger count = [classPropertyAttributeNames count];
   IMP rowObjectForKeyIMP=NULL;
-  
-  classPropertyAttributeNames = [entity classPropertyAttributeNames];
-  count = [classPropertyAttributeNames count];
   
   //row is usuallly a EOMutableKnownKeyDictionary so will use EOMKKD_objectForKeyWithImpPtr
   
@@ -5521,143 +5563,54 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
              @"Object is a fault. call -methodForSelector: on it is a bad idea");
     
     for (i = 0; i < count; i++)
-    {
-      id key = GDL2_ObjectAtIndexWithImp(classPropertyAttributeNames,oaiIMP,i);
-      id value = nil;
-      
-      
-      value = EOMKKD_objectForKeyWithImpPtr(row,&rowObjectForKeyIMP,key);
-      
-      if (value == GDL2_EONull)
-        value = nil;
-            
-      [object takeStoredValue:value
-                       forKey:key];
-    }
+      {
+	id key = GDL2_ObjectAtIndexWithImp(classPropertyAttributeNames,oaiIMP,i);
+	id value = EOMKKD_objectForKeyWithImpPtr(row,&rowObjectForKeyIMP,key);
+	
+	if (value == GDL2_EONull)
+	  value = nil;
+	
+	[object takeStoredValue:value
+		forKey:key];
+      }
   };
   
-  relationships = [entity _relationshipsToFaultForRow: row];
-  
-  
-  
+  relationships = [entity _relationshipsToFaultForRow: row];  
   count = [relationships count];
   
   if (count>0)
-  {
-    NSUInteger i=0;
-    IMP oaiIMP=[relationships methodForSelector:@selector(objectAtIndex:)];
-    
-    NSAssert(!_isFault(object),
-             @"Object is a fault. call -methodForSelector: on it is a bad idea");
-    
-    
-    for (i = 0; i < count; i++)
     {
-      id relObject = nil;
-      EORelationship *relationship = GDL2_ObjectAtIndexWithImp(relationships,oaiIMP,i);
-      NSString *relName = [relationship name];
+      NSUInteger i=0;
+      IMP oaiIMP=[relationships methodForSelector:@selector(objectAtIndex:)];
       
+      NSAssert(!_isFault(object),
+	       @"Object is a fault. call -methodForSelector: on it is a bad idea");
       
-      if ([relationship isToMany])
-      {
-        EOGlobalID *gid = [entity globalIDForRow: row];
-        
-        relObject = [self arrayFaultWithSourceGlobalID: gid
-                                      relationshipName: relName
-                                        editingContext: context];
-      }
-      else if ([relationship isFlattened])
-      {
-        // to one flattened relationship like aRelationship.anotherRelationship...
-        
-        // I don't know how to handle this case.... May be we shouldn't treat this as real property ??
-        NSEmitTODO();
-        relObject = nil;          
-      }
-      else
-      {          
-        EOMutableKnownKeyDictionary *foreignKeyForSourceRow = nil;
-                
-        foreignKeyForSourceRow = [relationship _foreignKeyForSourceRow: row];
-                
-        if (![foreignKeyForSourceRow
-              containsObjectsNotIdenticalTo: GDL2_EONull])
-        {
-          NSEmitTODO();//TODO: what to do if rel is mandatory ?
-          relObject = nil;
-        }
-        else
-        {
-          EOEntity *destinationEntity = [relationship destinationEntity];
-          EOGlobalID *relRowGid = [destinationEntity
-                                   globalIDForRow: foreignKeyForSourceRow];
-          
-          
-          
-          if ([(EOKeyGlobalID*)relRowGid areKeysAllNulls])
-            NSWarnLog(@"All key of relRowGid %p (%@) are nulls",
-                      relRowGid,
-                      relRowGid);
-          
-          relObject = [context faultForGlobalID: relRowGid
-                                 editingContext: context];
-          
-          NSDebugMLLog(@"EODatabaseContext", @"relObject=%p (%@)",
-                       relObject, [relObject class]);
-          //end
-          /*
-           NSArray *joins = [(EORelationship *)prop joins];
-           EOJoin *join;
-           NSMutableDictionary *row;
-           EOGlobalID *faultGID;
-           int h, count;
-           id value, realValue = nil;
-           
-           row = [NSMutableDictionary dictionaryWithCapacity:4];
-           
-           count = [joins count];
-           for (h=0; h<count; h++)
-           {
-           join = [joins objectAtIndex:h];
-           
-           value = [snapshot objectForKey:[[join sourceAttribute]
-           name]];
-           if (value == null)
-           realValue = nil;
-           else
-           realValue = value;
-           
-           [[prop validateValue:&realValue] raise];
-           
-           [row setObject:value
-		       forKey:[[join destinationAttribute]
-           name]];
-           }
-           
-           if (realValue || [prop isMandatory] == YES)
-           {
-           faultGID = [[(EORelationship *)prop destinationEntity]
-           globalIDForRow:row];
-           
-           fault = [context objectForGlobalID:faultGID];
-           
-           if (fault == nil)
-           fault = [context faultForGlobalID:faultGID
-           editingContext:context];
-           }
-           else
-           fault = nil;
-           
-           */
-        }
-      }
-      
-      [object takeStoredValue:relObject
-                       forKey:relName];
+      for (i = 0; i < count; i++)
+	{
+	  id relObject = nil;
+	  EORelationship *relationship = GDL2_ObjectAtIndexWithImp(relationships,oaiIMP,i);
+	  NSString *relName = [relationship name];
+	  
+	  if ([relationship isToMany])
+	    {
+	      EOGlobalID *gid = [entity globalIDForRow: row];
+	      
+	      relObject = [self arrayFaultWithSourceGlobalID: gid
+				relationshipName: relName
+				editingContext: context];
+	    }
+	  else
+	    {
+	      relObject=[self _objectFaultWithSnapshot: row
+			      relationship: relationship
+			      editingContext: context];
+	    }
+	  
+	  [object takeStoredValue:relObject
+		  forKey:relName];
+	}
     }
-  };
-  
-  
 }
 
 - (void)forgetAllLocks
@@ -5745,11 +5698,19 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
 - (EODatabaseChannel*) _obtainOpenChannel
 {
   EODatabaseChannel *channel = [self availableChannel];
-
-  if (![self _openChannelWithLoginPanel: channel])
+  if (channel==nil)
     {
-      NSEmitTODO();
-      [self notImplemented: _cmd];//TODO
+      [NSException raise: @"NSIllegalStateException"
+		   format:@"%s: no database channel is available",
+		   __PRETTY_FUNCTION__];
+
+    }
+  else if (![self _openChannelWithLoginPanel: channel])
+    {
+      [NSException raise: @"NSIllegalStateException"
+		   format:@"%s: failed to open database channel",
+		   __PRETTY_FUNCTION__];
+
     }
 
   return channel;
@@ -5757,21 +5718,69 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
 
 - (BOOL) _openChannelWithLoginPanel: (EODatabaseChannel*)databaseChannel
 {
-  // veridy: LoginPanel ???
+  BOOL result=NO;
   EOAdaptorChannel *adaptorChannel = [databaseChannel adaptorChannel];
 
-  if (![adaptorChannel isOpen]) //??
+  if ([adaptorChannel isOpen])
+    result=YES;
+  else
     {
-      [adaptorChannel openChannel];
-    }
+      NSException* exception=nil;
+      NS_DURING
+	{
+	  [adaptorChannel openChannel];
+        }
+      NS_HANDLER
+	{
+	  if (![[localException name] isEqualToString:EOGeneralAdaptorException])
+	    [localException raise];
+	  else
+	    NSLog(@"%@",localException);
+	}
+      NS_ENDHANDLER;
 
-  return [adaptorChannel isOpen];
+      if ([adaptorChannel isOpen])
+	result=YES;
+      else
+	[exception raise];
+    }
+  return result;
 }
 
 - (void) _forceDisconnect
-{ // TODO
-  NSEmitTODO();
-  [self notImplemented: _cmd];
+{ 
+  EOAdaptorContext* adaptorContext = [self adaptorContext];
+  NSArray* channels = [adaptorContext channels];
+  NSArray* registeredChannels = [self registeredChannels];
+
+  int i = 0;
+  int c=[channels count];
+  for(i=0;i<c;i++)
+    {
+      NS_DURING
+	{
+	  [[channels objectAtIndex:i] closeChannel];
+	}
+      NS_HANDLER
+	{
+	  NSLog(@"%@",localException);
+	}
+      NS_ENDHANDLER;
+    }
+
+  c=[registeredChannels count];
+  for(i=0;i<c;i++)
+    {
+      NS_DURING
+	{
+	  [self unregisterChannel:[registeredChannels objectAtIndex:i]];
+	}
+      NS_HANDLER
+	{
+	  NSLog(@"%@",localException);
+	}
+      NS_ENDHANDLER;
+    }
 }
 
 @end
@@ -5795,25 +5804,63 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
 
 - (void) _verifyNoChangesToReadonlyEntity: (EODatabaseOperation*)dbOpe
 {
-  //TODO
-  EOEntity *entity = nil;
-
-
-
-  entity = [dbOpe entity];
-
-
-
+  EOEntity* entity = [dbOpe entity];
   if ([entity isReadOnly])
     {
-      //?? exception I presume
+      switch([dbOpe databaseOperator])
+	{
+	case EOAdaptorInsertOperator:
+	  [NSException raise: @"NSIllegalStateException"
+		       format:@"cannot insert object: %@ that corresponds to read-only entity: %@ in databaseContext %@",
+		       [dbOpe object],
+		       [entity name],
+		       self];
+	  break;
+	case EOAdaptorDeleteOperator:
+	  [NSException raise: @"NSIllegalStateException"
+		       format:@"cannot insert delete: %@ that corresponds to read-only entity: %@ in databaseContext %@",
+		       [dbOpe object],
+		       [entity name],
+		       self];
+	  break;
+	case EOAdaptorUpdateOperator:
+	  if (![[dbOpe dbSnapshot] isEqual:[dbOpe newRow]])
+	    {
+	      [NSException raise: @"NSIllegalStateException"
+			   format:@"cannot update '%@' keys on object %@ that corresponds to read-only entity: %@ in databaseContext %@",
+			   [[dbOpe rowDiffsForAttributes:[entity attributes]] allKeys],
+			   [dbOpe object],
+			   [entity name],
+			   self];
+	    }
+	  break;
+	}
     }
-  else
+  else if ([dbOpe databaseOperator] == EOAdaptorUpdateOperator
+	   && [entity hasNonUpdateableAttributes])
     {
-      [dbOpe databaseOperator]; //SoWhat
+      NSArray* dbSnapshotKeys = [entity dbSnapshotKeys];
+      NSDictionary* dbSnapshot = [dbOpe dbSnapshot];
+      NSMutableDictionary* newRow = [dbOpe newRow];
+      int i=0;
+      int c=[dbSnapshotKeys count];
+      for(i=0;i<c;i++)
+	{
+	  NSString* key = [dbSnapshotKeys objectAtIndex:i];
+	  EOAttribute* attribute = [entity attributeNamed:key];
+	  if ([attribute _isNonUpdateable]
+	      && ![[dbSnapshot objectForKey:key] isEqual:[newRow objectForKey:key]])
+	    {
+	      [NSException raise: @"NSIllegalStateException"
+			   format:@"cannot update %@ '%@' on object: %@ that corresponds to read-onlywof entity: %@ in databaseContext %@",
+			   ([attribute isReadOnly] ? @"read-only key" : @"primary-key"),
+			   key,
+			   [dbOpe object],
+			   [entity name],
+			   self];
+	    }
+	}
     }
-
-
 }
 
 - (void) _cleanUpAfterSave

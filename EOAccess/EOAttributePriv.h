@@ -65,6 +65,9 @@ typedef enum _EOAttributeProtoOverrideBits
 - (void)_setValuesFromTargetAttribute;
 -(void)_setSourceToDestinationKeyMap:(NSDictionary*)map;
 -(NSDictionary*) _sourceToDestinationKeyMap;
+
+-(BOOL)_isNonUpdateable;
+-(BOOL)_isPrimaryKeyClassProperty;
 @end
 
 @interface EOAttribute (EOAttributePrivate2)

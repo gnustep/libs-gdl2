@@ -1,4 +1,20 @@
 2014-05-22  Manuel Guesdon <mguesdon@orange-concept.com>
+	* EOAccess/EODatabaseContext.m
+	  implement _objectFaultWithSnapshot:relationship:editingContext:
+	  fix -initializeObject:row:entity:editingContext:
+	  finish implementation of -_obtainOpenChannel
+	  implement -_forceDisconnect
+	  fix -_openChannelWithLoginPanel:
+	  implement -_verifyNoChangesToReadonlyEntity:
+	* EOAccess/EOAttributePriv.h
+	  add -_isNonUpdateable
+	  add -_isPrimaryKeyClassProperty
+	  add _flags.isNonUpdateable
+	  add _flags.isNonUpdateableInitialized
+	* EOAccess/EOAttribute.m
+	  add -_isNonUpdateable
+	  add -_isPrimaryKeyClassProperty
+2014-05-22  Manuel Guesdon <mguesdon@orange-concept.com>
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m:
 	  fix newValueForDateTypeLengthAttribute
 	* EOAccess/EOEntityPriv.h

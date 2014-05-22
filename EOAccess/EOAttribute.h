@@ -96,7 +96,9 @@ typedef enum {
     unsigned int isParentAnEOEntity:1;
     unsigned int protoOverride:EOATTRIBUTE_PROTO_OVERRIDE_BITS_COUNT;
     unsigned int isAttributeValueInitialized:1;
-    unsigned int unused : 10;
+    unsigned int isNonUpdateable;
+    unsigned int isNonUpdateableInitialized;
+    unsigned int unused : 8;
   } _flags;
     
   unsigned int extraRefCount;

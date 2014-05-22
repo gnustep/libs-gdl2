@@ -1035,6 +1035,7 @@ static NSArray* staticPrototypeKeys=nil;
       [self willChange];
       _flags.isReadOnly = yn;
       [self _setOverrideForKeyEnum: EOAttributeProtoOverrideBits_readOnly];
+      _flags.isNonUpdateableInitialized = NO;
     }
 }
 
@@ -2211,6 +2212,25 @@ More details:
   return _sourceToDestinationKeyMap;
 }
 
+-(BOOL)_isNonUpdateable
+{
+  if (!_flags.isNonUpdateableInitialized)
+    {
+      _flags.isNonUpdateable = ([self isReadOnly] || [self _isPrimaryKeyClassProperty]);
+      _flags.isNonUpdateableInitialized = YES;
+    }
+  return _flags.isNonUpdateable;
+}
+
+-(BOOL)_isPrimaryKeyClassProperty
+{
+  NSArray* pkAttrs = [_parent primaryKeyAttributes];
+  if ([pkAttrs containsObject:self]
+      && [[_parent classProperties]containsObject:self])
+    return YES;
+  else
+    return NO;
+}
 
 @end
 
