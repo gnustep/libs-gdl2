@@ -85,6 +85,10 @@ GDL2_Activate(Class sup, Class cls);
                          withObject: (id)object2;
 - (BOOL)containsIdenticalObjectsWithArray: (NSArray *)array;
 
++(BOOL)diffOldArray:(NSArray*)oldArray
+	   newArray:(NSArray*)newArray
+returnsRemovedValues:(NSArray**)removedValues
+	addedValues:(NSArray**)addedValues;
 @end
 
 @interface NSObject (EOCompareOnName)
@@ -146,6 +150,11 @@ GDL2_Activate(Class sup, Class cls);
 - (void) translateFromKeys:(NSArray *) currentKeys
                     toKeys:(NSArray *) newKeys;
 
+/**
+ * Override self values with values from dict for keys
+ */
+-(void)overrideEntriesWithObjectsFromDictionary:(NSDictionary*)dict
+					forKeys:(NSArray*)keys;
 @end
 @interface NSDictionary (EOAdditions)
 

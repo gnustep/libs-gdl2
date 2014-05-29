@@ -1,3 +1,23 @@
+2014-05-29  Manuel Guesdon <mguesdon@orange-concept.com>
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m:
+	  respect GNUstep coding standard (curly brackets placement, indentation)
+	  use IMP for some -objectAtIndex calls
+	* EOControl/EONSAddOns.h
+	  add -overrideEntriesWithObjectsFromDictionary:forKeys:
+	  add +diffOldArray:newArray:returnsRemovedValues:addedValues:
+	* EOControl/EONSAddOns.h
+	  add -overrideEntriesWithObjectsFromDictionary:forKeys:
+	  add +diffOldArray:newArray:returnsRemovedValues:addedValues:
+	  use IMP for some -objectAtIndex calls
+	  use NSUInteger for count and indexes
+	  rewrite -containsIdenticalObjectsWithArray: to use diffOldArray:...
+	* EOControl/EODetailDataSource.m
+	  fix -editingContext
+	* EOAccess/EODatabaseContext.m
+	  use IMP for some -objectAtIndex calls
+	  rewrite -faultForGlobalID:editingContext:
+	  optimize -recordChangesInEditingContext:
+	  rewrite part of -databaseOperationForObject:
 2014-05-22  Manuel Guesdon <mguesdon@orange-concept.com>
 	* EOAccess/EODatabaseContext.m
 	  implement _objectFaultWithSnapshot:relationship:editingContext:

@@ -447,12 +447,11 @@ static Class _contextClass = Nil;
   if (count>0)
     {
       NSUInteger i = 0;
-      IMP oaiIMP=[_registeredChannels methodForSelector: @selector(objectAtIndex:)];
+      IMP oaiIMP=NULL;
 
       for (i = 0 ; !busy && i < count; i++)
         {
-          EODatabaseChannel *channel = GDL2_ObjectAtIndexWithImp(_registeredChannels,oaiIMP,i);
-          
+          EODatabaseChannel *channel = GDL2_ObjectAtIndexWithImpPtr(_registeredChannels,&oaiIMP,i);          
           busy = [channel isFetchInProgress];
         }
     };
@@ -690,19 +689,16 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 }
 
 /** return entity corresponding to 'globalID' **/
+//MG2014: OK
 - (id) entityForGlobalID: (EOGlobalID *)globalID
 {
-  NSString *entityName;
+  NSString *entityName=[(EOKeyGlobalID *)globalID entityName];
 
-  entityName = [(EOKeyGlobalID *)globalID entityName];
-
-  if ((_lastEntity) && (entityName == [_lastEntity name]))
-  {
-    return _lastEntity;
-  }
-  
-  ASSIGN(_lastEntity, [_database entityNamed: entityName]);
-
+  if (_lastEntity==nil
+      || ![[_lastEntity name] isEqualToString:entityName])
+    {
+      ASSIGN(_lastEntity, [_database entityNamed: entityName]);
+    }
   return _lastEntity;
 }
 
@@ -746,66 +742,43 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 }
 
 /** Get a fault for 'globalID' **/
+//MG2014: OK
 - (id)faultForGlobalID: (EOGlobalID *)globalID
 	editingContext: (EOEditingContext *)context
 {
-  //Seems OK
-  EOClassDescription *classDescription = nil;
-  EOEntity *entity;
   id object = nil;
-  BOOL isFinal;
 
-
-
-
-
-  isFinal = [(EOKeyGlobalID *)globalID isFinal];
-  entity = [self entityForGlobalID: globalID];
-
-  NSAssert(entity, @"no entity");
-
-  classDescription = [entity classDescriptionForInstances];
-
-
-
-  object = [classDescription createInstanceWithEditingContext: context
-			     globalID: globalID
-			     zone: NULL];
-
-  NSAssert1(object, @"No Object. classDescription=%@", classDescription);
-/*mirko: NO
-  NSDictionary *pk;
-  NSEnumerator *pkEnum;
-  NSString *pkKey;
-  NSArray  *classPropertyNames;
-classPropertyNames = [entity classPropertyNames];
-  pk = [entity primaryKeyForGlobalID:(EOKeyGlobalID *)globalID];
-  pkEnum = [pk keyEnumerator];
-  while ((pkKey = [pkEnum nextObject]))
+  if (![globalID isKindOfClass:[EOKeyGlobalID class]])
     {
-      if ([classPropertyNames containsObject:pkKey] == YES)
-	[obj takeStoredValue:[pk objectForKey:pkKey]
-	     forKey:pkKey];
+      [NSException raise: @"NSIllegalStateException"
+		   format:@"%s: The globalID %@ must be an EOKeyGlobalID to be able to construct a fault.",
+		   __PRETTY_FUNCTION__,
+		   globalID];
     }
-*/
+  else
+    {
+      EOEntity* entity = [self entityForGlobalID: globalID];
+      NSAssert(entity, @"no entity");
 
-
-  if ([(EOKeyGlobalID *)globalID areKeysAllNulls])
-    NSWarnLog(@"All key of globalID %p (%@) are nulls",
-              globalID,
-              globalID);
-
-  [self _turnToFault: object
-        gid: globalID
-        editingContext: context
-        isComplete: isFinal];//??
-  
-
-
-  EOEditingContext_recordObjectGlobalIDWithImpPtr(context,NULL,object,globalID);
-
-
-
+      if ([(EOKeyGlobalID *)globalID isFinal])
+	{ 
+	  object = [[entity classDescriptionForInstances]
+		     createInstanceWithEditingContext: context
+		     globalID: globalID
+		     zone: NULL];
+	  [self _turnToFault: object
+		gid: globalID
+		editingContext: context
+		isComplete: YES];
+	}
+      else
+	{
+	  object = [self _fetchSingleObjectForEntity:entity
+			 globalID:globalID
+			 editingContext:context];
+	}
+      EOEditingContext_recordObjectGlobalIDWithImpPtr(context,NULL,object,globalID);
+    }
   return object;
 }
 
@@ -848,56 +821,58 @@ classPropertyNames = [entity classPropertyNames];
   return obj;
 }
 
+//MG2014: TODO: implement use of _currentGlobalID
 - (void)initializeObject: (id)object
             withGlobalID: (EOGlobalID *)globalID
           editingContext: (EOEditingContext *)context
 {
-  NSDictionary * snapDict = nil;
+  NSDictionary * snapshot = nil;
   EOEntity     * entity = nil;
+  /*if (globalID == _currentGlobalID)
+    {
+      snapshot = _currentSnapshot;
+      entity = _lastEntity;
+    }
+  else*/
+    {
+      if ([globalID isTemporary])
+	return;
+      else
+	{
+	  snapshot = [self snapshotForGlobalID:globalID];  
+	  if ([(EOKeyGlobalID *)globalID isFinal])
+	    {
+	      entity = [self entityForGlobalID:globalID];
+	    }
+	  else
+	    {
+	      object = [context objectForGlobalID:globalID];
+	      if (object==nil)
+		{
+		  [NSException raise: NSInternalInconsistencyException
+			       format: @"%s No object for gid %@ in %@",
+			       __PRETTY_FUNCTION__, globalID, context];
+		}
+	      entity = [_database entityForObject:object];
+	    }
+	}
+    }
 
-  /*
-   TODO use this stuff -- dw
-  if (globalID == _currentGlobalID)
-  {
-    snapDict = _currentSnapshot;
-    entity = _lastEntity;
-  } else ...
-  */  
-  
-  if ([globalID isTemporary])
-  {
-    return;
-  }
-  
-  snapDict = [self snapshotForGlobalID:globalID];
-  
-  if ([(EOKeyGlobalID *)globalID isFinal])
-  {
-    entity = [self entityForGlobalID:globalID];
-  } else {
-    object = [context objectForGlobalID:globalID];
-    if (!object)
+  if (snapshot==nil)
     {
       [NSException raise: NSInternalInconsistencyException
-                  format: @"%s No object for gid %@ in %@", __PRETTY_FUNCTION__, globalID, context];      
+		   format: @"%s No snapshot for gid %@",
+		   __PRETTY_FUNCTION__, globalID];
     }
-    entity = [_database entityForObject:object];
-  }
-
-  if (!snapDict)
-  {
-    [NSException raise: NSInternalInconsistencyException
-                format: @"%s No snapshot for gid %@", __PRETTY_FUNCTION__, globalID];      
-  } else {
-    
-    [self initializeObject: object
-                       row: snapDict
-                    entity: entity
+  else
+    {    
+      [self initializeObject: object
+	    row: snapshot
+	    entity: entity
             editingContext: context];
         
-    [_database incrementSnapshotCountForGlobalID:globalID];
-  }
-  
+      [_database incrementSnapshotCountForGlobalID:globalID];
+    }  
 }
 
 - (void) _objectsChanged: (NSNotification*)notification
@@ -1760,13 +1735,17 @@ classPropertyNames = [entity classPropertyNames];
 
 @implementation EODatabaseContext(EOCooperatingObjectStoreSupport)
 
+//MG2014: TODO: implement use of _currentGlobalID
 - (BOOL)ownsGlobalID: (EOGlobalID *)globalID
 {
-  if ([globalID isKindOfClass: [EOKeyGlobalID class]] &&
-      [_database entityNamed: [(EOKeyGlobalID*) globalID entityName]])
-    return YES;
+  BOOL ownsGlobalID=NO;
+  /*if (_currentGlobalID == eoglobalid)
+    ownsGlobalID=YES;
+  else*/ if ([globalID isKindOfClass: [EOKeyGlobalID class]]
+	   && [_database entityNamed: [(EOKeyGlobalID*) globalID entityName]] != nil)
+    ownsGlobalID=YES;
 
-  return NO;
+  return ownsGlobalID;
 }
 
 - (BOOL)ownsObject: (id)object
@@ -2155,6 +2134,7 @@ forDatabaseOperation:(EODatabaseOperation *)op
   }
 }
 
+//MG2014: OK
 - (void)recordChangesInEditingContext
 {
   //_EOAssertSafeMultiThreadedAccess
@@ -2272,47 +2252,49 @@ forDatabaseOperation:(EODatabaseOperation *)op
 			{
 			  NSArray* updatedSnapValues = (NSArray*) updatedSnapValue;
 			  NSArray* currentSnapValues = (NSArray*) currentSnapValue;
+			  NSArray * oldValues = nil;
 			  
-			  if (updatedSnapValues != currentSnapValues
-			      && ![currentSnapValues isEqualToArray:updatedSnapValues]) // TODO: check if isEqual is ok too.
+			  //Here we use optimized method
+			  //Think you may have more than 1000 objects in each of these arrays so imagine a 1000x1000 comparisons...
+			  BOOL isDiff=[NSArray diffOldArray:currentSnapValues
+					       newArray:updatedSnapValues
+					       returnsRemovedValues:&oldValues
+					       addedValues:NULL];
+			  if (isDiff)
 			    {
-			      NSMutableArray * snapsToUse = nil;
-			      if (!updatedSnapValues)
-				snapsToUse = (NSMutableArray*) currentSnapValues;
-			      else if (currentSnapValues)
+			      NSUInteger oldValuesCount=[oldValues count];
+			      if (oldValuesCount>0)
 				{
-				  snapsToUse = [NSMutableArray arrayWithArray:currentSnapValues];
-				  [snapsToUse removeObjectsInArray:updatedSnapValues];
-				}
-			      
-			      if (_useToManyCaching
-				  && [snapsToUse count] > 0)
-				{
-				  EODatabaseOperation * updatedEoDbOp = [self databaseOperationForObject:eo];
-				  NSUInteger            valCount = [updatedSnapValues count];
-				  NSMutableArray      * globalids = [NSMutableArray arrayWithCapacity:valCount];
-				  NSUInteger            x = 0;
-				  
-				  for (; x < valCount; x++)
+				  if (_useToManyCaching)
 				    {
-				      EOCustomObject * updatedEo = [updatedSnapValues objectAtIndex:x];
-				      EOGlobalID     * globalid = [_editingContext globalIDForObject:updatedEo];
+				      IMP oldValues_oaiIMP=NULL;
+				      IMP aoIMP=NULL;
+				      EODatabaseOperation * updatedEoDbOp = [self databaseOperationForObject:eo];
+				      NSUInteger            valCount = [oldValues count];
+				      NSMutableArray      * globalIDs = [NSMutableArray arrayWithCapacity:valCount];
+				      NSUInteger            x = 0;
 				      
-				      if (!globalid
-					  || [globalid isTemporary])
+				      for (; x < valCount; x++)
 					{
-					  globalids = nil;
-					  break;
-					}
-				      [globalids addObject:globalid];
-				    } 
-				  
-				  [updatedEoDbOp recordToManySnapshot:globalids
-						 relationshipName:[relationship name]];
+					  EOCustomObject * updatedEo = GDL2_ObjectAtIndexWithImpPtr(oldValues,&oldValues_oaiIMP,x);
+					  EOGlobalID     * globalID = [_editingContext globalIDForObject:updatedEo];
+					  
+					  if (!globalID
+					      || [globalID isTemporary])
+					    {
+					      globalIDs = nil;
+					      break;
+					    }
+					  GDL2_AddObjectWithImpPtr(globalIDs,&aoIMP,globalID);
+					} 
+				      
+				      [updatedEoDbOp recordToManySnapshot:globalIDs
+						     relationshipName:[relationship name]];
+				    }
+				  [self nullifyAttributesInRelationship:substRelationship
+					sourceObject:eo
+					destinationObjects:oldValues];        
 				}
-			      [self nullifyAttributesInRelationship:substRelationship
-				    sourceObject:eo
-				    destinationObjects:snapsToUse];        
 			    }
 			  }
 		      else if (updatedSnapValue != currentSnapValue)
@@ -2384,50 +2366,52 @@ forDatabaseOperation:(EODatabaseOperation *)op
 			{
 			  NSArray        * updatedSnapValues = (NSArray*) updatedSnapValue;
 			  NSArray        * currentSnapValues = (NSArray*) currentSnapValue;
-			  NSMutableArray * snaps = nil;
-			  
-			  if (updatedSnapValues != currentSnapValues
-			      && ![currentSnapValues isEqualToArray:updatedSnapValues])
-			    {
-			      if (!currentSnapValues)
-				snaps = (NSMutableArray*) updatedSnapValues;
-			      else
-				{
-				  snaps = [NSMutableArray arrayWithArray:updatedSnapValues];
-				  [snaps removeObjectsInArray:currentSnapValues];
-				}
-			      
-			      if (_useToManyCaching 
-				  && [snaps count] > 0)
-				{
-				  EODatabaseOperation * updatedEoDbOp = [self databaseOperationForObject:updatedEO];
-				  NSUInteger valCount = [updatedSnapValues count];
-				  NSUInteger y = 0;
-				  NSMutableArray      * globalids = [NSMutableArray arrayWithCapacity:valCount];
-				  
-				  for (; y < valCount; y++) 
-				    {
-				      EOGlobalID * gid = [_editingContext globalIDForObject:[updatedSnapValues objectAtIndex:y]];
-				      
-				      if (!gid
-					    || [gid isTemporary])
-					{
-					  globalids = nil;
-					  break;
-					}
-				      [globalids addObject:gid];
-				    }
+			  NSArray        * newValues = nil;
 
-				  [updatedEoDbOp recordToManySnapshot:globalids
-						 relationshipName:[updatedEntityRel name]];
-				  
+			  //Here we use optimized method
+			  //Think you may have more than 1000 objects in each of these arrays so imagine a 1000x1000 comparisons...
+			  BOOL isDiff=[NSArray diffOldArray:currentSnapValues
+					       newArray:updatedSnapValues
+					       returnsRemovedValues:NULL
+					       addedValues:&newValues];
+			  if (isDiff)
+			    {
+			      NSUInteger newValuesCount=[newValues count];
+			      if (newValuesCount>0)
+				{
+				  if (_useToManyCaching )
+				    {
+				      IMP updatedSnapValues_oaiIMP=NULL;
+				      IMP aoIMP=NULL;
+				      EODatabaseOperation * updatedEoDbOp = [self databaseOperationForObject:updatedEO];
+				      NSUInteger valCount = [updatedSnapValues count];
+				      NSUInteger x = 0;
+				      NSMutableArray      * globalIDs = [NSMutableArray arrayWithCapacity:valCount];
+				      
+				      for (; x < valCount; x++) 
+					{
+					  EOCustomObject * anObject = GDL2_ObjectAtIndexWithImpPtr(updatedSnapValues,&updatedSnapValues_oaiIMP,x);
+					  EOGlobalID * globalID = [_editingContext globalIDForObject:anObject];
+					  
+					  if (!globalID
+					      || [globalID isTemporary])
+					    {
+					      globalIDs = nil;
+					      break;
+					    }
+					  GDL2_AddObjectWithImpPtr(globalIDs,&aoIMP,globalID);
+					}
+				      //TODO: why we should record updatedSnapValues snapshot only when there's newValues ?
+				      [updatedEoDbOp recordToManySnapshot:globalIDs
+						     relationshipName:[updatedEntityRel name]];
+				    }
+				  [self relayAttributesInRelationship:substitutionRel
+					sourceObject:updatedEO
+					destinationObjects:newValues];
 				}
-			      [self relayAttributesInRelationship:substitutionRel
-				    sourceObject:updatedEO
-				    destinationObjects:snaps];
 			    }
 			}
-		      else  if (updatedSnapValue != currentSnapValue)
+		      else if (updatedSnapValue != currentSnapValue)
 			{
 			  [self relayAttributesInRelationship:substitutionRel
 				sourceObject:updatedEO
@@ -3121,9 +3105,6 @@ Raises an exception is the adaptor is unable to perform the operations.
                           sourceObject: (id)sourceObject
                      destinationObject: (id)destinationObject
 {
-  NSDebugMLLog(@"EODatabaseContext", @"destinationObject=%@",
-	       destinationObject);
-
   if (destinationObject)
     {
       //Get SourceObject database operation
@@ -3141,11 +3122,6 @@ Raises an exception is the adaptor is unable to perform the operations.
           NSDictionary *sourceToDestinationKeyMap =
 	    [relationship _sourceToDestinationKeyMap]; //{destinationKeys = (customerCode); sourceKeys = (code); }
           BOOL foreignKeyInDestination = [relationship foreignKeyInDestination];
-
-          NSDebugMLLog(@"EODatabaseContext", @"sourceToDestinationKeyMap=%@",
-		       sourceToDestinationKeyMap);
-          NSDebugMLLog(@"EODatabaseContext", @"foreignKeyInDestination=%d",
-		       foreignKeyInDestination);
 
           if (foreignKeyInDestination)
             {
@@ -3334,159 +3310,72 @@ Raises an exception is the adaptor is unable to perform the operations.
 
 - (EODatabaseOperation*)databaseOperationForObject: (id)object
 {
-   //OK
    EODatabaseOperation *databaseOpe = nil;
+   EOGlobalID *gid = EODatabaseContext_globalIDForObjectWithImpPtr(self,NULL,object);
 
-   NS_DURING // for trace purpose
+   databaseOpe = [self databaseOperationForGlobalID: gid];
+   
+   if (databaseOpe == nil)
      {
-       EOGlobalID *gid = nil;
-
-       if ([object isKindOfClass: [EOGenericRecord class]])
-	 NSDebugMLLog(@"EODatabaseContext", @"dictionary=%@ ",
-		      [object debugDictionaryDescription]);
-
-       gid = EODatabaseContext_globalIDForObjectWithImpPtr(self,NULL,object);
-
-       databaseOpe = [self databaseOperationForGlobalID: gid]; //OK
-
-       if (!databaseOpe)//OK
-         {
-           EOEntity *entity = [_database entityForObject: object]; //OK
-           NSArray *primaryKeyAttributes = [entity primaryKeyAttributes]; //OK
-
-           NSDictionary *snapshot = nil;
-           NSArray *classPropertyNames = nil;
-           NSArray *dbSnapshotKeys = nil;
-           int i = 0;
-           int propNamesCount = 0;
-           int snapKeyCount = 0;
-           NSMutableDictionary *row = nil;
-           NSMutableDictionary *newRow = nil;
-
-           NSDebugMLLog(@"EODatabaseContext", @"entity name=%@",
-			[entity name]);
-
-           NSDebugMLLog(@"EODatabaseContext",
-			@"primaryKeyAttributes=%@",
-			primaryKeyAttributes);
-
-           databaseOpe = [EODatabaseOperation
-			   databaseOperationWithGlobalID: gid
-			   object: object
-			   entity: entity]; //OK
-
-           NSDebugMLLog(@"EODatabaseContext",
-			@"CREATED databaseOpe=%@\nfor object %p %@",
-			databaseOpe, object, object);
-
-           snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid);//OK
-           NSDebugMLLog(@"EODatabaseContext", @"snapshot %p=%@",
-			snapshot, snapshot);
-
-           if (!snapshot)
-             snapshot = [NSDictionary dictionary];
-
-           [databaseOpe setDBSnapshot: snapshot];
-           NSDebugMLLog(@"EODatabaseContext",@"object=%p databaseOpe=%@",
-			object,databaseOpe);
-
-           classPropertyNames = [entity classPropertyNames]; //OK  (code, a3code, numcode, toLabel)
-           NSDebugMLLog(@"EODatabaseContext",
-			@"classPropertyNames=%@", classPropertyNames);
-
-           propNamesCount = [classPropertyNames count];
-           NSDebugMLLog(@"EODatabaseContext", @"propNamesCount=%d",
-			(int)propNamesCount);
-
-           //TODO: rewrite code: don't use temporary "row"
-           row = (NSMutableDictionary*)[NSMutableDictionary dictionary];
-           NSDebugMLLog(@"EODatabaseContext",@"object %p (class %@)=%@ ",
-			object,[object class],object);
-
-           /*if ([object isKindOfClass: [EOGenericRecord class]])
-	     NSDebugMLLog(@"EODatabaseContext", @"dictionary=%@ ",
-	     [object debugDictionaryDescription]);*/
-           if (propNamesCount>0)
-             {
-               IMP oaiIMP=[classPropertyNames methodForSelector: @selector(objectAtIndex:)];
-
-               for (i = 0; i < propNamesCount; i++)
-                 {
-                   id value = nil;
-                   NSString *key = GDL2_ObjectAtIndexWithImp(classPropertyNames,oaiIMP,i);
-                   
-
-                   
-                   /*NO !! 
-                     if ([attribute isKindOfClass:[EOAttribute class]] == NO)
-                     continue;
-                     // if ([attribute isFlattened] == NO)
-                     */
-                   value = [object storedValueForKey: key]; //OK
-                   NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
-                                key, value);
-                   
-                   if (!value)
-                     {
-                       value = GDL2_EONull;
-                       
-                       [[[entity attributeNamed: key] validateValue: &value]
-                         raise];
-                     }
-                   
-                   NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
-                                key, value);
-                   
-                   [row setObject: value
-                        forKey: key];
-                 }
-             };
-
-           newRow = [[NSMutableDictionary alloc]
-		       initWithDictionary: snapshot
-		       copyItems: NO];
-
-
-
-           dbSnapshotKeys = [entity dbSnapshotKeys]; //OK (numcode, code, a3code)
-           NSDebugMLLog(@"EODatabaseContext", @"dbSnapshotKeys=%@",
-			dbSnapshotKeys);
-
-           snapKeyCount = [dbSnapshotKeys count];
-
-           if (snapKeyCount>0)
-             {
-               IMP oaiIMP=[dbSnapshotKeys methodForSelector: @selector(objectAtIndex:)];
-               for (i = 0; i < snapKeyCount; i++)
-                 {
-                   id key = GDL2_ObjectAtIndexWithImp(dbSnapshotKeys,oaiIMP,i);
-                   id value = [row objectForKey: key]; //Really this key ?
-                   
-                   NSDebugMLLog(@"EODatabaseContext", @"key=%@ value=%@",
-                                key, value);
-                   
-                   //               NSAssert1(value,@"No value for %@",key);
-                   
-                   if (value)
-                     [newRow setObject: value
-                             forKey: key];
-                 }
-             };
-
-
-
-           [databaseOpe setNewRow: newRow];
-           [self recordDatabaseOperation: databaseOpe];
-           RELEASE(newRow);
-         }
-    }
-  NS_HANDLER
-    {
-
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-
+       EOEntity *entity = [_database entityForObject: object];
+       if (entity != nil)
+	 {
+	   NSArray *primaryKeyAttributes = [entity primaryKeyAttributes];
+	   if ([primaryKeyAttributes count]==0)
+	     {
+	       [NSException raise: @"NSIllegalStateException"
+			    format:@"databaseOperationForObject: attempted to process an EO mapped to entity '%@' which has no primary key defined. All entities must have a primary key specified. You should run the EOModeler consistency checker on the model containing this entity and perform whatever actions are necessary to ensure that the model is in a consistent state.",
+			    [entity name]];
+	     }
+	   else
+	     {
+	       NSDictionary *snapshot = nil;
+	       NSArray *classPropertyNames = nil;
+	       NSUInteger propNamesCount = 0;
+	       NSMutableDictionary *objectStoredKVs = nil;
+	       NSMutableDictionary *newRow = nil;
+	       
+	       databaseOpe = [EODatabaseOperation
+			       databaseOperationWithGlobalID: gid
+			       object: object
+			       entity: entity];
+	       
+	       snapshot = EODatabaseContext_snapshotForGlobalIDWithImpPtr(self,NULL,gid);
+	       
+	       if (snapshot == nil)
+		 snapshot = [NSDictionary dictionary];
+	       
+	       [databaseOpe setDBSnapshot: snapshot];
+	       
+	       classPropertyNames = [entity classPropertyNames];
+	       propNamesCount = [classPropertyNames count];
+	       
+	       objectStoredKVs = (NSMutableDictionary*)[NSMutableDictionary dictionaryWithCapacity:propNamesCount];
+	       
+	       if (propNamesCount>0)
+		 {
+		   NSUInteger i=0;
+		   IMP oaiIMP=NULL;
+		   for (i = 0; i < propNamesCount; i++)
+		     {
+		       NSString *key = GDL2_ObjectAtIndexWithImpPtr(classPropertyNames,&oaiIMP,i);
+		       id value = [object storedValueForKey: key];	       
+		       [objectStoredKVs setObject: (value==nil ? GDL2_EONull : value)
+					forKey: key];
+		     }
+		 };
+	       newRow = AUTORELEASE([[NSMutableDictionary alloc]
+				      initWithDictionary: snapshot
+				      copyItems: NO]);
+	       
+	       [newRow overrideEntriesWithObjectsFromDictionary:objectStoredKVs
+		       forKeys:[entity dbSnapshotKeys]];
+	       
+	       [databaseOpe setNewRow: newRow];
+	       [self recordDatabaseOperation: databaseOpe];
+	     }
+	 }
+     }
   return databaseOpe;
 }
 
@@ -6093,7 +5982,6 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
   //       NSStringFromClass([self class]),
   //       self, object];
   //    }
-  
   
   return pk;
 }

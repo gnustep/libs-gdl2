@@ -1749,99 +1749,100 @@ each key
   NSMutableArray *attributes  = [NSMutableArray array];
   
   // if we just check isFetchInProgress here we fail on raw sql fetches. -- dw
-  
-  if ((!_isFetchInProgress) && (!_evaluateExprInProgress)) {
-    [NSException raise: NSInternalInconsistencyException
-                format: @"%s -- %@ 0x%p: attempt to describe results with no fetch in progress",
-     __PRETTY_FUNCTION__,
-     NSStringFromClass([self class]),
-     self];
-    
-  } else {
-    int colsNumber;
-    
-    colsNumber=_pgResult ? PQnfields(_pgResult): 0;
-    int i;
-
-    for (i = 0; i < colsNumber; i++)
+  if (!_isFetchInProgress
+      && !_evaluateExprInProgress)
     {
-      EOAttribute *attribute 
-      = AUTORELEASE([PSQLA_alloc(EOAttribute) init]);
-      NSString *externalType;
-      NSString *valueClass = @"NSString";
-      NSString *valueType = nil;
+      [NSException raise: NSInternalInconsistencyException
+		   format: @"%s -- %@ 0x%p: attempt to describe results with no fetch in progress",
+		   __PRETTY_FUNCTION__,
+		   NSStringFromClass([self class]),
+		   self];
       
-      if (_origAttributes)
-      {
-        EOAttribute *origAttr = (EOAttribute *) [_origAttributes objectAtIndex:i];
-        
-        [attribute setName: [origAttr name]];
-        [attribute setColumnName: [origAttr columnName]];
-        [attribute setExternalType: [origAttr externalType]];
-        [attribute setValueType: [origAttr valueType]];
-        [attribute setValueClassName: [origAttr valueClassName]];
-      }
-      else
-      {
-        NSNumber *externalTypeNumber;
-        externalTypeNumber = [NSNumber numberWithLong: PQftype(_pgResult, i)];
-        externalType = [_oidToTypeName objectForKey:externalTypeNumber];
-        
-        if (!externalType)
-          [NSException raise: PostgreSQLException
-                      format: @"cannot find type for Oid = %d",
-           PQftype(_pgResult, i)];
-        
-        [attribute setName: [NSString stringWithCString:PQfname(_pgResult,i)
-                                               encoding:NSASCIIStringEncoding]];
-
-        [attribute setColumnName: @"unknown"];
-        [attribute setExternalType: externalType];
-        
-        //TODO: Optimize ?
-        if      ([externalType isEqual: @"bool"])
-          valueClass = @"NSNumber", valueType = @"c";
-        else if ([externalType isEqual: @"char"])
-          valueClass = @"NSNumber", valueType = @"c";
-        else if ([externalType isEqual: @"dt"])
-          valueClass = @"NSCalendarDate", valueType = nil;
-        else if ([externalType isEqual: @"date"])
-          valueClass = @"NSCalendarDate", valueType = nil;
-        else if ([externalType isEqual: @"time"])
-          valueClass = @"NSCalendarDate", valueType = nil;
-        else if ([externalType isEqual: @"float4"])
-          valueClass = @"NSNumber", valueType = @"f";
-        else if ([externalType isEqual: @"float8"])
-          valueClass = @"NSNumber", valueType = @"d";
-        else if ([externalType isEqual: @"int2"])
-          valueClass = @"NSNumber", valueType = @"s";
-        else if ([externalType isEqual: @"int4"])
-          valueClass = @"NSNumber", valueType = @"i";
-        else if ([externalType isEqual: @"int8"] || [externalType isEqual: @"bigint"])
-          valueClass = @"NSNumber", valueType = @"u";
-        else if ([externalType isEqual: @"oid"])
-          valueClass = @"NSNumber", valueType = @"l";
-        else if ([externalType isEqual: @"varchar"])
-          valueClass = @"NSString", valueType = nil;
-        else if ([externalType isEqual: @"bpchar"])
-          valueClass = @"NSString", valueType = nil;
-        else if ([externalType isEqual: @"text"])
-          valueClass = @"NSString", valueType = nil;
-        /*      else if ([externalType isEqual:@"cid"])
-         valueClass = @"NSNumber", valueType = @"";
-         else if ([externalType isEqual:@"tid"])
-         valueClass = @"NSNumber", valueType = @"";
-         else if ([externalType isEqual:@"xid"])
-         valueClass = @"NSNumber", valueType = @"";*/
-        
-        [attribute setValueType: valueType];
-        [attribute setValueClassName: valueClass];
-      }
-      
-      [attributes addObject:attribute];
     }
-    
-  }
+  else
+    {
+      IMP origAttributesOAI=NULL; // objectAtIndex:
+      int colsNumber=_pgResult ? PQnfields(_pgResult): 0;
+      int i;
+      
+      for (i = 0; i < colsNumber; i++)
+	{
+	  EOAttribute *attribute 
+	    = AUTORELEASE([PSQLA_alloc(EOAttribute) init]);
+	  NSString *externalType;
+	  NSString *valueClass = @"NSString";
+	  NSString *valueType = nil;
+	  
+	  if (_origAttributes)
+	    {
+	      EOAttribute *origAttr = (EOAttribute *) PSQLA_ObjectAtIndexWithImpPtr(_origAttributes,&origAttributesOAI,i);
+	      
+	      [attribute setName: [origAttr name]];
+	      [attribute setColumnName: [origAttr columnName]];
+	      [attribute setExternalType: [origAttr externalType]];
+	      [attribute setValueType: [origAttr valueType]];
+	      [attribute setValueClassName: [origAttr valueClassName]];
+	    }
+	  else
+	    {
+	      NSNumber *externalTypeNumber;
+	      externalTypeNumber = [NSNumber numberWithLong: PQftype(_pgResult, i)];
+	      externalType = [_oidToTypeName objectForKey:externalTypeNumber];
+	      
+	      if (!externalType)
+		[NSException raise: PostgreSQLException
+			     format: @"cannot find type for Oid = %d",
+			     PQftype(_pgResult, i)];
+	      
+	      [attribute setName: [NSString stringWithCString:PQfname(_pgResult,i)
+					    encoding:NSASCIIStringEncoding]];
+	      
+	      [attribute setColumnName: @"unknown"];
+	      [attribute setExternalType: externalType];
+        
+	      //TODO: Optimize ?
+	      if      ([externalType isEqual: @"bool"])
+		valueClass = @"NSNumber", valueType = @"c";
+	      else if ([externalType isEqual: @"char"])
+		valueClass = @"NSNumber", valueType = @"c";
+	      else if ([externalType isEqual: @"dt"])
+		valueClass = @"NSCalendarDate", valueType = nil;
+	      else if ([externalType isEqual: @"date"])
+		valueClass = @"NSCalendarDate", valueType = nil;
+	      else if ([externalType isEqual: @"time"])
+		valueClass = @"NSCalendarDate", valueType = nil;
+	      else if ([externalType isEqual: @"float4"])
+		valueClass = @"NSNumber", valueType = @"f";
+	      else if ([externalType isEqual: @"float8"])
+		valueClass = @"NSNumber", valueType = @"d";
+	      else if ([externalType isEqual: @"int2"])
+		valueClass = @"NSNumber", valueType = @"s";
+	      else if ([externalType isEqual: @"int4"])
+		valueClass = @"NSNumber", valueType = @"i";
+	      else if ([externalType isEqual: @"int8"] || [externalType isEqual: @"bigint"])
+		valueClass = @"NSNumber", valueType = @"u";
+	      else if ([externalType isEqual: @"oid"])
+		valueClass = @"NSNumber", valueType = @"l";
+	      else if ([externalType isEqual: @"varchar"])
+		valueClass = @"NSString", valueType = nil;
+	      else if ([externalType isEqual: @"bpchar"])
+		valueClass = @"NSString", valueType = nil;
+	      else if ([externalType isEqual: @"text"])
+		valueClass = @"NSString", valueType = nil;
+	      /*      else if ([externalType isEqual:@"cid"])
+		      valueClass = @"NSNumber", valueType = @"";
+		      else if ([externalType isEqual:@"tid"])
+		      valueClass = @"NSNumber", valueType = @"";
+		      else if ([externalType isEqual:@"xid"])
+		      valueClass = @"NSNumber", valueType = @"";*/
+	      
+	      [attribute setValueType: valueType];
+	      [attribute setValueClassName: valueClass];
+	    }
+      
+	  [attributes addObject:attribute];
+	}    
+    }
 
   return attributes;
 }

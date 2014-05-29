@@ -155,43 +155,29 @@ GDL2_Activate(Class sup, Class cls)
 
   if (array)
     {
-      int i, count = [array count];
-      volatile id object = nil;
-
+      IMP oaiIMP=NULL;
+      NSUInteger count = [array count];
       results = [NSMutableArray array];
-
-      //OPTIMIZE
-      NS_DURING
-        {
-          for(i = 0; i < count; i++)
-            {
-              id result;
-
-              object = [array objectAtIndex: i];
-              result = [self performSelector: sel
-			     withObject: (id)object];
-              if (!result)
-                result = defaultResult;
-
-              NSAssert3(result,
-                        @"%@: No result for object %@ resultOfPerformingSelector:\"%s\" withEachObjectInArray:",
-                        self,
-                        object,
-                        sel_getName(sel));
-
-              [results addObject: result];
-            }
-        }
-      NS_HANDLER
-        {
-          NSWarnLog(@"object %p %@ may not support %@",
-                    object,
-                    [object class],
-                    NSStringFromSelector(sel));
-          NSLog(@"%@ %@",localException,[localException userInfo]);
-          [localException raise];
-        }
-      NS_ENDHANDLER;
+      if (count>0)
+	{
+	  NSUInteger i=0;
+	  for(i = 0; i < count; i++)
+	    {
+	      id object = GDL2_ObjectAtIndexWithImpPtr(array,&oaiIMP,i);
+	      id result = [self performSelector: sel
+				withObject: object];
+	      if (!result)
+		result = defaultResult;
+	      
+	      NSAssert3(result,
+			@"%@: No result for object %@ resultOfPerformingSelector:\"%s\" withEachObjectInArray:",
+			self,
+			object,
+			sel_getName(sel));
+	      
+	      [results addObject: result];
+	    }
+	}
     }
 
   return results;
@@ -217,50 +203,29 @@ GDL2_Activate(Class sup, Class cls)
                           defaultResult: (id)defaultResult
 {
   NSMutableArray *results=[NSMutableArray array];
-  int i, count = [self count];
-  volatile id object = nil;
+  NSUInteger count = [self count];
 
-  NSDebugMLLog(@"gsdb", @"self:%p (%@) results:%p (%@)",
-	       self, [self class], results, [results class]);
-
-  //OPTIMIZE
-  NS_DURING
+  if (count>0)
     {
+      IMP oaiIMP=NULL;
+      NSUInteger i =0;
       for(i = 0; i < count; i++)
-        {
-          id result;
-
-          object = [self objectAtIndex: i];
-          result = [object performSelector: sel];
-
-          if (!result)
-            result = defaultResult;
-
-          NSAssert3(result,
-                    @"%@: No result for object %@ resultOfPerformingSelector:\"%s\"",
-                    self,
-                    object,
-                    sel_getName(sel));
-
-          [results addObject: result]; //TODO What to do if nil ??
-        }
+	{
+	  id object = GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
+	  id result = [object performSelector: sel];
+	  
+	  if (!result)
+	    result = defaultResult;
+	  
+	  NSAssert3(result,
+		    @"%@: No result for object %@ resultOfPerformingSelector:\"%s\"",
+		    self,
+		    object,
+		    sel_getName(sel));
+	  
+	  [results addObject: result];
+	}
     }
-  NS_HANDLER
-    {
-      NSWarnLog(@"object %p %@ may doesn't support %@",
-                object,
-                [object class],
-                NSStringFromSelector(sel));
-
-      NSLog(@"%@ (%@)", localException, [localException reason]);
-
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-
-  NSDebugMLLog(@"gsdb", @"self:%p (%@) results:%p (%@)",
-	       self, [self class], results, [results class]);
-
   return results;
 }
 
@@ -277,19 +242,16 @@ GDL2_Activate(Class sup, Class cls)
                           defaultResult:(id)defaultResult
 {
   NSMutableArray *results = [NSMutableArray array];
-  int i, count = [self count];
-  volatile id object = nil;
-
-  //OPTIMIZE
-  NS_DURING
+  NSUInteger count = [self count];
+  if (count>0)
     {
+      IMP oaiIMP=NULL;
+      NSUInteger i=0;
       for(i = 0; i < count; i++)
         {
-          id result;
-
-          object = [self objectAtIndex: i];
-          result = [object performSelector: sel
-			   withObject: obj1];
+	  id object = GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
+          id result = [object performSelector: sel
+			      withObject: obj1];
 
           if (!result)
             result = defaultResult;
@@ -300,21 +262,9 @@ GDL2_Activate(Class sup, Class cls)
                     object,
                     sel_getName(sel));
 
-          [results addObject: result]; //TODO What to do if nil ??
+          [results addObject: result];
         }
     }
-  NS_HANDLER
-    {
-      NSWarnLog(@"object %p %@ may doesn't support %@",
-                object,
-                [object class],
-                NSStringFromSelector(sel));
-
-      NSLog(@"%@ (%@)", localException, [localException reason]);
-
-      [localException raise];
-    }
-  NS_ENDHANDLER;
 
   return results;
 }
@@ -335,20 +285,18 @@ GDL2_Activate(Class sup, Class cls)
                           defaultResult: (id)defaultResult
 {
   NSMutableArray *results = [NSMutableArray array];
-  int i, count = [self count];
-  volatile id object = nil;
+  NSUInteger count = [self count];
 
-  //OPTIMIZE
-  NS_DURING
+  if (count>0)
     {
+      IMP oaiIMP=NULL;
+      NSUInteger i=0;
       for(i = 0; i < count; i++)
         {
-          id result;
-
-          object = [self objectAtIndex: i];
-          result = [object performSelector: sel
-			   withObject: obj1
-			   withObject: obj2];
+	  id object = GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
+          id result = [object performSelector: sel
+			      withObject: obj1
+			      withObject: obj2];
 
           if (!result)
             result = defaultResult;
@@ -359,21 +307,9 @@ GDL2_Activate(Class sup, Class cls)
                     object,
                     sel_getName(sel));
 
-          [results addObject: result]; //TODO What to do if nil ??
+          [results addObject: result];
         }
     }
-  NS_HANDLER
-    {
-      NSWarnLog(@"object %p %@ may doesn't support %@",
-                object,
-                [object class],
-                NSStringFromSelector(sel));
-
-      NSLog(@"%@ (%@)", localException, [localException reason]);
-
-      [localException raise];
-    }
-  NS_ENDHANDLER;
 
   return results;
 }
@@ -382,17 +318,17 @@ GDL2_Activate(Class sup, Class cls)
 {
   //Verify: mutable/non mutable,..
   NSArray *result = nil;
-  unsigned int selfCount = [self count];
+  NSUInteger selfCount = [self count];
 
   if (selfCount > 0) //else return nil
     {
-      unsigned int arrayCount = [array count];
+      NSUInteger arrayCount = [array count];
 
       if (arrayCount == 0) //Nothing to exclude ?
         result = self;
       else
         {
-          NSUInteger i;
+          NSUInteger i = 0;
 
           for (i = 0; i < selfCount; i++)
             {
@@ -421,11 +357,12 @@ GDL2_Activate(Class sup, Class cls)
 
   if (selfCount > 0 && _object) //else return nil
     {
-      int i;
+      NSUInteger i=0;
+      IMP oaiIMP=NULL;
 
       for (i = 0; i < selfCount; i++)
         {
-          id object = [self objectAtIndex: i];
+          id object =  GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
 
           if (object != _object)
             {
@@ -444,26 +381,23 @@ GDL2_Activate(Class sup, Class cls)
                         withObject: (id)object2
 {
   NSArray *array = nil;
-  int count;
-
-  count = [self count];
+  NSUInteger count = [self count];
 
   if (count > 0)
     {
-      int i;
-      id o = nil;
-      NSMutableArray *tmpArray = [NSMutableArray arrayWithCapacity: count];
+      IMP oaiIMP=NULL;
+      NSUInteger i = 0;
+      NSMutableArray* tmpArray = [NSMutableArray arrayWithCapacity: count];
 
       for (i = 0; i < count; i++)
         {
-          o = [self objectAtIndex: i];
+          id o = GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
 
           if ([o isEqual: object1])
             [tmpArray addObject: object2];
           else
             [tmpArray addObject: o];
         }
-
       array = [NSArray arrayWithArray: tmpArray];
     }
   else
@@ -476,40 +410,186 @@ GDL2_Activate(Class sup, Class cls)
 **/
 - (BOOL)containsIdenticalObjectsWithArray: (NSArray *)array
 {
-  BOOL ret = NO;
-  int selfCount = [self count];
-  int arrayCount = [array count];
+  return ![NSArray diffOldArray:self
+		   newArray:array
+		   returnsRemovedValues:NULL
+		   addedValues:NULL];
+}
 
-  if (selfCount == arrayCount)
+#define    EO_MAX_OBJECTS_FROM_STACK      64
+/**
+ * Macro to manage memory for chunks of code that need to work with
+ * arrays of items.  Use this to start the block of code using
+ * the array and EO_ENDITEMBUF() to end it.  The idea is to ensure that small
+ * arrays are allocated on the stack (for speed), but large arrays are
+ * allocated from the heap (to avoid stack overflow).
+ */
+#define EO_BEGINITEMBUF(P, S, T) { \
+  T P ## _ibuf[(S) <= EO_MAX_OBJECTS_FROM_STACK ? (S) : 0]; \
+  T *P ## _base = ((S) <= EO_MAX_OBJECTS_FROM_STACK) ? P ## _ibuf \
+    : (T*)NSZoneMalloc(NSDefaultMallocZone(), (S) * sizeof(T)); \
+  T *(P) = P ## _base;
+
+/**
+ * Macro to manage memory for chunks of code that need to work with
+ * arrays of items.  Use EO_BEGINITEMBUF() to start the block of code using
+ * the array and this macro to end it.
+ */
+#define EO_ENDITEMBUF(P) \
+  if (P ## _base != P ## _ibuf) \
+    NSZoneFree(NSDefaultMallocZone(), P ## _base); \
+  }
+
+/**
+ * Macro to manage memory for chunks of code that need to work with
+ * arrays of objects.  Use this to start the block of code using
+ * the array and EO_ENDIDBUF() to end it.  The idea is to ensure that small
+ * arrays are allocated on the stack (for speed), but large arrays are
+ * allocated from the heap (to avoid stack overflow).
+ */
+#define EO_BEGINIDBUF(P, S) EO_BEGINITEMBUF(P, S, id)
+
+/**
+ * Macro to manage memory for chunks of code that need to work with
+ * arrays of objects.  Use EO_BEGINIDBUF() to start the block of code using
+ * the array and this macro to end it.
+ */
+#define EO_ENDIDBUF(P) EO_ENDITEMBUF(P)
+
+//Returns YES if the 2 arrays don't contains exactly identical objects (compared by address) (i.e. only the order may change)
+//Optimized for end addition/removing
++(BOOL)diffOldArray:(NSArray*)oldArray
+	   newArray:(NSArray*)newArray
+returnsRemovedValues:(NSArray**)removedValues
+	addedValues:(NSArray**)addedValues
+{
+  BOOL isDiff=NO;
+  if (removedValues!=NULL)
+    *removedValues=nil;
+  if (addedValues!=NULL)
+    *addedValues=nil;
+  if (oldArray==newArray)
     {
-      BOOL foundInArray[arrayCount];
-      int i, j;
-
-      memset(foundInArray, 0, sizeof(BOOL) * arrayCount);
-      ret = YES;
-
-      for (i = 0; ret && i < selfCount; i++)
-        {
-          id selfObj = [self objectAtIndex: i];
-
-          ret = NO;
-
-          for (j = 0; j < arrayCount; j++)
-            {
-              id arrayObj = [array objectAtIndex: j];
-
-              if (arrayObj == selfObj && !foundInArray[j])
-                {
-                  foundInArray[j] = YES;
-                  ret = YES;
-
-                  break;
-                }
-            }
-        }
+      //Same array: do nothing
+      isDiff=NO;
     }
+  else
+    {
+      NSUInteger oldArrayCount = [oldArray count];
+      NSUInteger newArrayCount = [newArray count];
+      if (oldArrayCount==0)
+	{
+	  if (newArrayCount==0) // oldArrayCount==0 && newArrayCount==0
+	    {
+	      //same are empty
+	      isDiff=NO;
+	    }
+	  else // oldArrayCount==0 && newArrayCount>0
+	    {
+	      //No old array values
+	      isDiff=YES;
+	      if (addedValues!=NULL)
+		{
+		  if ([newArray isKindOfClass:GDL2_NSMutableArrayClass])
+		    *addedValues=AUTORELEASE([newArray shallowCopy]);
+		  else
+		    *addedValues=AUTORELEASE(RETAIN(newArray));
+		}
+	    }
+	}
+      else if (newArrayCount==0) // oldArrayCount>0 && newArrayCount==0
+	{
+	  //no new array values
+	  isDiff=YES;
+	  if (removedValues!=NULL)
+	    {
+	      if ([oldArray isKindOfClass:GDL2_NSMutableArrayClass])
+		*removedValues=AUTORELEASE([oldArray shallowCopy]);
+	      else
+		*removedValues=AUTORELEASE(RETAIN(oldArray));
+	    }
+	}
+      else // oldArrayCount>0 && newArrayCount>0
+	{
+	  //Start deep work
+	  NSUInteger minCount=(oldArrayCount<newArrayCount ? oldArrayCount : newArrayCount);
+	  EO_BEGINIDBUF(oldObjects,oldArrayCount);
+	  EO_BEGINIDBUF(newObjects,newArrayCount);
+	  [oldArray getObjects: oldObjects];
+	  [newArray getObjects: newObjects];
 
-  return ret;
+	  //Find for 1st diff
+	  NSUInteger i=0;
+	  NSUInteger start=minCount;
+	  for(i=0;i<minCount;i++)
+	    {
+	      if (oldObjects[i]!=newObjects[i])
+		{
+		  start=i;
+		  break;
+		}
+	    }
+	  if (start==minCount
+	      && oldArrayCount==newArrayCount)
+	    {
+	      //No diff found at the begining and same array size
+	      isDiff=NO;
+	    }
+	  else
+	    {
+	      //NSLog(@"X DIFF ARRAY start at %d",start);
+	      NSUInteger maxCount=(oldArrayCount>newArrayCount ? oldArrayCount : newArrayCount);
+	      maxCount-=start;
+	      EO_BEGINIDBUF(tmpObjects,maxCount);
+	      
+	      // Find removed values
+	      NSUInteger oi=0;
+	      NSUInteger ni=0;
+	      i=0;
+	      for(oi=start;oi<oldArrayCount;oi++)
+		{
+		  id o=oldObjects[oi];
+		  for(ni=start;ni<newArrayCount && newObjects[ni]!=o;ni++);
+		  NSCAssert(i<maxCount,@"Pb");
+		  if (ni>=newArrayCount)//Not found ?
+		    tmpObjects[i++]=o;
+		}
+	      if (i>0)
+		{
+		  isDiff=YES;
+		  if (removedValues!=NULL)
+		    {
+		      *removedValues=[NSArray arrayWithObjects:tmpObjects
+					      count:i];
+		    }
+		}
+
+	      // Find added values
+	      i=0;
+	      for(ni=start;ni<newArrayCount;ni++)
+		{
+		  id n=newObjects[ni];
+		  for(oi=start;oi<oldArrayCount && oldObjects[oi]!=n;oi++);
+		  NSCAssert(i<maxCount,@"Pb");
+		  if (oi>=oldArrayCount)//Not found ?
+		    tmpObjects[i++]=n;
+		}
+	      if (i>0)
+		{
+		  isDiff=YES;
+		  if (addedValues!=NULL)
+		    {
+		      *addedValues=[NSArray arrayWithObjects:tmpObjects
+					    count:i];
+		    }
+		}
+	      EO_ENDIDBUF(tmpObjects);
+	    }
+	  EO_ENDIDBUF(newObjects);
+	  EO_ENDIDBUF(oldObjects);
+	}
+    }
+  return isDiff;
 }
 
 @end
@@ -571,7 +651,7 @@ GDL2_Activate(Class sup, Class cls)
 - (NSString *)initialCapitalizedString
 {
   unichar *chars;
-  unsigned int length = [self length];
+  NSUInteger length = [self length];
 
   chars = NSZoneMalloc(NSDefaultMallocZone(),length * sizeof(unichar));
   [self getCharacters: chars];
@@ -689,27 +769,38 @@ GDL2_Activate(Class sup, Class cls)
 + (NSMutableDictionary *) dictionaryWithDictionary:(NSDictionary *)otherDictionary
                                               keys:(NSArray*)keys
 {
-  if (!keys)
-  {
-    return [NSMutableDictionary dictionary];
-  } else {
-    NSUInteger            keyCount = [keys count];
-    NSUInteger            i = 0;
-    NSMutableDictionary * mDict = [NSMutableDictionary dictionaryWithCapacity:keyCount];
-    
-    for (; i < keyCount; i++) {
-      NSString * key = [keys objectAtIndex:i];
-      id         value = [otherDictionary valueForKey:key];
-      
-      if (!value) {
-        value = GDL2_EONull;
-      }
-      [mDict setObject:value
-                forKey:key];
+  NSMutableDictionary* mDict=nil;
+  if (keys==nil)
+    {
+      mDict=[NSMutableDictionary dictionary];
     }
-    
-    return mDict;
-  }
+  else
+    {
+      NSUInteger            keyCount = [keys count];
+      if (keyCount==0)
+	{
+	  mDict=[NSMutableDictionary dictionary];
+	}
+      else
+	{
+	  IMP oaiIMP=NULL;
+	  NSUInteger            i = 0;
+	  mDict = [NSMutableDictionary dictionaryWithCapacity:keyCount];
+      
+	  for (; i < keyCount; i++)
+	    {
+	      NSString * key = GDL2_ObjectAtIndexWithImpPtr(keys,&oaiIMP,i);
+	      id         value = [otherDictionary valueForKey:key];
+	      
+	      if (!value)
+		value = GDL2_EONull;
+
+	      [mDict setObject:value
+		     forKey:key];
+	    }
+	}
+    }
+  return mDict;
 }
 
 // 	"translateFromKeys:toKeys:",
@@ -718,45 +809,72 @@ GDL2_Activate(Class sup, Class cls)
                     toKeys:(NSArray *) newKeys
 {
   NSUInteger       count = [currentKeys count];
-  NSString       * nullPlaceholder = @"__EOAdditionsDummy__";
-  NSMutableArray * buffer;
-  NSUInteger       i;
 
-  if(count != [newKeys count])
-  {
-    [NSException raise: NSInvalidArgumentException
-                format: @"%s key arrays must contain equal number of keys", __PRETTY_FUNCTION__];
-  }
-  
-  buffer = [NSMutableArray arrayWithCapacity:count];
-  
-  for (i = 0; i < count; i++)
-  {
-    id key = [currentKeys objectAtIndex:i];
-    id value = [self objectForKey:key];
-        
-    if (!value)
+  if (count != [newKeys count])
     {
-      value = nullPlaceholder;
-      [buffer addObject:value];
-    } else {
-      [buffer addObject:value];
-      [self removeObjectForKey:key];
+      [NSException raise: NSInvalidArgumentException
+		   format: @"%s key arrays must contain equal number of keys", __PRETTY_FUNCTION__];
     }
-  }
-  
-  [self removeAllObjects];
-  
-  for (i = 0; i < count; i++)
-  {
-    id value = [buffer objectAtIndex:i];
-    if(value != nullPlaceholder)
+  else
     {
-      [self setObject:value 
-               forKey:[newKeys objectAtIndex:i]];
-    }
-  }
+      IMP oaiIMP=NULL;
+      NSMutableArray* buffer = [NSMutableArray arrayWithCapacity:count];
+      NSUInteger      i = 0;
+      NSString       * nullPlaceholder = @"__EOAdditionsDummy__";
   
+      for (i = 0; i < count; i++)
+	{
+	  id key = GDL2_ObjectAtIndexWithImpPtr(currentKeys,&oaiIMP,i);
+	  id value = [self objectForKey:key];
+	  
+	  if (!value)
+	    {
+	      value = nullPlaceholder;
+	      [buffer addObject:value];
+	    }
+	  else
+	    {
+	      [buffer addObject:value];
+	      [self removeObjectForKey:key];
+	    }
+	}
+  
+      [self removeAllObjects];
+      
+      for (i = 0; i < count; i++)
+	{
+	  id value = [buffer objectAtIndex:i];
+	  if(value != nullPlaceholder)
+	    {
+	      [self setObject:value 
+		    forKey:[newKeys objectAtIndex:i]];
+	    }
+	}
+    }
+}
+
+/**
+ * Override self values with values from dict for keys
+ */
+-(void)overrideEntriesWithObjectsFromDictionary:(NSDictionary*)dict
+					forKeys:(NSArray*)keys
+{
+  NSUInteger keysCount=[keys count];
+  if (keysCount>0)
+    {
+      IMP oaiIMP=NULL;
+      NSUInteger i=0;
+      for(i=0;i<keysCount;i++)
+        {
+	  id key = GDL2_ObjectAtIndexWithImpPtr(keys,&oaiIMP,i);
+	  id value = [dict objectForKey:key];
+	  if (value != nil)
+	    {
+	      [self setObject:value
+		    forKey:key];
+	    }
+        }
+    }
 }
 
 @end
@@ -767,16 +885,16 @@ GDL2_Activate(Class sup, Class cls)
 {
   NSArray    * values = [self allValues];
   NSUInteger   count = [values count];
-  NSUInteger   i = 0;
-
-  for (; i < count; i++)
-  {
-    if (([values objectAtIndex:i] == GDL2_EONull))
+  if (count>0)
     {
-      return YES;
+      IMP oaiIMP=NULL;
+      NSUInteger   i = 0;
+      for (; i < count; i++)
+	{
+	  if (GDL2_ObjectAtIndexWithImpPtr(values,&oaiIMP,i) == GDL2_EONull)
+	    return YES;
+	}
     }
-  }
-  
   return NO;
 }
 
@@ -786,18 +904,17 @@ GDL2_Activate(Class sup, Class cls)
   NSUInteger count = [keys count];
 
   if (count > 0)
-  {
-    dict = [NSMutableDictionary dictionaryWithCapacity:count];
-    NSUInteger i;
-
-    for (i = 0; i < count; i++)
     {
-      NSString * key = [keys objectAtIndex:i];
-      [dict setObject:GDL2_EONull
-               forKey: key];
+      IMP oaiIMP=NULL;
+      NSUInteger i = 0;
+      dict = [NSMutableDictionary dictionaryWithCapacity:count];
+      for (i = 0; i < count; i++)
+	{
+	  NSString * key = GDL2_ObjectAtIndexWithImpPtr(keys,&oaiIMP,i);
+	  [dict setObject:GDL2_EONull
+		forKey: key];
+	}    
     }
-    
-  }
   return dict;
 }
 
