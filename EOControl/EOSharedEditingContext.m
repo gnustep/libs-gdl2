@@ -26,8 +26,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <Foundation/Foundation.h>

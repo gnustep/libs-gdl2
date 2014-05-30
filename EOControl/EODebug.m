@@ -32,8 +32,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #ifdef GNUSTEP
 #include <Foundation/NSThread.h>
 #include <Foundation/NSAutoreleasePool.h>

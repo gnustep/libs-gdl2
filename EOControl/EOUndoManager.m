@@ -33,8 +33,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #ifndef GNUSTEP
 #include <GNUstepBase/Additions.h>
 #endif

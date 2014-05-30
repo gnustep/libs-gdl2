@@ -30,8 +30,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id: EOGenericRecord.m 30111 2010-04-09 10:09:41Z ayers $")
-
 #ifdef GNUSTEP
 #include <Foundation/NSArray.h>
 #include <Foundation/NSAutoreleasePool.h>

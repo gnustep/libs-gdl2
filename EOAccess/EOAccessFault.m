@@ -33,8 +33,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #ifdef GNUSTEP
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSException.h>

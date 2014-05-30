@@ -33,8 +33,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id: EOSchemaGeneration.m 23653 2006-09-28 15:25:30Z ratmice $")
-
 #include <string.h>
 
 #ifdef GNUSTEP

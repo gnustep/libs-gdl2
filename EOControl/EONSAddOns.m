@@ -34,8 +34,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #ifdef GNUSTEP
 #include <Foundation/NSString.h>
 #include <Foundation/NSArray.h>

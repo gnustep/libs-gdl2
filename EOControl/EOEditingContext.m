@@ -32,8 +32,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 //TODO EOMultiReaderLocks 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>

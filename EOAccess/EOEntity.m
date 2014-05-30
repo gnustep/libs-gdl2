@@ -36,8 +36,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include <ctype.h>
 
 #ifdef GNUSTEP

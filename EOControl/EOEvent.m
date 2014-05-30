@@ -26,8 +26,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include "EOEvent.h"
 
 #ifndef GNUSTEP

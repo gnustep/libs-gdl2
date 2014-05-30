@@ -36,9 +36,4 @@
 /* Log TODO points */
 #define EMIT_TODO 1
 
-
-#define RCS_ID(name) \
-	static const char RCSID[] = name; \
-	static inline const char *getRCSID() { if (0) getRCSID(); return RCSID;}
-
 #endif /* __config_h__ */

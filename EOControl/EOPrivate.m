@@ -32,8 +32,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include <Foundation/Foundation.h>
 #define GSI_ARRAY_TYPES GSUNION_OBJ
 #define GSI_ARRAY_NO_RETAIN 1

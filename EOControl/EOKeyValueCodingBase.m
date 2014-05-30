@@ -36,8 +36,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #import <Foundation/NSObject.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSDictionary.h>

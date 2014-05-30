@@ -33,8 +33,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include <stdio.h>
 #include <string.h>
 

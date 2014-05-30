@@ -1,3 +1,7 @@
+2014-05-30  Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* nearly every file
+	  get rid of RCSID/RCS_ID
+
 2014-05-29  Manuel Guesdon <mguesdon@orange-concept.com>
 	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m:
 	  respect GNUstep coding standard (curly brackets placement, indentation)
