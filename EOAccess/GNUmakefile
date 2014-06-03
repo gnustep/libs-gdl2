@@ -55,6 +55,7 @@ EODatabaseOperation.m \
 EOSchemaGeneration.m \
 EOSchemaSynchronization.m \
 EOSQLExpression.m \
+EOSQLExpressionFactory.m \
 EOSQLQualifier.m \
 EODatabase.m \
 EODatabaseChannel.m \
@@ -80,6 +81,7 @@ EOAdaptorContext.h \
 EOAdaptorChannel.h \
 EODatabaseOperation.h \
 EOSQLExpression.h \
+EOSQLExpressionFactory.h \
 EOSQLQualifier.h \
 EODatabase.h \
 EODatabaseChannel.h \

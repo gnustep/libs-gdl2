@@ -86,12 +86,14 @@ struct _EOTransactionScope;
   NSMutableDictionary *_batchFaultBuffer;
   NSMutableDictionary *_batchToManyFaultBuffer;
 
+@public //accessed by EODatabaseChannel
   EOEntity* _lastEntity;
 /*TOADD  
     EOGlobalID *_currentGlobalID;
     NSDictionary *_currentSnapshot;
     objc_object *_currentBatch;
 */
+@protected
   NSMutableArray *_uniqueArrayStack; /* to-many snapshots */
   NSHashTable *_nonPrimaryKeyGenerators;
 
@@ -117,7 +119,11 @@ struct _EOTransactionScope;
     unsigned int shouldFetchArrayFault:1;
     unsigned int shouldHandleDatabaseException:1;
     unsigned int databaseContextFailedToFetchObject:1;
-    unsigned int _reserved:19;
+    unsigned int shouldSelectObjects:1;
+    unsigned int shouldUsePessimisticLock:1;
+    unsigned int didSelectObjects:1;
+    unsigned int shouldUpdateCurrentSnapshot:1;
+    unsigned int _reserved:15;
   } _delegateRespondsTo;
 
   NSRecursiveLock *_lock; //TODO: not lock object !
@@ -445,6 +451,10 @@ shouldRaiseExceptionForLockFailure: (NSException *)exception;
 
 - (BOOL)databaseContext: (EODatabaseContext *)databaseContext
   shouldFetchArrayFault: (id)fault;
+
+- (BOOL)databaseContext: (EODatabaseContext *)databaseContext
+shouldFetchObjectsWithFetchSpecification: (EOFetchSpecification*)fetchSpecification
+	databaseChannel:(EODatabaseChannel*)databaseChannel;
 
 /**
  *  If the delegate returns NO, it is responsible for doing the right thing

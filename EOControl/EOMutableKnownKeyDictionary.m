@@ -751,13 +751,10 @@
 
 // This is the designated initializer
 - (id) initWithObjects: (const id[])objects
-               forKeys: (const id[])keys
+               forKeys: (const id <NSCopying>[])keys
                  count: (NSUInteger)count
 {
-  //OK
   EOMKKDInitializer *initializer = nil;
-
-
 
   if (count > 0)
     {

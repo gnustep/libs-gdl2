@@ -51,6 +51,7 @@
 #include <EOControl/EOCheapArray.h>
 #include <EOControl/EOKeyGlobalID.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOEditingContext.h>
 
 #include <EOAccess/EOAccessFault.h>
 #include <EOAccess/EODatabaseContext.h>
@@ -64,14 +65,6 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
 @implementation EOAccessGenericFaultHandler
 
-- (id)init
-{
-  if ((self = [super init]))
-    {
-    }
-
-  return self;
-}
 - (void)linkAfter: (EOAccessGenericFaultHandler *)faultHandler
   usingGeneration: (unsigned int)gen
 {
@@ -139,17 +132,6 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 
 
 @implementation EOAccessFaultHandler
-
-- (id) init
-{
-  if ((self = [super init]))
-    {
-      NSDebugFLog(@"INIT EOAccessFaultHandler %p. ThreadID=%@",
-		  (void*)self, [NSThread currentThread]);
-    }
-
-  return self;
-}
 
 + (EOAccessFaultHandler *)accessFaultHandlerWithGlobalID: (EOKeyGlobalID *)globalID
 					 databaseContext: (EODatabaseContext *)dbcontext
@@ -286,15 +268,6 @@ NSString *EOAccessFaultObjectNotAvailableException = @"EOAccessFaultObjectNotAva
 			relationshipName: relName
 			databaseContext: dbcontext
 			editingContext: ec] autorelease];
-}
-
-- (id)init
-{
-  if ((self = [super init]))
-    {
-    }
-
-  return self;
 }
 
 - (id)initWithSourceGlobalID: (EOKeyGlobalID *)sourceGID

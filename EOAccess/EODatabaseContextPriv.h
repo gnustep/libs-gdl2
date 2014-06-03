@@ -71,7 +71,25 @@
 - (BOOL)_shouldGeneratePrimaryKeyForEntityName: (NSString *)entityName;
 - (EOEntity*) _entityForObject:(EOCustomObject*) eo;
 - (void)_buildPrimaryKeyGeneratorListForEditingContext: (EOEditingContext *)context;
+- (id)_fetchSingleObjectForEntity:(EOEntity*)entity
+			 globalID:(EOGlobalID*)gid
+		   editingContext:(EOEditingContext*)context;
 
 @end
 
+@interface EODatabaseContext (EODatabaseContextDelegate)
+-(BOOL) _respondsTo_shouldUpdateCurrentSnapshot;
+-(BOOL)_performShouldSelectObjectsWithFetchSpecification:(EOFetchSpecification*)fetchSpec
+					 databaseChannel:(EODatabaseChannel*)databaseChannel;
+-(NSDictionary*)_shouldUpdateCurrentSnapshot:(NSDictionary*)currentSnapshot
+				 newSnapshot:(NSDictionary*)newSnapshot
+				    globalID:(EOKeyGlobalID*)gid
+			     databaseChannel:(EODatabaseChannel*)databaseChannel;
+
+-(BOOL) _usesPessimisticLockingWithFetchSpecification:(EOFetchSpecification*)fetchSpec
+				     databaseChannel:(EODatabaseChannel*)databaseChannel;
+
+-(void)_performDidSelectObjectsWithFetchSpecification:(EOFetchSpecification*)fetchSpec
+				      databaseChannel:(EODatabaseChannel*)databaseChannel;
+@end
 #endif /* __EODatabaseContextPriv_h__ */

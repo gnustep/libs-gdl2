@@ -48,22 +48,16 @@
 @interface EODatabaseChannel : NSObject
 {
   EODatabaseContext *_databaseContext;
-  id _delegate;
   EOAdaptorChannel *_adaptorChannel;
   EOEntity *_currentEntity;
   EOEditingContext *_currentEditingContext;
+  NSTimeInterval _currentEditingContextTimestamp;
   NSMutableArray *_fetchProperties;
   NSMutableArray *_fetchSpecifications;
+  NSMutableArray *_refreshedGIDs;
   BOOL _isLocking;
   BOOL _isRefreshingObjects;
-
-  struct {
-    unsigned int shouldSelectObjects:1;
-    unsigned int didSelectObjects:1;
-    unsigned int shouldUsePessimisticLock:1;
-    unsigned int shouldUpdateSnapshot:1;
-    unsigned int _reserved:28;
-  } _delegateRespondsTo;
+  BOOL _isFetchingSingleTableEntity;
 }
 
 + (EODatabaseChannel *)databaseChannelWithDatabaseContext: (EODatabaseContext *)databaseContext;
@@ -93,9 +87,6 @@
 
 - (BOOL)isLocking;
 - (void)setIsLocking: (BOOL)isLocking;
-
-- (void)setDelegate: (id)delegate;
-- (id)delegate;
 
 @end
 

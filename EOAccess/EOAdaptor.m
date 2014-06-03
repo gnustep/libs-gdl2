@@ -94,7 +94,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
   if(!model)
     [NSException raise: NSInvalidArgumentException
-		 format: @"%@ -- %@ 0x%x: no model specified",
+		 format: @"%@ -- %@ %p: no model specified",
                  NSStringFromSelector(_cmd),
                  NSStringFromClass([self class]),
                  self];
@@ -104,7 +104,7 @@ NSString *EOAdministrativeConnectionDictionaryKey
 
       if (!adaptorName)
         [NSException raise: NSInvalidArgumentException
-		     format: @"%@ -- %@ 0x%p: no adaptor name in model named %@",
+		     format: @"%@ -- %@ %p: no adaptor name in model named %@",
                      NSStringFromSelector(_cmd),
                      NSStringFromClass([self class]),
                      self,
@@ -763,6 +763,12 @@ NSString *EOAdministrativeConnectionDictionaryKey
 {
   [self subclassResponsibility: _cmd];
   return NO;
+}
+
+-(EOSQLExpressionFactory*)expressionFactory
+{
+  [self subclassResponsibility: _cmd];
+  return nil;
 }
 
 @end /* EOAdaptor */

@@ -143,7 +143,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
   // Ayers: Review
   // We use entity dictionaryForProperties to avoid creation 
   //of new EOMKKDInitializer
-  ASSIGN(_dictionary,[classDescription dictionaryForInstanceProperties]);
+  ASSIGN(_dictionary,((EOMutableKnownKeyDictionary*)[classDescription dictionaryForInstanceProperties]));
   EOFLOGObjectLevelArgs(@"EOGenericRecord", @"Record %p: dictionary=%@",
                         self, _dictionary);
 };
@@ -1164,17 +1164,13 @@ You can override this to exclude properties manually handled by derived object *
 + (NSString *)eoFormatSizeDictionary: (NSDictionary *)dict
 {
   NSMutableString *dscr = [NSMutableString string];
-  NSMutableDictionary *processed;
-  NSMutableDictionary *summaryNb;
-  NSMutableDictionary *summarySize;
-  NSString *key;
+  NSMutableDictionary *summaryNb = nil;
+  NSMutableDictionary *summarySize = nil;
+  NSString *key = nil;
   unsigned totalSize = 0;
   unsigned totalNb = 0;
   NSEnumerator *enumK;
 
-
-
-  processed = [dict objectForKey: @"processed"];
   summaryNb = [dict objectForKey: @"summaryNb"];
   summarySize = [dict objectForKey: @"summarySize"];
   enumK = [[[summaryNb allKeys] sortedArrayUsingSelector:
@@ -1203,8 +1199,6 @@ You can override this to exclude properties manually handled by derived object *
         totalNb,
         (int)(totalNb!=0 ? (totalSize / totalNb) : 0),
         (int)(totalNb!=0 ? (totalSize / totalNb / 1024) : 0)];
-
-
 
   return dscr;
 }

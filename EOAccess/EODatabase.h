@@ -64,6 +64,7 @@ GDL2ACCESS_EXPORT NSTimeInterval EODistantPastTimeInterval;
   NSMutableDictionary *_entityCache;
   EOAdaptor *_adaptor;
   NSMutableDictionary *_toManySnapshots;
+  NSTimeInterval _timestamp;
 }
 
 + (EODatabase *)databaseWithModel: (EOModel *)model;
@@ -98,6 +99,7 @@ GDL2ACCESS_EXPORT NSTimeInterval EODistantPastTimeInterval;
 - (void)invalidateResultCacheForEntityNamed: (NSString *)name;
 - (void)invalidateResultCache;
 - (void)handleDroppedConnection;
+- (void)setTimestampToNow;
 @end
 
 

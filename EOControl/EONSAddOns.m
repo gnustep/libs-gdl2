@@ -712,12 +712,6 @@ returnsRemovedValues:(NSArray**)removedValues
   return (unsigned long)v;
 };
 
--(long long)longLongValue
-{
-  long long v=atoll([self lossyCString]);
-  return v;
-};
-
 -(unsigned long long)unsignedLongLongValue
 {
   return strtoull([self lossyCString],NULL,10);

@@ -115,7 +115,6 @@ returnsRemovedValues:(NSArray**)removedValues
 -(unsigned short)unsignedShortValue;
 -(long)longValue;
 -(unsigned long)unsignedLongValue;
--(long long)longLongValue;
 -(unsigned long long)unsignedLongLongValue;
 @end
 

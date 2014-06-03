@@ -87,8 +87,8 @@
 - (NSArray *)_classPropertyAttributes;
 
 - (Class)classForObjectWithGlobalID: (EOKeyGlobalID *)globalID;
-- (id)globalIDForRow: (NSDictionary *)row
-	     isFinal: (BOOL)isFinal;
+- (EOGlobalID*)_globalIDForRow: (NSDictionary *)row
+		       isFinal: (BOOL)isFinal;
 - (BOOL) _hasAttributeNamed:(NSString *)name;
 @end
 
@@ -115,6 +115,8 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path;
 - (id)_parsePropertyName: (NSString *)propertyName;
 +(void) _assertNoPropagateKeyCycleWithEntities:(NSMutableArray*)entities
 				 relationships:(NSMutableArray*)relationships;
+-(void)_clearAttributesCaches;
+-(BOOL)_hasNonUpdateableAttributes;
 //- (id)_newStringWithBuffer: (unsigned short *)param0
 //                    length: (unsigned int *)param1;
 @end
@@ -133,6 +135,12 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path;
 
 @interface EOEntity (EOEntityPrivateSingleEntity)
 - (BOOL) _isSingleTableEntity;
+- (EOQualifier*) _singleTableRestrictingQualifier;
+- (NSString*)_singleTableSubEntityKey;
+- (id)_subEntityKeyValue;
+- (void)_generateSingleTableSubEntityDictionary:(NSMutableDictionary*)d;
+- (NSDictionary*)_singleTableSubEntityDictionary;
+- (EOEntity*) _singleTableSubEntityForRow:(NSDictionary*)row;
 @end
 
 #endif

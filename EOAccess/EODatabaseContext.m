@@ -449,7 +449,7 @@ static Class _contextClass = Nil;
 
       for (i = 0 ; !busy && i < count; i++)
         {
-          EODatabaseChannel *channel = GDL2_ObjectAtIndexWithImpPtr(_registeredChannels,&oaiIMP,i);          
+          EODatabaseChannel *channel = GDL2_ObjectAtIndexWithImpPtr(_registeredChannels,&oaiIMP,i);
           busy = [channel isFetchInProgress];
         }
     };
@@ -476,9 +476,6 @@ static Class _contextClass = Nil;
 	     [_registeredChannels count] + 1);
 
   [_registeredChannels addObject:channel];
-
-  //Channels have same delegate as context
-  [channel setDelegate: _delegate];
 }
 
 - (void)unregisterChannel: (EODatabaseChannel *)channel
@@ -602,42 +599,58 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 /** Set the delegate **/
 - (void)setDelegate:(id)delegate
 {
-  NSEnumerator *channelsEnum = [_registeredChannels objectEnumerator];
-  EODatabaseChannel *channel = nil;
-  IMP enumNO=NULL; // nextObject
-
   _delegate = delegate;
 
   _delegateRespondsTo.willRunLoginPanelToOpenDatabaseChannel = 
     [delegate respondsToSelector: @selector(databaseContext:willRunLoginPanelToOpenDatabaseChannel:)];
+
   _delegateRespondsTo.newPrimaryKey = 
     [delegate respondsToSelector: @selector(databaseContext:newPrimaryKeyForObject:entity:)];
+
   _delegateRespondsTo.willPerformAdaptorOperations = 
     [delegate respondsToSelector: @selector(databaseContext:willPerformAdaptorOperations:adaptorChannel:)];
+
   _delegateRespondsTo.shouldInvalidateObject = 
     [delegate respondsToSelector: @selector(databaseContext:shouldInvalidateObjectWithGlobalID:snapshot:)];
+
   _delegateRespondsTo.willOrderAdaptorOperations = 
     [delegate respondsToSelector: @selector(databaseContext:willOrderAdaptorOperationsFromDatabaseOperations:)];
+
   _delegateRespondsTo.shouldLockObject = 
     [delegate respondsToSelector: @selector(databaseContext:shouldLockObjectWithGlobalID:snapshot:)];
+
   _delegateRespondsTo.shouldRaiseForLockFailure = 
     [delegate respondsToSelector: @selector(databaseContext:shouldRaiseExceptionForLockFailure:)];
+
   _delegateRespondsTo.shouldFetchObjects = 
     [delegate respondsToSelector: @selector(databaseContext:shouldFetchObjectsWithFetchSpecification:editingContext:)];
+
   _delegateRespondsTo.didFetchObjects = 
     [delegate respondsToSelector: @selector(databaseContext:didFetchObjects:fetchSpecification:editingContext:)];
+
   _delegateRespondsTo.shouldFetchObjectFault = 
     [delegate respondsToSelector: @selector(databaseContext:shouldFetchObjectsWithFetchSpecification:editingContext:)];
+
   _delegateRespondsTo.shouldFetchArrayFault = 
     [delegate respondsToSelector: @selector(databaseContext:shouldFetchArrayFault:)];
+
   _delegateRespondsTo.shouldHandleDatabaseException = 
   [delegate respondsToSelector: @selector(databaseContext:shouldHandleDatabaseException:)];
+
   _delegateRespondsTo.databaseContextFailedToFetchObject =
   [delegate respondsToSelector: @selector(databaseContext:failedToFetchObject:globalID:)];
 
+  _delegateRespondsTo.shouldSelectObjects =
+  [delegate respondsToSelector: @selector(databaseContext:shouldFetchObjectsWithFetchSpecification:databaseChannel:)];
 
-  while ((channel = GDL2_NextObjectWithImpPtr(channelsEnum,&enumNO)))
-    [channel setDelegate: delegate];
+  _delegateRespondsTo.didSelectObjects = 
+    [delegate respondsToSelector:@selector(databaseContext:didSelectObjectsWithFetchSpecification:databaseChannel:)];
+
+  _delegateRespondsTo.shouldUsePessimisticLock = 
+    [delegate respondsToSelector:@selector(databaseContext:shouldUsePessimisticLockWithFetchSpecification: databaseChannel:)];
+
+  _delegateRespondsTo.shouldUpdateCurrentSnapshot = 
+    [delegate respondsToSelector:@selector(databaseContext:shouldUpdateCurrentSnapshot:newSnapshot:globalID:databaseChannel:)];
 }
 
 - (void)handleDroppedConnection
@@ -2785,8 +2798,8 @@ Raises an exception is the adaptor is unable to perform the operations.
       
       if ([gid isTemporary] || ([[dbOpe primaryKeyDiffs] count] > 0))
       {
-        newGID = [entity globalIDForRow: newRow
-                                isFinal: YES];
+        newGID = [entity _globalIDForRow: newRow
+			 isFinal: YES];
         if (!gidChangedUserInfo)
         {
           gidChangedUserInfo = [NSMutableDictionary dictionary];
@@ -4436,7 +4449,7 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
   objsEnumNO=NULL;
   while ((object = GDL2_NextObjectWithImpPtr(objsEnum,&objsEnumNO)))
     {
-      IMP joinsEnumNO=NO;
+      IMP joinsEnumNO=NULL;
       values 
 	= AUTORELEASE([GDL2_alloc(NSMutableDictionary) initWithCapacity: 4]);
 
@@ -5376,29 +5389,6 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
   return result;
 }
 
--(id)_fetchSingleObjectForEntity:(EOEntity*)entity
-			globalID:(EOGlobalID*)gid
-		  editingContext:(EOEditingContext*)context
-{
-  id object=nil;
-  NSDictionary* pk = [entity primaryKeyForGlobalID:gid];
-  EOFetchSpecification* fetchSpec = [EOFetchSpecification fetchSpecificationWithEntityName:[entity name]
-							  qualifier: [entity qualifierForPrimaryKey:pk]
-							  sortOrderings: nil];
-  [fetchSpec setFetchLimit:1];
-  NSArray* objects = [self objectsWithFetchSpecification:fetchSpec
-			   editingContext: context];
-  if ([objects count]==0)
-    {
-      [NSException raise: @"NSIllegalStateException"
-		   format:@"The object with globalID %@ could not be found in the database. This could be result of a referential integrity problem with the database. An empty fault could not be created because the object's class could not be determined (e.g. the GID is temporary or it is for an abstract entity).",
-		   gid];
-    }
-  else
-    object=[objects objectAtIndex:0];
-
-  return object;
-}
 
 -(id)_objectFaultWithSnapshot:(NSDictionary*) snapshot
 		 relationship:(EORelationship*) relationship
@@ -5696,21 +5686,23 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
     {
       switch([dbOpe databaseOperator])
 	{
-	case EOAdaptorInsertOperator:
+	case EODatabaseNothingOperator:
+	  break;
+	case EODatabaseInsertOperator:
 	  [NSException raise: @"NSIllegalStateException"
 		       format:@"cannot insert object: %@ that corresponds to read-only entity: %@ in databaseContext %@",
 		       [dbOpe object],
 		       [entity name],
 		       self];
 	  break;
-	case EOAdaptorDeleteOperator:
+	case EODatabaseDeleteOperator:
 	  [NSException raise: @"NSIllegalStateException"
 		       format:@"cannot insert delete: %@ that corresponds to read-only entity: %@ in databaseContext %@",
 		       [dbOpe object],
 		       [entity name],
 		       self];
 	  break;
-	case EOAdaptorUpdateOperator:
+	case EODatabaseUpdateOperator:
 	  if (![[dbOpe dbSnapshot] isEqual:[dbOpe newRow]])
 	    {
 	      [NSException raise: @"NSIllegalStateException"
@@ -5723,8 +5715,8 @@ compareUsingEntityNames(id left, id right, void* vpSortOrders)
 	  break;
 	}
     }
-  else if ([dbOpe databaseOperator] == EOAdaptorUpdateOperator
-	   && [entity hasNonUpdateableAttributes])
+  else if ([dbOpe databaseOperator] == EODatabaseUpdateOperator
+	   && [entity _hasNonUpdateableAttributes])
     {
       NSArray* dbSnapshotKeys = [entity dbSnapshotKeys];
       NSDictionary* dbSnapshot = [dbOpe dbSnapshot];
@@ -6183,6 +6175,100 @@ If the object has been just inserted, the dictionary is empty.
 {
   NSEmitTODO();
   return [self notImplemented: _cmd]; //TODO
+}
+
+-(id)_fetchSingleObjectForEntity:(EOEntity*)entity
+			globalID:(EOGlobalID*)gid
+		  editingContext:(EOEditingContext*)context
+{
+  id object=nil;
+  NSDictionary* pk = [entity primaryKeyForGlobalID:gid];
+  EOFetchSpecification* fetchSpec = [EOFetchSpecification fetchSpecificationWithEntityName:[entity name]
+							  qualifier: [entity qualifierForPrimaryKey:pk]
+							  sortOrderings: nil];
+  [fetchSpec setFetchLimit:1];
+  NSArray* objects = [self objectsWithFetchSpecification:fetchSpec
+			   editingContext: context];
+  if ([objects count]==0)
+    {
+      [NSException raise: @"NSIllegalStateException"
+		   format:@"The object with globalID %@ could not be found in the database. This could be result of a referential integrity problem with the database. An empty fault could not be created because the object's class could not be determined (e.g. the GID is temporary or it is for an abstract entity).",
+		   gid];
+    }
+  else
+    object=[objects objectAtIndex:0];
+
+  return object;
+}
+
+@end
+
+@implementation EODatabaseContext (EODatabaseContextDelegate)
+-(BOOL)_performShouldSelectObjectsWithFetchSpecification:(EOFetchSpecification*)fetchSpecification
+					 databaseChannel:(EODatabaseChannel*)databaseChannel
+{
+  BOOL doIt=YES;
+  if (_delegate!=nil
+      && _delegateRespondsTo.shouldSelectObjects)
+    {
+      doIt=[_delegate databaseContext: self
+		      shouldFetchObjectsWithFetchSpecification: fetchSpecification
+		      databaseChannel: databaseChannel];
+    }
+  return doIt;
+}
+
+-(BOOL)_respondsTo_shouldUpdateCurrentSnapshot
+{
+  return _delegateRespondsTo.shouldUpdateCurrentSnapshot;
+}
+
+-(NSDictionary*)_shouldUpdateCurrentSnapshot:(NSDictionary*)currentSnapshot
+				 newSnapshot:(NSDictionary*)newSnapshot
+				    globalID:(EOKeyGlobalID*)globalID
+			     databaseChannel:(EODatabaseChannel*)databaseChannel
+{
+  NSDictionary* r=nil;
+  if (_delegate!=nil
+      && _delegateRespondsTo.shouldUpdateCurrentSnapshot)
+    {
+      r=[_delegate databaseContext: self
+		   shouldUpdateCurrentSnapshot: currentSnapshot
+		      newSnapshot: newSnapshot
+			 globalID: globalID
+		   databaseChannel: databaseChannel];
+    }
+  return r;
+}
+
+-(BOOL) _usesPessimisticLockingWithFetchSpecification:(EOFetchSpecification*)fetchSpec
+				     databaseChannel:(EODatabaseChannel*)databaseChannel
+{
+  BOOL yn=NO;
+  if (_delegate!=nil
+      && _delegateRespondsTo.shouldUsePessimisticLock)
+    {
+      yn=[_delegate databaseContext: self
+		    shouldUsePessimisticLockWithFetchSpecification: fetchSpec
+		    databaseChannel: databaseChannel];
+    }
+  else if ([self updateStrategy] == EOUpdateWithPessimisticLocking)
+    yn=YES;
+  else if (fetchSpec != nil)
+    yn=[fetchSpec locksObjects];
+  return yn;
+}
+
+-(void)_performDidSelectObjectsWithFetchSpecification:(EOFetchSpecification*)fetchSpec
+				     databaseChannel:(EODatabaseChannel*)databaseChannel
+{
+  if (_delegate!=nil
+      && _delegateRespondsTo.didSelectObjects)
+    {
+      [_delegate databaseContext:self
+		 didSelectObjectsWithFetchSpecification:fetchSpec
+		 databaseChannel:databaseChannel];
+    }
 }
 
 @end

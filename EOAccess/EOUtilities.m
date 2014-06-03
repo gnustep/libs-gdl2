@@ -1070,27 +1070,3 @@ connectionDictionaryOverrides: (NSDictionary *)overrides
 
 @end
 
-
-@implementation EOFetchSpecification (EOAccess)
-
-+ (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
-                                      entityNamed: (NSString *)entityName
-{
-  EOFetchSpecification *newEOFetchSpecification = nil;
-  EOModelGroup	       *anModelGroup;
-
-
-
-  anModelGroup = [EOModelGroup defaultGroup];
-
-  if (anModelGroup)
-    newEOFetchSpecification = [anModelGroup fetchSpecificationNamed: name
-                                            entityNamed: entityName];
-
-
-
-  return newEOFetchSpecification;
-}
-
-@end
-

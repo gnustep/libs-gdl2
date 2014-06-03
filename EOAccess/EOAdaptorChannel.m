@@ -493,103 +493,71 @@ inRowDescribedByQualifier: (EOQualifier *)qualifier
 
 @implementation EOAdaptorChannel (EOBatchProcessing)
 
+//MG2014: OK
 - (void)performAdaptorOperation: (EOAdaptorOperation *)adaptorOperation
 {
-  EOAdaptorContext *adaptorContext = nil;
+  EOAdaptorContext *adaptorContext = [self adaptorContext];
   EOEntity *entity = nil;
   EOAdaptorOperator operator;
-  NSDictionary *changedValues=nil;
 
-
-
-  adaptorContext = [self adaptorContext];
-//adaptorcontext transactionNestingLevel
-//2fois
-//...
+  if (![adaptorContext hasOpenTransaction])
+    [adaptorContext beginTransaction];
 
   EOFLOGObjectLevelArgs(@"gsdb", @"adaptorOperation=%@", adaptorOperation);
 
   entity = [adaptorOperation entity];
   operator = [adaptorOperation adaptorOperator];
-  changedValues = [adaptorOperation changedValues];
-
   EOFLOGObjectLevelArgs(@"gsdb", @"ad op: %d %@", operator, [entity name]);
-  EOFLOGObjectLevelArgs(@"gsdb", @"ad op: %@ %@", [adaptorOperation changedValues], [adaptorOperation qualifier]);
 
-  NS_DURING
-    switch(operator)
-      {
-      case EOAdaptorLockOperator:
-        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorLockOperator");
-
-	[self lockRowComparingAttributes: [adaptorOperation attributes]
-	      entity: entity
-	      qualifier: [adaptorOperation qualifier]
-	      snapshot: changedValues];
-	break;
-
-      case EOAdaptorInsertOperator:
-        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorInsertOperator");
-/*
-//self adaptorContext
-//adaptorcontext transactionNestingLevel
-  NSArray* attributes=[entity attributes];
-
- forech: externaltype
-name
-
-           PostgreSQLExpression initWithEntity:
-//called from ??: expr setUseAliases:NO
-prepareInsertExpressionWithRow:changedValues
-           [expr staement];
-*/
-	[self insertRow: [adaptorOperation changedValues]
-              forEntity: entity];
-	break;
-
-      case EOAdaptorUpdateOperator:
-        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorUpdateOperator");
-        //OK
-	[self updateValues: [adaptorOperation changedValues]
-	      inRowDescribedByQualifier: [adaptorOperation qualifier]
-	      entity: entity];
-	break;
-
-      case EOAdaptorDeleteOperator:
-        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorDeleteOperator");
-	[self deleteRowDescribedByQualifier: [adaptorOperation qualifier]
-	      entity: entity];
-	break;
-
-      case EOAdaptorStoredProcedureOperator:
-        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorStoredProcedureOperator");
-	[self executeStoredProcedure: [adaptorOperation storedProcedure]
-	      withValues: [adaptorOperation changedValues]];
-	break;
-
-      case EOAdaptorUndefinedOperator:
-        EOFLOGObjectLevel(@"gsdb", @"EOAdaptorUndefinedOperator");
-
-      default:
-        [NSException raise: NSInvalidArgumentException
-                     format: @"%@ -- %@ 0x%p: Operator %d is not defined",
-                     NSStringFromSelector(_cmd),
-                     NSStringFromClass([self class]),
-                     self,
-                     (int)operator];
-	break;
-      }
-  NS_HANDLER
+  switch(operator)
     {
-      NSDebugMLog(@"EXCEPTION %@", localException);
-      [adaptorOperation setException: localException];
-      [localException raise];
+    case EOAdaptorLockOperator:
+      EOFLOGObjectLevel(@"gsdb", @"EOAdaptorLockOperator");
+      
+      [self lockRowComparingAttributes: [adaptorOperation attributes]
+	    entity: entity
+	    qualifier: [adaptorOperation qualifier]
+	    snapshot: [adaptorOperation changedValues]];
+      break;
+      
+    case EOAdaptorInsertOperator:
+      EOFLOGObjectLevel(@"gsdb", @"EOAdaptorInsertOperator");
+      [self insertRow: [adaptorOperation changedValues]
+	    forEntity: entity];
+      break;
+      
+    case EOAdaptorUpdateOperator:
+      EOFLOGObjectLevel(@"gsdb", @"EOAdaptorUpdateOperator");
+      [self updateValues: [adaptorOperation changedValues]
+	    inRowDescribedByQualifier: [adaptorOperation qualifier]
+	    entity: entity];
+      break;
+      
+    case EOAdaptorDeleteOperator:
+      EOFLOGObjectLevel(@"gsdb", @"EOAdaptorDeleteOperator");
+      [self deleteRowDescribedByQualifier: [adaptorOperation qualifier]
+	    entity: entity];
+      break;
+      
+    case EOAdaptorStoredProcedureOperator:
+      EOFLOGObjectLevel(@"gsdb", @"EOAdaptorStoredProcedureOperator");
+      [self executeStoredProcedure: [adaptorOperation storedProcedure]
+	    withValues: [adaptorOperation changedValues]];
+      [self returnValuesForLastStoredProcedureInvocation];
+      break;
+      
+    case EOAdaptorUndefinedOperator:
+      EOFLOGObjectLevel(@"gsdb", @"EOAdaptorUndefinedOperator");
+      
+    default:
+      [NSException raise: NSInvalidArgumentException
+		   format: @"%@ -- %@ 0x%p: Operator %d is not defined",
+		   NSStringFromSelector(_cmd),
+		   NSStringFromClass([self class]),
+		   self,
+		   (int)operator];
+      break;
     }
-  NS_ENDHANDLER;
-
-//end
-
-
 }
 
 - (void)performAdaptorOperations: (NSArray *)adaptorOperations

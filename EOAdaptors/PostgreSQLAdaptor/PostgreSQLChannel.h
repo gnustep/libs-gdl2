@@ -50,7 +50,6 @@
 
 @interface PostgreSQLChannel : EOAdaptorChannel
 {
-  PostgreSQLContext   *_adaptorContext;
   PGconn              *_pgConn;
   PGresult            *_pgResult;
   NSArray             *_attributes;

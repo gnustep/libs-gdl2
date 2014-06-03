@@ -50,6 +50,7 @@
 @class EOAdaptorContext;
 @class EOLoginPanel;
 @class EOEntity;
+@class EOSQLExpressionFactory;
 
 GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 
@@ -136,6 +137,7 @@ GDL2ACCESS_EXPORT NSString *EOGeneralAdaptorException;
 - (BOOL)isValidQualifierType: (NSString *)attribute
 		       model: (EOModel *)model;
 
+-(EOSQLExpressionFactory*)expressionFactory;
 @end /* EOAdaptor */
 
 

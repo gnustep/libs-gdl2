@@ -52,6 +52,7 @@
 
 #include <EOControl/EODebug.h>
 #include <EOControl/EOPrivate.h>
+#include <EOControl/EOGlobalID.h>
 
 #include <EOAccess/EODatabaseOperation.h>
 #include <EOAccess/EOAttribute.h>

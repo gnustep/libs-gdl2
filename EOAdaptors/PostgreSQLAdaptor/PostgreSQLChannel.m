@@ -90,96 +90,6 @@ static BOOL attrRespondsToValueTypeChar = NO;
 #define EOAdaptorDebugLog(format, args...) \
   do { if ([self isDebugEnabled]) { NSLog(format , ## args); } } while (0)
 
-#warning Check this. Is this unused code? -- dw
-
-static NSDictionary *
-pgResultDictionary(PGresult *pgResult)
-{
-  int nfields, ntuples;
-  int i, j;
-  NSMutableArray *fields;
-  NSMutableArray *tuples;
-  ExecStatusType statusType;
-
-  nfields = PQnfields(pgResult);
-  ntuples = PQntuples(pgResult);
-
-  fields = [NSMutableArray arrayWithCapacity: nfields];
-  tuples = [NSMutableArray arrayWithCapacity: ntuples];
-
-  for (i = 1; i <= nfields; i++)
-    {
-      NSString *fname;
-      NSNumber *fnumber;
-      NSNumber *ftype;
-      NSNumber *fsize;
-      NSNumber *fmod;
-      NSDictionary *dict;
-      char *cfname;
-
-      cfname = PQfname(pgResult, i);
-
-      fname = [NSString stringWithCString: cfname];
-      fnumber = [NSNumber numberWithInt: PQfnumber(pgResult, cfname)];
-      ftype = [NSNumber numberWithUnsignedInt: PQftype(pgResult, i)];
-      fsize = [NSNumber numberWithInt: PQfsize(pgResult, i)];
-      fmod = [NSNumber numberWithInt: PQfmod(pgResult, i)];
-
-      dict = [NSDictionary dictionaryWithObjectsAndKeys:
-			     fname, @"PQfname",
-			   fnumber, @"PQfnumber",
-			   ftype, @"PQftype",
-			   fsize, @"PQfsize",
-			   fmod, @"PQfmod",
-			   nil];
-
-      [fields addObject: dict];
-    }
-
-  for (i = 1; i <= ntuples; i++)
-    {
-      NSMutableDictionary *tuple;
-      tuple = [NSMutableDictionary dictionaryWithCapacity: nfields];
-      for (j = 1; j <= nfields; j++)
-	{
-	  NSString *tupleInfo;
-	  NSString *tupleKey;
-
-	  tupleKey = [NSString stringWithCString: PQfname(pgResult, j)];
-
-	  if (PQgetisnull(pgResult, i, j))
-	    {
-	      tupleInfo = @"NULL";
-	    }
-	  else
-	    {
-	      NSString *fmt;
-	      fmt = [NSString stringWithFormat: @"%%%ds", PQgetlength(pgResult, i, j)];
-	      tupleInfo = [NSString stringWithFormat: fmt, PQgetvalue(pgResult, i, j)];
-	    }
-	  [tuple setObject: tupleInfo forKey: tupleKey];
-	}
-      [tuples addObject: tuple];
-    }
-
-  statusType = PQresultStatus(pgResult);
-
-  return [NSDictionary dictionaryWithObjectsAndKeys:
-    [NSString stringWithFormat:@"%d",  statusType], @"PQresultStatus",
-    [NSString stringWithFormat:@"%s",  PQresStatus(statusType)], @"PQresStatus",
-    [NSString stringWithFormat:@"%s",  PQresultErrorMessage(pgResult)], @"PQresultErrorMessage",
-    [NSString stringWithFormat:@"%d",  ntuples], @"PQntuples",
-    [NSString stringWithFormat:@"%d",  nfields], @"PQnfields",
-    [NSString stringWithFormat:@"%d",  PQbinaryTuples(pgResult)], @"PQbinaryTuples",
-    [NSString stringWithFormat:@"%s",  PQcmdStatus(pgResult)], @"PQcmdStatus",
-    [NSString stringWithFormat:@"%s",  PQoidStatus(pgResult)], @"PQoidStatus",
-    [NSString stringWithFormat:@"%d",  PQoidValue(pgResult)], @"PQoidValue",
-    [NSString stringWithFormat:@"%s",  PQcmdTuples(pgResult)], @"PQcmdTuples",
-    tuples, @"tuples",
-    fields, @"fields",
-    nil];
-}
-
 /*
  * read up to the specified number of characters, terminating at a non-digit
  * except for leading whitespace characters.
@@ -592,9 +502,7 @@ newValueForBytesLengthAttribute (const void *bytes,
     {
       EOAttribute *attr = nil;
 
-      ASSIGN(_adaptorContext, adaptorContext);//TODO NO
-
-//verify
+      //verify
       _oidToTypeName = [[NSMutableDictionary alloc] initWithCapacity: 101];
 
       attr = [[EOAttribute alloc] init];
@@ -616,7 +524,6 @@ newValueForBytesLengthAttribute (const void *bytes,
   if ([self isOpen])
     [self closeChannel];
 
-  DESTROY(_adaptorContext);
   DESTROY(_sqlExpression);
   DESTROY(_oidToTypeName);
   DESTROY(_pkAttributeArray);
@@ -1103,7 +1010,7 @@ newValueForBytesLengthAttribute (const void *bytes,
   if (([self _evaluateExpression: expression
                  withAttributes: nil] == 0))
   {
-    NSDebugMLLog(@"gsdb", @"_evaluateExpression:withAttributes: return NO", "");
+    NSDebugMLLog(@"gsdb", @"_evaluateExpression:withAttributes: return %@", @"NO");
     [self _cancelResults];
   }
   else
@@ -1211,7 +1118,7 @@ each key
   
   if ([nrow count] > 0)
     {
-      sqlexpr = [[[_adaptorContext adaptor] expressionClass]
+      sqlexpr = [[[_context adaptor] expressionClass]
 		  insertStatementForRow: nrow
 		  entity: entity];
 
@@ -1240,7 +1147,7 @@ each key
 	}
     }
 
-  [_adaptorContext autoCommitTransaction];
+  [(PostgreSQLContext*)_context autoCommitTransaction];
 
 }
 
@@ -1276,9 +1183,9 @@ each key
   adaptorContext = (PostgreSQLContext *)[self adaptorContext];
 
   [self _cancelResults];
-  [_adaptorContext autoBeginTransaction: NO];
+  [(PostgreSQLContext*)_context autoBeginTransaction: NO];
 
-  sqlexpr = [[[_adaptorContext adaptor] expressionClass]
+  sqlexpr = [[[_context adaptor] expressionClass]
 	      deleteStatementWithQualifier: qualifier
 	      entity: entity];
 
@@ -1350,7 +1257,7 @@ each key
 
   [self _cancelResults];
 
-  [_adaptorContext autoBeginTransaction: NO];
+  [(PostgreSQLContext*)_context autoBeginTransaction: NO];
 
   ASSIGN(_attributes, attributes);
 //  NSDebugMLLog(@"gsdb",@"00 attributes=%@",_attributes);
@@ -1358,7 +1265,7 @@ each key
 
   NSAssert([attributes count] > 0, @"No Attributes");
 
-  sqlExpr = [[[_adaptorContext adaptor] expressionClass]
+  sqlExpr = [[[_context adaptor] expressionClass]
 	      selectStatementForAttributes: attributes
 	      lock: flag
 	      fetchSpecification: fetchSpecification
@@ -1377,7 +1284,7 @@ each key
 	}
     }
 
-  [_adaptorContext autoCommitTransaction];
+  [(PostgreSQLContext*)_context autoCommitTransaction];
 
   if (_delegateRespondsTo.didSelectAttributes)
     [_delegate adaptorChannel: self
@@ -1476,7 +1383,7 @@ each key
 
           NSDictionary *dbRow = nil;
 
-          sqlExpr = [[[_adaptorContext adaptor] expressionClass]
+          sqlExpr = [[[_context adaptor] expressionClass]
                       selectStatementForAttributes: invAttributes
                       lock: NO
                       fetchSpecification:
@@ -1523,7 +1430,7 @@ each key
 
       if ([mrow count] > 0)
       {
-        sqlExpr = [[[_adaptorContext adaptor] expressionClass]
+        sqlExpr = [[[_context adaptor] expressionClass]
                    updateStatementForRow: mrow
                    qualifier: qualifier
                    entity: entity];
@@ -2327,7 +2234,7 @@ each key
   }
 
   sqlFormat=[NSString stringWithFormat: @"SELECT nextval('%@')",
-		      [[[self adaptorContext]adaptor] primaryKeySequenceNameFormat]];
+		      [(PostgreSQLAdaptor*)[[self adaptorContext]adaptor] primaryKeySequenceNameFormat]];
 
   sqlString = [NSString stringWithFormat: sqlFormat,
 			[entity primaryKeyRootName]];
@@ -2364,7 +2271,7 @@ each key
   
   NSAssert(pkValue, @"no pk value");
   
-  [_adaptorContext autoCommitTransaction];
+  [(PostgreSQLContext*)_context autoCommitTransaction];
   
   pk = [NSDictionary dictionaryWithObject: pkValue
                                    forKey: [primAttribute name]];

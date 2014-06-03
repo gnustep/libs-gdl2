@@ -1,3 +1,70 @@
+2014-06-03  Manuel Guesdon <mguesdon@orange-concept.com>
+	* EOAccess/EOAccessFault.m
+	  remove empty init methods
+	  fix warnings
+	* EOAccess/EOAdaptor.[hm]
+	  add -expressionFactory
+	* EOAccess/EOAdaptorChannel.m
+	  clean -performAdaptorOperation:
+	* EOAccess/EOAdaptorOperation.m
+	  fix warnings
+	* EOAccess/EODatabase.[hm]
+	  add/handle _timestamp
+	* EOAccess/EODatabaseChannel.h
+	  remove delegate (moved to EODatabaseContext)
+	  add _currentEditingContextTimestamp
+	  add _refreshedGIDs
+	* EOAccess/EODatabaseChannel.m
+	  fix warnings
+	  remove delegate (moved to EODatabaseContext)
+	  add _currentEditingContextTimestamp
+	  add _refreshedGIDs
+	  rewrite -setEntity:
+	  rewrite -setCurrentEditingContext:
+	  rewrite -fetchObject
+	  rewrite -cancelFetch
+	  rewrite -_selectWithFetchSpecification:editingContext:
+	* EOAccess/EODatabaseContext.h
+	  add EODatabaseChannel delegate stuff
+	* EOAccess/EODatabaseContextPriv.h
+	  add EODatabaseChannel delegate stuff
+	* EOAccess/EODatabaseContext.m
+	  add EODatabaseChannel delegate stuff
+	  fix EOAdaptor..Operator / EODatabase..Operator mismatch
+	* EOAccess/EODatabaseOperation.m
+	  fix warnings
+	* EOAccess/EOEntity.[hm], EOAccess/EOEntityPriv.h
+	  fix warnings
+	  add singleTable... methods
+	* EOAccess/EOExpressionArray.m
+	  fix warnings
+	* EOAccess/EOSQLExpression.m
+	  rewrite -prepareInsertExpressionWithRow:
+	* EOAccess/EOSQLExpressionFactory.[hm]
+	  new class
+	* EOAccess/EOUtilities.[hm]
+	  remove duplicate methods
+	* EOAccess/GNUmakefile
+	  add EOSQLExpressionFactory.[hm]
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.h
+	  remove duplicate _adaptorContext
+	* EOAdaptors/PostgreSQLAdaptor/PostgreSQLChannel.m
+	  remove duplicate _adaptorContext
+	  remove unused pgResultDictionary()
+	* EOControl/EOEditingContext.h
+	  handle fetchTimestamp
+	* EOControl/EOEditingContext.m
+	  handle fetchTimestamp
+	  rewrite -deleteObject:
+	  fix warnings
+	* EOControl/EOGenericRecord.m
+	  fix warnings
+	* EOControl/EOMutableKnownKeyDictionary.m
+	  fix warnings
+	* EOControl/EONSAddOns.[hm]
+	  remove duplicate method
+	* EOControl/EONull.m
+	  fix warnings
 2014-05-30  Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* nearly every file
 	  get rid of RCSID/RCS_ID

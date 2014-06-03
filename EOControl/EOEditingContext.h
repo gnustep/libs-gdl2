@@ -104,7 +104,7 @@
   int _lockCount;
   id _notificationQueue;
   NSAutoreleasePool * _lockPool;
-  NSTimeInterval fetchTimestamp;
+  NSTimeInterval _fetchTimestamp;
 }
 
 + (void)setDefaultFetchTimestampLag: (NSTimeInterval)lag;
@@ -250,6 +250,9 @@ modified state of the object.**/
                     editingContext: (EOEditingContext *)context;
 
 - (void)clearOriginalSnapshotForObject: (id)object;
+
+- (NSTimeInterval)fetchTimestamp;
+- (void)setFetchTimestamp:(NSTimeInterval)ts;
 
 @end
 

@@ -90,12 +90,12 @@
 
 + (id) allocWithZone: (NSZone *)zone
 {
-  return [NSNull null];
+  return (EONull*)[NSNull null];
 }
 
 + null
 {
-  return [NSNull null];
+  return (EONull*)[NSNull null];
 }
 
 @end

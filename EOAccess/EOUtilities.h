@@ -113,13 +113,4 @@ connectionDictionaryOverrides: (NSDictionary *)overrides;
 
 @end
 
-
-@interface EOFetchSpecification (EOAccess)
-
-+ (EOFetchSpecification *)fetchSpecificationNamed: (NSString *)name
-                                      entityNamed: (NSString *)entityName;
-
-@end
-
-
 #endif

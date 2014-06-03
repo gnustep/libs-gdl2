@@ -65,6 +65,7 @@
 
 #include <EOAccess/EODatabaseChannel.h>
 #include <EOAccess/EODatabaseContext.h>
+#include <EOAccess/EODatabaseContextPriv.h>
 #include <EOAccess/EODatabase.h>
 
 #include <EOAccess/EOAdaptor.h>
@@ -74,8 +75,10 @@
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EORelationship.h>
 #include <EOAccess/EOModel.h>
+#include <EOAccess/EOModelGroup.h>
 #include <EOAccess/EOAccessFault.h>
 #include <EOAccess/EOSQLExpression.h>
+#include <EOAccess/EOSQLExpressionFactory.h>
 #include <EOAccess/EOSQLQualifier.h>
 
 #include "EOPrivate.h"
@@ -152,85 +155,54 @@
   DESTROY(_currentEditingContext);
   DESTROY(_fetchProperties);
   DESTROY(_fetchSpecifications);
+  DESTROY(_refreshedGIDs);
 
   [super dealloc];
 }
 
+//MG2014: OK
 - (void)setCurrentEntity: (EOEntity *)entity
 {
-  //OK
-  ASSIGN(_currentEntity, entity);
-  [self setEntity: entity];
-}
-
-- (void) setEntity: (EOEntity *)entity
-{
-  //Near OK
-  NSArray *relationships = [entity relationships];
-  int i = 0;
-  int count = [relationships count];
-
-  EOFLOGObjectLevelArgs(@"gsdb", @"relationships=%@", relationships);
-
-  for (i = 0; i < count; i++)
+  if (entity != _currentEntity)
     {
-      EORelationship *relationship = [relationships objectAtIndex:i];
-      EOEntity *destinationEntity = [relationship destinationEntity];
-      EOModel *destinationEntityModel = [destinationEntity model];
-      EOEntity *entity = [relationship entity];
-      EOModel *entityModel = [entity model];
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"relationship=%@", relationship);
-      EOFLOGObjectLevelArgs(@"gsdb", @"destinationEntity=%@", [destinationEntity name]);
-
-      NSAssert2(destinationEntity, @"No destinationEntity in relationship: %@ of entity %@",
-                relationship, [entity name]); //TODO: flattened relationship
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"entity=%@", [entity name]);
-      EOFLOGObjectLevelArgs(@"gsdb", @"destinationEntityModel=%p", destinationEntityModel);
-      EOFLOGObjectLevelArgs(@"gsdb", @"entityModel=%p", entityModel);
-
-      //If different: try to add destinationEntityModel
-      if (destinationEntityModel != entityModel)
-        {
-          EOEditingContext *editingContext = [self currentEditingContext];
-          //EODatabaseContext *databaseContext = [self databaseContext];
-          EOObjectStore *rootObjectStore = [editingContext rootObjectStore];
-          NSArray *cooperatingObjectStores =
-	    [(EOObjectStoreCoordinator *)rootObjectStore
-					 cooperatingObjectStores];
-          int cosCount = [cooperatingObjectStores count];
-          int i;
-
-          for (i = 0; i < cosCount; i++)
-            {
-              id objectStore = [cooperatingObjectStores objectAtIndex: i];
-              EODatabase *objectStoreDatabase = [objectStore database];
-              BOOL modelOK = [objectStoreDatabase
-			       addModelIfCompatible: destinationEntityModel];
-
-              if (!modelOK)
-                {
-                  /*EODatabase *dbDatabase = [[[EODatabase alloc]
-		    initWithModel: destinationEntityModel] autorelease];*/
-                  [self notImplemented: _cmd]; //TODO: finish it
-                }
-            }
-        }
+      DESTROY(_fetchProperties);
+      ASSIGN(_currentEntity, entity);
+      [self setEntity: entity];
     }
 }
 
+//MG2014: OK
+- (void) setEntity: (EOEntity *)entity
+{
+  NSArray *relationships = [entity relationships];
+  NSUInteger relCount = [relationships count];
+  if (relCount>0)
+    {
+      Class databaseContextClass=[[self databaseContext] class];
+      NSUInteger i=0;
+      for(i=0;i<relCount;i++)
+	{
+	  EORelationship* relationship = [relationships objectAtIndex:i];
+	  EOModel* model = [[relationship destinationEntity] model];
+	  if ([[relationship entity]model] != model)
+	    {
+	      [databaseContextClass registeredDatabaseContextForModel:model
+				    editingContext:[self currentEditingContext]];
+	    }
+	}
+    }
+}
+
+//MG2014: OK
 - (void)setCurrentEditingContext: (EOEditingContext*)context
 {
-  if (context) {
-    EOCooperatingObjectStore *cooperatingObjectStore = [self databaseContext];
-    EOObjectStore *objectStore = [context rootObjectStore];
-    
-    [(EOObjectStoreCoordinator*)objectStore
-     addCooperatingObjectStore: cooperatingObjectStore];
-  }
-  
-  ASSIGN(_currentEditingContext, context);
+  ASSIGN(_currentEditingContext,context);
+  if(_currentEditingContext != nil)
+    {
+      _currentEditingContextTimestamp = [_currentEditingContext fetchTimestamp];
+      [(EOObjectStoreCoordinator*)[_currentEditingContext rootObjectStore] 
+				  addCooperatingObjectStore:[self databaseContext]];
+    }
 }
 
 - (void)selectObjectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
@@ -292,176 +264,223 @@
   [self _selectWithFetchSpecification:fetchSpecification
         editingContext:context];
 
-
+  [database setTimestampToNow];
 }
 
+//MG2014: OK
 - (id)fetchObject
 {
-  //seems OK
-  EODatabase *database=nil;
+  EODatabase* database=[_databaseContext database];
   id object = nil;
   
-  database = [_databaseContext database];
-  
   if (![self isFetchInProgress])
-  {    
-    [NSException raise: NSInvalidArgumentException
-                format: @"%@ -- %@ 0x%p: no fetch in progress",
-     NSStringFromSelector(_cmd),
-     NSStringFromClass([self class]),
-     self];      
-  }
+    {
+      //Exception or just return nil ?
+      [NSException raise: NSInvalidArgumentException
+		   format: @"%@ -- %@ 0x%p: no fetch in progress",
+		   NSStringFromSelector(_cmd),
+		   NSStringFromClass([self class]),
+		   self];      
+    }
   else
-  {
-    NSArray *propertiesToFetch=nil;
-    NSDictionary *row =nil;
-    
-    NSAssert(_currentEditingContext, @"No current editing context");
-    NSAssert(_adaptorChannel,@"No adaptor channel");
-    
-    propertiesToFetch = [self _propertiesToFetch];
-    
-    row = [_adaptorChannel fetchRowWithZone: NULL];
-    
-    if (!row)
     {
-      //TODO
-      //VERIFY
-      /*
-       if no more obj:
-       if transactionNestingLevel
-       adaptorContext transactionDidCommit
-       */
+      NSDictionary *row =nil;
+      EOEntity* entity = nil;
       
-      return nil;
-    }
-    else if([[_fetchSpecifications lastObject] fetchesRawRows])  // Testing against only one should be enough
-    {
-      object = [NSDictionary dictionaryWithDictionary:row];
-    }
-    else
-    {
-      BOOL isObjectNew = YES; //TODO used to avoid double fetch. We should see how to do when isRefreshingObjects == YES
-      EOGlobalID *gid;
-      NSDictionary *snapshot = nil;
+      NSAssert(_currentEditingContext, @"No current editing context");
+      NSAssert(_adaptorChannel,@"No adaptor channel");
       
-      NSAssert(_currentEntity, @"Not current Entity");
+      [self _propertiesToFetch];
+    
+      for (row = [_adaptorChannel fetchRowWithZone: NULL]; row == nil;)
+	{
+	  if (_fetchSpecifications != nil)
+	    {
+	      [self _cancelInternalFetch];
+	      [self _selectWithFetchSpecification:nil
+		    editingContext:_currentEditingContext];
+	      [self _propertiesToFetch];
+	      row = [_adaptorChannel fetchRowWithZone: NULL];
+	    }
+	  else
+	    {
+	      _isLocking = NO;
+	      return nil; // End
+	    }
+	}
+      NSLog(@"MG-OXYMIUM-TMP %s:%d row=%@",__PRETTY_FUNCTION__,__LINE__,row);
       
-      gid = [_currentEntity globalIDForRow: row
-                                   isFinal: YES];//OK
-      
-      object = [_currentEditingContext objectForGlobalID: gid]; //OK //nil
-      
-      if (object)
-        isObjectNew = NO;
-      
-      NSAssert(_databaseContext,@"No database context");
-      
-      snapshot = [_databaseContext snapshotForGlobalID: gid]; //OK
-      
-      if (snapshot)
-      {        
-        //mirko:
-        if((_delegateRespondsTo.shouldUpdateSnapshot == NO
-            && ([self isLocking] == YES
-                || [self isRefreshingObjects] == YES))
-           || (_delegateRespondsTo.shouldUpdateSnapshot == YES
-               && (row = (id)[_delegate databaseContext: _databaseContext
-                            shouldUpdateCurrentSnapshot: snapshot
-                                            newSnapshot: row
-                                               globalID: gid
-                                        databaseChannel: self])))
-        { // TODO delegate not correct !
-          
-          [_databaseContext recordSnapshot: row
-                               forGlobalID: gid];
-          isObjectNew = YES; //TODO
-        }
-      }
+      if (_isFetchingSingleTableEntity)
+	{
+	  entity = [_currentEntity _singleTableSubEntityForRow:row];
+	  if (entity == nil)
+	    {
+	      [NSException raise: @"NSIllegalStateException"
+			   format: @"%s Unable to determine subentity of '%@' for row: %@. Check that the attribute '%@' is marked as a class property in the EOModel and that the value satisfies some subentity's restricting qualifier.",
+			   __PRETTY_FUNCTION__,
+			   [_currentEntity name],
+			   row,
+			   [_currentEntity _singleTableSubEntityKey]];
+	    }
+	}
       else
-      {
-        NSAssert(database, @"No database-context database");
-        
-        [database recordSnapshot: row
-                     forGlobalID: gid];
-      }
-      
-      //From mirko
-      if ([self isRefreshingObjects] == YES)
-      {
-        [[NSNotificationCenter defaultCenter]
-         postNotificationName: EOObjectsChangedInStoreNotification
-         object: _databaseContext
-         userInfo: [NSDictionary dictionaryWithObject:
-                    [NSArray arrayWithObject:gid]
-                                               forKey: EOUpdatedKey]]; //OK ?
-      }
-      
-      if (!object)
-      {
-        EOClassDescription *entityClassDescripton = [_currentEntity classDescriptionForInstances];
-        
-        object = [entityClassDescripton createInstanceWithEditingContext: _currentEditingContext
-                                                                globalID: gid
-                                                                    zone: NULL];
-        
-        NSAssert1(object, @"No Object. entityClassDescripton=%@", entityClassDescripton);
-        
-        EOEditingContext_recordObjectGlobalIDWithImpPtr(_currentEditingContext,
-                                                        NULL,object,gid);
-      }
-      else if (object && [EOFault isFault: object])
-      {
-        EOAccessFaultHandler *handler = (EOAccessFaultHandler *)
-        [EOFault handlerForFault: object];
-        EOKeyGlobalID *handlerGID = (EOKeyGlobalID *)[handler globalID];
-        
-        isObjectNew = YES; //TODO
-        [handlerGID isFinal]; //YES //TODO
-        [EOFault clearFault: object];
-        
-        /*mirko:
-         [_databaseContext _removeBatchForGlobalID:gid
-         fault:obj];
-         
-         [EOFault clearFault:obj];
-         */
-      }
-      
-      if (isObjectNew) //TODO
-      {
-        if ((!object) || ([object isKindOfClass:[EOCustomObject class]] == NO)) {
-          [NSException raise: NSInternalInconsistencyException
-                      format: @"%s:%d cannot initialize nil/non EOCustomObject object!", __FILE__, __LINE__];      
-        }
-        [EOObserverCenter suppressObserverNotification];
-        
-        NS_DURING
-        {          
-          [_currentEditingContext initializeObject: object
-                                      withGlobalID: gid
-                                    editingContext: _currentEditingContext];
-        }
-        NS_HANDLER
-        {
-          [EOObserverCenter enableObserverNotification];
-          [localException raise];
-        }
-        NS_ENDHANDLER;
-        
-        [EOObserverCenter enableObserverNotification];
-        
-        if ((!object) || ([object isKindOfClass:[EOCustomObject class]] == NO)) {
-          [NSException raise: NSInternalInconsistencyException
-                      format: @"%s:%d cannot initialize nil/non EOCustomObject object!", __FILE__, __LINE__];      
-        }
-        
-        [object awakeFromFetchInEditingContext: _currentEditingContext];
+	{
+	  entity = _currentEntity;
+	}
+      EOKeyGlobalID* gid = (EOKeyGlobalID*)[entity _globalIDForRow:row
+						   isFinal:YES];
+      if (gid == nil)
+	{
+	  [NSException raise: @"NSIllegalStateException"
+		       format: @"%s Cannot determine primary key for entity '%@' from row: %@",
+		       __PRETTY_FUNCTION__,
+		       [_currentEntity name],
+		       row];
+	}
+      else
+	{
+	  NSDictionary* dbxSnapshot = nil;
+	  NSDictionary* snapshot = nil;
+	  NSDictionary* newSnapshot = nil;
+	  BOOL  respondsTo_shouldUpdateCurrentSnapshot = [_databaseContext _respondsTo_shouldUpdateCurrentSnapshot];
+	  object = [_currentEditingContext objectForGlobalID:gid];
+	  NSLog(@"MG-OXYMIUM-TMP %s:%d gid=%@ object=%@",__PRETTY_FUNCTION__,__LINE__,gid,object);
 
-      }
+	  snapshot = [database snapshotForGlobalID:gid
+			       after: (respondsTo_shouldUpdateCurrentSnapshot ? 
+				       EODistantPastTimeInterval : _currentEditingContextTimestamp)];
+	  NSLog(@"MG-OXYMIUM-TMP %s:%d gid=%@ snapshot=%@",__PRETTY_FUNCTION__,__LINE__,gid,snapshot);
+	  if (snapshot != nil)
+	    {
+	      if (respondsTo_shouldUpdateCurrentSnapshot
+		  && (newSnapshot = [_databaseContext _shouldUpdateCurrentSnapshot:snapshot
+						      newSnapshot:row 
+						      globalID: gid
+						      databaseChannel:self])!=nil)
+                {
+		  NSLog(@"MG-OXYMIUM-TMP %s:%d gid=%@ newSnapshot=%@",__PRETTY_FUNCTION__,__LINE__,gid,newSnapshot);
+		  if (newSnapshot != snapshot)
+		    {
+		      snapshot = newSnapshot;
+		      [database recordSnapshot:snapshot
+				forGlobalID:gid];
+		    }
+		  else
+                    {
+		      newSnapshot = nil;
+                    }
+                }
+	      else if ((_isLocking || _isRefreshingObjects)
+		       && ![_databaseContext isObjectLockedWithGlobalID:gid]
+		       && ![snapshot isEqual:row])
+                {
+		  if(_isLocking && !_isRefreshingObjects)
+		    {
+		      [NSException raise: @"NSIllegalStateException"
+				   format: @"%s attempt to lock object that has out of date snapshot: %@",
+				   __PRETTY_FUNCTION__,
+				   gid];
+		    }
+		  NSLog(@"MG-OXYMIUM-TMP %s:%d gid=%@ row=%@",__PRETTY_FUNCTION__,__LINE__,gid,row);
+		  snapshot = newSnapshot = row;
+		  [database recordSnapshot:snapshot
+			    forGlobalID:gid];
+                }
+	      dbxSnapshot = snapshot;
+            }
+	  else
+            {
+	      NSDictionary* aSnapshot = [database snapshotForGlobalID:gid];
+	      NSLog(@"MG-OXYMIUM-TMP %s:%d gid=%@ aSnapshot=%@",__PRETTY_FUNCTION__,__LINE__,gid,aSnapshot);
+	      [database recordSnapshot:row
+			forGlobalID:gid];
+	      if (aSnapshot != nil
+		  && ![aSnapshot isEqualToDictionary:row])
+		newSnapshot = row;
+	      dbxSnapshot = row;
+            }
+
+	  if (_isLocking)
+	    [_databaseContext registerLockedObjectWithGlobalID:gid];
+
+	  if (newSnapshot != nil)
+            {
+	      if (_refreshedGIDs == nil)
+		_refreshedGIDs = [NSMutableArray new];
+	      [_refreshedGIDs addObject:gid];
+            }
+	  if (object != nil
+	      && !_isFault(object))
+	    {
+	      return object; //End
+	    }
+	  else
+	    {
+	      if (object == nil
+		  && newSnapshot != nil)
+		{
+		  object = [_currentEditingContext faultForGlobalID:gid
+					    editingContext:_currentEditingContext];
+		  return object; // End
+		}
+	      else
+		{
+		  if (object == nil)
+		    {
+		      EOClassDescription *entityClassDescripton = [entity classDescriptionForInstances];
+		      
+		      object = [entityClassDescripton createInstanceWithEditingContext: _currentEditingContext
+						      globalID: gid
+						      zone: NULL];
+		      [_currentEditingContext recordObject:object
+					      globalID: gid];
+		    }
+		  else
+		    {
+		      EOAccessFaultHandler* handler = 
+			(EOAccessFaultHandler *)[EOFault handlerForFault: object];
+		      if ([(EOKeyGlobalID*)[handler globalID] isFinal])
+			{
+			  [EOFault clearFault: object];
+			}
+		      else
+			{
+			  [EOFault clearFault: object];
+			  [entity initObject:object
+				  editingContext:_currentEditingContext
+				  globalID:gid];
+			}
+		    }
+		  [EOObserverCenter suppressObserverNotification];
+		  NS_DURING
+		    {          
+		      ASSIGN(_databaseContext->_lastEntity,entity);
+		      //TODO
+		      /*
+		      _databaseContext->_currentGlobalID = gid;
+		      _databaseContext->_currentSnapshot = dbxSnapshot;
+		      */
+		      [_currentEditingContext initializeObject:object
+					      withGlobalID: gid
+					      editingContext: _currentEditingContext];
+		      //TODO
+		      /*
+		      _databaseContext->_currentGlobalID = nil;
+		      */
+		    }
+		  NS_HANDLER
+		    {
+		      [EOObserverCenter enableObserverNotification];
+		      [localException raise];
+		    }
+		  NS_ENDHANDLER;
+	      
+		  [EOObserverCenter enableObserverNotification];
+		  [object awakeFromFetchInEditingContext:_currentEditingContext];
+		}
+	    }
+	}
     }
-  }
-  
   return object;
 }
 
@@ -470,18 +489,56 @@
   return [_adaptorChannel isFetchInProgress];
 }
 
+//MG2014: Near OK (See TODO)
 - (void)cancelFetch
 {
+  [self _cancelInternalFetch];
 
+  if (_fetchSpecifications != nil)
+    DESTROY(_fetchSpecifications);
 
   [self _cancelInternalFetch];
 
-  //TODO VERIFY - NO ??!!
-  [_adaptorChannel cancelFetch];
-  [_fetchProperties removeAllObjects];
-  [_fetchSpecifications removeAllObjects];
+  if (_refreshedGIDs != nil)
+    {
+      IMP oaiIMP=NULL;
+      EOEditingContext* editingContext = _currentEditingContext;
+      NSMutableArray* refreshedGIDs = _refreshedGIDs;
+      EODatabase* database = [_databaseContext database];
+      NSUInteger  refreshedGIDsCount = [refreshedGIDs count];
+      NSUInteger i=0;
+      _refreshedGIDs = nil;
 
+      for(i=0; i<refreshedGIDsCount; i++)
+	[database incrementSnapshotCountForGlobalID:GDL2_ObjectAtIndexWithImpPtr(refreshedGIDs,&oaiIMP,i)];
 
+      
+      [editingContext lock];
+      NS_DURING
+	{          
+	  [[NSNotificationCenter defaultCenter]
+	    postNotificationName: @"EOObjectsChangedInStoreNotification"
+	    object: _databaseContext
+	    userInfo: [NSDictionary dictionaryWithObject:refreshedGIDs
+				    forKey:@"updated"]];
+	  for(i=0; i<refreshedGIDsCount; i++)
+	    {
+	      EOKeyGlobalID* gid = GDL2_ObjectAtIndexWithImpPtr(refreshedGIDs,&oaiIMP,i);
+	      //TODO [[editingContext objectForGlobalID:gid] willRead];
+	      [database decrementSnapshotCountForGlobalID:gid];
+	    }
+	}
+      NS_HANDLER
+	{
+	  [editingContext unlock];	
+	  DESTROY(refreshedGIDs);//was retained as _refreshedGIDs
+	  [localException raise];
+	}
+      NS_ENDHANDLER;
+
+      [editingContext unlock];	
+      DESTROY(refreshedGIDs);//was retained as _refreshedGIDs
+    }  
 }
 
 - (EODatabaseContext *)databaseContext
@@ -513,26 +570,6 @@
 {
   _isLocking = isLocking;
 }
-
-- (void)setDelegate: delegate
-{
-  _delegate = delegate;
-
-  _delegateRespondsTo.shouldSelectObjects = 
-    [delegate respondsToSelector:@selector(databaseContext:shouldSelectObjectsWithFetchSpecification:databaseChannel:)];
-  _delegateRespondsTo.didSelectObjects = 
-    [delegate respondsToSelector:@selector(databaseContext:didSelectObjectsWithFetchSpecification:databaseChannel:)];
-  _delegateRespondsTo.shouldUsePessimisticLock = 
-    [delegate respondsToSelector:@selector(databaseContext:shouldUsePessimisticLockWithFetchSpecification: databaseChannel:)];
-  _delegateRespondsTo.shouldUpdateSnapshot = 
-    [delegate respondsToSelector:@selector(databaseContext:shouldUpdateCurrentSnapshot:newSnapshot:globalID:databaseChannel:)];
-}
-
-- delegate
-{
-  return _delegate;
-}
-
 
 @end
 
@@ -573,233 +610,195 @@
   return _currentEditingContext;
 }
 
+//MG2014: OK
 - (void) _cancelInternalFetch
 {
-  //OK
-
-
   if ([_adaptorChannel isFetchInProgress])
-    {
-      [_adaptorChannel cancelFetch];
-    }
-
-
+    [_adaptorChannel cancelFetch];
 }
 
+//MG2014: OK
 - (void) _closeChannel
 {
-  //TODO
-  [self notImplemented: _cmd];
+  [_adaptorChannel closeChannel];
 }
 
+//MG2014: OK
 - (void) _openChannel
 {
-  //TODO
-  [self notImplemented: _cmd];
+  if (![_adaptorChannel isOpen])
+    [_adaptorChannel openChannel];
 }
 
-- (void)_selectWithFetchSpecification: (EOFetchSpecification *)fetch
-		       editingContext: (EOEditingContext *)context
+- (void)_selectWithFetchSpecification: (EOFetchSpecification *)fetchSpec
+		       editingContext: (EOEditingContext *)editingContext
 {
-  NSArray *propertiesToFetch = nil;
-  EOUpdateStrategy updateStrategy = EOUpdateWithOptimisticLocking;
-  BOOL fetchLocksObjects = NO;
-  BOOL refreshesRefetchedObjects = NO;
-  NSString *entityName = nil;
-  EODatabase *database = nil;
-  EOEntity *entity = nil;
-  NSArray *primaryKeyAttributes = nil;
-  NSDictionary *hints = nil;
-  EOModel *model = nil;
-  EOModelGroup *modelGroup = nil;
-  EOQualifier *qualifier = nil;
-  EOStoredProcedure *storedProcedure = nil;
-  id customQueryExpressionHint = nil;//TODO
-  EOSQLExpression *customQueryExpression = nil;//TODO
-  NSString *storedProcedureName = nil;
+  EOSQLExpression* sqlExpression = nil;
+  _isFetchingSingleTableEntity = NO;
 
-  BOOL isDeep = NO;
-  NSArray *subEntities = nil;
-  NSDictionary *_hints = nil;
-
-
-
-  _hints = [fetch _hints];
-
-  customQueryExpressionHint = [_hints objectForKey: EOCustomQueryExpressionHintKey];//TODO use it
-
-  if (customQueryExpressionHint)
+  if (_fetchSpecifications != nil)
     {
-      EOAdaptorContext *adaptorContext = nil;
-      EOAdaptor *adaptor = nil;
-      Class expressionClass = Nil;
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"customQueryExpressionHint=%@", customQueryExpressionHint);
-
-      adaptorContext = [_databaseContext adaptorContext];
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"adaptorContext=%p", adaptorContext);
-
-      adaptor = [adaptorContext adaptor];
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"adaptor=%p", adaptor);
-      EOFLOGObjectLevelArgs(@"gsdb", @"adaptor=%@", adaptor);
-      EOFLOGObjectLevelArgs(@"gsdb", @"adaptor class=%@", [adaptor class]);
-
-      //TODO VERIFY
-      expressionClass = [adaptor expressionClass];
-      EOFLOGObjectLevelArgs(@"gsdb", @"expressionClass=%@", expressionClass);
-
-      customQueryExpression = [expressionClass expressionForString:
-						 customQueryExpressionHint];
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"customQueryExpression=%@", customQueryExpression);
-    }
-
-  [self setCurrentEditingContext: context]; //OK even if customQueryExpressionHintKey
-  [self _setCurrentEntityAndRelationshipWithFetchSpecification: fetch];
-
-  isDeep = [fetch isDeep]; //ret 1
-
-  if (!customQueryExpressionHint)
-    {
-      subEntities = [entity subEntities];
-      EOFLOGObjectLevelArgs(@"gsdb", @"subEntities=%@", subEntities);
-      
-      //Strange
-      {
-        NSMutableArray *array = nil;
-
-        array = [NSMutableArray arrayWithCapacity: 8];
-
-        if ([subEntities count] > 0 && isDeep)
-          {
-            //??
-            NSEnumerator *subEntitiesEnum = [subEntities objectEnumerator];
-            id subEntity = nil;
-
-            while ((subEntity = [subEntitiesEnum nextObject]))
-              {
-                EOFetchSpecification *fetchSubEntity;
-                
-                fetchSubEntity = [fetch copy];
-                [fetchSubEntity setEntityName: [entity name]];
-                
-                [array addObjectsFromArray:
-			 [context objectsWithFetchSpecification:
-				    fetchSubEntity]];
-                [fetchSubEntity release];
-              }
-          }
-      }
-    }
-
-  propertiesToFetch = [self _propertiesToFetch];
-  updateStrategy = [_databaseContext updateStrategy];//Ret 0
-  fetchLocksObjects = [fetch locksObjects];
-  refreshesRefetchedObjects = [fetch refreshesRefetchedObjects];
-  entityName = [fetch entityName];
-  database = [_databaseContext database];
-  entity = [database entityNamed:entityName];
-  primaryKeyAttributes = [entity primaryKeyAttributes];
-  hints = [fetch hints]; // ret {} 
-  storedProcedureName = [hints objectForKey: EOStoredProcedureNameHintKey];//TODO use it
-  model = [entity model];
-  modelGroup = [model modelGroup]; //ret nil
-  //TODO if model gr
-  qualifier = [fetch qualifier]; //<EOAndQualifier> //Can be nil
-
-  if (customQueryExpression)
-    {
-      [_adaptorChannel evaluateExpression: customQueryExpression];
-
-      NSAssert([propertiesToFetch count] > 0, @"No properties to fetch");
-
-      [_adaptorChannel setAttributesToFetch: propertiesToFetch];
+      fetchSpec = [_fetchSpecifications lastObject];
+      [_fetchSpecifications removeLastObject];
+      [self setCurrentEntity:[[_databaseContext database]entityNamed:[fetchSpec entityName]]];
+      _isFetchingSingleTableEntity = [_currentEntity _isSingleTableEntity];
+      if ([_fetchSpecifications count] == 0)
+	DESTROY(_fetchSpecifications);
     }
   else
     {
-      storedProcedure = [entity storedProcedureForOperation:
-				  @"EOFetchWithPrimaryKeyProcedure"];
+      if (fetchSpec == nil)
+	{
+	  [NSException raise: @"NSIllegalArgumentException"
+		       format:@"%s invoked with nil fetchSpecification",
+		       __PRETTY_FUNCTION__];
+	}
+      else
+	{
+	  NSDictionary* hints = [fetchSpec hints];
+	  id customQueryExpressionHint = [hints objectForKey:@"EOCustomQueryExpressionHintKey"];
+	  if (customQueryExpressionHint != nil)
+	    {
+	      if ([customQueryExpressionHint isKindOfClass:[NSString class]])
+		{
+		  sqlExpression = [[[[_databaseContext adaptorContext]adaptor]
+				       expressionFactory]
+				      expressionForString:customQueryExpressionHint];
+		}
+	      else
+		sqlExpression = (EOSQLExpression*)customQueryExpressionHint;
+	    }
+	  [self setCurrentEditingContext:editingContext];
+	  [self _setCurrentEntityAndRelationshipWithFetchSpecification:fetchSpec];
 
-      if (storedProcedure)
-        {
-          NSEmitTODO();  //TODO
-
-          [self notImplemented: _cmd];
+	  if ([fetchSpec isDeep]
+	      && sqlExpression == nil)
+            {
+	      _isFetchingSingleTableEntity = [_currentEntity _isSingleTableEntity];
+	      if (!_isFetchingSingleTableEntity
+		  && [[_currentEntity subEntities]count]>0)
+                {
+		  NSMutableArray* nodes = [NSMutableArray array];
+		  NSUInteger nodesCount = 0;		  
+		  [self _buildNodeList:nodes
+			withParent:_currentEntity];
+		  nodesCount = [nodes count];
+		  ASSIGN(_fetchSpecifications,([NSMutableArray arrayWithCapacity:nodesCount]));
+		  if (nodesCount>0)
+		    {
+		      NSUInteger i=0;
+		      for(i=0;i<nodesCount;i++)
+			{
+			  EOFetchSpecification* aFetchSpec = AUTORELEASE([fetchSpec copy]);
+			  [aFetchSpec setEntityName:[nodes objectAtIndex:i]];
+			  [_fetchSpecifications addObject:aFetchSpec];
+			}
+		    }
+		  
+		  [self _selectWithFetchSpecification:nil
+			editingContext:editingContext];
+		  return; //Finished !
+                }
+            }
         }
-
-      NSAssert([propertiesToFetch count] > 0, @"No properties to fetch");
-
-      EOFLOGObjectLevelArgs(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
-		   NSStringFromSelector(_cmd),
-		   NSStringFromClass([self class]),
-		   self,
-		   ([self isFetchInProgress] ? "YES" : "NO"));
-
-      [_adaptorChannel selectAttributes: propertiesToFetch
-                       fetchSpecification: fetch
-                       lock: fetchLocksObjects
-                       entity: entity];
     }
+  NSArray* propertiesToFetch = [self _propertiesToFetch];
 
-  EOFLOGObjectLevelArgs(@"gsdb", @"%@ -- %@ 0x%x: isFetchInProgress=%s",
-	       NSStringFromSelector(_cmd),
-	       NSStringFromClass([self class]),
-	       self,
-	       ([self isFetchInProgress] ? "YES" : "NO"));
-
-//TODO: verify
-// (stephane@sente.ch) Uncommented end to allow rawRow fetches
-  if([_databaseContext updateStrategy] == EOUpdateWithPessimisticLocking
-     && ![[_databaseContext adaptorContext] transactionNestingLevel])
-    [NSException raise:NSInvalidArgumentException
-                 format:@"%@ -- %@ 0x%p: no transaction in progress",
-                 NSStringFromSelector(_cmd),
-                 NSStringFromClass([self class]),
-                 self];
-
-  if(_delegateRespondsTo.shouldSelectObjects)
+  if ([_databaseContext _performShouldSelectObjectsWithFetchSpecification:fetchSpec
+			databaseChannel:self])
     {
-      if(![_delegate databaseContext:_databaseContext
-		     shouldSelectObjectsWithFetchSpecification:fetch
-		     databaseChannel:self])
-        [NSException raise:EOGeneralDatabaseException
-                     format:@"%@ -- %@ 0x%p: delegate refuses to select objects",
-                     NSStringFromSelector(_cmd),
-                     NSStringFromClass([self class]),
-                     self];
-    };
+      _isLocking = [_databaseContext _usesPessimisticLockingWithFetchSpecification:fetchSpec
+				     databaseChannel:self];
+      _isRefreshingObjects = [fetchSpec refreshesRefetchedObjects];
 
-  [_fetchSpecifications addObject:fetch];
+      if(_isLocking
+	 && ![[_adaptorChannel adaptorContext] hasOpenTransaction])
+	{
+	  [[_adaptorChannel adaptorContext] beginTransaction];
+	}
 
-//  [self setCurrentEntity:[[_databaseContext database]
-//			   entityNamed:[fetch entityName]]];//done
-//  [self setCurrentEditingContext:context];//done
+      if ([[_currentEntity primaryKeyAttributes]count]==0)
+	{
+	  [NSException raise: @"NSIllegalStateException"
+		       format:@"%s attempt to select EOs from entity '%@' which has no primary key defined. All entities must have a primary key specified. You should run the EOModeler consistency checker on the model containing this entity and perform whatever actions are necessary to ensure that the model is in a consistent state.",
+		       __PRETTY_FUNCTION__,
+		       [_currentEntity name]];
+	}
+      else
+	{
+	  NSDictionary* hints = [fetchSpec hints];
+	  EOStoredProcedure* storedProcedure = nil;
+	  NSString* storedProcedureName = [hints objectForKey:@"EOStoredProcedureNameHintKey"];
+	  if (storedProcedureName != nil)
+	    {
+	      storedProcedure = [[[_currentEntity model]modelGroup]storedProcedureNamed:storedProcedureName];
+	    }
+	  if(storedProcedure != nil)
+	    {
+	      [_adaptorChannel executeStoredProcedure:storedProcedure
+			       withValues:nil];
+	      [_adaptorChannel setAttributesToFetch:propertiesToFetch];
+	    }
+	  else if(sqlExpression != nil)
+	    {
+	      [_adaptorChannel evaluateExpression:sqlExpression];
+	      [_adaptorChannel setAttributesToFetch:propertiesToFetch];
+	    }
+	  else
+	    {
+	      EOQualifier* qualifier = [fetchSpec qualifier];
+	      if (qualifier == nil
+		  && (storedProcedure = [_currentEntity storedProcedureForOperation:@"EOFetchAllProcedure"]) != nil)
+		{
+		  [_adaptorChannel executeStoredProcedure:storedProcedure
+				   withValues:nil];
+		  [_adaptorChannel setAttributesToFetch:propertiesToFetch];
+		}
+	      else
+		{
+		  storedProcedure = [_currentEntity storedProcedureForOperation:@"EOFetchWithPrimaryKeyProcedure"];
+		  if (qualifier != nil
+		      && storedProcedure != nil
+		      && [_currentEntity isQualifierForPrimaryKey:qualifier])
+		    {
+		      NSMutableDictionary* keyValues = nil;
+		      if ([qualifier isKindOfClass:[EOKeyValueQualifier class]])
+			{
+			  keyValues = [NSMutableDictionary dictionaryWithObject:[(EOKeyValueQualifier*)qualifier value]
+							   forKey:[(EOKeyValueQualifier*)qualifier key]];
+			}
+		      else
+			{
+			  NSArray* qualifiers = [(EOAndQualifier*)qualifier qualifiers];
+			  NSUInteger qualifiersCount = [qualifiers count];
+			  NSUInteger i = 0;
+			  keyValues = [NSMutableDictionary dictionaryWithCapacity:qualifiersCount];
+			  for (i=0;i<qualifiersCount;i++)
+			    {
+			      EOKeyValueQualifier* kvQualifier = [qualifiers objectAtIndex:i];
+			      [keyValues setObject:[kvQualifier value]
+					 forKey:[kvQualifier key]];
+			    }
+			  
+			}
+		      [_adaptorChannel executeStoredProcedure:storedProcedure
+				       withValues:keyValues];
+		      [_adaptorChannel setAttributesToFetch:propertiesToFetch];
+		    }
+		  else
+		    {
+		      [_adaptorChannel selectAttributes: propertiesToFetch
+				       fetchSpecification: fetchSpec
+				       lock: _isLocking
+				       entity: _currentEntity];
 
-  [self setIsLocking:([_databaseContext updateStrategy] ==
-		      EOUpdateWithPessimisticLocking ?
-		      YES :
-		      [fetch locksObjects])];
-  [self setIsRefreshingObjects:[fetch refreshesRefetchedObjects]];
-
-//  attributesToFetch = [_currentEntity attributesToFetch];//done
-
-//  EOFLOGObjectLevelArgs(@"gsdb",@"[_adaptorChannel class]: %@",[_adaptorChannel class]);
-//  [_adaptorChannel selectAttributes:attributesToFetch
-//		   fetchSpecification:fetch
-//		   lock:_isLocking
-//		   entity:_currentEntity];//done
-
-  [_fetchProperties addObjectsFromArray:[self _propertiesToFetch]];
-
-  if(_delegateRespondsTo.didSelectObjects)
-    [_delegate databaseContext:_databaseContext
-	       didSelectObjectsWithFetchSpecification:fetch
-	       databaseChannel:self];
-
-
-
+		    }
+		}
+	    }
+	  [_databaseContext _performDidSelectObjectsWithFetchSpecification:fetchSpec
+			    databaseChannel:self];
+	}
+    }
 }
 
 @end /* EODatabaseChannel */

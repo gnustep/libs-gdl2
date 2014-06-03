@@ -66,6 +66,7 @@
 
 #include <EOAccess/EOModel.h>
 #include <EOAccess/EOEntity.h>
+#include <EOAccess/EOEntityPriv.h>
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EORelationship.h>
 #include <EOAccess/EOAdaptor.h>
@@ -464,64 +465,38 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   return entitiesString;
 }
 
+//MG2014: OK
 - (void)prepareInsertExpressionWithRow: (NSDictionary *)row
 {
-  //OK
-  EOEntity *rootEntity = nil;
   NSString *tableList = nil;
-  NSEnumerator *rowEnum;
-  NSString *attributeName;
-
-  EOFLOGObjectFnStartCond(@"EOSQLExpression");
-
-  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"row=%@", row);
-
-  NS_DURING //Debugging Purpose
+  NSEnumerator* rowEnum = [row keyEnumerator];
+  NSString *attributeName = nil;
+  while ((attributeName = [rowEnum nextObject]))
     {
-      rowEnum = [row keyEnumerator];
-      while ((attributeName = [rowEnum nextObject]))
+      EOAttribute *attribute = [_entity anyAttributeNamed: attributeName];
+      if (attribute==nil)
 	{
-	  EOAttribute *attribute = [_entity anyAttributeNamed: attributeName];
+	  [NSException raise: @"NSIllegalStateException"
+		       format: @"%s: row argument contains key '%@' which does not have corresponding attribute on entity '%@'",
+		       __PRETTY_FUNCTION__,
+		       attributeName,
+		       [_entity name]];
+	}
+      else
+	{
 	  id rowValue = [row objectForKey: attributeName];
-
-	  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"attribute name=%@",
-				attributeName);
-	  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"rowValue=%@", rowValue);
-
-/*NO: in addInsertListAttribute      id value=[self sqlStringForValue:rowValue 
-                     attributeNamed:attributeName];*/
 
           [self addInsertListAttribute: attribute
 		value: rowValue];
 	}
     }
-  NS_HANDLER
-    {
-      NSDebugMLog(@"EXCEPTION %@", localException);
-      [localException raise];
-    }
-  NS_ENDHANDLER;
 
-  NS_DURING //Debugging Purpose
-    {
-      rootEntity = [self _rootEntityForExpression];
-      tableList = [self tableListWithRootEntity: _entity];
+  tableList = [self tableListWithRootEntity: [self _rootEntityForExpression]];
 
-      ASSIGN(_statement, [self assembleInsertStatementWithRow: row
-			       tableList: tableList
-			       columnList: _listString
-			       valueList: _valueListString]);
-    }
-  NS_HANDLER
-    {
-      NSDebugMLog(@"EXCEPTION %@", localException);
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-
-  EOFLOGObjectLevelArgs(@"EOSQLExpression", @"_statement=%@", _statement);
-
-  EOFLOGObjectFnStopCond(@"EOSQLExpression");
+  ASSIGN(_statement, [self assembleInsertStatementWithRow: row
+			   tableList: tableList
+			   columnList: _listString
+			   valueList: _valueListString]);
 }
 
 - (void)prepareUpdateExpressionWithRow: (NSDictionary *)row

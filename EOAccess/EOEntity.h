@@ -98,12 +98,15 @@
   NSMutableArray *_primaryKeyAttributes;
   NSMutableArray *_classProperties; 	  // EOAttribute/EORelationship
   NSMutableArray *_attributesUsedForLocking;
-  NSMutableArray *_attributesToFetch;
-  NSMutableArray *_attributesToSave;
+  NSArray *_attributesToFetch;
+  NSArray *_attributesToSave;
   NSMutableArray *_propertiesToFault;
   NSArray* _dbSnapshotKeys;
 
   NSMutableArray *_subEntities;
+  NSMutableDictionary* _singleTableSubEntityDictionary;
+  NSString* _singleTableSubEntityKey;
+  EOQualifier* _singleTableRestrictingQualifier;
   EOEntity *_parent;
 
   struct {
@@ -118,8 +121,10 @@
     unsigned int updating:1;
     unsigned int cachesObjects:1;
     unsigned int isSingleTableEntity:1;
+    unsigned int nonUpdateableAttributesInitialized:1;
+    unsigned int nonUpdateableAttributes:1;
 
-    unsigned int extraRefCount:22;
+    unsigned int extraRefCount:20;
   } _flags;
 }
 
@@ -182,7 +187,7 @@
 - (unsigned int)maxNumberOfInstancesToBatchFetch;
 
 - (EOGlobalID *)globalIDForRow: (NSDictionary *)row;
-- (NSDictionary *)primaryKeyForGlobalID: (EOKeyGlobalID *)gid;
+- (NSDictionary *)primaryKeyForGlobalID: (EOGlobalID *)gid;
 @end
 
 @interface EOEntity (EOEntityEditing)

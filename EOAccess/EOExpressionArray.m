@@ -64,6 +64,7 @@
 #include <EOAccess/EOEntity.h>
 #include <EOAccess/EOExpressionArray.h>
 #include <EOAccess/EORelationship.h>
+#include <EOAccess/EOSQLExpression.h>
 #include "EOPrivate.h"
 
 
@@ -339,7 +340,7 @@ static SEL eqSel;
     return [[self objectAtIndex:0] isKindOfClass:GDL2_EORelationshipClass];
 }
 
-- (NSString *)valueWithSQLExpressionElement:(EOSQLExpression*)element
+- (NSString *)valueWithSQLExpressionElement:(id)element
 			   forSQLExpression:(EOSQLExpression*)sqlExpression
 {
   NSString* value=nil;
@@ -364,7 +365,7 @@ static SEL eqSel;
   if (count>0)
     {
       if (sqlExpression != nil
-	  && [[self firstObject] isKindOfClass:GDL2_EORelationshipClass])
+	  && [[self objectAtIndex:0] isKindOfClass:GDL2_EORelationshipClass])
 	{
 	  value = [sqlExpression sqlStringForAttributePath:self];
 	}

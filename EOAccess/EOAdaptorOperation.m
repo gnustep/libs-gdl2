@@ -49,9 +49,11 @@
 #include <EOAccess/EODatabaseOperation.h>
 #include <EOAccess/EOAttribute.h>
 #include <EOAccess/EOEntity.h>
+#include <EOAccess/EOStoredProcedure.h>
 
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EODebug.h>
+#include <EOControl/EOQualifier.h>
 
 
 @implementation EOAdaptorOperation

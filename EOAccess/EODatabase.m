@@ -110,18 +110,26 @@ static NSMutableArray *databaseInstances;
 /*
  * Initializing new instances
  */
+
+-(id)init
+{
+  if ((self=[super init]))
+    {
+      _timestamp = EODistantPastTimeInterval;
+    }
+  return self;
+}
+
 //OK
 - initWithAdaptor: (EOAdaptor *)adaptor
 {
-
-
   if (!adaptor)
     {
       [self autorelease];
       return nil;
     }
 
-  if ((self = [super init]))
+  if ((self = [self init]))
     {
       [[NSNotificationCenter defaultCenter]
         addObserver: self
@@ -398,6 +406,11 @@ static NSMutableArray *databaseInstances;
   EOFLOGObjectFnStopOrCond2(@"DatabaseLevel", @"EODatabase");
 }
 
+-(void)setTimestampToNow
+{
+  _timestamp = [NSDate timeIntervalSinceReferenceDate];
+}
+
 @end
 
 
@@ -480,25 +493,22 @@ static NSMutableArray *databaseInstances;
 
 }
 
+//MG2014: OK
 - (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid
 {
   return [self snapshotForGlobalID: gid
 	       after: EODistantPastTimeInterval];
 }
 
+//MG2014: TODO: use ti
 - (NSDictionary *)snapshotForGlobalID: (EOGlobalID *)gid
 				after: (NSTimeInterval)ti
 {
-  //seems OK
   NSDictionary *snapshot = nil;
-
-
 
   NSAssert(gid, @"No gid");
 
   snapshot = [_snapshots objectForKey: gid];
-
-
 
   return snapshot;
 }

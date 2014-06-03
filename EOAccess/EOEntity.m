@@ -208,7 +208,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           if ([array count] > 0)
             {
-              ASSIGN(_attributes, array);
+              ASSIGN(_attributes, (NSMutableArray*)array);
               _flags.attributesIsLazy = YES;
             }
 
@@ -217,7 +217,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 				array);
           if ([array count] > 0)
             {          
-              ASSIGN(_attributesUsedForLocking, array);
+              ASSIGN(_attributesUsedForLocking, (NSMutableArray*)array);
               _flags.attributesUsedForLockingIsLazy = YES;
             }
 
@@ -229,7 +229,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           if ([array count] > 0)
             {
-              ASSIGN(_primaryKeyAttributes, array);
+              ASSIGN(_primaryKeyAttributes, (NSMutableArray*)array);
               _flags.primaryKeyAttributesIsLazy = YES;
             }
 
@@ -243,7 +243,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           if ([array count] > 0)
             {
-              ASSIGN(_classProperties, array);
+              ASSIGN(_classProperties, (NSMutableArray*)array);
               _flags.classPropertiesIsLazy = YES;
             }
 
@@ -253,7 +253,7 @@ NSString *EONextPrimaryKeyProcedureOperation = @"EONextPrimaryKeyProcedureOperat
 
           if ([array count] > 0)
             {
-              ASSIGN(_relationships, array);
+              ASSIGN(_relationships, (NSMutableArray*)array);
               _flags.relationshipsIsLazy = YES;
             }
 
@@ -634,6 +634,9 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
   DESTROY(_storedProcedures); // never initialized?
   DESTROY(_snapshotToAdaptorRowSubsetMapping);
   DESTROY(_subEntities);
+  DESTROY(_singleTableSubEntityDictionary);
+  DESTROY(_singleTableSubEntityKey);
+  DESTROY(_singleTableRestrictingQualifier);
   DESTROY(_userInfo);
 
   [super dealloc];
@@ -1480,7 +1483,7 @@ static void performSelectorOnArrayWithEachObjectOfClass(NSArray *arr, SEL select
 
 - (EOGlobalID *)globalIDForRow: (NSDictionary *)row
 {
-  EOGlobalID *gid = [self globalIDForRow: row
+  EOGlobalID *gid = [self _globalIDForRow: row
 			  isFinal: NO];
 
   NSAssert(gid, @"No gid");
@@ -1498,7 +1501,7 @@ createInstanceWithEditingContext:globalID:zone:
   return gid;
 }
 
-- (NSDictionary *)primaryKeyForGlobalID: (EOKeyGlobalID *)gid
+- (NSDictionary *)primaryKeyForGlobalID: (EOGlobalID *)gid
 {
   //OK
   NSMutableDictionary *dictionaryForPrimaryKey = nil;
@@ -1511,7 +1514,7 @@ createInstanceWithEditingContext:globalID:zone:
       if (count > 0)
         {
           int i;
-          id *gidkeyValues = [gid keyValues];
+          id *gidkeyValues = [(EOKeyGlobalID*)gid keyValues];
 
           if (gidkeyValues)
             {
@@ -1655,6 +1658,7 @@ createInstanceWithEditingContext:globalID:zone:
   [_attributes addObject: attribute];
   [self _setIsEdited]; //To clean caches
   [attribute setParent: self];
+  [self _clearAttributesCaches];
 }
 
 /**
@@ -1684,6 +1688,7 @@ createInstanceWithEditingContext:globalID:zone:
       [_attributes removeObject: attribute];
 
       [self _setIsEdited];//To clean caches
+      [self _clearAttributesCaches];
     }
 }
 
@@ -2347,8 +2352,8 @@ createInstanceWithEditingContext:globalID:zone:
   [self _setIsEdited];
 }
 
-- (id) globalIDForRow: (NSDictionary*)row
-              isFinal: (BOOL)isFinal
+- (EOGlobalID*) _globalIDForRow: (NSDictionary*)row
+			isFinal: (BOOL)isFinal
 {
   EOKeyGlobalID *globalID = nil;
   NSArray *primaryKeyAttributeNames = nil;
@@ -3530,14 +3535,14 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
   if (componentsCount>0)
     {
       EOEntity *entity = self;
-      int i=0;
+      NSUInteger i=0;
       for(i=0;i<componentsCount;i++)
 	{
 	  EORelationship* relationship = [entity relationshipNamed: [components objectAtIndex:i]];
 	  NSArray* sourceAttributes = [relationship sourceAttributes];
 	  NSArray* destinationAttributes = [relationship destinationAttributes];
-	  int index = [sourceAttributes indexOfObjectIdenticalTo:resultAttribute];
-          if(i == NSNotFound)
+	  NSUInteger index = [sourceAttributes indexOfObjectIdenticalTo:resultAttribute];
+          if(index == NSNotFound)
 	    {
 	      [NSException raise: @"NSIllegalStateException"
 			   format: @"%@ entity '%@' is unable to map attribute along relationship path '%@'",
@@ -3595,7 +3600,7 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 	  if(i>0)
             {
 	      NSArray* sourceAttributes = [relationship sourceAttributes];
-	      if(![destinationAttributes containsIdenticalObjectsWithArray:sourceAttributes]);
+	      if(![destinationAttributes containsIdenticalObjectsWithArray:sourceAttributes])
 		{
 		  has=NO;
 		  break;
@@ -4255,6 +4260,35 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
     }  
 }
 
+-(void)_clearAttributesCaches
+{
+  _flags.nonUpdateableAttributesInitialized = NO;
+}
+
+//MG2014: OK
+-(BOOL)_hasNonUpdateableAttributes
+{
+  if(!_flags.nonUpdateableAttributesInitialized)
+    {
+      NSArray* attributes = [self attributes];
+      NSUInteger attributesCount=[attributes count];
+      _flags.nonUpdateableAttributes=NO;
+      if (attributesCount>0)
+	{
+	  NSUInteger i=0;
+	  for(i=0;i<attributesCount;i++)
+	    {
+	      if ([[attributes objectAtIndex:i] _isNonUpdateable])
+		{
+		  _flags.nonUpdateableAttributes=YES;
+		  break;
+		}
+	    }
+	}
+      _flags.nonUpdateableAttributesInitialized = YES;
+    }
+  return _flags.nonUpdateableAttributes;
+}
 @end
 
 @implementation EOEntity (EOEntityPrivateSingleEntity)
@@ -4262,6 +4296,113 @@ toDestinationAttributeInLastComponentOfRelationshipPath: (NSString *)path
 {
   return _flags.isSingleTableEntity;
 }
+
+- (EOQualifier*) _singleTableRestrictingQualifier
+{
+  if (_singleTableRestrictingQualifier == nil)
+    {
+      NSArray* subEntities = [self subEntities];
+      NSUInteger subEntitiesCount=[subEntities count];
+      NSUInteger i=0;
+      NSMutableArray* qualifiers = [NSMutableArray array];
+ 
+      if (_restrictingQualifier != nil)
+	[qualifiers addObject:_restrictingQualifier];
+
+      for(i=0;i<subEntitiesCount;i++)
+	{
+	  EOQualifier* qualifier = [[subEntities objectAtIndex:i] _singleTableRestrictingQualifier];
+	  if (qualifier != nil)
+	    [qualifiers addObject:qualifier];
+	}
+      
+      if ([qualifiers count]>0)
+	_singleTableRestrictingQualifier = [EOOrQualifier qualifierWithQualifierArray:qualifiers];
+    }
+  return _singleTableRestrictingQualifier;
+}
+
+//MG2014: OK
+-(NSString*)_singleTableSubEntityKey
+{
+  if (_singleTableSubEntityKey == nil
+      && _restrictingQualifier != nil
+      && [_restrictingQualifier isKindOfClass:[EOKeyValueQualifier class]]
+      && sel_isEqual([(EOKeyValueQualifier*)_restrictingQualifier selector],EOQualifierOperatorEqual))
+    {
+      ASSIGN(_singleTableSubEntityKey,([(EOKeyValueQualifier*)_restrictingQualifier key]));
+    }
+  return _singleTableSubEntityKey;
+}
+
+//MG2014: OK ??
+-(id)_subEntityKeyValue
+{
+  id value=nil;
+  if (_restrictingQualifier != nil)
+    {
+      value = [(EOKeyValueQualifier*)_restrictingQualifier value];
+      if (value == nil)
+	value=GDL2_EONull;
+    }
+  return value;
+}
+
+//MG2014: OK
+-(void)_generateSingleTableSubEntityDictionary:(NSMutableDictionary*)d
+{
+  NSArray* subEntities = [self subEntities];
+  NSUInteger subEntitiesCount=[subEntities count];
+  if (subEntitiesCount>0)
+    {
+      NSUInteger i=0;
+      for(i = 0; i<subEntitiesCount; i++)
+	{
+	  [[subEntities objectAtIndex:i] _generateSingleTableSubEntityDictionary:d];
+	}
+    }
+  id value = [self _subEntityKeyValue];
+  if (value != nil)
+    {
+      [d setObject:self
+	 forKey:value];
+    }
+  ASSIGN(_singleTableSubEntityDictionary,d);
+}
+
+//MG2014: OK
+-(NSDictionary*)_singleTableSubEntityDictionary
+{
+  if (_flags.isSingleTableEntity)
+    {
+      if (_singleTableSubEntityDictionary == nil)
+	{
+	  NSMutableDictionary* d = [NSMutableDictionary dictionary];
+	  [self _generateSingleTableSubEntityDictionary:d];
+	}
+      return _singleTableSubEntityDictionary;
+    }
+  else
+    return nil;
+}
+
+//MG2014: OK
+-(EOEntity*) _singleTableSubEntityForRow:(NSDictionary*)row
+{
+  NSDictionary* d = [self _singleTableSubEntityDictionary];
+  if (d != nil)
+    {
+      NSString* key = [self _singleTableSubEntityKey];
+      if (key != nil)
+	{
+	  id value = [row objectForKey:key];
+	  if (value != nil)
+	    return [d objectForKey:value];
+	}
+    }
+  return nil;
+}
+
 @end
 
 @implementation EOEntity (Deprecated)

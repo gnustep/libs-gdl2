@@ -2413,56 +2413,49 @@ _mergeValueForKey(id obj, id value,
 
 }
 
+// parameters[0]=object
+// parameters[1]=gid
+-(void)_undoDelete:(NSArray*)parameters
+{
+  NSAssert1([parameters count]==2,@"Bad parameters count: %d",[parameters count]);
+  [self _insertObject:[parameters objectAtIndex:0]
+	withGlobalID:[parameters objectAtIndex:1]];
+}
+
 - (void)deleteObject: (id)object
 {
-
-
-
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			[self unprocessedDescription]);
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			[self objectsDescription]);
 
+  if (_sharedContext != nil
+      && [_sharedContext globalIDForObject:object] != nil)
+    {
+      [_sharedContext deleteObject:object];
+    }
+  
   if (!NSHashGet(_unprocessedDeletes, object)
      && !NSHashGet(_deletedObjects, object))
    {
-     NSMethodSignature *undoMethodSignature = nil;
-     NSUndoManager *undoManager;
-     //EOGlobalID *gid = [self globalIDForObject: object];
-
+     EOGlobalID* gid = [self globalIDForObject:object];
      [self _registerClearStateWithUndoManager];
-
-     undoManager = (NSUndoManager*)[self undoManager];
-     [undoManager prepareWithInvocationTarget: self];
-
-     undoMethodSignature = [undoManager methodSignatureForSelector: 
-					  @selector(_insertObject:withGlobalID:)];
-     /*
-       //TODO
-       if base class of undoManager ret nil, undomanager call editingcont methodSignatureForSelector: _insertObject:withGlobalID:
-       
-       undoManager forwardInvocation:
-       <NSInvocation selector: _insertObject:withGlobalID: signature: NMethodSignature: types=v@:@@ nargs=4 sizeOfParams=16 returnValueLength=0; >
-                        _NSUndoInvocation avec selector:_insertObject:withGlobalID:
-                        target self (editing context)
-       [undoManager _registerUndoObject:arget: EOEditingContext  -- selector:_insertObject:withGlobalID:
-            _invocation=NSInvocation * object: Description:<NSInvocation selector: _insertObject:withGlobalID: signature: NSMethodSignature: types=v@:@@ nargs=4 sizeOfParams=16 returnValueLength=0; >
-            next=_NSUndoObject * object:0x0 Description:*nil*
-            previous=_NSUndoObject * object:0x0 Description:*nil*
-            _target=id object: Description:<EOEditingContext>
-     [self _prepareEventGrouping];
-*/
-
-     NSHashInsert(_unprocessedDeletes, object);
-     [self _enqueueEndOfEventNotification];
+     [object willChange];
+     if (_undoManager != nil)
+       {
+	 [_undoManager registerUndoWithTarget:self
+		       selector:@selector(_undoDelete:)
+		       object:[NSArray arrayWithObjects:object,gid, nil]];
+        //TODO _updatedObjectsCache = _deletedObjectsCache = null;
+	 NSHashInsert(_unprocessedDeletes, object);
+	 [self _enqueueEndOfEventNotification];
+       };
    }
 
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Unprocessed: %@",
 			[self unprocessedDescription]);
   EOFLOGObjectLevelArgs(@"EOEditingContext", @"Objects: %@",
 			[self objectsDescription]);
-
-
 }
 
 - (void)lockObject: (id)object
@@ -2545,7 +2538,7 @@ _mergeValueForKey(id obj, id value,
   {
     EOGlobalID *gid=nil;
     IMP objectForGlobalIDIMP=NULL;
-    IMP enumNO=NO;
+    IMP enumNO=NULL;
 
     enumerator = [[_snapshotsByGID allKeys] objectEnumerator];
 
@@ -2870,7 +2863,7 @@ _mergeValueForKey(id obj, id value,
 
 - (void)objectWillChange: (id)object
 {
-
+  //TODO
 
 //
   EOFLOGObjectLevelArgs(@"EOEditingContext",
@@ -3779,6 +3772,28 @@ modified state of the object.**/
   [self _sendOrEnqueueNotification: notification
 	selector: @selector(_defaultEditingContextNowInitialized:)];
 }
+
+-(NSTimeInterval)fetchTimestamp
+{
+  if (_flags.lockUsingParent)
+    return [(EOEditingContext*)_objectStore fetchTimestamp];
+  else
+    return _fetchTimestamp;
+}
+
+-(void)setFetchTimestamp:(NSTimeInterval)ts
+{
+  if (_flags.lockUsingParent)
+    {
+      [NSException raise: @"NSIllegalStateException"
+		   format: @"Can not %s for a nested editing context",
+		   __PRETTY_FUNCTION__];
+    }
+  else
+    _fetchTimestamp = ts;
+}
+
+
 @end
 
 
