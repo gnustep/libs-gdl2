@@ -342,6 +342,32 @@ NSString *EOCooperatingObjectStoreNeeded = @"EOCooperatingObjectStoreNeeded";
     editingContext: context];
 }
 
+//GDL2 addition: enable refaulting object to-many property
+- (void)refaultObject: (NSArray*)object
+   withSourceGlobalID: (EOGlobalID *)globalID
+     relationshipName: (NSString*)relName
+       editingContext: (EOEditingContext *)context
+{
+  [[self objectStoreForGlobalID: globalID]
+    refaultObject: object
+    withSourceGlobalID: globalID
+    relationshipName: relName
+    editingContext: context];
+}
+
+//GDL2 addition: enable refaulting object to-many property
+- (void) clearOriginalSnapshotForObject: (NSArray*)object
+                         sourceGlobalID: (EOGlobalID *)globalID
+                       relationshipName: (NSString *)name
+                         editingContext: (EOEditingContext *)context
+{
+  return [[self objectStoreForGlobalID: globalID]
+           clearOriginalSnapshotForObject: object
+	   sourceGlobalID: globalID
+	   relationshipName: name
+	   editingContext: context];
+}
+
 - (void)initializeObject: (id)object
 	    withGlobalID: (EOGlobalID *)globalID
           editingContext: (EOEditingContext *)context

@@ -752,6 +752,54 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   //TODO: use isComplete
 }
 
+//GDL2 addition: enable refaulting object to-many property
+- (void) _turnToArrayFault: (NSArray*)object
+		 sourceGID: (EOGlobalID *)globalID
+	  relationshipName: (NSString*)relName
+	    editingContext: (EOEditingContext *)context
+		isComplete: (BOOL)isComplete
+{
+  //OK
+  EOAccessArrayFaultHandler *handler=nil;
+  
+  NSDebugMLLog(@"EODatabaseContext", @"object=%p", object);
+  NSDebugMLLog(@"EODatabaseContext", @"globalID=%@", globalID);
+  
+  NSAssert(globalID, @"No globalID");
+  NSAssert1([globalID isKindOfClass: [EOKeyGlobalID class]],
+            @"globalID is not a EOKeyGlobalID but a %@",
+            [globalID class]);
+  
+  if ([(EOKeyGlobalID*)globalID areKeysAllNulls])
+    NSWarnLog(@"All key of globalID %p (%@) are nulls",
+              globalID,
+              globalID);
+
+  handler = [EOAccessArrayFaultHandler
+              accessArrayFaultHandlerWithSourceGlobalID:(EOKeyGlobalID*)globalID	      
+	      relationshipName: relName
+	      databaseContext: self
+	      editingContext: context];
+
+
+
+  NSDebugMLLog(@"EODatabaseContext", @"handler=%@", handler);
+  NSDebugMLLog(@"EODatabaseContext", @"object->class_pointer=%p",
+               GSObjCClass(object));
+
+  [EOFault makeObjectIntoFault: object
+	   withHandler: handler];
+  
+  
+  NSDebugMLLog(@"EODatabaseContext", @"object->class_pointer=%p",
+               GSObjCClass(object));
+
+  [self _addToManyBatchForSourceGlobalID: (EOKeyGlobalID *)globalID
+	relationshipName: relName
+	fault: (EOFault*)object];
+  
+  //TODO: use isComplete
+}
 /** Get a fault for 'globalID' **/
 //MG2014: OK
 - (id)faultForGlobalID: (EOGlobalID *)globalID
@@ -1173,6 +1221,25 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   return objects;
 }
 
+//GDL2 addition: enable refaulting object to-many property
+- (void) forgetSnapshotForSourceGlobalID: (EOGlobalID*)globalID
+			relationshipName: (NSString *)name
+{
+  [_database forgetSnapshotForSourceGlobalID:globalID
+	     relationshipName:name];
+}
+
+//GDL2 addition: enable refaulting object to-many property
+- (void) clearOriginalSnapshotForObject: (NSArray*)object
+                         sourceGlobalID: (EOGlobalID *)globalID
+                       relationshipName: (NSString *)name
+                         editingContext: (EOEditingContext *)context
+{
+  [_database forgetSnapshotForSourceGlobalID:globalID
+	     relationshipName:name];
+}
+
+
 - (void)_registerSnapshot: (NSArray*)snapshot
         forSourceGlobalID: (EOGlobalID*)globalID
          relationshipName: (NSString*)name
@@ -1230,6 +1297,43 @@ May raise an exception if transaction has began or if you want pessimistic lock 
   [self forgetSnapshotForGlobalID:globalID];
 
 
+}
+
+//GDL2 addition: enable refaulting object to-many property
+- (void)refaultObject: (NSArray*)object
+   withSourceGlobalID: (EOGlobalID *)globalID
+     relationshipName: (NSString*)relName
+       editingContext: (EOEditingContext *)context
+{
+  [EOObserverCenter suppressObserverNotification];
+
+  NS_DURING
+    {
+      NSAssert1(!object || [object isKindOfClass:[NSMutableArray class]],@"Not a mutable array %p",object);
+      [(NSMutableArray*)object removeAllObjects];//OK
+    }
+  NS_HANDLER
+    {
+      [EOObserverCenter enableObserverNotification];
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+
+  [EOObserverCenter enableObserverNotification];
+
+  if ([(EOKeyGlobalID *)globalID areKeysAllNulls])
+    NSWarnLog(@"All key of globalID %p (%@) are nulls",
+              globalID,
+              globalID);
+
+  [self _turnToArrayFault:object
+        sourceGID:globalID
+        relationshipName: relName
+	editingContext: context
+        isComplete: YES]; //Why YES ?
+
+ [self forgetSnapshotForSourceGlobalID:globalID
+       relationshipName:relName];
 }
 
 - (void)saveChangesInEditingContext: (EOEditingContext *)context

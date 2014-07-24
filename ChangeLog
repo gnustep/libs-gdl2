@@ -1,3 +1,26 @@
+2014-07-24  Manuel Guesdon <mguesdon@orange-concept.com>
+	* EOAccess/EODatabase.[hm]
+	  add -forgetSnapshotForSourceGlobalID:relationshipName:
+	* EOAccess/EODatabaseContext.[hm]
+	  add -forgetSnapshotForSourceGlobalID:relationshipName:
+	  add -refaultObject:withSourceGlobalID:relationshipName:editingContext:
+	  add -clearOriginalSnapshotForObject:sourceGlobalID:relationshipName:editingContext:
+	  add -_turnToArrayFault:sourceGID:relationshipName:editingContext:isComplete:
+	* EOControl/EOCustomObject.m
+	  fix -validateValue:forKey:
+	  fix -validateValue:forKey:error:
+	  fix -addObject:toPropertyWithKey:
+	  fix -removeObject:object fromPropertyWithKey: 
+	* EOControl/EOEditingContext.[hm]
+	  add -refaultObject:withSourceGlobalID:relationshipName:editingContext:
+	* EOControl/EONSAddOns.[hm]
+	  add -performSelector:withPointer:
+	* EOControl/EOObjectStore.[hm]
+	  add -refaultObject:withSourceGlobalID:relationshipName:editingContext:
+	  add -clearOriginalSnapshotForObject:sourceGlobalID:relationshipName:editingContext:
+	* EOControl/EOObjectStoreCoordinator.m
+	  add -refaultObject:withSourceGlobalID:relationshipName:editingContext:
+	  add -clearOriginalSnapshotForObject:sourceGlobalID:relationshipName:editingContext:
 2014-06-03  Manuel Guesdon <mguesdon@orange-concept.com>
 	* EOAccess/EOAccessFault.m
 	  remove empty init methods

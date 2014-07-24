@@ -603,6 +603,22 @@ static NSMutableArray *databaseInstances;
 
 }
 
+//GDL2 addition: enable refaulting object to-many property
+- (void) forgetSnapshotForSourceGlobalID:(EOGlobalID *)gid
+			relationshipName: (NSString *)name
+{
+  NSMutableDictionary *toMany = nil;
+
+  NSAssert(gid,@"No Source Global ID");
+  NSAssert(name,@"No relationship name");
+
+  toMany = [_toManySnapshots objectForKey: gid];
+
+  if (toMany)
+    [toMany removeObjectForKey: name];
+}
+
+
 - (void)forgetAllSnapshots
 {
    NSMutableSet	  *gidSet = [NSMutableSet new];

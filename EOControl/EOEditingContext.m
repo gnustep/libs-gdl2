@@ -3573,6 +3573,46 @@ modified state of the object.**/
     }
 }
 
+//GDL2 addition: enable refaulting object to-many property
+- (void)refaultObject: (NSArray*)object
+   withSourceGlobalID: (EOGlobalID *)globalID
+     relationshipName: (NSString *)relName
+       editingContext: (EOEditingContext *)context
+{
+  //Near OK
+  if (object && [EOFault isFault: object] == NO)
+    {
+      //call globalID isTemporary //ret NO
+      if (self == context)//??
+        {
+          //NO: in EODatabaseConetxt [object clearProperties];
+
+          if (NSMapGet(_objectsByGID, globalID) == nil
+              && _sharedContext
+              && [_sharedContext objectForGlobalID: globalID])
+            {
+              [NSException raise: NSInvalidArgumentException
+                           format: @"Attempt to initialize object contained in EOSharedEditingContext"];
+            }
+
+          //OK
+          [_objectStore refaultObject: object
+                        withSourceGlobalID: globalID
+                        relationshipName: relName
+                        editingContext: context];
+          //OK
+          [_objectStore clearOriginalSnapshotForObject: object
+                        sourceGlobalID: globalID
+                        relationshipName: relName
+                        editingContext: context];
+        }
+      else
+        {
+          [self notImplemented: _cmd];
+        }
+    }
+}
+
 - (void)saveChangesInEditingContext: (EOEditingContext *)context
 {
   if (context != self)

@@ -50,6 +50,7 @@
 
 #include "EOCustomObject.h"
 #include "EOPrivate.h"
+#include "EONSAddOns.h"
 
 
 @implementation EOCustomObject
@@ -222,12 +223,12 @@
     {
       SEL validateSelector;
       NSUInteger length = [key length];
-      char buf[length + 10];
+      char buf[length + 10]; //validate + key + : + \0
       
       strcpy(buf, "validate");
 
       [key getCString:&buf[8] 
-            maxLength:length
+            maxLength:length+1  //maxLength is total buffer size (See NSString.m comment)
              encoding:NSASCIIStringEncoding];
 
       buf[8] = toupper((int)buf[8]);
@@ -238,7 +239,7 @@
       if (validateSelector && [self respondsToSelector: validateSelector])
 	    {
 	      exception = [self performSelector: validateSelector
-                               withObject: *valueP];
+				withPointer: valueP];
 	    }
     }
   }
@@ -260,7 +261,7 @@
     NSDictionary * uInfo;
     
     uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-             (*value ? *value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
+             self, @"EOValidatedObjectUserInfoKey",
              key, @"EOValidatedPropertyUserInfoKey",
              [ex reason], NSLocalizedDescriptionKey,
              nil];
@@ -444,7 +445,7 @@
     strcpy(buf, "addTo");
     
     [key getCString:&buf[5] 
-          maxLength:size
+          maxLength:size+1 //maxLength is total buffer size (See NSString.m comment)
            encoding:NSASCIIStringEncoding];
     
     buf[5] = toupper(buf[5]);
@@ -520,7 +521,7 @@
     strcpy(buf, "removeFrom");
     
     [key getCString:&buf[10] 
-          maxLength:size
+          maxLength:size+1 //maxLength is total buffer size (See NSString.m comment)
            encoding:NSASCIIStringEncoding];
     
     buf[10] = toupper(buf[10]);

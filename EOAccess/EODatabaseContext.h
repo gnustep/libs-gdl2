@@ -201,6 +201,15 @@ struct _EOTransactionScope;
 - (NSArray *)objectsForSourceGlobalID: (EOGlobalID *)globalID
                      relationshipName: (NSString *)name
                        editingContext: (EOEditingContext *)context;
+
+- (void) forgetSnapshotForSourceGlobalID: (EOGlobalID*)globalID
+			relationshipName: (NSString *)name;
+
+- (void) clearOriginalSnapshotForObject: (NSArray*)object
+                         sourceGlobalID: (EOGlobalID *)globalID
+                       relationshipName: (NSString *)name
+                         editingContext: (EOEditingContext *)context;
+
 - (void)_registerSnapshot: (NSArray *)snapshot
         forSourceGlobalID: (EOGlobalID *)globalID
          relationshipName: (NSString *)name
@@ -209,6 +218,16 @@ struct _EOTransactionScope;
 - (void)refaultObject: (id)object
          withGlobalID: (EOGlobalID *)globalID
        editingContext: (EOEditingContext *)context;
+
+- (void)refaultObject: (NSArray*)object
+   withSourceGlobalID: (EOGlobalID *)globalID
+     relationshipName: (NSString*)relName
+       editingContext: (EOEditingContext *)context;
+
+- (void) clearOriginalSnapshotForObject: (NSArray*)object
+                         sourceGlobalID: (EOGlobalID *)globalID
+                       relationshipName: (NSString *)name
+                         editingContext: (EOEditingContext *)context;
 
 - (void)saveChangesInEditingContext: (EOEditingContext *)context;
 

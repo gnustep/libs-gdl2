@@ -103,6 +103,24 @@ NSString *EOUpdatedKey = @"updated";
   [self subclassResponsibility: _cmd];
 }
 
+//GDL2 addition: enable refaulting object to-many property
+- (void)refaultObject: (NSArray*)object
+   withSourceGlobalID: (EOGlobalID *)globalID
+     relationshipName: (NSString*)relName
+       editingContext: (EOEditingContext *)context
+{
+  [self subclassResponsibility: _cmd];
+}
+
+//GDL2 addition: enable refaulting object to-many property
+- (void) clearOriginalSnapshotForObject: (NSArray*)object
+                         sourceGlobalID: (EOGlobalID *)globalID
+                       relationshipName: (NSString *)name
+                         editingContext: (EOEditingContext *)context
+{
+  [self subclassResponsibility: _cmd];
+}
+
 - (void)saveChangesInEditingContext: (EOEditingContext *)context
 {
   [self subclassResponsibility: _cmd];

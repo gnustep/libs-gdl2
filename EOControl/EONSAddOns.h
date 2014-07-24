@@ -119,6 +119,10 @@ returnsRemovedValues:(NSArray**)removedValues
 @end
 
 @interface NSObject (PerformSelect3)
+
+- (id) performSelector: (SEL)selector
+	   withPointer: (void*) ptr;
+
 /**
  * Causes the receiver to execute the method implementation corresponding
  * to selector and returns the result.<br />

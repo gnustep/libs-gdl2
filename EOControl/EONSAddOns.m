@@ -720,6 +720,27 @@ returnsRemovedValues:(NSArray**)removedValues
 @end
 
 @implementation NSObject (PerformSelect3)
+
+- (id) performSelector: (SEL)selector
+	   withPointer: (void*) ptr
+{
+  IMP msg;
+
+  if (selector == 0)
+    [NSException raise: NSInvalidArgumentException
+                format: @"%@ null selector given", NSStringFromSelector(_cmd)];
+  
+  msg = class_getMethodImplementation([self class], selector);
+  if (!msg)
+    {
+      [NSException raise: NSGenericException
+                  format: @"invalid selector passed to %s", sel_getName(_cmd)];
+      return nil;
+    }
+
+  return (*msg)(self, selector, ptr);
+}
+
 //Ayers: Review (Do we really need this?)
 /**
  * Causes the receiver to execute the method implementation corresponding

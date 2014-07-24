@@ -238,6 +238,11 @@ modified state of the object.**/
 	 withGlobalID: (EOGlobalID *)globalID
        editingContext: (EOEditingContext *)context;
 
+- (void)refaultObject: (NSArray*)object
+   withSourceGlobalID: (EOGlobalID *)globalID
+     relationshipName: (NSString*)relName
+       editingContext: (EOEditingContext *)context;
+
 - (void)saveChangesInEditingContext: (EOEditingContext *)context;
 
 - (NSArray *)objectsWithFetchSpecification: (EOFetchSpecification *)fetchSpecification
