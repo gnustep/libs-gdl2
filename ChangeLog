@@ -1,3 +1,7 @@
+2015-12-24  David Wetzel <dave@turbocat.de>
+	* EOControl/EOFaultHandler.m
+	* EOControl/EOGenericRecord.m
+	  #include <objc/runtime.h> instead of #include <objc/objc-class.h>
 2014-07-24  Manuel Guesdon <mguesdon@orange-concept.com>
 	* EOAccess/EODatabase.[hm]
 	  add -forgetSnapshotForSourceGlobalID:relationshipName:

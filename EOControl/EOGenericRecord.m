@@ -68,7 +68,9 @@
 #include <EOControl/EOKeyValueCoding.h>
 
 #ifndef GNU_RUNTIME
-#include <objc/objc-class.h>
+// this no longer works with llvm
+//#include <objc/objc-class.h>
+#include <objc/runtime.h>
 #endif
 
 #include <limits.h>
