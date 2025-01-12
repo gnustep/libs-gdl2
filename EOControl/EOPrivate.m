@@ -37,7 +37,6 @@
 #define GSI_ARRAY_NO_RETAIN 1
 #define GSI_ARRAY_NO_RELEASE 1
 #include <GNUstepBase/GSIArray.h>
-#include <GNUstepBase/GSLock.h>
 
 #ifndef GNUSTEP
 #include <GNUstepBase/Additions.h>
@@ -119,7 +118,7 @@ void GDL2_PrivateInit()
     {
       initialized = YES;
 
-      GDL2_Lock = [GSLazyRecursiveLock new];
+      GDL2_Lock = [NSRecursiveLock new];
 
       // ==== Classes ====
       GDL2_NSArrayClass=[NSArray class];

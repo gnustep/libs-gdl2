@@ -41,8 +41,6 @@
 
 #include <Foundation/Foundation.h>
 
-#include <GNUstepBase/GSLock.h>
-
 #include "EOEditingContext.h"
 #include "EOSharedEditingContext.h"
 #include "EOObjectStoreCoordinator.h"
@@ -118,7 +116,7 @@
 
 @interface EOThreadSafeQueue : NSObject
 {
-  GSLazyRecursiveLock *lock;
+  NSRecursiveLock *lock;
   NSMutableArray *arr;
 }
 -(void)addItem:(id)object;
@@ -130,7 +128,7 @@
 {
   if ((self=[super init]))
     {
-      lock = [GSLazyRecursiveLock new];
+      lock = [NSRecursiveLock new];
       arr = [NSMutableArray new];
     }
   return self;

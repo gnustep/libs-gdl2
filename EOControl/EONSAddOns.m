@@ -54,7 +54,6 @@
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 #include <GNUstepBase/Unicode.h>
-#include <GNUstepBase/GSLock.h>
 
 #include <EOControl/EONSAddOns.h>
 #include <EOControl/EODebug.h>
@@ -81,7 +80,7 @@ GSUseStrictWO451Compatibility (NSString *key)
     {
       if (local_lock == nil)
 	{
-	  NSRecursiveLock *l = [GSLazyRecursiveLock new];
+	  NSRecursiveLock *l = [NSRecursiveLock new];
 	  GDL2_AssignAtomicallyIfNil(&local_lock, l);
 	}
       [local_lock lock];

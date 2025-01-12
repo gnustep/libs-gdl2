@@ -46,6 +46,7 @@
 #include <Foundation/NSValue.h>
 #include <Foundation/NSHashTable.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSLock.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -56,7 +57,7 @@
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
-#include <GNUstepBase/GSLock.h>
+// #include <GNUstepBase/GSLock.h>
 
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EOGenericRecord.h>
@@ -122,7 +123,7 @@ static NSRecursiveLock *allGenericRecordsLock = nil;
 
       allGenericRecords = NSCreateHashTable(NSNonOwnedPointerHashCallBacks,
 					    1000);
-      allGenericRecordsLock = [GSLazyRecursiveLock new];
+      allGenericRecordsLock = [NSRecursiveLock new];
     }
 }
 

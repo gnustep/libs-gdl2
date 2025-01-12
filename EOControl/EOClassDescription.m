@@ -50,6 +50,7 @@
 #include <Foundation/NSZone.h>
 #include <Foundation/NSObjCRuntime.h>
 #include <Foundation/NSDebug.h>
+#include <Foundation/NSLock.h>
 #else
 #include <Foundation/Foundation.h>
 #endif
@@ -59,8 +60,6 @@
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
-
-#include <GNUstepBase/GSLock.h>
 
 #include <EOControl/EOClassDescription.h>
 #include <EOControl/EOKeyValueCoding.h>
@@ -126,7 +125,7 @@ static NSRecursiveLock *local_lock = nil;
       cls = NSClassFromString(@"EOModelGroup");
 
 
-      local_lock = [GSLazyRecursiveLock new];
+      local_lock = [NSRecursiveLock new];
       classDescriptionForClass = NSCreateMapTable(NSObjectMapKeyCallBacks, 
 						  NSObjectMapValueCallBacks,
 						  32);

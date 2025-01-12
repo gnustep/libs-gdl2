@@ -39,8 +39,6 @@
 #include <Foundation/NSUndoManager.h>
 #endif
 
-#include <GNUstepBase/GSLock.h>
-
 #include "EOSharedEditingContext.h"
 #include "EOFault.h"
 #include "EOFetchSpecification.h"
@@ -91,7 +89,7 @@ static NSRecursiveLock *llock = nil;
     {
       emptyArray = [NSArray new];
       EOFaultClass = [EOFault class];
-      llock = [GSLazyRecursiveLock new];
+      llock = [NSRecursiveLock new];
     }
 }
 
@@ -171,7 +169,7 @@ static EOSharedEditingContext *dfltSharedEditingContext = nil;
   if ((self = [super initWithParentObjectStore: parentObjectStore]))
     {
       NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-      _sharedLock = [GSLazyRecursiveLock new];
+      _sharedLock = [NSRecursiveLock new];
       _initializedGlobalIDs = [NSMutableArray new];
       _objsByEntity = [NSMutableDictionary new];
       _objsByEntityFetchSpec = [NSMutableDictionary new];
