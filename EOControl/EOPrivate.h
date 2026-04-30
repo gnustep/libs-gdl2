@@ -27,6 +27,7 @@
 #ifndef __EOControl_EOPrivate_h__
 #define __EOControl_EOPrivate_h__
 
+#include <objc/runtime.h>
 #include <Foundation/NSArray.h>
 #include <Foundation/NSHashTable.h>
 #include <EOControl/EOObserver.h>
@@ -120,17 +121,17 @@ _isNilOrEONull(id obj)
 
 // ---- +alloc/+allocWithZone: ----
 #define GDL2_alloc(CLASS_NAME) \
-	(*GDL2_##CLASS_NAME##_allocWithZoneIMP) \
+	((id (*)(id, SEL, NSZone*))GDL2_##CLASS_NAME##_allocWithZoneIMP) \
 	(GDL2_##CLASS_NAME##Class,@selector(allocWithZone:),NULL)
 
 // ---- +allocWithZone: ----
 #define GDL2_allocWithZone(CLASS_NAME,ALLOC_ZONE) \
-	(*GDL2_##CLASS_NAME##_allocWithZoneIMP) \
+	((id (*)(id, SEL, NSZone*))GDL2_##CLASS_NAME##_allocWithZoneIMP) \
 	(GDL2_##CLASS_NAME##Class,@selector(allocWithZone:),ALLOC_ZONE)
 
 // ---- NSMutableString appendString: ----
 #define GDL2_AppendStringWithImp(string,methodIMP,aString) \
-	(*(methodIMP))((string),@selector(appendString:),(aString))
+	((void (*)(id, SEL, NSString*))(*(methodIMP)))((string),@selector(appendString:),(aString))
 
 static inline void GDL2_AppendStringWithImpPtr(NSMutableString* object,IMP* impPtr,NSString* string)
 {
@@ -138,13 +139,13 @@ static inline void GDL2_AppendStringWithImpPtr(NSMutableString* object,IMP* impP
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(appendString:)];
-      (**impPtr)(object,@selector(appendString:),string);
+      ((void (*)(id, SEL, NSString*))*impPtr)(object,@selector(appendString:),string);
     };
 };
 
 // ---- NSMutableArray addObject: ----
 #define GDL2_AddObjectWithImp(array,methodIMP,anObject) \
-	(*(methodIMP))((array),@selector(addObject:),(anObject))
+	((void (*)(id, SEL, id))(*(methodIMP)))((array),@selector(addObject:),(anObject))
 
 static inline void GDL2_AddObjectWithImpPtr(id object,IMP* impPtr,id objectToAdd)
 {
@@ -152,13 +153,13 @@ static inline void GDL2_AddObjectWithImpPtr(id object,IMP* impPtr,id objectToAdd
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(addObject:)];
-      (**impPtr)(object,@selector(addObject:),objectToAdd);
+      ((void (*)(id, SEL, id))*impPtr)(object,@selector(addObject:),objectToAdd);
     };
 };
 
 // ---- NSArray objectAtIndex: ----
 #define GDL2_ObjectAtIndexWithImp(array,methodIMP,index) \
-	(*(methodIMP))((array),@selector(objectAtIndex:),(index))
+	((id (*)(id, SEL, NSUInteger))(*(methodIMP)))((array),@selector(objectAtIndex:),(index))
 
 static inline id GDL2_ObjectAtIndexWithImpPtr(id object,IMP* impPtr,NSUInteger index)
 {
@@ -166,7 +167,7 @@ static inline id GDL2_ObjectAtIndexWithImpPtr(id object,IMP* impPtr,NSUInteger i
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(objectAtIndex:)];
-      return (**impPtr)(object,@selector(objectAtIndex:),index);
+      return ((id (*)(id, SEL, NSUInteger))*impPtr)(object,@selector(objectAtIndex:),index);
     }
   else
     return nil;
@@ -174,12 +175,12 @@ static inline id GDL2_ObjectAtIndexWithImpPtr(id object,IMP* impPtr,NSUInteger i
 
 // ---- NSArray indexOfObjectIdenticalTo: ----
 #define GDL2_IndexOfObjectIdenticalToWithImp(array,methodIMP,anObject) \
-	(*(methodIMP))((array),@selector(indexOfObjectIdenticalTo:),(anObject))
+	((NSUInteger (*)(id, SEL, id))(*(methodIMP)))((array),@selector(indexOfObjectIdenticalTo:),(anObject))
 
 
 // ---- NSArray lastObject ----
 #define GDL2_LastObjectWithImp(array,methodIMP) \
-	(*(methodIMP))((array),@selector(lastObject))
+	((id (*)(id, SEL))(*(methodIMP)))((array),@selector(lastObject))
 
 static inline id GDL2_LastObjectWithImpPtr(id object,IMP* impPtr)
 {
@@ -187,7 +188,7 @@ static inline id GDL2_LastObjectWithImpPtr(id object,IMP* impPtr)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(lastObject)];
-      return (**impPtr)(object,@selector(lastObject));
+      return ((id (*)(id, SEL))*impPtr)(object,@selector(lastObject));
     }
   else
     return nil;
@@ -195,7 +196,7 @@ static inline id GDL2_LastObjectWithImpPtr(id object,IMP* impPtr)
 
 // ---- NSEnumerator nextObject ----
 #define GDL2_NextObjectWithImp(enumerator,methodIMP) \
-	(*(methodIMP))((enumerator),@selector(nextObject))
+	((id (*)(id, SEL))(*(methodIMP)))((enumerator),@selector(nextObject))
 
 static inline id GDL2_NextObjectWithImpPtr(id object,IMP* impPtr)
 {
@@ -203,7 +204,7 @@ static inline id GDL2_NextObjectWithImpPtr(id object,IMP* impPtr)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(nextObject)];
-      return (**impPtr)(object,@selector(nextObject));
+      return ((id (*)(id, SEL))*impPtr)(object,@selector(nextObject));
     }
   else
     return nil;
@@ -211,7 +212,7 @@ static inline id GDL2_NextObjectWithImpPtr(id object,IMP* impPtr)
 
 // ---- KVC storedValueForKey: ----
 #define GDL2_StoredValueForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),@selector(storedValueForKey:),value,key)
+	((id (*)(id, SEL, id))(*methodIMP))((object),@selector(storedValueForKey:),key)
 
 static inline id GDL2_StoredValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
 {
@@ -219,7 +220,7 @@ static inline id GDL2_StoredValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(storedValueForKey:)];
-      return (**impPtr)(object,@selector(storedValueForKey:),key);
+      return ((id (*)(id, SEL, id))*impPtr)(object,@selector(storedValueForKey:),key);
     }
   else
     return nil;
@@ -227,7 +228,7 @@ static inline id GDL2_StoredValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
 
 // ---- KVC takeStoredValue:forKey: ----
 #define GDL2_TakeStoredValueForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),@selector(takeStoredValue:forKey:),value,key)
+	((void (*)(id, SEL, id, id))(*methodIMP))((object),@selector(takeStoredValue:forKey:),value,key)
 
 static inline void GDL2_TakeStoredValueForKeyWithImpPtr(id object,IMP* impPtr,id value, id key)
 {
@@ -235,13 +236,13 @@ static inline void GDL2_TakeStoredValueForKeyWithImpPtr(id object,IMP* impPtr,id
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(takeStoredValue:forKey:)];
-      (**impPtr)(object,@selector(takeStoredValue:forKey:),value,key);
+      ((void (*)(id, SEL, id, id))*impPtr)(object,@selector(takeStoredValue:forKey:),value,key);
     };
 };
 
 // ---- KVC valueForKey: ----
 #define GDL2_ValueForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),@selector(valueForKey:),value,key)
+	((id (*)(id, SEL, id))(*methodIMP))((object),@selector(valueForKey:),key)
 
 static inline id GDL2_ValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
 {
@@ -249,7 +250,7 @@ static inline id GDL2_ValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(valueForKey:)];
-      return (**impPtr)(object,@selector(valueForKey:),key);
+      return ((id (*)(id, SEL, id))*impPtr)(object,@selector(valueForKey:),key);
     }
   else
     return nil;
@@ -257,7 +258,7 @@ static inline id GDL2_ValueForKeyWithImpPtr(id object,IMP* impPtr,id key)
 
 // ---- KVC takeValue:forKey: ----
 #define GDL2_TakeValueForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),@selector(takeValue:forKey:),value,key)
+	((void (*)(id, SEL, id, id))(*methodIMP))((object),@selector(setValue:forKey:),value,key)
 
 static inline void GDL2_TakeValueForKeyWithImpPtr(id object,IMP* impPtr,id value, id key)
 {
@@ -265,13 +266,13 @@ static inline void GDL2_TakeValueForKeyWithImpPtr(id object,IMP* impPtr,id value
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(setValue:forKey:)];
-      (**impPtr)(object,@selector(setValue:forKey:),value,key);
+      ((void (*)(id, SEL, id, id))*impPtr)(object,@selector(setValue:forKey:),value,key);
     };
 };
 
 // ---- KVC validateValue:forKey: ----
 #define GDL2_ValidateValueForKeyWithImp(object,methodIMP,valuePtr,key) \
-	(*methodIMP)((object),@selector(validateValue:forKey:),valuePtr,key)
+	((id (*)(id, SEL, id*, id))(*methodIMP))((object),@selector(validateValue:forKey:),valuePtr,key)
 
 static inline id GDL2_ValidateValueForKeyWithImpPtr(id object,IMP* impPtr,id* valuePtr,id key)
 {
@@ -279,7 +280,7 @@ static inline id GDL2_ValidateValueForKeyWithImpPtr(id object,IMP* impPtr,id* va
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(validateValue:forKey:)];
-      return (**impPtr)(object,@selector(validateValue:forKey:),valuePtr,key);
+      return ((id (*)(id, SEL, id*, id))*impPtr)(object,@selector(validateValue:forKey:),valuePtr,key);
     }
   else
     return nil;
@@ -287,7 +288,7 @@ static inline id GDL2_ValidateValueForKeyWithImpPtr(id object,IMP* impPtr,id* va
 
 // ---- Dictionary objectForKey: ----
 #define GDL2_ObjectForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),@selector(objectForKey:),value,key)
+	((id (*)(id, SEL, id))(*methodIMP))((object),@selector(objectForKey:),key)
 
 static inline id GDL2_ObjectForKeyWithImpPtr(id object,IMP* impPtr,id key)
 {
@@ -295,7 +296,7 @@ static inline id GDL2_ObjectForKeyWithImpPtr(id object,IMP* impPtr,id key)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(objectForKey:)];
-      return (**impPtr)(object,@selector(objectForKey:),key);
+      return ((id (*)(id, SEL, id))*impPtr)(object,@selector(objectForKey:),key);
     }
   else
     return nil;
@@ -303,7 +304,7 @@ static inline id GDL2_ObjectForKeyWithImpPtr(id object,IMP* impPtr,id key)
 
 // ---- Dictionary setObject:forKey: ----
 #define GDL2_SetObjectForKeyWithImp(object,methodIMP,value,key) \
-	(*methodIMP)((object),@selector(setObject:forKey:),value,key)
+	((void (*)(id, SEL, id, id))(*methodIMP))((object),@selector(setObject:forKey:),value,key)
 
 static inline void GDL2_SetObjectForKeyWithImpPtr(id object,IMP* impPtr,id value, id key)
 {
@@ -311,29 +312,29 @@ static inline void GDL2_SetObjectForKeyWithImpPtr(id object,IMP* impPtr,id value
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(setObject:forKey:)];
-      (**impPtr)(object,@selector(setObject:forKey:),value,key);
+      ((void (*)(id, SEL, id, id))*impPtr)(object,@selector(setObject:forKey:),value,key);
     }
 };
 
 // ---- NSString stringWithCString:length: ----
 #define GDL2_StringWithCStringAndLength(cString,len)	\
-	(*GDL2_NSString_stringWithCString_lengthIMP)(GDL2_NSStringClass,@selector(stringWithCString:length:),(const char*)(cString),(unsigned)(len))
+	((id (*)(id, SEL, const char*, NSUInteger))GDL2_NSString_stringWithCString_lengthIMP)(GDL2_NSStringClass,@selector(stringWithCString:length:),(const char*)(cString),(unsigned)(len))
 
 // ---- NSString stringWithCString: ----
 #define GDL2_StringWithCString(cString)	\
-	(*GDL2_NSString_stringWithCStringIMP)(GDL2_NSStringClass,@selector(stringWithCString:),(const char*)(cString))
+	((id (*)(id, SEL, const char*))GDL2_NSString_stringWithCStringIMP)(GDL2_NSStringClass,@selector(stringWithCString:),(const char*)(cString))
 
 // ---- NSString +defaultCStringEncoding ----
 #define GDL2_StringDefaultCStringEncoding()	\
-	(*GDL2_NSString_defaultCStringEncodingIMP)(GDL2_NSStringClass,@selector(defaultCStringEncoding))
+	((NSStringEncoding (*)(id, SEL))GDL2_NSString_defaultCStringEncodingIMP)(GDL2_NSStringClass,@selector(defaultCStringEncoding))
 
 // ---- NSAutoreleasePool +new ----
 #define GDL2_NSAutoreleasePool_new() \
-	(*GDL2_NSAutoreleasePool_newIMP)(GDL2_NSAutoreleasePoolClass,@selector(new))
+	((id (*)(id, SEL))GDL2_NSAutoreleasePool_newIMP)(GDL2_NSAutoreleasePoolClass,@selector(new))
 
 // ---- NSData dataWithBytes:length: ----
 #define GDL2_DataWithBytesAndLength(bytes,length)	\
-	(*GDL2_NSData_dataWithBytes_lengthIMP)(GDL2_NSDataClass,@selector(dataWithBytes:length:),(const void*)(bytes),(int)(length))
+	((id (*)(id, SEL, const void*, NSUInteger))GDL2_NSData_dataWithBytes_lengthIMP)(GDL2_NSDataClass,@selector(dataWithBytes:length:),(const void*)(bytes),(int)(length))
 
 // ---- NSObject respondsToSelector: ----
 static inline BOOL GDL2_RespondsToSelectorWithImpPtr(id object,GDL2IMP_BOOL* impPtr,SEL sel)
@@ -342,7 +343,7 @@ static inline BOOL GDL2_RespondsToSelectorWithImpPtr(id object,GDL2IMP_BOOL* imp
     {
       if (!*impPtr)
         *impPtr=(GDL2IMP_BOOL)[object methodForSelector:@selector(respondsToSelector:)];
-      return (**impPtr)(object,@selector(respondsToSelector:),sel);
+      return ((BOOL (*)(id, SEL, SEL))(*impPtr))(object,@selector(respondsToSelector:),sel);
     }
   else
     return NO;

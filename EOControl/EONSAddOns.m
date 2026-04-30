@@ -737,7 +737,7 @@ returnsRemovedValues:(NSArray**)removedValues
       return nil;
     }
 
-  return (*msg)(self, selector, ptr);
+  return ((id (*)(id, SEL, void*))msg)(self, selector, ptr);
 }
 
 //Ayers: Review (Do we really need this?)
@@ -766,7 +766,7 @@ returnsRemovedValues:(NSArray**)removedValues
       return nil;
     }
 
-  return (*msg)(self, selector, object1, object2, object3);
+  return ((id (*)(id, SEL, id, id, id))msg)(self, selector, object1, object2, object3);
 }
 
 @end

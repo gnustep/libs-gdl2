@@ -78,7 +78,7 @@ PSQLA_NextObjectWithImpPtr(id object,IMP* impPtr)
     {
       if (!*impPtr)
 	*impPtr=[object methodForSelector:@selector(nextObject)];
-      return (**impPtr)(object,@selector(nextObject));
+      return ((id (*)(id, SEL))*impPtr)(object,@selector(nextObject));
     }
   else
     return nil;
@@ -86,7 +86,7 @@ PSQLA_NextObjectWithImpPtr(id object,IMP* impPtr)
 
 // ---- NSMutableString appendString: ----
 #define PSQLA_AppendStringWithImp(string,methodIMP,aString) \
-	(*(methodIMP))((string),@selector(appendString:),(aString))
+	((void (*)(id, SEL, NSString*))(*(methodIMP)))((string),@selector(appendString:),(aString))
 
 // ---- NSMutableArray addObject: ----
 static inline void
@@ -96,7 +96,7 @@ PSQLA_AddObjectWithImpPtr(id object,IMP* impPtr,id objectToAdd)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(addObject:)];
-      (**impPtr)(object,@selector(addObject:),objectToAdd);
+      ((void (*)(id, SEL, id))*impPtr)(object,@selector(addObject:),objectToAdd);
     };
 };
 
@@ -108,7 +108,7 @@ PSQLA_ObjectAtIndexWithImpPtr(id object,IMP* impPtr,unsigned index)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(objectAtIndex:)];
-      return (**impPtr)(object,@selector(objectAtIndex:),index);
+      return ((id (*)(id, SEL, unsigned))*impPtr)(object,@selector(objectAtIndex:),index);
     }
   else
     return nil;
@@ -123,7 +123,7 @@ PSQLA_ObjectForKeyWithImpPtr(id object,IMP* impPtr,id key)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(objectForKey:)];
-      return (**impPtr)(object,@selector(objectForKey:),key);
+      return ((id (*)(id, SEL, id))*impPtr)(object,@selector(objectForKey:),key);
     }
   else
     return nil;
@@ -137,13 +137,13 @@ PSQLA_SetObjectForKeyWithImpPtr(id object,IMP* impPtr,id value, id key)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(setObject:forKey:)];
-      (**impPtr)(object,@selector(setObject:forKey:),value,key);
+      ((void (*)(id, SEL, id, id))*impPtr)(object,@selector(setObject:forKey:),value,key);
     }
 };
 
 // ---- +alloc/+allocWithZone: ----
 #define PSQLA_alloc(CLASS_NAME) \
-	(*PSQLA_##CLASS_NAME##_allocWithZoneIMP) \
+	((id (*)(id, SEL, NSZone*))PSQLA_##CLASS_NAME##_allocWithZoneIMP) \
 	(PSQLA_##CLASS_NAME##Class,@selector(allocWithZone:),NULL) 
 
 

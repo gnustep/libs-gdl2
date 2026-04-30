@@ -1381,7 +1381,7 @@ _isLike (NSString *self, NSString *regExpr, BOOL isCaseSensative)
 
       for(i=0; i < max; i++)
 	{
-	  object = (*oaiIMP)(self, oaiSEL, i);
+	  object = ((id (*)(id, SEL, NSUInteger))oaiIMP)(self, oaiSEL, i);
 
 	  if((*ewoIMP)(qualifier, ewoSEL, object))
 	    {

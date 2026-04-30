@@ -101,7 +101,7 @@ EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(dbContext,@selector(snapshotForGlobalID:),gid);
+      return ((NSDictionary * (*)(id, SEL, EOGlobalID *))imp)(dbContext,@selector(snapshotForGlobalID:),gid);
     }
   else
     return nil;
@@ -124,7 +124,7 @@ EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODatabaseContext* dbC
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(dbContext,@selector(_globalIDForObject:),object);
+      return ((EOGlobalID * (*)(id, SEL, id))imp)(dbContext,@selector(_globalIDForObject:),object);
     }
   else
     return nil;

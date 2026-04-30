@@ -31,7 +31,7 @@
 - (NSArray *) arrayWithObjectsRespondingYesToSelector:(SEL)selector;
 {
   int i,c = [self count];
-  BOOL (*sel_imp)(id, SEL, ...);
+  BOOL (*sel_imp)(id, SEL);
   NSMutableArray *arr = [NSMutableArray arrayWithCapacity: c];
   BOOL flag;
   
@@ -43,7 +43,7 @@
 
       if (flag)
 	{
-	  sel_imp = (BOOL (*)(id, SEL, ...))[obj methodForSelector:selector];
+	  sel_imp = (BOOL (*)(id, SEL))[obj methodForSelector:selector];
 	  flag = (*sel_imp)(obj, selector);
 	
 	  if (flag)
@@ -57,7 +57,7 @@
 					   withObject:(id)argument;
 {
   int i,c = [self count];
-  BOOL (*sel_imp)(id, SEL, ...);
+  BOOL (*sel_imp)(id, SEL, id);
   NSMutableArray *arr = [NSMutableArray arrayWithCapacity: c];
   BOOL flag;
   
@@ -69,7 +69,7 @@
 
       if (flag)
 	{
-	  sel_imp = (BOOL (*)(id, SEL, ...))[obj methodForSelector:selector];
+	  sel_imp = (BOOL (*)(id, SEL, id))[obj methodForSelector:selector];
 	  flag = (*sel_imp)(obj, selector, argument);
 	
 	  if (flag)

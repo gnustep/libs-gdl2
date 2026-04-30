@@ -38,6 +38,7 @@
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 #endif
+#include <GNUstepBase/GSObjCRuntime.h>
 
 #include <Foundation/Foundation.h>
 
@@ -1167,7 +1168,7 @@ _mergeValueForKey(id obj, id value,
       for (i=0; i<count; i++)
         {
           EOGlobalID *gid = GDL2_ObjectAtIndexWithImp(gids, oaiIMP, i);
-          (*iowgidIMP)(self, iowgidSEL, gid);
+          ((void (*)(id, SEL, id))iowgidIMP)(self, iowgidSEL, gid);
         }
     };
 

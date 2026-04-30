@@ -47,11 +47,11 @@
 @implementation NSMatrix (RadioMatrixTitle)
 -(BOOL) _selectCellWithTitle:(NSString *)title
 {
-  int i = _numRows;
+  NSInteger i = [self numberOfRows];
 
   while (i-- > 0)
     {
-      int j = _numCols;
+      NSInteger j = [self numberOfColumns];
    
       while (j-- > 0)
         {

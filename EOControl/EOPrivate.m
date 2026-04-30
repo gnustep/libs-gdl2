@@ -244,7 +244,7 @@ EOMKKD_objectForKeyWithImpPtr(NSDictionary* mkkd,
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(mkkd,@selector(objectForKey:),key);
+      return ((id (*)(id, SEL, id))imp)(mkkd,@selector(objectForKey:),key);
     }
   else
     return nil;
@@ -271,7 +271,7 @@ EOMKKD_setObjectForKeyWithImpPtr(NSDictionary* mkkd,
           if (impPtr)
             *impPtr=imp;
         }
-      (*imp)(mkkd,@selector(setObject:forKey:),anObject,key);
+      ((void (*)(id, SEL, id, id))imp)(mkkd,@selector(setObject:forKey:),anObject,key);
     };
 };
 
@@ -295,7 +295,7 @@ EOMKKD_removeObjectForKeyWithImpPtr(NSDictionary* mkkd,
           if (impPtr)
             *impPtr=imp;
         }
-      (*imp)(mkkd,@selector(removeObjectForKey:),key);
+      ((void (*)(id, SEL, id))imp)(mkkd,@selector(removeObjectForKey:),key);
     };
 };
 
@@ -319,7 +319,7 @@ EOMKKD_hasKeyWithImpPtr(NSDictionary* mkkd,
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(mkkd,@selector(hasKey:),key);
+      return ((BOOL (*)(id, SEL, id))imp)(mkkd,@selector(hasKey:),key);
     }
   else
     return NO;
@@ -345,7 +345,7 @@ EOMKKD_indexForKeyWithImpPtr(EOMutableKnownKeyDictionary* mkkd,
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(mkkd,@selector(indexForKey:),key);
+      return ((NSUInteger (*)(id, SEL, id))imp)(mkkd,@selector(indexForKey:),key);
     }
   else
     return 0;
@@ -370,7 +370,7 @@ NSUInteger EOMKKDInitializer_indexForKeyWithImpPtr(EOMKKDInitializer* mkkdInit,
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(mkkdInit,@selector(indexForKey:),key);
+      return ((NSUInteger (*)(id, SEL, id))imp)(mkkdInit,@selector(indexForKey:),key);
     }
   else
     return 0;
@@ -398,7 +398,7 @@ EOEditingContext_objectForGlobalIDWithImpPtr(EOEditingContext *edContext,
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(edContext,@selector(objectForGlobalID:),gid);
+      return ((id (*)(id, SEL, id))imp)(edContext,@selector(objectForGlobalID:),gid);
     }
   else
     return nil;
@@ -424,7 +424,7 @@ EOEditingContext_globalIDForObjectWithImpPtr(EOEditingContext *edContext,
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(edContext,@selector(globalIDForObject:),object);
+      return ((EOGlobalID* (*)(id, SEL, id))imp)(edContext,@selector(globalIDForObject:),object);
     }
   else
     return nil;
@@ -451,7 +451,7 @@ EOEditingContext_recordObjectGlobalIDWithImpPtr(EOEditingContext  *edContext,
           if (impPtr)
             *impPtr=imp;
         }
-      return (*imp)(edContext,@selector(recordObject:globalID:),object,gid);
+      return ((id (*)(id, SEL, id, id))imp)(edContext,@selector(recordObject:globalID:),object,gid);
     }
   else
     return nil;

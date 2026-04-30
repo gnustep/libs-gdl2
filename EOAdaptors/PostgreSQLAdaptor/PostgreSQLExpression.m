@@ -770,7 +770,7 @@
 		  PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
 		  [tmp release];
 		}
-              (*appendStringIMP)(str,@selector(appendString:),@"_");
+              ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),@"_");
               p = s+1;
               break;
             case '%':
@@ -783,30 +783,30 @@
 		}
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  (*appendStringIMP)(str,@selector(appendString:),@"%]");
+                  ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),@"%]");
                   p = s+2; s++;
                 }
               else
                 {
-                  (*appendStringIMP)(str,@selector(appendString:),@"[%]");
+                  ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),@"[%]");
                   p = s+1;
                 }
               break;
 /*PostgreSQLql doesn't want [_] but want _
             case '_':
               if (s != p)
-                (*appendStringIMP)(str,@selector(appendString:),
+                ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),
                                    (*stringWithCString_lengthIMP)
                                    (PSQLA_NSStringClass,PSQLA_stringWithCString_lengthSEL,p,s-p));
               
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  (*appendStringIMP)(str,@selector(appendString:),@"_]");
+                  ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),@"_]");
                   p = s+2; p++;
                 }
               else
                 {
-                  (*appendStringIMP)(str,@selector(appendString:),@"[_]");
+                  ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),@"[_]");
                   p = s+1;
                 }
               break;
@@ -815,7 +815,7 @@
         }
       
       if (*p)
-        (*appendStringIMP)(str,@selector(appendString:),[NSString stringWithCString:p]);
+        ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),[NSString stringWithCString:p]);
 
       sqlPattern=str;
     };

@@ -424,7 +424,7 @@ inline BOOL infoForInstanceVariableWithImpPtr(id object,GDL2IMP_BOOL* impPtr,
   SEL sel=@selector(_infoForInstanceVariableNamed:stringName:retType:retSize:retOffset:);
   if (!*impPtr)
     *impPtr=(GDL2IMP_BOOL)[object methodForSelector:sel];
-  return (**impPtr)(object,sel,cStringName,stringName,type,size,offset);
+  return ((BOOL (*)(id, SEL, const char*, NSString*, const char**, unsigned int*, int*))(*impPtr))(object,sel,cStringName,stringName,type,size,offset);
 };
 
 - (id) storedValueForKey: (NSString*)aKey

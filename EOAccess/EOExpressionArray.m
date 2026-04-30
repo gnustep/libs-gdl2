@@ -178,14 +178,14 @@ static SEL eqSel;
       
       if (count) 
         {
-          (*imp)(result, sel, [[self objectAtIndex: 0]
+          ((void (*)(id, SEL, id))imp)(result, sel, [[self objectAtIndex: 0]
                                 expressionValueForContext: ctx]);
 
           for (i = 1 ; i < count; i++) 
             {
               if (_infix)
-                (*imp)(result, sel, _infix);
-              (*imp)(result, sel, [[self objectAtIndex: i]
+                ((void (*)(id, SEL, id))imp)(result, sel, _infix);
+              ((void (*)(id, SEL, id))imp)(result, sel, [[self objectAtIndex: i]
                                     expressionValueForContext: ctx]);
             }
         }
