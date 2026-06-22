@@ -80,12 +80,14 @@ eoutil_HEADER_FILES =
 
 -include GNUmakefile.local
 
+ifeq ($(doc),only)
+include $(GNUSTEP_MAKEFILES)/documentation.make
+else
 include $(GNUSTEP_MAKEFILES)/tool.make
 include $(GNUSTEP_MAKEFILES)/ctool.make
-# Only build the doc if doc=yes was passed on the command line
 ifeq ($(doc),yes)
 include $(GNUSTEP_MAKEFILES)/documentation.make
 endif
-
+endif
 
 -include Makefile.postamble

@@ -112,11 +112,16 @@ EOControl.h
 
 DOCUMENT_NAME = EOControl
 
+EOControl_AGSDOC_LOCAL_DIR = EOControl
+EOControl_AGSDOC_INSTALL_BUNDLE = EOControl
+EOControl_DOC_INSTALL_DIR = Developer
+
 EOControl_AGSDOC_FILES = EOControl.gsdoc \
 	$(EOControl_HEADER_FILES) \
 	$(EOControl_OBJC_FILES)
 
 EOControl_AGSDOC_FLAGS = \
+	-Verbose YES \
 	-Declared EOControl \
 	-Project EOControl \
 	-Up EOControl \
@@ -125,10 +130,13 @@ EOControl_AGSDOC_FLAGS = \
 -include Makefile.preamble
 -include GNUmakefile.local
 
+ifeq ($(doc),only)
+include $(GNUSTEP_MAKEFILES)/documentation.make
+else
 include $(GNUSTEP_MAKEFILES)/native-library.make
-# Only build the doc if doc=yes was passed on the command line
 ifeq ($(doc),yes)
 include $(GNUSTEP_MAKEFILES)/documentation.make
+endif
 endif
 
 -include Makefile.postamble

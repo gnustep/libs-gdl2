@@ -82,9 +82,13 @@ EORecursiveBrowserAssociation.h	\
 EOTextAssociation.h		\
 EOAspectConnector.h		
 
+DOCUMENT_NAME = EOInterface
+EOInterface_AGSDOC_LOCAL_DIR = EOInterface
+EOInterface_AGSDOC_INSTALL_BUNDLE = EOInterface
+EOInterface_DOC_INSTALL_DIR = Developer
+
 EOInterface_AUTOGSDOC_HEADERS = $(EOInterface_HEADER_FILES)
 EOInterface_AUTOGSDOC_SOURCE = $(EOInterface_OBJC_FILES)
-DOCUMENT_NAME = EOInterface
 EOInterface_HEADER_FILES_DIR = $(HEADER_DIR)
 EOInterface_AGSDOC_FILES = EOInterface.gsdoc $(EOInterface_AUTOGSDOC_HEADERS) 
 #$(EOInterface_AUTOGSDOC_SOURCE)
@@ -99,11 +103,13 @@ EOInterface_AGSDOC_FLAGS = \
 -include GNUmakefile.local
 -include ../GNUmakefile.local
 
+ifeq ($(doc),only)
+include $(GNUSTEP_MAKEFILES)/documentation.make
+else
 include $(GNUSTEP_MAKEFILES)/native-library.make
-# Only build the doc if doc=yes was passed on the command line
 ifeq ($(doc),yes)
 include $(GNUSTEP_MAKEFILES)/documentation.make
 endif
-
+endif
 
 -include Makefile.postamble
