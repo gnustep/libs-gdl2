@@ -1045,9 +1045,14 @@ May raise an exception if transaction has began or if you want pessimistic lock 
 	       sourceObjectFault, sourceObjectFault);
 
   // Get the fault value from source object
-
-
-  relationshipValue = [sourceObjectFault storedValueForKey: name];
+  if ([EOFault isFault: sourceObjectFault])
+    {
+      relationshipValue = nil;
+    }
+  else
+    {
+      relationshipValue = [sourceObjectFault storedValueForKey: name];
+    }
 
   NSDebugMLLog(@"EODatabaseContext", @"relationshipValue %p=%@",
 	       relationshipValue, relationshipValue);
@@ -1070,7 +1075,18 @@ May raise an exception if transaction has began or if you want pessimistic lock 
       IMP addObjectIMP=NULL;
       IMP oaiIMP=NULL;
 
-      [EOFault clearFault: relationshipValue];
+      if (relationshipValue == nil)
+        {
+          relationshipValue = [EOCheapCopyMutableArray arrayWithCapacity: sourceSnapshotCount];
+        }
+      else if ([EOFault isFault: relationshipValue])
+        {
+          [EOFault clearFault: relationshipValue];
+        }
+      else
+        {
+          [relationshipValue removeAllObjects];
+        }
 
       // Be carefull: Never call methodForSelector before clearing fault !
       addObjectIMP=[relationshipValue methodForSelector:@selector(addObject:)];
