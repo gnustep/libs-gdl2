@@ -3430,7 +3430,7 @@ for (i = 0; i < destinationObjectsCount; i++)
 - (EODatabaseOperation*)databaseOperationForObject: (id)object
 {
    EODatabaseOperation *databaseOpe = nil;
-   EOGlobalID *gid = [self globalIDForObject:object];
+   EOGlobalID *gid = [self _globalIDForObject:object];
 
    databaseOpe = [self databaseOperationForGlobalID: gid];
 
