@@ -70,10 +70,6 @@ void GDL2_EOAccessPrivateInit()
       GDL2_EORelationshipClass = [EORelationship class];
       GDL2_EOEntityClass = [EOEntity class];
 
-      GDL2_EODatabaseContext_snapshotForGlobalIDIMP=[GDL2_EODatabaseContextClass instanceMethodForSelector:@selector(snapshotForGlobalID:)];
-
-      GDL2_EODatabaseContext__globalIDForObjectIMP=[GDL2_EODatabaseContextClass instanceMethodForSelector:@selector(_globalIDForObject:)];
-
     };
 }
 

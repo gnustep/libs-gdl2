@@ -41,10 +41,6 @@ GDL2ACCESS_EXPORT Class GDL2_EOAttributeClass;
 GDL2ACCESS_EXPORT Class GDL2_EORelationshipClass;
 GDL2ACCESS_EXPORT Class GDL2_EOEntityClass;
 
-// ==== IMPs ====
-GDL2ACCESS_EXPORT IMP GDL2_EODatabaseContext_snapshotForGlobalIDIMP;
-GDL2ACCESS_EXPORT IMP GDL2_EODatabaseContext__globalIDForObjectIMP;
-
 // ==== Init Method ====
 GDL2ACCESS_EXPORT void GDL2_EOAccessPrivateInit();
 
