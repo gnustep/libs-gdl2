@@ -1170,7 +1170,6 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	  char *s;
 	  NSMutableString *str = [NSMutableString stringWithCapacity:
 						    [format length]];
-          IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
 
 	  while ((s = strchr(p, '%')))
 	    {
@@ -2020,7 +2019,6 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
       const char *s, *p, *init = [pattern cString];
       NSMutableString *str = [NSMutableString stringWithCapacity:
                                                 patternLength];
-      IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
 
       for (s = p = init; *s; s++)
         {
@@ -2088,7 +2086,6 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
   const char *s, *p, *init = [pattern cString];
   NSMutableString *str = [NSMutableString stringWithCapacity:
 					    [pattern length]];
-  IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
 
   for (s = p = init; *s; s++)
     {
