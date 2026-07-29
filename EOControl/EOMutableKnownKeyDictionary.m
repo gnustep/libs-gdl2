@@ -231,7 +231,7 @@
 
 - (BOOL)hasKey: (id)key
 {
-  return (EOMKKDInitializer_indexForKeyWithImpPtr(self,NULL,key) != NSNotFound);
+  return ([self indexForKey:key] != NSNotFound);
 }
 
 - (EOMKKDArrayMapping*) arrayMappingForKeys: (NSArray*)keys
@@ -249,13 +249,10 @@
   if (keyCount>0)
     {
       NSUInteger i=0;
-      GDL2IMP_UINT indexForKeyIMP=NULL;
-      IMP objectAtIndexIMP=[keys methodForSelector:@selector(objectAtIndex:)];
-
-      for (i = 0; i < keyCount; i++)
+for (i = 0; i < keyCount; i++)
         {
           NSString *key = GDL2_ObjectAtIndexWithImp(keys,objectAtIndexIMP,i);
-          int destinationIndex =  EOMKKDInitializer_indexForKeyWithImpPtr(self,&indexForKeyIMP,key);
+          int destinationIndex =  [self indexForKey:key];
           
           
           arrayMapping->_destinationOffsetForArrayIndex[i] = destinationIndex + 1;
@@ -289,12 +286,7 @@
   if (keyCount>0)
       {
         NSUInteger i;
-        GDL2IMP_UINT selfIndexForKeyIMP=NULL;
-        GDL2IMP_UINT sourceInitializerIndexForKeyIMP=NULL;
-        IMP sourceObjectAtIndexIMP=[sourceKeys methodForSelector:@selector(objectAtIndex:)];
-        IMP destinationObjectAtIndexIMP=[destinationKeys methodForSelector:@selector(objectAtIndex:)];
-
-        for (i = 0; i < keyCount; i++)
+for (i = 0; i < keyCount; i++)
           {
             NSString *sourceKey = nil;
             NSString *destinationKey = nil;
@@ -310,16 +302,12 @@
 
             
             destinationIndex =  
-              EOMKKDInitializer_indexForKeyWithImpPtr(self,
-                                                      &selfIndexForKeyIMP,
-                                                      destinationKey);
+              [self indexForKey:destinationKey];
             EOFLOGObjectLevelArgs(@"EOMKKD", @"destinationIndex=%d",
                                   destinationIndex);
             
             sourceIndex = 
-              EOMKKDInitializer_indexForKeyWithImpPtr(sourceInitializer,
-                                                      &sourceInitializerIndexForKeyIMP,
-                                                      sourceKey);
+              [sourceInitializer indexForKey:sourceKey];
 
             
             NSAssert2(destinationIndex != NSNotFound,
@@ -351,9 +339,7 @@
   if (keyCount>0)
     {
       NSUInteger i=0;
-      GDL2IMP_UINT indexForKeyIMP=NULL;
-  
-      for (i = 0; i < keyCount; i++)
+for (i = 0; i < keyCount; i++)
         {
           NSString *key;
           NSInteger index;
@@ -361,8 +347,7 @@
           key = _keys[i];
 
           
-          index = EOMKKDInitializer_indexForKeyWithImpPtr(sourceInitializer,
-                                                          &indexForKeyIMP,key);
+          index = [sourceInitializer indexForKey:key];
 
           
           subsetMapping->_sourceOffsetForDestinationOffset[i]
@@ -825,7 +810,7 @@
   
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
   
-  index = EOMKKDInitializer_indexForKeyWithImpPtr(_MKKDInitializer,NULL,key);
+  index = [_MKKDInitializer indexForKey:key];
     
   if (index == NSNotFound)
   {
@@ -850,7 +835,7 @@
 
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
 
-  index = EOMKKDInitializer_indexForKeyWithImpPtr(_MKKDInitializer,NULL,key);
+  index = [_MKKDInitializer indexForKey:key];
 
   if (index == NSNotFound)
     {
@@ -875,7 +860,7 @@
 
   NSAssert(_MKKDInitializer, @"No _MKKDInitializer");
 
-  index = EOMKKDInitializer_indexForKeyWithImpPtr(_MKKDInitializer,NULL,key);
+  index = [_MKKDInitializer indexForKey:key];
 
   if (index == NSNotFound)
     {
@@ -919,11 +904,9 @@
 {
   NSEnumerator *e = [dictionary keyEnumerator];
   id key=nil;
-  IMP indexForKeyIMP=NULL;
-
-  while ((key = [e nextObject]))
+while ((key = [e nextObject]))
     {
-      if (!EOMKKD_objectForKeyWithImpPtr(self,&indexForKeyIMP,key)) //Don't overwrite already present values ?
+      if (![self objectForKey:key]) //Don't overwrite already present values ?
         {
           [self setObject: [dictionary objectForKey: key]
                 forKey: key];

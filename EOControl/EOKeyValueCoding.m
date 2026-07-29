@@ -399,8 +399,7 @@ __attribute__((objc_root_class))
   if (count>0)
     {
       unsigned int i=0;
-      IMP oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
-      for (i=0; i<count; i++)
+for (i=0; i<count; i++)
         {
           left = result;
           right = [[GDL2_ObjectAtIndexWithImp(self,oaiIMP,i) valueForKeyPath: key] decimalValue];
@@ -440,9 +439,7 @@ __attribute__((objc_root_class))
   if (count>0)
     {
       unsigned int i=0;
-      IMP oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
-      
-      for (i=0; i<count; i++)
+for (i=0; i<count; i++)
         {
           left = result;
           right = [[GDL2_ObjectAtIndexWithImp(self,oaiIMP,i) valueForKeyPath: key] decimalValue];
@@ -496,9 +493,7 @@ __attribute__((objc_root_class))
       unsigned int i=0;
       id           current = nil;
       id	   currentVal = nil;
-      IMP          oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
-
-      for(i=0; i<count && (resultVal == nil || resultVal == GDL2_EONull); i++)
+for(i=0; i<count && (resultVal == nil || resultVal == GDL2_EONull); i++)
 	{
 	  result    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
 	  resultVal = [result valueForKeyPath: key];
@@ -539,9 +534,7 @@ __attribute__((objc_root_class))
       id current=nil;
       id currentVal=nil;
       unsigned int i = 0;
-      IMP oaiIMP = [self methodForSelector: @selector(objectAtIndex:)];
-
-      for(i=0; i<count && (resultVal == nil || resultVal == GDL2_EONull); i++)
+for(i=0; i<count && (resultVal == nil || resultVal == GDL2_EONull); i++)
 	{
 	  result    = GDL2_ObjectAtIndexWithImp(self,oaiIMP,i);
 	  resultVal = [result valueForKeyPath: key];

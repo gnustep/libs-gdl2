@@ -501,8 +501,7 @@
 
   if (_refreshedGIDs != nil)
     {
-      IMP oaiIMP=NULL;
-      EOEditingContext* editingContext = _currentEditingContext;
+EOEditingContext* editingContext = _currentEditingContext;
       NSMutableArray* refreshedGIDs = _refreshedGIDs;
       EODatabase* database = [_databaseContext database];
       NSUInteger  refreshedGIDsCount = [refreshedGIDs count];
@@ -510,7 +509,7 @@
       _refreshedGIDs = nil;
 
       for(i=0; i<refreshedGIDsCount; i++)
-	[database incrementSnapshotCountForGlobalID:GDL2_ObjectAtIndexWithImpPtr(refreshedGIDs,&oaiIMP,i)];
+	[database incrementSnapshotCountForGlobalID:[refreshedGIDs objectAtIndex:i]];
 
       
       [editingContext lock];
@@ -523,7 +522,7 @@
 				    forKey:@"updated"]];
 	  for(i=0; i<refreshedGIDsCount; i++)
 	    {
-	      EOKeyGlobalID* gid = GDL2_ObjectAtIndexWithImpPtr(refreshedGIDs,&oaiIMP,i);
+	      EOKeyGlobalID* gid = [refreshedGIDs objectAtIndex:i];
 	      //TODO [[editingContext objectForGlobalID:gid] willRead];
 	      [database decrementSnapshotCountForGlobalID:gid];
 	    }

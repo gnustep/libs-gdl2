@@ -1715,18 +1715,15 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
 {
   // TODO test
   NSEnumerator *entityEnumerator = [[self entities] objectEnumerator];
-  IMP enumNO=NULL;
-  EOEntity *ent;
+EOEntity *ent;
   NSMutableArray *refProps = [NSMutableArray array];
   
-  while ((ent = GDL2_NextObjectWithImpPtr(entityEnumerator,&enumNO)))
+  while ((ent = [entityEnumerator nextObject]))
   {
     NSEnumerator *propEnumerator = [[ent attributes] objectEnumerator];
     EOAttribute *attr;
     EORelationship *rel;
-    IMP propEnumNO=NULL;
-    
-    while ((attr = GDL2_NextObjectWithImpPtr(propEnumerator,&propEnumNO)))
+while ((attr = [propEnumerator nextObject]))
     {
       if ([attr referencesProperty:property])
 	    {
@@ -1741,8 +1738,8 @@ NSString *EOEntityLoadedNotification = @"EOEntityLoadedNotification";
     }
     
     propEnumerator = [[ent relationships] objectEnumerator];
-    propEnumNO = NULL;
-    while ((rel = GDL2_NextObjectWithImpPtr(propEnumerator, &propEnumNO)))
+
+    while ((rel = [propEnumerator nextObject]))
     {
       if ([rel referencesProperty:property])
 	    {

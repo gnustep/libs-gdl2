@@ -348,7 +348,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 // insert: ret quotation_place ?? / select: ret quotation_place t0
 
   NSMutableString *entitiesString = [NSMutableString string];
-  IMP entitiesStringAppendStringIMP = NULL;
+
   NSEnumerator *relationshipEnum = nil;
   NSString *relationshipPath = nil;
   EOEntity *currentEntity = nil;
@@ -366,10 +366,8 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
       currentEntity = entity;
 
       if (i)
-	GDL2_AppendStringWithImp(entitiesString,
-                                entitiesStringAppendStringIMP,@", ");
+	[entitiesString appendString:@", "];
       else
-        entitiesStringAppendStringIMP = [entitiesString methodForSelector:@selector(appendString:)];
 
       if ([relationshipPath isEqualToString: @""])
         {
@@ -386,8 +384,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 		    @"No external name for entity %@",
                     [currentEntity name]);
 
-	  GDL2_AppendStringWithImp(entitiesString,
-                                  entitiesStringAppendStringIMP,tableName);
+	  [entitiesString appendString:tableName];
 
 	  if (_flags.useAliases)
 	    [entitiesString appendFormat: @" %@",
@@ -434,18 +431,15 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 		    @"No external name for entity %@",
                     [currentEntity name]);
 
-	  GDL2_AppendStringWithImp(entitiesString,
-                                  entitiesStringAppendStringIMP,tableName);
+	  [entitiesString appendString:tableName];
 
 	  if (_flags.useAliases)
             {
               NSString *alias = [_aliasesByRelationshipPath
 				  objectForKey: relationshipPath];
 
-              GDL2_AppendStringWithImp(entitiesString,
-                                  entitiesStringAppendStringIMP,@" ");
-              GDL2_AppendStringWithImp(entitiesString,
-                                  entitiesStringAppendStringIMP,alias);
+              [entitiesString appendString:@" "];
+              [entitiesString appendString:alias];
 
               EOFLOGObjectLevelArgs(@"EOSQLExpression",
 				    @"appending alias %@ in entitiesString",
@@ -1183,19 +1177,16 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	      switch (*(s + 1))
 		{
 		case '%':
-		  GDL2_AppendStringWithImp(str,appendStringIMP,
-                                          GDL2_StringWithCStringAndLength(p,s-p+1));
+		  [str appendString:GDL2_StringWithCStringAndLength(p,s-p+1)];
 		  break;
 		case 'P':
 		  if (s != p)
-		    GDL2_AppendStringWithImp(str,appendStringIMP,
-                                            GDL2_StringWithCStringAndLength(p,s-p));
+		    [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
 		  [str appendString: sqlString];
 		  break;
 		default:
 		  if (s != p)
-		    GDL2_AppendStringWithImp(str,appendStringIMP,
-                                            GDL2_StringWithCStringAndLength(p,s-p));
+		    [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
 		  break;
 		}
 
@@ -1203,7 +1194,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
 	    }
 
 	  if (*p)
-	    GDL2_AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString: p]);
+	    [str appendString:[NSString stringWithCString: p]];
 
 	  formatted = str;
 	}
@@ -2037,47 +2028,43 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
             {
             case '*':
               if (s != p)
-                GDL2_AppendStringWithImp(str,appendStringIMP,
-                                        GDL2_StringWithCStringAndLength(p,s-p));
+                [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
               [str appendString: @"%"];
               p = s+1;
               break;
             case '?':
               if (s != p)
-                GDL2_AppendStringWithImp(str,appendStringIMP,
-                                        GDL2_StringWithCStringAndLength(p,s-p));
-              GDL2_AppendStringWithImp(str,appendStringIMP,@"_");
+                [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
+              [str appendString:@"_"];
               p = s+1;
               break;
             case '%':
               if (s != p)
-                GDL2_AppendStringWithImp(str,appendStringIMP,
-                                        GDL2_StringWithCStringAndLength(p,s-p));
+                [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
               
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  GDL2_AppendStringWithImp(str,appendStringIMP,@"%]");
+                  [str appendString:@"%]"];
                   p = s+2; s++;
                 }
               else
                 {
-                  GDL2_AppendStringWithImp(str,appendStringIMP,@"[%]");
+                  [str appendString:@"[%]"];
                   p = s+1;
                 }
               break;
             case '_':
               if (s != p)
-                GDL2_AppendStringWithImp(str,appendStringIMP,
-                                        GDL2_StringWithCStringAndLength(p,s-p));
+                [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
               
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  GDL2_AppendStringWithImp(str,appendStringIMP,@"_]");
+                  [str appendString:@"_]"];
                   p = s+2; p++;
                 }
               else
                 {
-                  GDL2_AppendStringWithImp(str,appendStringIMP,@"[_]");
+                  [str appendString:@"[_]"];
                   p = s+1;
                 }
               break;
@@ -2085,7 +2072,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
         }
       
       if (*p)
-        GDL2_AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString: p]);
+        [str appendString:[NSString stringWithCString: p]];
       sqlPattern=str;
     };
 
@@ -2109,47 +2096,43 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
         {
 	case '*':
 	  if (s != p)
-	    GDL2_AppendStringWithImp(str,appendStringIMP,
-                                    GDL2_StringWithCStringAndLength(p,s-p));
-	  GDL2_AppendStringWithImp(str,appendStringIMP,@"%");
+	    [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
+	  [str appendString:@"%"];
 	  p = s+1;
 	  break;
 	case '?':
 	  if (s != p)
-	    GDL2_AppendStringWithImp(str,appendStringIMP,
-                                    GDL2_StringWithCStringAndLength(p,s-p));
-	  GDL2_AppendStringWithImp(str,appendStringIMP,@"_");
+	    [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
+	  [str appendString:@"_"];
 	  p = s+1;
 	  break;
 	case '%':
 	  if (s != p)
-	    GDL2_AppendStringWithImp(str,appendStringIMP,
-                                    GDL2_StringWithCStringAndLength(p,s-p));
+	    [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
 	  
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      GDL2_AppendStringWithImp(str,appendStringIMP,@"%]");
+	      [str appendString:@"%]"];
 	      p = s+2; s++;
 	    }
 	  else
 	    {
-	      GDL2_AppendStringWithImp(str,appendStringIMP,@"[%]");
+	      [str appendString:@"[%]"];
 	      p = s+1;
 	    }
 	  break;
 	case '_':
 	  if (s != p)
-	    GDL2_AppendStringWithImp(str,appendStringIMP,
-                                    GDL2_StringWithCStringAndLength(p,s-p));
+	    [str appendString:GDL2_StringWithCStringAndLength(p,s-p)];
 	  
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      GDL2_AppendStringWithImp(str,appendStringIMP,@"_]");
+	      [str appendString:@"_]"];
 	      p = s+2; p++;
 	    }
 	  else
 	    {
-	      GDL2_AppendStringWithImp(str,appendStringIMP,@"[_]");
+	      [str appendString:@"[_]"];
 	      p = s+1;
 	    }
 	  break;
@@ -2157,7 +2140,7 @@ NSString *EOBindVariableColumnKey = @"EOBindVariableColumnKey";
     }
 
   if (*p)
-    GDL2_AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString:p]);
+    [str appendString:[NSString stringWithCString:p]];
 
   return str;
 }

@@ -170,23 +170,19 @@ static SEL eqSel;
     {
       int i, count = [self count];
       id result = [[NSMutableString new] autorelease];
-      SEL sel = @selector(appendString:);
-      IMP imp = [result methodForSelector: sel];
       
       if (_prefix)
         [result appendString:_prefix];
       
       if (count) 
         {
-          ((void (*)(id, SEL, id))imp)(result, sel, [[self objectAtIndex: 0]
-                                expressionValueForContext: ctx]);
+          [result appendString:[[self objectAtIndex:0] expressionValueForContext:ctx]];
 
           for (i = 1 ; i < count; i++) 
             {
               if (_infix)
-                ((void (*)(id, SEL, id))imp)(result, sel, _infix);
-              ((void (*)(id, SEL, id))imp)(result, sel, [[self objectAtIndex: i]
-                                    expressionValueForContext: ctx]);
+                [result appendString:_infix];
+              [result appendString:[[self objectAtIndex:i] expressionValueForContext:ctx]];
             }
         }
       

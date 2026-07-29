@@ -49,8 +49,8 @@ GDL2ACCESS_EXPORT IMP GDL2_EODatabaseContext__globalIDForObjectIMP;
 GDL2ACCESS_EXPORT void GDL2_EOAccessPrivateInit();
 
 // ==== EODatabaseContext ====
-GDL2ACCESS_EXPORT NSDictionary* EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,EOGlobalID* gid);
-GDL2ACCESS_EXPORT EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,id object);
+
+
 
 /* EOQualifier implements schemaBasedQualifierWithRootEntity:
    but it instead of simply declaring and documenting that EOF

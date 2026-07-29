@@ -1,26 +1,26 @@
-/** 
+/**
  EOCustomObject.m <title>EOCustomObject</title>
- 
+
  Copyright (C) 2010 Free Software Foundation, Inc.
- 
+
  Author: David Wetzel <dave@turbocat.de>
  Date: April 2010
- 
+
  <abstract></abstract>
- 
+
  This file is part of the GNUstep Database Library.
- 
+
  <license>
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Library General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
- 
+
  This library is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  Library General Public License for more details.
- 
+
  You should have received a copy of the GNU Library General Public
  License along with this library; see the file COPYING.LIB.
  If not, write to the Free Software Foundation,
@@ -59,9 +59,9 @@
 - (void) dealloc
 {
   [EOEditingContext _objectDeallocated: self];
-  
+
   [EOObserverCenter _forgetObject:self];
-  
+
   [super dealloc];
 }
 
@@ -81,62 +81,62 @@
 - (EOClassDescription *)classDescription
 {
   EOClassDescription *cd;
-    
+
   cd = (EOClassDescription *)[EOClassDescription classDescriptionForClass:[self class]];
-  
+
   return cd;
 }
 
 - (NSString *)entityName
 {
   NSString *entityName;
-  
+
   entityName = [[self classDescription] entityName];
-    
+
   return entityName;
 }
 
 - (NSArray *)attributeKeys
 {
   NSArray *attributeKeys;
-    
+
   attributeKeys = [[self classDescription] attributeKeys];
-  
-  
+
+
   return attributeKeys;
 }
 
 - (NSArray *)toOneRelationshipKeys
 {
   NSArray *toOneRelationshipKeys;
-  
-  
+
+
   toOneRelationshipKeys = [[self classDescription] toOneRelationshipKeys];
-  
-  
+
+
   return toOneRelationshipKeys;
 }
 
 - (NSArray *)toManyRelationshipKeys
 {
   NSArray *toManyRelationshipKeys;
-  
-  
+
+
   toManyRelationshipKeys = [[self classDescription] toManyRelationshipKeys];
-  
-  
+
+
   return toManyRelationshipKeys;
 }
 
 - (NSString *)inverseForRelationshipKey: (NSString *)relationshipKey
 {
   NSString *inverse;
-  
-  
+
+
   inverse = [[self classDescription]
              inverseForRelationshipKey: relationshipKey];
-  
-  
+
+
   return inverse;
 }
 
@@ -144,33 +144,33 @@
 {
   EODeleteRule rule;
   EOClassDescription *cd;
-    
+
   cd = [self classDescription];
-  
+
   rule = [cd deleteRuleForRelationshipKey: relationshipKey];
-  
-  
+
+
   return rule;
 }
 
 - (BOOL)ownsDestinationObjectsForRelationshipKey: (NSString *)relationshipKey
 {
   BOOL owns;
-  
-  
+
+
   owns = [[self classDescription]
           ownsDestinationObjectsForRelationshipKey: relationshipKey];
-  
-  
+
+
   return owns;
 }
 
 - (EOClassDescription *)classDescriptionForDestinationKey:(NSString *)detailKey
 {
   EOClassDescription *cd;
-    
+
   cd = [[self classDescription] classDescriptionForDestinationKey: detailKey];
-  
+
   return cd;
 }
 
@@ -190,12 +190,12 @@
 {
   NSException *exception;
   EOClassDescription *selfClassDescription;
-  
-  
+
+
   NSAssert(valueP, @"No value pointer");
-  
+
   selfClassDescription = [self classDescription];
-  
+
   exception = [selfClassDescription validateValue: valueP
                                            forKey: key];
   if (exception)
@@ -204,16 +204,16 @@
                               self, EOValidatedObjectUserInfoKey,
                               key, EOValidatedPropertyUserInfoKey,
                               nil];
-    
+
     exception = [NSException exceptionWithName: [exception name]
                                         reason: [exception reason]
                                       userInfo: userInfo];
   }
-  
+
   if (exception == nil)
   {
     NSUInteger size = [key length];
-    
+
     if (size < 1)
     {
       [NSException raise: NSInvalidArgumentException
@@ -224,17 +224,17 @@
       SEL validateSelector;
       NSUInteger length = [key length];
       char buf[length + 10]; //validate + key + : + \0
-      
+
       strcpy(buf, "validate");
 
-      [key getCString:&buf[8] 
+      [key getCString:&buf[8]
             maxLength:length+1  //maxLength is total buffer size (See NSString.m comment)
              encoding:NSASCIIStringEncoding];
 
       buf[8] = toupper((int)buf[8]);
       buf[length + 8] = ':';
       buf[length + 9] = 0;
-      
+
       validateSelector = GSSelectorFromName(buf);
       if (validateSelector && [self respondsToSelector: validateSelector])
 	    {
@@ -243,7 +243,7 @@
 	    }
     }
   }
-  
+
   return exception;
 }
 
@@ -256,25 +256,25 @@
   NSException *ex;
 
   ex = [self validateValue:value forKey:key];
-  
+
   if (ex) {
     NSDictionary * uInfo;
-    
+
     uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
              self, @"EOValidatedObjectUserInfoKey",
              key, @"EOValidatedPropertyUserInfoKey",
              [ex reason], NSLocalizedDescriptionKey,
              nil];
-    
+
     NSError *error = [[[NSError alloc] initWithDomain:NSCocoaErrorDomain
                                                  code:NSKeyValueValidationError
                                              userInfo:uInfo] autorelease];
     *outError = error;
-    
-    
+
+
     return NO;
   }
-  
+
   return YES;
 }
 
@@ -291,18 +291,18 @@
   id nval = value;
   id oval;
   NSRange	r = [path rangeOfString: @"."];
-  
+
   if (r.length == 0)
   {
     NSException *e = [self validateValue:&nval forKey:path];
-    
+
     if (e)
     {
       [e raise];
     }
-    
+
     oval = [self valueForKey:path];
-    if (nval != oval && 
+    if (nval != oval &&
         ((nval == nil || oval == nil) || [nval isEqual: oval] == NO))
     {
       [self setValue:nval forKey: path];
@@ -312,7 +312,7 @@
   {
     NSString	*key = [path substringToIndex: r.location];
     NSString	*kpath = [path substringFromIndex: NSMaxRange(r)];
-    
+
     nval = [[self valueForKey: key] validateTakeValue: nval forKeyPath: kpath];
   }
   return nval;
@@ -324,95 +324,93 @@
   NSMutableArray *expArray = nil;
   NSException* exception;
   int which;
-  IMP selfVFK=NULL; // valueForKey:
-  IMP selfVVFK=NULL; // validateValue:forKey:
-  IMP selfTVFK=NULL; // takeValue:forKey:
-  
-  
+// valueForKey:
+// validateValue:forKey:
+// takeValue:forKey:
+
+
   exception = [[self classDescription] validateObjectForSave: self];
-  
+
   if (exception)
   {
     if (!expArray)
       expArray = [NSMutableArray array];
     [expArray  addObject:exception];
   }
-  
+
   for (which = 0; which < 3; which++)
   {
     NSArray *keys;
-    
+
     if (which == 0)
       keys = [self attributeKeys];
     else if (which == 1)
       keys = [self toOneRelationshipKeys];
     else
       keys = [self toManyRelationshipKeys];
-    
+
     if (keys)
     {
       int keysCount = [keys count];
       int i;
-      IMP oaiIMP=NULL;
-      
-      for (i = 0; i < keysCount; i++)
+for (i = 0; i < keysCount; i++)
       {
-        NSString *key = GDL2_ObjectAtIndexWithImpPtr(keys,&oaiIMP,i);
-        id value = GDL2_ValueForKeyWithImpPtr(self,&selfVFK,key);
+        NSString *key = [keys objectAtIndex:i];
+        id value = [self valueForKey:key];
         id newValue = value;
         BOOL isEqual=NO;
-        
-        exception = GDL2_ValidateValueForKeyWithImpPtr(self,&selfVVFK,&newValue,key);
+
+        exception = [self validateValue:&newValue forKey:key];
         if (exception)
         {
           if (!expArray)
             expArray = [NSMutableArray array];
           [expArray addObject: exception];
-        }              
+        }
         if (newValue==value)
           isEqual = YES;
         else if (_isNilOrEONull(newValue))
           isEqual = _isNilOrEONull(value);
-        else 
+        else
           isEqual = [newValue isEqual: value];
-        
+
         if (isEqual == NO)
         {
-          GDL2_TakeValueForKeyWithImpPtr(self,&selfTVFK,newValue,key);
+          [self setValue:newValue forKey:key];
         }
       }
     }
   }
-  
-  
+
+
   return [NSException aggregateExceptionWithExceptions: expArray];
 }
 
 - (NSException *)validateForDelete
 {
   NSException *exception;
-  
-  
+
+
   exception = [[self classDescription] validateObjectForDelete: self];
-  
-  
+
+
   return exception;
 }
 
 - (void)awakeFromInsertionInEditingContext: (EOEditingContext *)editingContext
 {
-  
+
   [[self classDescription] awakeObject: self
 			   fromInsertionInEditingContext: editingContext];
-  
+
 }
 
 - (void)awakeFromFetchInEditingContext: (EOEditingContext *)editingContext
 {
-  
+
   [[self classDescription] awakeObject: self
              fromFetchInEditingContext: editingContext];
-  
+
 }
 
 
@@ -428,7 +426,7 @@
 - (void)addObject: (id)object toPropertyWithKey: (NSString *)key
 {
   NSUInteger size = [key length];
-  
+
   if (size < 1)
   {
     [NSException raise: NSInvalidArgumentException
@@ -437,40 +435,39 @@
   else
   {
     char buf[size+7];
-    GDL2IMP_BOOL rtsIMP=NULL;
-    SEL sel=NULL;
-    
+SEL sel=NULL;
+
     // Test addToKey:
-    
+
     strcpy(buf, "addTo");
-    
-    [key getCString:&buf[5] 
+
+    [key getCString:&buf[5]
           maxLength:size+1 //maxLength is total buffer size (See NSString.m comment)
            encoding:NSASCIIStringEncoding];
-    
+
     buf[5] = toupper(buf[5]);
     buf[size+5] = ':';
     buf[size+6] = '\0';
-    
-    
+
+
     sel = GSSelectorFromName(buf);
-    
-    if (sel && GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == YES)
-    {      
+
+    if (sel && [self respondsToSelector:sel] == YES)
+    {
       [self performSelector: sel
                  withObject: object];
     }
     else
     {
       id val = nil;
-      
+
       if ([self isToManyKey: key] == YES)
       {
-        
+
         val = [self valueForKey: key]; //should use storedValueForKey: ?
-        
+
         if (![val containsObject: object])
-        {          
+        {
           if ([val isKindOfClass: GDL2_NSMutableArrayClass])
           {
             [self willChange];
@@ -479,13 +476,13 @@
           else
           {
             NSMutableArray *relArray;
-            
+
             relArray = (val)
             ? AUTORELEASE([val mutableCopy])
             : AUTORELEASE([GDL2_alloc(NSMutableArray) initWithCapacity: 10]);
-            
+
             [relArray addObject: object];
-            
+
             [self setValue: relArray
                     forKey: key];
           }
@@ -493,7 +490,7 @@
       }
       else
       {
-        
+
         [self setValue: object
                 forKey: key];
       }
@@ -504,7 +501,7 @@
 - (void)removeObject: (id)object fromPropertyWithKey: (NSString *)key
 {
   NSUInteger size = [key length];
-  
+
   if (size < 1)
   {
     [NSException raise: NSInvalidArgumentException
@@ -513,24 +510,23 @@
   else
   {
     char buf[size+12];
-    GDL2IMP_BOOL rtsIMP=NULL;
-    SEL sel=NULL;
-    
+SEL sel=NULL;
+
     // Test removeFromKey:
-    
+
     strcpy(buf, "removeFrom");
-    
-    [key getCString:&buf[10] 
+
+    [key getCString:&buf[10]
           maxLength:size+1 //maxLength is total buffer size (See NSString.m comment)
            encoding:NSASCIIStringEncoding];
-    
+
     buf[10] = toupper(buf[10]);
     buf[size+10] = ':';
     buf[size+11] = '\0';
-        
+
     sel = GSSelectorFromName(buf);
-    
-    if (sel && GDL2_RespondsToSelectorWithImpPtr(self,&rtsIMP,sel) == YES)
+
+    if (sel && [self respondsToSelector:sel] == YES)
     {
       [self performSelector: sel
                  withObject: object];
@@ -538,11 +534,11 @@
     else
     {
       id val = nil;
-            
+
       if ([self isToManyKey:key] == YES)
-      {        
+      {
         val = [self valueForKey: key];
-        
+
         if ([val isKindOfClass: GDL2_NSMutableArrayClass])
         {
           [self willChange];
@@ -551,11 +547,11 @@
         else
         {
           NSMutableArray *relArray = nil;
-          
+
           if (val)
           {
             relArray = AUTORELEASE([val mutableCopy]);
-            
+
             [relArray removeObject: object];
             [self setValue: relArray
                     forKey: key];
@@ -573,14 +569,14 @@
 
 - (void)_setObject: (id)object forBothSidesOfRelationshipWithKey: (NSString*)key
 {
-  
+
   id oldObject = [self valueForKey: key];
-  
+
   if (object!=oldObject) // Don't put it again if it is already set
   {
     NSString *inverseKey = NULL;
     inverseKey = [self inverseForRelationshipKey:key];
-    
+
     if (inverseKey)
     {
       if (oldObject==GDL2_EONull)
@@ -595,7 +591,7 @@
         toPropertyWithKey: inverseKey];
       }
     }
-    
+
     [self setValue: object
             forKey: key];
   }
@@ -608,7 +604,7 @@
   {
     //See if there's an inverse relationship
     NSString *inverseKey = [self inverseForRelationshipKey: key];
-    
+
     NSDebugMLLog(@"gsdb", @"self %p=%@,object %p=%@ key=%@ inverseKey=%@",
                  self,
                  self,
@@ -616,11 +612,11 @@
                  object,
                  key,
                  inverseKey);
-    
+
     // First add object to self relation array
     [self addObject: object toPropertyWithKey: key];
-    
-    if (inverseKey) //if no inverse relation do nothing 
+
+    if (inverseKey) //if no inverse relation do nothing
     {
       if (object==GDL2_EONull)
       {
@@ -639,7 +635,7 @@
         {
           // Previous value, if any
           id oldObject = [object valueForKey: inverseKey];
-          
+
           // Don't put it again if it already set
           if (object!=oldObject)
           {
@@ -649,7 +645,7 @@
               [object removeObject:oldObject
                fromPropertyWithKey:inverseKey];
             }
-            
+
             // Just set self into object relationship property
             [object setValue: self
                       forKey: inverseKey];
@@ -667,10 +663,10 @@
 - (void)removeObject: (id)object fromBothSidesOfRelationshipWithKey: (NSString *)key
 {
   NSString *inverseKey=nil;
-  
+
   [self removeObject: object
  fromPropertyWithKey: key];
-  
+
   if ((inverseKey = [self inverseForRelationshipKey: key]))
   {
     if (object==GDL2_EONull)
@@ -711,99 +707,93 @@
   NSMutableArray *newVals
   = AUTORELEASE([GDL2_alloc(NSMutableArray) initWithCapacity: 16]);
   NSString *key;
-  IMP selfSVFK=NULL; // storedValueForKey:
-  IMP snapshotSVFK=NULL; // storedValueForKey:
-  IMP newKeysAO=NULL;
-  IMP newValsAO=NULL;
-  
-  propertiesList[0] = [self attributeKeys];
+// storedValueForKey:
+// storedValueForKey:
+propertiesList[0] = [self attributeKeys];
   propertiesList[1] = [self toOneRelationshipKeys];
-  
+
   for (h = 0; h < 2; h++)
   {
     id val, oldVal;
-    IMP oaiIMP=NULL;
-    
-    properties = propertiesList[h];
+properties = propertiesList[h];
     count = [properties count];
-    
+
     for(i = 0; i < count; i++)
     {
-      key = GDL2_ObjectAtIndexWithImpPtr(properties, &oaiIMP, i);
-      val = GDL2_StoredValueForKeyWithImpPtr(self, &selfSVFK, key);
-      oldVal = GDL2_StoredValueForKeyWithImpPtr(snapshot, &snapshotSVFK, key);
-      
+      key = [properties objectAtIndex:i];
+      val = [self storedValueForKey:key];
+      oldVal = [snapshot storedValueForKey:key];
+
       if (val == oldVal || [val isEqual: oldVal] == YES)
         continue;
-      
-      GDL2_AddObjectWithImpPtr(newKeys,&newKeysAO,key);
-      GDL2_AddObjectWithImpPtr(newVals,&newValsAO,val);
+
+      [newKeys addObject:key];
+      [newVals addObject:val];
     };
   }
-  
+
   properties = [self toManyRelationshipKeys];
   count = [properties count];
-  
+
   if (count>0)
   {
-    IMP oaiIMP=NULL;
-    for(i = 0; i < count; i++)
+for(i = 0; i < count; i++)
     {
       NSMutableArray *array, *objects;
       NSArray *val, *oldVal;
       int valCount, oldValCount;
-      
-      key = GDL2_ObjectAtIndexWithImpPtr(properties, &oaiIMP, i);
-      val = GDL2_StoredValueForKeyWithImpPtr(self, &selfSVFK, key);
-      oldVal = GDL2_StoredValueForKeyWithImpPtr(snapshot, &snapshotSVFK, key);
-      
+
+      key = [properties objectAtIndex:i];
+      val = [self storedValueForKey:key];
+      oldVal = [snapshot storedValueForKey:key];
+
       if ((id)val == GDL2_EONull)
         val = nil;
-      
+
       if ((id)oldVal == GDL2_EONull)
         oldVal = nil;
-      
+
       if (!val && !oldVal)
         continue;
-      
+
       valCount = [val count];
       oldValCount = [oldVal count];
-      
+
       if (valCount == 0 && oldValCount == 0)
         continue;
-      
-      array 
+
+      array
 	    = AUTORELEASE([GDL2_alloc(NSMutableArray) initWithCapacity: 2]);
-      
+
       if (val && valCount>0)
       {
-        objects 
+        objects
         = AUTORELEASE([GDL2_alloc(NSMutableArray) initWithArray: val]);
         [objects removeObjectsInArray: oldVal];
       }
       else
-        objects 
+        objects
 	      = AUTORELEASE([GDL2_alloc(NSMutableArray) initWithCapacity: 1]);
-      
+
       [array addObject: objects];
-      
+
       if (val && valCount > 0)
       {
-        objects 
+        objects
         = AUTORELEASE([GDL2_alloc(NSMutableArray) initWithArray: oldVal]);
         [objects removeObjectsInArray: val];
       }
       else
-        objects 
+        objects
 	      = AUTORELEASE([GDL2_alloc(NSMutableArray) initWithCapacity: 1]);
-      
+
       [array addObject: objects];
-      
-      GDL2_AddObjectWithImpPtr(newKeys,&newKeysAO,key);
-      GDL2_AddObjectWithImpPtr(newVals,&newValsAO,array);
+
+      [newKeys addObject:key];
+      [newVals addObject:array];
     }
   };
-  
+
   return [NSDictionary dictionaryWithObjects: newVals forKeys: newKeys];
 }
 
@@ -822,82 +812,72 @@
   NSArray *attributeKeys;
   NSArray *toOneRelationshipKeys;
   NSArray *toManyRelationshipKeys;
-  
+
   unsigned attributeKeyCount;
   unsigned toOneRelationshipKeyCount;
   unsigned toManyRelationshipKeyCount;
   unsigned i;
-  
-    IMP selfSVFK=NULL; // storedValueForKey:
-    IMP snapshotSOFK=NULL; // setObject:forKey:
-    
+// storedValueForKey:
+// setObject:forKey:
+
     attributeKeys = [self attributeKeys];
-    
+
     toOneRelationshipKeys = [self toOneRelationshipKeys];
     toManyRelationshipKeys = [self toManyRelationshipKeys];
-    
+
     attributeKeyCount = [attributeKeys count];
     toOneRelationshipKeyCount = [toOneRelationshipKeys count];
     toManyRelationshipKeyCount = [toManyRelationshipKeys count];
-    
-    
-    snapshot 
+
+
+    snapshot
     = AUTORELEASE([GDL2_alloc(NSMutableDictionary) initWithCapacity:
                    (attributeKeyCount +
                     toOneRelationshipKeyCount +
                     toManyRelationshipKeyCount)]);
-    
+
     if (attributeKeyCount>0)
     {
-      IMP oaiIMP=NULL;
-      
-      for (i = 0; i < attributeKeyCount; i++)
+for (i = 0; i < attributeKeyCount; i++)
       {
-        id key = GDL2_ObjectAtIndexWithImpPtr(attributeKeys,&oaiIMP,i);
-        id value = GDL2_StoredValueForKeyWithImpPtr(self,&selfSVFK,key);
-        
+        id key = [attributeKeys objectAtIndex:i];
+        id value = [self storedValueForKey:key];
+
         if (!value)
           value = GDL2_EONull;
-        
-        GDL2_SetObjectForKeyWithImpPtr(snapshot,&snapshotSOFK,value,key);
+
+        [snapshot setObject:value forKey:key];
       }
     };
-    
+
     if (toOneRelationshipKeyCount>0)
     {
-      IMP oaiIMP=NULL;
-      
-      for (i = 0; i < toOneRelationshipKeyCount; i++)
+for (i = 0; i < toOneRelationshipKeyCount; i++)
       {
-        id key = GDL2_ObjectAtIndexWithImpPtr(toOneRelationshipKeys,
-                                              &oaiIMP,i);
-        id value = GDL2_StoredValueForKeyWithImpPtr(self,&selfSVFK,key);
-        
+        id key = [toOneRelationshipKeys objectAtIndex:i];
+        id value = [self storedValueForKey:key];
+
         if (!value)
           value = GDL2_EONull;
-        
-        GDL2_SetObjectForKeyWithImpPtr(snapshot,&snapshotSOFK,value,key);
+
+        [snapshot setObject:value forKey:key];
       }
     };
-    
-    
+
+
     if (toManyRelationshipKeyCount>0)
     {
-      IMP oaiIMP=NULL;
-      
-      for (i = 0; i < toManyRelationshipKeyCount; i++)
+for (i = 0; i < toManyRelationshipKeyCount; i++)
       {
-        id key = GDL2_ObjectAtIndexWithImpPtr(toManyRelationshipKeys,
-                                              &oaiIMP,i);
-        id value = GDL2_StoredValueForKeyWithImpPtr(self,&selfSVFK,key);
-        
+        id key = [toManyRelationshipKeys objectAtIndex:i];
+        id value = [self storedValueForKey:key];
+
         if (value)
         {
-          
+
           value = AUTORELEASE([(NSArray *)value shallowCopy]);
-          
-          GDL2_SetObjectForKeyWithImpPtr(snapshot,&snapshotSOFK,
-                                         value,key);
+
+          [snapshot setObject:value forKey:key];
         }
         /*    //TODO-VERIFY or set it to eonull ?
          else
@@ -905,7 +885,7 @@
          */
       }
     };
-  
+
   return snapshot;
 }
 
@@ -914,21 +894,20 @@
   NSEnumerator *snapshotEnum = [snapshot keyEnumerator];
   NSString *key;
   id val;
-  IMP selfTSVFK=NULL; // takeStoredValue:forKey:
-  IMP snapshotOFK=NULL;
-  IMP enumNO=NULL; // nextObject
-  
-  while ((key = GDL2_NextObjectWithImpPtr(snapshotEnum,&enumNO)))
+// takeStoredValue:forKey:
+// nextObject
+
+  while ((key = [snapshotEnum nextObject]))
   {
-    val = GDL2_ObjectForKeyWithImpPtr(snapshot,&snapshotOFK,key);
-    
+    val = [snapshot objectForKey:key];
+
     if (val==GDL2_EONull)
       val = nil;
-    
+
     if ([val isKindOfClass: GDL2_NSArrayClass])
       val = AUTORELEASE([val mutableCopy]);
-    
-    GDL2_TakeStoredValueForKeyWithImpPtr(self,&selfTSVFK,val,key);
+
+    [self takeStoredValue:val forKey:key];
   }
 }
 
@@ -937,32 +916,32 @@
   NSArray *toMany = [self toManyRelationshipKeys];
   NSEnumerator *toManyEnum = [toMany objectEnumerator];
   NSString *relationship;
-  IMP enumNO=NULL; // nextObject
-  
-  while ((relationship = GDL2_NextObjectWithImpPtr(toManyEnum,&enumNO)))
+// nextObject
+
+  while ((relationship = [toManyEnum nextObject]))
   {
     if ([relationship isEqualToString: key])
       return YES;
   }
-  
+
   return NO;
 }
 
 - (NSException *)validateForInsert
 {
   NSException *exception;
-    
+
   exception = [self validateForSave];
-    
+
   return exception;
 }
 
 - (NSException *)validateForUpdate
 {
   NSException *exception;
-    
+
   exception = [self validateForSave];
-    
+
   return exception;
 }
 
@@ -972,19 +951,19 @@
   NSArray *toMany;
   NSArray *attr;
   NSMutableArray *ret;
-  
+
   attr = [self attributeKeys];
   toOne = [self toOneRelationshipKeys];
   toMany = [self toManyRelationshipKeys];
-  
+
   ret = AUTORELEASE([GDL2_alloc(NSMutableArray) initWithCapacity:
-                     [attr count] + [toOne count] 
+                     [attr count] + [toOne count]
                      + [toMany count]]);
-  
+
   [ret addObjectsFromArray: attr];
   [ret addObjectsFromArray: toOne];
   [ret addObjectsFromArray: toMany];
-  
+
   return ret;
 }
 
@@ -994,29 +973,29 @@
   NSArray *toMany = nil;
   NSEnumerator *relEnum = nil;
   NSString *key = nil;
-  IMP selfTSVFK=NULL; // takeStoredValue:forKey:
-  IMP enumNO=NULL; // nextObject
-    
+// takeStoredValue:forKey:
+// nextObject
+
   toOne = [self toOneRelationshipKeys];
   toMany = [self toManyRelationshipKeys];
-  
+
   relEnum = [toOne objectEnumerator];
-  enumNO=NULL;
-  
-  while ((key = GDL2_NextObjectWithImpPtr(relEnum,&enumNO)))
-    GDL2_TakeStoredValueForKeyWithImpPtr(self,&selfTSVFK,nil,key);
-  
-  
+
+
+  while ((key = [relEnum nextObject]))
+    [self takeStoredValue:nil forKey:key];
+
+
   relEnum = [toMany objectEnumerator];
-  enumNO=NULL;
-  
-  while ((key = GDL2_NextObjectWithImpPtr(relEnum,&enumNO)))
-    GDL2_TakeStoredValueForKeyWithImpPtr(self,&selfTSVFK,nil,key);
+
+
+  while ((key = [relEnum nextObject]))
+    [self takeStoredValue:nil forKey:key];
 
 }
 
 - (void)propagateDeleteWithEditingContext: (EOEditingContext *)editingContext
-{  
+{
   [[self classDescription] propagateDeleteForObject: self
                                      editingContext: editingContext];
 }
@@ -1032,27 +1011,25 @@
   NSArray *attrArray = [self allPropertyKeys];
   NSEnumerator *attrEnum = [attrArray objectEnumerator];
   NSString *key;
-  IMP attrEnumNO=NULL; // nextObject
-  IMP retAS=NULL; // appendString:
-  IMP selfVFK=NULL; // valueForKey:
-  
+// nextObject
+// appendString:
+// valueForKey:
+
   NSMutableString *ret = [NSMutableString
                           stringWithCapacity: 5 * [attrArray count]];
-  
-  GDL2_AppendStringWithImpPtr(ret,&retAS,
-                              [NSString stringWithFormat:@"<%@ (%p)",
-                               NSStringFromClass([self class]), self]);
-  
-  while ((key = GDL2_NextObjectWithImpPtr(attrEnum,&attrEnumNO)))
+
+  [ret appendString:[NSString stringWithFormat:@"<%@ (%p]",
+                               NSStringFromClass([self class]), self]];
+
+  while ((key = [attrEnum nextObject]))
   {
-    GDL2_AppendStringWithImpPtr(ret,&retAS,
-                                [NSString stringWithFormat: @" %@=%@",
-                                 key, 
-                                 GDL2_ValueForKeyWithImpPtr(self,&selfVFK,key)]);
+    [ret appendString:[NSString stringWithFormat: @" %@=%@",
+                                 key,
+                                 [self valueForKey:key]]];
   }
-  
-  GDL2_AppendStringWithImpPtr(ret,&retAS,@">");
-  
+
+  [ret appendString:@">"];
+
   return ret; //TODO
 }
 
