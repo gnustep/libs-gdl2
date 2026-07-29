@@ -51,12 +51,6 @@ Class PSQLA_NSMutableArrayClass;
 Class PSQLA_EOAttributeClass=Nil;
 
 // ==== IMPs ====
-IMP PSQLA_NSNumber_allocWithZoneIMP=NULL;
-IMP PSQLA_NSDecimalNumber_allocWithZoneIMP=NULL;
-IMP PSQLA_NSString_allocWithZoneIMP=NULL;
-IMP PSQLA_NSCalendarDate_allocWithZoneIMP=NULL;
-IMP PSQLA_NSMutableArray_allocWithZoneIMP=NULL;
-IMP PSQLA_EOAttribute_allocWithZoneIMP=NULL;
 
 // ==== Constants ====
 NSNumber *PSQLA_NSNumberBool_Yes=nil;
@@ -85,23 +79,11 @@ PSQLA_PrivInit(void)
       PSQLA_EOAttributeClass = [EOAttribute class];
 
       // ==== IMPs ====
-      PSQLA_NSNumber_allocWithZoneIMP=
-        [PSQLA_NSNumberClass methodForSelector:@selector(allocWithZone:)];
 
-      PSQLA_NSDecimalNumber_allocWithZoneIMP=
-        [PSQLA_NSDecimalNumberClass methodForSelector:@selector(allocWithZone:)];
 
-      PSQLA_NSString_allocWithZoneIMP=
-        [PSQLA_NSStringClass methodForSelector:@selector(allocWithZone:)];
 
-      PSQLA_NSCalendarDate_allocWithZoneIMP=
-        [PSQLA_NSCalendarDateClass methodForSelector:@selector(allocWithZone:)];
 
-      PSQLA_NSMutableArray_allocWithZoneIMP=
-        [PSQLA_NSMutableArrayClass methodForSelector:@selector(allocWithZone:)];
 
-      PSQLA_EOAttribute_allocWithZoneIMP=
-        [PSQLA_EOAttributeClass methodForSelector:@selector(allocWithZone:)];
 
 
       // ==== Constants ====

@@ -639,7 +639,7 @@ newValueForBytesLengthAttribute (const void *bytes,
   NSMutableArray *names 
     = AUTORELEASE([PSQLA_alloc(NSMutableArray) initWithCapacity: nb]);
   int i;
-  IMP namesAO=NULL; //addObject:
+//addObject:
 
   for (i = 0; i < nb; i++)
     {
@@ -648,7 +648,7 @@ newValueForBytesLengthAttribute (const void *bytes,
       NSString *name = [(PSQLA_alloc(NSString)) initWithBytes: szName
 						length: length
 						encoding: _encoding];
-      PSQLA_AddObjectWithImpPtr(names,&namesAO,name);
+      [names addObject:name];
       RELEASE(name);
     }
 
@@ -685,7 +685,7 @@ newValueForBytesLengthAttribute (const void *bytes,
       NSUInteger count = [_attributes count];
       id valueBuffer[100];
       id *values = NULL;
-      IMP attributesOAI=NULL; // objectAtIndex:
+// objectAtIndex:
             
       if (count > PQnfields(_pgResult))
       {
@@ -702,7 +702,7 @@ newValueForBytesLengthAttribute (const void *bytes,
       
       for (i = 0; i < count; i++)
       {
-        EOAttribute *attr = PSQLA_ObjectAtIndexWithImpPtr(_attributes,&attributesOAI,i);
+        EOAttribute *attr = [_attributes objectAtIndex:i];
         int length = 0;
         const char *string = NULL;
         
@@ -1036,10 +1036,10 @@ newValueForBytesLengthAttribute (const void *bytes,
   NSEnumerator *enumerator = nil;
   NSString *attrName = nil;
   PostgreSQLContext *adaptorContext = nil;
-  IMP attrEnumNO=NULL; // nextObject
-  IMP rowOFK=NULL; // objectForKey:
-  IMP nrowSOFK=NULL; // setObject:forKey:
-  IMP nrowOFK=NULL; // objectForKey:
+// nextObject
+// objectForKey:
+// setObject:forKey:
+// objectForKey:
 
   NSDebugMLLog(@"gsdb", @"row=%@", row);
 
@@ -1081,7 +1081,7 @@ each key
 */
 
   enumerator = [row keyEnumerator];
-  while ((attrName = PSQLA_NextObjectWithImpPtr(enumerator,&attrEnumNO)))
+  while ((attrName = [enumerator nextObject]))
     {
       EOAttribute *attribute = nil;
       NSString *externalType = nil;
@@ -1095,7 +1095,7 @@ each key
       if (!attribute)
 	return; //???????????
 
-      value = PSQLA_ObjectForKeyWithImpPtr(row,&rowOFK,attrName);
+      value = [row objectForKey:attrName];
       NSDebugMLLog(@"gsdb", @"value=%@", value);
 
       externalType = [attribute externalType];
@@ -1103,7 +1103,7 @@ each key
       /* Insert the binary value into the binaryDataRow dictionary */
       if ([externalType isEqual: @"inversion"])
       {
-        id binValue = PSQLA_ObjectForKeyWithImpPtr(nrow,&nrowOFK,attrName);
+        id binValue = [nrow objectForKey:attrName];
         Oid binOid = [self _insertBinaryData: binValue 
                                 forAttribute: attribute];
         value = [NSNumber numberWithLong: binOid];
@@ -1113,7 +1113,7 @@ each key
         value = [value dataUsingEncoding:_encoding];
       }
 
-      PSQLA_SetObjectForKeyWithImpPtr(nrow,&nrowSOFK,value,attrName);
+      [nrow setObject:value forKey:attrName];
     }
   
   if ([nrow count] > 0)
@@ -1320,7 +1320,7 @@ each key
   EOAttribute *attr = nil;
   PostgreSQLContext *adaptorContext = nil;
   NSUInteger rows = 0;
-  IMP valuesOFK=NULL; // objectForKey:
+// objectForKey:
   
   if (![self isOpen])
     [NSException raise: NSInternalInconsistencyException
@@ -1338,8 +1338,8 @@ each key
 
   if ([values count] > 0)
     {
-      IMP valueEnumNO=NULL; // nextObject
-      IMP mrowSOFK=NULL; // setObject:forKey;
+// nextObject
+// setObject:forKey;
 
       mrow = AUTORELEASE([values mutableCopyWithZone: [values zone]]);
 
@@ -1349,7 +1349,7 @@ each key
       invAttributes = AUTORELEASE([[NSMutableArray alloc] initWithCapacity: [mrow count]]);
 
       enumerator = [values keyEnumerator];
-      while ((attrName = PSQLA_NextObjectWithImpPtr(enumerator,&valueEnumNO)))
+      while ((attrName = [enumerator nextObject]))
         {
           attr = [entity attributeNamed: attrName];
           externalType = [attr externalType];
@@ -1361,9 +1361,7 @@ each key
 			      [values objectForKey:attrName]]
                 forKey:attrName];
 */
-          PSQLA_SetObjectForKeyWithImpPtr(mrow,&mrowSOFK,
-                                        PSQLA_ObjectForKeyWithImpPtr(values,&valuesOFK,attrName),
-                                        attrName);
+          [mrow setObject:[values objectForKey:attrName] forKey:attrName];
 
           if ([externalType isEqual: @"inversion"])
             [invAttributes addObject: attr];
@@ -1375,7 +1373,7 @@ each key
 
       if ([invAttributes count])
         {
-          IMP invAttributesNO=NULL; // nextObject
+// nextObject
           // Select with update qualifier to see there is only one row
           // to be updated and to get the large objects (to be updatetd)
           // Oid from dataserver - there is a hack here based on the fact that
@@ -1403,7 +1401,7 @@ each key
           // Update the large objects and modify the row to update with Oid's
 
           enumerator = [invAttributes objectEnumerator];          
-          while ((attr = PSQLA_NextObjectWithImpPtr(enumerator,&invAttributesNO)))
+          while ((attr = [enumerator nextObject]))
             {
               Oid oldOid;
               Oid newOid;
@@ -1415,9 +1413,7 @@ each key
               oldOid = [[dbRow objectForKey:attrName] longValue];
               newOid = [self _updateBinaryDataRow: oldOid data: data];
 
-              PSQLA_SetObjectForKeyWithImpPtr(mrow,&mrowSOFK,
-                                            [NSNumber numberWithUnsignedLong: newOid],
-                                            attrName);
+              [mrow setObject:[NSNumber numberWithUnsignedLong: newOid] forKey:attrName];
             }
         }
 
@@ -1665,7 +1661,7 @@ each key
     }
   else
     {
-      IMP origAttributesOAI=NULL; // objectAtIndex:
+// objectAtIndex:
       int colsNumber=_pgResult ? PQnfields(_pgResult): 0;
       int i;
       
@@ -1679,7 +1675,7 @@ each key
 	  
 	  if (_origAttributes)
 	    {
-	      EOAttribute *origAttr = (EOAttribute *) PSQLA_ObjectAtIndexWithImpPtr(_origAttributes,&origAttributesOAI,i);
+	      EOAttribute *origAttr = (EOAttribute *) [_origAttributes objectAtIndex:i];
 	      
 	      [attribute setName: [origAttr name]];
 	      [attribute setColumnName: [origAttr columnName]];
@@ -1760,7 +1756,7 @@ each key
   int i, count;
   NSMutableArray *results = nil;
   char *tableSelect;
-  IMP resultsAO=NULL; // addObject:
+// addObject:
 
   if (_pgVersion < 70300)
     {
@@ -1793,8 +1789,7 @@ each key
     {
       char *oid = PQgetvalue(_pgResult, i, 0);
 
-      PSQLA_AddObjectWithImpPtr(results,&resultsAO,
-				[NSString stringWithUTF8String: oid]);
+      [results addObject:[NSString stringWithUTF8String: oid]];
     }
 
   PQclear(_pgResult);

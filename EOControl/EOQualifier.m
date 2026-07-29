@@ -1371,19 +1371,13 @@ _isLike (NSString *self, NSString *regExpr, BOOL isCaseSensative)
     {
       unsigned  i;
       id        object;
-      SEL       oaiSEL = @selector(objectAtIndex:);
-      IMP       oaiIMP = [self methodForSelector:oaiSEL];
-      SEL       ewoSEL = @selector(evaluateWithObject:);
-      BOOL      (*ewoIMP)(id, SEL, id);
       GDL2_BUFFER(objP, max, id);
-
-      ewoIMP = (BOOL (*)(id, SEL, id))[qualifier methodForSelector:ewoSEL];
 
       for(i=0; i < max; i++)
 	{
-	  object = (*oaiIMP)(self, oaiSEL, i);
+	  object = [self objectAtIndex:i];
 
-	  if((*ewoIMP)(qualifier, ewoSEL, object))
+	  if([qualifier evaluateWithObject:object])
 	    {
 	      *objP++=object;
 	    }

@@ -1836,15 +1836,11 @@ More details:
           else
             {
               unsigned int width = 0;
-              IMP isKindOfClassIMP=[*valueP  methodForSelector:@selector(isKindOfClass:)];
-
-              // If the value has not the good class we'll try to convert it
-              if ((*isKindOfClassIMP)(*valueP,@selector(isKindOfClass:),
-                                      valueClass) == NO)
+// If the value has not the good class we'll try to convert it
+              if (![*valueP isKindOfClass:valueClass])
                 {
                   // Is it a string ?
-                  if ((*isKindOfClassIMP)(*valueP,@selector(isKindOfClass:),
-                                          GDL2_NSStringClass))
+                  if ([*valueP isKindOfClass:GDL2_NSStringClass])
                     {
                       if (valueClass == GDL2_NSNumberClass)
                         {
@@ -1967,13 +1963,8 @@ More details:
 
                   if (testValue)
                     {
-                      IMP testIsKindOfClassIMP=[testValue  methodForSelector:@selector(isKindOfClass:)];
-
-                      // We can test NSString and NSData type only
-                      if ((*testIsKindOfClassIMP)(testValue,@selector(isKindOfClass:),
-                                              GDL2_NSStringClass)
-                          || (*testIsKindOfClassIMP)(testValue,@selector(isKindOfClass:),
-                                                     GDL2_NSDataClass))
+// We can test NSString and NSData type only
+                      if ([testValue isKindOfClass:GDL2_NSStringClass] || [testValue isKindOfClass:GDL2_NSDataClass])
                         {
                           unsigned int testValueLength = [testValue length];
                           if (testValueLength > width)

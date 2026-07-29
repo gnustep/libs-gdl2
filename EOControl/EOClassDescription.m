@@ -321,14 +321,13 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
   if (toManyCount > 0)
     {
       int i;
-      IMP oaiIMP=NULL;
-      IMP objectTSVFK=NULL; // takeStoredValue:forKey:
-      IMP objectSVFK=NULL; // storedValueForKey:
+// takeStoredValue:forKey:
+// storedValueForKey:
 
       for (i = 0; i < toManyCount; i++)
         {
-          id key = GDL2_ObjectAtIndexWithImpPtr(toManyRelationshipKeys,&oaiIMP,i);
-          id value = GDL2_StoredValueForKeyWithImpPtr(object,&objectSVFK,key);
+          id key = [toManyRelationshipKeys objectAtIndex:i];
+          id value = [object storedValueForKey:key];
 
 
           if (value)
@@ -337,9 +336,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
             }
           else
             {
-              GDL2_TakeStoredValueForKeyWithImpPtr(object,&objectTSVFK,
-                                                  [EOCheapCopyMutableArray arrayWithCapacity: 2],
-                                                  key);
+              [object takeStoredValue:[EOCheapCopyMutableArray arrayWithCapacity: 2] forKey:key];
             }
         }
     }
@@ -386,23 +383,19 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
   NSMutableString *str = [NSMutableString stringWithCapacity:[key length]];
   char c;
   BOOL init = NO;
-  IMP strAS=NULL;
-
-  s = ckey;
+s = ckey;
 
   while (*s)
     {
       if (init && s == ckey && islower(*s))
         {
 	  c = toupper(*s);
-	  GDL2_AppendStringWithImpPtr(str,&strAS,
-                                     GDL2_StringWithCStringAndLength(&c,1));
+	  [str appendString:GDL2_StringWithCStringAndLength(&c,1)];
         }
       else if (isupper(*s) && s != ckey)
         {
-	  GDL2_AppendStringWithImpPtr(str,&strAS,
-                                     GDL2_StringWithCStringAndLength(ckey,s - ckey));
-	  GDL2_AppendStringWithImpPtr(str,&strAS,@" ");
+	  [str appendString:GDL2_StringWithCStringAndLength(ckey,s - ckey)];
+	  [str appendString:@" "];
 	  ckey = s;
         }
 
@@ -411,8 +404,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
     }
 
   if (s != ckey)
-    GDL2_AppendStringWithImpPtr(str,&strAS,
-                               GDL2_StringWithCStringAndLength(ckey,s - ckey));
+    [str appendString:GDL2_StringWithCStringAndLength(ckey,s - ckey)];
 
   return AUTORELEASE([key copy]);
 }
@@ -452,11 +444,8 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
     }
   else
     {
-      IMP objectSVFK=NULL; // storedValueForKey:
-      IMP objectVFK=NULL;
-      IMP toRelEnumNO=NULL;
-
-      classDelegate = [[self class] classDelegate];
+// storedValueForKey:
+classDelegate = [[self class] classDelegate];
 
       NSDebugMLLog(@"gsdb", @"classDelegate%p=%@",
                    classDelegate,
@@ -465,7 +454,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
       toRelArray = [object toOneRelationshipKeys];
       toRelEnum = [toRelArray objectEnumerator];
       
-      while ((key = GDL2_NextObjectWithImpPtr(toRelEnum,&toRelEnumNO)))
+      while ((key = [toRelEnum nextObject]))
         {
           BOOL shouldPropagate = YES;
           
@@ -484,7 +473,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
           
           if (shouldPropagate)
             {
-              destination = GDL2_StoredValueForKeyWithImpPtr(object,&objectSVFK,key);
+              destination = [object storedValueForKey:key];
               NSDebugMLLog(@"gsdb", @"destination %p=%@",
                            destination, destination);
               
@@ -542,9 +531,9 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
     
       toRelArray = [self toManyRelationshipKeys];
       toRelEnum = [toRelArray objectEnumerator];
-      toRelEnumNO=NULL;
 
-      while ((key = GDL2_NextObjectWithImpPtr(toRelEnum,&toRelEnumNO)))
+
+      while ((key = [toRelEnum nextObject]))
         {
           BOOL shouldPropagate = YES;
 
@@ -563,10 +552,9 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
           if (shouldPropagate)
             {
               NSArray *toManyArray;
-              IMP toManyArrayLO=NULL;
-              EODeleteRule deleteRule;
+EODeleteRule deleteRule;
 
-              toManyArray = GDL2_ValueForKeyWithImpPtr(object,&objectVFK,key);
+              toManyArray = [object valueForKey:key];
 
 
               deleteRule = [object deleteRuleForRelationshipKey: key];
@@ -579,7 +567,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                   NSDebugMLLog(@"gsdb", @"toManyArray %p=%@", toManyArray,
                                toManyArray);
 
-                  while ((destination = GDL2_LastObjectWithImpPtr(toManyArray,&toManyArrayLO)))
+                  while ((destination = [toManyArray lastObject]))
                     {
                       NSDebugMLLog(@"gsdb", @"destination %p=%@", destination,
                                    destination);
@@ -605,7 +593,7 @@ fromInsertionInEditingContext: (EOEditingContext *)editingContext
                   NSDebugMLLog(@"gsdb", @"toManyArray %p=%@",
                                toManyArray, toManyArray);
 
-                  while ((destination = GDL2_LastObjectWithImpPtr(toManyArray,&toManyArrayLO)))
+                  while ((destination = [toManyArray lastObject]))
                     {
                       NSDebugMLLog(@"gsdb", @"destination %p=%@",
                                    destination, destination);

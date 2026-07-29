@@ -1,4 +1,4 @@
-/** 
+/**
    PostgreSQLExpression.m <title>PostgreSQLExpression</title>
 
    Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
@@ -67,7 +67,7 @@
 #include "PostgreSQLCompatibility.h"
 #include "PostgreSQLPrivate.h"
 
-/* These methods are undocumented but exist in GDL2 and WO4.5. 
+/* These methods are undocumented but exist in GDL2 and WO4.5.
    Ayers: Review (Don't rely on them) */
 @interface EOEntity (Undocumented)
 - (EORelationship *)relationshipForPath: (NSString *)path;
@@ -134,7 +134,7 @@
     /*
     unsigned short precision=[attribute precision];
     int scale=[attribute scale];
-    // As far as I understand, we need to try to do complex things if precision!=0 or scale!=0 
+    // As far as I understand, we need to try to do complex things if precision!=0 or scale!=0
     if (precision==0 && scale==0)
     {
       // just convert it to string...
@@ -147,17 +147,17 @@
       {
         if ([value isKindOfClass: PSQLA_NSStringClass] == YES)
         {
-          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber) 
+          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber)
                                       initWithString:value]);
         }
         else if ([value respondsToSelector: @selector(doubleValue)])
         {
-          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber) 
+          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber)
                                       initWithDouble:[value doubleValue]]);
         }
         else if ([value respondsToSelector: @selector(floatValue)])
         {
-          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber) 
+          decimalValue = AUTORELEASE([PSQLA_alloc(NSDecimalNumber)
                                       initWithFloat:[value floatValue]]);
         }
         else if ([value respondsToSelector: @selector(intValue)])
@@ -168,7 +168,7 @@
         if (decimalValue)
         {
           NSDecimal decimal;
-          
+
           NSDecimalNumberHandler* handler=[NSDecimalNumberHandler decimalNumberHandlerWithRoundingMode:NSRoundPlain // Is Plain OK ?
                                                                                                  scale:scale
                                                                                       raiseOnExactness:YES
@@ -186,7 +186,7 @@
         };
       };
     };
-    
+
     // value was for example 0 length string
     if ([formatted length] == 0)
       formatted=@"NULL";
@@ -207,7 +207,7 @@
         {
           EOFLOGObjectLevelArgs(@"EOSQLExpression",
 				@"BOOL case/NSString - value=%@ class=%@",
-				value, [value class]);      
+				value, [value class]);
 
 	  formatted = [NSString stringWithFormat: @"'%@'", value];
 
@@ -220,7 +220,7 @@
     {
       EOFLOGObjectLevelArgs(@"EOSQLExpression",
 			    @"OID case - value=%@ class=%@",
-			    value, [value class]);      
+			    value, [value class]);
 
       formatted = [NSString stringWithFormat: @"%@", value];
 
@@ -232,7 +232,7 @@
     {
       EOFLOGObjectLevelArgs(@"EOSQLExpression",
 			    @"Money case - value=%@ class=%@",
-			    value, [value class]);      
+			    value, [value class]);
 
       formatted = [NSString stringWithFormat: @"'$%@'", value];
 
@@ -246,7 +246,7 @@
     {
       EOFLOGObjectLevelArgs(@"EOSQLExpression",
 			    @"Time case - value=%@ class=%@",
-			    value, [value class]);          
+			    value, [value class]);
 
       if ([[value description] length] == 0)
         {
@@ -258,18 +258,18 @@
         {
 	  NSString *format;
 
-	  format = [value descriptionWithCalendarFormat: 
+	  format = [value descriptionWithCalendarFormat:
 			    PSQLA_postgresCalendarFormat
 			  timeZone: nil
 			  locale: nil];
 
           formatted = [NSString stringWithFormat: @"'%@'", format];
-                                  
+
         }
       else
         formatted = [NSString stringWithFormat: @"'%@'",value];
     }
-  else if ([externalType isEqualToString: @"bytea"]) 
+  else if ([externalType isEqualToString: @"bytea"])
     {
       unsigned char *escapedString;
       size_t newLength;
@@ -319,7 +319,7 @@
             }
         }
 
-      formatted = [NSString stringWithFormat: @"'%@'", string];      
+      formatted = [NSString stringWithFormat: @"'%@'", string];
     }
 
   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"formatted=%@", formatted);
@@ -373,7 +373,7 @@
 
   if (lockClause)
     [sqlString appendFormat: @" %@", lockClause];
-  
+
   EOFLOGObjectFnStop();
 
   return sqlString;
@@ -388,13 +388,13 @@
   EOSQLExpression *expr;
 
   databaseName = [connDict objectForKey: @"databaseName"];
-  
+
   expr = [self expressionForString: nil];
   databaseName = [expr sqlStringForSchemaObjectName: databaseName];
   stmt = [NSString stringWithFormat:@"CREATE DATABASE %@", databaseName];
   [expr setStatement: stmt];
   newArray = [NSArray arrayWithObject: expr];
-  
+
   return newArray;
 }
 
@@ -412,7 +412,7 @@
   stmt = [NSString stringWithFormat:@"DROP DATABASE %@", databaseName];
   [expr setStatement: stmt];
   newArray = [NSArray arrayWithObject: expr];
-  
+
   return newArray;
 }
 
@@ -441,7 +441,7 @@
       EOSQLExpression *sqlExp;
       NSString *tableName;
       NSString *stmt;
-      
+
       if ([entity isAbstractEntity])
         {
   	  return [NSArray array];
@@ -495,7 +495,7 @@
 
 - (NSString *)tableListWithRootEntity: (EOEntity*)entity
 {
-  int contextStackCount=0;  
+  int contextStackCount=0;
   NSString *finalEntitiesString=nil;
 
   EOFLOGObjectFnStart();
@@ -507,7 +507,7 @@
 
   contextStackCount=[_contextStack count];
   if (contextStackCount>1 && _flags.hasOuterJoin)
-    {      
+    {
       // joins are added here and not in join clause.
       NSMutableString *entitiesString = [NSMutableString string];
       NSString *relationshipPath = nil ;
@@ -515,13 +515,13 @@
       int i = 0;
       int relPathIndex = 0;
       BOOL useAliases=[self useAliases];
-      
-      
+
+
       for(relPathIndex=0;relPathIndex<contextStackCount;relPathIndex++)
         {
           relationshipPath = [_contextStack objectAtIndex:relPathIndex];
           currentEntity = entity;
-          
+
           if ([relationshipPath isEqualToString: @""])
             {
               NSString *tableName = [currentEntity externalName];
@@ -532,21 +532,21 @@
 				    @"externalName=%@ tableName=%@",
                                     currentEntity, [currentEntity name],
                                     [currentEntity externalName], tableName);
-              
+
               NSAssert1([[currentEntity externalName] length]>0,
 			@"No external name for entity %@",
                         [currentEntity name]);
-              
+
               [entitiesString appendString: tableName];
-              
-              EOFLOGObjectLevelArgs(@"EOSQLExpression", 
+
+              EOFLOGObjectLevelArgs(@"EOSQLExpression",
 				    @"entitiesString=%@", entitiesString);
 
               if (useAliases)
                 [entitiesString appendFormat: @" %@",
                                 [_aliasesByRelationshipPath
                                   objectForKey: relationshipPath]];
-              EOFLOGObjectLevelArgs(@"EOSQLExpression", 
+              EOFLOGObjectLevelArgs(@"EOSQLExpression",
 				    @"entitiesString=%@", entitiesString);
             }
           else
@@ -562,44 +562,44 @@
               NSMutableString* joinOn=[NSMutableString string];
               EOJoinSemantic joinSemantic;
               NSString* joinOp = nil;
-              
+
               defArray = [relationshipPath componentsSeparatedByString: @"."];
               defEnum = [defArray objectEnumerator];
-              
+
               // Get the relationship for this path (non flattened by design)
               rel = [entity relationshipForPath: relationshipPath];
-              
+
               EOFLOGObjectLevelArgs(@"EOSQLExpression", @"rel=%@", rel);
               NSAssert2(rel, @"No relationship for path %@ in entity %@",
                         relationshipPath,
                         [entity name]);
-              
+
               //Get the auxiliary qualifier for this relationship
               auxiliaryQualifier = [rel auxiliaryQualifier];
-              
+
               if (auxiliaryQualifier)
                 {
                   NSEmitTODO();  //TODO
-                  [self notImplemented:_cmd]; 
+                  [self notImplemented:_cmd];
                 }
-	      
+
               while ((relationshipString = [defEnum nextObject]))
                 {
                   // use anyRelationshipNamed: to find hidden relationship too
-                  EORelationship *relationship=[currentEntity 
+                  EORelationship *relationship=[currentEntity
                                                  anyRelationshipNamed: relationshipString];
-                  
+
                   NSAssert2(relationship,@"No relationship named %@ in entity %@",
                             relationshipString,
                             [currentEntity name]);
-                  
+
                   NSAssert2(currentEntity,@"No destination entity. Entity %@ relationship = %@",
                             [currentEntity name],
                             relationship);
-                  
+
                   currentEntity = [relationship destinationEntity];
                 }
-              
+
               tableName = [currentEntity externalName];
 	      tableName = [self sqlStringForSchemaObjectName: tableName];
 
@@ -608,11 +608,11 @@
 				    @"externalName=%@ tableName=%@",
                                     currentEntity, [currentEntity name],
                                     [currentEntity externalName], tableName);
-              
+
               NSAssert1([[currentEntity externalName] length]>0,
 			@"No external name for entity %@",
                         [currentEntity name]);
-              
+
               joinSemantic = [rel joinSemantic];
               switch (joinSemantic)
                 {
@@ -629,12 +629,12 @@
                   joinOp = @"FULL OUTER JOIN";
                   break;
                 }
-              
+
               // Get relationship joins
               joins = [rel joins];
               count = [joins count];
               EOFLOGObjectLevelArgs(@"EOSQLExpression", @"joins=%@", joins);
-              
+
               // Iterate on each join
               for (i = 0; i < count; i++)
                 {
@@ -647,17 +647,17 @@
                   EOAttribute *destinationAttribute = [join destinationAttribute];
                   NSString *sourceAttributeAlias = nil;
                   NSString *destinationAttributeAlias = nil;
-                  
+
                   // Build the source relationshipPath
                   sourceRelationshipPathArray =
                     [relationshipPath componentsSeparatedByString: @"."];
                   sourceRelationshipPathArray =
                     [sourceRelationshipPathArray
                       subarrayWithRange:
-                        NSMakeRange(0,[sourceRelationshipPathArray count] - 1)];  
+                        NSMakeRange(0,[sourceRelationshipPathArray count] - 1)];
                   sourceRelationshipPath = [sourceRelationshipPathArray
                                              componentsJoinedByString: @"."];
-                  
+
                   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sourceRelationshipPath=%@", sourceRelationshipPath);
 
                   // Get the alias for sourceAttribute
@@ -666,64 +666,64 @@
                                              sourceAttribute
                                            relationshipPath:
                                              sourceRelationshipPath];
-                  
+
                   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"sourceAttributeAlias=%@", sourceAttributeAlias);
-                  
+
                   // Get the alias for destinationAttribute
                   destinationAttributeAlias =
                     [self _aliasForRelatedAttribute: destinationAttribute
                           relationshipPath: relationshipPath];
-                  
+
                   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"addJoin=%@ %d %@",
                                         sourceAttributeAlias,
                                         (int)joinSemantic,
                                         destinationAttributeAlias);
-                  
-                  
+
+
                   if (i>0)
                     [joinOn appendString:@", "];
-                  joinOn = [NSString stringWithFormat: @"%@ = %@", 
+                  joinOn = [NSString stringWithFormat: @"%@ = %@",
                                      sourceAttributeAlias,
                                      destinationAttributeAlias];
-                  
+
                   EOFLOGObjectLevelArgs(@"EOSQLExpression", @"joinOn=%@", joinOn);
                 }
-              
+
               [entitiesString appendFormat:@" %@ %@",
                               joinOp,
                               tableName];
-              
+
               EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
-              
+
               if (useAliases)
                 {
                   NSString *alias = [_aliasesByRelationshipPath
                                       objectForKey: relationshipPath];
-                  
+
                   [entitiesString appendFormat: @" %@",alias];
-                  
+
                   EOFLOGObjectLevelArgs(@"EOSQLExpression",
                                         @"appending alias %@ in entitiesString",
                                         alias);
                 }
               EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
-              
+
               [entitiesString appendFormat:@" on (%@) ",joinOn];
-              
+
               EOFLOGObjectLevelArgs(@"EOSQLExpression", @"entitiesString=%@", entitiesString);
             }
-          
+
           i++;
         }
       finalEntitiesString=entitiesString;
     }
   else
     finalEntitiesString=[super tableListWithRootEntity:entity];
-    
+
   EOFLOGObjectLevelArgs(@"EOSQLExpression",
                         @"finalEntitiesString=%@",
                         finalEntitiesString);
-  
+
   EOFLOGObjectFnStop();
 
   return finalEntitiesString;
@@ -745,8 +745,6 @@
       NSString *tmp;
       NSMutableString *str = [NSMutableString stringWithCapacity:
                                                 patternLength];
-      IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
-      
       for (s = p = init; *s; s++)
         {
           switch (*s)
@@ -756,7 +754,7 @@
 		{
 		  tmp = [(PSQLA_alloc(NSString)) initWithCString: p
 						 length: s-p];
-		  PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+		  [str appendString: tmp];
 		  [tmp release];
 		}
               [str appendString: @"%"];
@@ -767,10 +765,10 @@
 		{
 		  tmp = [(PSQLA_alloc(NSString)) initWithCString: p
 						 length: s-p];
-		  PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+		  [str appendString: tmp];
 		  [tmp release];
 		}
-              (*appendStringIMP)(str,@selector(appendString:),@"_");
+              [str appendString: @"_"];
               p = s+1;
               break;
             case '%':
@@ -778,44 +776,49 @@
 		{
 		  tmp = [(PSQLA_alloc(NSString)) initWithCString: p
 						 length: s-p];
-		  PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+		  [str appendString: tmp];
 		  [tmp release];
 		}
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  (*appendStringIMP)(str,@selector(appendString:),@"%]");
+                  [str appendFormat:@"%@"];
+                  // Wait, that's wrong.
+                  [str appendString:@"%"];
+                  [str appendString: @"]"];
                   p = s+2; s++;
                 }
               else
                 {
-                  (*appendStringIMP)(str,@selector(appendString:),@"[%]");
+                  [str appendString:@"["];
+                  [str appendString: @"%"];
+                  [str appendString: @"]"];
                   p = s+1;
                 }
               break;
 /*PostgreSQLql doesn't want [_] but want _
             case '_':
               if (s != p)
-                (*appendStringIMP)(str,@selector(appendString:),
+                ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),
                                    (*stringWithCString_lengthIMP)
                                    (PSQLA_NSStringClass,PSQLA_stringWithCString_lengthSEL,p,s-p));
-              
+
               if (s != init && *(s-1) == '[' && *(s+1) == ']')
                 {
-                  (*appendStringIMP)(str,@selector(appendString:),@"_]");
+                  ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),@"_]");
                   p = s+2; p++;
                 }
               else
                 {
-                  (*appendStringIMP)(str,@selector(appendString:),@"[_]");
+                  ((void (*)(id, SEL, id))appendStringIMP)(str,@selector(appendString:),@"[_]");
                   p = s+1;
                 }
               break;
 */
             }
         }
-      
+
       if (*p)
-        (*appendStringIMP)(str,@selector(appendString:),[NSString stringWithCString:p]);
+        [str appendString:[NSString stringWithCString:p]];
 
       sqlPattern=str;
     };
@@ -833,9 +836,7 @@
   NSString *tmp;
   NSMutableString *str = [NSMutableString stringWithCapacity:
 					    [pattern length]];
-  IMP appendStringIMP = [str methodForSelector:@selector(appendString:)];
-
-  for (s = p = init; *s; s++)
+for (s = p = init; *s; s++)
     {
       switch (*s)
         {
@@ -844,10 +845,10 @@
 	    {
 	      tmp = [(PSQLA_alloc(NSString)) initWithCString: p
 					     length: s-p];
-	      PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+	      [str appendString:tmp];
 	      [tmp release];
 	    }
-	  PSQLA_AppendStringWithImp(str,appendStringIMP,@"%");
+	  [str appendString:@"%"];
 	  p = s+1;
 	  break;
 	case '?':
@@ -855,10 +856,10 @@
 	    {
 	      tmp = [(PSQLA_alloc(NSString)) initWithCString: p
 					     length: s-p];
-	      PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+	      [str appendString:tmp];
 	      [tmp release];
 	    }
-	  PSQLA_AppendStringWithImp(str,appendStringIMP,@"_");
+	  [str appendString:@"_"];
 	  p = s+1;
 	  break;
 	case '%':
@@ -866,35 +867,34 @@
 	    {
 	      tmp = [(PSQLA_alloc(NSString)) initWithCString: p
 					     length: s-p];
-	      PSQLA_AppendStringWithImp(str, appendStringIMP, tmp);
+	      [str appendString:tmp];
 	      [tmp release];
 	    }
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      PSQLA_AppendStringWithImp(str,appendStringIMP,@"%]");
+	      [str appendString:@"%]"];
 	      p = s+2; s++;
 	    }
 	  else
 	    {
-	      PSQLA_AppendStringWithImp(str,appendStringIMP,@"[%]");
+	      [str appendString:@"[%]"];
 	      p = s+1;
 	    }
 	  break;
 /*PostgreSQLql doesn't want [_] but want _
 	case '_':
 	  if (s != p)
-	    PSQLA_AppendStringWithImp(str,appendStringIMP,
-            (*stringWithCString_lengthIMP)
-            (PSQLA_NSStringClass,PSQLA_stringWithCString_lengthSEL,p,s-p));
-	  
+	    [str appendString:(*stringWithCString_lengthIMP)
+            (PSQLA_NSStringClass,PSQLA_stringWithCString_lengthSEL,p,s-p)];
+
 	  if (s != init && *(s-1) == '[' && *(s+1) == ']')
 	    {
-	      PSQLA_AppendStringWithImp(str,appendStringIMP,@"_]");
+	      [str appendString:@"_]"];
 	      p = s+2; p++;
 	    }
 	  else
 	    {
-	      PSQLA_AppendStringWithImp(str,appendStringIMP,@"[_]");
+	      [str appendString:@"[_]"];
 	      p = s+1;
 	    }
 	  break;
@@ -903,7 +903,7 @@
     }
 
   if (*p)
-    PSQLA_AppendStringWithImp(str,appendStringIMP,[NSString stringWithCString:p]);
+    [str appendString:[NSString stringWithCString:p]];
 
   return str;
 }

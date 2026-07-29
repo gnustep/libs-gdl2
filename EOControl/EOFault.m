@@ -175,7 +175,7 @@ static Class EOFaultClass = NULL;
       
       [handler setTargetClass: [object class]
                extraData: fault->_handler];
-      fault->isa = self;
+      object_setClass(fault, self);
       fault->_handler = [handler retain];
       
       while (refs-- > 0)
@@ -191,7 +191,7 @@ static Class EOFaultClass = NULL;
   if (object == nil)
     return NO;
   else
-    return ((EOFault *)object)->isa == self;
+    return object_getClass(object) == self;
 }
 
 + (void)clearFault: (id)fault
@@ -213,7 +213,7 @@ static Class EOFaultClass = NULL;
     [handler faultWillFire: fault];
     
     // this will transfer our fault instance into an EO
-    aFault->isa = [handler targetClass];
+    object_setClass(aFault, [handler targetClass]);
     aFault->_handler = [handler extraData];
     
     // get the extra references to add them later to the EO
@@ -440,15 +440,15 @@ static Class EOFaultClass = NULL;
   EOFaultHandler *handler;
   Class fault;
 
-  fault = isa;
+  fault = object_getClass(self);
   handler = _handler;
 
-  isa = [handler targetClass];
+  object_setClass(self, [handler targetClass]);
   _handler = [handler extraData];
 
   hash = [self hash];
 
-  isa = fault;
+  object_setClass(self, fault);
   _handler = handler;
 
   return hash;

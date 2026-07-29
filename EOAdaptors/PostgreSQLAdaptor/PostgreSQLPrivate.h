@@ -71,80 +71,8 @@ _isNilOrEONull(id obj)
 
 
 // ---- NSEnumerator nextObject ----
-static inline id
-PSQLA_NextObjectWithImpPtr(id object,IMP* impPtr)
-{
-  if (object)
-    {
-      if (!*impPtr)
-	*impPtr=[object methodForSelector:@selector(nextObject)];
-      return (**impPtr)(object,@selector(nextObject));
-    }
-  else
-    return nil;
-};
-
-// ---- NSMutableString appendString: ----
-#define PSQLA_AppendStringWithImp(string,methodIMP,aString) \
-	(*(methodIMP))((string),@selector(appendString:),(aString))
-
-// ---- NSMutableArray addObject: ----
-static inline void
-PSQLA_AddObjectWithImpPtr(id object,IMP* impPtr,id objectToAdd)
-{
-  if (object)
-    {
-      if (!*impPtr)
-        *impPtr=[object methodForSelector:@selector(addObject:)];
-      (**impPtr)(object,@selector(addObject:),objectToAdd);
-    };
-};
-
-// ---- NSArray objectAtIndex: ----
-static inline id
-PSQLA_ObjectAtIndexWithImpPtr(id object,IMP* impPtr,unsigned index)
-{
-  if (object)
-    {
-      if (!*impPtr)
-        *impPtr=[object methodForSelector:@selector(objectAtIndex:)];
-      return (**impPtr)(object,@selector(objectAtIndex:),index);
-    }
-  else
-    return nil;
-};
-
-
-// ---- Dictionary objectForKey: ----
-static inline id
-PSQLA_ObjectForKeyWithImpPtr(id object,IMP* impPtr,id key)
-{
-  if (object)
-    {
-      if (!*impPtr)
-        *impPtr=[object methodForSelector:@selector(objectForKey:)];
-      return (**impPtr)(object,@selector(objectForKey:),key);
-    }
-  else
-    return nil;
-};
-
-// ---- Dictionary setObject:forKey: ----
-static inline void
-PSQLA_SetObjectForKeyWithImpPtr(id object,IMP* impPtr,id value, id key)
-{
-  if (object)
-    {
-      if (!*impPtr)
-        *impPtr=[object methodForSelector:@selector(setObject:forKey:)];
-      (**impPtr)(object,@selector(setObject:forKey:),value,key);
-    }
-};
-
 // ---- +alloc/+allocWithZone: ----
-#define PSQLA_alloc(CLASS_NAME) \
-	(*PSQLA_##CLASS_NAME##_allocWithZoneIMP) \
-	(PSQLA_##CLASS_NAME##Class,@selector(allocWithZone:),NULL) 
+#define PSQLA_alloc(CLASS_NAME) [CLASS_NAME alloc]
 
 
 #endif /* __PostgreSQLPrivate_h__ */

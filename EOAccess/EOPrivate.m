@@ -54,9 +54,6 @@ Class GDL2_EORelationshipClass=Nil;
 Class GDL2_EOEntityClass=Nil;
 
 // ==== IMPs ====
-IMP GDL2_EODatabaseContext_snapshotForGlobalIDIMP=NULL;
-IMP GDL2_EODatabaseContext__globalIDForObjectIMP=NULL;
-
 // ==== Init Method ====
 void GDL2_EOAccessPrivateInit()
 {
@@ -79,54 +76,4 @@ void GDL2_EOAccessPrivateInit()
 
     };
 }
-
-// ==== EODatabaseContext ====
-NSDictionary *
-EODatabaseContext_snapshotForGlobalIDWithImpPtr(EODatabaseContext* dbContext,
-						IMP* impPtr,
-						EOGlobalID* gid)
-{
-  if (dbContext)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (object_getClass(dbContext)==GDL2_EODatabaseContextClass
-              && GDL2_EODatabaseContext_snapshotForGlobalIDIMP)
-            imp=GDL2_EODatabaseContext_snapshotForGlobalIDIMP;
-          else
-            imp=[dbContext methodForSelector:@selector(snapshotForGlobalID:)];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(dbContext,@selector(snapshotForGlobalID:),gid);
-    }
-  else
-    return nil;
-};
-
-EOGlobalID* EODatabaseContext_globalIDForObjectWithImpPtr(EODatabaseContext* dbContext,IMP* impPtr,id object)
-{
-  if (dbContext)
-    {
-      IMP imp=NULL;
-      if (impPtr)
-        imp=*impPtr;
-      if (!imp)
-        {
-          if (object_getClass(dbContext)==GDL2_EODatabaseContextClass
-              && GDL2_EODatabaseContext__globalIDForObjectIMP)
-            imp=GDL2_EODatabaseContext__globalIDForObjectIMP;
-          else
-            imp=[dbContext methodForSelector:@selector(_globalIDForObject:)];
-          if (impPtr)
-            *impPtr=imp;
-        }
-      return (*imp)(dbContext,@selector(_globalIDForObject:),object);
-    }
-  else
-    return nil;
-};
 

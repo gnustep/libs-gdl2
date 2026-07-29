@@ -117,9 +117,7 @@ GDL2_DumpMethodList(Class cls, SEL sel, BOOL isInstance)
 					  &iterator, isInstance)))
     {
       GSMethod meth = GSMethodFromList(mList, sel, NO);
-      IMP imp = meth->method_imp;
-
-      fprintf(stderr,"List: %p Meth: %p Imp: %p\n",
+fprintf(stderr,"List: %p Meth: %p Imp: %p\n",
 	      mList, meth, imp);
     }
   fprintf(stderr,"List finished\n"); fflush(stderr);
@@ -152,15 +150,14 @@ GDL2_Activate(Class sup, Class cls)
 
   if (array)
     {
-      IMP oaiIMP=NULL;
-      NSUInteger count = [array count];
+NSUInteger count = [array count];
       results = [NSMutableArray array];
       if (count>0)
 	{
 	  NSUInteger i=0;
 	  for(i = 0; i < count; i++)
 	    {
-	      id object = GDL2_ObjectAtIndexWithImpPtr(array,&oaiIMP,i);
+	      id object = [array objectAtIndex:i];
 	      id result = [self performSelector: sel
 				withObject: object];
 	      if (!result)
@@ -204,11 +201,10 @@ GDL2_Activate(Class sup, Class cls)
 
   if (count>0)
     {
-      IMP oaiIMP=NULL;
-      NSUInteger i =0;
+NSUInteger i =0;
       for(i = 0; i < count; i++)
 	{
-	  id object = GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
+	  id object = [self objectAtIndex:i];
 	  id result = [object performSelector: sel];
 	  
 	  if (!result)
@@ -242,11 +238,10 @@ GDL2_Activate(Class sup, Class cls)
   NSUInteger count = [self count];
   if (count>0)
     {
-      IMP oaiIMP=NULL;
-      NSUInteger i=0;
+NSUInteger i=0;
       for(i = 0; i < count; i++)
         {
-	  id object = GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
+	  id object = [self objectAtIndex:i];
           id result = [object performSelector: sel
 			      withObject: obj1];
 
@@ -286,11 +281,10 @@ GDL2_Activate(Class sup, Class cls)
 
   if (count>0)
     {
-      IMP oaiIMP=NULL;
-      NSUInteger i=0;
+NSUInteger i=0;
       for(i = 0; i < count; i++)
         {
-	  id object = GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
+	  id object = [self objectAtIndex:i];
           id result = [object performSelector: sel
 			      withObject: obj1
 			      withObject: obj2];
@@ -355,11 +349,9 @@ GDL2_Activate(Class sup, Class cls)
   if (selfCount > 0 && _object) //else return nil
     {
       NSUInteger i=0;
-      IMP oaiIMP=NULL;
-
-      for (i = 0; i < selfCount; i++)
+for (i = 0; i < selfCount; i++)
         {
-          id object =  GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
+          id object =  [self objectAtIndex:i];
 
           if (object != _object)
             {
@@ -382,13 +374,12 @@ GDL2_Activate(Class sup, Class cls)
 
   if (count > 0)
     {
-      IMP oaiIMP=NULL;
-      NSUInteger i = 0;
+NSUInteger i = 0;
       NSMutableArray* tmpArray = [NSMutableArray arrayWithCapacity: count];
 
       for (i = 0; i < count; i++)
         {
-          id o = GDL2_ObjectAtIndexWithImpPtr(self,&oaiIMP,i);
+          id o = [self objectAtIndex:i];
 
           if ([o isEqual: object1])
             [tmpArray addObject: object2];
@@ -724,8 +715,7 @@ returnsRemovedValues:(NSArray**)removedValues
 	   withPointer: (void*) ptr
 {
   IMP msg;
-
-  if (selector == 0)
+if (selector == 0)
     [NSException raise: NSInvalidArgumentException
                 format: @"%@ null selector given", NSStringFromSelector(_cmd)];
   
@@ -737,7 +727,7 @@ returnsRemovedValues:(NSArray**)removedValues
       return nil;
     }
 
-  return (*msg)(self, selector, ptr);
+  return ((id (*)(id, SEL, void*))msg)(self, selector, ptr);
 }
 
 //Ayers: Review (Do we really need this?)
@@ -753,8 +743,7 @@ returnsRemovedValues:(NSArray**)removedValues
             withObject: (id) object3
 {
   IMP msg;
-
-  if (selector == 0)
+if (selector == 0)
     [NSException raise: NSInvalidArgumentException
                 format: @"%@ null selector given", NSStringFromSelector(_cmd)];
   
@@ -766,7 +755,7 @@ returnsRemovedValues:(NSArray**)removedValues
       return nil;
     }
 
-  return (*msg)(self, selector, object1, object2, object3);
+  return ((id (*)(id, SEL, id, id, id))msg)(self, selector, object1, object2, object3);
 }
 
 @end
@@ -795,13 +784,12 @@ returnsRemovedValues:(NSArray**)removedValues
 	}
       else
 	{
-	  IMP oaiIMP=NULL;
-	  NSUInteger            i = 0;
+NSUInteger            i = 0;
 	  mDict = [NSMutableDictionary dictionaryWithCapacity:keyCount];
       
 	  for (; i < keyCount; i++)
 	    {
-	      NSString * key = GDL2_ObjectAtIndexWithImpPtr(keys,&oaiIMP,i);
+	      NSString * key = [keys objectAtIndex:i];
 	      id         value = [otherDictionary valueForKey:key];
 	      
 	      if (!value)
@@ -829,14 +817,13 @@ returnsRemovedValues:(NSArray**)removedValues
     }
   else
     {
-      IMP oaiIMP=NULL;
-      NSMutableArray* buffer = [NSMutableArray arrayWithCapacity:count];
+NSMutableArray* buffer = [NSMutableArray arrayWithCapacity:count];
       NSUInteger      i = 0;
       NSString       * nullPlaceholder = @"__EOAdditionsDummy__";
   
       for (i = 0; i < count; i++)
 	{
-	  id key = GDL2_ObjectAtIndexWithImpPtr(currentKeys,&oaiIMP,i);
+	  id key = [currentKeys objectAtIndex:i];
 	  id value = [self objectForKey:key];
 	  
 	  if (!value)
@@ -874,11 +861,10 @@ returnsRemovedValues:(NSArray**)removedValues
   NSUInteger keysCount=[keys count];
   if (keysCount>0)
     {
-      IMP oaiIMP=NULL;
-      NSUInteger i=0;
+NSUInteger i=0;
       for(i=0;i<keysCount;i++)
         {
-	  id key = GDL2_ObjectAtIndexWithImpPtr(keys,&oaiIMP,i);
+	  id key = [keys objectAtIndex:i];
 	  id value = [dict objectForKey:key];
 	  if (value != nil)
 	    {
@@ -899,11 +885,10 @@ returnsRemovedValues:(NSArray**)removedValues
   NSUInteger   count = [values count];
   if (count>0)
     {
-      IMP oaiIMP=NULL;
-      NSUInteger   i = 0;
+NSUInteger   i = 0;
       for (; i < count; i++)
 	{
-	  if (GDL2_ObjectAtIndexWithImpPtr(values,&oaiIMP,i) == GDL2_EONull)
+	  if ([values objectAtIndex:i] == GDL2_EONull)
 	    return YES;
 	}
     }
@@ -917,12 +902,11 @@ returnsRemovedValues:(NSArray**)removedValues
 
   if (count > 0)
     {
-      IMP oaiIMP=NULL;
-      NSUInteger i = 0;
+NSUInteger i = 0;
       dict = [NSMutableDictionary dictionaryWithCapacity:count];
       for (i = 0; i < count; i++)
 	{
-	  NSString * key = GDL2_ObjectAtIndexWithImpPtr(keys,&oaiIMP,i);
+	  NSString * key = [keys objectAtIndex:i];
 	  [dict setObject:GDL2_EONull
 		forKey: key];
 	}    
