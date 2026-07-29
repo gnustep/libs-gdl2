@@ -1041,9 +1041,14 @@ for (i = 0; i < count; i++)
 	       sourceObjectFault, sourceObjectFault);
 
   // Get the fault value from source object
-
-
-  relationshipValue = [sourceObjectFault storedValueForKey: name];
+  if ([EOFault isFault: sourceObjectFault])
+    {
+      relationshipValue = nil;
+    }
+  else
+    {
+      relationshipValue = [sourceObjectFault storedValueForKey: name];
+    }
 
   NSDebugMLLog(@"EODatabaseContext", @"relationshipValue %p=%@",
 	       relationshipValue, relationshipValue);
@@ -1063,7 +1068,19 @@ for (i = 0; i < count; i++)
       EOGlobalID *snapGID = nil;
       id snapFault = nil;
       NSUInteger i;
-[EOFault clearFault: relationshipValue];
+
+      if (relationshipValue == nil)
+        {
+          relationshipValue = [EOCheapCopyMutableArray arrayWithCapacity: sourceSnapshotCount];
+        }
+      else if ([EOFault isFault: relationshipValue])
+        {
+          [EOFault clearFault: relationshipValue];
+        }
+      else
+        {
+          [relationshipValue removeAllObjects];
+        }
 
       // Be carefull: Never call methodForSelector before clearing fault !
 
@@ -1334,10 +1351,9 @@ for (i = 0; i < count; i++)
   [self prepareForSaveWithCoordinator: nil
 	editingContext: context];
 
-  [self recordChangesInEditingContext];
-
   NS_DURING
     {
+      [self recordChangesInEditingContext];
       [self performChanges];
     }
   NS_HANDLER
@@ -3001,7 +3017,6 @@ Raises an exception is the adaptor is unable to perform the operations.
       [_adaptorContext rollbackTransaction];
 
       _flags.beganTransaction = NO;
-      _flags.preparingForSave = NO;
 
       if (_lockedObjects)
 	{
@@ -3015,7 +3030,19 @@ Raises an exception is the adaptor is unable to perform the operations.
 */
     }
 
-
+  // prepareForSaveWithCoordinator:editingContext: sets these flags
+  // unconditionally, before any transaction begins (e.g. while obtaining
+  // primary keys for new rows, which itself needs a database connection).
+  // If the save fails before a transaction ever starts (the common case for
+  // a connection failure), _flags.beganTransaction is still NO here, so the
+  // block above never runs - but preparingForSave must still be cleared,
+  // otherwise this EODatabaseContext (one instance per model, shared for
+  // the life of the process) is permanently stuck refusing all further
+  // saves with "is currently saving for ... so it cannot prepare to save
+  // for ...", even after the underlying problem is resolved.
+  _flags.preparingForSave = NO;
+  _flags.willPrepareForSave = NO;
+  _editingContext = nil;
 }
 
 - (NSDictionary *)valuesForKeys: (NSArray *)keys

@@ -99,12 +99,17 @@ EOAccess.h
 
 DOCUMENT_NAME = EOAccess
 
+EOAccess_AGSDOC_LOCAL_DIR = EOAccess
+EOAccess_AGSDOC_INSTALL_BUNDLE = EOAccess
+EOAccess_DOC_INSTALL_DIR = Developer
+
 # autogsdoc scan the source files corresponding to the headers
 EOAccess_AGSDOC_FILES = EOAccess.gsdoc \
 	$(EOAccess_HEADER_FILES) \
 	$(EOAccess_OBJC_FILES)
 
 EOAccess_AGSDOC_FLAGS = \
+	-Verbose YES \
 	-Declared EOAccess \
 	-Project EOAccess \
 	-Up EOAccess \
@@ -116,11 +121,13 @@ ADDITIONAL_OBJCFLAGS = -Werror-implicit-function-declaration
 
 -include GNUmakefile.local
 
+ifeq ($(doc),only)
+include $(GNUSTEP_MAKEFILES)/documentation.make
+else
 include $(GNUSTEP_MAKEFILES)/native-library.make
-# Only build the doc if doc=yes was passed on the command line
 ifeq ($(doc),yes)
 include $(GNUSTEP_MAKEFILES)/documentation.make
 endif
-
+endif
 
 -include Makefile.postamble
