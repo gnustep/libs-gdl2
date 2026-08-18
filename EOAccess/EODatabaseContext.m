@@ -5884,7 +5884,7 @@ unsigned i = 0;
 
   entity = [_database entityForObject: object];
 
-  EOGlobalID *gid = [self globalIDForObject:object];
+  EOGlobalID *gid = [self _globalIDForObject:object];
 
   pk = [entity primaryKeyForGlobalID: (EOKeyGlobalID*)gid]; //OK
 
