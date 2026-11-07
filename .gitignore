@@ -1,0 +1,38 @@
+# Autoconf cache and configuration outputs
+/autom4te.cache/
+/config.cache
+/config.log
+/config.status
+/config.h
+/config.make
+/gdl2.make
+/GNUmakefile
+/EOAdaptors/GNUmakefile
+/EOAdaptors/PostgreSQLAdaptor/GNUmakefile
+/EOAdaptors/PostgreSQLAdaptor/config.mak
+/EOAdaptors/SQLiteAdaptor/GNUmakefile
+/EOControl/**/config.h
+
+# GNUstep build products and copied subproject resources
+obj/
+derived_src/
+*.app/
+*.bundle/
+*.framework/
+*.palette/
+**/Resources/Subproject/
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.dSYM/
+
+# Editor backups and desktop metadata
+*~
+\#*#
+.#*
+*.swp
+*.swo
+.DS_Store
