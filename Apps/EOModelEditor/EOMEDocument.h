@@ -29,7 +29,6 @@
 #define __EOMEDocument_h
 
 #include <AppKit/AppKit.h>
-#include <Renaissance/Renaissance.h>
 #include <EOAccess/EOModel.h>
 #include <EOModeler/EODefines.h>
 
@@ -41,7 +40,7 @@ GDL2MODELER_EXPORT NSString *EOMConsistencyModelObjectKey;
 
 @class TableViewController;
 
-@interface EOMEDocument : GSMarkupDocument
+@interface EOMEDocument : NSDocument
 {
   IBOutlet NSOutlineView           * _outlineView;
   IBOutlet NSTableView             * _topTableView;

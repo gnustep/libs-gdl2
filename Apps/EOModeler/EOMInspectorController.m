@@ -127,6 +127,17 @@ NSString *EOMSelectionChangedNotification = @"EOModelerSelectionChanged";
   if ([inspector view] && lastInspector != inspector) {
     //    NSRect bounds = [[inspector view] bounds];
     
+    /* Native inspectors size their content to fit the controls. */
+    NSSize contentSize = [[inspector view] frame].size;
+    CGFloat barHeight = [scrollView frame].size.height;
+
+    contentSize.width = MAX (272, contentSize.width);
+    contentSize.height = MAX (388, contentSize.height);
+    [window setContentSize: NSMakeSize (contentSize.width,
+                                      contentSize.height + barHeight)];
+    [scrollView setFrame: NSMakeRect (0, contentSize.height,
+                                     contentSize.width, barHeight)];
+
     [[window contentView] addSubview:[inspector view]
                           positioned:NSWindowBelow
                           relativeTo:scrollView];

@@ -26,7 +26,7 @@
  **/
 
 #import "DataBrowser.h"
-#import <Renaissance/Renaissance.h>
+#include <EOModeler/EOMInterface.h>
 #import "TableViewController.h"
 #import <EOControl/EOControl.h>
 
@@ -60,7 +60,7 @@ static DataBrowser *sharedDataBrowser = nil;
   }
   self = [super init];
 
-  [NSBundle loadGSMarkupNamed: @"DataBrowser" owner: self];
+  EOMLoadInterface (@"DataBrowser", self);
 
   [_window setFrameUsingName:NSStringFromClass([self class])];
 
@@ -126,7 +126,7 @@ static DataBrowser *sharedDataBrowser = nil;
   [super dealloc];
 }
 
-- (void) awakeFromGSMarkup
+- (void) awakeFromNib
 {
 }
 

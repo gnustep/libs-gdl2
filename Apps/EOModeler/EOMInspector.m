@@ -39,7 +39,7 @@
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 
-#include <Renaissance/Renaissance.h>
+#include <EOModeler/EOMInterface.h>
 
 static NSMapTable *_inspectorsByClass;
 
@@ -162,10 +162,9 @@ static NSMapTable *_inspectorsByClass;
 - (void) load
 {
   
-  if (![NSBundle loadGSMarkupNamed:NSStringFromClass([self class]) 
-                             owner:self])
+  if (!EOMLoadInterface (NSStringFromClass([self class]), self))
   {
-    NSLog(@"failed to load: %@.gsmarkup", NSStringFromClass([self class]));
+    NSLog(@"failed to load: %@ interface", NSStringFromClass([self class]));
   }
   
   

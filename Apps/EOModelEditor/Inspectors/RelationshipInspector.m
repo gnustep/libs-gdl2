@@ -75,7 +75,7 @@
 //
 
 
-- (void) awakeFromGSMarkup
+- (void) awakeFromNib
 {
   [destinationEntityBrowser setAllowsEmptySelection:NO];
   [sourceBrowser setAllowsEmptySelection:NO];

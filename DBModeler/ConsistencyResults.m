@@ -37,7 +37,7 @@
 #include <AppKit/NSTextStorage.h>
 #endif
 
-#include <Renaissance/Renaissance.h>
+#include <EOModeler/EOMInterface.h>
 
 static ConsistencyResults *_sharedResults;
 
@@ -53,7 +53,7 @@ static ConsistencyResults *_sharedResults;
 - (id) init
 {
   self = [super init];
-  [NSBundle loadGSMarkupNamed:@"ConsistencyResults" owner:self];
+  EOMLoadInterface (@"ConsistencyResults", self);
   successful = YES;
   return self;
 }

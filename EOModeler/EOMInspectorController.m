@@ -178,7 +178,31 @@ static NSMatrix *_iconBar;
                 [[lastInspector view] removeFromSuperview];
 
 	      if ([inspector view] && lastInspector != inspector)
-	        [[window contentView] addSubview:[inspector view]];
+
+	        {
+
+	          NSSize contentSize = [[inspector view] frame].size;
+
+	          CGFloat barHeight = [scrollView frame].size.height;
+
+
+	          contentSize.width = MAX (272, contentSize.width);
+
+	          contentSize.height = MAX (388, contentSize.height);
+
+	          [window setContentSize: NSMakeSize (contentSize.width,
+
+	                                            contentSize.height + barHeight)];
+
+	          [scrollView setFrame: NSMakeRect (0, contentSize.height,
+
+	                                           contentSize.width, barHeight)];
+
+	          [[window contentView] addSubview: [inspector view]];
+
+	          [[inspector view] setFrameOrigin: NSZeroPoint];
+
+	        }
 
 	      [window setTitle:[inspector displayName]];
 	    }
@@ -212,7 +236,31 @@ static NSMatrix *_iconBar;
     [[lastInspector view] removeFromSuperview];
 
   if ([inspector view] && lastInspector != inspector)
-    [[window contentView] addSubview:[inspector view]];
+
+    {
+
+      NSSize contentSize = [[inspector view] frame].size;
+
+      CGFloat barHeight = [scrollView frame].size.height;
+
+
+      contentSize.width = MAX (272, contentSize.width);
+
+      contentSize.height = MAX (388, contentSize.height);
+
+      [window setContentSize: NSMakeSize (contentSize.width,
+
+                                        contentSize.height + barHeight)];
+
+      [scrollView setFrame: NSMakeRect (0, contentSize.height,
+
+                                       contentSize.width, barHeight)];
+
+      [[window contentView] addSubview: [inspector view]];
+
+      [[inspector view] setFrameOrigin: NSZeroPoint];
+
+    }
 	  
   [[inspector view] setNeedsDisplay:YES];
   [inspector refresh];

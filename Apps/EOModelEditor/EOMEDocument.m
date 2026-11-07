@@ -25,6 +25,7 @@
  </license>
  **/
 
+#include <EOModeler/EOMInterface.h>
 #import "EOMEDocument.h"
 #import "EOMEEOAccessAdditions.h"
 #import "TableViewController.h"
@@ -108,10 +109,10 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   ASSIGN(_eomodel, model);
 }
 
-- (NSString *)windowNibName 
+- (void) makeWindowControllers
 {
-    // Implement this to return a nib to load OR implement -makeWindowControllers to manually create your controllers.
-    return @"EOMEDocument";
+  if ([[self windowControllers] count] == 0)
+    EOMLoadInterface (@"EOMEDocument", self);
 }
 
 - (NSButtonCell*) _cellWithImageNamed:(NSString*) aName
@@ -285,7 +286,7 @@ NSString *EOMConsistencyModelObjectKey = @"EOMConsistencyModelObjectKey";
   
 }
 
-- (void) awakeFromGSMarkup
+- (void) awakeFromNib
 {
   //NSImage * smartImage = [NSImage imageNamed:@"gear"];
   

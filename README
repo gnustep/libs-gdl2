@@ -10,7 +10,8 @@ against the following package versions:
 - the Base Package 1.16.3
 - the GUI/Back Package 1.14.0
 - the GORM Package 1.2.6
-- the Renaissance SVN Version 27301 (0.10.0 prerelease)
+
+The model editors use native AppKit interfaces and do not require Renaissance.
 
 GDL2 consists of the following components:
 

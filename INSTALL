@@ -34,3 +34,13 @@ install. Some additional options you can use with make are `debug=yes'
 to make a debugging version of the library and `shared=no' to make a
 static version of the library. See the gnustep-make package for more
 information on these options.
+
+Native interface checks
+=======================
+
+With GNUstep GUI, a backend, clang, and xvfb-run installed, run:
+
+    Tests/run-native-interfaces.sh
+
+This builds and instantiates both editors' native interfaces, checks outlet
+construction and resize behavior, and does not link Renaissance.

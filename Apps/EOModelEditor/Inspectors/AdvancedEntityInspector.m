@@ -106,7 +106,7 @@ EOModelerApp *EOMApp;
   }
 }
 
-- (void) awakeFromGSMarkup
+- (void) awakeFromNib
 {
   [self initColums];
   _tableViewController = [TableViewController new];

@@ -34,13 +34,11 @@
 
 #include "EOModelEditorApp.h"
 
-#include <Renaissance/Renaissance.h>
+#include <EOModeler/EOMInterface.h>
 
 #include <GNUstepBase/GNUstep.h>
 
 
-// required for windows.
-int (*linkRenaissanceIn)(int, const char **) = GSMarkupApplicationMain; 
 
 int main (int argc, const char **argv)
 {
@@ -52,9 +50,9 @@ int main (int argc, const char **argv)
 
   
 #ifdef NeXT_GUI_LIBRARY
-  [NSBundle loadGSMarkupNamed: @"Menu-Cocoa" owner: NSApp];
+  EOMLoadInterface (@"Menu-Cocoa", NSApp);
 #else
-  [NSBundle loadGSMarkupNamed: @"Menu-GNUstep" owner: NSApp];
+  EOMLoadInterface (@"Menu-GNUstep", NSApp);
 #endif
   
   [NSApp run];
