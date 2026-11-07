@@ -37,7 +37,7 @@
 #define NO_ZEROS(x, i) i ? [x setIntValue:i] : [x setStringValue:@""];
 
 @implementation AttributeInspector
-- (void) awakeFromGSMarkup //awakeFromNib
+- (void) awakeFromNib //awakeFromNib
 {
   RETAIN(_internalData);
   _flipDict =

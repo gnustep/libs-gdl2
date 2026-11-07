@@ -58,7 +58,7 @@
 }
 
 
-- (void) awakeFromGSMarkup
+- (void) awakeFromNib
 {
   _tableViewController = [TableViewController new];
 

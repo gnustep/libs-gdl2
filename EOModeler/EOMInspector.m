@@ -25,6 +25,7 @@
   </license>
 **/
 
+#include <EOModeler/EOMInterface.h>
 #include <AppKit/AppKit.h>
 
 #ifdef NeXT_Foundation_LIBRARY
@@ -162,10 +163,9 @@ static NSMapTable *_inspectorsByClass;
 - (void) load
 {
   
-  if (![NSBundle loadGSMarkupNamed:NSStringFromClass([self class]) 
-                             owner:self])
+  if (!EOMLoadInterface (NSStringFromClass([self class]), self))
   {
-    NSLog(@"failed to load: %@.gsmarkup", NSStringFromClass([self class]));
+    NSLog(@"failed to load: %@ interface", NSStringFromClass([self class]));
   }
   
   

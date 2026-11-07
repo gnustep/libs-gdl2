@@ -1,0 +1,89 @@
+#
+#  PostgreSQL makefile for GNUstep Database Library.
+#  
+#  Copyright (C) 2000-2002,2003,2004,2005 Free Software Foundation, Inc.
+#
+#  Author: Mirko Viviani <mirko.viviani@gmail.com>
+#
+#  This file is part of the GNUstep Database Library.
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Library General Public
+#  License as published by the Free Software Foundation; either
+#  version 3 of the License, or (at your option) any later version.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+#  Library General Public License for more details.
+#
+#  You should have received a copy of the GNU Library General Public
+#  License along with this library; see the file COPYING.LIB.
+#  If not, write to the Free Software Foundation, Inc.,
+#  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+
+include ../../common.make
+include $(GNUSTEP_MAKEFILES)/common.make
+include ../../Version
+
+POSTGRES_DATABASE=yes
+
+# The framework to be compiled
+FRAMEWORK_NAME=PostgreSQLEOAdaptor
+SUBPROJECTS = LoginPanel
+
+PostgreSQLEOAdaptor_NEEDS_GUI = yes
+# The framework principal class
+PostgreSQLEOAdaptor_PRINCIPAL_CLASS = PostgreSQLAdaptor
+
+# The framework Objective-C source files to be compiled
+PostgreSQLEOAdaptor_OBJC_FILES = \
+PostgreSQLAdaptor.m \
+PostgreSQLContext.m \
+PostgreSQLChannel.m \
+PostgreSQLExpression.m \
+PostgreSQLPrivate.m
+
+PostgreSQLEOAdaptor_HEADER_FILES = \
+PostgreSQLAdaptor.h \
+PostgreSQLContext.h \
+PostgreSQLChannel.h \
+PostgreSQLExpression.h
+
+
+PostgreSQLEOAdaptor_AUTOGSDOC_HEADERS = $(PostgreSQLEOAdaptor_HEADER_FILES)
+PostgreSQLEOAdaptor_AUTOGSDOC_SOURCE = $(PostgreSQLEOAdaptor_OBJC_FILES)
+DOCUMENT_NAME = PostgreSQLEOAdaptor
+PostgreSQLEOAdaptor_AGSDOC_FILES = PostgreSQLEOAdaptor.gsdoc $(PostgreSQLEOAdaptor_AUTOGSDOC_HEADERS) 
+#$(PostgreSQLEOAdaptor_AUTOGSDOC_SOURCE)
+PostgreSQLEOAdaptor_AGSDOC_FLAGS = \
+	-Declared Foundation \
+	-Standards YES \
+	-SystemProjects System \
+	-Project PostgreSQLEOAdaptor \
+	-WordMap '{\
+	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
+	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
+	GS_EXPORT=extern;GS_DECLARE="";\
+	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
+	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
+	}' -Up PostgreSQLEOAdaptor
+
+
+-include Makefile.preamble
+
+-include GNUmakefile.local
+
+ifeq ($(POSTGRES_DATABASE),yes)
+include $(GNUSTEP_MAKEFILES)/framework.make
+include $(GNUSTEP_MAKEFILES)/aggregate.make
+else
+include $(GNUSTEP_MAKEFILES)/rules.make
+endif
+# Only build the doc if doc=yes was passed on the command line
+ifeq ($(doc),yes)
+include $(GNUSTEP_MAKEFILES)/documentation.make
+endif
+
+-include Makefile.postamble

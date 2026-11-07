@@ -1,0 +1,13 @@
+{
+    Classes = (
+	PostgreSQLAdaptor,
+	PostgreSQLContext,
+	PostgreSQLChannel,
+	PostgreSQLExpression
+    );
+    EOAdaptorClassName = PostgreSQLAdaptor;
+    NOTE = "Automatically generated, do not edit!";
+    NSExecutable = PostgreSQLEOAdaptor;
+    NSMainNibFile = "";
+    NSPrincipalClass = PostgreSQLAdaptor;
+}

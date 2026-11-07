@@ -43,12 +43,10 @@ endif
 
 ADDITIONAL_INCLUDE_DIRS+=-I../..
 ADDITIONAL_NATIVE_LIB_DIRS+=../../EOAccess ../../EOControl ../EOModeler
-ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOModeler Renaissance 
+ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOModeler
 
 $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/ModelDrag.tiff		\
-	Resources/SQLGenerator.gsmarkup	\
-	Resources/EOMEDocument.gsmarkup	\
 	Resources/EOModelEditorInfo.plist    	\
 	Resources/Key_Diagram.tiff		\
 	Resources/Key_Header.tiff		\
@@ -70,11 +68,7 @@ $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/dimple.tiff		\
 	Resources/nodimple.tiff		\
 	Resources/AllowsNull_Header.tiff	\
-	Resources/Menu-Cocoa.gsmarkup	\
-	Resources/Menu-GNUstep.gsmarkup \
 	Resources/Credits.rtf \
-	Resources/ConsistencyResults.gsmarkup \
-  Resources/DataBrowser.gsmarkup \
   Resources/PlusCorner.tiff
 
 $(APP_NAME)_OBJC_FILES =		\
@@ -92,5 +86,15 @@ $(APP_NAME)_OBJC_FILES =		\
   CodeGenerator.m \
   DataBrowser.m \
   EOWindow.m
+
+EOModelEditor_OBJC_FILES += \
+  Resources/ConsistencyResultsInterface.m \
+  Resources/DataBrowserInterface.m \
+  Resources/EOMEDocumentInterface.m \
+  Resources/Menu-CocoaInterface.m \
+  Resources/Menu-GNUstepInterface.m \
+  Resources/SQLGeneratorInterface.m
+
+$(APP_NAME)_OBJC_FILES += ../../EOModeler/EOMLayoutView.m
 
 include $(GNUSTEP_MAKEFILES)/application.make

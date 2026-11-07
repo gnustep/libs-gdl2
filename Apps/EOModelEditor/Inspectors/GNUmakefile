@@ -33,7 +33,6 @@ Inspectors_NEEDS_GUI=yes
 Inspectors_HAS_RESOURCE_BUNDLE=yes
 
 Inspectors_RESOURCE_FILES+=	\
-    RelationshipInspector.gsmarkup	\
     RelationshipInspector.tiff \
     EntityInspector.tiff \
     AdvancedRelationshipInspector.tiff \
@@ -44,19 +43,8 @@ Inspectors_RESOURCE_FILES+=	\
     ConnectionDictionaryInspector.tiff  \
     UserInfoInspector.tiff
 
-
 Inspectors_OBJC_FILES+=RelationshipInspector.m
 
-Inspectors_RESOURCE_FILES+=AttributeInspector.gsmarkup \
-      AdvancedRelationshipInspector.gsmarkup \
-      AdvancedEntityInspector.gsmarkup \
-      EntityInspector.gsmarkup \
-      AdvancedAttributeInspector.gsmarkup \
-      StoredProcedureInspector.gsmarkup \
-      ConnectionDictionaryInspector.gsmarkup \
-      UserInfoInspector.gsmarkup \
-      EntityStoredProcedureInspector.gsmarkup
-      
 Inspectors_OBJC_FILES+=AttributeInspector.m
 
 Inspectors_OBJC_FILES+=AdvancedEntityInspector.m \
@@ -67,5 +55,17 @@ Inspectors_OBJC_FILES+=AdvancedEntityInspector.m \
     ConnectionDictionaryInspector.m \
     UserInfoInspector.m \
     EntityStoredProcedureInspector.m
+
+Inspectors_OBJC_FILES += \
+  AdvancedAttributeInspectorInterface.m \
+  AdvancedEntityInspectorInterface.m \
+  AdvancedRelationshipInspectorInterface.m \
+  AttributeInspectorInterface.m \
+  ConnectionDictionaryInspectorInterface.m \
+  EntityInspectorInterface.m \
+  EntityStoredProcedureInspectorInterface.m \
+  RelationshipInspectorInterface.m \
+  StoredProcedureInspectorInterface.m \
+  UserInfoInspectorInterface.m
 
 include $(GNUSTEP_MAKEFILES)/subproject.make

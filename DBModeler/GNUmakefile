@@ -39,11 +39,10 @@ endif
 
 ADDITIONAL_INCLUDE_DIRS+=-I../
 ADDITIONAL_NATIVE_LIB_DIRS+=../EOAccess ../EOControl ../EOInterface ../EOModeler
-ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOInterface EOModeler Renaissance
+ADDITIONAL_NATIVE_LIBS += EOAccess EOControl EOInterface EOModeler
 
 $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/ModelDrag.tiff		\
-	Resources/SQLGenerator.gsmarkup	\
 	Resources/Info-gnustep.plist    	\
 	Resources/Key_Diagram.tiff		\
 	Resources/Key_Header.tiff		\
@@ -58,10 +57,7 @@ $(APP_NAME)_RESOURCE_FILES =			\
 	Resources/DBModeler.tiff		\
 	Resources/DBModeler.icns		\
 	Resources/AllowsNull_On.tiff		\
-	Resources/AllowsNull_Header.tiff	\
-	Resources/Menu-Cocoa.gsmarkup	\
-	Resources/Menu-GNUstep.gsmarkup \
-	Resources/ConsistencyResults.gsmarkup
+	Resources/AllowsNull_Header.tiff
 
 $(APP_NAME)_OBJC_FILES =		\
 	main.m				\
@@ -84,5 +80,13 @@ $(APP_NAME)_OBJC_FILES =		\
 	EntityView.m			\
 	DiagramEditor.m \
   CodeGenerator.m
+
+DBModeler_OBJC_FILES += \
+  Resources/ConsistencyResultsInterface.m \
+  Resources/Menu-CocoaInterface.m \
+  Resources/Menu-GNUstepInterface.m \
+  Resources/SQLGeneratorInterface.m
+
+$(APP_NAME)_OBJC_FILES += ../EOModeler/EOMLayoutView.m
 
 include $(GNUSTEP_MAKEFILES)/application.make

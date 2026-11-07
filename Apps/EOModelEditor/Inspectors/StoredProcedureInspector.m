@@ -53,7 +53,7 @@
   [super dealloc];
 }
 
-- (void) awakeFromGSMarkup
+- (void) awakeFromNib
 {
   
 }

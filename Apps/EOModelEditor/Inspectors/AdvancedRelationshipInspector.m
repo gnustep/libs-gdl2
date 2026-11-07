@@ -73,7 +73,7 @@ NSLog(@"selectedEntity not implemented");
 
 
 
-- (void) awakeFromGSMarkup
+- (void) awakeFromNib
 {
   
 }

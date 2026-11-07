@@ -1,0 +1,7 @@
+*.app
+obj
+*.log
+*.make
+*.status
+*.palette
+*.framework
